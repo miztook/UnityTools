@@ -1,0 +1,1888 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="pbc">
+      <UniqueIdentifier>{b5201850-e919-4110-91ef-f446d81f558e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="luavm">
+      <UniqueIdentifier>{25db6776-3edf-4149-ad0f-7793190bee9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AutoNavigation">
+      <UniqueIdentifier>{c2eac8df-254b-4b06-975d-68800738fe75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base">
+      <UniqueIdentifier>{c21d0f81-8174-4d98-877f-812a7ed39544}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{6c1a2e02-728e-4ad0-a71c-c7d6a21bb59a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\Windows">
+      <UniqueIdentifier>{b1048d2a-dc65-4b5f-970b-4d9479d6b68d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\XOS">
+      <UniqueIdentifier>{ad90f082-4c2d-438b-8f8b-3291adbdc9e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\Android">
+      <UniqueIdentifier>{b61137ac-26ea-4792-b2f4-f532d9cae7be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{b67f02fe-d504-4a73-a7dd-cc3133f80e59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SkillCollision">
+      <UniqueIdentifier>{85ee054f-c55c-4a48-a2af-ff4e29fcf21b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="updatelib">
+      <UniqueIdentifier>{36304076-2e84-492d-ae68-05b8d1df13b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd">
+      <UniqueIdentifier>{cca82ece-76ed-4baa-a86c-20f170d07df7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd\7zDecode">
+      <UniqueIdentifier>{7de77ef1-b180-44cf-a7ec-1d3643448ed3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd\curl">
+      <UniqueIdentifier>{f6ecc835-0eba-4eec-b5b9-53793faebf22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd\curl\include">
+      <UniqueIdentifier>{a8e1a48e-e3c3-4f9d-a23f-2fd78f5ed003}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd\curl\include\curl">
+      <UniqueIdentifier>{211ae7c0-1d9e-4b38-8119-5800252eebf7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd\curl\src">
+      <UniqueIdentifier>{f83a08b8-40cf-4464-8edf-6397e7d3fbf4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd\curl\shim">
+      <UniqueIdentifier>{933e0a57-19f2-43c9-ac7c-3ec14a3922b2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\source\lpeg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\bit.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\pb.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\pbc\src\array.c">
+      <Filter>pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\pbc\src\bootstrap.c">
+      <Filter>pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\pbc\src\context.c">
+      <Filter>pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\pbc\src\decode.c">
+      <Filter>pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\pbc\src\map.c">
+      <Filter>pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\pbc\src\pattern.c">
+      <Filter>pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\pbc\src\proto.c">
+      <Filter>pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\pbc\src\register.c">
+      <Filter>pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\pbc\src\rmessage.c">
+      <Filter>pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\pbc\src\stringpool.c">
+      <Filter>pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\pbc\src\varint.c">
+      <Filter>pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\pbc\src\wmessage.c">
+      <Filter>pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\pbc\binding\lua\pbc-lua.c">
+      <Filter>pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\profiler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\auxiliar.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\buffer.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\except.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\inet.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\io.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\lapi.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\lauxlib.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\lbaselib.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\lcode.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\ldblib.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\ldebug.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\ldo.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\ldump.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\lfunc.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\lgc.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\linit.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\liolib.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\llex.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\lmathlib.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\lmem.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\loadlib.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\lobject.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\lopcodes.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\loslib.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\lparser.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\lstate.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\lstring.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\lstrlib.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\ltable.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\ltablib.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\ltm.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\luasocket.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\lundump.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\lvm.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\lzio.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\mime.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\options.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\print.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\select.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\tcp.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\udp.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\wsocket.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luavm\src\timeout.c">
+      <Filter>luavm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\lua_wrap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\LuaUInt64.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\AString.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\ASys.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Platform\Windows\AWinSys.cpp">
+      <Filter>Platform\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Platform\Android\AAndroidSys.cpp">
+      <Filter>Platform\Android</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Platform\Windows\AWinMemDbg.cpp">
+      <Filter>Platform\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Platform\Windows\AWinMiniDump.cpp">
+      <Filter>Platform\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\ALog.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\AFI.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\AFramework.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\AutoNavigation.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\NavFunctions.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\NavMesh.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\NavMoveAgent.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\NavQuery.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\AFile.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\AFileImage.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\AFilePackage.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\AFilePackBase.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\AAssist.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\Common\CMd5Hash.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\NavCrowd.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\SkillCollision\EC_SkillCollisionShape.cpp">
+      <Filter>SkillCollision</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\SkillCollision\LuaSkillCollision.cpp">
+      <Filter>SkillCollision</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\A3DMatrix.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\A3DFuncs.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\A3DQuaternion.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\navmesh_export.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HDetourAlloc.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HDetourCommon.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HDetourCrowd.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HDetourLocalBoundary.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HDetourProximityGrid.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HDetourPathQueue.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HDetourPathCorridor.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HDetourObstacleAvoidance.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HDetourNode.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HDetourNavMeshQuery.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HDetourNavMeshBuilder.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HDetourNavMesh.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HRecast.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HRecastAlloc.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HRecastArea.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HRecastRegion.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HRecastRasterization.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HRecastMeshDetail.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HRecastMesh.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HRecastLayers.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HRecastFilter.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\AutoNavigation\HRecastContour.cpp">
+      <Filter>AutoNavigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\BinaryReadWrite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\skillcollision_export.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\AFilePackage.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\ASysThread.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\lua_export.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\luastate_export.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\hoba_export.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\LuaUtility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\AFilePackGame.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\AFilePackMan.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\csshare\Common\elementpckdir.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\fileimage_export.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\ASysCodeCvt.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\updatelib\7zReader.cpp">
+      <Filter>updatelib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\updatelib\FileOperate.cpp">
+      <Filter>updatelib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\updatelib\packfunc_export.cpp">
+      <Filter>updatelib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\A3DGeometry.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\updatelib\7zreader_export.cpp">
+      <Filter>updatelib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\updatelib\VersionMan.cpp">
+      <Filter>updatelib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\pbc\src\pballoc.c">
+      <Filter>pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\A3DCollision.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\Base\A3DTrace.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\hobaserver_export.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\shim\LibCurlShim.c">
+      <Filter>3rd\curl\shim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\shim\shm_array.c">
+      <Filter>3rd\curl\shim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\shim\shm_assert.c">
+      <Filter>3rd\curl\shim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\shim\shm_except.c">
+      <Filter>3rd\curl\shim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\shim\shm_list.c">
+      <Filter>3rd\curl\shim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\shim\shm_mem.c">
+      <Filter>3rd\curl\shim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\shim\shm_seq.c">
+      <Filter>3rd\curl\shim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\shim\shm_table.c">
+      <Filter>3rd\curl\shim</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\amigaos.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\asyn-ares.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\asyn-thread.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\axtls.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\base64.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\bundles.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\conncache.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\connect.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\content_encoding.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\cookie.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_addrinfo.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_darwinssl.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_fnmatch.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_gethostname.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_gssapi.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_memrchr.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_multibyte.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_ntlm.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_ntlm_core.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_ntlm_msgs.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_ntlm_wb.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_rand.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_rtmp.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_sasl.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_schannel.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_select.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_share.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_sspi.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\curl_threads.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\cyassl.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\dict.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\easy.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\escape.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\file.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\fileinfo.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\formdata.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\ftp.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\ftplistparser.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\getenv.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\getinfo.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\gopher.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\gtls.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\hash.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\hmac.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\hostasyn.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\hostcheck.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\hostip.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\hostip4.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\hostip6.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\hostsyn.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\http.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\http_chunks.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\http_digest.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\http_negotiate.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\http_negotiate_sspi.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\http_proxy.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\idn_win32.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\if2ip.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\imap.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\inet_ntop.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\inet_pton.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\krb4.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\krb5.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\ldap.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\llist.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\md4.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\md5.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\memdebug.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\mprintf.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\multi.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\netrc.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\non-ascii.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\nonblock.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\nss.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\nwlib.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\nwos.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\openldap.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\parsedate.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\pingpong.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\pipeline.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\polarssl.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\polarssl_threadlock.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\pop3.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\progress.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\qssl.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\rawstr.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\rtsp.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\security.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\sendf.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\slist.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\smtp.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\socks.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\socks_gssapi.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\socks_sspi.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\speedcheck.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\splay.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\ssh.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\sslgen.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\ssluse.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\strdup.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\strequal.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\strerror.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\strtok.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\strtoofft.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\telnet.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\tftp.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\timeval.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\transfer.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\url.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\version.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\warnless.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\curl\src\wildcard.c">
+      <Filter>3rd\curl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\curl_export.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\curl_shim_export.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\7zAlloc.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\7zArcIn.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\7zBuf.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\7zBuf2.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\7zCrc.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\7zCrcOpt.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\7zDec.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\7zFile.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\7zStream.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Aes.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\AesOpt.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Alloc.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Bcj2.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Bcj2Enc.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Bra.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Bra86.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\BraIA64.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\CpuArch.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Delta.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\DllSecur.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\LzFind.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\LzFindMt.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Lzma2Dec.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Lzma2Enc.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Lzma86Dec.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Lzma86Enc.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\LzmaDec.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\LzmaEnc.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\LzmaLib.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\MtCoder.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Ppmd7.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Ppmd7Dec.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Ppmd7Enc.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Sha256.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Sort.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Threads.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\Xz.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\XzCrc64.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\XzCrc64Opt.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\XzDec.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\XzEnc.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependency\7zDecode\XzIn.c">
+      <Filter>3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\snapshot.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\lfs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\source\lpeg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\pbc\src\array.h">
+      <Filter>pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\pbc\src\bootstrap.h">
+      <Filter>pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\pbc\src\context.h">
+      <Filter>pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\pbc\src\descriptor.pbc.h">
+      <Filter>pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\pbc\src\map.h">
+      <Filter>pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\pbc\src\pattern.h">
+      <Filter>pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\pbc\src\proto.h">
+      <Filter>pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\pbc\src\stringpool.h">
+      <Filter>pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\pbc\src\varint.h">
+      <Filter>pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\auxiliar.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\buffer.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\except.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\inet.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\io.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\lapi.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\lauxlib.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\lcode.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\ldebug.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\ldo.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\lfunc.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\lgc.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\llex.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\llimits.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\lmem.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\lobject.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\lopcodes.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\lparser.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\lstate.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\lstring.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\ltable.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\ltm.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\luasocket.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\lundump.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\lvm.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\lzio.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\mime.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\options.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\select.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\socket.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\tcp.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\udp.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\wsocket.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\luavm\src\timeout.h">
+      <Filter>luavm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\hoba_export.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\ATypes.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\compileconfig.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\ASys.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\AString.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Platform\Windows\AWinMemDbg.h">
+      <Filter>Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Platform\Windows\AWinMiniDump.h">
+      <Filter>Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\ALog.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\AFPI.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\AFI.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\AFramework.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\AutoNavigation.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\NavBaseDefine.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\NavFunctions.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\NavMesh.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\NavMoveAgent.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\NavQuery.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\AFile.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\AFileImage.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\AFilePackage.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\AFilePackBase.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\ASysSync.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\ATempMemBuffer.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\AAssist.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\Common\CMd5Hash.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\NavCrowd.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\SkillCollision\EC_SkillCollisionData.h">
+      <Filter>SkillCollision</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\SkillCollision\EC_SkillCollisionObject.h">
+      <Filter>SkillCollision</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\SkillCollision\EC_SkillCollisionShape.h">
+      <Filter>SkillCollision</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\A3DVector.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\A3DMatrix.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\A3DFuncs.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\A3DQuaternion.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\navmesh_export.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\baseDef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HDetourAlloc.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HDetourAssert.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HDetourCommon.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HDetourCrowd.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HDetourLocalBoundary.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HDetourMath.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HDetourStatus.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HDetourProximityGrid.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HDetourPathQueue.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HDetourPathCorridor.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HDetourObstacleAvoidance.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HDetourNode.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HDetourNavMeshQuery.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HDetourNavMeshBuilder.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HDetourNavMesh.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HRecast.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HRecastAlloc.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\AutoNavigation\HRecastAssert.h">
+      <Filter>AutoNavigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\skillcollision_export.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\endian.h">
+      <Filter>pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\A3DMacros.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\A3DTypes.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\ACounter.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\AFilePackage.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\APoint.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\ARect.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\function.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\ASysThread.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\Common\CLuaTable.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\lua_export.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\LuaUtility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\AFilePackGame.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\AFilePackMan.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\csshare\Common\elementpckdir.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\fileimage_export.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\ALock.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\AF.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\ASysCodeCvt.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\updatelib\7zReader.h">
+      <Filter>updatelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\updatelib\packfunc_export.h">
+      <Filter>updatelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\updatelib\FileOperate.h">
+      <Filter>updatelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\updatelib\7zreader_export.h">
+      <Filter>updatelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\base.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\A3DGeometry.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\updatelib\VersionMan.h">
+      <Filter>updatelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\pbc\src\pballoc.h">
+      <Filter>pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\A3D.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\A3DCollision.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\A3DTrace.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\hobaserver_export.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\include\curl\curl.h">
+      <Filter>3rd\curl\include\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\include\curl\curlbuild.h">
+      <Filter>3rd\curl\include\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\include\curl\curlrules.h">
+      <Filter>3rd\curl\include\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\include\curl\curlver.h">
+      <Filter>3rd\curl\include\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\include\curl\easy.h">
+      <Filter>3rd\curl\include\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\include\curl\mprintf.h">
+      <Filter>3rd\curl\include\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\include\curl\multi.h">
+      <Filter>3rd\curl\include\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\include\curl\stdcheaders.h">
+      <Filter>3rd\curl\include\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\include\curl\typecheck-gcc.h">
+      <Filter>3rd\curl\include\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\shim\shm_array.h">
+      <Filter>3rd\curl\shim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\shim\shm_arrayrep.h">
+      <Filter>3rd\curl\shim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\shim\shm_assert.h">
+      <Filter>3rd\curl\shim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\shim\shm_except.h">
+      <Filter>3rd\curl\shim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\shim\shm_list.h">
+      <Filter>3rd\curl\shim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\shim\shm_mem.h">
+      <Filter>3rd\curl\shim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\shim\shm_seq.h">
+      <Filter>3rd\curl\shim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\shim\shm_table.h">
+      <Filter>3rd\curl\shim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\amigaos.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\arpa_telnet.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\asyn.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\axtls.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\bundles.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\config-amigaos.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\config-android.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\config-dos.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\config-ios.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\config-mac.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\config-os400.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\config-riscos.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\config-symbian.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\config-tpf.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\config-vxworks.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\config-win32.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\config-win32ce.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\conncache.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\connect.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\content_encoding.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\cookie.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_addrinfo.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_base64.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_darwinssl.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_fnmatch.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_gethostname.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_gssapi.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_hmac.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_ldap.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_md4.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_md5.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_memory.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_memrchr.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_multibyte.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_ntlm.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_ntlm_core.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_ntlm_msgs.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_ntlm_wb.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_rand.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_rtmp.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_sasl.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_schannel.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_select.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_setup.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_setup_once.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_share.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_sspi.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curl_threads.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\curlx.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\cyassl.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\dict.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\easyif.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\escape.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\file.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\fileinfo.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\formdata.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\ftp.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\ftplistparser.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\getinfo.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\gopher.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\gtls.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\hash.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\hostcheck.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\hostip.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\http.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\http_chunks.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\http_digest.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\http_negotiate.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\http_proxy.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\if2ip.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\imap.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\inet_ntop.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\inet_pton.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\krb4.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\llist.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\memdebug.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\multihandle.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\multiif.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\netrc.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\non-ascii.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\nonblock.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\nssg.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\parsedate.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\pingpong.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\pipeline.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\polarssl.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\polarssl_threadlock.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\pop3.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\progress.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\qssl.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\rawstr.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\rtsp.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\sendf.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\setup-os400.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\setup-vms.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\slist.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\smtp.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\sockaddr.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\socks.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\speedcheck.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\splay.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\ssh.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\sslgen.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\ssluse.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\strdup.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\strequal.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\strerror.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\strtok.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\strtoofft.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\telnet.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\tftp.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\timeval.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\transfer.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\url.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\urldata.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\warnless.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\src\wildcard.h">
+      <Filter>3rd\curl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\curl\shim\LibCurlShim.h">
+      <Filter>3rd\curl\shim</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\curl_export.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\curl_shim_export.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\7z.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\7zAlloc.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\7zBuf.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\7zCrc.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\7zFile.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\7zTypes.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\7zVersion.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\Aes.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\Alloc.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\Bcj2.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\Bra.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\Compiler.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\CpuArch.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\Delta.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\DllSecur.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\LzFind.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\LzFindMt.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\LzHash.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\Lzma2Dec.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\Lzma2Enc.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\Lzma86.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\LzmaDec.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\LzmaEnc.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\LzmaLib.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\MtCoder.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\Ppmd.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\Ppmd7.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\Precomp.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\RotateDefs.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\Sha256.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\Sort.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\Threads.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\Xz.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\XzCrc64.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependency\7zDecode\XzEnc.h">
+      <Filter>3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\ALine.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Base\stringext.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\lfs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\source\Platform\XOS\AXOSSys.mm">
+      <Filter>Platform\XOS</Filter>
+    </None>
+  </ItemGroup>
+</Project>
