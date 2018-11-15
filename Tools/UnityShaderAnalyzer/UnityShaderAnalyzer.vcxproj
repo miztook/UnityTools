@@ -19,13 +19,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -51,14 +51,12 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../Engine/Angelica/Include;../../Engine/Angelica/Platform/Windows;../../Common</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Engine\lib_hoba\source\Base;..\..\Engine\lib_hoba\source\Platform\Windows;</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -69,15 +67,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../Engine/Angelica/Include;../../Engine/Angelica/Platform/Windows;../../Common</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Engine\lib_hoba\source\Base;..\..\Engine\lib_hoba\source\Platform\Windows;</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -88,10 +84,78 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Engine\lib_hoba\csshare\Common\CLuaTable.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\csshare\Common\CMd5Hash.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\csshare\Common\elementpckdir.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3D.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DCollision.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DFuncs.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DGeometry.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DMacros.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DMatrix.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DQuaternion.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DTrace.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DTypes.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DVector.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AAssist.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ACounter.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\af.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFI.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFile.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFileImage.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFilePackage.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFilePackBase.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFilePackGame.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFilePackMan.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFPI.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFramework.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ALine.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ALock.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ALog.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\APoint.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ARect.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AString.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ASys.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ASysCodeCvt.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ASysSync.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ASysThread.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ATempMemBuffer.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ATypes.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\base.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\compileconfig.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\function.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\stringext.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.h" />
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.h" />
     <ClInclude Include="ShaderAnalyze.h" />
     <ClInclude Include="UnityShaderAnalyzer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Engine\lib_hoba\csshare\Common\CMd5Hash.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\csshare\Common\elementpckdir.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DCollision.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DFuncs.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DGeometry.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DMatrix.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DQuaternion.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DTrace.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AAssist.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFI.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFile.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFileImage.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFilePackage.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFilePackBase.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFilePackGame.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFilePackMan.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFramework.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\ALog.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AString.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\ASys.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\ASysCodeCvt.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\ASysThread.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Platform\Windows\AWinSys.cpp" />
     <ClCompile Include="ShaderAnalyze.cpp" />
     <ClCompile Include="UnityShaderAnalyzer.cpp" />
   </ItemGroup>

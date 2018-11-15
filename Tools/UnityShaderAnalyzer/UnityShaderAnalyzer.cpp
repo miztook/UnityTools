@@ -3,72 +3,44 @@
 #include <crtdbg.h>
 #include "ShaderAnalyze.h"
 
-#include "AWinMemDbg.h"
-#include "AWinMiniDump.h"
-
-#pragma comment(lib, "Angelica.lib")
-
-IAGame* g_pAGame = NULL;
-
-void AUI_Tick(auint32 timeSinceLastFrame){}
-void AUI_Render() {}
-
 int main()
 {
 #if defined(DEBUG) | defined(_DEBUG)
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	AWinMemDbg globalDbg;
-	globalDbg.beginCheckPoint();
+	char tmp[1024];
+	GetCurrentDirectoryA(1024, tmp);
+	HOBAInitParam param;
+	param.pszBaseDir = tmp;
+	param.pszDocumentDir = tmp;
+	param.pszLibraryDir = tmp;
+	param.pszTemporaryDir = tmp;
 
-	{
-		AWindow wnd = ASys::createWindow("UnityShaderAnalyzer", 1136, 640, 1.0f, true);
-		HWND hwnd = wnd.m_Handle;
+	g_pAFramework->Init(param);
 
-		char szCurrentDirectory[MAX_PATH];
-		GetCurrentDirectoryA(MAX_PATH, szCurrentDirectory);
+	g_ShaderFileMap.clear();		
+	//内置shader
+	analyzeUnityShaders("builtin_shaders-5.6.5f1");
 
-		AString strTempDirectory(szCurrentDirectory);
-		strTempDirectory += "/tmp";
+	writeShaderFileMap("ShaderMap_BuiltIn.txt");
+	g_ShaderFileMap.clear();	
+	//M1shader
+	analyzeUnityShaders("Outputs/Shader");
 
-		AString strLibDirectory(szCurrentDirectory);
-		strLibDirectory += "/Library/Caches/updateres";
+	writeShaderFileMap("ShaderMap_Output.txt");
+	g_ShaderFileMap.clear();
+	//3rd
+	analyzeUnityShaders("3rd");
 
-		AFrameworkInitParam frameworkInitParam;
-		frameworkInitParam.pszBaseDir = szCurrentDirectory;
-		frameworkInitParam.pszDocumentDir = szCurrentDirectory;
-		frameworkInitParam.pszLibraryDir = strLibDirectory;
-		frameworkInitParam.pszTemporaryDir = (const char*)strTempDirectory;
-
-		createEngine(frameworkInitParam, wnd);
-
-		g_ShaderFileMap.clear();		
-		//内置shader
-		analyzeUnityShaders("builtin_shaders-5.3.6f1");
-
-		writeShaderFileMap("ShaderMap_BuiltIn.txt");
-		g_ShaderFileMap.clear();	
-		//M1shader
-		analyzeUnityShaders("Shaders");
-
-		writeShaderFileMap("ShaderMap_M1.txt");
-		g_ShaderFileMap.clear();
-		//3rd
-		analyzeUnityShaders("3rd");
-
-		writeShaderFileMap("ShaderMap_3rd.txt");
-		g_ShaderFileMap.clear();
-
-		destroyEngine();
-	}
+	writeShaderFileMap("ShaderMap_3rd.txt");
+	g_ShaderFileMap.clear();
 	
-	bool safe = globalDbg.endCheckPoint();
-	_ASSERT(safe);
+	printf("UnityShaderAnalyzer Success!\r\n");
+	g_pAFramework->Printf("UnityShaderAnalyzer Success!\r\n");
 
-	globalDbg.outputMaxMemoryUsed();
+	g_pAFramework->Release();
 
-	printf("Run Completed.\n");
 	getchar();
 	return 0;
 }

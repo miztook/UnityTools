@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "fixstring.h"
+#include <string>
 #include <map>
 
 void funcAnalyzeShader(const char* filename, void* args);
@@ -11,4 +11,4 @@ void analyzeUnityShadersCompiled(const char* dir);
 
 void writeShaderFileMap(const char* filename);
 
-extern std::map<string_path, string_path>	g_ShaderFileMap;
+extern std::map<std::string, std::string>	g_ShaderFileMap;

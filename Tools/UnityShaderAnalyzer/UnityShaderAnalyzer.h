@@ -1,3 +1,6 @@
 ﻿#pragma once
 
-#include "Angelica.h"
+#include "af.h"
+#include "function.h"
+#include "stringext.h"
+#include "AFramework.h"
