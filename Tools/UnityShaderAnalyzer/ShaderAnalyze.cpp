@@ -86,11 +86,11 @@ void analyzeUnityShadersCompiled(const char* dir)
 
 void writeShaderFileMap(const char* filename)
 {
-	AString strFileName = af_GetBaseDir();
-	strFileName.NormalizeDirName();
+	std::string strFileName = af_GetBaseDir();
+	normalizeDirName(strFileName);
 	strFileName += filename;
 
-	FILE* file = fopen(strFileName, "wt");
+	FILE* file = fopen(strFileName.c_str(), "wt");
 	if (!file)
 		return;
 
