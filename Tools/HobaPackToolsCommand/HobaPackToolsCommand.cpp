@@ -35,8 +35,8 @@ int main(int argc, char* argv[])
 		printf("COMMAND: generate base version.txt!\r\n\r\n");
 		g_pAFramework->Printf("COMMAND: generate base version.txt!\r\n\r\n");
 
-		AString baseVer = argv[1];
-		AString strOutputPath = argv[2];
+		std::string baseVer = argv[1];
+		std::string strOutputPath = argv[2];
 
 		if (CElementJUPGenerator::GenerateBaseVersionTxt(baseVer, strOutputPath))
 		{
@@ -75,15 +75,15 @@ int main(int argc, char* argv[])
 	}
 
 	//argc == 9
-	AString strPlatform = argv[1];
-	AString ver1 = argv[2];
-	AString ver2 = argv[3];
-	AString ver3 = argv[4];
-	AString strLastPath = argv[5];
-	AString strNextPath = argv[6];
-	AString strOutputPath = argv[7];
-	AString strSmall = argv[8];
-	int iSmallPack = atoi((const char*)strSmall);
+	std::string strPlatform = argv[1];
+	std::string ver1 = argv[2];
+	std::string ver2 = argv[3];
+	std::string ver3 = argv[4];
+	std::string strLastPath = argv[5];
+	std::string strNextPath = argv[6];
+	std::string strOutputPath = argv[7];
+	std::string strSmall = argv[8];
+	int iSmallPack = atoi(strSmall.c_str());
 	bool bSmallPack = iSmallPack != 0;			//是否小包
 
 	std::unique_ptr<CElementJUPGenerator> pCElementJUPGenerator(new CElementJUPGenerator);
@@ -96,16 +96,16 @@ int main(int argc, char* argv[])
 	pCElementJUPGenerator->SetPlatform(strPlatform);
 	pCElementJUPGenerator->SetVersion(ver1, ver2, ver3);
 
-	printf("Platform: %s\r\n", strPlatform);
-	g_pAFramework->Printf("Platform: %s\r\n", strPlatform);
+	printf("Platform: %s\r\n", strPlatform.c_str());
+	g_pAFramework->Printf("Platform: %s\r\n", strPlatform.c_str());
 
-	printf("BaseVerson: %s LastVersion: %s NextVersion: %s SmallPack: %d\r\n\r\n", ver1, ver2, ver3, iSmallPack);
-	g_pAFramework->Printf("BaseVerson: %s LastVersion: %s NextVersion: %s SmallPack: %d\r\n\r\n", ver1, ver2, ver3, iSmallPack);
+	printf("BaseVerson: %s LastVersion: %s NextVersion: %s SmallPack: %d\r\n\r\n", ver1.c_str(), ver2.c_str(), ver3.c_str(), iSmallPack);
+	g_pAFramework->Printf("BaseVerson: %s LastVersion: %s NextVersion: %s SmallPack: %d\r\n\r\n", ver1.c_str(), ver2.c_str(), ver3.c_str(), iSmallPack);
 
 	const CElementJUPGenerator::SVersion& sversion = pCElementJUPGenerator->GetSVersion();		//要升级的版本
 	SJupContent jupContent;
 	std::vector<SJupContent> jupContentSplitList;
-	AString jupFileName;
+	std::string jupFileName;
 
 	printf("Begin GenerateUpdateList......\r\n\r\n");
 	g_pAFramework->Printf("Begin GenerateUpdateList......\r\n");
@@ -130,8 +130,8 @@ int main(int argc, char* argv[])
 	g_pAFramework->Printf("Before Split: \r\n");
 
 	jupContent.ToFileName(jupFileName);
-	printf("\t%s\n", jupFileName);
-	g_pAFramework->Printf("\t%s\n", jupFileName);
+	printf("\t%s\n", jupFileName.c_str());
+	g_pAFramework->Printf("\t%s\n", jupFileName.c_str());
 
 	printf("After Split: \r\n");
 	g_pAFramework->Printf("After Split: \r\n");
@@ -139,8 +139,8 @@ int main(int argc, char* argv[])
 	for (size_t i = 0; i < jupContentSplitList.size(); ++i)
 	{
 		jupContentSplitList[i].ToFileName(jupFileName);
-		printf("\t%s\n", jupFileName);
-		g_pAFramework->Printf("\t%s\n", jupFileName);
+		printf("\t%s\n", jupFileName.c_str());
+		g_pAFramework->Printf("\t%s\n", jupFileName.c_str());
 
 	}
 	printf("\r\n");

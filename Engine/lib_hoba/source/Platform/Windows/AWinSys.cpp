@@ -24,7 +24,7 @@ bool ASys::GetLibraryDirectory(char* szLibraryDir, int nSize)
 		return false;
 
 	strcat(libDir, "/Library/Caches/updateres");
-	if (strlen(libDir) + 1 > nSize)
+	if ((int)strlen(libDir) + 1 > nSize)
 		return false;
 
 	strcpy(szLibraryDir, libDir);
@@ -38,7 +38,7 @@ bool ASys::GetTmpDirectory(char* szTmpDir, int nSize)
 		return false;
 
 	strcat(tmpDir, "/tmp");
-	if (strlen(tmpDir) + 1 > nSize)
+	if ((int)strlen(tmpDir) + 1 > nSize)
 		return false;
 
 	strcpy(szTmpDir, tmpDir);
@@ -46,11 +46,11 @@ bool ASys::GetTmpDirectory(char* szTmpDir, int nSize)
 }
 
 
-bool ASys::GetFilesInDirectory(std::vector<AString>& arrFiles, const char* szDir)
+bool ASys::GetFilesInDirectory(std::vector<std::string>& arrFiles, const char* szDir)
 {
 	//FIXME!! 传入的是UTF8，应该转换为wchar_t
 	arrFiles.clear();
-	AString strPartResult;
+	std::string strPartResult;
 	if(szDir == NULL || szDir[0] == 0)
 		szDir = ".";
 	//if(szSearch == NULL || szSearch[0] == 0)
@@ -81,7 +81,7 @@ bool ASys::GetFilesInDirectory(std::vector<AString>& arrFiles, const char* szDir
 			}
 		} while (::FindNextFileA(hSearch, &dataFile));
 		::FindClose(hSearch);
-		return arrFiles.size() > 0;
+		return !arrFiles.empty();
 	}
 	return false;
 }

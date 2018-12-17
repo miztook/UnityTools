@@ -102,9 +102,9 @@ namespace FileOperate
 		return ASys::GetFileSize(lFileName);
 	}
 
-	AString GetFileName(const char *tPath)
+	std::string GetFileName(const char *tPath)
 	{
-		AString c = "";
+		std::string c = "";
 		int i = (int)strlen(tPath) - 1;
 		while (i >= 0 && tPath[i] != '/' &&tPath[i] != '\\')
 			i--;
@@ -186,15 +186,15 @@ namespace FileOperate
 			return -1;
 	}
 
-	bool GetSubDirectories(const char* dirName, std::vector<AString>& subDirs)
+	bool GetSubDirectories(const char* dirName, std::vector<std::string>& subDirs)
 	{
-		AString strDir = dirName;
-		strDir.NormalizeDirName();
+		std::string strDir = dirName;
+		normalizeDirName(strDir);
 		strDir += "*.*";
 
 #ifdef A_PLATFORM_WIN_DESKTOP
 		_finddata_t finddata;
-		intptr_t hfile = _findfirst(strDir, &finddata);
+		intptr_t hfile = _findfirst(strDir.c_str(), &finddata);
 		if (hfile == -1)
 			return false;
 

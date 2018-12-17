@@ -7,7 +7,7 @@
 
 #include "compileconfig.h"
 #include "ATypes.h"
-#include "AString.h"
+#include <string>
 
 #include <vector>
 #include <ctime>
@@ -36,7 +36,7 @@ public:
 	static bool IOSGetCurLanguage(char* lang, int nSize);
 
 	//遍历目录, 输入文件夹结尾没有斜杠，返回的文件名中不包含路径
-	static bool GetFilesInDirectory(std::vector<AString>& arrFiles, const char* szDir);
+	static bool GetFilesInDirectory(std::vector<std::string>& arrFiles, const char* szDir);
 
 	//获取可以写入文档的目录，ios 上并不是所有目录下都能写文件的
 	static bool GetDocumentsDirectory(char* szDocumentDir, int nSize);

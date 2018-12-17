@@ -3,7 +3,7 @@
 #include "compileconfig.h"
 
 #include "ATypes.h"
-#include "AString.h"
+#include <string>
 
 #ifdef A_PLATFORM_WIN_DESKTOP
 
@@ -133,10 +133,10 @@ public:
 	static AThreadLocal(const void*) szConvertSrcTemp;
 	static AThreadLocal(size_t) nSrcLenTemp;
 
-	static size_t Prepare(const AString& rStr)
+	static size_t Prepare(const std::string& rStr)
 	{
-		szConvertSrcTemp = (const char*)rStr;
-		nSrcLenTemp = rStr.GetLength();
+		szConvertSrcTemp = rStr.c_str();
+		nSrcLenTemp = rStr.length();
 		return nSrcLenTemp;
 	}
 

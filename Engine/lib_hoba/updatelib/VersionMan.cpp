@@ -108,13 +108,13 @@ bool VersionMan::LoadVersions(FILE* fStream)
 		if (!fgets(szBuf, BUFFER_SIZE, fStream))
 			return false;
 		
-		std::vector<AString> arr;
-		AString str = szBuf;
-		str.Split(split, arr);
+		std::vector<std::string> arr;
+		std::string str = szBuf;
+		std_string_split(str, split, arr);
 		if (arr.size() >= 2 && arr[0] == "Version:")
 		{
-			std::vector<AString> arr1;
-			arr[1].Split('/', arr1);
+			std::vector<std::string> arr1;
+			std_string_split(arr[1], '/', arr1);
 			success = (arr1.size() >= 2 && m_VerLatest.Parse(arr1[0]) && m_VerSeparate.Parse(arr1[1]));
 			if (!success)
 			{
@@ -135,9 +135,9 @@ bool VersionMan::LoadVersions(FILE* fStream)
 		if (!fgets(szBuf, BUFFER_SIZE, fStream))
 			return false;
 
-		std::vector<AString> arr;
-		AString str = szBuf;
-		str.Split(split, arr);
+		std::vector<std::string> arr;
+		std::string str = szBuf;
+		std_string_split(str, split, arr);
 		if (arr.size() >= 2 && arr[0] == "Project:")
 		{
 			m_projectName = arr[1];
@@ -158,15 +158,15 @@ bool VersionMan::LoadVersions(FILE* fStream)
 
 		while (fgets(szBuf, BUFFER_SIZE, fStream))
 		{
-			AString str = szBuf;	
+			std::string str = szBuf;
 
-			std::vector<AString> arr;
-			str.Split(split, arr);
+			std::vector<std::string> arr;
+			std_string_split(str, split, arr);
 			if (arr.size() < 3)
 				continue;
 
-			std::vector<AString> arr1;
-			arr[0].Split('-', arr1);
+			std::vector<std::string> arr1;
+			std_string_split(arr[0], '-', arr1);
 			if (arr1.size() < 2)
 				continue;
 			
@@ -175,10 +175,10 @@ bool VersionMan::LoadVersions(FILE* fStream)
 			if (!success)
 				continue;
 
-			strcpy(tmpPair.md5, (const char*)arr[1]);
+			strcpy(tmpPair.md5, arr[1].c_str());
 			
 			uint32_t size;
-			sscanf((const char*)arr[2], "%u", &size);
+			sscanf(arr[2].c_str(), "%u", &size);
 			tmpPair.size = size;
 
 			m_VersionPairs.push_back(tmpPair);

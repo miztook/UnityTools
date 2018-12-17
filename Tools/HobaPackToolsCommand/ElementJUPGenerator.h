@@ -1,8 +1,9 @@
 #pragma once
 
 #include <vector>
-#include "AString.h"
+#include <cstring>
 #include "VersionMan.h"
+#include "stringext.h"
 #include <set>
 
 
@@ -23,8 +24,8 @@ struct SJupFileEntry			  //jup文件
 
 struct SUpdateFileEntry			 //一个jup内的文件
 {
-	AString strMd5;		//compressed
-	AString strFileName;
+	std::string strMd5;		//compressed
+	std::string strFileName;
 	int64_t nSize;			//compressed
 
 	bool operator<(const SUpdateFileEntry& rhs) const
@@ -43,15 +44,15 @@ struct SJupContent			//一个jup的更新内容
 	ELEMENT_VER verOld;
 	ELEMENT_VER verNew;
 	std::vector<SUpdateFileEntry>	UpdateList;
-	std::vector<AString>  IncString;
+	std::vector<std::string>  IncString;
 
-	void ToFileName(AString& str) const
+	void ToFileName(std::string& str) const
 	{
-		AString strOld;
-		AString strNew;
+		std::string strOld;
+		std::string strNew;
 		verOld.ToString(strOld);
 		verNew.ToString(strNew);
-		str.Format("%s-%s.jup", strOld, strNew);
+		std_string_format(str, "%s-%s.jup", strOld.c_str(), strNew.c_str());
 	}
 };
 
@@ -74,31 +75,31 @@ public:
 
 	struct SConfig
 	{
-		AString JupGeneratePath;
-		AString LastVersionPath;
-		AString NextVersionPath;
+		std::string JupGeneratePath;
+		std::string LastVersionPath;
+		std::string NextVersionPath;
 		bool bSmallPack;
 	} m_SConfig;
 
 	struct SVersion
 	{
-		AString BaseVersion;
-		AString LastVersion;
-		AString NextVersion;
+		std::string BaseVersion;
+		std::string LastVersion;
+		std::string NextVersion;
 	} m_SVersion;
 
-	AString m_strWorkDir;
-	AString m_strCompressDir;
+	std::string m_strWorkDir;
+	std::string m_strCompressDir;
 
 public:
-	bool Init(const AString& strLastPath,
-			  const AString& strNextPath,
-			  const AString& strJupGeneratePath,
+	bool Init(const std::string& strLastPath,
+			  const std::string& strNextPath,
+			  const std::string& strJupGeneratePath,
 			  bool bSmallPack);
-	void SetPlatform(const AString& strPlatformType);
-	void SetVersion(const AString& strBaseVersion,
-					const AString& strLastVersion,
-					const AString& strNextVersion);
+	void SetPlatform(const std::string& strPlatformType);
+	void SetVersion(const std::string& strBaseVersion,
+					const std::string& strLastVersion,
+					const std::string& strNextVersion);
 
 	const SVersion& GetSVersion() const { return m_SVersion; }
 	
@@ -116,12 +117,12 @@ public:
 	bool FindVersionPair(const std::vector<SJupFileEntry>& pairList, const ELEMENT_VER& vBase, const ELEMENT_VER& vLatest, const ELEMENT_VER& curVer, SJupFileEntry& verPair) const;
 
 public:
-	static bool GenerateBaseVersionTxt(const AString& strBaseVersion, const AString& strJupGeneratePath);
+	static bool GenerateBaseVersionTxt(const std::string& strBaseVersion, const std::string& strJupGeneratePath);
 	
 private:
-	void GenerateIncFileString(const SJupContent& jupContent, std::vector<AString>& strInc) const;
+	void GenerateIncFileString(const SJupContent& jupContent, std::vector<std::string>& strInc) const;
 
-	bool ReadVersionText(const AString& strFileName, std::vector<SUpdateFileEntry>& entries) const;	
-	bool ReGenerateJupContentToDir(const SJupContent& jupContent, const AString& strDir) const;
-	bool CompareDir(const AString& leftDir, const AString& rightDir, const std::set<AString>& fileList) const;
+	bool ReadVersionText(const std::string& strFileName, std::vector<SUpdateFileEntry>& entries) const;	
+	bool ReGenerateJupContentToDir(const SJupContent& jupContent, const std::string& strDir) const;
+	bool CompareDir(const std::string& leftDir, const std::string& rightDir, const std::set<std::string>& fileList) const;
 };

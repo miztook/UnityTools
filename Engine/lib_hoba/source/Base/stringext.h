@@ -1,7 +1,9 @@
 #pragma once
 
 #include "ATypes.h"
-#include <cstring>
+#include <string>
+#include <clocale>
+#include <vector>
 
 inline bool isAbsoluteFileName(const std::string& filename)
 {
@@ -60,7 +62,7 @@ inline bool isLowerFileName(const std::string& filename)
 	unsigned int len = (unsigned int)filename.length();
 	for (unsigned int i = 0; i < len; ++i)
 	{
-		if (std::isupper(filename[i]))
+		if (isupper(filename[i]))
 			return false;
 	}
 	return true;
@@ -265,4 +267,104 @@ inline std::string & std_string_format(std::string& _str, const char* _Format, .
 
 	_str = tmp.c_str();
 	return _str;
+}
+
+inline void std_string_split(const std::string& origStr, char split, std::vector<std::string>& retVString)
+{
+	retVString.clear();
+
+	char* str = new char[origStr.length() + 1];
+	assert(str);
+	strcpy(str, origStr.data());
+
+	char* pchStart = str;
+	char* pch = nullptr;
+	while (true)
+	{
+		pch = strchr(pchStart, split);
+		if (pch)
+			*pch = '\0';
+
+		if (strlen(pchStart) > 0)
+			retVString.push_back(pchStart);
+
+		if (!pch)
+			break;
+
+		pchStart = pch + 1;
+	}
+	delete[] str;
+}
+
+inline void std_string_split(const std::string& origStr, const char *split, std::vector<std::string>& retVString)
+{
+	retVString.clear();
+
+	char* str = new char[origStr.length() + 1];
+	ASSERT(str);
+	strcpy(str, origStr.data());
+
+	char* pchStart = str;
+	char* pch = nullptr;
+	while (true)
+	{
+		pch = strstr(pchStart, split);
+		if (pch)
+			*pch = '\0';
+
+		if (strlen(pchStart) > 0)
+			retVString.push_back(pchStart);
+
+		if (!pch)
+			break;
+
+		pchStart = pch + strlen(split);
+	}
+	delete[] str;
+}
+
+inline std::string std_string_left(const std::string& str, int n)
+{
+	int iLen = (int)str.length();
+	return std::string(str.data(), iLen < n ? iLen : n);
+}
+
+inline std::string std_string_right(const std::string& str, int n)
+{
+	int iFrom = (int)str.length() - n;
+	return std::string(str.data(), iFrom < 0 ? 0 : n);
+}
+
+inline std::string std_string_mid(const std::string& str, int iFrom, int iNum = -1)
+{
+	int iLen = (int)str.length() - iFrom;
+	if (iLen <= 0 || iNum)
+		return std::string();
+	if (iNum > 0 && iLen > iNum)
+		iLen = iNum;
+	return std::string(str.data() + iFrom, iLen);
+}
+
+inline void std_string_replace(std::string& str, char cFrom, char cTo)
+{
+	int iLen = (int)str.length();
+	if (!iLen)
+		return;
+
+	for (int i = 0; i < iLen; i++)
+	{
+		if (str[i] == cFrom)
+			str[i] = cTo;
+	}
+}
+
+inline void std_string_replace(std::string& str, const char* szFrom, const char* szTo)
+{
+	int fromlen = (int)strlen(szFrom);
+	std::string::size_type i = str.find_first_of(szFrom);
+	while (i != std::string::npos)
+	{	
+		str = std_string_left(str, i) + std::string(szTo) + std_string_mid(str, (int)i + fromlen);
+		i = str.find_first_of(szFrom);
+	}
 }

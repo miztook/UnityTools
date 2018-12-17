@@ -86,5 +86,4 @@ public:
 	auint32 _GetFileLength() const;
 };
 
-typedef AFile * PAFile;
 #endif

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AString.h"
+#include "stringext.h"
 #include <stdio.h>
 #include <vector>
 
@@ -53,24 +53,24 @@ struct ELEMENT_VER
 	}
 
 	//void ToShortString(AString& str) const { str.Format("%d.%d.%d", iVer0, iVer1, iVer2); }
-	void ToString(AString& str) const { str.Format("%d.%d.%d.%d", iVer0, iVer1, iVer2, iVer3); }
-	bool Parse(const AString& str)
+	void ToString(std::string& str) const { std_string_format(str, "%d.%d.%d.%d", iVer0, iVer1, iVer2, iVer3); }
+	bool Parse(const std::string& str)
 	{
-		std::vector<AString> arr;
-		str.Split(".", arr);
+		std::vector<std::string> arr;
+		std_string_split(str, ".", arr);
 		if (arr.size() == 3)
 		{
-			iVer0 = atoi(arr[0]);
-			iVer1 = atoi(arr[1]);
-			iVer2 = atoi(arr[2]);
+			iVer0 = atoi(arr[0].c_str());
+			iVer1 = atoi(arr[1].c_str());
+			iVer2 = atoi(arr[2].c_str());
 			iVer3 = 0;
 		}
 		else if (arr.size() == 4)
 		{
-			iVer0 = atoi(arr[0]);
-			iVer1 = atoi(arr[1]);
-			iVer2 = atoi(arr[2]);
-			iVer3 = atoi(arr[3]);
+			iVer0 = atoi(arr[0].c_str());
+			iVer1 = atoi(arr[1].c_str());
+			iVer2 = atoi(arr[2].c_str());
+			iVer3 = atoi(arr[3].c_str());
 		}
 		else
 		{
@@ -99,7 +99,7 @@ public:
 
 	bool LoadVersions(FILE* fStream);
 
-	const char* GetProjectName() const { return m_projectName; }
+	const char* GetProjectName() const { return m_projectName.c_str(); }
 	const ELEMENT_VER& GetLatestVer() const { return m_VerLatest; }
 	const ELEMENT_VER& GetSeparateVer() const { return m_VerSeparate; }
 	bool CanAutoUpdate(const ELEMENT_VER& ver) const { return m_VerSeparate < ver; }
@@ -108,7 +108,7 @@ public:
 	int CalcSize(const ELEMENT_VER& verFrom, const ELEMENT_VER& verTo) const;
 
 private:
-	AString m_projectName;
+	std::string m_projectName;
 	ELEMENT_VER m_VerLatest;
 	ELEMENT_VER m_VerSeparate;
 
