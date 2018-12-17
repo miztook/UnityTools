@@ -361,10 +361,10 @@ inline void std_string_replace(std::string& str, char cFrom, char cTo)
 inline void std_string_replace(std::string& str, const char* szFrom, const char* szTo)
 {
 	int fromlen = (int)strlen(szFrom);
-	std::string::size_type i = str.find_first_of(szFrom);
+	std::string::size_type i = str.find(szFrom);
 	while (i != std::string::npos)
 	{	
 		str = std_string_left(str, i) + std::string(szTo) + std_string_mid(str, (int)i + fromlen);
-		i = str.find_first_of(szFrom);
+		i = str.find(szFrom);
 	}
 }
