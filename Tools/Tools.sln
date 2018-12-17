@@ -5,16 +5,40 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnityShaderAnalyzer", "UnityShaderAnalyzer\UnityShaderAnalyzer.vcxproj", "{9457989A-F340-454F-9665-7FC65B68FC1B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JupUnpack", "JupUnpack\JupUnpack.vcxproj", "{D18843BF-BC2C-485B-B106-3485B6CAA0F1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HobaPackToolsCommand", "HobaPackToolsCommand\HobaPackToolsCommand.vcxproj", "{282B807F-D2AF-4CCF-8788-45C2007E312C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
 		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{9457989A-F340-454F-9665-7FC65B68FC1B}.Debug|Win32.ActiveCfg = Debug|Win32
 		{9457989A-F340-454F-9665-7FC65B68FC1B}.Debug|Win32.Build.0 = Debug|Win32
+		{9457989A-F340-454F-9665-7FC65B68FC1B}.Debug|x64.ActiveCfg = Debug|Win32
 		{9457989A-F340-454F-9665-7FC65B68FC1B}.Release|Win32.ActiveCfg = Release|Win32
 		{9457989A-F340-454F-9665-7FC65B68FC1B}.Release|Win32.Build.0 = Release|Win32
+		{9457989A-F340-454F-9665-7FC65B68FC1B}.Release|x64.ActiveCfg = Release|Win32
+		{D18843BF-BC2C-485B-B106-3485B6CAA0F1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D18843BF-BC2C-485B-B106-3485B6CAA0F1}.Debug|Win32.Build.0 = Debug|Win32
+		{D18843BF-BC2C-485B-B106-3485B6CAA0F1}.Debug|x64.ActiveCfg = Debug|x64
+		{D18843BF-BC2C-485B-B106-3485B6CAA0F1}.Debug|x64.Build.0 = Debug|x64
+		{D18843BF-BC2C-485B-B106-3485B6CAA0F1}.Release|Win32.ActiveCfg = Release|Win32
+		{D18843BF-BC2C-485B-B106-3485B6CAA0F1}.Release|Win32.Build.0 = Release|Win32
+		{D18843BF-BC2C-485B-B106-3485B6CAA0F1}.Release|x64.ActiveCfg = Release|x64
+		{D18843BF-BC2C-485B-B106-3485B6CAA0F1}.Release|x64.Build.0 = Release|x64
+		{282B807F-D2AF-4CCF-8788-45C2007E312C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{282B807F-D2AF-4CCF-8788-45C2007E312C}.Debug|Win32.Build.0 = Debug|Win32
+		{282B807F-D2AF-4CCF-8788-45C2007E312C}.Debug|x64.ActiveCfg = Debug|x64
+		{282B807F-D2AF-4CCF-8788-45C2007E312C}.Debug|x64.Build.0 = Debug|x64
+		{282B807F-D2AF-4CCF-8788-45C2007E312C}.Release|Win32.ActiveCfg = Release|Win32
+		{282B807F-D2AF-4CCF-8788-45C2007E312C}.Release|Win32.Build.0 = Release|Win32
+		{282B807F-D2AF-4CCF-8788-45C2007E312C}.Release|x64.ActiveCfg = Release|x64
+		{282B807F-D2AF-4CCF-8788-45C2007E312C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

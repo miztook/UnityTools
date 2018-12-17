@@ -117,9 +117,6 @@
     <ClInclude Include="..\..\Engine\lib_hoba\source\Base\stringext.h">
       <Filter>Hoba\Base</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\csshare\Common\CLuaTable.h">
-      <Filter>Hoba\Common</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Engine\lib_hoba\csshare\Common\CMd5Hash.h">
       <Filter>Hoba\Common</Filter>
     </ClInclude>

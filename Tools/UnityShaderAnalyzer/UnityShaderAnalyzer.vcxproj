@@ -84,7 +84,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Engine\lib_hoba\csshare\Common\CLuaTable.h" />
     <ClInclude Include="..\..\Engine\lib_hoba\csshare\Common\CMd5Hash.h" />
     <ClInclude Include="..\..\Engine\lib_hoba\csshare\Common\elementpckdir.h" />
     <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3D.h" />
