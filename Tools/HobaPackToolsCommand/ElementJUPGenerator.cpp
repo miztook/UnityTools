@@ -61,8 +61,8 @@ void CElementJUPGenerator::SetPlatform(const std::string& strPlatformType)
 		m_PlatformType = EPlatformType::Android;
 	else
 	{
-		printf("Unknown Platform! %s\r\n", strPlatformType);
-		g_pAFramework->Printf("Unknown Platform! %s\r\n", strPlatformType);
+		printf("Unknown Platform! %s\r\n", strPlatformType.c_str());
+		g_pAFramework->Printf("Unknown Platform! %s\r\n", strPlatformType.c_str());
 	}
 }
 
@@ -187,7 +187,7 @@ bool CElementJUPGenerator::GenerateUpdateList(const SVersion& sversion, SJupCont
 		if (!FileOperate::CalcFileMd5(strNewFile.c_str(), md5New))
 		{
 			ASSERT(false);
-			printf("计算md5错误! %s \r\n", strNewFile);
+			printf("计算md5错误! %s \r\n", strNewFile.c_str());
 			g_pAFramework->Printf("计算md5错误! %s \r\n", strNewFile);
 
 			return;
@@ -210,7 +210,7 @@ bool CElementJUPGenerator::GenerateUpdateList(const SVersion& sversion, SJupCont
 			if (!FileOperate::CalcFileMd5(strOldFile.c_str(), md5Old))
 			{
 				ASSERT(false);
-				printf("计算md5错误! %s \r\n", strOldFile);
+				printf("计算md5错误! %s \r\n", strOldFile.c_str());
 				g_pAFramework->Printf("计算md5错误! %s \r\n", strOldFile);
 
 				return;
@@ -251,8 +251,8 @@ bool CElementJUPGenerator::GenerateUpdateList(const SVersion& sversion, SJupCont
 
 				jupContent.UpdateList.push_back(entry);
 
-				printf("filename: %s, size: %lld, MD5: %s\r\n", entry.strFileName, entry.nSize, entry.strMd5);
-				g_pAFramework->Printf("filename: %s, size: %lld, MD5: %s", entry.strFileName, entry.nSize, entry.strMd5);
+				printf("filename: %s, size: %lld, MD5: %s\r\n", entry.strFileName.c_str(), entry.nSize, entry.strMd5.c_str());
+				g_pAFramework->Printf("filename: %s, size: %lld, MD5: %s", entry.strFileName.c_str(), entry.nSize, entry.strMd5.c_str());
 			}
 		}
 		else   //添加到更新列表
@@ -410,8 +410,8 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 	//重新生成更新内容到 compress 目录
 	if (!ReGenerateJupContentToDir(jupContent, m_strCompressDir))
 	{
-		printf("无法生成更新内容到 %s!\r\n", m_strCompressDir);
-		g_pAFramework->Printf("无法生成更新内容到 %s!\r\n", m_strCompressDir);
+		printf("无法生成更新内容到 %s!\r\n", m_strCompressDir.c_str());
+		g_pAFramework->Printf("无法生成更新内容到 %s!\r\n", m_strCompressDir.c_str());
 
 		FileOperate::DeleteDir(m_strCompressDir.c_str());
 		FileOperate::UDeleteFile("./tmp.compressed");
@@ -435,7 +435,7 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 
 		for (const auto& entry : mapFileList)
 		{
-			fprintf(file, "%s\n", entry);
+			fprintf(file, "%s\n", entry.c_str());
 		}
 
 		fclose(file);
@@ -514,7 +514,7 @@ bool CElementJUPGenerator::ReGenerateJupContentToDir(const SJupContent& jupConte
 
 		for (const auto& str : jupContent.IncString)
 		{
-			fprintf(file, "%s\n", str);
+			fprintf(file, "%s\n", str.c_str());
 		}
 
 		fclose(file);
