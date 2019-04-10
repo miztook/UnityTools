@@ -1,0 +1,1797 @@
+<WeatherDatas>
+  <WeatherData GUID="0" Remarks="Default">
+    <SunConfig SunColor="#FFF1DFFF" Intensity="3" AmbientColor="#FFFFFFFF" AmbientColorIntensity="2.2" />
+    <GlobalLightConfig LightColor="#FFEEE4FF" Intensity="1.2" BounceIntensity="0.5" RotationX="50" RotationY="30" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd01_noon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/Sunny3_CM6xxx.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="1" WindDirectionX="0.1" WindDirectionY="0" WindDirectionZ="0.25" WindFrequency="0.5" WindNoise="0.25" ReflectionIntensity="1" RefColor="#2F4E7DFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#ABE8FC88" Midtones="#F5B69B8C" Highlights="#C7D3FF8C" />
+    <PlayerLightConfig LightColor="#E5EFFFFF" Intensity="1" BounceIntensity="0" RotationX="45" RotationY="29.99997" RotationZ="-2.414837E-06" Strength="0.6" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#BD9C78FF" GroundColor="#BA8562FF" SkyColor="#C9C29CFF" AmbientIntensity="1" />
+    <FogConfig FogColor="#607CCC00" IsFogOn="True" FogBeginDis="30" FogEndDis="300" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#5581E8FF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="200" DOFParamterZ="1" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="1" Remarks="Dungn03_QXGJ01">
+    <SunConfig SunColor="#FFFFFF00" Intensity="1" AmbientColor="#FFFFFF00" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <CubeMapPath CubeMapPath="" />
+    <PlayerLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" Strength="0" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#00000000" GroundColor="#00000000" SkyColor="#00000000" AmbientIntensity="0" />
+    <FogConfig FogColor="#393F78FF" IsFogOn="False" FogBeginDis="20" FogEndDis="250" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <HSV HSVEnabled="False" HSVParamterX="0" HSVParamterY="0" HSVParamterZ="0" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="0" BrightnessAndConstrastParamterZ="0" />
+      <Bloom BloomEnabled="False" BloomParamterX="0" BloomParamterY="0" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="119" Remarks="">
+    <SunConfig SunColor="#FFFFFFFF" Intensity="1" AmbientColor="#FFFFFFFF" AmbientColorIntensity="0.7" />
+    <GlobalLightConfig LightColor="#E1E1E1FF" Intensity="1" BounceIntensity="0.5" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Rain01.mat" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="0" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#E1E1E1FF" Intensity="1" BounceIntensity="0.5" RotationX="0" RotationY="0" RotationZ="0" Strength="0.4" Bias="0.05" NormalBias="0.4" ShadowNearPlane="0.02" />
+    <EnvConifg EquatorColor="#FFF6F0FF" GroundColor="#787F96FF" SkyColor="#F0F3FFFF" AmbientIntensity="0.9" />
+    <FogConfig FogColor="#A1A4AFFF" IsFogOn="False" FogBeginDis="10" FogEndDis="150" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#A1A4AFFF" FogEnabled="True" FogParamterX="10" FogParamterY="150" FogParamterZ="100" FogParamterW="500" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="100" DOFParamterZ="0" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="1" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="120" Remarks="">
+    <SunConfig SunColor="#FFFFFFFF" Intensity="1" AmbientColor="#A0B4C8FF" AmbientColorIntensity="0.7" />
+    <GlobalLightConfig LightColor="#A0B4C8FF" Intensity="1" BounceIntensity="0.5" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Snow01.mat" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="0" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#A0B4C8FF" Intensity="1" BounceIntensity="0.5" RotationX="0" RotationY="0" RotationZ="0" Strength="0.4" Bias="0.05" NormalBias="0.4" ShadowNearPlane="0.02" />
+    <EnvConifg EquatorColor="#D4E4EBFF" GroundColor="#788796FF" SkyColor="#CCD7FFFF" AmbientIntensity="1" />
+    <FogConfig FogColor="#96A6AFFF" IsFogOn="False" FogBeginDis="0" FogEndDis="100" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#96A6AFFF" FogEnabled="True" FogParamterX="0" FogParamterY="100" FogParamterZ="125" FogParamterW="400" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="100" DOFParamterZ="0" />
+      <HSV HSVEnabled="False" HSVParamterX="0" HSVParamterY="0" HSVParamterZ="0" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="0" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="185" Remarks="Dn_pvp02_Arena01">
+    <SunConfig SunColor="#FFFFFF00" Intensity="1" AmbientColor="#B5C5FFFF" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="0" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#FFFFFF00" Intensity="1.1" BounceIntensity="0" RotationX="45" RotationY="250" RotationZ="0" Strength="0.35" Bias="0.05" NormalBias="0.4" ShadowNearPlane="0.2" />
+    <EnvConifg EquatorColor="#FFF2E9FF" GroundColor="#E5600AFF" SkyColor="#CCD7FFFF" AmbientIntensity="0.6" />
+    <FogConfig FogColor="#00000000" IsFogOn="False" FogBeginDis="0" FogEndDis="0" FogMode="0" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="100" DOFParamterZ="0" />
+      <HSV HSVEnabled="True" HSVParamterX="1" HSVParamterY="1" HSVParamterZ="0.9" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="1" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="135" Remarks="Dn_env02_MagePlatform">
+    <SunConfig SunColor="#C8C8C8FF" Intensity="1" AmbientColor="#C8C8C8FF" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="0" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" Strength="0" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#00000000" GroundColor="#00000000" SkyColor="#00000000" AmbientIntensity="0" />
+    <FogConfig FogColor="#00000000" IsFogOn="False" FogBeginDis="0" FogEndDis="0" FogMode="0" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="100" DOFParamterZ="0" />
+      <HSV HSVEnabled="False" HSVParamterX="0" HSVParamterY="0" HSVParamterZ="0" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="0" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="136" Remarks="Dn_env02_MagePlatform">
+    <SunConfig SunColor="#C8C8C8FF" Intensity="1" AmbientColor="#C8C8C8FF" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="0" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" Strength="0" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#00000000" GroundColor="#00000000" SkyColor="#00000000" AmbientIntensity="0" />
+    <FogConfig FogColor="#9294D100" IsFogOn="True" FogBeginDis="20" FogEndDis="800" FogMode="0" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="100" DOFParamterZ="0" />
+      <HSV HSVEnabled="False" HSVParamterX="0" HSVParamterY="0" HSVParamterZ="0" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="0" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="184" Remarks="Dn_pvp01_guildbase">
+    <SunConfig SunColor="#FFFFFFFF" Intensity="1.8" AmbientColor="#FFDBDBFF" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#FFEEE4FF" Intensity="1.5" BounceIntensity="0.5" RotationX="58" RotationY="48" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Dn_pvp01.mat" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="0" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#E2FCFFFF" Intensity="0.8" BounceIntensity="0" RotationX="50" RotationY="30" RotationZ="0" Strength="0.5" Bias="0.05" NormalBias="0.4" ShadowNearPlane="0.2" />
+    <EnvConifg EquatorColor="#ADC1D8FF" GroundColor="#785252FF" SkyColor="#E4F6FFFF" AmbientIntensity="1" />
+    <FogConfig FogColor="#294378FF" IsFogOn="True" FogBeginDis="30" FogEndDis="300" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#488CBCFF" FogEnabled="False" FogParamterX="10" FogParamterY="400" FogParamterZ="100" FogParamterW="300" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="100" DOFParamterZ="0" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.1" HSVParamterZ="1.05" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1.05" BrightnessAndConstrastParamterZ="0.3" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="170" Remarks="World01_tlxg_day">
+    <SunConfig SunColor="#FFF2E5FF" Intensity="3" AmbientColor="#D0EFFFFF" AmbientColorIntensity="2.5" />
+    <GlobalLightConfig LightColor="#FFEEE4FF" Intensity="1.2" BounceIntensity="0.5" RotationX="41.2341" RotationY="343.6743" RotationZ="4.009256" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd01_noon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/Sunny3_CM6xxx.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#2F4E7DFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#E5FAFF80" Midtones="#F8F9FF80" Highlights="#F1E2E280" />
+    <PlayerLightConfig LightColor="#FFFFFFFF" Intensity="1" BounceIntensity="0" RotationX="45.00001" RotationY="29.99997" RotationZ="-2.414836E-06" Strength="0.5" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#BD9C78FF" GroundColor="#BA8562FF" SkyColor="#C9C29CFF" AmbientIntensity="1" />
+    <FogConfig FogColor="#76A6BF00" IsFogOn="True" FogBeginDis="60" FogEndDis="400" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#5581E8FF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="200" DOFParamterZ="1" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="171" Remarks="World02_zzsl_day">
+    <SunConfig SunColor="#A6B4E800" Intensity="1" AmbientColor="#11203E00" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="0" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" Strength="0" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#00000000" GroundColor="#00000000" SkyColor="#00000000" AmbientIntensity="0" />
+    <FogConfig FogColor="#00000000" IsFogOn="False" FogBeginDis="0" FogEndDis="0" FogMode="0" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="100" DOFParamterZ="0" />
+      <HSV HSVEnabled="False" HSVParamterX="0" HSVParamterY="0" HSVParamterZ="0" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="0" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="172" Remarks="World02_sd_day">
+    <SunConfig SunColor="#A6B4E800" Intensity="1" AmbientColor="#11203E00" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="0" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" Strength="0" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#00000000" GroundColor="#00000000" SkyColor="#00000000" AmbientIntensity="0" />
+    <FogConfig FogColor="#00000000" IsFogOn="False" FogBeginDis="0" FogEndDis="0" FogMode="0" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="100" DOFParamterZ="0" />
+      <HSV HSVEnabled="False" HSVParamterX="0" HSVParamterY="0" HSVParamterZ="0" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="0" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="173" Remarks="World02_jlzq_day">
+    <SunConfig SunColor="#A6B4E800" Intensity="1" AmbientColor="#11203E00" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="0" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" Strength="0" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#00000000" GroundColor="#00000000" SkyColor="#00000000" AmbientIntensity="0" />
+    <FogConfig FogColor="#00000000" IsFogOn="False" FogBeginDis="0" FogEndDis="0" FogMode="0" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="100" DOFParamterZ="0" />
+      <HSV HSVEnabled="False" HSVParamterX="0" HSVParamterY="0" HSVParamterZ="0" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="0" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="176" Remarks="World04_desert_day">
+    <SunConfig SunColor="#A6B4E800" Intensity="1" AmbientColor="#11203E00" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="0" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" Strength="0" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#00000000" GroundColor="#00000000" SkyColor="#00000000" AmbientIntensity="0" />
+    <FogConfig FogColor="#00000000" IsFogOn="False" FogBeginDis="0" FogEndDis="0" FogMode="0" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="100" DOFParamterZ="0" />
+      <HSV HSVEnabled="False" HSVParamterX="0" HSVParamterY="0" HSVParamterZ="0" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="0" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="177" Remarks="World04_bugs_day">
+    <SunConfig SunColor="#A6B4E800" Intensity="1" AmbientColor="#11203E00" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="0" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" Strength="0" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#00000000" GroundColor="#00000000" SkyColor="#00000000" AmbientIntensity="0" />
+    <FogConfig FogColor="#00000000" IsFogOn="False" FogBeginDis="0" FogEndDis="0" FogMode="0" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="100" DOFParamterZ="0" />
+      <HSV HSVEnabled="False" HSVParamterX="0" HSVParamterY="0" HSVParamterZ="0" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="0" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="178" Remarks="World04_hlsl_day">
+    <SunConfig SunColor="#A6B4E800" Intensity="1" AmbientColor="#11203E00" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="0" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" Strength="0" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#00000000" GroundColor="#00000000" SkyColor="#00000000" AmbientIntensity="0" />
+    <FogConfig FogColor="#00000000" IsFogOn="False" FogBeginDis="0" FogEndDis="0" FogMode="0" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="100" DOFParamterZ="0" />
+      <HSV HSVEnabled="False" HSVParamterX="0" HSVParamterY="0" HSVParamterZ="0" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="0" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="179" Remarks="World04_jlys_day">
+    <SunConfig SunColor="#A6B4E800" Intensity="1" AmbientColor="#11203E00" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="0" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" Strength="0" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#00000000" GroundColor="#00000000" SkyColor="#00000000" AmbientIntensity="0" />
+    <FogConfig FogColor="#00000000" IsFogOn="False" FogBeginDis="0" FogEndDis="0" FogMode="0" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="100" DOFParamterZ="0" />
+      <HSV HSVEnabled="False" HSVParamterX="0" HSVParamterY="0" HSVParamterZ="0" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="0" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="182" Remarks="gonghuizhanchang">
+    <SunConfig SunColor="#FFFFE8FF" Intensity="1.8" AmbientColor="#C7CCFFFF" AmbientColorIntensity="1.3" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_Sky_KidPvp24H02.mat" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="0" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#DDF2FF8F" Midtones="#FFDFD689" Highlights="#D2F0FF80" />
+    <PlayerLightConfig LightColor="#ECF8FFFF" Intensity="1" BounceIntensity="1" RotationX="50.00002" RotationY="180" RotationZ="0" Strength="0.649" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#727FB000" GroundColor="#876F6400" SkyColor="#E7F3FF00" AmbientIntensity="0" />
+    <FogConfig FogColor="#6074AC00" IsFogOn="True" FogBeginDis="30" FogEndDis="900" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="150" DOFParamterY="500" DOFParamterZ="1" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="186" Remarks="Dn_pvp02_Arena01">
+    <SunConfig SunColor="#4F517CFF" Intensity="2" AmbientColor="#72718DFF" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="0" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="16" Contrast="16" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" Strength="0" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#00000000" GroundColor="#00000000" SkyColor="#00000000" AmbientIntensity="0" />
+    <FogConfig FogColor="#4D4D74FF" IsFogOn="True" FogBeginDis="10" FogEndDis="800" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#484A7FFF" FogEnabled="False" FogParamterX="10" FogParamterY="150" FogParamterZ="20" FogParamterW="600" />
+      <DOF DOFEnabled="True" DOFParamterX="10" DOFParamterY="300" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.2" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="0" Intensity="0" Radius="0" Iteration="0" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="187" Remarks="Dn_pvp02_Arena01">
+    <SunConfig SunColor="#4F517CFF" Intensity="2" AmbientColor="#72718DFF" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="0" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="16" Contrast="16" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" Strength="0" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#00000000" GroundColor="#00000000" SkyColor="#00000000" AmbientIntensity="0" />
+    <FogConfig FogColor="#4D4D74FF" IsFogOn="True" FogBeginDis="10" FogEndDis="800" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#484A7FFF" FogEnabled="False" FogParamterX="10" FogParamterY="150" FogParamterZ="20" FogParamterW="600" />
+      <DOF DOFEnabled="True" DOFParamterX="10" DOFParamterY="300" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.2" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="0" Intensity="0" Radius="0" Iteration="0" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="188" Remarks="Dn_pvp02_Arena01">
+    <SunConfig SunColor="#4F517CFF" Intensity="2" AmbientColor="#72718DFF" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="0" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="16" Contrast="16" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" Strength="0" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#00000000" GroundColor="#00000000" SkyColor="#00000000" AmbientIntensity="0" />
+    <FogConfig FogColor="#4D4D74FF" IsFogOn="True" FogBeginDis="10" FogEndDis="800" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#484A7FFF" FogEnabled="False" FogParamterX="10" FogParamterY="150" FogParamterZ="20" FogParamterW="600" />
+      <DOF DOFEnabled="True" DOFParamterX="10" DOFParamterY="300" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.2" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="0" Intensity="0" Radius="0" Iteration="0" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="190" Remarks="Dn00_liexihou">
+    <SunConfig SunColor="#E57070FF" Intensity="2" AmbientColor="#8BA9BFFF" AmbientColorIntensity="0.8" />
+    <GlobalLightConfig LightColor="#FFECE3FF" Intensity="1.25" BounceIntensity="0.5" RotationX="56.54034" RotationY="175.1488" RotationZ="344.8023" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Rookie_GapOpen.mat" />
+    <SfxPath SfxPath="Assets/Outputs/Sfx/Weather/weather_tongyong_huijin.prefab" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/Sunny3_CM6xxx.cubemap" CubeMapBias="0" HeadlightIntesity="0" ReflectionIntensity="1" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#EFFEF79B" Midtones="#F9D4F36F" Highlights="#DEF3FE91" />
+    <PlayerLightConfig LightColor="#F9D7D5FF" Intensity="1" BounceIntensity="1" RotationX="50.00001" RotationY="243.5" RotationZ="2.656472E-06" Strength="0.35" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#FFFFFFFF" GroundColor="#9FA3D1FF" SkyColor="#F3A19EFF" AmbientIntensity="1" />
+    <FogConfig FogColor="#332E3CFF" IsFogOn="True" FogBeginDis="20" FogEndDis="800" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#484A7FFF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="200" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.15" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="192" Remarks="ImageModel_FullScreenUI">
+    <SunConfig SunColor="#FFFFFFFF" Intensity="1" AmbientColor="#FFFFFFFF" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#FFFFFFFF" Intensity="1" BounceIntensity="0" RotationX="40" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_4.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" ReflectionIntensity="1" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" Strength="0" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#C7DFF0FF" GroundColor="#FBBD9BFF" SkyColor="#FFF4C5FF" AmbientIntensity="0" />
+    <FogConfig FogColor="#00000000" IsFogOn="False" FogBeginDis="0" FogEndDis="0" FogMode="0" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="False" DOFParamterX="0" DOFParamterY="0" DOFParamterZ="0" />
+      <HSV HSVEnabled="False" HSVParamterX="0" HSVParamterY="0" HSVParamterZ="0" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="0" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="193" Remarks="ImageModel_UISmith">
+    <SunConfig SunColor="#00CAFFFF" Intensity="1.13" AmbientColor="#FFFFFFFF" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#FFFFFFFF" Intensity="1" BounceIntensity="0" RotationX="40" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_4.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" ReflectionIntensity="1" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="22.752" RotationY="200.49" RotationZ="0" Strength="0" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#C7DFF0FF" GroundColor="#FBBD9BFF" SkyColor="#FFF4C5FF" AmbientIntensity="0" />
+    <FogConfig FogColor="#00000000" IsFogOn="False" FogBeginDis="0" FogEndDis="0" FogMode="0" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="False" DOFParamterX="0" DOFParamterY="0" DOFParamterZ="0" />
+      <HSV HSVEnabled="False" HSVParamterX="0" HSVParamterY="0" HSVParamterZ="0" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="0" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="194" Remarks="ImageModel_UISalary">
+    <SunConfig SunColor="#FFFFFFFF" Intensity="1" AmbientColor="#FFFFFFFF" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#FFFFFFFF" Intensity="1" BounceIntensity="0" RotationX="40" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_4.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" ReflectionIntensity="1" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" Strength="0" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#C7DFF0FF" GroundColor="#FBBD9BFF" SkyColor="#FFF4C5FF" AmbientIntensity="0" />
+    <FogConfig FogColor="#00000000" IsFogOn="False" FogBeginDis="0" FogEndDis="0" FogMode="0" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="False" DOFParamterX="0" DOFParamterY="0" DOFParamterZ="0" />
+      <HSV HSVEnabled="False" HSVParamterX="0" HSVParamterY="0" HSVParamterZ="0" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="0" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="175" Remarks="World03_hgsysnow_day">
+    <SunConfig SunColor="#9195BD00" Intensity="3" AmbientColor="#FFFFFF00" AmbientColorIntensity="1.2" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd03_Part2_daylight.mat" />
+    <SfxPath SfxPath="Assets/Outputs/Sfx/Weather/weather_tongyong_snow.prefab" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="0" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="8" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF84" Midtones="#D8E0FF80" Highlights="#FFFFFF62" />
+    <PlayerLightConfig LightColor="#FFF3EE00" Intensity="1.25" BounceIntensity="1" RotationX="35.36922" RotationY="310.0171" RotationZ="217.379" Strength="0.562" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#9EAAD700" GroundColor="#7373AC00" SkyColor="#DFF3FF00" AmbientIntensity="0.55" />
+    <FogConfig FogColor="#47567A00" IsFogOn="True" FogBeginDis="30" FogEndDis="550" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="20" DOFParamterY="300" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.2" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.267" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="195" Remarks="World03p2_snownight">
+    <SunConfig SunColor="#5A638500" Intensity="2" AmbientColor="#E5CCFF00" AmbientColorIntensity="1.1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd03_Part2_auroranight.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="0" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="12" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF84" Midtones="#D8E0FF80" Highlights="#FFFFFF62" />
+    <PlayerLightConfig LightColor="#FFFFFF00" Intensity="1" BounceIntensity="1" RotationX="35.3692" RotationY="310.017" RotationZ="217.379" Strength="0.3" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#9EAAD700" GroundColor="#7373AC00" SkyColor="#BDE6FF00" AmbientIntensity="0.35" />
+    <FogConfig FogColor="#262B3C00" IsFogOn="True" FogBeginDis="30" FogEndDis="550" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="30" DOFParamterY="300" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="137" Remarks="Wd02_qingchen">
+    <SunConfig SunColor="#FFFFFFFF" Intensity="1.7" AmbientColor="#E6F7FFFF" AmbientColorIntensity="1.15" />
+    <GlobalLightConfig LightColor="#D3F0F0FF" Intensity="1" BounceIntensity="0.5" RotationX="39.82693" RotationY="190.8757" RotationZ="44.62773" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd02_morning.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#F5F9FF82" Midtones="#C8D8DE87" Highlights="#E6DFE88C" />
+    <PlayerLightConfig LightColor="#FFF2E1FF" Intensity="1" BounceIntensity="0.5" RotationX="33" RotationY="252" RotationZ="0" Strength="0.3" Bias="0.05" NormalBias="0.4" ShadowNearPlane="0.2" />
+    <EnvConifg EquatorColor="#BC9B8AFF" GroundColor="#8E9DA7FF" SkyColor="#D0EAFFFF" AmbientIntensity="1" />
+    <FogConfig FogColor="#768CA2FF" IsFogOn="True" FogBeginDis="20" FogEndDis="340" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#6585D8FF" FogEnabled="False" FogParamterX="10" FogParamterY="370" FogParamterZ="75" FogParamterW="300" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="100" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="139" Remarks="Wd02_huanghun">
+    <SunConfig SunColor="#C8917CFF" Intensity="2.7" AmbientColor="#A5C3E6FF" AmbientColorIntensity="1.9" />
+    <GlobalLightConfig LightColor="#FFECE3FF" Intensity="1.25" BounceIntensity="0.5" RotationX="47.54923" RotationY="20.93501" RotationZ="315.265" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd02_afternoon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_3.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#DFD5E495" Midtones="#EEF5FF87" Highlights="#958CA180" />
+    <PlayerLightConfig LightColor="#FFFBF5FF" Intensity="1" BounceIntensity="0" RotationX="54" RotationY="243.5" RotationZ="0" Strength="0.583" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#E9F0EDFF" GroundColor="#8B949EFF" SkyColor="#FFEAD8FF" AmbientIntensity="0.5" />
+    <FogConfig FogColor="#6B7E93FF" IsFogOn="True" FogBeginDis="20" FogEndDis="350" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#334A87FF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="80" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="138" Remarks="Wd02_baitian">
+    <SunConfig SunColor="#FFF5E8FF" Intensity="2.5" AmbientColor="#C2D9FFFF" AmbientColorIntensity="1.8" />
+    <GlobalLightConfig LightColor="#FFFFFF00" Intensity="1" BounceIntensity="0" RotationX="36.95969" RotationY="273.4351" RotationZ="36.52051" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd02_noon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/OverCast1_CM.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="3" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF75" Midtones="#FFFFFF82" Highlights="#F5F5FF82" />
+    <PlayerLightConfig LightColor="#FFFFFFFF" Intensity="1" BounceIntensity="0" RotationX="40.00004" RotationY="252" RotationZ="0" Strength="0.5" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#FFF0BDFF" GroundColor="#382B0FFF" SkyColor="#6DBCFFFF" AmbientIntensity="1" />
+    <FogConfig FogColor="#537FA500" IsFogOn="True" FogBeginDis="30" FogEndDis="350" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="150" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="140" Remarks="Wd02_night">
+    <SunConfig SunColor="#788590FF" Intensity="2.5" AmbientColor="#66A4BBFF" AmbientColorIntensity="1.6" />
+    <GlobalLightConfig LightColor="#FFECE3FF" Intensity="1.25" BounceIntensity="0.5" RotationX="49.12118" RotationY="330.347" RotationZ="313.9457" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd02_night.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/StarryNight_CM.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="3" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#D5DCE48C" Midtones="#EEF5FF91" Highlights="#AAA6AE8C" />
+    <PlayerLightConfig LightColor="#A3D1FFFF" Intensity="1.1" BounceIntensity="0" RotationX="54" RotationY="243.5" RotationZ="0" Strength="0.583" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#FFDFC7FF" GroundColor="#FFBCA9FF" SkyColor="#87A1FFFF" AmbientIntensity="0.5" />
+    <FogConfig FogColor="#263644FF" IsFogOn="True" FogBeginDis="10" FogEndDis="260" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#334A87FF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="80" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="143" Remarks="World03Part1_qc">
+    <SunConfig SunColor="#E0C1B800" Intensity="1.5" AmbientColor="#88A6D800" AmbientColorIntensity="1.2" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="339.1713" RotationY="146.9998" RotationZ="13.00254" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd03_Part1_morning.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1.5" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#DEECFF87" Midtones="#B6B5D287" Highlights="#D6D0C287" />
+    <PlayerLightConfig LightColor="#FFF8EC00" Intensity="1" BounceIntensity="1" RotationX="52.99999" RotationY="29.70001" RotationZ="34.78701" Strength="0.3" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#909090FF" GroundColor="#9F9F9FFF" SkyColor="#A9A9A9FF" AmbientIntensity="0.8" />
+    <FogConfig FogColor="#A5BEF800" IsFogOn="True" FogBeginDis="35" FogEndDis="250" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="10" DOFParamterY="150" DOFParamterZ="0.8" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="127" Remarks="Dungn01_Rins01">
+    <SunConfig SunColor="#726E85FF" Intensity="2" AmbientColor="#585A68FF" AmbientColorIntensity="1.8" />
+    <GlobalLightConfig LightColor="#FFEEE4FF" Intensity="1.5" BounceIntensity="0.5" RotationX="13.56039" RotationY="10.05329" RotationZ="353.4609" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1.5" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#F4E7E889" Midtones="#FFFFFF80" Highlights="#D5E5FF87" />
+    <PlayerLightConfig LightColor="#FFDFBDFF" Intensity="1.2" BounceIntensity="0.5" RotationX="42" RotationY="250" RotationZ="2.297732E-06" Strength="0.4" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#BDE1FFFF" GroundColor="#56280AFF" SkyColor="#70ACFFFF" AmbientIntensity="1" />
+    <FogConfig FogColor="#617AADFF" IsFogOn="True" FogBeginDis="10" FogEndDis="200" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#A183FFFF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="10" DOFParamterY="200" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="129" Remarks="Dungn03_QXGJ01">
+    <SunConfig SunColor="#8EC6DDFF" Intensity="1.4" AmbientColor="#9BB5E7FF" AmbientColorIntensity="1.2" />
+    <GlobalLightConfig LightColor="#FFEEE4FF" Intensity="1.5" BounceIntensity="0.5" RotationX="53.4006" RotationY="180.8888" RotationZ="359.8655" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#EBF5FE8E" Midtones="#F2EDFE8A" Highlights="#819BA987" />
+    <PlayerLightConfig LightColor="#FFD4A9FF" Intensity="1.2" BounceIntensity="0.5" RotationX="58.00004" RotationY="48" RotationZ="0" Strength="0.4" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#B9C1D6FF" GroundColor="#05133CFF" SkyColor="#E09AFFFF" AmbientIntensity="0.9" />
+    <FogConfig FogColor="#13336AFF" IsFogOn="True" FogBeginDis="10" FogEndDis="360" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#488CBCFF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="200" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="142" Remarks="Dn04_Zuras">
+    <SunConfig SunColor="#FFE3DDFF" Intensity="1.2" AmbientColor="#C0DAE7FF" AmbientColorIntensity="0.75" />
+    <GlobalLightConfig LightColor="#FFEEE4FF" Intensity="1.5" BounceIntensity="0.5" RotationX="6.362714" RotationY="40.18147" RotationZ="338.4851" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/Sunny3_CM6xxx.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="3" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="15" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#F2F5FE8E" Midtones="#F6EDFE87" Highlights="#FDEFEE7C" />
+    <PlayerLightConfig LightColor="#FFE9E2FF" Intensity="1" BounceIntensity="0" RotationX="28.4" RotationY="46.8" RotationZ="0" Strength="0.45" Bias="0.05" NormalBias="0.4" ShadowNearPlane="0.2" />
+    <EnvConifg EquatorColor="#ADC1D8FF" GroundColor="#785252FF" SkyColor="#6C53ECFF" AmbientIntensity="1" />
+    <FogConfig FogColor="#191C21FF" IsFogOn="True" FogBeginDis="30" FogEndDis="250" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#488CBCFF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="10" DOFParamterY="150" DOFParamterZ="1" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.2" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="132" Remarks="Dn_evn01_DNest">
+    <SunConfig SunColor="#ADC5F4FF" Intensity="2" AmbientColor="#63CDE1FF" AmbientColorIntensity="0.65" />
+    <GlobalLightConfig LightColor="#FFEEE4FF" Intensity="1.5" BounceIntensity="0.5" RotationX="58" RotationY="48" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/Sunny3_CM5.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#E5FDFF87" Midtones="#FFFFFF80" Highlights="#FFF5E880" />
+    <PlayerLightConfig LightColor="#FFE5D4FF" Intensity="1.1" BounceIntensity="0.5" RotationX="50" RotationY="48" RotationZ="-2.656472E-06" Strength="0.5" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#EAAB8FFF" GroundColor="#4D3C31FF" SkyColor="#0C4A92FF" AmbientIntensity="0.7" />
+    <FogConfig FogColor="#274262FF" IsFogOn="True" FogBeginDis="20" FogEndDis="250" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#488CBCFF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="10" DOFParamterY="100" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="134" Remarks="Dn_env02_MagePlatform">
+    <SunConfig SunColor="#7872D2FF" Intensity="1.5" AmbientColor="#C8C8FFFF" AmbientColorIntensity="0.8" />
+    <GlobalLightConfig LightColor="#FFEEE4FF" Intensity="1.5" BounceIntensity="0.5" RotationX="62.74186" RotationY="59.60261" RotationZ="13.09278" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_4.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="10" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#E6DDDD87" />
+    <PlayerLightConfig LightColor="#FFE7CEFF" Intensity="1" BounceIntensity="0.5" RotationX="47" RotationY="336.5" RotationZ="0" Strength="0.5" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#CBE9FFFF" GroundColor="#56351FFF" SkyColor="#BACEFFFF" AmbientIntensity="1" />
+    <FogConfig FogColor="#405B9DFF" IsFogOn="True" FogBeginDis="20" FogEndDis="400" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#488CBCFF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="20" DOFParamterY="130" DOFParamterZ="1" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="131" Remarks="Dn_evn03_Killerparty">
+    <SunConfig SunColor="#BDADD8FF" Intensity="2.3" AmbientColor="#CBBEB9FF" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#FFEEE4FF" Intensity="1.5" BounceIntensity="0.5" RotationX="56.98687" RotationY="232.3578" RotationZ="357.4593" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_3.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="5" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#F3EDFE91" Midtones="#E5F3FE80" Highlights="#CEC7C378" />
+    <PlayerLightConfig LightColor="#FFDAD2FF" Intensity="1.1" BounceIntensity="0.5" RotationX="57.99999" RotationY="48" RotationZ="-9.666833E-06" Strength="0.5" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#FFE0CBFF" GroundColor="#56351FFF" SkyColor="#3C5798FF" AmbientIntensity="1" />
+    <FogConfig FogColor="#292A3DFF" IsFogOn="True" FogBeginDis="20" FogEndDis="550" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#488CBCFF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="450" DOFParamterZ="0.5" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="145" Remarks="World03Part1_hh">
+    <SunConfig SunColor="#D0B6A100" Intensity="2.1" AmbientColor="#6E7DC500" AmbientColorIntensity="1.68" />
+    <GlobalLightConfig LightColor="#E8E8E800" Intensity="0" BounceIntensity="0" RotationX="20.13479" RotationY="9.116901" RotationZ="21.49208" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd03_Part1_afternoon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_4.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1.3" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#CED8FF8C" Midtones="#FFFFFF91" Highlights="#FFF9EC73" />
+    <PlayerLightConfig LightColor="#FFF4E700" Intensity="1" BounceIntensity="1" RotationX="52.99999" RotationY="29.70001" RotationZ="34.787" Strength="0.498" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#B8CEE100" GroundColor="#FF1C1C00" SkyColor="#FFFFFF00" AmbientIntensity="0.8" />
+    <FogConfig FogColor="#B095B800" IsFogOn="True" FogBeginDis="50" FogEndDis="400" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#6B69C600" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="50" DOFParamterY="200" DOFParamterZ="0.8" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="117" Remarks="Ct01_morning">
+    <SunConfig SunColor="#EDEBF0FF" Intensity="2" AmbientColor="#CDDEFFFF" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#FFECE3FF" Intensity="1.25" BounceIntensity="0.5" RotationX="58.52982" RotationY="154.1723" RotationZ="294.3927" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Ct01_morning.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#F4EEF58B" Midtones="#EAF6FF98" Highlights="#EFFFFC7B" />
+    <PlayerLightConfig LightColor="#FFF7EAFF" Intensity="1" BounceIntensity="0" RotationX="54" RotationY="243.5" RotationZ="0" Strength="0.583" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#D5EBF4FF" GroundColor="#9F9F9FFF" SkyColor="#7CBEFFFF" AmbientIntensity="0.5" />
+    <FogConfig FogColor="#80AAC8FF" IsFogOn="True" FogBeginDis="20" FogEndDis="450" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#334A87FF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="80" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="123" Remarks="City01_huanghun">
+    <SunConfig SunColor="#FFBCA3FF" Intensity="2.3" AmbientColor="#A5BBE6FF" AmbientColorIntensity="1.5" />
+    <GlobalLightConfig LightColor="#FFECE3FF" Intensity="1.25" BounceIntensity="0.5" RotationX="46.86041" RotationY="207.1824" RotationZ="307.6158" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Ct01_afternoon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_3.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#D6D5E495" Midtones="#FFFFFF87" Highlights="#A19B9A78" />
+    <PlayerLightConfig LightColor="#FFE4C7FF" Intensity="1.15" BounceIntensity="0" RotationX="54" RotationY="243.5" RotationZ="0" Strength="0.583" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#E9F0EDFF" GroundColor="#8B949EFF" SkyColor="#FFEAD8FF" AmbientIntensity="0.5" />
+    <FogConfig FogColor="#6B8CB3FF" IsFogOn="True" FogBeginDis="20" FogEndDis="450" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#334A87FF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="80" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="124" Remarks="Ct01_night">
+    <SunConfig SunColor="#DBEFFFFF" Intensity="1.51" AmbientColor="#7FA2F3FF" AmbientColorIntensity="0.87" />
+    <GlobalLightConfig LightColor="#FFECE3FF" Intensity="1.25" BounceIntensity="0.5" RotationX="53.96148" RotationY="175.1559" RotationZ="298.5793" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Ct01_night.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/StarryNight_CM.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="1" ReflectionIntensity="1" RefColor="#25304BFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#D3D3D3A0" Midtones="#DFDFDF87" Highlights="#DAEBFF84" />
+    <PlayerLightConfig LightColor="#DDF2FDFF" Intensity="1" BounceIntensity="0" RotationX="54" RotationY="243.5" RotationZ="0" Strength="0.519" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#EAF7FFFF" GroundColor="#92836DFF" SkyColor="#1025ACFF" AmbientIntensity="0.5" />
+    <FogConfig FogColor="#15233DFF" IsFogOn="True" FogBeginDis="20" FogEndDis="230" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#334A87FF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="80" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="189" Remarks="Dn00_liexiqian">
+    <SunConfig SunColor="#77A9D5FF" Intensity="2.35" AmbientColor="#9B8C8CFF" AmbientColorIntensity="1.3" />
+    <GlobalLightConfig LightColor="#FFECE3FF" Intensity="1.25" BounceIntensity="0.5" RotationX="40.33862" RotationY="222.0188" RotationZ="333.5286" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SfxPath SfxPath="Assets/Outputs/Sfx/Weather/weather_tongyong_snow.prefab" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#E9F4FF96" Midtones="#FFFFFF80" Highlights="#E6F3FF7D" />
+    <PlayerLightConfig LightColor="#FFD8BAFF" Intensity="1" BounceIntensity="1" RotationX="50.00001" RotationY="243.5" RotationZ="2.656473E-06" Strength="0.6" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#E1B7EAFF" GroundColor="#A9D4DBFF" SkyColor="#CCDDFFFF" AmbientIntensity="1" />
+    <FogConfig FogColor="#212F42FF" IsFogOn="True" FogBeginDis="20" FogEndDis="1200" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#484A7FFF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="100" DOFParamterY="500" DOFParamterZ="0.85" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.12" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="146" Remarks="World03Part1_hy">
+    <SunConfig SunColor="#969CC900" Intensity="1.5" AmbientColor="#50628700" AmbientColorIntensity="2.5" />
+    <GlobalLightConfig LightColor="#E8E8E800" Intensity="0" BounceIntensity="0" RotationX="357.8598" RotationY="192.0898" RotationZ="16.53291" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd03_Part1_night.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/MoonShine_CM.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#D8D8FF89" Midtones="#E8ECFF91" Highlights="#F3FFF88F" />
+    <PlayerLightConfig LightColor="#FFF4E700" Intensity="1" BounceIntensity="1" RotationX="52.99999" RotationY="29.70001" RotationZ="34.787" Strength="0.498" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#B8CEE100" GroundColor="#A5917C00" SkyColor="#C7C9FF00" AmbientIntensity="0.8" />
+    <FogConfig FogColor="#252D4200" IsFogOn="True" FogBeginDis="0" FogEndDis="200" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#6B69C600" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="50" DOFParamterY="200" DOFParamterZ="0.8" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="144" Remarks="World03Part1_bt">
+    <SunConfig SunColor="#F0D2C200" Intensity="2" AmbientColor="#646D7E00" AmbientColorIntensity="2.13" />
+    <GlobalLightConfig LightColor="#E8E8E800" Intensity="0" BounceIntensity="0" RotationX="49.60759" RotationY="13.27176" RotationZ="28.51444" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd03_Part1_noon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1.8" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#E5F3FB8C" Midtones="#AFB0B884" Highlights="#FFF7F46F" />
+    <PlayerLightConfig LightColor="#FFF4E700" Intensity="1.2" BounceIntensity="1" RotationX="52.99999" RotationY="29.70001" RotationZ="34.787" Strength="0.498" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#DDEAB7FF" GroundColor="#FFFFFFFF" SkyColor="#FFFFFFFF" AmbientIntensity="0.5" />
+    <FogConfig FogColor="#A9B8E100" IsFogOn="True" FogBeginDis="30" FogEndDis="450" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#6B69C600" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="50" DOFParamterY="200" DOFParamterZ="0.8" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="174" Remarks="World03_desert_day">
+    <SunConfig SunColor="#F0D2C200" Intensity="2" AmbientColor="#646D7E00" AmbientColorIntensity="2.13" />
+    <GlobalLightConfig LightColor="#E8E8E800" Intensity="0" BounceIntensity="0" RotationX="49.60759" RotationY="13.27176" RotationZ="28.51444" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd03_Part1_noon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1.8" RefColor="#FDB3B3FF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#E5F3FB8C" Midtones="#AFB0B884" Highlights="#FFF7F46F" />
+    <PlayerLightConfig LightColor="#FFF4E700" Intensity="1.2" BounceIntensity="1" RotationX="52.99999" RotationY="29.70001" RotationZ="34.787" Strength="0.498" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#DDEAB7FF" GroundColor="#FFFFFFFF" SkyColor="#FFFFFFFF" AmbientIntensity="0.5" />
+    <FogConfig FogColor="#A9B8E100" IsFogOn="True" FogBeginDis="30" FogEndDis="450" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#6B69C600" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="50" DOFParamterY="200" DOFParamterZ="0.8" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="148" Remarks="World03Part2_bt">
+    <SunConfig SunColor="#E1D1CD00" Intensity="1.55" AmbientColor="#92A1C300" AmbientColorIntensity="1.5" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="3.065037" RotationY="337.1056" RotationZ="0.3585579" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd03_Part2_daylight.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/Sunny3_CM6xxx.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="8" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FBF1FF84" Midtones="#F1F4FF78" Highlights="#EBEDFF73" />
+    <PlayerLightConfig LightColor="#FFF3EE00" Intensity="1.25" BounceIntensity="1" RotationX="35.36922" RotationY="310.0171" RotationZ="217.379" Strength="0.562" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#8DA4F900" GroundColor="#B7B7E800" SkyColor="#DFF3FF00" AmbientIntensity="0.55" />
+    <FogConfig FogColor="#464F6400" IsFogOn="True" FogBeginDis="30" FogEndDis="550" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="20" DOFParamterY="300" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.267" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="152" Remarks="World04Part1_bt">
+    <SunConfig SunColor="#FFF3E600" Intensity="1.95" AmbientColor="#A2D1FF00" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="1" BounceIntensity="0" RotationX="65.61864" RotationY="39.23756" RotationZ="42.338" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd04_Part1_noon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#EDFAFF82" Midtones="#FFFAF980" Highlights="#FFF7F280" />
+    <PlayerLightConfig LightColor="#FFFAF400" Intensity="1" BounceIntensity="1" RotationX="52.5" RotationY="292.5" RotationZ="5.609906E-06" Strength="0.45" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#D2CAC1FF" GroundColor="#926B42FF" SkyColor="#C1DEFFFF" AmbientIntensity="0.5" />
+    <FogConfig FogColor="#517CA000" IsFogOn="True" FogBeginDis="10" FogEndDis="500" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="300" DOFParamterZ="0.8" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.15" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="154" Remarks="World04Part1_hy">
+    <SunConfig SunColor="#93C4FF00" Intensity="1.7" AmbientColor="#A3B9D200" AmbientColorIntensity="0.8" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="1" BounceIntensity="0" RotationX="36.12545" RotationY="162.4584" RotationZ="93.48765" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd04_Part1_night.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/StarryNight_CM.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#F5F3FF87" Midtones="#E1F4FF84" Highlights="#C1C3CE80" />
+    <PlayerLightConfig LightColor="#FFFAF400" Intensity="1" BounceIntensity="1" RotationX="52.50001" RotationY="292.5" RotationZ="0" Strength="0.45" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#91A5CC00" GroundColor="#43393400" SkyColor="#7895FF00" AmbientIntensity="0.45" />
+    <FogConfig FogColor="#272A3200" IsFogOn="True" FogBeginDis="10" FogEndDis="600" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="300" DOFParamterZ="0.8" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="151" Remarks="World04Part1_qc">
+    <SunConfig SunColor="#B0CBFF00" Intensity="1.5" AmbientColor="#ABB5BD00" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="68.793" RotationY="238.6724" RotationZ="326.2318" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd04_Part1_morning.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#DAF4FF87" Midtones="#F8FEFF87" Highlights="#F3F8FF80" />
+    <PlayerLightConfig LightColor="#FFFAF400" Intensity="1" BounceIntensity="1" RotationX="52.5" RotationY="292.5" RotationZ="2.804953E-06" Strength="0.45" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#EAE7E3FF" GroundColor="#B4B4B4FF" SkyColor="#9FCCFFFF" AmbientIntensity="0.8" />
+    <FogConfig FogColor="#526C8FFF" IsFogOn="True" FogBeginDis="10" FogEndDis="500" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="80" DOFParamterY="300" DOFParamterZ="0.8" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="153" Remarks="World04Part1_hh">
+    <SunConfig SunColor="#EFBBFB00" Intensity="1.7" AmbientColor="#ABC8FF00" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="1" BounceIntensity="0" RotationX="71.42886" RotationY="97.39041" RotationZ="20.89842" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd04_Part1_afternoon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_4.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#F1F8FF83" Midtones="#E0ECFF80" Highlights="#FAFFF080" />
+    <PlayerLightConfig LightColor="#FFFAF400" Intensity="1" BounceIntensity="1" RotationX="52.5" RotationY="292.5" RotationZ="2.804953E-06" Strength="0.45" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#D0E4FF00" GroundColor="#BABABA00" SkyColor="#93BBDB00" AmbientIntensity="0.8" />
+    <FogConfig FogColor="#6E749600" IsFogOn="True" FogBeginDis="10" FogEndDis="500" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="300" DOFParamterZ="0.8" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.15" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="158" Remarks="World04Part2_hy">
+    <SunConfig SunColor="#93DFFF00" Intensity="2" AmbientColor="#A3D0D200" AmbientColorIntensity="1.15" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="1" BounceIntensity="0" RotationX="57.12207" RotationY="6.285314" RotationZ="112.6322" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd04_Part1_night.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/StarryNight_CM.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="7" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#F8F6FF87" Midtones="#E3E1FF84" Highlights="#B8B4D084" />
+    <PlayerLightConfig LightColor="#FFFAF400" Intensity="1" BounceIntensity="1" RotationX="52.50001" RotationY="292.5" RotationZ="-2.804954E-06" Strength="0.35" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#91A5CC00" GroundColor="#EAF1FF00" SkyColor="#FFFFFF00" AmbientIntensity="0.45" />
+    <FogConfig FogColor="#20252500" IsFogOn="True" FogBeginDis="10" FogEndDis="600" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="300" DOFParamterZ="0.8" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="0.95" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="156" Remarks="World04Part2_bt">
+    <SunConfig SunColor="#FFF3E600" Intensity="2.3" AmbientColor="#A2D1FF00" AmbientColorIntensity="1.3" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="1" BounceIntensity="0" RotationX="63.7394" RotationY="65.09557" RotationZ="0.1418241" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd04_Part1_noon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#EEFAFF82" Midtones="#FFFAF980" Highlights="#FFF7F284" />
+    <PlayerLightConfig LightColor="#FFFAF400" Intensity="1" BounceIntensity="1" RotationX="52.5" RotationY="292.5" RotationZ="2.804953E-06" Strength="0.5" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#D2CAC1FF" GroundColor="#926B42FF" SkyColor="#C1DEFFFF" AmbientIntensity="0.5" />
+    <FogConfig FogColor="#588CBA00" IsFogOn="True" FogBeginDis="10" FogEndDis="500" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="300" DOFParamterZ="0.8" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.15" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="155" Remarks="World04Part2_qc">
+    <SunConfig SunColor="#D5E5FF00" Intensity="2" AmbientColor="#91ABBD00" AmbientColorIntensity="1.25" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="77.11177" RotationY="310.2325" RotationZ="294.5943" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd04_Part1_morning.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#DAF4FF84" Midtones="#F8FEFF87" Highlights="#FFDDFE80" />
+    <PlayerLightConfig LightColor="#FFFAF400" Intensity="1" BounceIntensity="1" RotationX="52.5" RotationY="292.5" RotationZ="2.804953E-06" Strength="0.4" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#EAE7E3FF" GroundColor="#B4B4B4FF" SkyColor="#9FCCFFFF" AmbientIntensity="0.8" />
+    <FogConfig FogColor="#4A668DFF" IsFogOn="True" FogBeginDis="10" FogEndDis="500" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="80" DOFParamterY="300" DOFParamterZ="0.8" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="0.95" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="157" Remarks="World04Part2_hh">
+    <SunConfig SunColor="#FBAFAF00" Intensity="1.9" AmbientColor="#90C7FF00" AmbientColorIntensity="1.3" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="1" BounceIntensity="0" RotationX="65.32509" RotationY="35.41613" RotationZ="35.61691" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd04_Part1_afternoon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_4.cubemap" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#EBF1FF87" Midtones="#D6DDFF87" Highlights="#C0948083" />
+    <PlayerLightConfig LightColor="#FFFAF400" Intensity="1" BounceIntensity="1" RotationX="52.5" RotationY="292.5" RotationZ="2.804953E-06" Strength="0.4" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#D0E4FF00" GroundColor="#BABABA00" SkyColor="#F1D2FF00" AmbientIntensity="0.8" />
+    <FogConfig FogColor="#48567800" IsFogOn="True" FogBeginDis="10" FogEndDis="500" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="300" DOFParamterZ="0.8" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="196" Remarks="juqingqifen1">
+    <SunConfig SunColor="#FF220000" Intensity="1.3" AmbientColor="#6DDBFF00" AmbientColorIntensity="2.49" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="1" BounceIntensity="0" RotationX="46.56886" RotationY="64.61208" RotationZ="346.0263" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd04_Part1_OldAge_196.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_4.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FF713582" Midtones="#FFFC8788" Highlights="#5C622C9D" />
+    <PlayerLightConfig LightColor="#60FFB600" Intensity="1.7" BounceIntensity="1" RotationX="52.50001" RotationY="292.5" RotationZ="0" Strength="0.5" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#FFFFFFFF" GroundColor="#FFFFFFFF" SkyColor="#FFFFFFFF" AmbientIntensity="0.5" />
+    <FogConfig FogColor="#3C3C3C00" IsFogOn="True" FogBeginDis="35" FogEndDis="70" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="70" DOFParamterZ="0.8" />
+      <HSV HSVEnabled="True" HSVParamterX="-40" HSVParamterY="0.2" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="169" Remarks="Dn_pvp03_KiddArena">
+    <SunConfig SunColor="#FFABBBFF" Intensity="2.8" AmbientColor="#BBDEFFFF" AmbientColorIntensity="1.35" />
+    <GlobalLightConfig LightColor="#FFEEE4FF" Intensity="1.5" BounceIntensity="0.5" RotationX="6.464349" RotationY="113.3051" RotationZ="353.9919" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_3.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFE6FB80" Midtones="#DFF3FF80" Highlights="#EAE1DD80" />
+    <PlayerLightConfig LightColor="#FFDFDFFF" Intensity="1" BounceIntensity="0" RotationX="49.80001" RotationY="317.32" RotationZ="2.645483E-06" Strength="0.5" Bias="0.05" NormalBias="0.4" ShadowNearPlane="0.2" />
+    <EnvConifg EquatorColor="#B6C1C1FF" GroundColor="#AEC6FFFF" SkyColor="#F9EAFFFF" AmbientIntensity="1" />
+    <FogConfig FogColor="#7D7C9CFF" IsFogOn="True" FogBeginDis="20" FogEndDis="600" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#484A7FFF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="20" DOFParamterY="300" DOFParamterZ="0.75" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.2" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="163" Remarks="Dn05">
+    <SunConfig SunColor="#6EC1CAFF" Intensity="1.05" AmbientColor="#9CD2CFFF" AmbientColorIntensity="0.75" />
+    <GlobalLightConfig LightColor="#FFECE3FF" Intensity="1.25" BounceIntensity="0.5" RotationX="52.20668" RotationY="266.0494" RotationZ="324.6046" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#EBF0FF80" Midtones="#FFF0F087" Highlights="#EDFDFF78" />
+    <PlayerLightConfig LightColor="#F2FFFDFF" Intensity="1" BounceIntensity="0.5" RotationX="55.00001" RotationY="108" RotationZ="8.931052E-06" Strength="0.35" Bias="0.05" NormalBias="0.4" ShadowNearPlane="0.2" />
+    <EnvConifg EquatorColor="#BAE5FFFF" GroundColor="#838383FF" SkyColor="#B6F9FFFF" AmbientIntensity="1" />
+    <FogConfig FogColor="#096B66FF" IsFogOn="True" FogBeginDis="10" FogEndDis="300" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#6585D8FF" FogEnabled="True" FogParamterX="10" FogParamterY="370" FogParamterZ="75" FogParamterW="300" />
+      <DOF DOFEnabled="True" DOFParamterX="10" DOFParamterY="200" DOFParamterZ="0.8" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="0.9" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="164" Remarks="Dn06">
+    <SunConfig SunColor="#D8D8D8FF" Intensity="1.25" AmbientColor="#3D566AFF" AmbientColorIntensity="1.5" />
+    <GlobalLightConfig LightColor="#FFECE3FF" Intensity="1" BounceIntensity="0.57" RotationX="39.5" RotationY="-109.1" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/OverCast1_CM.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="10" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#FFF9F2FF" Intensity="1" BounceIntensity="0.57" RotationX="39.5" RotationY="250.9" RotationZ="2.212925E-06" Strength="0.4" Bias="0.05" NormalBias="0.4" ShadowNearPlane="0.2" />
+    <EnvConifg EquatorColor="#002887FF" GroundColor="#623B30FF" SkyColor="#BCE2FFFF" AmbientIntensity="0.5" />
+    <FogConfig FogColor="#6F85A3FF" IsFogOn="True" FogBeginDis="20" FogEndDis="500" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#6585D8FF" FogEnabled="False" FogParamterX="10" FogParamterY="370" FogParamterZ="75" FogParamterW="300" />
+      <DOF DOFEnabled="True" DOFParamterX="10" DOFParamterY="250" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.05" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1.05" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="150" Remarks="World03Part2_hy">
+    <SunConfig SunColor="#505EAE00" Intensity="1" AmbientColor="#7DADF100" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="15.87162" RotationY="289.739" RotationZ="347.9926" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd03_Part2_auroranight.mat" />
+    <SfxPath SfxPath="Assets/Outputs/Sfx/Weather/weather_tongyong_rain.prefab" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_4.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#EAEEFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#FFF3EE00" Intensity="1.25" BounceIntensity="1" RotationX="35.36922" RotationY="310.0171" RotationZ="217.379" Strength="0.4" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#BFD2FF00" GroundColor="#51515100" SkyColor="#E4E3FF00" AmbientIntensity="0.35" />
+    <FogConfig FogColor="#202A3500" IsFogOn="True" FogBeginDis="30" FogEndDis="550" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="30" DOFParamterY="300" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="149" Remarks="World03Part2_huanghun">
+    <SunConfig SunColor="#E590BF00" Intensity="1.4" AmbientColor="#B5CCFF00" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="351.8689" RotationY="187.4837" RotationZ="358.9356" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd03_Part2_afternoon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/Sunny3_CM6xxx.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#F5FBFF80" Midtones="#FFF1F180" Highlights="#FFF0F080" />
+    <PlayerLightConfig LightColor="#FFDFD600" Intensity="1" BounceIntensity="1" RotationX="35.36922" RotationY="310.0171" RotationZ="217.379" Strength="0.4" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#A4C7F000" GroundColor="#5F5D6700" SkyColor="#FFA19000" AmbientIntensity="0.5" />
+    <FogConfig FogColor="#2A2C3A00" IsFogOn="True" FogBeginDis="30" FogEndDis="450" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="30" DOFParamterY="230" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="147" Remarks="World03Part2_qc">
+    <SunConfig SunColor="#F4D5FF00" Intensity="1.2" AmbientColor="#B9D9E000" AmbientColorIntensity="0.9" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="5.990511" RotationY="3.231061" RotationZ="0.3375597" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd03_Part2_morning.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_4.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#F3F8FF84" Midtones="#E5F0FF80" Highlights="#F1F7FF80" />
+    <PlayerLightConfig LightColor="#FFEEE700" Intensity="1.1" BounceIntensity="1" RotationX="35.36922" RotationY="310.0171" RotationZ="217.379" Strength="0.5" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#B3BDCC00" GroundColor="#B8B8B800" SkyColor="#FFDBDB00" AmbientIntensity="0.5" />
+    <FogConfig FogColor="#35405100" IsFogOn="True" FogBeginDis="20" FogEndDis="450" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="10" DOFParamterY="500" DOFParamterZ="0.8" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1.05" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="128" Remarks="Dungn02_Cave01">
+    <SunConfig SunColor="#F3FCFFFF" Intensity="1.8" AmbientColor="#C5FFFEFF" AmbientColorIntensity="0.9" />
+    <GlobalLightConfig LightColor="#FFEEE4FF" Intensity="1.5" BounceIntensity="0.5" RotationX="46.99378" RotationY="22.03198" RotationZ="351.2675" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="2" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#E1E3EE80" Midtones="#E0E4EB80" Highlights="#F3FCFF84" />
+    <PlayerLightConfig LightColor="#FFEAD4FF" Intensity="1.1" BounceIntensity="0.5" RotationX="57.99998" RotationY="48" RotationZ="-9.66683E-06" Strength="0.4" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#A1BDFFFF" GroundColor="#576794FF" SkyColor="#D2E1FFFF" AmbientIntensity="1" />
+    <FogConfig FogColor="#497A8FFF" IsFogOn="True" FogBeginDis="20" FogEndDis="250" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#488CBCFF" FogEnabled="False" FogParamterX="10" FogParamterY="400" FogParamterZ="100" FogParamterW="300" />
+      <DOF DOFEnabled="True" DOFParamterX="10" DOFParamterY="100" DOFParamterZ="0.8" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.2" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="168" Remarks="Wd05_wanshang">
+    <SunConfig SunColor="#32457A00" Intensity="1.6" AmbientColor="#80AFCE00" AmbientColorIntensity="1.4" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="356.0406" RotationY="111.5718" RotationZ="3.407763" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd05_night.mat" />
+    <SfxPath SfxPath="Assets/Outputs/Sfx/Weather/weather_tongyong_snow.prefab" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/SkyCubemap.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1.5" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#F3F7FF84" Midtones="#F9F8FF80" Highlights="#FFEEEB80" />
+    <PlayerLightConfig LightColor="#FFFFFF00" Intensity="1" BounceIntensity="0" RotationX="45.01701" RotationY="332.9573" RotationZ="4.006051" Strength="0.45" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#5EBAFF00" GroundColor="#87878700" SkyColor="#F5E8FF00" AmbientIntensity="0.8" />
+    <FogConfig FogColor="#2F354200" IsFogOn="True" FogBeginDis="50" FogEndDis="550" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="200" DOFParamterZ="0.75" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="167" Remarks="Wd05_huanghun">
+    <SunConfig SunColor="#C5A38D00" Intensity="1.3" AmbientColor="#9ABDCE00" AmbientColorIntensity="1.2" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="13.4" RotationY="23.18313" RotationZ="10.67443" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd05_afternoon.mat" />
+    <SfxPath SfxPath="Assets/Outputs/Sfx/Weather/weather_tongyong_snow.prefab" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/SkyCubemap.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1.5" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#EEF7F884" Midtones="#F9F8FF80" Highlights="#FFE7E380" />
+    <PlayerLightConfig LightColor="#FFF0F000" Intensity="1" BounceIntensity="0" RotationX="45.01701" RotationY="332.9573" RotationZ="4.006051" Strength="0.5" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#FFD4DD00" GroundColor="#494E5400" SkyColor="#FFE9D200" AmbientIntensity="0.8" />
+    <FogConfig FogColor="#2D323C00" IsFogOn="True" FogBeginDis="50" FogEndDis="550" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="200" DOFParamterZ="0.75" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.05" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="166" Remarks="Wd05_baitian">
+    <SunConfig SunColor="#D5DBE100" Intensity="1" AmbientColor="#69838D00" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd05_afternoon.mat" />
+    <SfxPath SfxPath="Assets/Outputs/Sfx/Weather/weather_tongyong_snow.prefab" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="0" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#30548300" Intensity="1" BounceIntensity="0" RotationX="45.01699" RotationY="332.9573" RotationZ="4.006053" Strength="0.5" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#A9A9A900" GroundColor="#67676700" SkyColor="#D4DBFF00" AmbientIntensity="1" />
+    <FogConfig FogColor="#1D2B3500" IsFogOn="True" FogBeginDis="50" FogEndDis="350" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="100" DOFParamterZ="0" />
+      <HSV HSVEnabled="False" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="1" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="165" Remarks="Wd05_qingchen">
+    <SunConfig SunColor="#87A5EC00" Intensity="1.5" AmbientColor="#69838D00" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd05_night.mat" />
+    <SfxPath SfxPath="Assets/Outputs/Sfx/Weather/weather_tongyong_snow.prefab" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="0" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
+    <PlayerLightConfig LightColor="#30548300" Intensity="1" BounceIntensity="0" RotationX="45.01699" RotationY="332.9573" RotationZ="4.006053" Strength="0.3" Bias="0" NormalBias="0" ShadowNearPlane="0" />
+    <EnvConifg EquatorColor="#70879800" GroundColor="#28375400" SkyColor="#AAC3D200" AmbientIntensity="0.8" />
+    <FogConfig FogColor="#0B182000" IsFogOn="True" FogBeginDis="50" FogEndDis="450" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="100" DOFParamterZ="0" />
+      <HSV HSVEnabled="False" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="141" Remarks="苍空要塞">
+    <SunConfig SunColor="#FFF7EEFF" Intensity="1.3" AmbientColor="#BFCCE5FF" AmbientColorIntensity="1" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="13.62604" RotationY="85.53692" RotationZ="333.405" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_4.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#F5FAFF82" Midtones="#E6F8FF82" Highlights="#FFFEE380" />
+    <PlayerLightConfig LightColor="#FFF8F6FF" Intensity="1.1" BounceIntensity="1" RotationX="49.99999" RotationY="260" RotationZ="2.656472E-06" Strength="0.5" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#E8F9FF00" GroundColor="#96969600" SkyColor="#FFFFFF00" AmbientIntensity="0" />
+    <FogConfig FogColor="#8F99CD00" IsFogOn="True" FogBeginDis="30" FogEndDis="230" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="10" DOFParamterY="100" DOFParamterZ="0.9" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="191" Remarks="Dn_pvp02_1v1">
+    <SunConfig SunColor="#98E2FFFF" Intensity="3.7" AmbientColor="#859D93FF" AmbientColorIntensity="2.65" />
+    <GlobalLightConfig LightColor="#FFECE3FF" Intensity="1.25" BounceIntensity="0.5" RotationX="22.18846" RotationY="19.007" RotationZ="312.4064" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/Sunny3_CM6xxx.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#F3F8FF80" Midtones="#F5FAFF80" Highlights="#F7F6FF82" />
+    <PlayerLightConfig LightColor="#A3BBFFFF" Intensity="1.2" BounceIntensity="1" RotationX="49.90001" RotationY="27.2" RotationZ="1.325481E-06" Strength="0.25" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#F87F49FF" GroundColor="#9D99A8FF" SkyColor="#A7A1F4FF" AmbientIntensity="1" />
+    <FogConfig FogColor="#252729FF" IsFogOn="True" FogBeginDis="20" FogEndDis="67" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#484A7FFF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="5" DOFParamterY="20" DOFParamterZ="0.5" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="0.95" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="160" Remarks="City02_bt">
+    <SunConfig SunColor="#FFF8F000" Intensity="2.3" AmbientColor="#80909200" AmbientColorIntensity="1.3" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="2.74139" RotationY="111.0305" RotationZ="352.9089" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Ct02_noon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" EnvCubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_city02_day.cubemap" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FDF8FF87" Midtones="#E9F2FF8A" Highlights="#FFF3F380" />
+    <PlayerLightConfig LightColor="#FFEEE700" Intensity="1" BounceIntensity="1" RotationX="43.20001" RotationY="305.6" RotationZ="2.342415E-06" Strength="0.4" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#BABACC00" GroundColor="#29160700" SkyColor="#98AAFF00" AmbientIntensity="1" />
+    <FogConfig FogColor="#47596C00" IsFogOn="True" FogBeginDis="35" FogEndDis="1000" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="500" DOFParamterZ="0.75" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.05" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="159" Remarks="City02_qc">
+    <SunConfig SunColor="#FFE8E800" Intensity="1.35" AmbientColor="#F5F7FF00" AmbientColorIntensity="0.8" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="350.5946" RotationY="46.44407" RotationZ="344.899" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Ct02_morning.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" EnvCubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_city02_morning.cubemap" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="12" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#F3F6FF83" Midtones="#D9ECF88C" Highlights="#FFF5F380" />
+    <PlayerLightConfig LightColor="#FFFBF000" Intensity="1" BounceIntensity="1" RotationX="43.20001" RotationY="305.6" RotationZ="2.342416E-06" Strength="0.4" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#FFEDBF00" GroundColor="#13131C00" SkyColor="#2DB1FF00" AmbientIntensity="1" />
+    <FogConfig FogColor="#48506700" IsFogOn="True" FogBeginDis="35" FogEndDis="1000" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="500" DOFParamterZ="0.75" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1.05" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="161" Remarks="City02_hh">
+    <SunConfig SunColor="#FFC3C300" Intensity="1.7" AmbientColor="#F5F7FF00" AmbientColorIntensity="0.95" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="342.3312" RotationY="206.36" RotationZ="345.4808" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Ct02_afternoon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_3.cubemap" EnvCubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_city02_afternoon.cubemap" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="12" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#DBE3FF8C" Midtones="#E3EFF88C" Highlights="#FFDDCA80" />
+    <PlayerLightConfig LightColor="#FFD29F00" Intensity="1" BounceIntensity="1" RotationX="43.20001" RotationY="305.6" RotationZ="2.342416E-06" Strength="0.4" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#E5EFFF00" GroundColor="#2D1C1100" SkyColor="#EECCFF00" AmbientIntensity="1" />
+    <FogConfig FogColor="#3C416000" IsFogOn="True" FogBeginDis="35" FogEndDis="1000" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="500" DOFParamterZ="0.75" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1.05" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="162" Remarks="City02_hy">
+    <SunConfig SunColor="#EAFBFF00" Intensity="1.8" AmbientColor="#9BBBC000" AmbientColorIntensity="0.85" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="358.1997" RotationY="341.766" RotationZ="8.515958" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Ct02_night.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" EnvCubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_city02_night.cubemap" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFF9F887" Midtones="#CADCF68A" Highlights="#FFFBFB80" />
+    <PlayerLightConfig LightColor="#E3F2FF00" Intensity="1" BounceIntensity="1" RotationX="43.20001" RotationY="305.6" RotationZ="2.342416E-06" Strength="0.4" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#ABA09500" GroundColor="#3C4D5A00" SkyColor="#B2C0FF00" AmbientIntensity="1" />
+    <FogConfig FogColor="#0F151F00" IsFogOn="True" FogBeginDis="35" FogEndDis="1000" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="0" DOFParamterY="500" DOFParamterZ="0.75" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.05" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="122" Remarks="Wd01_baitian">
+    <SunConfig SunColor="#FFF2E5FF" Intensity="3.2" AmbientColor="#D0EFFFFF" AmbientColorIntensity="2.55" />
+    <GlobalLightConfig LightColor="#FFEEE4FF" Intensity="1.2" BounceIntensity="0.5" RotationX="41.2341" RotationY="343.6743" RotationZ="4.009256" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd01_noon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#94BDFFFF" />
+    <BrightnessContrastGammaConfig Brightness="2" Contrast="2" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#E7F2FC80" Midtones="#F0F9FF80" Highlights="#E5D7F980" />
+    <PlayerLightConfig LightColor="#FFF2E8FF" Intensity="1" BounceIntensity="0" RotationX="45.00001" RotationY="29.99997" RotationZ="-3.622255E-06" Strength="0.5" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#E8CEB2FF" GroundColor="#351805FF" SkyColor="#7ABDFFFF" AmbientIntensity="1" />
+    <FogConfig FogColor="#76A6BF00" IsFogOn="True" FogBeginDis="60" FogEndDis="400" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#5581E8FF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="200" DOFParamterZ="1" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="121" Remarks="Wd01_baitian">
+    <SunConfig SunColor="#F0EAE6FF" Intensity="2.85" AmbientColor="#BBE2FFFF" AmbientColorIntensity="2.2" />
+    <GlobalLightConfig LightColor="#FFECE3FF" Intensity="1.25" BounceIntensity="0.5" RotationX="57.56335" RotationY="324.2147" RotationZ="295.7368" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd01_morning.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#F1F3FA82" Midtones="#C8DFDF8C" Highlights="#F2F9FF80" />
+    <PlayerLightConfig LightColor="#FFF7EAFF" Intensity="1" BounceIntensity="0" RotationX="45.00001" RotationY="29.99997" RotationZ="-3.622255E-06" Strength="0.4" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#D5EBF4FF" GroundColor="#382007FF" SkyColor="#7CBEFFFF" AmbientIntensity="0.5" />
+    <FogConfig FogColor="#6893B3FF" IsFogOn="True" FogBeginDis="15" FogEndDis="300" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#334A87FF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="80" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="125" Remarks="wd01_huanghun">
+    <SunConfig SunColor="#FFC19FFF" Intensity="3.3" AmbientColor="#A0B8E6FF" AmbientColorIntensity="3" />
+    <GlobalLightConfig LightColor="#FFECE3FF" Intensity="1.25" BounceIntensity="0.5" RotationX="45.46309" RotationY="356.5012" RotationZ="307.7408" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd01_afternoon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/Sunny3_CM6xxx.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#D7E0E495" Midtones="#F5F7FF82" Highlights="#C7BDB880" />
+    <PlayerLightConfig LightColor="#FFE5D4FF" Intensity="1" BounceIntensity="0" RotationX="45.00001" RotationY="29.99997" RotationZ="-3.622255E-06" Strength="0.5" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#E9F0EDFF" GroundColor="#8B949EFF" SkyColor="#FFEAD8FF" AmbientIntensity="0.5" />
+    <FogConfig FogColor="#55617AFF" IsFogOn="True" FogBeginDis="40" FogEndDis="350" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#334A87FF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="80" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="126" Remarks="Wd01_night">
+    <SunConfig SunColor="#4DB0FFFF" Intensity="2.7" AmbientColor="#7387B6FF" AmbientColorIntensity="2.9" />
+    <GlobalLightConfig LightColor="#FFECE3FF" Intensity="1.25" BounceIntensity="0.5" RotationX="49.43816" RotationY="239.2098" RotationZ="282.7005" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Wd01_night.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/MoonShine_CM.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="5" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#D3D3D3A0" Midtones="#DFDFDF87" Highlights="#DAE6FF84" />
+    <PlayerLightConfig LightColor="#E5F3FFFF" Intensity="1" BounceIntensity="0" RotationX="45.00001" RotationY="29.99997" RotationZ="-3.622255E-06" Strength="0.35" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#EAF7FFFF" GroundColor="#92836DFF" SkyColor="#1025ACFF" AmbientIntensity="0.5" />
+    <FogConfig FogColor="#1B3141FF" IsFogOn="True" FogBeginDis="0" FogEndDis="350" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#334A87FF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="80" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="118" Remarks="Ct01_noon">
+    <SunConfig SunColor="#FFFFFFFF" Intensity="2.2" AmbientColor="#AAB8FFFF" AmbientColorIntensity="1.5" />
+    <GlobalLightConfig LightColor="#FFECE3FF" Intensity="1.25" BounceIntensity="0.5" RotationX="53.30647" RotationY="117.4369" RotationZ="359.852" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Ct01_noon.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="2" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="10" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#C0CAD3A5" Midtones="#FFFFFF80" Highlights="#F9FCFF6E" />
+    <PlayerLightConfig LightColor="#FFF9F5FF" Intensity="1.2" BounceIntensity="0" RotationX="54" RotationY="243.5" RotationZ="0" Strength="0.583" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#FFF2E8FF" GroundColor="#DFBE8FFF" SkyColor="#AEB2FFFF" AmbientIntensity="0.5" />
+    <FogConfig FogColor="#BCDDFFFF" IsFogOn="True" FogBeginDis="20" FogEndDis="450" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#334A87FF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="15" DOFParamterY="80" DOFParamterZ="0.7" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="130" Remarks="Dn_pvp02_Arena01">
+    <SunConfig SunColor="#FFFAF1FF" Intensity="0.6" AmbientColor="#B2CFFFFF" AmbientColorIntensity="0.85" />
+    <GlobalLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="330.8452" RotationY="279.7752" RotationZ="353.1687" />
+    <SkyBoxPath SkyBoxPath="" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/cube_5.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1.5" RefColor="#00000000" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FAF3FF87" Midtones="#FFFFFF80" Highlights="#EBF3FF80" />
+    <PlayerLightConfig LightColor="#FFF9F400" Intensity="1" BounceIntensity="0" RotationX="34.99999" RotationY="45" RotationZ="2.08453E-06" Strength="0.5" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#FFE9DF00" GroundColor="#24090300" SkyColor="#6FA6FF00" AmbientIntensity="0" />
+    <FogConfig FogColor="#6174A5FF" IsFogOn="True" FogBeginDis="10" FogEndDis="600" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#484A7FFF" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="10" DOFParamterY="130" DOFParamterZ="0.9" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1.15" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="False" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="1.2" Intensity="1" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+  <WeatherData GUID="180" Remarks="shenzhishijie">
+    <SunConfig SunColor="#928772FF" Intensity="3" AmbientColor="#7296CE00" AmbientColorIntensity="0.3" />
+    <GlobalLightConfig LightColor="#FFFFFF00" Intensity="1" BounceIntensity="0" RotationX="10.98756" RotationY="40.27647" RotationZ="7.531776" />
+    <SkyBoxPath SkyBoxPath="Assets/Outputs/Scenes/SkySphere/Materials/Gnl_SkyShpere_Rookie_GodEye.mat" />
+    <SfxPath SfxPath="" />
+    <WwiseEvent WwiseEvent="" />
+    <SkyBoxPathEx SkyBoxPathEx="" />
+    <SkyConfig CubeMapPath="Assets/Outputs/Scenes/SkySphere/Cubemaps/Sunny1_CM.cubemap" EnvCubeMapPath="" CubeMapBias="0" HeadlightIntesity="0" AddonDirectionW="0" AddonDirectionX="0" AddonDirectionY="0" AddonDirectionZ="0" WindDirectionW="0" WindDirectionX="0" WindDirectionY="0" WindDirectionZ="0" WindFrequency="0" WindNoise="0" LightmapFeedback="0" ReflectionIntensity="1" RefColor="#FFFFFFFF" />
+    <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
+    <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#779FC7B4" Midtones="#ACB8EE84" Highlights="#9FDAFF75" />
+    <PlayerLightConfig LightColor="#FFFFFFFF" Intensity="0.8" BounceIntensity="0" RotationX="40.00002" RotationY="252" RotationZ="-2.229045E-06" Strength="0.4" Bias="0" NormalBias="0" ShadowNearPlane="0.09999999" />
+    <EnvConifg EquatorColor="#694E89FF" GroundColor="#629387FF" SkyColor="#7B7B7BFF" AmbientIntensity="1" />
+    <FogConfig FogColor="#2F4C6F00" IsFogOn="True" FogBeginDis="0.5" FogEndDis="160" FogMode="1" />
+    <PostEffectConfig>
+      <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />
+      <DOF DOFEnabled="True" DOFParamterX="30" DOFParamterY="150" DOFParamterZ="1.8" />
+      <HSV HSVEnabled="True" HSVParamterX="0" HSVParamterY="1" HSVParamterZ="1" />
+      <BrightnessAndContrast BrightnessAndConstrastEnabled="True" BrightnessAndConstrastParamterX="0" BrightnessAndConstrastParamterY="1" BrightnessAndConstrastParamterZ="0" />
+      <Bloom Threshold="0.5" Intensity="1.5" Radius="0.5" Iteration="10" SoftKneeA="0" WithFlicker="False" />
+      <SpecialVision SpecialVisionEnabled="False" SpecialVisionParamterX="0" SpecialVisionParamterY="0" SpecialVisionColor="#00000000" />
+    </PostEffectConfig>
+    <ShadowConfig ShadowConfig="0" />
+  </WeatherData>
+</WeatherDatas>

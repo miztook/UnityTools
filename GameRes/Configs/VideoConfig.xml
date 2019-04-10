@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VideoConfig>
+<!--TempCG-->
+<!--name:npc姓名，为空则不显示;content：说话内容，不可为空;show：字幕出现时间;close：字幕结束时间,0意味着一直存在-->
+	<TempCG>
+		<Dialogue>
+			<d1 name = "" content = "敬请期待" show = "0" close = "3"/>			
+		</Dialogue>
+	</TempCG>
+<!--Quest160-->
+	<Quest160>
+		<Dialogue>
+			<d1 name = "" content = "密特拉商团的守卫围了过来，你突遭重击，失去了知觉" show = "0" close = "3"/>	
+		</Dialogue>
+	</Quest160>
+<!--Quest2306-->
+	<Quest2306>
+		<Dialogue>
+			<d1 name = "" content = "席崁兰尼正要反驳，忽然杀声四起" show = "0" close = "2"/>	
+			<d1 name = "霍加斯先锋军" content = "为了公爵！！霍加斯万岁！！！" show = "2" close = "4"/>				
+		</Dialogue>
+	</Quest2306>
+<!--Quest2311-->
+	<Quest2311>
+		<Dialogue>
+			<d1 name = "" content = "这时一个席崁达里人从天而降，你能看出他黑色的服饰上面满是血迹" show = "0" close = "3"/>			
+		</Dialogue>
+	</Quest2311>
+<!--Quest3000-->
+	<Quest3000>
+		<Dialogue>
+			<d1 name = "" content = "行船中的颠簸让你觉得自己一定从未深入过海洋。即使精灵们的船只在魔法的加护下远比普通商船平稳，也没改善晕船呕吐的情况。" show = "0" close = "3"/>			
+			<d1 name = "" content = "直到进入埃塞尼亚附近平静的海域，你才能够站在甲板上欣赏一下夏拉大陆外海的风景，但大部分时候，你还是躺在舱室里，等待着海浪造成的不适早一点过去。" show = "3" close = "6"/>		
+			<d1 name = "" content = "在某一天早上，毫无征兆地，甲板上爆发出一阵欢呼，跑动的声音和喊叫声响成一片。" show = "6" close = "9"/>
+			<d1 name = "" content = "你知道你终于可以摆脱逼仄而不停摇晃的小舱室，重新踏上坚实的土地。" show = "9" close = "12"/>			
+		</Dialogue>
+	</Quest3000>
+<!--Quest4039-->
+	<Quest4039>
+		<Dialogue>
+			<d1 name = "" content = "西首的山巅上，巨人遗迹间的古代大炮运转起来，突然发射出一道紫色的光。" show = "0" close = "3"/>			
+			<d1 name = "" content = "光束由远及近，朝眼前的卡斯塔仑城逼去……一声巨响，大地颤动起来。" show = "3" close = "6"/>	
+		</Dialogue>
+	</Quest4039>
+<!--Quest4046-->
+	<Quest4046>
+		<Dialogue>
+			<d1 name = "" content = "就在焰晶准备告诉你去支援卡塔娅的时，周围响起了慌乱的叫声。" show = "0" close = "3"/>			
+			<d1 name = "卡斯塔尼克市民" content = "广场失陷了！到处都是丧尸！" show = "3" close = "6"/>	
+		</Dialogue>
+	</Quest4046>
+<!--Quest4059-->
+	<Quest4059>
+		<Dialogue>
+			<d1 name = "" content = "你发现前方站着一个熟悉的影子" show = "0" close = "3"/>			
+		</Dialogue>
+	</Quest4059>
+<!--Quest4097-->
+	<Quest4097>
+		<Dialogue>
+			<d1 name = "尼古拉斯" content = "我答应你的，依旧作数。你只需要静静的躺在我怀里，就快到了" show = "0" close = "3"/>	
+			<d1 name = "温妮莎" content = "……" show = "3" close = "6"/>						
+		</Dialogue>
+	</Quest4097>
+<!--Quest4107-->
+	<Quest4107>
+		<Dialogue>
+			<d1 name = "" content = "周围的空气变得凝固。你看见艾利恩半跪在地上，他轻轻抚摸着艾丽莎的脸颊，曾经精致而鲜活的面庞上已经完全失去了生气" show = "0" close = "5"/>			
+		</Dialogue>
+	</Quest4107>
+<!--Quest4111-->
+	<Quest4111>
+		<Dialogue>
+			<d1 name = "" content = "战争似乎结束了，你对如何阻止尼古拉斯依然毫无头绪。" show = "0" close = "3"/>			
+			<d1 name = "" content = "迪波再一次陷入了难以克制的自责，而沙摩尔依然昏迷不醒。" show = "3" close = "6"/>
+			<d1 name = "" content = "行动如常的似乎只有艾利恩，但是他眼底的哀痛磨灭不去。" show = "6" close = "9"/>
+			<d1 name = "" content = "在一切都茫然着毫无头绪的时候，从尔雷曼西亚突然到访的客人似乎成了唯一的转机。" show = "9" close = "12"/>
+		</Dialogue>
+	</Quest4111>
+<!--Quest4311-1-->
+	<Quest4311-1>
+		<Dialogue>
+			<d1 name = "" content = "迪波的剑锋刺入了温妮莎的身体，她立刻瘫软下来" show = "0" close = "3"/>			
+		</Dialogue>
+	</Quest4311-1>
+<!--Quest4311-2-->
+	<Quest4311-2>
+		<Dialogue>
+			<d1 name = "" content = "尼古拉斯轻轻抬了抬了手，原本已经失去供能的巨炮重新运转起来，炮口对向战场的方向，射出深紫色的光束。" show = "0" close = "3"/>			
+		</Dialogue>
+	</Quest4311-2>
+<!--Quest3258-->
+	<Quest3258>
+		<Dialogue>
+			<d1 name = "" content = "远处突然传来剧烈的震动。" show = "0" close = "3"/>			
+		</Dialogue>
+	</Quest3258>
+<!--Quest3320-->
+	<Quest3320>
+		<Dialogue>
+			<d1 name = "" content = "击溃了演武场最后的守军，箭雨终于停止，周围响起了传送门开启的声音。" show = "0" close = "3"/>			
+		</Dialogue>
+	</Quest3320>
+<!--Quest3330-->
+	<Quest3330>
+		<Dialogue>
+			<d1 name = "" content = "坎帕索站在悬崖边缘，他最后看了一眼包围自己的高等精灵，张开双手，向后跃下。" show = "0" close = "3"/>			
+		</Dialogue>
+	</Quest3330>
+	<!--精灵献礼-->
+	<Mall_CG01>
+		<CGMask mask = "false" />
+	</Mall_CG01>
+	<!--宠物扭蛋-->
+	<Mall_CG02>
+		<CGMask mask = "false" />
+	</Mall_CG02>
+</VideoConfig>

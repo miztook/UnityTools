@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PlayerFollowCameraConfig>
+	<!-- 最小距离 -->
+	<CamMinOffsetDist value="2" />
+	<!-- 最大距离 -->
+	<CamMaxOffsetDist value="10" />
+	<!-- 默认距离 -->
+	<CamDefaultOffsetDist value="4" />
+	<!-- 默认垂直角度 -->
+	<DefaultPitchDegDest value="-20" />
+	<!-- 视角跟随垂直角度不修正区间 -->
+	<DefaultPitchDegDestOffset value="20" />
+	<!-- 默认水平角度 -->
+	<DefaultYawDegDest value="180" />
+	<!-- 视角跟随X角速度 -->
+	<CamMaxYawSpeed value="60" />
+	<!-- 开始并以 -->
+	<CamMinYawSpeed value="0" />
+	<!-- 视角跟随Y角速度 -->
+	<CamMaxPitchSpeed value="40" />
+	<!-- 开始并以 -->
+	<CamMinPitchSpeed value="0" />
+	<!-- 技能转向最大水平角速度 -->
+	<CamYawRecoverSpeed value="500" />
+	<!-- 技能转向2阶段角速度 -->
+	<CamYawRecoverSpeedSlow value="200" />
+	<!-- 技能转向垂直角速度 -->
+	<CamPitchRecoverSpeed value="200" />
+	<!-- 相机距离恢复速度修正，值越小速度越快 -->
+	<CamDistSpeedOffset value="0.08" />
+	<!-- 旧的2.5D最大距离 -->
+	<CamDefOffsetDist25D value="16" />
+	<!-- 2.5D默认垂直角度 -->
+	<CamDefPitchDegDest25D value="-30" />
+	<!-- 缩放敏感度 -->
+	<CamRollSensitivity value="0.1" />
+	<!-- 界面模型旋转敏感度 -->
+	<UIModelRotateSensitivity value="0.2" />
+
+	<!-- 战斗锁定视点在锁定直线上的位置比率，0代表在主角，1代表在目标 -->
+	<FightLogkLookAtPointRate value="0" />
+	<!-- 战斗锁定水平角速度 -->
+	<FightLockYawSpeed value="200" />
+	<!-- 解锁锁定视角的距离比 -->
+	<UnLockDistRate value="2" />
+
+	<!-- 调试用，之后删 -->
+	<!-- Boss模式相机位置恢复时间(秒) -->
+	<BossCamPosRecoverDuration value="1.0" />
+	<!-- Boss模式相机视点恢复时间(秒) -->
+	<BossCamLookAtPosRecoverDuration value="1.0" />
+	<!-- Boss模式相机FOV恢复时间(秒) -->
+	<BossCamFOVRecoverDuration value="1.0" />
+
+</PlayerFollowCameraConfig>

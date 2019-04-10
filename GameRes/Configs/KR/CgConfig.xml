@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CGConfig>
+<!--通用配置-->
+	<Common_Config>
+		<d1 content = "스킵하려면 화면을 두 번 터치하세요" />
+	</Common_Config>
+<!--遗迹1boss出场-->
+	<dungn01_02_bossborn>
+		<Dialogue>
+			<d1 name = "라칸 대사제" content = "이 개미 놈들아! 라칸님의 능력 앞에 무릎 꿇어라!" />
+			<d2 name = "두 번째 말" content = "줄바꿈 없이 최대한 많은 글자를 담으면 된다." />
+		</Dialogue>
+		<CGMask mask = "true" />
+	</dungn01_02_bossborn>
+<!--格林镇开场boss-->
+	<Wd01_glz_diguoqiangqishi>
+		<Dialogue>
+			<d1 name = "브라이언" content = "젠장!" />
+			<d2 name = "장교" content = "누구냐!" />
+		</Dialogue>
+		<CGMask mask = "true" />
+	</Wd01_glz_diguoqiangqishi>
+<!--格林镇间谍-->
+	<Wd01_glz_spy>
+		<Dialogue>
+			<d1 name = "브라이언" content = "이제야 왔군요. 조나단 부대의 다음 작전을 알아냈습니다..." />
+			<d2 name = "장교" content = "잘했네!" />
+		</Dialogue>
+		<CGMask mask = "true" />
+	</Wd01_glz_spy>
+<!--开场动画-->
+	<Wd01_glz_siege>
+		<CGMask mask = "true" />
+	</Wd01_glz_siege>
+<!--西门之战叛徒跳反-->
+	<Wd01_glz_traitor>
+		<CGMask mask = "true" />
+	</Wd01_glz_traitor>
+<!--西门之战叛徒跳反-->
+	<Wd01_glz_daerjia>
+		<CGMask mask = "true" />
+	</Wd01_glz_daerjia>
+<!--图拉克出场-->
+	<Wd01_bhl_tulake>
+	    <Name>
+			<d1 name = "트라크"/>
+		</Name>
+		<CGMask mask = "true" />
+	</Wd01_bhl_tulake>
+	<CG_55162543>
+		<CGMask mask = "false" />
+	</CG_55162543>
+	<CG_shenzhishijie>
+		<CGMask mask = "false" />
+	</CG_shenzhishijie>
+<!--密特拉演讲结束-->
+	<City01_mitela03>
+		<Dialogue>
+			<d1 name = "미트라" content = "귀빈 여러분을 위해 지금 미트라 아레나의 문을 열겠습니다." />
+			<d2 name = "미트라" content = "아룬 대륙에서 가장 거칠고 자극적인 경기를 감상하세요!" />
+		</Dialogue>
+		<CGMask mask = "true" />
+	</City01_mitela03>
+</CGConfig>

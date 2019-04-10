@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WwiseSoundConfig>
+
+	 <WwiseDefaultPoolSize value="4096"/>
+	 <WwiseLowerPoolSize value="2048"/>
+	 <WwiseStreamingPoolSize value="1024"/>
+	 <WwiseMaxNumPools value="20"/>
+	 <WwiseNumSamplePerFrame value="512"/>
+	 
+	 <WwiseBGMVolume value="341651998" />
+	<WwiseSFXVolume value="1564184899" />
+	<WwiseHealth value="3677180323" />
+	<WwiseTimeOfDay value="207908541" />
+	
+	<WwiseBGEffect value="2706344916" />
+	<WwiseBGEffectSound value="Tuto_BG_Effect"/>
+
+	<WeatherSound>
+			<item type="1" wwise="Day_And_Night" />
+			<item type="2" wwise="Day_And_Night" />
+			<item type="3" wwise="Rain" />
+			<item type="4" wwise="Snow" />
+	</WeatherSound>
+	
+	<FootStepSound>
+			 <Male type="0" wwise="Male_footstep_dirt" />
+			 <Male type="1" wwise="Male_footstep_grass" />
+			 <Male type="2" wwise="Male_footstep_rock" />
+			 <Male type="3" wwise="Male_footstep_snow" />
+			 <Male type="4" wwise="Male_footstep_wood" />
+			 <Male type="5" wwise="Male_footstep_metal" />
+			 <Male type="6" wwise="Male_footstep_water" />
+			 <Male type="7" wwise="Male_footstep_water" />
+			 
+			 <Female type="0" wwise="Female_footstep_dirt" />
+			 <Female type="1" wwise="Female_footstep_grass" />
+			 <Female type="2" wwise="Female_footstep_rock" />
+			 <Female type="3" wwise="Female_footstep_snow" />
+			 <Female type="4" wwise="Female_footstep_wood" />
+			 <Female type="5" wwise="Female_footstep_metal" />
+			 <Female type="6" wwise="Female_footstep_water" />
+			 <Female type="7" wwise="Female_footstep_water" />
+			 
+			 <Hoofed type="0" wwise="horse_foot_land" />
+			 <Hoofed type="1" wwise="horse_foot_land" />
+			 <Hoofed type="2" wwise="horse_foot_land" />
+			 <Hoofed type="3" wwise="horse_foot_land" />
+			 <Hoofed type="4" wwise="horse_foot_land" />
+			 <Hoofed type="5" wwise="horse_foot_land" />
+			 <Hoofed type="6" wwise="horse_foot_water" />
+			 <Hoofed type="7" wwise="horse_foot_water" />
+			 
+			 <Dragon type="0" wwise="dragon_foot_land" />
+			 <Dragon type="1" wwise="dragon_foot_land" />
+			 <Dragon type="2" wwise="dragon_foot_land" />
+			 <Dragon type="3" wwise="dragon_foot_land" />
+			 <Dragon type="4" wwise="dragon_foot_land" />
+			 <Dragon type="5" wwise="dragon_foot_land" />
+			 <Dragon type="6" wwise="dragon_foot_water" />
+			 <Dragon type="7" wwise="dragon_foot_water" />
+			 
+			 <Felidae type="0" wwise="dog_foot_land" />
+			 <Felidae type="1" wwise="dog_foot_land" />
+			 <Felidae type="2" wwise="dog_foot_land" />
+			 <Felidae type="3" wwise="dog_foot_land" />
+			 <Felidae type="4" wwise="dog_foot_land" />
+			 <Felidae type="5" wwise="dog_foot_land" />
+			 <Felidae type="6" wwise="dog_foot_water" />
+			 <Felidae type="7" wwise="dog_foot_water" />
+			 
+			 <Dunk type="0" wwise="duck_foot_land" />
+			 <Dunk type="1" wwise="duck_foot_land" />
+			 <Dunk type="2" wwise="duck_foot_land" />
+			 <Dunk type="3" wwise="duck_foot_land" />
+			 <Dunk type="4" wwise="duck_foot_land" />
+			 <Dunk type="5" wwise="duck_foot_land" />
+			 <Dunk type="6" wwise="duck_foot_water" />
+			 <Dunk type="7" wwise="duck_foot_water" />
+
+			 <Pig type="0" wwise="pig_foot_land" />
+			 <Pig type="1" wwise="pig_foot_land" />
+			 <Pig type="2" wwise="pig_foot_land" />
+			 <Pig type="3" wwise="pig_foot_land" />
+			 <Pig type="4" wwise="pig_foot_land" />
+			 <Pig type="5" wwise="pig_foot_land" />
+			 <Pig type="6" wwise="pig_foot_water" />
+			 <Pig type="7" wwise="pig_foot_water" />
+
+			 <Lion type="0" wwise="lion_foot_land" />
+			 <Lion type="1" wwise="lion_foot_land" />
+			 <Lion type="2" wwise="lion_foot_land" />
+			 <Lion type="3" wwise="lion_foot_land" />
+			 <Lion type="4" wwise="lion_foot_land" />
+			 <Lion type="5" wwise="lion_foot_land" />
+			 <Lion type="6" wwise="lion_foot_water" />
+			 <Lion type="7" wwise="lion_foot_water" />
+
+			 <Wolf type="0" wwise="wolf_foot_land" />
+			 <Wolf type="1" wwise="wolf_foot_land" />
+			 <Wolf type="2" wwise="wolf_foot_land" />
+			 <Wolf type="3" wwise="wolf_foot_land" />
+			 <Wolf type="4" wwise="wolf_foot_land" />
+			 <Wolf type="5" wwise="wolf_foot_land" />
+			 <Wolf type="6" wwise="wolf_foot_water" />
+			 <Wolf type="7" wwise="wolf_foot_water" />
+			 
+			 <BDragon type="0" wwise="born_dragon_foot_land" />
+			 <BDragon type="1" wwise="born_dragon_foot_land" />
+			 <BDragon type="2" wwise="born_dragon_foot_land" />
+			 <BDragon type="3" wwise="born_dragon_foot_land" />
+			 <BDragon type="4" wwise="born_dragon_foot_land" />
+			 <BDragon type="5" wwise="born_dragon_foot_land" />
+			 <BDragon type="6" wwise="born_dragon_foot_water" />
+			 <BDragon type="7" wwise="born_dragon_foot_water" />
+			 
+	</FootStepSound>
+	
+</WwiseSoundConfig>

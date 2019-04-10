@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WwiseBankConfig>
+		<AlwaysLoad>
+			<bank name="NPC.bnk" />
+			<bank name="SFX.bnk" />
+			<bank name="Voice_Int.bnk" />
+			<bank name="Dunjeon.bnk" />
+			<bank name="Voice_Dunjeon.bnk" localize="1"/>
+			<bank name="Voice_NPC.bnk" localize="1"/>
+		</AlwaysLoad>
+		
+		<NonMap>
+			<bank name="Login.bnk" />
+			<bank name="Lobby_Character.bnk" />
+		</NonMap>
+		
+		<Map>
+			<bank name="Map_1.bnk" navmesh="World01" />
+			<bank name="Map_2.bnk" navmesh="World02" />
+			<bank name="Map_3.bnk" navmesh="World03Part1" />
+			<bank name="Map_3.bnk" navmesh="World03Part2" />
+			<bank name="Map_4.bnk" navmesh="World04Part1" />
+			<bank name="Map_4.bnk" navmesh="World04Part2" />
+			<bank name="Map_5.bnk" navmesh="World05" />
+			<bank name="Main_Castle_1.bnk" navmesh="City01" />
+			<bank name="Main_Castle_2.bnk" navmesh="City02" />
+			<bank name="Voice_Map_1.bnk" navmesh="World01" localize="1" />
+			<bank name="Voice_Map_2.bnk" navmesh="World02" localize="1" />
+			<bank name="Voice_Map_3.bnk" navmesh="World03Part1" localize="1" />
+			<bank name="Voice_Map_3.bnk" navmesh="World03Part2" localize="1" />
+			<bank name="Voice_Map_4.bnk" navmesh="World04Part1" localize="1" />
+			<bank name="Voice_Map_4.bnk" navmesh="World04Part2" localize="1" />
+			<bank name="Voice_Map_5.bnk" navmesh="World05" localize="1" />
+			<bank name="Voice_Maincastle_1.bnk" navmesh="City01" localize="1"/>
+			<bank name="Voice_Maincastle_2.bnk" navmesh="City02" localize="1"/>
+		</Map>
+</WwiseBankConfig>

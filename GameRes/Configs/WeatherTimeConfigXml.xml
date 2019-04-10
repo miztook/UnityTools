@@ -1,0 +1,3 @@
+<WeatherTimeDatas>
+  <WeatherTimeData MorningLastTime="300" MorningLerpTime="60" DayLastTime="600" DayLerpTime="60" DustLastTime="300" DustLerpTime="60" NightLastTime="480" NigthLerpTime="60" RegionLerpTime="10" />
+</WeatherTimeDatas>
