@@ -3,7 +3,7 @@
 #include "function.h"
 #include "stringext.h"
 #include "AWinMemDbg.h"
-#include <cstring>
+#include <string>
 
 extern "C"
 {
@@ -91,7 +91,7 @@ bool doUnpackFrom7z(const char* strFileName)
 	if (!reader)
 	{
 		bRet = false;
-		printf("SevenZReader_Init Failed!\n", strFileName);
+		printf("SevenZReader_Init Failed! %s\n", strFileName);
 		return bRet;
 	}
 
@@ -139,7 +139,7 @@ bool doUnpackFrom7z(const char* strFileName)
 			if (!FileOperate::WriteToFile(strLib.c_str(), pData, nDataSize))
 			{
 				bRet = false;
-				printf("FileOperate::WriteToFile Failed! %s\n", strLib);
+				printf("FileOperate::WriteToFile Failed! %s\n", strLib.c_str());
 				break;
 			}
 		}
@@ -148,7 +148,7 @@ bool doUnpackFrom7z(const char* strFileName)
 			if (!UncompressToSepFile(name.c_str(), pData, nDataSize))
 			{
 				bRet = false;
-				printf("UncompressToSepFile Failed! %s\n", name);
+				printf("UncompressToSepFile Failed! %s\n", name.c_str());
 				break;
 			}
 		}
