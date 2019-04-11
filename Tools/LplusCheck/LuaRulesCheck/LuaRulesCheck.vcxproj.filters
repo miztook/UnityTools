@@ -110,9 +110,6 @@
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\ARect.h">
       <Filter>Hoba\Base</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\AString.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\ASys.h">
       <Filter>Hoba\Base</Filter>
     </ClInclude>
@@ -141,6 +138,9 @@
       <Filter>Hoba\Base</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\stringext.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\AString.h">
       <Filter>Hoba\Base</Filter>
     </ClInclude>
   </ItemGroup>
@@ -208,9 +208,6 @@
     <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\ALog.cpp">
       <Filter>Hoba\Base</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\AString.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\ASys.cpp">
       <Filter>Hoba\Base</Filter>
     </ClCompile>
@@ -218,6 +215,9 @@
       <Filter>Hoba\Base</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\ASysThread.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\AString.cpp">
       <Filter>Hoba\Base</Filter>
     </ClCompile>
   </ItemGroup>

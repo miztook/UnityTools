@@ -181,31 +181,59 @@ HAPI bool UncompressToSepFile(const char* filename, const unsigned char* pData, 
 	if (fout == NULL)
 	{
 		perror("perror says open failed");
-		char* error = strerror(errno);
+		//		char* error = strerror(errno);
 		//		printf("strerror says open failed: %s\n", strerror(errno)); // C4996
 		//		printf("_strerror says open failed"); // C4996
 		return false;
 	}
 
+	const auint32 blockSize = 4 * 1024 * 1024;
 	// uncompress
 	const unsigned char* pCompressedData = pData + sizeof(g_zFileHead) + 4;
 	auint32 compressDataLen = dataSize - sizeof(g_zFileHead) - 4;
 	bool retFlag = false;
 	if (compressDataLen < originalFileLen)		// compressed data stored
 	{
-		char* buffer = new char[originalFileLen];
+		unsigned char* buffer = new unsigned char[originalFileLen];
 		auint32 uncompressLen = originalFileLen;
-		if (0 == AFilePackage::Uncompress((unsigned char*)pCompressedData, compressDataLen, (unsigned char*)buffer, &uncompressLen)
+		if (0 == AFilePackage::Uncompress(pCompressedData, compressDataLen, buffer, &uncompressLen)
 			&& uncompressLen == originalFileLen)
 		{
-			fwrite(buffer, 1, originalFileLen, fout);
+			//fwrite(buffer, 1, originalFileLen, fout);
+
+			auint32 nBlock = originalFileLen / blockSize;
+			auint32 nLeft = originalFileLen % blockSize;
+
+			const unsigned char* p = buffer;
+			for (auint32 i = 0; i < nBlock; ++i)
+			{
+				fwrite(p, 1, blockSize, fout);
+				p += blockSize;
+			}
+
+			if (nLeft > 0)
+				fwrite(p, 1, nLeft, fout);
+
 			retFlag = true;
 		}
 		delete[] buffer;
 	}
 	else		// original data stored
 	{
-		fwrite(pCompressedData, 1, originalFileLen, fout);
+		auint32 nBlock = originalFileLen / blockSize;
+		auint32 nLeft = originalFileLen % blockSize;
+
+		const unsigned char* p = pCompressedData;
+		for (auint32 i = 0; i < nBlock; ++i)
+		{
+			fwrite(p, 1, blockSize, fout);
+			p += blockSize;
+		}
+
+		if (nLeft > 0)
+			fwrite(p, 1, nLeft, fout);
+
+		//fwrite(pCompressedData, 1, originalFileLen, fout);
 		retFlag = true;
 	}
 
