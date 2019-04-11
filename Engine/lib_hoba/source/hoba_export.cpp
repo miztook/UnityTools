@@ -23,6 +23,7 @@ char g_DocumentDir[512];
 char g_LibraryDir[512];
 char g_TmpDir[512];
 char g_IOSLanguage[128];
+char g_AndroidMAC[128];
 
 HAPI const char* HOBA_GetDocumentDir()
 {
@@ -84,7 +85,7 @@ HAPI void HOBA_Init(const char* baseDir, const char* docDir, const char* libDir,
 	g_pAFramework->Init(param);
 }
 
-HAPI void HOBA_Release(int* memKB)
+HAPI void HOBA_Release()
 {
 	g_pAFramework->Release();
 
@@ -92,15 +93,7 @@ HAPI void HOBA_Release(int* memKB)
 	g_AFilePackMan.CloseAllPackages();
 
 #ifdef A_PLATFORM_WIN_DESKTOP
-	//globalDbg.setAllocHook(false, 0);
-	bool safe = globalDbg.endCheckPoint();
-// 	if (!safe)
-// 		_CrtDumpMemoryLeaks();
-
-	globalDbg.outputMaxMemoryUsed(memKB);
 	AWinMiniDump::end();
-#else
-	*memKB = 0;
 #endif
 }
 
@@ -120,6 +113,24 @@ HAPI void HOBA_DumpMemoryStats(const char* msg)
 	globalDbg.dumpMemoryStates(msg);
 #endif
 }
+
+/*
+HAPI void HOBA_MemBeginCheckPoint()
+{
+#ifdef A_PLATFORM_WIN_DESKTOP
+	globalDbg.beginCheckPoint();
+#endif
+}
+
+HAPI bool HOBA_MemEndCheckPoint()
+{
+#ifdef A_PLATFORM_WIN_DESKTOP
+	return globalDbg.endCheckPoint();
+#else
+	return true;
+#endif
+}
+*/
 
 HAPI bool HOBA_InitPackages(const char* resBaseDir)
 {

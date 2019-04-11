@@ -400,11 +400,6 @@ void ASys::OutputDebug(const char* format, ...)
 {
 }
 
-auint32 ASys::MessageBox(const char* pTextKey, const char* pOptionKey, auint32 uType, auint32 timeout)
-{
-	return AMessageReturn_OHTER;
-}
-
 bool ASys::DeleteDirectory(const char* szDir)
 {
 	if (!ASys::IsFileExist(szDir))

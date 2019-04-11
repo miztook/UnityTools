@@ -11,8 +11,8 @@ public:
 	CNavQuery();
 	~CNavQuery();
 
-	static const int MAX_POLYS = 256;
-	static const int MAX_SMOOTH = 2048;
+	static const int MAX_POLYS = 512;
+	static const int MAX_SMOOTH = 4096;
 
 public:
 	bool isValid() const { return m_navQuery != 0; }

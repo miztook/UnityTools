@@ -17,7 +17,7 @@ HAPI const char* HOBA_IOSGetCurLanguage();
 
 HAPI void HOBA_Init(const char* baseDir, const char* docDir, const char* libDir, const char* tmpDir);
 
-HAPI void HOBA_Release(int* memKB);
+HAPI void HOBA_Release();
 
 HAPI void HOBA_Tick();			//为做一些统计
 
@@ -26,6 +26,10 @@ HAPI float HOBA_GetMPS();		//每帧分配多少byte
 HAPI void HOBA_GetMemStats(int* peakMemKB, int* curMemKB);
 
 HAPI void HOBA_DumpMemoryStats(const char* msg);
+
+//HAPI void HOBA_MemBeginCheckPoint();
+
+//HAPI bool HOBA_MemEndCheckPoint();
 
 HAPI bool HOBA_InitPackages(const char* resBaseDir);
 

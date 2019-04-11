@@ -1089,3 +1089,19 @@ inline  T interpolateHermite(const float r, const T &v1, const T &v2, const T &i
 	// interpolation
 	return static_cast<T>(v1*h1 + v2*h2 + in*h3 + out*h4);
 }
+
+inline const char* strstr_anyof(const char* str, const char* substring1, const char* substring2)
+{
+	const char* t1 = strstr(str, substring1);
+	const char* t2 = strstr(str, substring2);
+
+	if (!t1)
+		return t2;
+	if (!t2)
+		return t1;
+	if (t1 < t2)
+		return t1;
+	if (t1 >= t2)
+		return t2;
+	return NULL;
+}

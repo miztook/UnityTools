@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <cerrno>
 
 bool ASys::GetDocumentsDirectory(char* szDocumentDir, int nSize)
 {
