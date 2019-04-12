@@ -277,7 +277,7 @@ std::tuple<std::string, std::vector<int>> g_SpecialMethodParams[] =
 	{ "GameUtil.SetFxScale",{ 2 } },
 	{ "GameUtil.SetMineObjectScale",{ 2 } },
 	{ "GameUtil.BluntAttachedFxs",{ 3 } },
-	{ "GameUtil.RequestUncachedFx",{ 1 } },
+	{ "GameUtil.RequestUncachedFx",{ 1, 2 } },
 	{ "GameUtil.RequestArcFx",{ 3, 4 } },
 	{ "GameUtil.LoadSceneBlocks",{ 3 } },
 	{ "GameUtil.FetchResFromCache",{ 1 } },
@@ -446,6 +446,20 @@ std::tuple<std::string, std::string> g_GlobalClass[] =
 	{ "game._CGuideMan._CurGuideTrigger", "Guide" },
 };
 
+
+std::tuple<std::string, int> g_SpecialMethodReturns[] =
+{
+	{ ":GetPosXYZ(", 3 },
+	{ ":GetPosXZ(", 2 },
+	{ ":GetDirXYZ(", 3 },
+	{ ":GetDirXZ(", 2 },
+	{ ":PositionXYZ(", 3 },
+	{ ":PositionXZ(", 2 },
+	{ ":ForwardXYZ(", 3 },
+	{ ":ForwardXZ(", 2 },
+	{ "GetNearPortalAndAssociatedPosByMap(", 2},
+};
+
 void CLplusChecker::InitData()
 {
 	for (const auto& e : g_szClassInvalidToken)
@@ -493,5 +507,10 @@ void CLplusChecker::InitData()
 	for (const auto& e : g_szClassInvalidToken)
 	{
 		m_ClassInvalidTokenList.push_back(e);
+	}
+
+	for (const auto& e : g_SpecialMethodReturns)
+	{
+		m_SpecialMethodReturnList.push_back(e);
 	}
 }

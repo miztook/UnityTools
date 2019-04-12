@@ -222,7 +222,7 @@ namespace FileOperate
 		_findclose(hfile);
 		return true;
 #else
-		DIR* handle = opendir(strDir);
+		DIR* handle = opendir(strDir.c_str());
 		if (NULL == handle)
 		{
 			perror("directory::open");

@@ -2139,20 +2139,8 @@ void CLplusChecker::Check_FieldMethodNameStandard(const SLuaClass& luaClass)
 	}
 }
 
-void CLplusChecker::Check_UserDataFieldCleanUp(const SLuaClass& luaClass)
+void CLplusChecker::Check_MethodReturnNum(const SLuaClass& luaClass)
 {
-	std::set<SLuaFieldToken> userDataSet;
-	for (const auto& entry : luaClass.fieldDefList)
-	{
-		if (entry.typeName != "userdata")
-			continue;
-
-		userDataSet.insert(entry);
-	}
-
-	if (userDataSet.empty())
-		return;
-
 	AFile File;
 	if (!File.Open("", luaClass.strFileName.c_str(), AFILE_OPENEXIST | AFILE_TEXT))
 	{
@@ -2160,88 +2148,219 @@ void CLplusChecker::Check_UserDataFieldCleanUp(const SLuaClass& luaClass)
 		return;
 	}
 
-	for (const auto& entry : userDataSet)
+	std::map<int, SLuaFunctionToken> functionDefMap;
+	for (auto itr = luaClass.functionDefList.begin(); itr != luaClass.functionDefList.end(); ++itr)
 	{
-		std::string strSetNil;
-		std_string_format(strSetNil, "self.%s = nil", entry.token);
-
-		bool bContains = false;
-		File.Seek(0, AFILE_SEEK_SET);
-		auint32 dwReadLen;
-		char szLine[AFILE_LINEMAXLEN];
-		int nLine = 0;
-		bool bComment = false;
-		while (File.ReadLine(szLine, AFILE_LINEMAXLEN, &dwReadLen))
-		{
-			++nLine;
-
-			//comment
-			if (strstr(szLine, "--[[") != NULL)
-			{
-				bComment = true;
-			}
-
-			if (strstr(szLine, "]]") != NULL)
-			{
-				bComment = false;
-			}
-
-			if (bComment)
-				continue;
-
-			char* pComment = strstr(szLine, "--");
-			if (pComment)
-				*pComment = '\0';
-
-			if (strstr(szLine, strSetNil.c_str()) != NULL)
-			{
-				bContains = true;
-				break;
-			}
-		}
-
-		if (!bContains)
-		{
-			m_errorUserDataFieldList.push_back(entry);
-		}
+		if (itr->className != luaClass.strName)
+			continue;
+		
+		functionDefMap[itr->location.line] = *itr;
 	}
-}
 
-void CLplusChecker::Check_TimerCleanup(const SLuaClass& luaClass)
-{
-	std::set<SLuaFieldToken> userDataSet;
-	for (const auto& entry : luaClass.timerAddList)
+	const SLuaFunctionToken* currentFunctionToken = nullptr;
+	int nReturnRequired = 0;
+	int nReturnMatched = 0;
+	std::vector<std::string> localFunctionList;
+
+	File.Seek(0, AFILE_SEEK_SET);
+	auint32 dwReadLen;
+	char szLine[AFILE_LINEMAXLEN];
+	int nLine = 0;
+	bool bComment = false;
+	while (File.ReadLine(szLine, AFILE_LINEMAXLEN, &dwReadLen))
 	{
-		if (entry.id == "")
+		++nLine;
+
+		//comment
+		if (strstr(szLine, "--[[") != NULL)
 		{
-			m_errorTimerList.push_back(entry);
+			bComment = true;
 		}
-		else
+
+		if (strstr(szLine, "]]") != NULL)
 		{
-			bool bFind = false;
-			for (const auto& tm : luaClass.timerRemoveList)
+			bComment = false;
+		}
+
+		if (bComment)
+			continue;
+
+		char* pComment = strstr(szLine, "--");
+		if (pComment)
+			*pComment = '\0';
+
+		
+		if (currentFunctionToken)
+		{
+			const char* p0 = strstr(szLine, "function");
+			if (p0)
 			{
-				if (tm.id == entry.id)
+				p0 += strlen("function");
+				const char* p1 = strstr(p0, "(");
+				if (p1)
 				{
-					bFind = true;
-					break;
+					const char* p2 = strstr(p1, ")");
+
+					char name[1024];
+					strncpy(name, p0, p1 - p0);
+					name[p1 - p0] = '\0';
+
+					std::string token = name;
+					trim(token, "\t ");
+					localFunctionList.push_back(token);
+				}
+			}
+
+			if (strstr(szLine, "return"))
+			{
+				std::vector<std::string> vRets;
+				bool ret = GetNumReturnsOfLine(szLine, vRets);
+				int nReturn = (int)vRets.size();
+
+				for (const auto& ret : vRets)
+				{
+					for (const auto& entry : m_SpecialMethodReturnList)
+					{
+						const std::string& str = std::get<0>(entry);
+						int num = std::get<1>(entry);
+						if (strstr(ret.c_str(), str.c_str()))
+							nReturn += (num - 1);
+					}
 				}
 
-				size_t offset = entry.id.find("self.");
-				if (offset != std::string::npos)
+				if (ret && nReturn != nReturnRequired && localFunctionList.empty())
 				{
-					std::string str = entry.id;
-					str.replace(offset, strlen("self."), "instance.");
-					if (tm.id == str)
+					auto& list = m_ErrorMethodNumReturnMap[luaClass.strName];
+					list.emplace_back(currentFunctionToken->token, nLine, nReturnRequired, nReturn);
+				}
+				++nReturnMatched;
+			}
+		}
+
+		auto itr = functionDefMap.find(nLine);
+		if (itr != functionDefMap.end())
+		{
+			currentFunctionToken = &itr->second;
+			nReturnRequired = (int)currentFunctionToken->vRets.size();
+			nReturnMatched = 0;
+			localFunctionList.clear();
+		}
+		else if (strstr(szLine, "end") == szLine)
+		{
+			if (currentFunctionToken && currentFunctionToken->vRets.size() > 0 && nReturnMatched == 0 )
+			{
+				auto& list = m_ErrorMethodNumReturnMap[luaClass.strName];
+				list.emplace_back(currentFunctionToken->token, nLine, nReturnRequired, 0);
+			}
+
+			currentFunctionToken = nullptr;
+			nReturnMatched = 0;
+			localFunctionList.clear();
+		}
+		
+	}
+
+}
+
+void CLplusChecker::Check_AddEventHandler(const SLuaClass& luaClass)
+{
+	AFile File;
+	if (!File.Open("", luaClass.strFileName.c_str(), AFILE_OPENEXIST | AFILE_TEXT))
+	{
+		printf("Failed to open %s\n", luaClass.strFileName.c_str());
+		return;
+	}
+
+	std::map<int, SLuaFunctionToken> functionDefMap;
+	for (auto itr = luaClass.functionDefList.begin(); itr != luaClass.functionDefList.end(); ++itr)
+	{
+		if (itr->className != luaClass.strName)
+			continue;
+
+		functionDefMap[itr->location.line] = *itr;
+	}
+
+	const SLuaFunctionToken* currentFunctionToken = nullptr;
+	std::vector<std::string> localFunctionList;
+
+	File.Seek(0, AFILE_SEEK_SET);
+	auint32 dwReadLen;
+	char szLine[AFILE_LINEMAXLEN];
+	int nLine = 0;
+	bool bComment = false;
+	while (File.ReadLine(szLine, AFILE_LINEMAXLEN, &dwReadLen))
+	{
+		++nLine;
+
+		//comment
+		if (strstr(szLine, "--[[") != NULL)
+		{
+			bComment = true;
+		}
+
+		if (strstr(szLine, "]]") != NULL)
+		{
+			bComment = false;
+		}
+
+		if (bComment)
+			continue;
+
+		char* pComment = strstr(szLine, "--");
+		if (pComment)
+			*pComment = '\0';
+
+
+		if (currentFunctionToken)
+		{
+			const char* p0 = strstr(szLine, "function");
+			if (p0)
+			{
+				p0 += strlen("function");
+				const char* p1 = strstr(p0, "(");
+				if (p1)
+				{
+					const char* p2 = strstr(p1, ")");
+
+					char name[1024];
+					strncpy(name, p0, p1 - p0);
+					name[p1 - p0] = '\0';
+
+					std::string token = name;
+					trim(token, "\t ");
+					localFunctionList.push_back(token);
+				}
+			}
+
+			if (strstr(szLine, "CGame.EventManager:addHandler("))
+			{
+				std::vector<std::string> vParams;
+				const char* begin = strstr(szLine, "CGame.EventManager:addHandler(") + strlen("CGame.EventManager:addHandler");
+				ParseFunctionParamToken(begin, vParams);
+
+				assert(vParams.size() == 2);
+				for (const auto& func : localFunctionList)
+				{
+					if (vParams[1] == func)
 					{
-						bFind = true;
-						break;
+						auto& list = m_ErrorAddHandlerMap[luaClass.strName];
+						list.emplace_back(currentFunctionToken->token, nLine, func);
 					}
 				}
 			}
-
-			if (!bFind)
-				m_errorTimerList.push_back(entry);
 		}
+
+		auto itr = functionDefMap.find(nLine);
+		if (itr != functionDefMap.end())
+		{
+			currentFunctionToken = &itr->second;
+			localFunctionList.clear();
+		}
+		else if (strstr(szLine, "end") == szLine)
+		{
+			currentFunctionToken = nullptr;
+			localFunctionList.clear();
+		}
+
 	}
 }

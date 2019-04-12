@@ -249,24 +249,23 @@ inline void rtrim(std::string& s, const std::string& drop)
 	s.erase(s.find_last_not_of(drop) + 1);
 }
 
-inline std::string & std_string_format(std::string& _str, const char* _Format, ...) {
+inline std::string std_string_format(const char* _Format, ...) {
 	std::string tmp;
 
-	va_list marker = NULL;
+	va_list marker;
 	va_start(marker, _Format);
 
-	size_t num_of_chars = _vscprintf(_Format, marker);
+	int num_of_chars = vsnprintf(NULL, 0, _Format, marker);
 
 	if (num_of_chars > tmp.capacity()) {
 		tmp.resize(num_of_chars + 1);
 	}
 
-	vsprintf_s((char *)tmp.data(), tmp.capacity(), _Format, marker);
+	vsprintf((char *)tmp.data(), _Format, marker);
 
 	va_end(marker);
 
-	_str = tmp.c_str();
-	return _str;
+	return tmp;
 }
 
 inline void std_string_split(const std::string& origStr, char split, std::vector<std::string>& retVString)
@@ -285,8 +284,7 @@ inline void std_string_split(const std::string& origStr, char split, std::vector
 		if (pch)
 			*pch = '\0';
 
-		if (strlen(pchStart) > 0)
-			retVString.push_back(pchStart);
+		retVString.push_back(pchStart);
 
 		if (!pch)
 			break;
@@ -312,8 +310,7 @@ inline void std_string_split(const std::string& origStr, const char *split, std:
 		if (pch)
 			*pch = '\0';
 
-		if (strlen(pchStart) > 0)
-			retVString.push_back(pchStart);
+		retVString.push_back(pchStart);
 
 		if (!pch)
 			break;

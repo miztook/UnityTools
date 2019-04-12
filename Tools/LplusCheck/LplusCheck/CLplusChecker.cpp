@@ -603,7 +603,7 @@ void CLplusChecker::HandleLine_InvalidGlobalFields(const char* szLine, int nLine
 
 bool CLplusChecker::ParseFunctionDeclToken(const char* begin, const char* end, std::vector<std::string>& vParams, std::vector<std::string>& vRets) const
 {
-	if (*begin == ' ') ++begin;
+	if (*begin == ' ' || *begin == '\t') ++begin;
 
 	if (*begin != '(' || *end != ')')
 	{
@@ -825,7 +825,7 @@ bool CLplusChecker::ParseUseFunctionToken(const char* begin, std::vector<std::st
 
 	bHasFunction = false;
 
-	if (*begin == ' ') ++begin;
+	if (*begin == ' ' || *begin == '\t') ++begin;
 
 	if (*begin != '(')
 	{
@@ -930,6 +930,94 @@ bool CLplusChecker::ParseUseFunctionToken(const char* begin, std::vector<std::st
 
 	return true;
 }
+
+bool CLplusChecker::GetNumReturnsOfLine(const char* begin, std::vector<std::string>& vRets) const
+{
+	if (strstr(begin, "return") == nullptr)
+	{
+		return false;					//skip
+	}
+
+	begin = strstr(begin, "return") + strlen("return");
+
+	if (*begin == ' ' || *begin == '\t') ++begin;
+
+	vRets.clear();
+
+	const char* end = begin + strlen(begin);
+
+	int nParensis = 0;
+	const char* p = begin;
+	const char* pToken = NULL;
+	while (p <= end)
+	{
+		while (*p == ' ' || *p == '\t') ++p;
+
+		if (*p == '(')
+		{
+			++p;
+			++nParensis;
+			continue;
+		}
+
+		if (!pToken)
+			pToken = p;
+
+		if (*p == '{')
+			++nParensis;
+		else if (*p == '}')
+			--nParensis;
+
+		if (*p == ')')
+			--nParensis;
+
+		if (*p == ',' || p == end )
+		{
+			if (nParensis > 0)				//skip
+			{
+			}
+			else if (pToken)
+			{
+				char szToken[256];
+				assert(p - pToken < 256);
+				strncpy(szToken, pToken, p - pToken);
+				szToken[p - pToken] = '\0';
+
+				if (p - pToken >= 1)
+				{
+					char name[1024];
+					const char* end = p;
+					if (strstr(pToken, "\tend"))
+						end = strstr(pToken, "\tend");
+					if (strstr(pToken, " end"))
+						end = strstr(pToken, " end");
+
+					strncpy(name, pToken, end - pToken);
+					name[end - pToken] = '\0';
+					
+					std::string ret = name;
+					trim(ret, "\t ");
+
+					//添加参数和返回值定义
+					if (ret != "end")
+						vRets.emplace_back(ret);
+				}
+
+				pToken = NULL;
+			}
+		}
+
+		++p;
+	}
+
+	if (pToken != NULL)
+	{
+		return false;
+	}
+
+	return true;
+}
+
 
 bool CLplusChecker::CheckLuaClassesToFile(const char* strFileName)
 {
@@ -1152,28 +1240,26 @@ bool CLplusChecker::CheckLuaClassesToFile(const char* strFileName)
 		}
 	}
 
-	/*
-	{
-		std::set<SOutputEntry7> entryParamSet;
-		for (const auto& entry : m_mapLuaClass)
-		{
-			const auto& luaClass = entry.second;
-
-			Check_AllStaticMethodusedIndirectToFile(pFile, luaClass, entryParamSet);
-		}
-
-		for (const auto& entry : entryParamSet)
-		{
-			fprintf(pFile,
-				"incorrect static method params number used %s (param count=%d), class %s, at line %d, col %d\n",
-				std::get<0>(entry).c_str(),
-				std::get<2>(entry),
-				std::get<4>(entry).c_str(),
-				std::get<5>(entry),
-				std::get<6>(entry));
-		}
-	}
-	*/
+// 	{
+// 		std::set<SOutputEntry7> entryParamSet;
+// 		for (const auto& entry : m_mapLuaClass)
+// 		{
+// 			const auto& luaClass = entry.second;
+// 
+// 			Check_AllStaticMethodusedIndirectToFile(pFile, luaClass, entryParamSet);
+// 		}
+// 
+// 		for (const auto& entry : entryParamSet)
+// 		{
+// 			fprintf(pFile,
+// 				"incorrect static method params number used %s (param count=%d), class %s, at line %d, col %d\n",
+// 				std::get<0>(entry).c_str(),
+// 				std::get<2>(entry),
+// 				std::get<4>(entry).c_str(),
+// 				std::get<5>(entry),
+// 				std::get<6>(entry));
+// 		}
+// 	}
 
 	fprintf(pFile, "\n");
 
@@ -1264,6 +1350,66 @@ bool CLplusChecker::CheckLuaClassesToFile(const char* strFileName)
 
 	fprintf(pFile, "\n");
 
+	fprintf(pFile, "方法返回值检查:\n");
+
+	for (const auto& entry : m_mapLuaClass)
+	{
+		const auto& luaClass = entry.second;
+		
+		Check_MethodReturnNum(luaClass);
+	}
+
+	for (const auto& entry : m_ErrorMethodNumReturnMap)
+	{
+		const auto& classname = entry.first;
+		for (const auto& item : entry.second)
+		{
+			const std::string& methodName = std::get<0>(item);
+			int line = std::get<1>(item);
+			int nRequire = std::get<2>(item);
+			int nReturn = std::get<3>(item);
+
+			fprintf(pFile,
+				"错误的返回值个数, 类: %s, \t方法: %s, \t行: %d, \t要求个数: %d, \t实际个数: %d\n",
+				classname.c_str(),
+				methodName.c_str(),
+				line,
+				nRequire,
+				nReturn);
+		}
+	}
+
+	fprintf(pFile, "\n");
+
+	fprintf(pFile, "addHandler检查:\n");
+
+	for (const auto& entry : m_mapLuaClass)
+	{
+		const auto& luaClass = entry.second;
+
+		Check_AddEventHandler(luaClass);
+	}
+
+	for (const auto& entry : m_ErrorAddHandlerMap)
+	{
+		const auto& classname = entry.first;
+		for (const auto& item : entry.second)
+		{
+			const std::string& methodName = std::get<0>(item);
+			int line = std::get<1>(item);
+			const std::string& funcName = std::get<2>(item);
+
+			fprintf(pFile,
+				"错误的addHandler, 类: %s, \t方法: %s, \t行: %d, \tCALLBACK: %s\n",
+				classname.c_str(),
+				methodName.c_str(),
+				line,
+				funcName.c_str());
+		}
+	}
+
+	fprintf(pFile, "\n");
+
 	fprintf(pFile, "StringTable.Get错误id在game_text找不到:\n");
 
 	std::set<SStringTableToken> stringTableToken;
@@ -1325,7 +1471,8 @@ bool CLplusChecker::CheckLuaClassesToFile(const char* strFileName)
 		if (luaClass.strName == "CQuestObjectiveModel" ||
 			luaClass.strName == "CQuestModel" ||
 			luaClass.strName == "CQuestData" ||
-			luaClass.strName == "ModelParams")
+			luaClass.strName == "ModelParams" ||
+			luaClass.strName == "AnonymousEventManager" )
 		{
 			continue;					//忽略
 		}

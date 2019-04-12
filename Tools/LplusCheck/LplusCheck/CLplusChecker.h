@@ -316,9 +316,8 @@ private:
 	void Check_GameTextUsedToFile(const SLuaClass& luaClass, std::set<SStringTableToken>& entrySet);
 
 	void Check_FieldMethodNameStandard(const SLuaClass& luaClass);				//检查field和method命名规范
-	void Check_UserDataFieldCleanUp(const SLuaClass& luaClass);
-	void Check_TimerCleanup(const SLuaClass& luaClass);
-
+	void Check_MethodReturnNum(const SLuaClass& luaClass);
+	void Check_AddEventHandler(const SLuaClass& luaClass);
 
 	bool IsBuiltInType(const std::string& szType) const;
 	bool IsValidDefine(const std::string& szDef) const;
@@ -328,6 +327,7 @@ private:
 	bool ParseFunctionDeclToken(const char* begin, const char* end, std::vector<std::string>& vParams, std::vector<std::string>& vRets) const;		//方法声明的参数
 	bool ParseFunctionParamToken(const char* begin, std::vector<std::string>& vParams) const;			//方法function(的实际参数
 	bool ParseUseFunctionToken(const char* begin, std::vector<std::string>& vParams, bool& bHasFunction) const;		//调用方法的参数
+	bool GetNumReturnsOfLine(const char* begin, std::vector<std::string>& vRets) const;
 
 private:
 	std::string m_strConfigsDir;
@@ -348,6 +348,8 @@ private:
 
 	std::vector<SOutputEntry4>	m_invalidGlobalFieldList;		//错误的全局变量使用，即全局变量在本类中使用
 	std::vector<SOutputEntry3>  m_invalidRepeatedFieldList;		//
+	std::map<std::string, std::list<std::tuple<std::string, int, int, int>>> m_ErrorMethodNumReturnMap;		//错误的函数返回值
+	std::map<std::string, std::list<std::tuple<std::string, int, std::string>>> m_ErrorAddHandlerMap;		//错误的函数返回值
 
 	std::set<int>	m_GameTextKeySet;
 
@@ -361,4 +363,5 @@ private:
 	std::list<std::tuple<std::string, int>> m_MethodParamList;
 	std::list<std::tuple<std::string, int>> m_StaticMethodParamList;
 	std::list<std::tuple<std::string, std::string>> m_ClassInvalidTokenList;
+	std::list<std::tuple<std::string, int>> m_SpecialMethodReturnList;
 };

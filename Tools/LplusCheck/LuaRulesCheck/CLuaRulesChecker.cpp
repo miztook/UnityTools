@@ -1360,15 +1360,10 @@ void CLuaRulesChecker::Check_UserDataFieldCleanUp(const SLuaClass& luaClass, boo
 	if (userDataSet.empty())
 		return;
 
-	bool bFind = false;
-	for (const auto& function : luaClass.functionDefList)
-	{
-		if (function.token == "OnDestroy" || function.token == "OnHide")
-		{
-			bFind = true;
-			break;
-		}
-	}
+	bool bFind = luaClass.functionDefList.end() != std::find_if(luaClass.functionDefList.begin(), luaClass.functionDefList.end(), 
+		[](const SLuaFunctionToken& token) {
+			return token.token == "OnDestroy" || token.token == "OnHide";
+		});
 	if (isUIClass && !bFind)
 	{
 		for (const auto& entry : userDataSet)
@@ -1449,15 +1444,10 @@ void CLuaRulesChecker::Check_TimerCleanup(const SLuaClass& luaClass, bool isUICl
 	if (luaClass.timerAddList.empty())
 		return;
 
-	bool bFind = false;
-	for (const auto& function : luaClass.functionDefList)
-	{
-		if (function.token == "OnDestroy" || function.token == "OnHide")
-		{
-			bFind = true;
-			break;
-		}
-	}
+	bool bFind = luaClass.functionDefList.end() != std::find_if(luaClass.functionDefList.begin(), luaClass.functionDefList.end(),
+		[](const SLuaFunctionToken& token) {
+		return token.token == "OnDestroy" || token.token == "OnHide";
+	});
 	if (isUIClass && !bFind)			//UI必须有OnDestroy
 	{
 		for (const auto& entry : luaClass.timerAddList)
@@ -1539,7 +1529,7 @@ void CLuaRulesChecker::Check_TimerCleanup(const SLuaClass& luaClass, bool isUICl
 	{
 		for (const auto& entry : luaClass.timerAddList)
 		{
-			if (entry.id == "")
+			if (entry.id.empty())
 			{
 				m_errorTimerList.push_back(entry);
 			}
@@ -1578,15 +1568,10 @@ void CLuaRulesChecker::Check_EventCleanup(const SLuaClass& luaClass, bool isUICl
 	if (luaClass.eventAddList.empty())
 		return;
 
-	bool bFind = false;
-	for (const auto& function : luaClass.functionDefList)
-	{
-		if (function.token == "OnDestroy" || function.token == "OnHide")
-		{
-			bFind = true;
-			break;
-		}
-	}
+	bool bFind = luaClass.functionDefList.end() != std::find_if(luaClass.functionDefList.begin(), luaClass.functionDefList.end(),
+		[](const SLuaFunctionToken& token) {
+		return token.token == "OnDestroy" || token.token == "OnHide";
+	});
 	if (isUIClass && !bFind)			//UI必须有OnDestroy
 	{
 		for (const auto& entry : luaClass.eventAddList)
@@ -1668,16 +1653,11 @@ void CLuaRulesChecker::Check_EventCleanup(const SLuaClass& luaClass, bool isUICl
 	{ 
 		for (const auto& entry : luaClass.eventAddList)
 		{
-			bool bFind = false;
-			for (const auto& ev : luaClass.eventRemoveList)
-			{
-				if (ev.eventName == entry.eventName)
-				{
-					bFind = true;
-					break;
-				}
-			}
-
+			bool bFind = luaClass.eventRemoveList.end() != std::find_if(luaClass.eventRemoveList.begin(), luaClass.eventRemoveList.end(),
+				[&entry](const SLuaEventToken& token) {
+				return token.eventName == entry.eventName;
+			});
+			
 			if (!bFind)
 				m_errorEventList.push_back(entry);
 		}

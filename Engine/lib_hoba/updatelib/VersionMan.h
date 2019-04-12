@@ -2,6 +2,7 @@
 
 #include "stringext.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <vector>
 
 extern const char* g_incHeader;
