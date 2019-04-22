@@ -457,7 +457,8 @@ std::tuple<std::string, int> g_SpecialMethodReturns[] =
 	{ ":PositionXZ(", 2 },
 	{ ":ForwardXYZ(", 3 },
 	{ ":ForwardXZ(", 2 },
-	{ "GetNearPortalAndAssociatedPosByMap(", 2},
+	{ "GetNearPortalAndAssociatedPosByMap(", 2 },
+	{ "CheckDiamond(", 2 },
 };
 
 void CLplusChecker::InitData()
