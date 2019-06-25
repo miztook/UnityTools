@@ -107,7 +107,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;..\dependency\GLES\Lib\x86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;Wldap32.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;Wldap32.lib;Advapi32.lib;Psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>
@@ -130,7 +130,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;..\dependency\GLES\Lib\x86_64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;Wldap32.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;Wldap32.lib;Advapi32.lib;Psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -153,7 +153,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;..\dependency\GLES\Lib\x86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;Wldap32.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;Wldap32.lib;Advapi32.lib;Psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -176,7 +176,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;..\dependency\GLES\Lib\x86_64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;Wldap32.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;Wldap32.lib;Advapi32.lib;Psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -576,7 +576,6 @@
     <ClInclude Include="..\csshare\AutoNavigation\HRecast.h" />
     <ClInclude Include="..\csshare\AutoNavigation\HRecastAlloc.h" />
     <ClInclude Include="..\csshare\AutoNavigation\HRecastAssert.h" />
-    <ClInclude Include="..\csshare\Common\CLuaTable.h" />
     <ClInclude Include="..\csshare\Common\CMd5Hash.h" />
     <ClInclude Include="..\csshare\Common\elementpckdir.h" />
     <ClInclude Include="..\dependency\7zDecode\7z.h" />

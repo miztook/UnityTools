@@ -74,12 +74,12 @@ bool ASys::GetTmpDirectory(char* szTmpDir, int nSize)
 	return true;
 }
 
-bool ASys::GetFilesInDirectory(std::vector<AString>& arrFiles, const char* szDir)
+bool ASys::GetFilesInDirectory(std::vector<std::string>& arrFiles, const char* szDir)
 {
     glob_t globbuf;
     struct stat fileinfo;
-    AString path(szDir);
-    if( path[path.GetLength()-1] == '/')
+    std::string path(szDir);
+    if( path[path.length()-1] == '/')
     {
         path += "*";
     }
@@ -87,7 +87,7 @@ bool ASys::GetFilesInDirectory(std::vector<AString>& arrFiles, const char* szDir
     {
         path += "/*";
     }
-    int ret = glob((const char*)path,GLOB_NOSORT,NULL,&globbuf);
+    int ret = glob(path.c_str(),GLOB_NOSORT,NULL,&globbuf);
     if( ret != 0)
     {
         if( ret == GLOB_NOMATCH )
@@ -99,7 +99,7 @@ bool ASys::GetFilesInDirectory(std::vector<AString>& arrFiles, const char* szDir
     }
 
     path = szDir;
-    if( path[path.GetLength()-1] == '/')
+    if( path[path.length()-1] == '/')
     {
         path += ".*";
     }
@@ -108,7 +108,7 @@ bool ASys::GetFilesInDirectory(std::vector<AString>& arrFiles, const char* szDir
         path += "/.*";
     }
     
-    ret = glob((const char*)path,GLOB_APPEND,NULL,&globbuf);
+    ret = glob(path.c_str(),GLOB_APPEND,NULL,&globbuf);
     if( ret != 0)
     {
         if( ret == GLOB_NOMATCH )
@@ -166,9 +166,9 @@ bool ASys::DeleteDirectory(const char* szDir)
     
     glob_t globbuf;
     struct stat fileinfo;
-    AString path(szDir);
+    std::string path(szDir);
     
-    if( path[path.GetLength()-1] == '/')
+    if( path[path.length()-1] == '/')
     {
         path += "*";
     }
@@ -176,7 +176,7 @@ bool ASys::DeleteDirectory(const char* szDir)
     {
         path += "/*";
     }
-    int ret = glob((const char*)path,GLOB_NOSORT,NULL,&globbuf);
+    int ret = glob(path.c_str(),GLOB_NOSORT,NULL,&globbuf);
     if( ret != 0)
     {
         if( ret == GLOB_NOMATCH )
@@ -189,7 +189,7 @@ bool ASys::DeleteDirectory(const char* szDir)
     }
     
     path = szDir;
-    if( path[path.GetLength()-1] == '/')
+    if( path[path.length()-1] == '/')
     {
         path += ".*";
     }
@@ -198,7 +198,7 @@ bool ASys::DeleteDirectory(const char* szDir)
         path += "/.*";
     }
     
-    ret = glob((const char*)path,GLOB_APPEND,NULL,&globbuf);
+    ret = glob(path.c_str(),GLOB_APPEND,NULL,&globbuf);
     if( ret != 0)
     {
         if( ret == GLOB_NOMATCH )
@@ -239,21 +239,11 @@ bool ASys::DeleteDirectory(const char* szDir)
 
 auint64 ASys::GetFreeDiskSpaceSize()
 {
-	uint64_t totalSpace = 0;
-    uint64_t totalFreeSpace = 0;
-    NSError *error = nil;  
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);  
-    NSDictionary *dictionary = [[NSFileManager defaultManager] attributesOfFileSystemForPath:[paths lastObject] error: &error];  
-
-    if (dictionary) {  
-        NSNumber *fileSystemSizeInBytes = [dictionary objectForKey: NSFileSystemSize];  
-        NSNumber *freeFileSystemSizeInBytes = [dictionary objectForKey:NSFileSystemFreeSize];
-        totalSpace = [fileSystemSizeInBytes unsignedLongLongValue];
-        totalFreeSpace = [freeFileSystemSizeInBytes unsignedLongLongValue];
-        //NSLog(@"Memory Capacity of %llu MiB with %llu MiB Free memory available.", ((totalSpace/1024ll)/1024ll), ((totalFreeSpace/1024ll)/1024ll));
-    } else {  
-        //NSLog(@"Error Obtaining System Memory Info: Domain = %@, Code = %ld", [error domain], (long)[error code]);
-    }  
+    auint64 totalFreeSpace = 0;
+	NSDictionary *dictionary = [[NSFileManager defaultManager] attributesOfFileSystemForPath:NSHomeDirectory() error:nil];
+    if (dictionary) {
+        totalFreeSpace = (auint64)[[dictionary objectForKey:NSFileSystemFreeSize] longLongValue];
+    }
 
     return totalFreeSpace;
 }

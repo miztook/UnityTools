@@ -76,6 +76,15 @@ public class Screen {
 		return fRet;
 	}
 	
+	public static boolean IgnoreNotchScreen(Activity targetActivity) {
+		boolean bRet = false;
+		// Huawei
+    	if(hasNotchInScreenAtHuawei(targetActivity))
+    		return true;
+    	
+    	return bRet;
+	}
+	
     public static boolean HasNotchInScreen(Activity targetActivity)
     {
     	boolean bRet = false;

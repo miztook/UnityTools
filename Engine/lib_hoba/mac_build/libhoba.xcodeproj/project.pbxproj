@@ -204,9 +204,6 @@
 		6902CA671D54B9BA00EAD519 /* AString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6902CA4D1D54B9BA00EAD519 /* AString.cpp */; };
 		6902CA681D54B9BA00EAD519 /* ASys.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6902CA4F1D54B9BA00EAD519 /* ASys.cpp */; };
 		6902CA691D54B9BA00EAD519 /* ASysThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6902CA521D54B9BA00EAD519 /* ASysThread.cpp */; };
-		6933D4C31D704CF000D29AC2 /* CGLES2Hook_Android.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6933D4BC1D704CF000D29AC2 /* CGLES2Hook_Android.cpp */; };
-		6933D4C41D704CF000D29AC2 /* CGLES2HookFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6933D4BE1D704CF000D29AC2 /* CGLES2HookFunctions.cpp */; };
-		6933D4C51D704CF000D29AC2 /* gles2hook_export.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6933D4C11D704CF000D29AC2 /* gles2hook_export.cpp */; };
 		693DD72C1BFC546C0065A24A /* BinaryReadWrite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 693DD72B1BFC546C0065A24A /* BinaryReadWrite.cpp */; };
 		695FB76C1D59932400347916 /* ASysCodeCvt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 695FB76A1D59932400347916 /* ASysCodeCvt.cpp */; };
 		695FB7751D5DDB1500347916 /* 7zReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 695FB76F1D5DDB1500347916 /* 7zReader.cpp */; };
@@ -722,13 +719,6 @@
 		6902CA551D54B9BA00EAD519 /* ATypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ATypes.h; sourceTree = "<group>"; };
 		6902CA561D54B9BA00EAD519 /* compileconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compileconfig.h; sourceTree = "<group>"; };
 		6902CA571D54B9BA00EAD519 /* function.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = function.h; sourceTree = "<group>"; };
-		6933D4BC1D704CF000D29AC2 /* CGLES2Hook_Android.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CGLES2Hook_Android.cpp; path = ../gles2hook/CGLES2Hook_Android.cpp; sourceTree = "<group>"; };
-		6933D4BD1D704CF000D29AC2 /* CGLES2Hook_Android.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CGLES2Hook_Android.h; path = ../gles2hook/CGLES2Hook_Android.h; sourceTree = "<group>"; };
-		6933D4BE1D704CF000D29AC2 /* CGLES2HookFunctions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CGLES2HookFunctions.cpp; path = ../gles2hook/CGLES2HookFunctions.cpp; sourceTree = "<group>"; };
-		6933D4BF1D704CF000D29AC2 /* CGLES2HookFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CGLES2HookFunctions.h; path = ../gles2hook/CGLES2HookFunctions.h; sourceTree = "<group>"; };
-		6933D4C01D704CF000D29AC2 /* entries_5.1.1.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = entries_5.1.1.in; path = ../gles2hook/entries_5.1.1.in; sourceTree = "<group>"; };
-		6933D4C11D704CF000D29AC2 /* gles2hook_export.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gles2hook_export.cpp; path = ../gles2hook/gles2hook_export.cpp; sourceTree = "<group>"; };
-		6933D4C21D704CF000D29AC2 /* gles2hook_export.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gles2hook_export.h; path = ../gles2hook/gles2hook_export.h; sourceTree = "<group>"; };
 		693DD72B1BFC546C0065A24A /* BinaryReadWrite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BinaryReadWrite.cpp; path = ../source/BinaryReadWrite.cpp; sourceTree = "<group>"; };
 		695FB76A1D59932400347916 /* ASysCodeCvt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ASysCodeCvt.cpp; sourceTree = "<group>"; };
 		695FB76B1D59932400347916 /* ASysCodeCvt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASysCodeCvt.h; sourceTree = "<group>"; };
@@ -742,7 +732,6 @@
 		696D44F81D81704200E5A96A /* A3DGeometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = A3DGeometry.cpp; sourceTree = "<group>"; };
 		696D44F91D81704200E5A96A /* A3DGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = A3DGeometry.h; sourceTree = "<group>"; };
 		696D44FA1D81704200E5A96A /* base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base.h; sourceTree = "<group>"; };
-		6984265C1C30ECD400A23E30 /* CLuaTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CLuaTable.h; path = ../csshare/Common/CLuaTable.h; sourceTree = "<group>"; };
 		698464AE1D93D1C900E34CDC /* pballoc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pballoc.c; path = src/pballoc.c; sourceTree = "<group>"; };
 		698464AF1D93D1C900E34CDC /* pballoc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pballoc.h; path = src/pballoc.h; sourceTree = "<group>"; };
 		69C5A16F1D95595200EAD72C /* A3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = A3D.h; sourceTree = "<group>"; };
@@ -1184,20 +1173,6 @@
 			path = ../dependency/curl/include/curl;
 			sourceTree = "<group>";
 		};
-		6933D4BB1D704CD300D29AC2 /* gles2hook */ = {
-			isa = PBXGroup;
-			children = (
-				6933D4BC1D704CF000D29AC2 /* CGLES2Hook_Android.cpp */,
-				6933D4BD1D704CF000D29AC2 /* CGLES2Hook_Android.h */,
-				6933D4BE1D704CF000D29AC2 /* CGLES2HookFunctions.cpp */,
-				6933D4BF1D704CF000D29AC2 /* CGLES2HookFunctions.h */,
-				6933D4C01D704CF000D29AC2 /* entries_5.1.1.in */,
-				6933D4C11D704CF000D29AC2 /* gles2hook_export.cpp */,
-				6933D4C21D704CF000D29AC2 /* gles2hook_export.h */,
-			);
-			name = gles2hook;
-			sourceTree = "<group>";
-		};
 		695FB76D1D5DDA4E00347916 /* updatelib */ = {
 			isa = PBXGroup;
 			children = (
@@ -1280,7 +1255,6 @@
 			isa = PBXGroup;
 			children = (
 				698464B11D93D30B00E34CDC /* 3rd */,
-				6933D4BB1D704CD300D29AC2 /* gles2hook */,
 				695FB76D1D5DDA4E00347916 /* updatelib */,
 				D39A27951B8AF0E300B1F151 /* AutoNavigation */,
 				D39A27851B8AF07100B1F151 /* Common */,
@@ -1567,7 +1541,6 @@
 			children = (
 				277F4CCA1CB3EB0300B3DB3E /* elementpckdir.cpp */,
 				277F4CCB1CB3EB0300B3DB3E /* elementpckdir.h */,
-				6984265C1C30ECD400A23E30 /* CLuaTable.h */,
 				D39A27871B8AF08500B1F151 /* CMd5Hash.cpp */,
 				D39A27881B8AF08500B1F151 /* CMd5Hash.h */,
 			);
@@ -1703,7 +1676,6 @@
 				390B2A541E63D00E00D18BA1 /* polarssl.c in Sources */,
 				D39A26D71B8ADB7500B1F151 /* EC_SkillCollisionShape.cpp in Sources */,
 				390B2A1B1E63D00E00D18BA1 /* curl_schannel.c in Sources */,
-				6933D4C41D704CF000D29AC2 /* CGLES2HookFunctions.cpp in Sources */,
 				390B2A281E63D00E00D18BA1 /* ftplistparser.c in Sources */,
 				390B2A5B1E63D00E00D18BA1 /* sendf.c in Sources */,
 				3928D4331BD8FE9200A38832 /* HRecastArea.cpp in Sources */,
@@ -1793,7 +1765,6 @@
 				390B2A2E1E63D00E00D18BA1 /* hmac.c in Sources */,
 				69F45D4C1D82EEC7006F5A1D /* 7zreader_export.cpp in Sources */,
 				390B2A3F1E63D00E00D18BA1 /* inet_pton.c in Sources */,
-				6933D4C51D704CF000D29AC2 /* gles2hook_export.cpp in Sources */,
 				390B2A1F1E63D00E00D18BA1 /* curl_threads.c in Sources */,
 				390B2A161E63D00E00D18BA1 /* curl_ntlm_wb.c in Sources */,
 				390B2A221E63D00E00D18BA1 /* easy.c in Sources */,
@@ -1837,7 +1808,6 @@
 				390B2A3C1E63D00E00D18BA1 /* if2ip.c in Sources */,
 				390B2A0D1E63D00E00D18BA1 /* curl_addrinfo.c in Sources */,
 				3928D42B1BD8FE9200A38832 /* HDetourNavMeshQuery.cpp in Sources */,
-				6933D4C31D704CF000D29AC2 /* CGLES2Hook_Android.cpp in Sources */,
 				390B2A431E63D00E00D18BA1 /* llist.c in Sources */,
 				39B4AEA11E6AA83100D10EC9 /* 7zBuf.c in Sources */,
 				390B290B1E63CEEB00D18BA1 /* curl_export.cpp in Sources */,

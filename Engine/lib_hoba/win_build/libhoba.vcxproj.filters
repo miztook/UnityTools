@@ -1288,9 +1288,6 @@
     <ClInclude Include="..\source\Base\ASysThread.h">
       <Filter>Base</Filter>
     </ClInclude>
-    <ClInclude Include="..\csshare\Common\CLuaTable.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="..\source\lua_export.h">
       <Filter>Header Files</Filter>
     </ClInclude>

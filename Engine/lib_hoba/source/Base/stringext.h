@@ -256,10 +256,7 @@ inline std::string std_string_format(const char* _Format, ...) {
 	va_start(marker, _Format);
 
 	int num_of_chars = vsnprintf(NULL, 0, _Format, marker);
-
-	if (num_of_chars > tmp.capacity()) {
-		tmp.resize(num_of_chars + 1);
-	}
+	tmp.resize(num_of_chars);
 
 	vsprintf((char *)tmp.data(), _Format, marker);
 
@@ -282,9 +279,10 @@ inline void std_string_split(const std::string& origStr, char split, std::vector
 	{
 		pch = strchr(pchStart, split);
 		if (pch)
+		{
 			*pch = '\0';
-
-		retVString.push_back(pchStart);
+			retVString.push_back(pch);
+		}
 
 		if (!pch)
 			break;

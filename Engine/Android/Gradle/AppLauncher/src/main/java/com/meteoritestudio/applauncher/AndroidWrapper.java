@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.*;
 import android.content.pm.*;
+import android.content.res.AssetManager;
 import android.net.*;
 import android.net.wifi.*;
 import android.os.*;
@@ -242,4 +243,77 @@ public class AndroidWrapper {
         catch (Exception e) {}
     }
 
+	private static String combinePath(String path1, String path2) {
+		if (path1.isEmpty() || path2.isEmpty())
+			return path1 + path2;
+		else
+			return path1 + File.separator + path2;
+	}
+
+	public static long CopyAssetFileToPath(final Activity targetActivity,
+										   final String fileName, final String sourceFolder,
+										   final String destFolder) {
+		long writeLen = -1;
+		InputStream in = null;
+		OutputStream out = null;
+
+		try {
+			AssetManager assetManager = targetActivity.getResources()
+					.getAssets();
+
+			byte[] buffer = new byte[1024];
+
+			String fullPath = combinePath(sourceFolder, fileName);
+			in = assetManager.open(fullPath);
+
+			String newFileName = combinePath(destFolder, fileName);
+			new File(newFileName).getParentFile().mkdirs();
+
+			out = new FileOutputStream(newFileName);
+
+			long finishedSize = 0;
+			int read;
+			while ((read = in.read(buffer)) != -1) {
+				out.write(buffer, 0, read);
+				out.flush();
+
+				finishedSize += read;
+			}
+
+			writeLen = finishedSize;
+		} catch (IOException ioException) {
+
+		} catch (Exception e) {
+
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					// NOOP
+				}
+			}
+			if (out != null) {
+				try {
+					out.close();
+				} catch (IOException e) {
+					// NOOP
+				}
+			}
+		}
+
+		return writeLen;
+	}
+
+	public static void ShowGoogleMarket(final Activity targetActivity)
+    {
+        String mAddress = "market://details?id=" + targetActivity.getPackageName();
+		try{
+            Uri uri = Uri.parse(mAddress);
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            targetActivity.startActivity(intent);
+            intent = null;
+        }
+        catch (Exception e) {}
+	}
 }

@@ -1,54 +1,29 @@
 package com.meteoritestudio.prom1;
 
-import com.unity3d.player.UnityPlayer;
-import java.io.*;
-import java.net.*;
-import java.util.*;
-
-import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.ContentValues;
+import com.meteoritestudio.applauncher.CameraPhoto;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.provider.MediaStore.Images.Media;
 import android.util.Log;
-import android.widget.Toast;
 import android.app.PendingIntent;
 import android.app.AlarmManager;
 
 import com.meteoritestudio.applauncher.JavaLog;
-//import com.tencent.gcloud.voice.*;
-//import com.onevcat.*;
+import com.meteoritestudio.applauncher.PermissionUtils;
+import com.meteoritestudio.applauncher.MacUtils;
 
-public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin {
+import android.support.v4.app.ActivityCompat;
+import android.support.annotation.NonNull;
+import android.widget.Toast;
+import android.app.ActivityManager;
+
+
+public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin implements ActivityCompat.OnRequestPermissionsResultCallback {
 //public class MainActivity extends UnityPlayerActivity {
 	private static MainActivity _Instance = null;
 	private static final int TIME_OUT = 10 * 1000; // 超时时间
 	private static final String CHARSET = "utf-8"; // 设置编码
 	private static final String TAG = "com.meteoritestudio.prom1.MainActivity";
-
-	public static String srcPath;
-	private static String requestUrl;
-	private static String loginKey;
-	public static String SAVED_IMAGE_DIR_PATH = Environment
-			.getExternalStorageDirectory().getPath() + "/";
-
-	public static String cameraPath;
-	public static Uri photoUri;
 
 	public static MainActivity getInstance() {
 		return _Instance;
@@ -64,7 +39,9 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin {
 		// http://blog.csdn.net/c15522627353/article/details/52452490
 		// AndroidBug54971Workaround.assistActivity(findViewById(android.R.id.content));
 
-        /*
+
+
+		/*
 		String sdcardDir = Environment.getExternalStorageDirectory().toString();
 		String path = sdcardDir
 				+ "/M1JavaLog.txt";
@@ -83,6 +60,32 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin {
 	protected void WriteLog(String strLog) {
 		Log.i(TAG, strLog);
 		JavaLog.Instance().WriteLog(strLog);
+	}
+
+	public static int GetLargeMemoryLimit()
+	{
+		int limit = 0;
+		try {
+			ActivityManager activityManager = (ActivityManager) _Instance.getApplication().getSystemService(ACTIVITY_SERVICE);
+			limit = activityManager.getLargeMemoryClass();
+		}
+		catch (Exception e) {
+			limit = 0;
+		}
+		return limit;
+	}
+
+	public static int GetMemoryLimit()
+	{
+		int limit = 0;
+		try {
+			ActivityManager activityManager = (ActivityManager) _Instance.getApplication().getSystemService(ACTIVITY_SERVICE);
+			limit = activityManager.getMemoryClass();
+		}
+		catch (Exception e){
+			limit = 0;
+		}
+		return limit;
 	}
 
 	public static void DoRestartImmediate() {
@@ -115,190 +118,93 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin {
 	}
 
 	public static boolean TakeCamera() {
-		if (_Instance == null)
-			return false;
-
-		String state = Environment.getExternalStorageState();
-		if (state.equals(Environment.MEDIA_MOUNTED)) {
-			cameraPath = SAVED_IMAGE_DIR_PATH + "capture.jpg";
-			Intent intent = new Intent();
-			// 指定开启系统相机的Action
-			intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
-			String out_file_path = SAVED_IMAGE_DIR_PATH;
-			File dir = new File(out_file_path);
-			if (!dir.exists()) {
-				dir.mkdirs();
-			} // 把文件地址转换成Uri格式
-			Uri uri = Uri.fromFile(new File(cameraPath));
-			// 设置系统相机拍摄照片完成后图片文件的存放地址
-			intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-
-			_Instance.startActivityForResult(intent, 10);
-
-			return true;
-		} else {
-			Toast.makeText(_Instance.getApplicationContext(),
-					"Make sure SDCard is avaiable", Toast.LENGTH_LONG).show();
-
-			return true;
-		}
+		return CameraPhoto.TakeCamera(_Instance);
 	}
 
 	public static boolean TakePhoto() {
-		if (_Instance == null)
-			return false;
+		return CameraPhoto.TakePhoto(_Instance);
+	}
 
-		_Instance.srcPath = "";
-
-		String filename = "photo.jpg";
-		ContentValues values = new ContentValues();
-		values.put(Media.TITLE, filename);
-		photoUri = _Instance.getContentResolver().insert(
-				MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-
-		// 参考: http://www.cnblogs.com/loonggg/p/4981782.html
-
-		Intent intent;
-		if (Build.VERSION.SDK_INT < 19) {
-
-			intent = new Intent(Intent.ACTION_GET_CONTENT);
-			intent.setType("image/*");
-			intent.addCategory(Intent.CATEGORY_OPENABLE);
-
-		} else {
-
-			intent = new Intent(
-					Intent.ACTION_PICK,
-					android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-		}
-
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-
-		/*
-		 * intent.putExtra("crop", "true"); intent.putExtra("aspectX", 1);
-		 * intent.putExtra("aspectY", 1); intent.putExtra("outputX", 128);
-		 * intent.putExtra("outputY", 128); intent.putExtra("scale", true);
-		 * intent.putExtra("return-data", true);
-		 */
-
-		_Instance.startActivityForResult(intent, 11);
-
-		return true;
+	public static boolean SavePhoto(String path)
+	{
+		return CameraPhoto.SavePhoto(_Instance, path);
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
-		// WriteLog(String.format("begin onActivityResult!!! requestCode %d, resultCode %d",
-		// requestCode, resultCode));
+		CameraPhoto.OnActivityResult(this, requestCode, resultCode, data);
+	}
 
-		if (requestCode == 10 && resultCode == Activity.RESULT_OK) // Camera
-		{
-			// WriteLog("data1-->Camera");
 
-			srcPath = cameraPath;
-			// WriteLog(String.format("data1 save--> %s", srcPath));
-
-			// UnityPlayer.UnitySendMessage("EntryPoint",
-			// "OnPhotoCameraFileResult", srcPath);
-
-			File picture = new File(SAVED_IMAGE_DIR_PATH + "capture.jpg");
-
-			cropImageUri(Uri.fromFile(picture), 128, 128, 12);
-
-		} else if (requestCode == 11 && resultCode == Activity.RESULT_OK
-				&& data != null) // Photo
-		{
-			WriteLog("data2-->Photo");
-
-			try {
-				Uri uri = data.getData();
-				if (uri == null)
-					uri = photoUri;
-
-				Bitmap bitmap = decodeUriAsBitmap(uri);
-
-				if (bitmap != null) {
-
-					final String absPath = getAbsolutePath(_Instance, uri);
-					if (absPath != null)
-						srcPath = absPath;
-
-					if (bitmap.getWidth() == bitmap.getHeight()
-							&& bitmap.getWidth() <= 128
-							&& bitmap.getHeight() <= 128) {
-						// bitmap = getRoundedCornerBitmap(bitmap);
-						UnityPlayer.UnitySendMessage("EntryPoint",
-								"OnPhotoCameraFileResult", srcPath);
-						srcPath = "";
-					} else {
-						cropImageUri(uri, 128, 128, 12);
-					}
-				}
-			} catch (Exception e) {
-				WriteLog(e.getMessage());
-			}
-
-			WriteLog(String.format("data2 save--> %s", srcPath));
-		} else if (requestCode == 12 && resultCode == Activity.RESULT_OK
-				&& data != null) // Photo
-		{
-			if (srcPath != "") {
-				File outFile = new File(srcPath);
-				if (outFile.exists())
-					UnityPlayer.UnitySendMessage("EntryPoint",
-							"OnPhotoCameraFileResult", srcPath);
-
-				srcPath = "";
+	private PermissionUtils.PermissionGrant mPermissionGrant = new PermissionUtils.PermissionGrant() {
+		@Override
+		public void onPermissionGranted(int requestCode) {
+			switch (requestCode) {
+				case PermissionUtils.CODE_RECORD_AUDIO:
+					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_RECORD_AUDIO", Toast.LENGTH_SHORT).show();
+					break;
+				case PermissionUtils.CODE_GET_ACCOUNTS:
+					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_GET_ACCOUNTS", Toast.LENGTH_SHORT).show();
+					break;
+				case PermissionUtils.CODE_READ_PHONE_STATE:
+					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_READ_PHONE_STATE", Toast.LENGTH_SHORT).show();
+					break;
+				case PermissionUtils.CODE_CALL_PHONE:
+					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_CALL_PHONE", Toast.LENGTH_SHORT).show();
+					break;
+				case PermissionUtils.CODE_CAMERA:
+					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_CAMERA", Toast.LENGTH_SHORT).show();
+					break;
+				case PermissionUtils.CODE_ACCESS_FINE_LOCATION:
+					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_ACCESS_FINE_LOCATION", Toast.LENGTH_SHORT).show();
+					break;
+				case PermissionUtils.CODE_ACCESS_COARSE_LOCATION:
+					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_ACCESS_COARSE_LOCATION", Toast.LENGTH_SHORT).show();
+					break;
+				case PermissionUtils.CODE_READ_EXTERNAL_STORAGE:
+					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_READ_EXTERNAL_STORAGE", Toast.LENGTH_SHORT).show();
+					break;
+				case PermissionUtils.CODE_WRITE_EXTERNAL_STORAGE:
+					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_WRITE_EXTERNAL_STORAGE", Toast.LENGTH_SHORT).show();
+					break;
+				default:
+					break;
 			}
 		}
+	};
 
-		// WriteLog(String.format("end onActivityResult!!! requestCode %d, resultCode %d",
-		// requestCode, resultCode));
+	@Override
+	public void onRequestPermissionsResult(final int requestCode, @NonNull String[] permissions,
+										   @NonNull int[] grantResults) {
+
+		PermissionUtils.requestPermissionsResult(this, requestCode, permissions, grantResults, mPermissionGrant);
 	}
 
-	private Bitmap decodeUriAsBitmap(Uri uri) {
-		Bitmap bitmap = null;
-		try {
-			bitmap = BitmapFactory.decodeStream(getContentResolver()
-					.openInputStream(uri));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return null;
-		}
-		return bitmap;
+
+	public static boolean hasPermission(final int requestCode)
+	{
+		if (_Instance == null)
+			return false;
+		return PermissionUtils.hasPermission( _Instance, requestCode);
 	}
 
-	private void cropImageUri(Uri uri, int outputX, int outputY, int requestCode) {
-
-		Intent intent = new Intent("com.android.camera.action.CROP");
-
-		intent.setDataAndType(uri, "image/*");
-
-		intent.putExtra("crop", "true");
-
-		intent.putExtra("aspectX", 1);
-
-		intent.putExtra("aspectY", 1);
-
-		intent.putExtra("outputX", outputX);
-
-		intent.putExtra("outputY", outputY);
-
-		intent.putExtra("scale", true);
-
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-
-		intent.putExtra("return-data", true);
-
-		intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
-
-		intent.putExtra("noFaceDetection", true); // no face detection
-
-		startActivityForResult(intent, requestCode);
-
+	public static void requestPermission(final int requestCode)
+	{
+		if (_Instance == null)
+			return;
+		PermissionUtils.requestPermission(_Instance, requestCode, _Instance.mPermissionGrant);
 	}
 
+	public static String getMAC()
+	{
+		if (_Instance == null)
+			return "";
+		return MacUtils.getMAC(_Instance
+				.getBaseContext());
+	}
+
+	/*
 	public static String startCamera(Activity activity, int requestCode) {
 
 		// 指定相机拍摄照片保存地址
@@ -326,35 +232,6 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin {
 			Toast.makeText(activity, "请确认已经插入SD卡", Toast.LENGTH_LONG).show();
 			return null;
 		}
-	}
-
-	public String getAbsolutePath(final Context context, final Uri uri) {
-		if (null == uri)
-			return null;
-
-		final String scheme = uri.getScheme();
-		String data = null;
-		if (scheme == null) {
-			data = uri.getPath();
-		} else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
-			data = uri.getPath();
-		} else if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
-			String[] filePathColumns = { MediaStore.Images.Media.DATA };
-			Cursor cursor = context.getContentResolver().query(uri,
-					filePathColumns, null, null, null);
-
-			if (null != cursor) {
-				if (cursor.moveToFirst()) {
-					int index = cursor.getColumnIndex(filePathColumns[0]);
-					if (index > -1) {
-						data = cursor.getString(index);
-					}
-				}
-				cursor.close();
-			}
-
-		}
-		return data;
 	}
 
 	private void submitUploadFile() {
@@ -401,9 +278,8 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin {
 			conn.setRequestProperty("Content-Type", CONTENT_TYPE + ";boundary="
 					+ BOUNDARY);
 			if (file != null) {
-				/**
-				 * 当文件不为空，把文件包装并且上传
-				 */
+				//当文件不为空，把文件包装并且上传
+
 				DataOutputStream dos = new DataOutputStream(
 						conn.getOutputStream());
 				StringBuffer sb = new StringBuffer();
@@ -431,10 +307,10 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin {
 				sb.append(PREFIX);
 				sb.append(BOUNDARY);
 				sb.append(LINE_END);
-				/**
-				 * 这里重点注意： name里面的值为服务器端需要key 只有这个key 才可以得到对应的文件
-				 * filename是文件的名字，包含后缀名的 比如:abc.png
-				 */
+
+				// 这里重点注意： name里面的值为服务器端需要key 只有这个key 才可以得到对应的文件
+				// filename是文件的名字，包含后缀名的 比如:abc.png
+
 				sb.append("Content-Disposition: form-data; name=\"upfile\";filename=\""
 						+ file.getName() + "\"" + LINE_END);
 				sb.append("Content-Type: image/pjpeg; charset=" + CHARSET
@@ -454,9 +330,7 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin {
 				dos.write(end_data);
 
 				dos.flush();
-				/**
-				 * 获取响应码 200=成功 当响应成功，获取响应的流
-				 */
+				 // 获取响应码 200=成功 当响应成功，获取响应的流
 
 				int res = conn.getResponseCode();
 				System.out.println("res=========" + res);
@@ -482,17 +356,16 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin {
 		return result;
 	}
 
-	public static void SavePhoto(String path) {
+	public static boolean CheckPermissionGranted(String requiredPermission)
+	{
 		try {
 			Context context = _Instance.getApplicationContext();
-			String photo_uri = MediaStore.Images.Media.insertImage(
-					context.getContentResolver(), path, "TeraPhoto", "");
-			context.sendBroadcast(new Intent(
-			// Intent.ACTION_MEDIA_MOUNTED,
-					Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://"
-							+ photo_uri)));
-		} catch (FileNotFoundException e) {
-
+			int checkVal = context.checkCallingOrSelfPermission(requiredPermission);
+			return checkVal == PackageManager.PERMISSION_GRANTED;
+		}
+		catch (Exception e)
+		{
+			return false;
 		}
 	}
 
@@ -505,7 +378,7 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin {
 				bitmap.getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(output);
 		final Paint paint = new Paint();
-		/* 去锯齿 */
+		// 去锯齿
 		paint.setAntiAlias(true);
 		paint.setFilterBitmap(true);
 		paint.setDither(true);
@@ -534,4 +407,5 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin {
 		canvas.drawBitmap(bitmap, rect, rect, paint);
 		return output;
 	}
+	*/
 }

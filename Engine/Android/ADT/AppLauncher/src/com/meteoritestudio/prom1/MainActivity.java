@@ -33,6 +33,9 @@ import android.app.AlarmManager;
 import com.meteoritestudio.applauncher.JavaLog;
 import com.onevcat.*;
 
+import com.meteoritestudio.applauncher.*;
+import android.app.ActivityManager;
+
 public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin {
 //public class MainActivity extends UnityPlayerActivity {
 	private static MainActivity _Instance = null;
@@ -83,6 +86,32 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin {
 		JavaLog.Instance().WriteLog(strLog);
 	}
 
+	public static int GetLargeMemoryLimit()
+	{
+		int limit = 0;
+		try {
+			ActivityManager activityManager = (ActivityManager) _Instance.getApplication().getSystemService(ACTIVITY_SERVICE);
+			limit = activityManager.getLargeMemoryClass();
+		}
+		catch (Exception e) {
+			limit = 0;
+		}
+		return limit;
+	}
+
+	public static int GetMemoryLimit()
+	{
+		int limit = 0;
+		try {
+			ActivityManager activityManager = (ActivityManager) _Instance.getApplication().getSystemService(ACTIVITY_SERVICE);
+			limit = activityManager.getMemoryClass();
+		}
+		catch (Exception e){
+			limit = 0;
+		}
+		return limit;
+	}
+	
 	public static void DoRestartImmediate() {
 		if (_Instance == null)
 			return;
@@ -531,5 +560,13 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin {
 		paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
 		canvas.drawBitmap(bitmap, rect, rect, paint);
 		return output;
+	}
+	
+	public static String getMAC()
+	{
+		if (_Instance == null)
+			return "";
+		return MacUtils.getMAC(_Instance
+				.getBaseContext());
 	}
 }

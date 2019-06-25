@@ -53,7 +53,7 @@ HAPI void HOBA_Init(const char* baseDir, const char* docDir, const char* libDir,
 {
 #ifdef A_PLATFORM_WIN_DESKTOP
 	AWinMiniDump::begin();
-	globalDbg.beginCheckPoint();
+	//globalDbg.beginCheckPoint();
 	//globalDbg.setAllocHook(true, 0);
 #endif
 

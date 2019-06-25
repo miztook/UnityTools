@@ -54,7 +54,7 @@ struct ELEMENT_VER
 	}
 
 	//void ToShortString(AString& str) const { str.Format("%d.%d.%d", iVer0, iVer1, iVer2); }
-	void ToString(std::string& str) const { std_string_format(str, "%d.%d.%d.%d", iVer0, iVer1, iVer2, iVer3); }
+	std::string ToString() const { return std_string_format("%d.%d.%d.%d", iVer0, iVer1, iVer2, iVer3); }
 	bool Parse(const std::string& str)
 	{
 		std::vector<std::string> arr;

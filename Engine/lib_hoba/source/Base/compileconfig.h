@@ -11,7 +11,9 @@
 //
 // #define A_PLATFORM_LINUX
 
+#ifndef DISABLE_ZLIB
 #define DISABLE_ZLIB				//disable package, zlib
+#endif
 
 //Platform Defines
 #if defined(_MSC_VER)

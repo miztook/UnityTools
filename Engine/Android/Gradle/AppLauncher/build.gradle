@@ -3,12 +3,12 @@ apply plugin: 'com.android.library'
 //https://blog.csdn.net/coldicecn/article/details/81743399
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 28
+    buildToolsVersion '28.0.2'
 
     defaultConfig {
         minSdkVersion 18
-        targetSdkVersion 27
+        targetSdkVersion 28
     }
 
     buildTypes {
@@ -53,4 +53,6 @@ allprojects {
 dependencies {
     compileOnly files('libs/unity-classes.jar')
     compileOnly files('libs/UniWebView.jar')
+    compileOnly 'com.android.support:support-v4:28.0.0'
+    //compileOnly 'com.android.support:appcompat-v7:27.1.1'
 }

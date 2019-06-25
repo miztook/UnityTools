@@ -2,6 +2,7 @@
 #include "ASys.h"
 #include "AAssist.h"
 #include "A3DMacros.h"
+#include <stdlib.h>
 
 static bool _KeepOrthogonal(A3DMATRIX4 mat)
 {
