@@ -66,6 +66,9 @@ std::tuple<std::string, int> g_StaticMethodParams[] =
 
 std::tuple<std::string, std::vector<int>> g_SpecialMethodParams[] =
 {
+	{ "CGMan.PlayCG", { 4 } },
+	{ "CGMan.StopCG", { 0 } },
+
 	{ "GUI.SetText",{ 2 } },
 	{ "GUI.SetGroupToggleOn",{ 2 } },
 	{ "GUI.SetArtFontText",{ 2 } },
@@ -246,7 +249,7 @@ std::tuple<std::string, std::vector<int>> g_SpecialMethodParams[] =
 	{ "GameUtil.OnHostPlayerCreate",{ 1 } },
 	{ "GameUtil.OnWorldLoaded",{ 1 } },
 	{ "GameUtil.OnLoadingShow",{ 1 } },
-	{ "GameUtil.PlayCG",{ 2, 3, 4 } },
+	{ "GameUtil.PlayCG",{ 4 } },
 	{ "GameUtil.ReplayCG",{ 1 } },
 	{ "GameUtil.GetAllTeamMember",{ 1 } },
 	{ "GameUtil.SendProtocol",{ 2 } },
@@ -283,7 +286,7 @@ std::tuple<std::string, std::vector<int>> g_SpecialMethodParams[] =
 	{ "GameUtil.FetchResFromCache",{ 1 } },
 	{ "GameUtil.AddResToCache",{ 2 } },
 	{ "GameUtil.RecycleEntityBaseRes",{ 1 } },
-	{ "GameUtil.PlayEarlyWarningGfx",{ 5 } },
+	{ "GameUtil.PlayEarlyWarningGfx",{ 6 } },
 	{ "GameUtil.StopGfx",{ 2 } },
 	{ "GameUtil.ChangeGfxPlaySpeed",{ 2 } },
 	{ "GameUtil.SetEmojiSprite",{ 2 } },
@@ -297,11 +300,8 @@ std::tuple<std::string, std::vector<int>> g_SpecialMethodParams[] =
 	{ "GameUtil.CopyTextToClipboard",{ 1 } },
 	{ "GameUtil.SetServerTimeGap",{ 1 } },
 	{ "GameUtil.CopyTextToClipboard",{ 1 } },
-	{ "GameUtil.GetAnnouncement",{ 1 } },
 	{ "GameUtil.UploadPicture",{ 3 } },
 	{ "GameUtil.DownloadPicture",{ 2 } },
-	{ "GameUtil.GetServerList",{ 1 } },
-	{ "GameUtil.GetAccountRoleList",{ 2 } },
 	{ "GameUtil.IsCustomPicFileExist",{ 1 } },
 	{ "GameUtil.GetUserLanguagePostfix",{ 1 } },
 	{ "GameUtil.SetServerOpenTime",{ 2 } },
@@ -334,7 +334,7 @@ std::tuple<std::string, std::vector<int>> g_SpecialMethodParams[] =
 	{ "GameUtil.IsPlayingUISfx",{ 3 } },
 	{ "GameUtil.PlayUISfx",{ 4, 5, 6, 7 } },
 	{ "GameUtil.PlayUISfxClipped",{ 4, 8 } },
-	{ "GameUtil.StopUISfx",{ 2 } },
+	{ "GameUtil.StopUISfx",{ 2, 3 } },
 	{ "GameUtil.SetUISfxLayer",{ 2 } },
 	{ "GameUtil.EnableButton",{ 2 } },
 	{ "GameUtil.SetPanelSortingLayerOrder",{ 3 } },
@@ -347,7 +347,7 @@ std::tuple<std::string, std::vector<int>> g_SpecialMethodParams[] =
 	{ "GameUtil.SetGroupImg",{ 2 } },
 	{ "GameUtil.SetBtnExpress",{ 2 } },
 	{ "GameUtil.SetNativeSize",{ 1 } },
-	{ "GameUtil.SetMaskTrs",{ 3 } },
+	{ "GameUtil.SetMaskTrs",{ 4 } },
 	{ "GameUtil.RegisterUIEventHandler",{ 3, 4 } },
 	{ "GameUtil.GetScreenPosToTargetPos",{ 1 } },
 	{ "GameUtil.ChangeGradientBtmColor",{ 2 } },
@@ -444,6 +444,10 @@ std::tuple<std::string, std::string> g_GlobalClass[] =
 	{ "game._CurWorld._PetMan", "CPetMan" },
 	{ "game._GUIMan._UIManCore", "CUIManCore" },
 	{ "game._CGuideMan._CurGuideTrigger", "Guide" },
+
+	{ "CFxMan.Instance()", "CFxMan" },
+	{ "CQuest.Instance()", "CQuest" },
+	//{ "CTeamMan.Instance()", "CTeamMan" },
 };
 
 
@@ -458,7 +462,7 @@ std::tuple<std::string, int> g_SpecialMethodReturns[] =
 	{ ":ForwardXYZ(", 3 },
 	{ ":ForwardXZ(", 2 },
 	{ "GetNearPortalAndAssociatedPosByMap(", 2 },
-	{ "CheckDiamond(", 2 },
+	{ "CheckDiamond(", 2},
 };
 
 void CLplusChecker::InitData()

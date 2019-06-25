@@ -191,7 +191,6 @@ struct SLuaClass
 
 	std::set<int>		errorInterfaceLines;		//没有使用多语言的Interfaces
 	std::set<int>		errorConfigsLines;			//没有使用多语言的Configs
-	std::set<int>		ineffecientForLoop;			//待优化的for ipairs pairs
 
 	std::set<SLuaFieldToken>	fieldDefList;
 	std::set<SLuaFunctionToken>	functionDefList;
@@ -201,8 +200,6 @@ struct SLuaClass
 	std::set<SLuaFieldToken>	fieldUsedList;
 	std::set<SLuaFunctionToken>	functionUsedList;
 
-	std::set<SLuaTimerToken>   timerAddList;
-	std::set<SLuaTimerToken>   timerRemoveList;
 	std::set<SStringTableToken>		stringTableUsedList;
 
 	//间接使用
@@ -228,6 +225,21 @@ struct SLuaClass
 	}
 };
 
+struct SLuaFile
+{
+	std::string strFileName;
+
+	std::set<SStringTableToken>		stringTableUsedList;
+
+	//间接使用
+	std::set<SLuaFunctionToken>	functionAllUsedIndirectList;
+	std::set<SLuaFunctionToken> functionSpecialUsedIndirect;
+
+	//特殊的全局token,和逻辑相关
+	std::set<SLuaFieldToken>  fieldUsedGlobalList;
+	std::set<SLuaFunctionToken>  functionUsedGlobalList;
+};
+
 struct SMessageToken
 {
 	std::string protoName;
@@ -237,10 +249,11 @@ struct SMessageToken
 class CLplusChecker
 {
 public:
-	explicit CLplusChecker(const std::string& strConfigsDir, const std::string& strLuaDir);
+	CLplusChecker(const std::string& strConfigsDir, const std::string& strLuaDir);
 
 public:
 	bool BuildLuaClasses();
+	bool BuildLuaFiles();
 	bool ParseGameText();
 
 	bool GetLuaClassUsedMembers();
@@ -260,7 +273,8 @@ private:
 	void InitData();
 
 private:
-	bool BuildLuaClass(AFile* pFile, std::map<std::string, SLuaClass>& luaClass);
+	bool BuildLuaClass(AFile* pFile);
+	bool BuildLuaFile(AFile* pFile);
 
 	bool GetLuaClassUsedMembers(AFile* pFile, const std::map<std::string, SLuaClass>& luaClass);
 
@@ -276,8 +290,6 @@ private:
 	std::string HandleLine_VirtualDefine(const char* szLine, int nLine, SLuaClass* current);
 	std::string HandleLine_OverrideDefine(const char* szLine, int nLine, SLuaClass* current);
 	std::string HandleLine_StaticDefine(const char* szLine, int nLine, SLuaClass* current);
-	void HandleLine_AddGlobalTimerDefine(const char* szLine, int nLine, SLuaClass* current);
-	void HandleLine_RemoveGlobalTimerDefine(const char* szLine, int nLine, SLuaClass* current);
 	void HandleLine_StringTableUse(const char* szLine, int nLine, SLuaClass* current);
 
 	void HandleLine_ErrorToken(const char* szLine, int nLine, const char* filename);
@@ -308,7 +320,6 @@ private:
 	void Check_FieldUsedIndirectToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry5>& entrySet);
 	void Check_MethodUsedIndirectToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry5>& entrySet, std::set<SOutputEntry7>& entryParamSet);
 	void Check_AllMethodusedIndirectToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry7>& entryMethodSet);
-	void Check_AllStaticMethodusedIndirectToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry7>& entryMethodSet);
 	void Check_AllSpecialMethodusedIndirectToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry7>& entryMethodSet);
 	void Check_AllGlobalFieldUsedToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry5>& entrySet);
 	void Check_AllGlobalMethodUsedToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry5>& entrySet, std::set<SOutputEntry7>& entryParamSet);
@@ -335,6 +346,7 @@ private:
 	std::string m_strNetProtoFileName;
 	std::string m_strTemplateProtoFileName;
 	std::map<std::string, SLuaClass>	m_mapLuaClass;
+	std::vector<SLuaFile>	m_vecLuaFiles;
 
 	std::vector<SLuaFieldToken>		m_errorTokenList;
 	std::vector<SLuaFieldToken>		m_errorDefineList;

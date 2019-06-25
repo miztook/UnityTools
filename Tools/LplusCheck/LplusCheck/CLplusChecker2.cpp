@@ -257,11 +257,6 @@ std::string CLplusChecker::HandleLine_FieldDefine(const char* szLine, int nLine,
 
 	if (current)
 	{
-		if (current->strName == "CPanelUIActivity")
-		{
-			int x = 0;
-		}
-
 		const char* pTypeStart;
 		const char* pTypeEnd;
 		char typeName[128] = { 0 };
@@ -338,10 +333,6 @@ std::string CLplusChecker::HandleLine_FieldDefine(const char* szLine, int nLine,
 			current->fieldDefList.insert(fieldToken);
 
 			ret = name;
-		}
-		else
-		{
-			int xxx = 0;
 		}
 	}
 	return ret;
@@ -673,153 +664,6 @@ std::string CLplusChecker::HandleLine_StaticDefine(const char* szLine, int nLine
 	return ret;
 }
 
-void CLplusChecker::HandleLine_AddGlobalTimerDefine(const char* szLine, int nLine, SLuaClass* current)
-{
-	if (current)
-	{
-		const char* p = strstr(szLine, "_G.AddGlobalTimer");
-		ASSERT(p);
-
-		SLuaTimerToken usedToken;
-		usedToken.className = current->strName;
-		usedToken.location.line = nLine;
-		usedToken.location.col = p - szLine;
-
-		//检查=
-		{
-			std::string strId;
-			char eq = '\0';
-			int len = (int)(p - szLine) - 1;
-			int end = 0;
-			int start = -1;
-			for (int n = len; n >= 0; --n)
-			{
-				if (eq == '\0' && (szLine[n] == ' ' || szLine[n] == '\t'))
-					continue;
-
-				if (eq == '\0')			//找 =
-				{
-					eq = szLine[n];
-					if (eq != '=')
-						break;
-					end = n - 1;
-					while (szLine[end] == ' ' || szLine[end] == '\t')
-					{
-						if (end <= 0)
-							break;
-						--end;
-					}
-				}
-
-				if (end > 0 && n < end && start == -1)
-				{
-					if (szLine[n] == ' ' || szLine[n] == '\t')
-					{
-						start = n;
-						break;
-					}
-				}
-			}
-
-			if (end > 0 && start >= 0)
-			{
-				char name[256];
-				strncpy_s(name, 256, &szLine[start], end + 1 - start);
-				name[end + 1 - start] = '\0';
-
-				strId = name;
-				trim(strId, "\t ");
-
-				usedToken.id = strId;
-			}
-		}
-
-		p += strlen("_G.AddGlobalTimer");
-		ASSERT(p);
-
-		p = strstr(p, "(");
-		ASSERT(p);
-		p += 1;
-
-		const char* start = p;
-
-		const char* end1 = strstr(p, ",");
-		ASSERT(end1);
-		p = end1 + 1;
-		if (end1)
-		{
-			//field
-			char name[256];
-			strncpy_s(name, 256, start, end1 - start);
-			name[end1 - start] = '\0';
-
-			std::string ttl = name;
-			trim(ttl, "\t ");
-
-			usedToken.ttl = ttl;
-		}
-
-		start = p;
-		const char* end2 = strstr(p, ",");
-		ASSERT(end2);
-		p = end2 + 1;
-		if (end2)
-		{
-			//field
-			char name[256];
-			strncpy_s(name, 256, start, end2 - start);
-			name[end2 - start] = '\0';
-
-			std::string once = name;
-			trim(once, "\t ");
-
-			usedToken.runonce = once;
-		}
-
-		current->timerAddList.insert(usedToken);
-	}
-}
-
-void CLplusChecker::HandleLine_RemoveGlobalTimerDefine(const char* szLine, int nLine, SLuaClass* current)
-{
-	if (current)
-	{
-		const char* p = strstr(szLine, "_G.RemoveGlobalTimer");
-		ASSERT(p);
-
-		SLuaTimerToken usedToken;
-		usedToken.className = current->strName;
-		usedToken.location.line = nLine;
-		usedToken.location.col = p - szLine;
-
-		p += strlen("_G.RemoveGlobalTimer");
-		ASSERT(p);
-
-		p = strstr(p, "(");
-		ASSERT(p);
-		p += 1;
-
-		const char* start = p;
-
-		const char* end = strstr(p, ")");
-		ASSERT(end);
-		if (end)
-		{
-			//field
-			char name[256];
-			strncpy_s(name, 256, start, end - start);
-			name[end - start] = '\0';
-
-			std::string strId = name;
-			trim(strId, "\t ");
-
-			usedToken.id = strId;
-		}
-
-		current->timerRemoveList.insert(usedToken);
-	}
-}
-
 void CLplusChecker::HandleLine_StringTableUse(const char* szLine, int nLine, SLuaClass* current)
 {
 	if (current)
@@ -1009,21 +853,22 @@ void CLplusChecker::Get_SelfMethodUsedDirect(const char* szLine, int nLine, SLua
 
 				bool bFunction;
 				std::vector<std::string> vParams;
-				ParseUseFunctionToken(p, vParams, bFunction);
+				if (ParseUseFunctionToken(p, vParams, bFunction))
+				{ 
+					char name[1024];
+					strncpy(name, start, end - start);
+					name[end - start] = '\0';
 
-				char name[1024];
-				strncpy(name, start, end - start);
-				name[end - start] = '\0';
+					SLuaFunctionToken usedToken;
+					usedToken.location.line = nLine;
+					usedToken.location.col = start - szLine;
+					usedToken.token = name;
+					usedToken.className = current->strName;
+					usedToken.vParams = vParams;
+					usedToken.bHasFunction = bFunction;
 
-				SLuaFunctionToken usedToken;
-				usedToken.location.line = nLine;
-				usedToken.location.col = start - szLine;
-				usedToken.token = name;
-				usedToken.className = current->strName;
-				usedToken.vParams = vParams;
-				usedToken.bHasFunction = bFunction;
-
-				current->functionUsedList.insert(usedToken);
+					current->functionUsedList.insert(usedToken);
+				}
 			}
 			else
 			{
@@ -1183,17 +1028,18 @@ void CLplusChecker::Get_SelfMethodUsedIndirect(const char* szLine, int nLine, SL
 					{
 						bool bFunction;
 						std::vector<std::string> vParams;
-						ParseUseFunctionToken(end, vParams, bFunction);
+						if (ParseUseFunctionToken(end, vParams, bFunction))
+						{
+							SLuaFunctionToken usedToken;
+							usedToken.location.line = nLine;
+							usedToken.location.col = start - szLine;
+							usedToken.token = fieldname;
+							usedToken.className = parentClass->strName;
+							usedToken.vParams = vParams;
+							usedToken.bHasFunction = bFunction;
 
-						SLuaFunctionToken usedToken;
-						usedToken.location.line = nLine;
-						usedToken.location.col = start - szLine;
-						usedToken.token = fieldname;
-						usedToken.className = parentClass->strName;
-						usedToken.vParams = vParams;
-						usedToken.bHasFunction = bFunction;
-
-						current->functionUsedIndirectList.insert(usedToken);
+							current->functionUsedIndirectList.insert(usedToken);
+						}
 
 						break;
 					}
@@ -1242,7 +1088,6 @@ void CLplusChecker::Get_AllMethodUsedIndirect(const char* szLine, int nLine, SLu
 			bool bFunction;
 			std::vector<std::string> vParams;
 			if (ParseUseFunctionToken(end, vParams, bFunction))
-
 			{
 				SLuaFunctionToken usedToken;
 				usedToken.location.line = nLine;
@@ -1416,7 +1261,7 @@ void CLplusChecker::Get_GlobalMethodUsed(const char* szLine, int nLine, SLuaClas
 		std::string typeName;
 		for (const auto& entry : m_GlobalClassList)
 		{
-			std::string str = std::get<0>(entry) + ".";
+			std::string str = std::get<0>(entry) + ":";
 			if (strstr(szLine, str.c_str()) != NULL)
 			{
 				specialToken = str;
@@ -1868,67 +1713,6 @@ void CLplusChecker::Check_AllMethodusedIndirectToFile(FILE* pFile, const SLuaCla
 				{
 					bFound = true;
 					bMatch = func.vParams.size() == token.vParams.size();
-
-					if (bMatch)
-						break;
-				}
-			}
-
-			if (bMatch)
-				break;
-		}
-
-		if (bFound && !bMatch)
-		{
-			entryParamSet.insert(SOutputEntry7(
-				token.token,
-				token.className,
-				(int)token.vParams.size(),
-				0,
-				luaClass.strName,
-				token.location.line,
-				token.location.col));
-		}
-	}
-}
-
-void CLplusChecker::Check_AllStaticMethodusedIndirectToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry7>& entryParamSet)
-{
-	for (const auto& token : luaClass.functionAllUsedIndirectList)
-	{
-		if (token.bHasFunction || !token.bIsStatic)			//static方法
-			continue;
-
-		bool skip = false;
-		for (const auto& entry : m_StaticMethodParamList)		//特殊的参数匹配,和unity内部函数重名
-		{
-			const auto& name = std::get<0>(entry);
-			int numParams = std::get<1>(entry);
-
-			if (name == token.token && numParams == (int)token.vParams.size())
-			{
-				skip = true;
-				break;
-			}
-		}
-
-		if (skip)
-			continue;
-
-		bool bFound = false;		//是否找到匹配的
-		bool bMatch = false;
-		for (const auto& entry : m_mapLuaClass)				//检查token是否在所有类中有定义
-		{
-			for (const auto& func : entry.second.functionDefList)
-			{
-				if (func.token == token.token)		//名字一致，检查类型
-				{
-					bFound = true;
-
-					if (func.bIsStatic)
-						bMatch = (func.vParams.size() == token.vParams.size());
-					else
-						bMatch = (func.vParams.size() + 1 == token.vParams.size());
 
 					if (bMatch)
 						break;

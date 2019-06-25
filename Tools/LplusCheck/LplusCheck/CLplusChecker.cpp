@@ -52,7 +52,44 @@ bool CLplusChecker::BuildLuaClasses()
 			return;
 		}
 
-		BuildLuaClass(&File, m_mapLuaClass);
+		BuildLuaClass(&File);
+
+		File.Close();
+	},
+		m_strLuaDir.c_str());
+
+	return true;
+}
+
+bool CLplusChecker::BuildLuaFiles()
+{
+	Q_iterateFiles(m_strLuaDir.c_str(),
+		[this](const char* filename)
+	{
+		if (stricmp(filename, "Lplus.lua") == 0 ||
+			stricmp(filename, "Enum.lua") == 0 ||
+			stricmp(filename, "PBHelper.lua") == 0 ||
+			stricmp(filename, "Test.lua") == 0 ||
+			stricmp(filename, "Utility/BadWordsFilter.lua") == 0)
+			return;
+
+		if (!hasFileExtensionA(filename, "lua"))
+			return;
+
+		//printf("%s\n", filename);
+
+		std::string strFile = this->m_strLuaDir;
+		normalizeDirName(strFile);
+		strFile += filename;
+
+		AFile File;
+		if (!File.Open("", strFile.c_str(), AFILE_OPENEXIST | AFILE_TEXT))
+		{
+			printf("Failed to open %s\n", strFile.c_str());
+			return;
+		}
+
+		BuildLuaFile(&File);
 
 		File.Close();
 	},
@@ -130,7 +167,7 @@ bool CLplusChecker::ParseGameText()
 	return true;
 }
 
-bool CLplusChecker::BuildLuaClass(AFile* pFile, std::map<std::string, SLuaClass>& luaClass)
+bool CLplusChecker::BuildLuaClass(AFile* pFile)
 {
 	pFile->Seek(0, AFILE_SEEK_SET);
 
@@ -202,14 +239,6 @@ bool CLplusChecker::BuildLuaClass(AFile* pFile, std::map<std::string, SLuaClass>
 		{
 			HandleLine_StaticDefine(szLine, nLine, current);
 		}
-		else if (strstr(szLine, "_G.AddGlobalTimer") != NULL)
-		{
-			HandleLine_AddGlobalTimerDefine(szLine, nLine, current);
-		}
-		else if (strstr(szLine, "_G.RemoveGlobalTimer") != NULL)
-		{
-			HandleLine_RemoveGlobalTimerDefine(szLine, nLine, current);
-		}
 		else if (strstr(szLine, "StringTable.Get(") != NULL)
 		{
 			HandleLine_StringTableUse(szLine, nLine, current);
@@ -232,6 +261,62 @@ bool CLplusChecker::BuildLuaClass(AFile* pFile, std::map<std::string, SLuaClass>
 		{
 			HandleLine_InvalidGlobalFields(szLine, nLine, current);
 		}
+	}
+
+	return true;
+}
+
+bool CLplusChecker::BuildLuaFile(AFile* pFile)
+{
+	pFile->Seek(0, AFILE_SEEK_SET);
+
+	auint32 dwReadLen;
+
+	char shortFileName[256];
+	getFileNameA(pFile->GetFileName(), shortFileName, 256);
+
+	bool isClass = false;
+
+	char szLine[AFILE_LINEMAXLEN];
+	int nLine = 0;
+	bool bComment = false;
+	while (pFile->ReadLine(szLine, AFILE_LINEMAXLEN, &dwReadLen))
+	{
+		++nLine;
+
+		//comment
+		if (strstr(szLine, "--[[") != NULL)
+		{
+			bComment = true;
+		}
+
+		if (strstr(szLine, "]]") != NULL)
+		{
+			bComment = false;
+		}
+
+		if (bComment)
+			continue;
+
+		char* pComment = strstr(szLine, "--");
+		if (pComment)
+			*pComment = '\0';
+
+		if (strstr(szLine, "Lplus.Class(") != NULL)				//类定义
+		{
+			isClass = true;
+			break;
+		}
+		else if (strstr(szLine, "Lplus.Extend(") != NULL)			//类继承
+		{
+			isClass = true;
+			break;
+		}
+	}
+
+	if (!isClass)
+	{
+
 	}
 
 	return true;
@@ -820,7 +905,7 @@ bool CLplusChecker::ParseUseFunctionToken(const char* begin, std::vector<std::st
 	if (strstr(begin, "function"))
 	{
 		bHasFunction = true;
-		return true;					//skip
+		return false;					//skip
 	}
 
 	bHasFunction = false;
@@ -1239,27 +1324,6 @@ bool CLplusChecker::CheckLuaClassesToFile(const char* strFileName)
 				std::get<6>(entry));
 		}
 	}
-
-// 	{
-// 		std::set<SOutputEntry7> entryParamSet;
-// 		for (const auto& entry : m_mapLuaClass)
-// 		{
-// 			const auto& luaClass = entry.second;
-// 
-// 			Check_AllStaticMethodusedIndirectToFile(pFile, luaClass, entryParamSet);
-// 		}
-// 
-// 		for (const auto& entry : entryParamSet)
-// 		{
-// 			fprintf(pFile,
-// 				"incorrect static method params number used %s (param count=%d), class %s, at line %d, col %d\n",
-// 				std::get<0>(entry).c_str(),
-// 				std::get<2>(entry),
-// 				std::get<4>(entry).c_str(),
-// 				std::get<5>(entry),
-// 				std::get<6>(entry));
-// 		}
-// 	}
 
 	fprintf(pFile, "\n");
 

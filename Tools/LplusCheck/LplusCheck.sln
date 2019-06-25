@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LplusCheck", "LplusCheck\Lp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuaRulesCheck", "LuaRulesCheck\LuaRulesCheck.vcxproj", "{346194AC-AF84-4B51-B102-0002423C1A7A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuaDataCheck", "LuaDataCheck\LuaDataCheck.vcxproj", "{8DD5B62B-46E5-4C1C-92E4-A0514421246D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -29,6 +31,14 @@ Global
 		{346194AC-AF84-4B51-B102-0002423C1A7A}.Release|Win32.Build.0 = Release|Win32
 		{346194AC-AF84-4B51-B102-0002423C1A7A}.Release|x64.ActiveCfg = Release|x64
 		{346194AC-AF84-4B51-B102-0002423C1A7A}.Release|x64.Build.0 = Release|x64
+		{8DD5B62B-46E5-4C1C-92E4-A0514421246D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8DD5B62B-46E5-4C1C-92E4-A0514421246D}.Debug|Win32.Build.0 = Debug|Win32
+		{8DD5B62B-46E5-4C1C-92E4-A0514421246D}.Debug|x64.ActiveCfg = Debug|x64
+		{8DD5B62B-46E5-4C1C-92E4-A0514421246D}.Debug|x64.Build.0 = Debug|x64
+		{8DD5B62B-46E5-4C1C-92E4-A0514421246D}.Release|Win32.ActiveCfg = Release|Win32
+		{8DD5B62B-46E5-4C1C-92E4-A0514421246D}.Release|Win32.Build.0 = Release|Win32
+		{8DD5B62B-46E5-4C1C-92E4-A0514421246D}.Release|x64.ActiveCfg = Release|x64
+		{8DD5B62B-46E5-4C1C-92E4-A0514421246D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
