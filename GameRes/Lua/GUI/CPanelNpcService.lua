@@ -23,6 +23,7 @@ def.static('=>', CPanelNpcService).Instance = function ()
         instance._PanelCloseType = EnumDef.PanelCloseType.ClickEmpty
         --instance._SpecialId = 0
         instance._DestroyOnHide = false
+	instance._ForbidESC = true
 
         instance:SetupSortingParam()
 	end

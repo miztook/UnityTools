@@ -64,7 +64,12 @@ end
 
 def.virtual("string").OnClick = function(self, id)
 	if id == self._HelpUrlBtnName and HelpPageUrl[self._HelpUrlType] then
-		CPlatformSDKMan.Instance():ShowInAppWeb(HelpPageUrl[self._HelpUrlType])
+		if game._IsHideUrlHelp then
+			game._GUIMan:ShowTipText(StringTable.Get(33), false)
+		else
+			local url = CPlatformSDKMan.Instance():GetCustomData(HelpPageUrl[self._HelpUrlType])
+			CPlatformSDKMan.Instance():ShowInAppWeb(url)
+		end
 	end
 end
 
@@ -137,7 +142,12 @@ end
 def.virtual("string").OnButtonSlide = function(self, id)
 end
 
+-- 接收webview传过来的消息
 def.virtual("string").OnReceiveWebViewMessage = function(self, msg)
+end
+
+-- 接收DragablePageView的index随时间变化或者手动拖拽导致的index变化的消息
+def.virtual("userdata", "string", "number").OnDragablePageIndexChange = function(self, item_go, pageViewName, index)
 end
 
 def.virtual().CloseThisTip = function(self)
@@ -333,7 +343,7 @@ end
 -- end
 
 def.method("=>", "number").GetSortingLayer = function(self)
-	if IsNil(self._Panel) then return end
+	if IsNil(self._Panel) then return -1 end
 	return GameUtil.GetPanelSortingLayer(self._Panel)
 end
 

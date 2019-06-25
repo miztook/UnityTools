@@ -40,17 +40,28 @@ def.method("=>","boolean").IsFull = function (self)
 	return count >= self._EffectSize
 end
 
+--获取物品使用或是其他用途 先获取堆叠少的
 def.method("number", "=>", CIvtrItem).GetItem = function (self, tid)
 	local ItemSet = self._ItemSet
-	
+	local count,index = 0,0
 	for i = 1, #ItemSet do
 		local item = ItemSet[i]
 		if item and item._Tid == tid then
-			return item
+			if count == 0 then 
+				count = item._NormalCount 
+				index = i
+			end
+			if count > item._NormalCount then 
+				index = i
+				count = item._NormalCount
+			end
 		end
 	end
-
-	return nil
+	if index == 0 then 
+		return nil
+	else
+		return ItemSet[index]
+	end
 end
 
 def.method("number", "=>", "table").GetItems = function (self, tid)

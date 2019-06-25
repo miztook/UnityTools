@@ -37,14 +37,14 @@ local MapInfo =
 		},
 		[14312] = 
 		{
-			[1] = { x = 244.84, y = -9.85, z = 70.84, name = "검은 날개 대주교", level = 55, SortID = 29, DropItemIds = " " },
+			[1] = { x = 244.84, y = -9.85, z = 70.84, name = "검은 날개 시칸 대주교", level = 55, SortID = 29, DropItemIds = " " },
 		},
 	},
 	Npc = 
 	{
 		[4229] = 
 		{
-			[1] = { x = 335.90, y = 30.29, z = -1.10, name = "시칸카스", SortID = 12, FunctionName = " " },
+			[1] = { x = 335.90, y = 30.29, z = -1.10, name = "시칸타스", SortID = 12, FunctionName = " " },
 		},
 		[2033] = 
 		{

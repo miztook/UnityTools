@@ -16,6 +16,8 @@ def.field("table")._Config = nil
 def.field("number")._MinShowTime = 1
 def.field("boolean")._IsNextStepTimeLimit = true
 def.field("number")._MinLimitTimerId = 0
+def.field("number")._AutoShowNextStepTimeTimerId = 0
+
 def.field("table")._CurPanel = nil
 def.field("userdata")._CurButton = nil
 def.field("userdata")._RegisterUI = nil
@@ -67,11 +69,18 @@ def.method("number","number","number","=>","boolean").GuideStart = function(self
 		end
 	end
 
+	if BigStepConfig.OpenPagePath ~= nil then
+    	local frame = GameObject.Find( BigStepConfig.OpenPagePath )
+    	if frame == nil or not frame.activeSelf then
+    		return false
+    	end
+    end
+
 	-- 如果成功进入下一步，跳过上一步教学
 	game._CGuideMan:JumpCurGuide()
 
 	--print("BigStepConfig.TriggerBehaviour=",BigStepConfig.TriggerBehaviour)
-	if BigStepConfig.TriggerBehaviour ~= EnumDef.EGuideBehaviourID.OpenUI then
+	if BigStepConfig.TriggerBehaviour ~= EnumDef.EGuideBehaviourID.OpenUI and BigStepConfig.IsCloseAll == nil then
 		game._GUIMan:CloseAll(game._CGuideMan._KeepUIs)
 	end
 
@@ -114,7 +123,7 @@ def.method("number","number","number","=>","boolean").GuideStart = function(self
 
 	
 
-	local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+	local CAutoFightMan = require "AutoFight.CAutoFightMan"
 	local CQuestAutoMan = require "Quest.CQuestAutoMan"
 	local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
 	CQuestAutoMan.Instance():Stop()
@@ -146,7 +155,7 @@ def.method("number","number","number","=>","boolean").GuideNextStep = function(s
 	--如果是指定的教学行为ID
 	local Trigger1 = true
 	if BigStepConfig.NextStepTriggerParamSymbol == nil then
-		if behaviourID ~= SmallStepConfig.NextStepTriggerBehaviour or param ~= SmallStepConfig.NextStepTriggerParam then
+		if (behaviourID ~= SmallStepConfig.NextStepTriggerBehaviour or param ~= SmallStepConfig.NextStepTriggerParam) and behaviourID ~= -1 then
 			--print( "MLML/GuideNext/ GuideBehaviourID No Equal",behaviourID,SmallStepConfig.NextStepTriggerBehaviour,param,SmallStepConfig.NextStepTriggerParam)
 			Trigger1 = false
 		end
@@ -219,6 +228,9 @@ def.method("=>","boolean").SpecialPanelIsShow = function(self)
     		return not panel:IsHidden()
     	end
 	end
+	if self._ID == 23 and self._Step == 1 then
+       	return game._GUIMan:IsMainUIShowing()
+	end
 	--print("44444444444")
 	return true
 end
@@ -237,6 +249,10 @@ def.method("string","string","string","string","=>","boolean").ButtonLight = fun
 	if IsNil(self._CurButton) then
 		--print("buttonPath=",path)
 		--print("ButtonLight="..buttonName.."is nil !")
+		return false
+	end
+
+	if IsNil(self._CurPanel) then
 		return false
 	end
 
@@ -299,6 +315,7 @@ def.method().ButtonNormal = function(self)
     end
 	local GraphicRaycaster = self._CurButton:GetComponent(ClassType.GraphicRaycaster)
 	if GraphicRaycaster ~= nil then
+		--需要立刻刪除 所以用 DestroyImmediate
 	    GameObject.DestroyImmediate( GraphicRaycaster )
     end
 
@@ -306,6 +323,9 @@ def.method().ButtonNormal = function(self)
 	if Canvas ~= nil then
 		GameObject.DestroyImmediate( Canvas )
 	end
+
+	GameUtil.ResetMask2D(self._CurButton)
+
 	-- if self._Panel_script ~= nil then
 	-- 	self._Panel_script:UnregisterGuideHandler(self._CurButton)
 	-- end
@@ -318,6 +338,8 @@ def.method().ButtonNormal = function(self)
 		end
 	end
 
+	--如果此步骤是列表
+	self:ListGuide(false)
 	self._CurButton = nil
 	self._RegisterUI = nil
 end
@@ -347,12 +369,20 @@ def.method("number","number").GuideShow = function(self,id,step)
 	if SmallStepConfig.ShowHighLightButtonName ~= nil and SmallStepConfig.ShowHighLightButtonName ~= "" then
 		--是否成功
 		local isSuccess = self:ButtonLight( SmallStepConfig.ShowHighLightButtonPath,SmallStepConfig.ShowHighLightButtonName,SmallStepConfig.RegisterUIPath,SmallStepConfig.RegisterUI )
+		--如果此步骤是列表
+		if SmallStepConfig.NextStepTriggerBehaviour == EnumDef.EGuideBehaviourID.OnClickTargetList then
+			self:ListGuide(true)
+		end
 		--如果没有成功
 		if not isSuccess then
 			--教学界面 初始化回调
 			local function ShowUIPaneInit()
 				CGuideMan.UpdateGuideSortingLayerOrder(self._CurPanel)
 				self:ButtonLight( SmallStepConfig.ShowHighLightButtonPath,SmallStepConfig.ShowHighLightButtonName,SmallStepConfig.RegisterUIPath,SmallStepConfig.RegisterUI )
+				--如果此步骤是列表
+				if SmallStepConfig.NextStepTriggerBehaviour == EnumDef.EGuideBehaviourID.OnClickTargetList then
+					self:ListGuide(true)
+				end
 				--没有动画延迟则 初始化时显示
 				if SmallStepConfig.IsAnimationDelay == nil or not SmallStepConfig.IsAnimationDelay then
 					self._CurPanel:ShowStep()
@@ -378,12 +408,28 @@ def.method("number","number").GuideShow = function(self,id,step)
 	else
 		self._IsNextStepTimeLimit = false
 	end
+
+	-- 自动跳过下一步
+	if SmallStepConfig.AutoShowNextStepTime ~= nil and SmallStepConfig.AutoShowNextStepTime ~= "" then
+	    if self._AutoShowNextStepTimeTimerId ~= 0 then
+	        _G.RemoveGlobalTimer(self._AutoShowNextStepTimeTimerId)
+	        self._AutoShowNextStepTimeTimerId = 0
+	    end
+	    self._AutoShowNextStepTimeTimerId = _G.AddGlobalTimer(SmallStepConfig.AutoShowNextStepTime, true ,function()
+	    	self:GuideNextStep(id,EnumDef.EGuideBehaviourID.AutoNextGuide,-1)
+	    end)
+	end
+	
 end
 
 def.method().GuideClose = function(self)
     if self._MinLimitTimerId ~= 0 then
         _G.RemoveGlobalTimer(self._MinLimitTimerId)
         self._MinLimitTimerId = 0
+    end
+    if self._AutoShowNextStepTimeTimerId ~= 0 then
+        _G.RemoveGlobalTimer(self._AutoShowNextStepTimeTimerId)
+        self._AutoShowNextStepTimeTimerId = 0
     end
 	self:ButtonNormal()
 	game._GUIMan:CloseByScript(self._CurPanel)
@@ -399,6 +445,10 @@ def.method("boolean").ListGuide = function(self,b)
 		local list = self._RegisterUI:GetComponent(ClassType.GNewListBase)
 		if list ~= nil then
 			list:EnableScroll(not b)
+		end
+		local list2 = self._RegisterUI:GetComponent(ClassType.GNewTableBase)
+		if list2 ~= nil then
+			list2:EnableScroll(not b)
 		end
 	elseif self._CurButton ~= nil then
 		local list = self._CurButton:GetComponent(ClassType.GNewListBase)

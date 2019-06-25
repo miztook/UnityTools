@@ -75,6 +75,7 @@ local SystemEntranceCfg =
     [19] = {  Name = "상점",    IconPath = "System_Mall",   Priority = 20, },    --商城
 
     [37] = {  Name = "거래",    IconPath = "System_Auction",   Priority = 25, },    --交易  
+    [50] = {  Name = "절전모드",    IconPath = "System_Auction",   Priority = 26, },    --省电模式  
     
     
 }

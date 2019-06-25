@@ -9,7 +9,8 @@ local def = CPanelUIPetFreeConfirm.define
 
 def.field("table")._PanelObject = BlankTable    -- 存储界面节点的集合
 def.field("table")._PetData = nil
-def.field("number")._PetMatItemID = 1026        -- 宠物碎片ID
+def.field("userdata")._ItemList = nil
+def.field("table")._RecycleList = BlankTable
 
 local instance = nil
 def.static('=>', CPanelUIPetFreeConfirm).Instance = function ()
@@ -26,6 +27,7 @@ def.static('=>', CPanelUIPetFreeConfirm).Instance = function ()
 end
 
 def.override().OnCreate = function(self)
+    self._ItemList = self:GetUIObject('List_Item'):GetComponent(ClassType.GNewList)
 end
 
 def.override("dynamic").OnData = function(self,data)
@@ -36,33 +38,42 @@ def.override("dynamic").OnData = function(self,data)
 
         CPanelBase.OnData(self,data)
     end
-    local mat_temp = CElementData.GetItemTemplate(self._PetMatItemID)
-    local title, msg, closeType = StringTable.GetMsg(34)
-    local item = self:GetUIObject('Item')
-    local Img_Quality = item:FindChild("Img_Quality")
-    local img_quality1 = item:FindChild("Img_Quality1")
-    local Img_ItemIcon = item:FindChild("Img_ItemIcon")
-    local Lab_Lv = self:GetUIObject("Lab_Level")
-    local lab_mat_count = self:GetUIObject("Lab_MatCount")
-    local img_mat_icon = lab_mat_count:FindChild("Img_Get")
-    local lab_msg = self:GetUIObject('Lab_Message')
-    local lab_title = self:GetUIObject('Lab_MsgTitle')
-    local strLv = string.format(StringTable.Get(19073), self._PetData._Level)
-    local size = GUITools.GetTextSize(lab_msg)
-    strLv = GUITools.FormatRichTextSize(size-2, strLv)
-    msg = string.format(msg, self._PetData:GetRecyclingPetDebris(), RichTextTools.GetItemNameRichText(self._PetMatItemID, 1, false), 
-        RichTextTools.GetPetNickNameRichText(self._PetData._Tid, self._PetData._NickName, false)..strLv)
 
+    self._RecycleList = CPetUtility.CalcRecycleList(self._PetData)
+    self._ItemList:SetItemCount( #self._RecycleList )
+
+    local title, msg, closeType = StringTable.GetMsg(34)
+    msg = string.format(msg, self._PetData:GetStage(), 
+                             RichTextTools.GetPetNickNameRichText(self._PetData._Tid, self._PetData._NickName, false),
+                             tostring(self._PetData._Level))
+
+    local lab_title = self:GetUIObject('Lab_MsgTitle')
+    local lab_msg = self:GetUIObject('Lab_Message')
     GUI.SetText(lab_title, title)
     GUI.SetText(lab_msg, msg)
-    if mat_temp ~= nil then
-        GUITools.SetIcon(img_mat_icon, mat_temp.IconAtlasPath)
+end
+
+def.override("userdata", "string", "number").OnInitItem = function(self, item, id, index)
+    local idx = index + 1
+    if id == "List_Item" then
+        local itemInfo = self._RecycleList[idx]
+        local setting =
+        {
+            [EItemIconTag.Number] = itemInfo.Count,
+        }
+        IconTools.InitItemIconNew(item:FindChild("ItemIconNew"), itemInfo.Tid, setting)
     end
-    GUITools.SetIcon(Img_ItemIcon, self._PetData._IconPath)
-    GUITools.SetGroupImg(Img_Quality, self._PetData._Quality)
-    GUITools.SetGroupImg(img_quality1, self._PetData._Quality)
-    GUI.SetText(Lab_Lv, tostring(self._PetData._Level))
-    GUI.SetText(lab_mat_count, tostring(self._PetData:GetRecyclingPetDebris()))
+end
+
+def.override('userdata', 'string', 'number').OnSelectItem = function(self, item, id, index)
+    local idx = index + 1
+    if id == "List_Item" then
+        local itemInfo = self._RecycleList[idx]
+        CItemTipMan.ShowItemTips(itemInfo.Tid, 
+                                 TipsPopFrom.OTHER_PANEL, 
+                                 item,
+                                 TipPosition.FIX_POSITION)
+    end
 end
 
 def.override('string').OnClick = function(self, id)
@@ -71,15 +82,6 @@ def.override('string').OnClick = function(self, id)
         game._GUIMan:CloseByScript(self)
     elseif id == 'Btn_No' then
         game._GUIMan:CloseByScript(self)
-    elseif id == "Item" then
-        local panelData = 
-        {
-            _PetData = self._PetData,
-            _TipPos = TipPosition.FIX_POSITION,
-            _TargetObj = self:GetUIObject('Item'), 
-        }
-            
-        CItemTipMan.ShowPetTips(panelData)
     end
     CPanelBase.OnClick(self, id)
 end

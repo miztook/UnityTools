@@ -4,7 +4,7 @@ local CPanelBase = require 'GUI.CPanelBase'
 local CQuest = require "Quest.CQuest"
 local CElementData = require "Data.CElementData"
 local CQuestAutoMan = require "Quest.CQuestAutoMan"
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 
 local CPanelReputationIntroduction = Lplus.Extend(CPanelBase, 'CPanelReputationIntroduction')
 local def = CPanelReputationIntroduction.define
@@ -23,7 +23,7 @@ def.static('=>', CPanelReputationIntroduction).Instance = function ()
 	if not instance then
         instance = CPanelReputationIntroduction()
         instance._PrefabPath = PATH.UI_ReputationIntroduction
-        instance._PanelCloseType = EnumDef.PanelCloseType.ClickEmpty
+        instance._PanelCloseType = EnumDef.PanelCloseType.None
         instance._DestroyOnHide = true
         instance:SetupSortingParam()
         -- TO DO
@@ -104,6 +104,21 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         IconTools.InitTokenMoneyIcon(frame_icon, data.Data.Id, data.Data.Count)
     else
         IconTools.InitItemIconNew(frame_icon, data.Data.Id, { [EItemIconTag.Number] = data.Data.Count})
+    end
+end
+
+def.override('userdata', 'string', 'number').OnSelectItem = function(self, item, id, index)
+    local data = self._RewardItemList[index + 1]
+    if data.IsTokenMoney then
+        local panelData = 
+                        {
+                            _MoneyID = data.Data.Id,
+                            _TipPos = TipPosition.FIX_POSITION,
+                            _TargetObj = nil, 
+                        } 
+        CItemTipMan.ShowMoneyTips(panelData)
+    else
+        CItemTipMan.ShowItemTips(data.Data.Id, TipsPopFrom.OTHER_PANEL, nil, TipPosition.FIX_POSITION)
     end
 end
 

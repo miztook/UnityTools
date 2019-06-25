@@ -12,8 +12,12 @@ local CGame = Lplus.ForwardDeclare("CGame")
 local CPanelMainTips = require "GUI.CPanelMainTips"
 --教学数据链表
 def.field("table")._DataTable = nil
+--万物志已领取数据
+def.field("table")._TotleRewardIds = nil
 --def.field("table").table_AnecdoteData = nil
 def.field("number")._ManualOpenEId = 0 --要打开的条目ID
+def.field("number")._ManualActiveCount = 0 --要打开的条目ID
+def.field("boolean")._ManualServerRedPoint = false --服务器红点
 def.field("function")._ManualIsEyesShowCallBack = nil
 def.static("=>", CManualMan).new = function ()
     local Instance = CManualMan()
@@ -27,6 +31,8 @@ end
 
 def.method().CleanData = function(self)
 	self._DataTable = nil
+	self._TotleRewardIds = nil
+	self._ManualActiveCount = 0
 end
 
 --获取所有万物志配置
@@ -133,29 +139,129 @@ def.method("=>", "table").GetAllFinishAnecdote = function(self)
 	return FinishAnecdoteTypes
 end
 
+def.method("number","=>","boolean").NodeShowBigTypeRedPoint = function(self,bindex)
+    local isShowBigType = false
+    --local isShowBigTypeReward = false
+    --local isShowBigTypeNew = false
+    if bindex == 0 then
+		isShowBigType = self:NodeShowTotleRewardRedPoint()
+    else
+        local data = self:GetData()
+        local current_bigtype_manuals = data[EnumDef.ManualType.Manual][bindex]
+        --local current_smalltype_manuals = current_bigtype_manuals.BigTypeDatas[sindex]
 
-def.method("=>","boolean").IsShowManualRedPoint = function (self)
-    local isShow = false
-    local Map = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.Manual)
-    if Map ~= nil then
-        for k,v in pairs(Map) do
-        	if isShow then
-        		break
-        	end
-        	if type(v) == "boolean" and v then
-        		isShow = true
-            elseif type(v) == "table" then
-            	for k1,v1 in pairs(v) do
-            		if v1 ~= nil and v1 then
-	                	isShow = true
-                		break
-            		end
-            	end
+        for i,v in ipairs(current_bigtype_manuals.BigTypeDatas) do
+            for i2,v2 in ipairs(v.SmallTypeDatas) do
+                local tmpdata = self:GetDataByTypeAndEntrieId(EnumDef.ManualType.Manual,v2.EntrieId)
+                if bindex == tmpdata.bindex and not self:IsDrawReward(tmpdata) then
+                    isShowBigType = true
+                    break
+                end
+--626 红点修改
+--[[            	local Map = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.Manual)
+				if Map ~= nil and Map[v2.EntrieId] ~= nil then
+					isShowBigType = true
+					break
+				end--]]
             end
-        end
+        end      
     end
 
-    return isShow
+    --print("NodeShowBigTypeRedPoint",isShowBigType,bindex,debug.traceback())
+    return isShowBigType
+end
+
+def.method("number","number","=>","boolean").NodeShowSmallTypeRedPoint = function(self,bindex,sindex)
+    local isShowSmallType = false
+    --local isShowSmallTypeReward = false
+    --local isShowSmallTypeNew = false
+    if bindex == 0 then
+    	isShowSmallType = self:NodeShowTotleRewardRedPoint()
+    else
+        local data = self:GetData()
+        local current_bigtype_manuals = data[EnumDef.ManualType.Manual][bindex]
+        local current_smalltype_manuals = current_bigtype_manuals.BigTypeDatas[sindex]
+
+        for i,v in ipairs(current_smalltype_manuals.SmallTypeDatas) do
+            if v ~= nil then
+                local tmpdata = self:GetDataByTypeAndEntrieId(EnumDef.ManualType.Manual,v.EntrieId)
+                if bindex == tmpdata.bindex and sindex == tmpdata.sindex and not self:IsDrawReward(tmpdata) then
+                    isShowSmallType = true
+                    break
+                end
+--626 红点修改
+--[[            	local Map = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.Manual)
+				if Map ~= nil and Map[v.EntrieId] ~= nil then
+					isShowSmallType = true
+					break
+				end--]]
+            end
+        end    
+    end
+
+    --print("NodeShowSmallTypeRedPoint",isShowSmallType,bindex,sindex,debug.traceback())
+    return isShowSmallType
+end
+
+def.method("=>","boolean").NodeShowTotleRewardRedPoint = function(self)
+	local isShow = false
+
+    local tids = GameUtil.GetAllTid("ManualTotalReward")
+    for i,v in ipairs(tids) do
+    	local template = CElementData.GetManualTotalRewardTemplate(v)
+    	if self._ManualActiveCount >= template.TotalCount and (self._TotleRewardIds == nil or #self._TotleRewardIds == 0 or self._TotleRewardIds[v] == nil) then
+    		isShow = true
+    		break
+    	end
+    end
+	
+	return isShow
+end
+
+def.method("=>","boolean").NodeShowNewManualRedPoint = function(self)
+	local isShow = false
+
+	local Map = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.Manual)
+	if Map ~= nil then
+		for k,v in pairs( Map ) do
+			if v then
+				isShow = true
+				break
+			end
+		end
+	end
+	return isShow
+end
+
+
+
+def.method("=>","boolean").IsShowManualRedPoint = function (self)
+    local isShow1 = self:NodeShowTotleRewardRedPoint()
+    --626 红点修改
+    local isShow2 = false--self:NodeShowNewManualRedPoint()
+    local isShow3 = false
+
+    local data = self:GetData()
+    if data ~= nil then
+		for i0,v0 in ipairs( data[EnumDef.ManualType.Manual] ) do
+			local current_bigtype_manuals = v0
+			for i1,v1 in ipairs( current_bigtype_manuals.BigTypeDatas ) do
+				local current_smalltype_manuals = v1
+			    for i2,v2 in ipairs(current_smalltype_manuals.SmallTypeDatas) do
+		            local tmpdata = self:GetDataByTypeAndEntrieId(EnumDef.ManualType.Manual,v2.EntrieId)
+		            if not self:IsDrawReward(tmpdata) then
+		                isShow3 = true
+		                break
+		            end
+			    end 
+			end
+		end
+		self._ManualServerRedPoint = isShow1 or isShow2 or isShow3
+  	end
+
+  	self._ManualServerRedPoint = self._ManualServerRedPoint or isShow1 or isShow2 or isShow3
+  	--print("IsShowManualRedPoint",self._ManualServerRedPoint,isShow1,isShow2,isShow3,debug.traceback())
+    return self._ManualServerRedPoint
 end
 
 def.method("=>","boolean").IsShowRedPoint = function(self)	
@@ -186,6 +292,60 @@ def.method("table","=>","boolean").IsDrawReward = function (self,selectdata)
 end
 
 
+def.method("=>","number").GetAcitveCountValue = function (self)
+	return self._ManualActiveCount
+end
+
+def.method("=>","table").GetAddPropertys = function (self)
+	local AddPropertys = {}
+
+	if self._DataTable == nil then return nil end
+	local bigTypedataArray = self._DataTable[EnumDef.ManualType.Manual]
+	if bigTypedataArray == nil then return nil end
+		local smallTypedataArray = nil
+		local smallTypeData = nil
+		local entrieData = nil
+		for i,v in ipairs(bigTypedataArray) do
+			--print("大类型数组中找到小类型数组bigTypedataArray[i]======",i)
+			----print_r(v)
+			smallTypedataArray = v.BigTypeDatas
+			for i2,v2 in ipairs(smallTypedataArray) do
+				--print("小类型数组中找到条目数组smallTypedataArray[i]======",i)
+				--print_r(v)
+				smallTypeData = v2.SmallTypeDatas
+				for i3,v3 in ipairs(smallTypeData) do
+					if v3.IsDrawReward then
+
+						local template = CElementData.GetManualEntrieTemplate(v3.EntrieId)
+						
+						local ids = string.split(template.AttrIds, '*') 
+						local values = string.split(template.AttrValues, '*') 
+
+			            if ids ~= nil and values ~= nil then
+			                for i, k in ipairs(ids) do
+			                    local id = tonumber(ids[i])
+			                   	local value = tonumber(values[i])
+			                    if id ~= nil and value ~= nil then
+			                    	if AddPropertys[id] == nil then
+				                        AddPropertys[id] = 
+				                        {
+				                        	_ID = id,
+				                        	_Value = value
+				                    	}
+				                    else
+				                    	AddPropertys[id]._Value = AddPropertys[id]._Value + value
+				                    end
+			                    end
+			                end
+			            end	
+					end
+				end
+			end
+		end
+
+	return AddPropertys
+end
+
 --添加条目
 def.method("table").AddOneEntrie = function(self,v)
 	--条目数据内容
@@ -212,11 +372,12 @@ def.method("table").AddOneEntrie = function(self,v)
 			return false
 		end
 
-		if value1.IsUnlock and not value2.IsUnlock then
+--[[		if value1.IsUnlock and not value2.IsUnlock then
 	        return true
 	    elseif not value1.IsUnlock and value2.IsUnlock then
 	    	return false
-	    elseif value1.DetailId < value2.DetailId then
+	    else--]]
+	    if value1.DetailId < value2.DetailId then
 	    	return true
 	    else
 	        return false
@@ -237,6 +398,10 @@ def.method("table").AddOneEntrie = function(self,v)
 		Details         = tmpDetails
 	}
 
+	--激活 暂时用 领奖代替
+	if v.isDrawReward then
+		self._ManualActiveCount = self._ManualActiveCount + 1
+	end
 	 -- print("------------------------------------------",v.EntrieId)
 	 -- print_r(data)
 
@@ -310,11 +475,17 @@ end
 --加载所有万物志数据
 def.method("table").OnS2CManualData = function(self,srcdata)
 	self._DataTable = {}
-	for k,v in ipairs(srcdata) do
+	self._TotleRewardIds = {}
+	self._ManualActiveCount = 0
+	for k,v in ipairs(srcdata.Mas) do
 		--显示的添加
 		if v.isShow then
 			self:AddOneEntrie(v)
 		end
+	end
+
+	for i,v in ipairs(srcdata.TotleRewardIds) do
+		self._TotleRewardIds[v] = 1
 	end
 	--print_r(self._DataTable)
 	--print("#smallTypedataArray",#self._DataTable)
@@ -328,6 +499,8 @@ def.method("table").OnS2CManualDraw = function(self,srcdata)
 
 	local dataManual = self:GetDataByTypeAndEntrieId(EnumDef.ManualType.Manual,srcdata.EntrieId)
 	if dataManual ~= nil then
+		self._ManualActiveCount = self._ManualActiveCount + 1
+
 		dataManual.IsDrawReward = true
 		event._Data = dataManual
 		CGame.EventManager:raiseEvent(nil, event)
@@ -341,6 +514,13 @@ def.method("table").OnS2CManualDraw = function(self,srcdata)
 	end
 end
 
+def.method("number").OnS2CManualTotalDraw = function(self,id)
+	self._TotleRewardIds[id] = 1
+	local event = require("Events.ManualDataChangeEvent")()
+	event._Type = EnumDef.EManualEventType.Manual_RECIEVETOTAL
+	event._Data = { _ID = id } 
+	CGame.EventManager:raiseEvent(nil, event)	
+end
 
 --新增数据
 def.method("table").OnS2CManualInc = function(self,srcdata)
@@ -365,27 +545,19 @@ def.method("table").OnS2CManualInc = function(self,srcdata)
         	IsDrawReward = false
     	end
 
+		for k2,v2 in ipairs(v.Details) do
+			if not IsDrawReward then
+	            IsShowRed = true
+			end
+		end
+
 		-- 保存红点显示状态
 		local Map = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.Manual)
 		if Map == nil then
 			Map = {}
 		end
 		if Map[v.EntrieId] == nil then
-			Map[v.EntrieId] = {}
-		end
-
-		for k2,v2 in ipairs(v.Details) do
-			if Map[v.EntrieId][v2.DetailId] == nil then
-				Map[v.EntrieId][v2.DetailId] = {}
-			end
-			Map[v.EntrieId][v2.DetailId] = false
-
-			if not IsDrawReward then
-	            IsShowRed = true
-				Map[v.EntrieId][v2.DetailId] = true
-			end
-
-            --newend
+			Map[v.EntrieId] = true
 		end
 		CRedDotMan.SaveModuleDataToUserData(RedDotSystemType.Manual, Map)
 	end
@@ -429,32 +601,13 @@ def.method("table").OnS2CManualUpdate = function(self,srcdata)
 	for i,v in ipairs(srcdata) do
 		if v.IsDetailUnLock then
 			local template = CElementData.GetManualEntrieTemplate(v.EntrieId)
-
-			-- 保存红点显示状态
-			local Map = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.Manual)
-			if Map == nil then
-				Map = {}
-			end
-			if Map[v.EntrieId] == nil then
-				Map[v.EntrieId] = {}
-			end
-			if Map[v.EntrieId][v.DetailId] == nil then
-				Map[v.EntrieId][v.DetailId] = {}
-			end
-			Map[v.EntrieId][v.DetailId] = false
-
-			--new531
-            local template = CElementData.GetManualEntrieTemplate(v.EntrieId)
             if v.IsAllUnLock and template.RewardId ~= 0 then
             	--只赋值一次
             	if not IsShowRed then
                 	IsShowRed = true
                 end
-                Map[v.EntrieId][v.DetailId] = true
-            end
 
-			CRedDotMan.SaveModuleDataToUserData(RedDotSystemType.Manual, Map)
-			--CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Manual,true)
+            end
 
 			if v.IsAllUnLock then
 				CPanelMainTips.Instance():ShowFindManualTips(template.DisPlayName,StringTable.Get(20809),v.EntrieId)
@@ -495,11 +648,12 @@ def.method("table").OnS2CManualUpdate = function(self,srcdata)
 				return false
 			end
 
-			if value1.IsUnlock and not value2.IsUnlock then
+--[[			if value1.IsUnlock and not value2.IsUnlock then
 		        return true
 		    elseif not value1.IsUnlock and value2.IsUnlock then
 		    	return false
-		    elseif value1.DetailId < value2.DetailId then
+		    else--]]
+		    if value1.DetailId < value2.DetailId then
 		    	return true
 		    else
 		        return false
@@ -553,6 +707,16 @@ def.method('number').SendC2SManualDraw = function(self,entrieId)
 	PBHelper.Send(protocol)
 	--print("SendC2SManualDraw =")
 end
+
+--领取万物志阶段奖励
+def.method('number').SendC2SManualTotalDraw = function(self,Id)
+	local C2SManualTotalDraw = require "PB.net".C2SManualTotalDraw
+	local protocol = C2SManualTotalDraw()
+	protocol.TotalRewardId = Id
+	PBHelper.Send(protocol)
+	--print("SendC2SManualDraw =")
+end
+
 
 
 --询问是否完成

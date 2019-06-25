@@ -57,11 +57,11 @@ def.override().OnCreate = function(self)
     self._PanelObject1._Lab_TimeTips = self:GetUIObject('Lab_TimeTips')
     self._PanelObject1._Frame_All = self:GetUIObject("Frame_Content")
     self._PanelObject1._Frame_Basic = self:GetUIObject('Frame_Basic')
-    self._PanelObject1._Lay_Button = self:GetUIObject("Lay_Button")
+    self._Lay_Button = self:GetUIObject("Lay_Button")
     self._PanelObject1._Frame_BaseAttri = self:GetUIObject('Frame_BaseAttri')
     self._PanelObject1._Frame_Tips = self:GetUIObject("Frame_Tips")
     self._PanelObject1._DropButton = self:GetUIObject("Drop_Button")
-    self._PanelObject1._Scroll = self:GetUIObject("Scroll")
+    self._Scroll1 = self:GetUIObject("Scroll")
     self._PanelObject1._Mask = self:GetUIObject("Mask")
     self._PanelObject1.Item = self:GetUIObject("Item")
     self._PanelObject1.Img_Quality = self:GetUIObject("Img_Quality")
@@ -73,8 +73,8 @@ def.override().OnCreate = function(self)
     self._PanelObject1.Frame_Date = self:GetUIObject("Frame_Date")
     self._PanelObject1.Btn_GetType = self:GetUIObject("Btn_GetType")
 
-    self._PanelObject2._Scroll = self:GetUIObject("Scroll2")
-    local uiTemplate = self._PanelObject2._Scroll:GetComponent(ClassType.UITemplate)
+    self._Scroll2 = self:GetUIObject("Scroll2")
+    local uiTemplate = self._Scroll2:GetComponent(ClassType.UITemplate)
     self._PanelObject2._Lab_EquipTips = uiTemplate:GetControl(0)
     self._PanelObject2._Lab_TimeTips = uiTemplate:GetControl(1)
     self._PanelObject2._Frame_All = uiTemplate:GetControl(2)
@@ -107,35 +107,19 @@ def.override("dynamic").OnData = function(self, data)
     else
         self._ValidComponents = data.params
     end
-    self._IsShowDropButton = false
-    self._IsHaveMoreButton = false
+    -- self._IsShowDropButton = false
+    -- self._IsHaveMoreButton = false
     self:UpdatePanel()
-    -- CItemTipMan.InitTipPosition(frameFixedPosition, self._PanelObject1._Scroll, 0)
+    -- CItemTipMan.InitTipPosition(frameFixedPosition, self._Scroll1, 0)
 end
 
 def.override("string").OnClick = function(self,id)
     local component = nil 
-    if id == "Btn_More" then
-        if not self._IsHaveMoreButton then 
-            if self._ValidComponents == nil then return end
-            component = self._ValidComponents[2]
-            if component == nil then return end
-            component:Do()
-            CItemTipMan.CloseCurrentTips()      
-        else
-            if not self._IsShowDropButton then 
-                self._PanelObject1._DropButton:SetActive(true)
-                self._IsShowDropButton = true
-            else
-                self._PanelObject1._DropButton:SetActive(false)
-                self._IsShowDropButton = false
-            end
-        end
-    elseif id == "Btn_GetType"then
+    if id == "Btn_GetType"then
         local PanelData = 
         {
             ApproachIDs = self._ItemData._Template.ApproachID,
-            ParentObj = self._PanelObject1._Scroll,
+            ParentObj = self._Scroll1,
             IsFromTip = true,
             TipPanel = self,
             ItemId = self._ItemData._Tid,
@@ -145,29 +129,12 @@ def.override("string").OnClick = function(self,id)
         local PanelData = 
         {
             ApproachIDs = self._ItemEquipData._Template.ApproachID,
-            ParentObj = self._PanelObject2._Scroll,
+            ParentObj = self._Scroll1,
             IsFromTip = true,
             TipPanel = self,
             ItemId = self._ItemEquipData._Tid,
         }
         game._GUIMan:Open("CPanelItemApproach",PanelData)
-    elseif id == "Btn_One" then 
-        if self._ValidComponents ~= nil then
-            local component = self._ValidComponents[1]
-            if component ~= nil then
-                component:Do()
-                CItemTipMan.CloseCurrentTips() 
-            end
-        end     
-    else
-        if self._ValidComponents == nil then return end
-        local index = string.sub(id,9)
-        local component = self._ValidComponents[tonumber(index)]
-        if component == nil then return end
-        component:Do()
-
-        if component: IsApproachType() then return end
-        CItemTipMan.CloseCurrentTips()      
     end
 end
 
@@ -175,23 +142,13 @@ def.method().UpdatePanel = function(self)
     self:UpdateRightPanel()
     self:UpdateLeftPanel()
     if self._ItemEquipData == nil then
-        self._PanelObject2._Scroll:SetActive(false)
-        self._PanelObject1._Scroll.localPosition = Vector2.New(0,0)
+        self._IsShowCompare = false
+        self._Scroll2:SetActive(false)
+        self._Scroll1.localPosition = Vector2.New(0,0)
     else
-        self._PanelObject2._Scroll:SetActive(true)
-        --self._PanelObject1._Scroll.localPosition = Vector2.New(157,0)
-        local scrollRect1 = self._PanelObject1._Scroll:GetComponent(ClassType.RectTransform)
-        local scrollRect2 = self._PanelObject2._Scroll:GetComponent(ClassType.RectTransform)
-        local offsety = 0
-        if scrollRect1.sizeDelta.y < scrollRect2.sizeDelta.y then 
-            offsety = (scrollRect2.sizeDelta.y - scrollRect1.sizeDelta.y)/2
-            self._PanelObject1._Scroll.localPosition = Vector2.New(157,offsety)
-            self._PanelObject2._Scroll.localPosition = Vector2.New(-157,0)
-        elseif scrollRect1.sizeDelta.y > scrollRect2.sizeDelta.y then 
-            offsety = (scrollRect1.sizeDelta.y - scrollRect2.sizeDelta.y)/2
-            self._PanelObject1._Scroll.localPosition = Vector2.New(157,0)
-            self._PanelObject2._Scroll.localPosition = Vector2.New(-157,offsety)
-        end
+        self._IsShowCompare = true
+        self._Scroll2:SetActive(true)
+        self:IsSetCompareTipCenter(true)
     end
 
 end
@@ -203,12 +160,14 @@ def.method().UpdateRightPanel = function(self)
     end
     self:InitTips(self._ItemData, self._PanelObject1)
     if self._PopFrom ~= TipsPopFrom.CHAT_PANEL then 
-        self._PanelObject1._Lay_Button :SetActive(true)
-        self:InitButtons(self._PanelObject1._Lay_Button)
+        self._Lay_Button:SetActive(true)
+        self._IsShowButton = true
+        self:InitButtons(self._Lay_Button)
     else
-        self._PanelObject1._Lay_Button:SetActive(false)
+        self._IsShowButton = false
+        self._Lay_Button:SetActive(false)
     end
-    InitTipSize(self._PanelObject1._Frame_All,self._PanelObject1._Scroll,self._PanelObject1._Mask,self._PanelObject1._Frame_Basic,self._PanelObject1._Lay_Button)
+    InitTipSize(self._PanelObject1._Frame_All,self._Scroll1,self._PanelObject1._Mask,self._PanelObject1._Frame_Basic,self._PanelObject1._Lay_Button)
 end
 
 def.method().UpdateLeftPanel = function(self)
@@ -219,7 +178,7 @@ def.method().UpdateLeftPanel = function(self)
         end
         self:InitTips(self._ItemEquipData, self._PanelObject2)
     end
-    InitTipSize(self._PanelObject2._Frame_All,self._PanelObject2._Scroll,self._PanelObject2._Mask,self._PanelObject2._Frame_Basic)
+    InitTipSize(self._PanelObject2._Frame_All,self._Scroll2,self._PanelObject2._Mask,self._PanelObject2._Frame_Basic)
 end
 
 
@@ -367,26 +326,22 @@ def.method("table", "table").InitTips = function(self, itemData, panelObject)
     end
     local FrameDate = panelObject.Frame_Date
     if time > 0 then 
-        if IsExpireTime == false and itemData._IsBind then
-            GUI.SetText(panelObject._Lab_TimeTips,StringTable.Get(10683))
-        else
-            FrameDate:SetActive(true)
-            self:ShowTime(time,IsExpireTime,panelObject._Lab_TimeTips)
-            local callBack = function()
-                if not IsExpireTime then 
-                    time = itemData._SellCoolDownExpired - GameUtil.GetServerTime()/1000 
-                else
-                    time = itemData._ExpireData 
+        FrameDate:SetActive(true)
+        self:ShowTime(time,IsExpireTime,panelObject._Lab_TimeTips)
+        local callBack = function()
+            if not IsExpireTime then 
+                time = itemData._SellCoolDownExpired - GameUtil.GetServerTime()/1000 
+            else
+                time = itemData._ExpireData 
+            end
+            if time > 0 then
+                self:ShowTime(time,IsExpireTime,panelObject._Lab_TimeTips)
+            else
+                if not IsExpireTime then
+                    GUI.SetText(panelObject._Lab_TimeTips,StringTable.Get(10684))
                 end
-                if time > 0 then
-                    self:ShowTime(time,IsExpireTime,panelObject._Lab_TimeTips)
-                else
-                    if not IsExpireTime then
-                        GUI.SetText(panelObject._Lab_TimeTips,StringTable.Get(10684))
-                    end
-                    _G.RemoveGlobalTimer(self._ItemCoolDownTimer)
-                    self._ItemCoolDownTimer = 0	
-                end
+                _G.RemoveGlobalTimer(self._ItemCoolDownTimer)
+                self._ItemCoolDownTimer = 0	
             end
             self._ItemCoolDownTimer = _G.AddGlobalTimer(1, false, callBack)	
         end

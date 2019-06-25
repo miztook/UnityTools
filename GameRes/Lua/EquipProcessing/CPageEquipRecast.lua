@@ -68,6 +68,7 @@ def.method().PlayGfx = function(self)
     local root = self._GfxObjectGroup
     -- root.TweenObjectHook:SetActive(false)
     root.BlurTex:SetActive( true )
+    root.DoTweenPlayer:Restart(2002)
     
     local function callback()
         self:StopGfx()
@@ -199,9 +200,9 @@ def.method("dynamic").Show = function(self, data)
         local function OnMoneyChanged()
             self:UpdateButtonState()
         end
-        CGame.EventManager:addHandler('NotifyMoneyChangeEvent', OnMoneyChanged)
         self._OnMoneyChanged = OnMoneyChanged
     end
+    CGame.EventManager:addHandler('NotifyMoneyChangeEvent', self._OnMoneyChanged)
 
     -- 播放特效
     self:EnableBgGfx()
@@ -216,7 +217,7 @@ def.method().UpdateFrame = function(self)
     -- 更新选中信息
     self:UpdateSelectItem()
     -- 更新材料信息
-    self:UpdatrMaterialInfo()
+    self:UpdateMaterialInfo()
     -- 更新属性信息 材料有可能提升数值，最后计算
     self:UpdateProperty()
     -- 更新金币消耗，按钮状态
@@ -309,11 +310,18 @@ def.method().UpdateProperty = function(self)
                 end
                 Img_AddValue:SetActive(bActive)
                 Lab_Increase:SetActive(bActive)
+                if bActive then
+                    Lab_Increase:GetComponent(ClassType.DOTweenPlayer):Restart(111)
+                    GameUtil.PlayUISfx(PATH.UIFX_DEV_Fortify_Inc, sld, sld, -1)
+                end
             else
                 Sld_Attr.value = attrValue/attrMaxValue
                 Img_AddValue:SetActive(false)
                 Lab_Increase:SetActive(false)
             end
+
+            local Img_Recommend = item:FindChild("Img_Recommend")
+            Img_Recommend:SetActive(itemData:IsRecommendProperty(fightPropertyId))
         end
 
         --设置
@@ -324,7 +332,7 @@ def.method().UpdateProperty = function(self)
     end
 end
 -- 更新材料信息
-def.method().UpdatrMaterialInfo = function(self)
+def.method().UpdateMaterialInfo = function(self)
     local root = self._PanelObject
     local bShow = (self._ItemData ~= nil and self._ItemData.ItemData:CanRecast())
     local bHasAttrCache = bShow and self._ItemData.ItemData:HasUnsaveEquipAttrsCache()
@@ -342,7 +350,7 @@ def.method().UpdatrMaterialInfo = function(self)
         -- 重铸材料
         if not bHasAttrCache then
             local recastTemplate = CElementData.GetTemplate("EquipConsumeConfig", itemData._Template.RecastCostId)
-            if recastTemplate == nil then return nil end
+            if recastTemplate == nil then return end
 
             local MaterialId = recastTemplate.Item.ConsumePairs[1].ConsumeId
             local MaterialNeed = recastTemplate.Item.ConsumePairs[1].ConsumeCount
@@ -404,14 +412,15 @@ def.method().UpdateButtonState = function(self)
                 [EnumDef.CommonBtnParam.MoneyCost] = moneyNeed   
             }
             root.CommonBtn_Recast:ResetSetting(setting)
-            root.CommonBtn_Recast:MakeGray( (moneyHave < moneyNeed) or not self._IsEnoughRecastMaterial ) 
+            -- root.CommonBtn_Recast:MakeGray( (moneyHave < moneyNeed) or not self._IsEnoughRecastMaterial ) 
         else
             local setting = {
                 [EnumDef.CommonBtnParam.MoneyCost] = 0   
             }
             root.CommonBtn_Recast:ResetSetting(setting)
-            root.CommonBtn_Recast:MakeGray(true) 
         end
+        bActive = bActive and self._IsEnoughRecastMaterial
+        root.CommonBtn_Recast:MakeGray(not bActive)
     end
 
     -- 淬火 or 突破
@@ -428,15 +437,16 @@ def.method().UpdateButtonState = function(self)
                 [EnumDef.CommonBtnParam.MoneyCost] = moneyNeed   
             }
             root.CommonBtn_Quench:ResetSetting(setting)
-            root.CommonBtn_Quench:MakeGray( (moneyHave < moneyNeed) or not self._IsEnoughQuenchMaterial )
         else
             local setting = {
                 [EnumDef.CommonBtnParam.BtnTip] = StringTable.Get(31351),
                 [EnumDef.CommonBtnParam.MoneyCost] = 0   
             }
             root.CommonBtn_Quench:ResetSetting(setting)
-            root.CommonBtn_Quench:MakeGray(true)
         end
+        bActive = bActive and self._IsEnoughQuenchMaterial
+        root.CommonBtn_Quench:MakeGray(not bActive)
+
         -- 刷新红点
         -- local bShowRedDot = (bActive and
         --                      self._ItemData.PackageType == BAGTYPE.ROLE_EQUIP and
@@ -521,7 +531,8 @@ def.method("userdata", "number", "table").OnInitItem = function(self, item, inde
             [EItemIconTag.Equip] = (itemData.PackageType == BAGTYPE.ROLE_EQUIP),
         }
         IconTools.InitItemIconNew(ItemIconNew, itemData.ItemData._Tid, setting)
-        Img_UnableClick:SetActive(self._ItemData ~= nil and self._ItemData ~= itemData)
+        Img_UnableClick:SetActive(false)
+        -- Img_UnableClick:SetActive(self._ItemData ~= nil and self._ItemData ~= itemData)
     else
         local setting = {
             [EItemIconTag.Bind] = itemData.ItemData:IsBind(),
@@ -654,7 +665,7 @@ end
 def.method().OnClickRecastMaterialItem1 = function(self)
     local itemData = self._ItemData.ItemData
     local recastTemplate = CElementData.GetTemplate("EquipConsumeConfig", itemData._Template.RecastCostId)
-    if recastTemplate == nil then return nil end
+    if recastTemplate == nil then return end
     local MaterialId = recastTemplate.Item.ConsumePairs[1].ConsumeId
 
     CItemTipMan.ShowItemTips(MaterialId, 
@@ -816,7 +827,8 @@ end
 
 def.method().Hide = function(self)
     self:DisableBgGfx()
-
+    self:StopGfx()
+    
     if self._OnMoneyChanged ~= nil then
         CGame.EventManager:removeHandler('NotifyMoneyChangeEvent', self._OnMoneyChanged)
         self._OnMoneyChanged = nil

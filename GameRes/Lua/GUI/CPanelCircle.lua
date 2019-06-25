@@ -23,6 +23,7 @@ def.static("=>", CPanelCircle).Instance = function()
 		instance._PrefabPath = PATH.Panel_Circle
 		instance._PanelCloseType = EnumDef.PanelCloseType.None
 		instance._DestroyOnHide = true
+		instance._ForbidESC = true
 
         instance:SetupSortingParam()
 	end

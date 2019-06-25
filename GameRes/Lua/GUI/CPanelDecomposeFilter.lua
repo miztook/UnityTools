@@ -13,8 +13,9 @@ local FilterPart =
     Armor = 2,
     Accessory = 3,
     Charm = 4,
-    Else = 5,
-    All = 6,
+    Consumables = 5,
+    Else = 6,
+    All = 7,
 
 }
 local FilterQuality = 
@@ -44,6 +45,7 @@ def.field("userdata")._RdoWeapon = nil
 def.field("userdata")._RdoArmor = nil 
 def.field("userdata")._RdoAccessory = nil 
 def.field("userdata")._RdoCharm = nil 
+def.field("userdata")._RdoConsumables = nil 
 def.field("userdata")._RdoElse = nil 
 def.field("userdata")._RdoPointAll = nil 
 def.field("userdata")._Rdo0 = nil 
@@ -76,7 +78,7 @@ local function SaveFilterConditions(self)
         game._CDecomposeAndSortMan:SetAllPartRdoState(true)
     else
         local IsSlectAllParts = true
-        for i = 1,5 do 
+        for i = 1,6 do 
             if self._SelectParts[i] then 
                 game._CDecomposeAndSortMan:SavePartFilterData(i)
             else
@@ -113,8 +115,9 @@ def.override().OnCreate = function(self)
     self._RdoArmor = self:GetUIObject("Rdo_Part2")
     self._RdoAccessory = self:GetUIObject("Rdo_Part3")
     self._RdoCharm = self:GetUIObject("Rdo_Part4")
-    self._RdoElse = self:GetUIObject("Rdo_Part5")
-    self._RdoPointAll = self:GetUIObject("Rdo_Part6")
+    self._RdoConsumables = self:GetUIObject("Rdo_Part5")
+    self._RdoElse = self:GetUIObject("Rdo_Part6")
+    self._RdoPointAll = self:GetUIObject("Rdo_Part7")
     self._Rdo0 = self:GetUIObject("Rdo_Quality0")
     self._Rdo1 = self:GetUIObject("Rdo_Quality1")
     self._Rdo2 = self:GetUIObject("Rdo_Quality2")
@@ -133,6 +136,7 @@ def.override("dynamic").OnData = function(self,data)
         [FilterPart.Armor] = false,
         [FilterPart.Accessory] = false,
         [FilterPart.Charm] = false,
+        [FilterPart.Consumables] = false,
         [FilterPart.Else] = false,
         [FilterPart.All] = false,
 
@@ -168,15 +172,15 @@ end
 def.override("string", "boolean").OnToggle = function(self,id, checked)
     if string.find(id ,"Rdo_Part") then 
         local index = tonumber(string.sub(id,-1))
-        if index ~= 6 and not checked then
+        if index ~= 7 and not checked then
             self._SelectParts[index] = checked
             self._RdoPointAll:GetComponent(ClassType.Toggle).isOn = false
             self._RdoPointAll:FindChild("Img_Open"):SetActive(false)
-            self._SelectParts[6] = false
-        elseif index ~= 6 and checked then 
+            self._SelectParts[7] = false
+        elseif index ~= 7 and checked then 
             self._SelectParts[index] = checked
             local isAll = true
-            for i = 1, 5 do 
+            for i = 1, 6 do 
                 if not self._SelectParts[i] then 
                     isAll = false
                 end
@@ -185,9 +189,9 @@ def.override("string", "boolean").OnToggle = function(self,id, checked)
             self._RdoPointAll:GetComponent(ClassType.Toggle).isOn = true
             self._RdoPointAll:FindChild("Img_Open"):SetActive(true)
             self._SelectParts[6] = true
-        elseif index == 6 and checked then 
+        elseif index == 7 and checked then 
             self:SetAllPartRdo(true)
-        elseif index == 6 and not checked then 
+        elseif index == 7 and not checked then 
             self:SetAllPartRdo(false)
         end
     elseif string.find(id,"Rdo_Quality") then 
@@ -232,7 +236,7 @@ def.method().InitPanel = function(self)
         --     self._SelectQualitys[FilterQuality.Quality0] = true
         end
         for i = 1, 8 do 
-            if i ~= 4 then 
+            if i ~= 5 then 
                 local rdoObj = self:GetUIObject("Rdo_Quality"..(i-1))
                 if rdoObj ~= nil then 
                     rdoObj:GetComponent(ClassType.Toggle).isOn  = self._SelectQualitys[i]
@@ -253,7 +257,7 @@ def.method().InitPanel = function(self)
         -- elseif #lastCurParts == 0 then 
         --     self._SelectParts[FilterPart.Weapon] = true
         end
-        for i = 1, 6 do 
+        for i = 1, 7 do 
             local rdoObj = self:GetUIObject("Rdo_Part"..i)
             rdoObj:GetComponent(ClassType.Toggle).isOn  = self._SelectParts[i]
             rdoObj:FindChild("Img_Open"):SetActive(self._SelectParts[i])
@@ -277,6 +281,9 @@ def.method("boolean").SetAllPartRdo = function(self,state)
     self._RdoCharm:GetComponent(ClassType.Toggle).isOn = state
     self._RdoCharm:FindChild("Img_Open"):SetActive(state)
     self._SelectParts[FilterPart.Charm] = state
+    self._RdoConsumables:GetComponent(ClassType.Toggle).isOn = state
+    self._RdoConsumables:FindChild("Img_Open"):SetActive(state)
+    self._SelectParts[FilterPart.Consumables] = state
     self._RdoElse:GetComponent(ClassType.Toggle).isOn = state
     self._RdoElse:FindChild("Img_Open"):SetActive(state)
     self._SelectParts[FilterPart.Else] = state

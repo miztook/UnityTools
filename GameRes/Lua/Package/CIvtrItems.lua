@@ -160,17 +160,15 @@ do
 	def.method('=>', 'boolean').CanChangeLegendary = function(self)
 		return self._Template.LegendaryGroupId > 0
 	end
-	--是否可以继承
-	def.method("=>", "boolean").CanInherit = function(self)
-		return self._InforceLevel > 0
-	end
 
-	-- 是否配有事件
+	-- 是否配有事件(策划使用事件1 和事件2 来判断是否有使用按钮)
 	def.method("=>", "boolean").IsUse= function (self)
-		if self._Template.EventType1 == nil  then 
+		if self._Template.EventType1 ~= nil and self._Template.EventType1 > 0 then 
+			return true
+		elseif self._Template.EventType2 ~= nil and self._Template.EventType2 > 0 then 
+			return true
+		else
 			return false
-		else 
-			return self._Template.EventType1 > 0
 		end
 	end
 	-- 是否可以合成
@@ -505,6 +503,7 @@ do
 	end
 
 	def.virtual("function").ItemUseNavToRegion = function(self, callback)
+
 		if callback == nil then return end
 		
 		local function DoCallback()
@@ -533,9 +532,17 @@ do
                     if mapTid == template.UseMapId then
 					    DoCallback()
                     else
+                    	if game._HostPlayer:IsInGlobalZone() then
+				   			SendFlashMsg(StringTable.Get(15556), false)
+				  			return
+				  		end
                         CTransManage.Instance():TransToRegionIsNeedBroken(template.UseMapId, template.UseRegionId, true, DoCallback, true)
                     end
 				else
+					if game._HostPlayer:IsInGlobalZone() then
+			   			SendFlashMsg(StringTable.Get(15556), false)
+			  			return
+			  		end
 					CTransManage.Instance():TransToRegionIsNeedBroken(template.UseMapId, template.UseRegionId, true, DoCallback, true)
 				end
 			else
@@ -545,6 +552,10 @@ do
                     if mapTid == template.UseMapId then
 					    DoCallback()
                     else
+                    	if game._HostPlayer:IsInGlobalZone() then
+				   			SendFlashMsg(StringTable.Get(15556), false)
+				  			return
+				  		end
 						local CTransManage = require "Main.CTransManage"
                         CTransManage.Instance():TransToPortalTargetByMapID(mapTid, DoCallback)
                     end
@@ -559,7 +570,13 @@ do
 		if self._ItemUseSkillId == 0 then
 			callback(true)
 		else
-			local hostskillhdl = game._HostPlayer._SkillHdl			
+			local hp = game._HostPlayer
+			if hp:IsOnRide() then
+		    	hp:UnRide() 
+		    	SendHorseSetProtocol(-1, false)
+		    end
+
+			local hostskillhdl = hp._SkillHdl			
 			hostskillhdl:CastSkill(self._ItemUseSkillId, false)
 			hostskillhdl:RegisterCallback(false, callback)
 		end
@@ -588,6 +605,9 @@ local InitEquipData = function(obj, data)
 	obj._GoldLevel = data.GoldLevel 							-- 神器等级
 	obj._TalentLevel = data.TalentLevel 		                -- 传奇属性等级
 	obj._TalentParam = data.TalentParam 	                    -- 传奇属性经验值
+	obj._TalentIdCache = data.TalentIdCache or 0				-- 传奇属性 临时结构，用于保存
+	obj._TalentLevelCache = data.TalentLevelCache or 0		 	-- 传奇属性 临时结构，用于保存
+
 	obj._EquipBaseAttrs = data.EquipBaseAttrs                   -- 附加属性的基础值
 	obj._EquipBaseAttrsCache = data.EquipBaseAttrsCache or nil	-- 附加属性 临时结构，用于重铸保存
 	obj._EnchantAttr = data.EnchantAttr	or nil					-- 附魔属性
@@ -756,6 +776,8 @@ do
 	def.field("number")._GoldLevel = 0			-- 神器等级
 	def.field("number")._TalentId = 0           -- 天赋id
 	def.field("number")._TalentLevel = 0		-- 传奇属性等级
+	def.field("number")._TalentIdCache = 0      -- 天赋属性，临时结构，用于保存
+	def.field("number")._TalentLevelCache = 0   -- 天赋属性，临时结构，用于保存
 	def.field("number")._TalentParam = 0	    -- 传奇属性经验值
 
 	def.field("table")._AllEquipAttrInfo = BlankTable	-- 装备重铸属性信息表大全
@@ -813,6 +835,11 @@ do
 		return #self._EquipBaseAttrs > 0
 	end
 
+	-- 判断是否存在附魔属性
+	def.method("=>", "boolean").HasEnchantAttr = function(self)
+		return self._EnchantAttr ~= nil and self._EnchantAttr.index > 0
+	end
+
 	--获取品质系数
 	def.method("=>", "number").GetPropertyCoefficient = function(self)
 		return self._Template.PropertyCoefficient
@@ -822,6 +849,11 @@ do
 		return self._EquipBaseAttrs
 	end
 
+	--是否可以继承
+	def.method("=>", "boolean").CanInherit = function(self)
+		return self._InforceLevel > 0
+	end
+	
 	--判断是否存在橙色重铸属性
 	def.method("=>", "boolean").HasValuableEquipAttrs = function(self)
 		local bRet = false
@@ -835,10 +867,19 @@ do
 
 		return bRet
 	end
-	--判断是否有未保存属性
-	def.method("=>", "boolean").HasUnsaveEquipAttrsCache = function(self)	
+	--判断是否有未保存 重铸属性
+	def.method("=>", "boolean").HasUnsaveEquipAttrsCache = function(self)
 		local bRet = false
 		if self._EquipBaseAttrsCache ~= nil and #self._EquipBaseAttrsCache > 0 then
+			bRet = true
+		end	
+
+		return bRet
+	end
+	--判断是否有未保存 传奇属性
+	def.method("=>", "boolean").HasUnsaveEquipTalentCache = function(self)	
+		local bRet = false
+		if self._TalentIdCache > 0 and self._TalentLevelCache > 0 then
 			bRet = true
 		end	
 
@@ -1156,40 +1197,20 @@ do
 		end
 	end
 
-	local function send_cmd(slot)
-		local C2SEquipPuton = require "PB.net".C2SEquipPuton
-        local protocol = C2SEquipPuton()
-        protocol.Index = slot
-        --protocol.IsInherit = isInherit
-        SendProtocol(protocol)
-    end 
-
 	def.override().RealUse = function(self)
     	local hp = game._HostPlayer
 		local oldEquip = hp._Package._EquipPack._ItemSet[self._EquipSlot+1]
 		if self._Template.AudioType ~= nil then 
 			CSoundMan.Instance():Play2DAudio(EnumDef.UseItemAudioType[self._Template.AudioType], 0)
 		end
-        send_cmd(self._Slot)
+
+		do 
+	        local C2SEquipPuton = require "PB.net".C2SEquipPuton
+	        local protocol = C2SEquipPuton()
+	        protocol.Index = self._Slot
+	        SendProtocol(protocol)
+	    end
 	end
-
-	-- def.override().InitComponents = function (self)
-	-- 	local equiponcomp = ItemComponent.EquipOnComponent.new(self)
-	-- 	local equipoffcomp = ItemComponent.EquipOffComponent.new(self)
-	-- 	local reinforcecomp = ItemComponent.ReinforceComponent.new(self)
-	-- 	local decomposecomp = ItemComponent.DecomposeComponent.new(self)
-	-- 	local sellcomp = ItemComponent.SellComponent.new(self)
-	-- 	local sendlinkcomp = ItemComponent.SendLinkComponent.new(self)
-	-- 	local composecomp = ItemComponent.ComposeComponent.new(self) 
-
-	-- 	table.insert(self._Components,equiponcomp)
-	-- 	table.insert(self._Components,equipoffcomp)
-	-- 	table.insert(self._Components,reinforcecomp)
-	-- 	table.insert(self._Components,decomposecomp)
-	-- 	table.insert(self._Components,composecomp)
-	-- 	table.insert(self._Components,sellcomp)
-	-- 	table.insert(self._Components,sendlinkcomp)
-	-- end
 
 	CIvtrEquip.Commit()
 end
@@ -1275,6 +1296,10 @@ do
 	end
 
     def.override().Use = function(self)
+    	if game._HostPlayer:IsInGlobalZone() then
+   			SendFlashMsg(StringTable.Get(15556), false)
+  			return
+  		end
 		local function callback(val)
 			if val then
 				CIvtrItem.Use(self)
@@ -1288,6 +1313,11 @@ do
 	    else
 	    	game._GUIMan:Close("CPanelRoleInfo")
 	    end
+
+	    local UserData = require "Data.UserData"
+
+    	UserData.Instance():SetField("LastWantedItemQuality", self._Template.InitQuality)
+		UserData.Instance():SaveDataToFile()
 	    callback(true)
 	end
 	CIvtrWantedItem.Commit()
@@ -1313,7 +1343,6 @@ do
 
 	def.override().Use = function(self)
 		local Success = self:CanNotUseReason()
-		warn(" Success ",Success)
 		if not game._CFunctionMan:IsUnlockByFunTid(9) then 
 	    	game._CGuideMan:OnShowTipByFunUnlockConditions(0, 9)
 		return end
@@ -1321,7 +1350,7 @@ do
 			local data = {}
 			data._PageTag = "Tab_Rune"
 			data._Tid = self._Template.Type1Param1
-			warn(' self._Template.Type1Param1 ',self._Template.Type1Param1)
+			--warn(' self._Template.Type1Param1 ',self._Template.Type1Param1)
 			game._GUIMan:Open("CPanelUISkill", data)
 			game._GUIMan:Close("CPanelRoleInfo")
 				
@@ -1412,9 +1441,9 @@ do
 				end
 
 				if self._NormalCount > 1 then 
-					local text = "<color=#" .. EnumDef.Quality2ColorHexStr[self._Quality] ..">" .. self._Template.TextDisplayName .."</color>"
-					text = string.format(StringTable.Get(313),text)
-					BuyOrSellItemMan.ShowCommonOperate(TradingType.USE,StringTable.Get(11105),text, 1, self._NormalCount,0, 0 , nil, okback, nil)
+					--local text = "<color=#" .. EnumDef.Quality2ColorHexStr[self._Quality] ..">" .. self._Template.TextDisplayName .."</color>"
+					local text = string.format(StringTable.Get(313),"")
+					BuyOrSellItemMan.ShowCommonOperate(TradingType.USE,StringTable.Get(11105),text, 1, self._NormalCount,0, 0 , self._Tid, okback, nil)
 				else
 					local useNum = 1
 					CostMoney(useNum)
@@ -1485,10 +1514,6 @@ do
         return false
     end
 
-    def.override("=>", "boolean").CanDecompose = function(self)
-        return false
-    end
-
 	CIvtrCharmItem.Commit()
 end
 
@@ -1554,6 +1579,27 @@ do
 		return obj
 	end
 
+	def.override().Use = function(self)
+		self:PushClickUseEvent()
+		local reason = self:CanNotUseReason()
+		if reason ~= 0 then return end
+		if self._Template.EventType2 == EItemEventType.ItemEvent_OpenPanel and self._Template.Type2Param1 ~= "" and self._Template.Type2Param2 ~= "" then 
+			-- 打开宠物界面页签
+			local data = nil
+			local pageType = tonumber( self._Template.Type2Param2 )
+			if pageType == 1 then
+	            data = {UIPetPageState = EnumDef.UIPetPageState.PageCultivate}
+	        elseif pageType == 2 then
+	            data = {UIPetPageState = EnumDef.UIPetPageState.PageAdvance}
+	        elseif pageType == 3 then
+	            data = {UIPetPageState = EnumDef.UIPetPageState.PageRecast}
+	        elseif pageType == 4 then
+	            data = {UIPetPageState = EnumDef.UIPetPageState.PageSkill}
+	        end
+	        game._GUIMan:Open(self._Template.Type2Param1, data)
+		end
+	end
+
 	-- def.override("=>", "number").CanUse = function(self)
 	-- 	return EnumDef.ItemUseReason.Success
 	-- end
@@ -1605,6 +1651,8 @@ do
 
 	def.override().Use = function(self)
 		self:PushClickUseEvent()
+		local reason = self:CanNotUseReason()
+		if reason ~= 0 then return end
 		if self._Template.EventType1 == EItemEventType.ItemEvent_EquipEnchant and self._Template.Type1Param1 ~= "" then 
 			local EnchantData = CElementData.GetEquipEquipEnchantInfoMapByItemID(self._Tid)
     		if EnchantData == nil then warn(" EnchantItem Id Enchant is nil",self._Tid) return end
@@ -1641,6 +1689,18 @@ do
 		return obj
 	end
 
+	--打开月光庭院
+	def.override().Use = function(self)
+		self:PushClickUseEvent()
+		local reason = self:CanNotUseReason()
+		if reason ~= 0 then return end
+	
+		if self._Template.EventType1 == EItemEventType.ItemEvent_OpenPanel and self._Template.Type1Param1 ~= "" then 
+			if self._Template.Type1Param1 == "GuildPray" then 
+				game._GuildMan:OpenGuildPray()
+			end
+		end
+	end
 	CIvtrGuildPrayItem.Commit()
 end
 
@@ -1852,6 +1912,27 @@ do
 		return obj
 	end
 
+	def.override().Use = function(self)
+		self:PushClickUseEvent()
+		local reason = self:CanNotUseReason()
+		if reason ~= 0 then return end
+		local function callback(count)
+			local C2SItemUse = require "PB.net".C2SItemUse
+			local protocol = C2SItemUse()
+			protocol.Index = self._Slot
+			protocol.Count = count
+			protocol.BagType = BagType.BACKPACK
+			PBHelper.Send(protocol)
+		end	
+		if self._NormalCount > 1 then 
+			local text = "<color=#" .. EnumDef.Quality2ColorHexStr[self._Quality] ..">" .. self._Template.TextDisplayName .."</color>"
+			text = string.format(StringTable.Get(313),text)
+			BuyOrSellItemMan.ShowCommonOperate(TradingType.USE,StringTable.Get(11105),text, 1, self._NormalCount,0, 0 , self._Tid, callback, nil)
+		else
+			local useNum = 1
+			callback(useNum)
+		end
+	end
 	
 	CIvtrBagExtendItem.Commit()
 end

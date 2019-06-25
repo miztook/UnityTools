@@ -16,10 +16,14 @@ MsgBox.ShowMsgBox("与服务器连接已断开，咋又断了呢3","坑爹啊", 
 MsgBox.ShowMsgBox("与服务器连接已断开，咋又断了呢4","坑爹啊", 0, MsgBoxType.MBBT_NONE,on_disconect,5,function() warn("倒计时超时！！") end)
 MsgBox.ShowMsgBox("与服务器连接已断开，咋又断了呢5","坑爹啊", 0, MsgBoxType.MBBT_NONE,on_disconect)
 MsgBox.ShowMsgBox("与服务器连接已断开，咋又断了呢6","坑爹啊", 0, MsgBoxType.MBBT_OK,on_disconect,nil,nil,MsgBoxPriority.Normal)
-MsgBox.ShowMsgBox("确定花费100[e]E_2[-]购买", "购买次数", 0, bit.bor(MsgBoxType.MBBT_OKCANCEL, MsgBoxType.MBT_SPEC),on_disconect,nil,nil,nil,"今日可购买次数：6/9")
-MsgBox.ShowMsgBox("勾选不再显示，以后再次有相同操作会直接以确定的形式处理", "不再显示提示", 0, bit.bor(MsgBoxType.MBBT_OKCANCEL, MsgBoxType.MBT_NOTSHOW),on_disconect,nil,nil,MsgBoxPriority.Normal,nil,"CPanelCharm_0")
-MsgBox.ShowMsgBox("勾选不再显示，以后再次有相同操作会直接以确定的形式处理", "不再显示提示", 0, bit.bor(MsgBoxType.MBBT_OKCANCEL, MsgBoxType.MBT_NOTSHOW),nil,nil,nil,MsgBoxPriority.Guide,nil,"CPanelCharm_1")
-MsgBox.ShowMsgBox("勾选不再显示，以后再次有相同操作会直接以确定的形式处理", "不再显示提示", 0, bit.bor(MsgBoxType.MBBT_OKCANCEL, MsgBoxType.MBT_NOTSHOW),nil,nil,nil,MsgBoxPriority.Disconnect,nil,"CPanelCharm_2")
+	local setting = {
+		[MsgBoxAddParam.SpecialStr] = "今日可购买次数：6/9",
+		[MsgBoxAddParam.NotShowTag] = "CPanelCharm_0",
+	}
+MsgBox.ShowMsgBox("确定花费100[e]E_2[-]购买", "购买次数", 0, MsgBoxType.MBBT_OKCANCEL,on_disconect,nil,nil,nil,setting)
+MsgBox.ShowMsgBox("勾选不再显示，以后再次有相同操作会直接以确定的形式处理", "不再显示提示", 0, MsgBoxType.MBBT_OKCANCEL,on_disconect,nil,nil,MsgBoxPriority.Normal,setting)
+MsgBox.ShowMsgBox("勾选不再显示，以后再次有相同操作会直接以确定的形式处理", "不再显示提示", 0, MsgBoxType.MBBT_OKCANCEL,nil,nil,nil,MsgBoxPriority.Guide,setting)
+MsgBox.ShowMsgBox("勾选不再显示，以后再次有相同操作会直接以确定的形式处理", "不再显示提示", 0, MsgBoxType.MBBT_OKCANCEL,nil,nil,nil,MsgBoxPriority.Disconnect,setting)
     
 --MsgBox.CloseAll()
 

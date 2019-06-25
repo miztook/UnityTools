@@ -1,9 +1,10 @@
 
 local Lplus = require 'Lplus'
-local CPanelBase = require 'GUI.CPanelBase'
 local CElementData = require "Data.CElementData"
+local CPanelHintBase = require 'GUI.CPanelHintBase'
 
-local CPanelMoneyHint = Lplus.Extend(CPanelBase, 'CPanelMoneyHint')
+
+local CPanelMoneyHint = Lplus.Extend(CPanelHintBase, 'CPanelMoneyHint')
 local def = CPanelMoneyHint.define
  
 def.field('userdata')._Lab_EquipTips = nil
@@ -37,10 +38,9 @@ end
 --     _TargetObj, -- 目标物体（根据位置不同设定）
 --}
 def.override("dynamic").OnData = function(self, data) 
-    CPanelBase.OnData(self,data)
     self._TipPosition = data._TipPos
     local MoneyItem = CElementData.GetMoneyTemplate(data._MoneyID)
-    if MoneyItem == nil then return warn("MoneyItem is nil ")end 
+    if MoneyItem == nil then warn("MoneyItem is nil", data._MoneyID) end 
     local name = ""   
     if game._IsOpenDebugMode == true then
         name = "(".. data._MoneyID ..")" .. MoneyItem.TextDisplayName

@@ -3,19 +3,17 @@ collectgarbage("collect")
 
 _G.ChatCfgTable = ReadConfigTable(_G.ConfigsDir.."chatcfg.lua")
 
-_G.EmotionsTable = ReadConfigTable(_G.ConfigsDir.."emotions.lua")
-
-local preCount = collectgarbage("count")
+--local preCount = collectgarbage("count")
 _G.GameTextTable = ReadConfigTable(_G.ConfigsDir.."game_text.lua")
-local lateCount = collectgarbage("count")
-printInfo(string.format("GameTextTable Memery Used: %0.2f KB", (lateCount - preCount)))
+--local lateCount = collectgarbage("count")
+--printInfo(string.format("GameTextTable Memery Used: %0.2f KB", (lateCount - preCount)))
 
 _G.ModuleProfDiffCfgTable = ReadConfigTable(_G.ConfigsDir.."ModuleProfDiffCfg.lua")
 
-preCount = collectgarbage("count")
+--preCount = collectgarbage("count")
 _G.CommandListTable = ReadConfigTable(_G.ConfigsDir.."CommandList.lua").GetAllCommandList()
-lateCount = collectgarbage("count")
-printInfo(string.format("CommandList Memery Used: %0.2f KB", (lateCount - preCount)))
+--lateCount = collectgarbage("count")
+--printInfo(string.format("CommandList Memery Used: %0.2f KB", (lateCount - preCount)))
 
 -- 用完即丢，无需全局缓存
 --_G.SystemEntranceCfgTable = ReadConfigTable(_G.ConfigsDir.."SystemEntranceCfg.lua")

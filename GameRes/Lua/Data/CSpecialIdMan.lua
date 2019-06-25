@@ -38,8 +38,6 @@ local SpecialIdKey =
 	GuildApplyFortressItem = 75,
 	GuildPrayMaxHelp = 400,
 	GuildConvoyReward = 436,
-	GuildBattleSignDes = 489,
-	GuildBattleOpenDes = 490,
 	ImmunePhysicalControlState = 92,
 	FlawState = 93,
 	NpcQuickServiceDis = 81,
@@ -53,7 +51,7 @@ local SpecialIdKey =
 	PetMaxStage = 352,					--宠物最大品阶数
 	PetRecastNeedInfo = 351,			--重铸材料信息， 1. id 2. count
 	PetAdvanceLvLimitInfo = 398,		--宠物进阶等级限制
-	--PetUnlockHelpCellInfo = 357,		--宠物助战栏开启规则
+	PetUnlockHelpCellInfo = 357,		--宠物助战栏开启规则
 	PetUnlockCellPrice = 365,			--宠物背包格子开启价格 1. id 2. count
 
 	SkillLevelUpFontFrontColor = 131,
@@ -72,10 +70,11 @@ local SpecialIdKey =
 	ApplyInterval = 162,
 	MaxGroupNum = 165,
 	FriendDefaultGroupId = 163,
+	MaxEvilValue = 171,
 
 	WingLevelUpItem = 191,
 	WingLevelUpAssit = 192,
-	WingGradeUpItem = 193,
+	-- WingGradeUpItem = 193,
 	WingClearProf = 194,
 
 	ArenaSceneOne = 202,
@@ -92,6 +91,7 @@ local SpecialIdKey =
 	ActivityEntrance3 = 311,		--主界面 右侧弹出按钮 第3行
 	DurgItemId = 314,				--主界面 右侧弹出按钮 第3行
 	DeleteRoleImmediatelyLevelLimit = 322,		-- 立刻删除角色等级限制
+	StorageMoneyType = 325,          -- 仓库解锁消耗资源类型
 	BountyTax = 327,				--赏金税点
 	MutipleProgressCountRule = 348,	--Boss血条 条目规则
 	PetHelpAddPropertyRatio = 354,	--宠物助战 增加 战斗百分比
@@ -99,6 +99,7 @@ local SpecialIdKey =
 
 	PetPackageMaxSize = 363,		--宠物背包最大个数
 	PetUnlockInfo = 365,			--宠物背包开启条件  1.消耗类型 2.消耗数量
+	PetSkillTakeOffCostInfo = 372,	--宠物技能书拆除 1.消耗类型，后面的是每级的消耗数量
 	EliminateScene = 586,
 	EliminateMateTime = 588,
 	EliminateMatchingTime = 587,
@@ -125,6 +126,7 @@ local SpecialIdKey =
 	GuildBattleRedHighAltar = 504,		-- 公会战场红色超级祭坛
 	GuildBattleOblation = 505,			-- 公会战场普通祭品
 	GuildBattleHighOblation = 506,		-- 公会战场高级祭品
+	PetFuseAptitudeAddRatio = 627,		-- 宠物资质 融合加成百分比
     GuildBattleNeedScore = 631,         -- 公会战场需要的活跃度
 
 	PetResetRecastCountItem = 527,		-- 宠物重置道具
@@ -146,12 +148,18 @@ local SpecialIdKey =
 	BeginnerDungeonId = 612, 			-- 新手副本ID
 	MaxInforceLevelInfo = 618,			-- 装备强化最高等级（由品质确定）
 	ServerQueueSecondsPerPerson = 621,	-- 服务器排队单人的预计时间（秒）
+	PetSkillUnlockInfo = 624,			-- 宠物解锁配置
 	MaxPetTalentLevel = 625,			-- 宠物天赋技能最大等级
 	EyeRegionSingle  = 657,             -- 神之世界单人玩法说明
 	EyeRegionMultiPlayer = 658,         -- 神之世界多人玩法说明
 	EyeRegionSingleFuncId = 659,        -- 神之世界单人玩法活动id
 	EyeRegionMultiPlayerFuncId = 660,   -- 神之世界多人玩法活动id
 	BackpackCouponId = 661,				-- 背包扩展券id
+	ConsumableTypesId = 666 ,           -- 消耗物品包含的类型
+	InforceStoreFromInfo = 668,			-- 强化石来源表
+	PetFromInfo	= 669,					-- 宠物蛋来源表
+	PetExpRecycleRatio = 677,			-- 宠物经验药返还比例
+	PetSkillBookFromInfo = 678,			-- 宠物技能书来源表
 }
 
 -- 均是整数

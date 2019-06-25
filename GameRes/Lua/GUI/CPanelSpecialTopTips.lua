@@ -25,6 +25,7 @@ def.static('=>', CPanelSpecialTopTips).Instance = function()
         instance._PrefabPath = PATH.Panel_SpecialTopTips
         instance._PanelCloseType = EnumDef.PanelCloseType.None
         instance._DestroyOnHide = false
+	instance._ForbidESC = true
         instance:SetupSortingParam()
 	end
 	return instance

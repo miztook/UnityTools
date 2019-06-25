@@ -1,7 +1,6 @@
 local Lplus = require "Lplus"
 local CGame = Lplus.ForwardDeclare("CGame")
 local CElementData = require "Data.CElementData"
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
 local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
 local EObjType = require "PB.data".EObjType
 local QuestDef = require "Quest.QuestDef"

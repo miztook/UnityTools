@@ -12,21 +12,27 @@ local CHostAsyncTask = Lplus.Class("CHostAsyncTask")
 do
 	local def = CHostAsyncTask.define
 	
+	local g_OnLeaveGameLogic = nil
+	local g_OnUserMove = nil
+
 	--[[
 		给Task增加切换用户限制
 	]]
 	def.static(Task, "=>", Task).AddChangeUserLimit = function (task)
+
 		local GameLogicBreakEvent = require "Events.GameLogicBreakEvent"
-		local function onLeaveGameLogicEvent (sender, event)
-			if event.IsRoleChanged then
-				task:cancel()
+		if g_OnLeaveGameLogic == nil then
+			local function onLeaveGameLogicEvent (sender, event)
+				if event.IsRoleChanged then
+					task:cancel()
+				end
 			end
+			g_OnLeaveGameLogic = onLeaveGameLogicEvent
 		end
-		
-		CGame.EventManager:addHandler(GameLogicBreakEvent, onLeaveGameLogicEvent)
+		CGame.EventManager:addHandler(GameLogicBreakEvent, g_OnLeaveGameLogic)
 		
 		task:continueWith(function (task)
-			CGame.EventManager:removeHandler(GameLogicBreakEvent, onLeaveGameLogicEvent)
+			CGame.EventManager:removeHandler(GameLogicBreakEvent, g_OnLeaveGameLogic)
 		end)
 		return task
 	end
@@ -78,11 +84,14 @@ do
 
 					-- 主动移动可打断
 					local UserMoveEvent = require "Events.UserMoveEvent"
-					local function onUserMove (sender, event)
-						task:cancel()
-						CGame.EventManager:removeHandler(UserMoveEvent, onUserMove)
+					if g_OnUserMove == nil then	
+						local function onUserMove (sender, event)
+							task:cancel()
+							CGame.EventManager:removeHandler(UserMoveEvent, g_OnUserMove)
+						end
+						g_OnUserMove = onUserMove
 					end
-					CGame.EventManager:addHandler(UserMoveEvent, onUserMove)
+					CGame.EventManager:addHandler(UserMoveEvent, g_OnUserMove)
 				end
 			else
 				return "end"

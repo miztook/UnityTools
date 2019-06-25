@@ -214,8 +214,8 @@ def.method().ShowPickupGfx = function (self)
             fly_fx = nil
 		end
 
+        if IsNil(destTrans) then return end
         local gfx_path = PATH["Etc_Item_FlyToPlayerExploded"]
-        if destTrans == nil then return end
         self._ExplodedGfx = CFxMan.Instance():PlayAsChild(gfx_path, destTrans, Vector3.zero, Quaternion.identity, 1, false, 1, EnumDef.CFxPriority.Always)
 	end
 	fly_fx = CFxMan.Instance():FlyMutantBezierCurve(strPath, self:GetPos(), destTrans, 5, lifetime, EnumDef.CFxPriority.Always, cb)

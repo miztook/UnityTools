@@ -25,6 +25,7 @@ local CPage3V3 = require"GUI.CPage3V3"
 local CTeamMan = require "Team.CTeamMan"
 local EResourceType = require "PB.data".EResourceType
 local EDamageStatisticsOpt = require"PB.data".EDamageStatisticsOpt
+local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
 local EStatistic = require "PB.net".DamageStatistics.EStatistic
 local CPanelLoading = require "GUI.CPanelLoading"
 
@@ -46,6 +47,7 @@ def.field("userdata")._Frame_Rank = nil
 def.field("userdata")._Frame_Point = nil 
 def.field("userdata")._LabBtnQuitTime = nil 
 def.field("userdata")._LabBtnAgainTime = nil 
+def.field("userdata")._FrameGuildList = nil 
 
 def.field('userdata')._FrameVictory = nil 
 def.field('userdata')._FrameLose = nil 
@@ -53,7 +55,6 @@ def.field('userdata')._FrameEnd = nil
 def.field("userdata")._FrameButton = nil 
 def.field("userdata")._LabQuitBattle = nil 
 def.field("userdata")._ViewGift = nil
-def.field("userdata")._FrameInstanceScore = nil 
 def.field("userdata")._CurGoldInstanceItem = nil
 def.field("userdata")._BtnAgain = nil 
 def.field("userdata")._List_Players = nil
@@ -71,6 +72,8 @@ def.field("table")._DetailData = nil
 def.field("number")._LoadingTimerID = 0 
 def.field("number")._DetailInfoTimerID = 0
 def.field("number")._CurRemainCount = 0
+--组队情况下点击再次挑战
+def.field("boolean")._IsAgainTeam = false
 
 --最终播放的动画名称
 def.field("string")._FinalAnimation = ''
@@ -132,7 +135,7 @@ local function UpdateInfoEnterTime(self)
     local tid = game._DungeonMan:GetDungeonID()
     local template = CElementData.GetInstanceTemplate(tid)
     if template == nil  then warn("dungeonTid Instance Template is nil " ..tid) return end
-    local maxCount = game:OnCurMaxCount(template.CountGroupTid)
+    local maxCount = game._CCountGroupMan:OnCurMaxCount(template.CountGroupTid)
     self._CurRemainCount = game._DungeonMan:GetDungeonData(tid).RemainderTime
     if self._CurRemainCount == 0 then
         -- 剩余次数变红
@@ -173,10 +176,10 @@ def.override().OnCreate = function (self)
     self._FrameLose = self:GetUIObject("Frame_Lose")
     self._FrameButton = self:GetUIObject("Frame_Button")
     self._ViewGift = self:GetUIObject("View_Gift")
-    self._FrameInstanceScore = self:GetUIObject("Frame_InstanceScore")
     self._LabBtnAgainTime = self:GetUIObject("Lab_BtnAgainTime")
     self._BtnAgain = self:GetUIObject("Btn_Again")
     self._List_Players = self:GetUIObject("List_Players")
+    self._FrameGuildList = self:GetUIObject("Frame_GuildList"):GetComponent(ClassType.GNewList)
     if CPanelUIQuickUse.Instance()._IsShowQuickUse then
         CPanelUIQuickUse.Instance()._Frame_QuickUse:SetActive(false)
     end
@@ -184,15 +187,20 @@ end
 
 def.override("dynamic").OnData = function(self, data)
     CGame.EventManager:addHandler("CountGroupUpdateEvent", OnCountGroupUpdateEvent)
-
+    CDungeonAutoMan.Instance():Stop()
+    self._IsAgainTeam = false
     self._Data = data
     self._CurType = data._Type
     self._MaxDmg,self._MaxCure,self._MaxCure = 0,0,0
     self:GetUIObject("Frame1"):SetActive(false)	
     self:GetUIObject("Frame2"):SetActive(false)	
     self:GetUIObject("Frame3"):SetActive(false)	
+    self:GetUIObject("Frame4"):SetActive(false)
+    self:GetUIObject("Frame5"):SetActive(false)
+
     self:GetUIObject("Frame_Instance1"):SetActive(false)
     self:GetUIObject("Frame_Instance2"):SetActive(false)
+    self:GetUIObject("Frame_GuildDefend"):SetActive(false)
     self:GetUIObject("Frame_PVP1"):SetActive(false)
     self:GetUIObject("Frame_PVP2"):SetActive(false)
     self:GetUIObject("Frame_Battle"):SetActive(false)
@@ -211,6 +219,18 @@ def.override("dynamic").OnData = function(self, data)
             self._FinalStandAnimation = EnumDef.CLIP.VICTORY_STAND
             local function callBack()
                 self:ShowTrialEnd()
+            end 
+            cb = callBack  
+        elseif data._Type == EnumDef.DungeonEndType.GuildDefend then 
+            if not self._Data._InfoData.IsWin then
+                self._FinalAnimation = EnumDef.CLIP.DEFEAT
+                self._FinalStandAnimation = EnumDef.CLIP.DEFEAT_STAND
+            else
+                self._FinalAnimation = EnumDef.CLIP.VICTORY
+                self._FinalStandAnimation = EnumDef.CLIP.VICTORY_STAND
+            end  
+            local function callBack()
+                self:ShowGuildDefendEnd()
             end 
             cb = callBack  
         elseif data._Type == EnumDef.DungeonEndType.ArenaOneType then
@@ -269,7 +289,7 @@ def.override("dynamic").OnData = function(self, data)
         if self._CurType == EnumDef.DungeonEndType.ArenaThreeType or self._CurType == EnumDef.DungeonEndType.EliminateType then 
             self._LabBtnAgainTime:SetActive(false)
         else
-            local maxCount = game:OnCurMaxCount(template.CountGroupTid)
+            local maxCount = game._CCountGroupMan:OnCurMaxCount(template.CountGroupTid)
             self._CurRemainCount = game._DungeonMan:GetDungeonData(dungeonTid).RemainderTime
             self._LabBtnAgainTime:SetActive(true)
             if self._CurRemainCount == 0 then
@@ -316,7 +336,7 @@ def.override("string").OnClick = function(self, id)
             if index <= 3 then 
                 roleId = self._DetailData.BlackList[index].RoleId 
             else
-                roleId = self._DetailData.RList[index - 3].RoleId
+                roleId = self._DetailData.RedList[index - 3].RoleId
             end
             if roleId == game._HostPlayer._ID then return end
         end
@@ -333,7 +353,7 @@ def.override("string").OnClick = function(self, id)
             if CountTemp.InitBuyCount == 0 then 
                 game._GUIMan:ShowTipText(StringTable.Get(21706),false)
             return end
-            game:BuyCountGroupWhenEnter(dungeonTemp.CountGroupTid)
+            game._CCountGroupMan:BuyCountGroupWhenEnter(dungeonTemp.CountGroupTid)
         return end
         if self._CurType == EnumDef.DungeonEndType.ArenaOneType then 
             -- self:OnLeaveDungeon()
@@ -351,6 +371,7 @@ def.override("string").OnClick = function(self, id)
                     game._GUIMan:ShowTipText(StringTable.Get(933),false)
                     return 
                 elseif #TeamList > 1 and CTeamMan.Instance():IsTeamLeader() then 
+                    self._IsAgainTeam = true
                     local C2SReStartInstance = require "PB.net".C2SReStartInstance
                     local protocol = C2SReStartInstance()
                     PBHelper.Send(protocol)
@@ -368,6 +389,36 @@ def.override("string").OnClick = function(self, id)
             GameUtil.SetCameraParams(EnumDef.CAM_CTRL_MODE.GAME)
             self:CloseLoadingPanel()
         end 
+    end
+end
+
+local function SetGuildDefendItem(self,item,data,rank)
+    local uiTemplate = item:GetComponent(ClassType.UITemplate)
+    local labLv = uiTemplate:GetControl(0)
+    local imgDamageBar = uiTemplate:GetControl(1)
+    local labName = uiTemplate:GetControl(2)
+    local labDamage = uiTemplate:GetControl(3)
+    local labRank = uiTemplate:GetControl(4)
+    local imgJob = uiTemplate:GetControl(5)
+    if rank > 50 then 
+        GUI.SetText(labRank,StringTable.Get(20103))
+    else
+        GUI.SetText(labRank,tostring(rank))
+    end
+    local value = 0
+    if data.DamageTotal ~= 0 then 
+        value =  math.min(data.Damage/data.DamageTotal, 1) *100
+    end
+    GUI.SetText(labDamage,string.format(StringTable.Get(21707),value))
+    local bar = imgDamageBar :GetComponent(ClassType.Image)
+    bar.fillAmount = data.Damage / self._DetailData[1].Damage
+    GUI.SetText(labLv,tostring(data.Level))
+    GUI.SetText(labName,data.Name)
+    local professionTemplate = CElementData.GetProfessionTemplate(data.ProfessionId)
+    if professionTemplate == nil then
+        warn("设置职业徽记时 读取模板错误：profession:", data.ProfessionId)
+    else
+        GUITools.SetProfSymbolIcon(imgJob, professionTemplate.SymbolAtlasPath)
     end
 end
 
@@ -391,7 +442,7 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
                 lab_tips:SetActive(false)	
                 IconTools.InitItemIconNew(frame_icon,ItemId, { [EItemIconTag.Number] = tNum })
             else
-                if self._Data._InfoData.Rewards[index + 1].MoneyId == EResourceType.ResourceTypeArena and self._CurType == EnumDef.DungeonEndType.ArenaThreeType and self._Data._InfoData.Rewards[index + 1].MoneyNum == 0 then 
+                if self._Data._InfoData.Rewards[index + 1].MoneyId == EResourceType.ResourceTypeArenaPoints and self._CurType == EnumDef.DungeonEndType.ArenaThreeType and self._Data._InfoData.Rewards[index + 1].MoneyNum == 0 then 
                     lab_tips:SetActive(true)
                     IconTools.InitTokenMoneyIcon(frame_icon, self._Data._InfoData.Rewards[index + 1].MoneyId, 0)
                 else
@@ -456,6 +507,8 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
     elseif id == "List_Players" then
         local data = self._DetailData._Data[index + 1]
         self:SetFramePlayer(item, data)
+    elseif id == "Frame_GuildList" then 
+        SetGuildDefendItem(self,item,self._DetailData[index + 1],index + 1)
     end
 end
 
@@ -577,6 +630,10 @@ end
 
 --离开副本
 def.method().OnLeaveDungeon = function(self)
+    if game._GuildMan:IsInGuildScene() then
+        game._GUIMan:CloseByScript(self)
+        return 
+    end
     game._GUIMan:SetMainUIMoveToHide(false,nil)
     game._DungeonMan:TryExitDungeon()
 end
@@ -601,6 +658,8 @@ def.method().OnShowDetail = function(self)
                 self:ShowEliminatePlayer(self._DetailData)
                 self:RemoveDetailInfoTimer()
                 return
+            elseif self._CurType == EnumDef.DungeonEndType.GuildDefend then 
+                protocol.opt = EDamageStatisticsOpt.EDamageStatisticsOpt_GuildDefense
             else
                 protocol.opt = EDamageStatisticsOpt.EDamageStatisticsOpt_dungeonNormalEnd
             end
@@ -624,7 +683,9 @@ def.method("number").AddDungeonEndTimer = function(self, time)
             time = math.floor(endTime - GameUtil.GetServerTime()/1000)
             if time <= 0 then
                 self:RemoveDungeonEndTimer()
-                game._GUIMan:CloseByScript(self)
+                if not self._IsAgainTeam then 
+                    game._GUIMan:CloseByScript(self)
+                end
             return end
             local second = time % 60
             if second < 10 then
@@ -689,7 +750,8 @@ def.method().ShowInstanceEnd = function(self)
     self._FrameLose:SetActive(false)
     self._ViewGift:SetActive(true)		
     local infoData = self._Data._InfoData
-    local dungeon = CElementData.GetTemplate("Instance", infoData.InstanceTId)		
+    local dungeon = CElementData.GetTemplate("Instance", infoData.InstanceTId)	
+    self:GetUIObject("Frame_Time"):SetActive(true)
     GUI.SetText(self:GetUIObject("Lab_InstanceName0"), dungeon.TextDisplayName)
     GUI.SetText(self:GetUIObject("Lab_TimeValues0"), GUITools.FormatTimeSpanFromSeconds(infoData.PassTime))
     local imgPoint = self:GetUIObject("Img_Point")
@@ -708,11 +770,22 @@ def.method().ShowInstanceEnd = function(self)
     end
     self:GetUIObject("List_Gift"):GetComponent(ClassType.GNewList):SetItemCount(#infoData.Rewards)
     self:AddDungeonEndTimer(infoData.DurationSeconds)
-    if self._InstanceScoreTable == nil then return end
-    self._FrameInstanceScore:SetActive(true)
-    local labScore = self:GetUIObject("Lab_ScoreRatio")
-    local value = self._InstanceScoreTable.Ratio * 100
-    GUI.SetText(labScore,string.format(StringTable.Get(21703),value))
+    local frameTeam = self:GetUIObject("Frame_Team")
+    if infoData.TeamExpAddtionRate <= 0 then 
+        frameTeam:SetActive(false)
+    else
+        frameTeam:SetActive(true)
+        GUI.SetText(self:GetUIObject("Lab_Team"),string.format(StringTable.Get(21703),infoData.TeamExpAddtionRate * 100))
+    end
+    local frameGold = self:GetUIObject("Frame_Glod")
+    if self._InstanceScoreTable == nil then 
+        frameGold:SetActive(false)
+    else
+        frameGold:SetActive(true)
+        local labScore = self:GetUIObject("Lab_ScoreRatio")
+        local value = self._InstanceScoreTable.Ratio * 100
+        GUI.SetText(labScore,string.format(StringTable.Get(21703),value))
+    end
     if self._CurGoldInstanceItem == nil then return end
     IconTools.SetTags(self._CurGoldInstanceItem, { [EItemIconTag.Number] = self._InstanceScoreTable.ConversionNum } )
 end
@@ -723,10 +796,7 @@ def.method("table").ShowInstancePlayer = function(self,data)
     CSoundMan.Instance():Play2DAudio(PATH.GUISound_DungeonDetails,0)
     self._DetailData = data
     self._FrameInformation:SetActive(true)
-    self:GetUIObject("Frame1"):SetActive(false)	
-    self:GetUIObject("Frame2"):SetActive(false)	
     self:GetUIObject("Frame3"):SetActive(true)
-    self:GetUIObject("Frame5"):SetActive(false) 
 
 --    local count = #data._Data
 --    if count == 1 then
@@ -766,6 +836,94 @@ def.method("number","number","number").SaveInstanceScore = function (self,resour
 end
 ----------[副本end]----------
 
+----------[公会防守/次元王朝]-------
+def.method().ShowGuildDefendEnd = function(self)
+    self._FrameButton:SetActive(true)
+    self._FrameEnd:SetActive(false)
+    self:OnShowDetail()
+    self:GetUIObject("Frame_GuildDefend"):SetActive(true)
+    local ImgResult = self:GetUIObject("Img_GuildResult")
+    local infoData = self._Data._InfoData
+    if not infoData.IsWin then
+        GUITools.SetGroupImg(ImgResult,1)
+    else
+        GUITools.SetGroupImg(ImgResult,0)
+    end
+    self._ViewGift:SetActive(true)      
+    local infoData = self._Data._InfoData
+    GUI.SetText(self:GetUIObject("Lab_DefendTime"), GUITools.FormatTimeSpanFromSeconds(infoData.PassTime))
+    GUI.SetText(self:GetUIObject("Lab_DefendFloor"), tostring(infoData.GuildDefenseRound))
+    GUI.SetText(self:GetUIObject("Lab_DefendMax"),tostring(infoData.GuildDefenseRound))
+    self:GetUIObject("List_Gift"):GetComponent(ClassType.GNewList):SetItemCount(#infoData.Rewards)
+    self:AddDungeonEndTimer(infoData.DurationSeconds)   
+end
+
+local function sortfunction(item1,item2)
+    if item1.Damage > item2.Damage then 
+        return true
+    elseif item1.Damage < item2.Damage then 
+        return false
+    else
+        return false
+    end
+end
+
+local function GetGuildDefendDetailInfo(self,data)
+    local dataList = {}
+    for i,Data in ipairs(data._Data) do
+
+        local playerData = {}
+        for j,v in ipairs(Data.statisticDatas) do
+            if v.key == EStatistic.EStatistic_damage then 
+                playerData.Damage = v.value
+            elseif v.key == EStatistic.EStatistic_roleId then 
+                playerData.RoleId = v.value
+            elseif v.key == EStatistic.EStatistic_roleLevel then 
+                playerData.Level = v.value
+            elseif v.key == EStatistic.EStatistic_professionId then
+                playerData.ProfessionId = v.value
+            elseif v.key == EStatistic.EStatistic_roleName then 
+                playerData.Name = v.strValue
+            elseif v.key == EStatistic.EStatistic_damage_total then 
+                playerData.DamageTotal = v.value
+            end 
+        end
+        table.insert(dataList,playerData)
+    end
+    table.sort( dataList, sortfunction )
+    return dataList
+end
+
+def.method("table").ShowGuildDetailInfo = function(self,data)
+    self:GetUIObject("Frame4"):SetActive(true)
+    self._DetailData = GetGuildDefendDetailInfo(self,data)
+    if self._DetailData == nil then return end
+    if  #self._DetailData > 50 then 
+        self._FrameGuildList:SetItemCount(50)
+    else
+        self._FrameGuildList:SetItemCount(#self._DetailData)
+    end
+    local hostData = nil 
+    local rank = 0
+    for i,v in ipairs(self._DetailData) do
+        if v.RoleId == game._HostPlayer._ID then
+            hostData = v
+            rank = i
+            break
+        end
+    end
+    local frameHost = self:GetUIObject("Frame_HostPlayer")
+    if hostData ~= nil then
+        frameHost:SetActive(true)
+        SetGuildDefendItem(self,frameHost,hostData,rank)
+    else
+        frameHost:SetActive(false)
+    end
+end
+
+
+----------[公会防守/次元王朝End]-------
+
 ----------[1v1]----------
 
 def.method().ShowArenaOneEnd = function(self)
@@ -792,7 +950,7 @@ def.method().ShowArenaOneEnd = function(self)
         CSoundMan.Instance():Play3DVoice(PATH.GUISound_Arena1v1Victory, game._HostPlayer:GetPos(),0)
         self._FrameVictory:SetActive(true)
         GameUtil.PlayUISfx(PATH.UIFX_PVP1_End_Victory, self._FrameVictory, self._FrameVictory, -1)
-        GameUtil.PlayUISfx(PATH.UIFX_Dungeon_PVP1_FrameVectory, frame_PVP1, frame_PVP1, -1)
+        GameUtil.PlayUISfx(PATH.UIFX_Dungeon_PVP1_FrameVectory, frame_PVP1, frame_PVP1, -1,-1,-3)
         GameUtil.PlayUISfx(PATH.UIFX_Dungeon_PVP1_Rank, self:GetUIObject("EffectPos1"), self:GetUIObject("EffectPos1"), -1)
         local callback1 = function()
             if self._UIFXTimers[1] ~= 0 then
@@ -925,9 +1083,6 @@ def.method("table").ShowArenaOnePlayer = function(self,data)
     self._DetailData = data
     self._FrameInformation:SetActive(true)
     self:GetUIObject("Frame1"):SetActive(true)	
-    self:GetUIObject("Frame2"):SetActive(false)	
-    self:GetUIObject("Frame3"):SetActive(false)	
-    self:GetUIObject("Frame5"):SetActive(false) 
  
     self._MaxGetDmg,self._MaxCure,self._MaxDmg = self:MaxValue(data._Data)
     for i,Data in ipairs(data._Data) do 
@@ -1168,8 +1323,9 @@ local function ChangeSan(self,newData,oldData,DataTemp,doTweenPlayer)
         GUITools.SetGroupImg(imgChangeLevel,DataTemp.StageLevel - 1)
     end  
     doTweenPlayer:Restart("LabSanChangeName")  
-    doTweenPlayer:Restart("LabSanChange")
-    if newData.Stage < oldData.Stage then return end
+    doTweenPlayer:Restart("LabSanChange")    if newData.Stage < oldData.Stage then
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_FailStage, 0)
+    return end
     CSoundMan.Instance():Play2DAudio(PATH.GUISound_VictoryStage, 0)  
     local function cb1()
         if self._UI3V3FxTimers[11] ~= 0 then 
@@ -1360,16 +1516,13 @@ end
 def.method("table").ShowArenaThreePlayer = function(self,data)
     if not self:IsShow() then return end
     self._FrameInformation:SetActive(true)
-    self:GetUIObject("Frame1"):SetActive(false)	
     self:GetUIObject("Frame2"):SetActive(true)	
-    self:GetUIObject("Frame3"):SetActive(false)
-    self:GetUIObject("Frame5"):SetActive(false) 
     if self._DetailData == nil then 
         self:Get3V3DetailData(data)
     end
     local blackResult = 0
     local redResult = 0
-    if #self._DetailData.RedList == 0 or #self._DetailData.BlackList == 0 then return warn(" #self._DetailData.BlackList == 0") end
+    if #self._DetailData.RedList == 0 or #self._DetailData.BlackList == 0 then warn(" #self._DetailData.BlackList == 0") end
     for _,k in ipairs(self._DetailData.BlackList) do 
         if game._HostPlayer._ID == k.RoleId then 
             blackResult = self._Data._InfoData.RewardState
@@ -1515,12 +1668,10 @@ end
 -- 试炼层级滚动变化
 def.method("number").TrialTier = function (self,endTier)
     local timeID = 0 
-    local startTime = 0
     local startTier = 0
     local labTier = self:GetUIObject("Lab_FloorValues1")
     local callback = function()
-        startTime = startTime + 0.1
-        if IsNil(labTier) then return end
+        if IsNil(labTier) then _G.RemoveGlobalTimer(timeID) return end
         if startTier < endTier then 
             startTier = startTier + 1
             GUI.SetText(labTier,tostring(startTier))
@@ -1612,11 +1763,21 @@ def.method().ShowBattleEnd = function (self)
 
     local LabRank = self:GetUIObject("Lab_BattleRank")
     LabRank:SetActive(true)
-    GUI.SetText(LabRank,tostring(self._Data._Rank))
+    if not self._Data._IsOut then 
+        GUI.SetText(LabRank,tostring(self._Data._Rank))
+    else
+        local rank = 0
+        for i,v in ipairs(self._Data._AllRoleDataList) do
+            if v.RoleId == game._HostPlayer._ID then 
+                rank = i
+            end
+        end
+        GUI.SetText(LabRank,tostring(rank))
+    end
+
     local imgPointFx = LabRank:FindChild("Img_PointFX")
     GameUtil.PlayUISfx(PATH.UIFX_Dungeon_End_YellowScore, imgPointFx, imgPointFx, -1)
     local seasonScore = self:GetUIObject("Frame_SeasonScore")
-    warn(" self._Data._AddScore ",self._Data._AddScore)
     if self._Data._AddScore > 0 then 
         GUITools.SetUIActive(seasonScore,true)
         GUI.SetText(self:GetUIObject("Lab_ScoreUp"),tostring(self._Data._AddScore))
@@ -1644,9 +1805,6 @@ end
 def.method("table").ShowEliminatePlayer = function (self,data)
     if not self:IsShow() then return end
     self._FrameInformation:SetActive(true)
-    self:GetUIObject("Frame1"):SetActive(false) 
-    self:GetUIObject("Frame2"):SetActive(false)  
-    self:GetUIObject("Frame3"):SetActive(false)
     self:GetUIObject("Frame5"):SetActive(true) 
     local listObj = self:GetUIObject("Frame_BattleList")
     -- self._MaxKillNum,self._MaxCure,self._MaxDmg = self:MaxValue(data)

@@ -72,7 +72,7 @@ PBHelper.AddHandler("S2CReconnectResult", OnS2CReconnectResult)
 
 -- SDK服务器验证（暂定是验证成功不发这条消息）
 local function OnS2CLoginVerifyRes(sender, msg)
-	warn("LoginVerifyRes ResCode:" .. msg.ResCode, "ResType:" .. msg.ResType)
+	warn("LoginVerifyRes ResCode:", msg.ResCode, " ResType:", msg.ResType)
 	local ESdkVerifyResType = require "PB.net".S2CLoginVerifyRes.ESdkVerifyResType
 	if msg.ResType == ESdkVerifyResType.ESdkVerifyResType_Success then
 		-- 验证成功，不作处理

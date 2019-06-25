@@ -69,7 +69,7 @@ def.static(CModel, "string", "string", "boolean", "function").AttachWeaponModel 
 			mainModel:DestroyChild("WeaponL")
 			mainModel:AttachModel("WeaponL", m, hangPointL, Vector3.zero, Quaternion.identity)
 
-			local scale = weapon_scale_on_back								
+			local scale = is_in_hand and weapon_scale_in_hand or weapon_scale_on_back
 			m._GameObject.localScale = scale
 
 			if mainModel._ModelReadyFlags ~= nil then
@@ -112,7 +112,7 @@ def.static(CModel, "string", "string", "boolean", "function").AttachWeaponModel 
 			mainModel:DestroyChild("WeaponR")
 			mainModel:AttachModel("WeaponR", m, hangPointR, Vector3.zero, Quaternion.identity)
 
-			local scale = weapon_scale_on_back
+			local scale = is_in_hand and weapon_scale_in_hand or weapon_scale_on_back
 			m._GameObject.localScale = scale
 
 			if mainModel._ModelReadyFlags ~= nil then
@@ -154,6 +154,11 @@ def.static(CModel, "string", "function").AttachWingModel = function (mainModel, 
 				warn("AttachWingModel mainModel _Params got nil")
 			end
 
+			local wingModel = mainModel:GetAttach("WingHP")
+			if wingModel ~= nil and not IsNil(wingModel:GetGameObject()) then
+				-- 解锁翅膀YZ轴旋转
+				GameUtil.EnableLockWingYZRotation(false, wingModel:GetGameObject(), nil)
+			end
 			mainModel:DestroyChild("WingHP")
 			mainModel:AttachModel("WingHP", m, "HangPoint_Wing", Vector3.zero, Quaternion.identity)
 
@@ -434,7 +439,7 @@ def.method(ModelParams,"function").UpdateWithModelParams = function (self, param
 					if slot == EDressType.Armor then
 						-- 服饰
 						name_1 = "body"
-						--name_2 = "body2"  -- 部分时装有body2
+						name_2 = "body2"  -- 部分时装有body2
 					elseif slot == EDressType.Hat then
 						-- 帽子
 						name_1 = "hair"
@@ -639,6 +644,11 @@ def.method(ModelParams,"function").UpdateWithModelParams = function (self, param
 						end)
 			else
 				-- 移除翅膀
+				local wingModel = self:GetAttach("WingHP")
+				if wingModel ~= nil and not IsNil(wingModel:GetGameObject()) then
+					-- 解锁翅膀YZ轴旋转
+					GameUtil.EnableLockWingYZRotation(false, wingModel:GetGameObject(), nil)
+				end
 				self:DestroyChild("WingHP")
 				GameUtil.OnEntityModelChanged(go)
 			end
@@ -736,10 +746,10 @@ def.method("string","string","string","table","table","table").ChangeAttach = fu
 	end
 	local model = self:GetAttach(srchp)
   	self:Detach(srchp)
-  	if scale ~= nil then
-  		model._GameObject.localScale = Vector3.one
-  	end
 	self:AttachModel(dsthp,model,dstbone,lpos,angles)
+	if model ~= nil and scale ~= nil then
+		model._GameObject.localScale = scale
+	end
 end
 
 def.method("string",CModel,"userdata","table","table").AttachModelImp = function (self,hp,model,boneObj,lpos,angles) 

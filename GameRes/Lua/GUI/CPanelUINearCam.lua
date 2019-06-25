@@ -146,21 +146,24 @@ def.override("string", "string").OnDOTComplete = function(self, go_name, dot_id)
 	CPanelBase.OnDOTComplete(self,go_name,dot_id)
 
 	if dot_id == "1" then
-		local function Show()
-			GUITools.SetUIActive(self._Frame_ShowScreenShot, true)
-			self:EnableButtons(false)
-			GameUtil.ShowScreenShot(self._Img_ScreenShot)
-			self._TweenMan:Restart("2")
-			GameUtil.SaveScreenShot() -- 自动保存
+		local function Show(ret)
+			if ret then
+				GUITools.SetUIActive(self._Frame_ShowScreenShot, true)
+				GameUtil.ShowScreenShot(self._Img_ScreenShot)
+				self._TweenMan:Restart("2")
+				GameUtil.SaveScreenShot() -- 自动保存
+			else
+				-- 没有权限，直接恢复显示
+				GUITools.SetUIActive(self._Frame_Control, true)
+				GUITools.SetUIActive(self._Frame_ShowScreenShot, false)
+			end
 		end
 		-- 检查权限
 		if GameUtil.HasPhotoPermission() then
-			Show()
+			Show(true)
 		else
 			GameUtil.RequestPhotoPermission()
-			if GameUtil.HasPhotoPermission() then
-				Show()
-			end
+			Show(GameUtil.HasPhotoPermission())
 		end
 	elseif dot_id == "2" then
 		GUITools.SetUIActive(self._Frame_Control, true)
@@ -196,7 +199,7 @@ def.method("number").OnClickInteractiveSkill = function(self, index)
 	CDungeonAutoMan.Instance():Stop()
 	local CQuestAutoMan = require"Quest.CQuestAutoMan"
 	CQuestAutoMan.Instance():Stop()
-	local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+	local CAutoFightMan = require "AutoFight.CAutoFightMan"
 	CAutoFightMan.Instance():SetMode(EnumDef.AutoFightType.WorldFight, 0, true)
 
 	hp._SkillHdl:CastSkill(skillId, false)

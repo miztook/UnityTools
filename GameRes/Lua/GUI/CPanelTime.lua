@@ -1,7 +1,7 @@
 local Lplus = require "Lplus"
 local CPanelBase = require "GUI.CPanelBase"
 local CPanelTime = Lplus.Extend(CPanelBase, "CPanelTime")
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local def = CPanelTime.define
 
 local instance = nil
@@ -24,6 +24,7 @@ end
 def.override("string", "string").OnDOTComplete = function(self, go_name, dot_id)
 	CPanelBase.OnDOTComplete(self,go_name,dot_id)
 	if go_name == "Img_Start" and dot_id == "Start" then 
+		CSoundMan.Instance():Play2DAudio(PATH.GUISound_Window_Start, 0)	
 		GameUtil.PlayUISfx(PATH.UIFx_TimerStartFx,self._Panel,self._Panel,-1)
 	elseif go_name == "Img_Start" and dot_id == "End" then 
 		if game._HostPlayer:In1V1Fight() then 

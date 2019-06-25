@@ -119,6 +119,14 @@ local cfg = {
     Node_Legend = 1492680938,
     CheckBox_ShowGfx = 1419694752,
     Frame_Center = 784358311,
+    Tab_NoneMaterial = 2097986857,
+    Btn_LegendCheckout = -1079259914,
+    List_NoneMaterial = 595033728,
+    Frame_BtnQuench = -906331172,
+    Frame_BtnRecast = -892549924,
+    Lab_InheritTip = -645159982,
+    Img_FortifyBorderBG = -1330545114,
+    Img_LegendBorderBG = -525620006,
 }
  
 return cfg

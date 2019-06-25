@@ -50,5 +50,6 @@ def.override(CFSMStateBase).UpdateState = function(self, newstate)
 	end
 end
 
+
 CFSMHostSkill.Commit()
 return CFSMHostSkill

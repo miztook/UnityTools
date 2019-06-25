@@ -23,6 +23,7 @@ def.field("boolean")._IsShowAttrInfoPanel = false   -- 属性总览面板是否�
 def.field("boolean")._IsSelecting = false           -- 是否是正在属性dropdown操作
 def.field("boolean")._IsScriptDropdown = false      -- 代码正在操作dropdown
 def.field("boolean")._IsScriptToggelPages = false   -- 是否是手动设置页签toggle
+def.field("boolean")._IsScriptToggleField = false   -- 是否是脚本点击的槽位。
 def.field("boolean")._IsChangingAllCharms = false     -- 是否是正在进行一键穿戴的操作
 def.field("table")._UIFXTimers = nil                -- 播放UI特效的Timers
 
@@ -74,7 +75,7 @@ def.override("dynamic").OnData = function(self, data)
     self._PanelObject._Tab_UnlockTip:SetActive(false)
     self:GenerateFieldPages()
     self:GetCurrentPageInlayAttrTable()
-    self:SelectCharmsByFieldType(false, self._CurrentPage._CurField._CharmFieldTemp.CharmColor)
+    self:SelectCharmsByFieldType(false, 0)
     self:SelectCharmsByAttrID(self._CurrentAttrID)
     self:GetAttrTableByShowCharmItems()
     self:SetDropDownInfo()
@@ -86,20 +87,23 @@ end
 -- data = {itemID = 111, Slot = 11}
 def.override("dynamic").ShowPage = function(self, data)
     CCharmPageBase.ShowPage(self, data)
-    local color = 0
+    --local color = 0
+    local size = -1
     if data ~= nil then
         if data.itemID ~= nil then
             local item_temp = CElementData.GetTemplate("CharmItem", data.itemID)
-            color = item_temp.CharmColor
+            --color = item_temp.CharmColor
+            size = item_temp.CharmSize
         end
         local field_index = self:FindANiceFieldForCharm(data.itemID)
         self._CurrentPage:ToggleByScript(field_index)
     else
-        color = self._CurrentPage._CurField._CharmFieldTemp.CharmColor
+        --color = self._CurrentPage._CurField._CharmFieldTemp.CharmColor
+        size = self._CurrentPage._CurField._CharmFieldTemp.CharmSize
     end
     self._CurrentAttrID = -1
     self:GetCurrentPageInlayAttrTable()
-    self:SelectCharmsByFieldType(false, color)
+    self:SelectCharmsByFieldType(size == ECharmSize.ECharmSize_Big, 0)
     self:SelectCharmsByAttrID(self._CurrentAttrID)
     self:GetAttrTableByShowCharmItems()
     self:SetDropDownInfo()
@@ -145,7 +149,9 @@ def.method("boolean", "number").SelectCharmsByFieldType = function(self,isBig, f
     self:GetAllCharmItems()
     self._CharmShowItems = {}
     if fieldColor == -1 then
-        self._CharmShowItems = self._CharmItems
+        for _,v in ipairs(self._CharmItems) do
+            self:AddToCharmShowItems(v)
+        end
     else
         if isBig then
             for _,v in ipairs(self._CharmItems) do
@@ -156,13 +162,7 @@ def.method("boolean", "number").SelectCharmsByFieldType = function(self,isBig, f
         else
             for _,v in ipairs(self._CharmItems) do
                 if not v:IsBigCharm() then
-                    if fieldColor == ECharmColor.ECharmColor_Colorful then
-                        self:AddToCharmShowItems(v)
-                    else
-                        if fieldColor == v._CharmItemTemplate.CharmColor then
-                            self:AddToCharmShowItems(v)
-                        end
-                    end
+                    self:AddToCharmShowItems(v)
                 end
             end
         end
@@ -173,11 +173,17 @@ end
 def.method().SortAttrCharmItems = function(self)
     local select_index = CCharmFieldPage.GetSelectIndex()
     local sort_func = function(it1, it2)
-        if it1._CharmItemTemplate.Level ~= it2._CharmItemTemplate.Level then 
-            return it1._CharmItemTemplate.Level > it2._CharmItemTemplate.Level
+        local can_inlay1 = self:CanInlay(it1)
+        local can_inlay2 = self:CanInlay(it2)
+        if can_inlay1 ~= can_inlay2 then
+            return can_inlay1
         else
-            if it1._CharmItemTemplate.Id ~= it2._CharmItemTemplate.Id then
-                return it1._CharmItemTemplate.Id > it2._CharmItemTemplate.Id
+            if it1._CharmItemTemplate.Level ~= it2._CharmItemTemplate.Level then 
+                return it1._CharmItemTemplate.Level > it2._CharmItemTemplate.Level
+            else
+                if it1._CharmItemTemplate.Id ~= it2._CharmItemTemplate.Id then
+                    return it1._CharmItemTemplate.Id > it2._CharmItemTemplate.Id
+                end
             end
         end
         return false
@@ -188,8 +194,10 @@ end
 -- 根据属性ID对Items进行过滤
 def.method("number").SelectCharmsByAttrID = function(self, attrID)
     self._CharmAttrItems = {}
-    if attrID <= 0 then 
-        self._CharmAttrItems = self._CharmShowItems
+    if attrID <= 0 then
+        for i,v in ipairs(self._CharmShowItems) do
+            self._CharmAttrItems[#self._CharmAttrItems + 1] = v
+        end
     else
         for _,v in ipairs(self._CharmShowItems) do
             if v._CharmItemTemplate.PropID1 == attrID or v._CharmItemTemplate.PropID2 == attrID then
@@ -282,6 +290,8 @@ def.method("number").ChangeFieldPage = function(self, pageIndex)
     self._CurrentPageIndex = pageIndex
     self._CurrentPage = self._CharmPages[pageIndex]
     self._CurrentPage:Show()
+    GameUtil.PlayUISfx(PATH.UIFX_CharmChangePage, self._PanelObject._Img_FieldBG0, self._PanelObject._Img_FieldBG0, -1)
+
     local select_index = CCharmFieldPage.GetSelectIndex()
     if select_index == -1 then
         self:SelectCharmsByFieldType(true, -1)
@@ -289,7 +299,7 @@ def.method("number").ChangeFieldPage = function(self, pageIndex)
         self._CurrentPage:ToggleByScript(select_index)
         local charm_field = self._CurrentPage._CharmFields[select_index]
         if not charm_field:IsBigField() then
-            self:SelectCharmsByFieldType(false, self._CurrentPage._CurField._FieldData._CharmFieldColor)
+            self:SelectCharmsByFieldType(false, -1)
         else
             self:SelectCharmsByFieldType(true, 0)
         end
@@ -457,7 +467,6 @@ def.method("number", "number").ShowCharmChangeTip = function(self, newCharmID, o
         lab_attr_name3:SetActive(false)
     end
 
-    local is_up = false
     if new_charm_temp ~= nil then
         lab_attr_name2:SetActive(true)
         lab_attr_name4:SetActive(true)
@@ -479,7 +488,6 @@ def.method("number", "number").ShowCharmChangeTip = function(self, newCharmID, o
                     end
                     self._UIFXTimers["2"] = _G.AddGlobalTimer(0.75, true, callback)	
                 end
-                is_up = true
             elseif old_attr_temp ~= nil and old_charm_temp.PropValue1 > new_charm_temp.PropValue1 then
                 lab_attr_name2:FindChild("Lab_NewValueG"):SetActive(false)
                 lab_attr_name2:FindChild("Lab_NewValueR"):SetActive(true)
@@ -513,7 +521,6 @@ def.method("number", "number").ShowCharmChangeTip = function(self, newCharmID, o
                     end
                     self._UIFXTimers["4"] = _G.AddGlobalTimer(0.95, true, callback)	
                 end
-                is_up = true
             elseif old_attr_temp2 ~= nil and old_charm_temp.PropValue2 > new_charm_temp.PropValue2 then
                 lab_attr_name4:FindChild("Lab_NewValueG"):SetActive(false)
                 lab_attr_name4:FindChild("Lab_NewValueR"):SetActive(true)
@@ -568,11 +575,11 @@ def.override("table").HandleOption = function(self, event)
             event._Option == "Compose" or event._Option == "FieldCompose") and self._IsShow then
         local select_index = CCharmFieldPage.GetSelectIndex()
         if select_index == -1 then
-            self:SelectCharmsByFieldType(true, -1)
+            self:SelectCharmsByFieldType(true, 0)
         else
             local charm_field = self._CurrentPage._CharmFields[select_index]
             if not charm_field:IsBigField() then
-                self:SelectCharmsByFieldType(false, self._CurrentPage._CurField._FieldData._CharmFieldColor)
+                self:SelectCharmsByFieldType(false, 0)
             else
                 self:SelectCharmsByFieldType(true, 0)
             end
@@ -586,7 +593,6 @@ def.override("table").HandleOption = function(self, event)
         if self._CurrentPage ~= nil then
             for i,v in ipairs(event._Fields) do
                 local field = self._CurrentPage:GetFieldByFieldID(v.FieldID)
-                print("PutOnBatch ", v.FieldID, v.CharmID, field ~= nil)
 
                 if field ~= nil then
                     if v.CharmID > 0 then
@@ -613,7 +619,7 @@ def.override("table").HandleOption = function(self, event)
             field:UnlockField()
         elseif event._Option == "Change" then
             field:PutOnCharm(event._CharmID)
-            self:ShowCharmChangeTip(event._CharmID, event._OldCharmID)
+            --self:ShowCharmChangeTip(event._CharmID, event._OldCharmID)
         end
         self:GetCurrentPageInlayAttrTable()
     end
@@ -655,11 +661,30 @@ def.override('string').OnClick = function(self, id)
         if self._CurrentPage ~= nil then
             self._IsChangingAllCharms = self._CurrentPage:ShortcutPutOnAll(self._CharmItems)
         end
-    elseif id == "Img_PanelBG" then
+    elseif id == "Tab_CombatDetail" then
         self._IsShowAttrInfoPanel = false
         self._PanelObject._Tab_CombatDetail:SetActive(false)
         self._PanelObject._Tab_InlayTip:SetActive(false)
     end
+end
+
+def.method("table", "=>", "boolean").CanInlay = function(self, charmItem)
+    local can_inlay = false
+    if charmItem == nil then
+        return false
+    end
+    if self._CurrentPage._CurField ~= nil and self._CurrentPage._CurField._CharmFieldTemp.CharmSize == charmItem._CharmItemTemplate.CharmSize then
+        if not self._CurrentPage._CurField:IsBigField() then
+            if self._CurrentPage._CurField._CharmFieldTemp.CharmColor == ECharmColor.ECharmColor_Colorful then
+                return true
+            else
+                return self._CurrentPage._CurField._CharmFieldTemp.CharmColor == charmItem._CharmItemTemplate.CharmColor
+            end
+        else
+            can_inlay = true
+        end
+    end
+    return can_inlay
 end
 
 def.override('userdata', 'string', 'number').OnInitItem = function(self, item, id, index)
@@ -667,14 +692,17 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
     if id == "List_CharmList" then
         local charm_item = self._CharmAttrItems[index]
         if charm_item == nil then return end
-        local is_equiped = false
-        if self._CurrentPage._CurField ~= nil and self._CurrentPage._CurField._FieldData._ItemID ~= -1 and self._CurrentPage._CurField._FieldData._ItemID == charm_item._Tid then
-            is_equiped = true
+        local field_charm_id = self._CurrentPage._CurField:IsCharmPut() and self._CurrentPage._CurField._FieldData._CharmID or -1
+        local is_up = false
+        local is_can_inlay = self:CanInlay(charm_item)
+        if is_can_inlay then
+            is_up = CCharmMan.Instance():CompareTwoCharmItem(field_charm_id, charm_item._Tid)
         end
         local setting = {
             [EItemIconTag.Number] = game._HostPlayer._Package._NormalPack:GetItemCount(charm_item._Tid),
             [EItemIconTag.Bind] = charm_item:IsBind(),
-            [EItemIconTag.Equip] = is_equiped
+            [EItemIconTag.ArrowUp] = is_up,
+            [EItemIconTag.CanUse] = is_can_inlay,
         }
         IconTools.InitItemIconNew(GUITools.GetChild(item, 0), charm_item._Tid, setting)
     elseif id == "List_AllAttribute" then
@@ -695,6 +723,10 @@ def.override('userdata', 'string', 'number').OnSelectItem = function(self, item,
         local inlayCb = function()
             if self._CurrentPage == nil or self._CurrentPage._CurField == nil then
                 game._GUIMan:ShowTipText(StringTable.Get(19347), false)
+                return
+            end
+            if not self:CanInlay(self._CharmAttrItems[index]) then
+                game._GUIMan:ShowTipText(StringTable.Get(19366), false)
                 return
             end
             if self._CurrentPage._CurField:GetState() == EnumDef.CharmEnum.CharmFieldState.Locked then
@@ -729,6 +761,10 @@ def.override('userdata', 'string', 'number').OnSelectItem = function(self, item,
 end
 
 def.override("string", "boolean").OnToggle = function(self,id, checked)
+    if self._IsScriptToggleField then
+        self._IsScriptToggleField = false
+        return
+    end
     if string.find(id, "Rdo_Charm_") and checked then
         local index = string.sub(id,-1) + 1
         local can_show_detail = CCharmFieldPage.GetSelectIndex() == index
@@ -736,6 +772,7 @@ def.override("string", "boolean").OnToggle = function(self,id, checked)
             local field = self._CurrentPage:GetFieldByIndex(index)
             if field ~= nil and field:IsLock() then
                 game._GUIMan:ShowTipText(string.format(StringTable.Get(19315), field._CharmFieldTemp.UnlockLevel), false)
+                self._IsScriptToggleField = true
                 self._CurrentPage:ReBackToggleIndex()
                 return
             else
@@ -777,7 +814,7 @@ def.override("string", "boolean").OnToggle = function(self,id, checked)
         if self._CurrentPage._CurField:IsBigField() then
             self:SelectCharmsByFieldType(true, 0)
         else
-            self:SelectCharmsByFieldType(false, self._CurrentPage._CurField._FieldData._CharmFieldColor)
+            self:SelectCharmsByFieldType(false, 0)
         end
         self:SelectCharmsByAttrID(self._CurrentAttrID)
         self:GetAttrTableByShowCharmItems()
@@ -867,6 +904,7 @@ def.override().OnHide = function(self)
     self._IsScriptToggelPages = false
     self._CurrentAttrID = -1
     self._IsShowAttrInfoPanel = false
+    self._IsScriptToggleField = false
     self._PanelObject._Tab_CombatDetail:SetActive(false)
     self._PanelObject._Tab_InlayTip:SetActive(false)
     for key,v in pairs(self._UIFXTimers) do

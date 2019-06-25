@@ -10,7 +10,7 @@ local CElementData = require "Data.CElementData"
 local CPanelTracker = require "GUI.CPanelTracker"
 local CPanelMinimap = require "GUI.CPanelMinimap"
 local CPanelDungeonEnd = require"GUI.CPanelDungeonEnd"
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local CDungeonAutoMan = require"Dungeon.CDungeonAutoMan"
 local CPath = require"Path.CPath"
 local CQuestAutoMan = require"Quest.CQuestAutoMan"
@@ -68,11 +68,9 @@ local function OnS2CInstanceEnterPrepare(sender, msg)
 		local time,timer_id = 0,0
 		local callback = function()
 			time = time + 1
-			if time == 4 then
-				CSoundMan.Instance():Play2DAudio(PATH.GUISound_Window_Start, 0)	
+			CSoundMan.Instance():Play2DAudio(PATH.GUISound_Window_Count, 0)
+			if time == 3 then
 				_G.RemoveGlobalTimer(timer_id)
-			else
-				CSoundMan.Instance():Play2DAudio(PATH.GUISound_Window_Count, 0)
 			end
 		end
 		timer_id = _G.AddGlobalTimer(1, false, callback)
@@ -88,17 +86,13 @@ PBHelper.AddHandler("S2CInstanceEnterPrepare", OnS2CInstanceEnterPrepare)
 --开始
 local function OnS2CInstanceEnterStart(sender, msg)
 	game._DungeonMan:OnDungeonStart(msg)
-	-- 新手副本的特殊处理
-	-- 新手本中断线，CG不会重新播放，通过此接口关闭Loading
-	if game:IsInBeginnerDungeon() and not CGMan.IsPlaying() then
-		game._GUIMan:Close("CPanelLoading")
-	end
 	--warn("S2CInstanceEnterStart")
 end
 PBHelper.AddHandler("S2CInstanceEnterStart", OnS2CInstanceEnterStart)
 
 --进入副本
 local function OnS2CInstanceEnterDungeon(sender,msg)
+	CAutoFightMan.Instance():Stop()
 	game._GUIMan:Close("CPanelUIDungeon")
 	local CPanelCalendar = require "GUI.CPanelCalendar"
 	if CPanelCalendar.Instance():IsShow() then
@@ -108,6 +102,26 @@ local function OnS2CInstanceEnterDungeon(sender,msg)
 	if CPanelUIActivity.Instance():IsShow() then
 		game._GUIMan:Close("CPanelUIActivity")
 	end
+    local CPanelUITeamMatchingBoard = require "GUI.CPanelUITeamMatchingBoard"
+    if CPanelUITeamMatchingBoard.Instance():IsShow() then
+        game._GUIMan:Close("CPanelUITeamMatchingBoard")
+    end
+    local CPanelUITeamMember = require "GUI.CPanelUITeamMember"
+    if CPanelUITeamMember.Instance():IsShow() then
+        game._GUIMan:Close("CPanelUITeamMember")
+    end
+
+    local CPVEAutoMatch = require "ObjHdl.CPVEAutoMatch"
+    local CPVPAutoMatch = require "ObjHdl.CPVPAutoMatch"
+    CPVEAutoMatch.Instance():StopAll()
+    if game._CArenaMan._IsMatching3V3 then 
+    	CPVPAutoMatch.Instance():Stop()
+    	game._CArenaMan._IsMatching3V3 = false
+    end
+    if game._CArenaMan._IsMatchingBattle then 
+    	CPVPAutoMatch.Instance():Stop()
+    	game._CArenaMan._IsMatchingBattle = false
+    end
 	game._DungeonMan:OnEnterDungeon(msg)
 end
 PBHelper.AddHandler("S2CInstanceEnter", OnS2CInstanceEnterDungeon)
@@ -125,20 +139,22 @@ local function OnS2CInstanceEnterReward(sender, msg)
 	-- 结算隐藏路径及目标
 	local CPath = require "Path.CPath"
 	CPath.Instance():Hide()
+	local GuildId = CSpecialIdMan.Get("GuildMapID")
 	local instanceEndDelayTime = tonumber(CElementData.GetTemplate("SpecialId", instanceEndDelayId).Value)
 	local callback = function()
 		--假设依旧在副本中
-		if game._HostPlayer:InDungeon() or game._HostPlayer:InImmediate() then
+		if game._HostPlayer:InDungeon() or game._HostPlayer:InImmediate() or msg.resEnterReward.InstanceTId == GuildId then
 			game:QuitNearCam()
-
 			msg.resEnterReward.DurationSeconds = msg.resEnterReward.DurationSeconds - instanceEndDelayTime
 			--game._GUIMan:Open("CPanelInstanceEnd", msg.resEnterReward)
 			local data = {}
 			local ins = msg.resEnterReward.InstanceTId
 			if msg.resEnterReward.InstanceTId == CSpecialIdMan.Get("TowerDungeonID") then 
-				data._Type = 1
+				data._Type = EnumDef.DungeonEndType.TrialType
+			elseif msg.resEnterReward.InstanceTId == GuildId then 
+				data._Type = EnumDef.DungeonEndType.GuildDefend
 			else
-				data._Type = 0
+				data._Type = EnumDef.DungeonEndType.InstanceType
 			end
 			data._InfoData = msg.resEnterReward
 			game._GUIMan:SetNormalUIMoveToHide(true, 0, "CPanelDungeonEnd", data)

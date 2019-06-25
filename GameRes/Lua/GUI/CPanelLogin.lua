@@ -1,6 +1,7 @@
 local Lplus = require "Lplus"
 local CPanelBase = require "GUI.CPanelBase"
 local CElementData = require "Data.CElementData"
+local CLoginMan = require "Main.CLoginMan"
 --local GlobalDefinition = require "PB.data".GlobalDefinition()
 local UserData = require "Data.UserData".Instance()
 local CPanelLogin = Lplus.Extend(CPanelBase, "CPanelLogin")
@@ -129,8 +130,42 @@ def.override("dynamic").OnData = function(self, data)
 	self:CheckOpenType(self._OpenType)
 
 	self._SelectZoneId = 0
-	local server_list = GameUtil.GetServerList(true)
-	self:RefreshServerList(server_list)
+	self._ServerList = {}
+	self._Frame_Server1:SetActive(false)
+	self._Frame_Server2:SetActive(false)
+
+	self:RequestData()
+end
+
+def.method().RequestData = function (self)
+	GameUtil.EnableBlockCanvas(true)
+
+	local serverReady, accountReady = false, false
+	local function ShowList()
+		if serverReady and accountReady then
+			GameUtil.EnableBlockCanvas(false)
+			if self:IsShow() then
+				local server_list = CLoginMan.GetServerList()
+				self:RefreshServerList(server_list)
+			end
+		end
+	end
+	-- 请求服务器列表
+	CLoginMan.RequestServerList(function ()
+		serverReady = true
+		ShowList()
+	end)
+	-- 请求账号信息
+	local account, _ = GetAccountAndPassword(self)
+	if not IsNilOrEmptyString(account) then
+		CLoginMan.RequestAccountRoleList(account, function ()
+			accountReady = true
+			ShowList()
+		end)
+	else
+		accountReady = true
+		ShowList()
+	end
 end
 
 def.method("table").RefreshServerList = function (self, serverlist)
@@ -145,8 +180,7 @@ def.method("table").RefreshServerList = function (self, serverlist)
 	-- if self._SelectZoneId == 0 then
 	-- 	local account, password = GetAccountAndPassword(self)
 	-- 	if not IsNilOrEmptyString(account) and not IsNilOrEmptyString(password) then
-	-- 		local CLoginMan = require "Main.CLoginMan"
-	-- 		local roleList = CLoginMan.GetAccountRoleList(account, true)
+	-- 		local roleList = CLoginMan.GetAccountRoleList(account)
 	-- 		for _, info in ipairs(roleList) do
 	-- 			if GetServerInfoByZoneId(self, info.zoneId) then
 	-- 				--  找到一个在服务器列表里的
@@ -337,7 +371,13 @@ def.override("string").OnClick = function(self, id)
 	elseif id == "Btn_KakaoLogin" then
 		CPlatformSDKMan.Instance():LoginAsKakao()
 	elseif id == "Btn_GuestLogin" then
-		CPlatformSDKMan.Instance():LoginAsGuest()
+		-- 游客登录需要弹确认弹窗
+		local title, msg, closeType = StringTable.GetMsg(133)
+		MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, function(ret)
+			if ret then
+				CPlatformSDKMan.Instance():LoginAsGuest()
+			end
+		end)
 	elseif id == "Btn_LongtuLogin" then
 		CPlatformSDKMan.Instance():LoginAsLongtu()
 	end
@@ -350,12 +390,10 @@ def.method().OnBtnStartGame = function(self)
 	RemoveStartTimer(self)
 	self._StartTimerId = _G.AddGlobalTimer(self._ClickInterval / 2, true, function()
 		-- 等待特效播放
-		if next(self._ServerList) == nil then 
-			local server_list = GameUtil.GetServerList(true)
-			self:RefreshServerList(server_list)
+		if next(self._ServerList) == nil then
+			self:RequestData()
 			return
 		end
-		local CLoginMan = require "Main.CLoginMan"
 		local account, password = GetAccountAndPassword(self)
 		if not CLoginMan.CheckAccountValid(account, password) then
 			return
@@ -368,14 +406,26 @@ def.method().OnBtnStartGame = function(self)
 		end
 
 		local server_info = GetServerInfoByZoneId(self, self._SelectZoneId)
-		local ip, port, name = "", 0, ""
-		if server_info ~= nil then
-			ip = server_info.ip
-		 	port = server_info.port
-		 	name = server_info.name
+		if server_info == nil then return end
+
+		local function Connect()
+			local ip = server_info.ip
+			local port = server_info.port
+			local name = server_info.name
+			CLoginMan.Instance():SetQuickEnterRoleId(0)
+			CLoginMan.Instance():ConnectToServer(ip, port, name, account, password)
 		end
-		CLoginMan.Instance():SetQuickEnterRoleId(0)
-		CLoginMan.Instance():ConnectToServer(ip, port, name, account, password)
+		if server_info.roleCreateDisable then
+			-- 服务器禁止创建角色
+			local title, msg, closeType = StringTable.GetMsg(132)
+			MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, function(ret)
+				if ret then
+					Connect()
+				end
+			end)
+		else
+			Connect()
+		end
 	end)
 end
 

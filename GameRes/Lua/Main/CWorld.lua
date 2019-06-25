@@ -26,6 +26,7 @@ def.field("table")._OnLoadedCallbacks = nil
 def.field("table")._WorldInfo = BlankTable
 def.field("number")._UpdateTimer = 0
 def.field("number")._UpdateStep = 0
+def.field("string")._CurScenePath = ""
 
 def.final("=>", CWorld).new = function ()
 	local obj = CWorld()
@@ -57,6 +58,7 @@ def.method("string", "function").Load = function (self, scene_resource_path, cb)
 					return
 				end
 
+				self._CurScenePath = scene_resource_path
 				self._CurScene = Object.Instantiate(mapres)
 				self:OnLoaded()
 				if cb ~= nil then cb() end
@@ -135,7 +137,7 @@ end
 
 def.method("number", "=>", CEntity).FindObject = function (self, id)
 	local mapId = self._WorldInfo.MapId
-	if id == 0 or mapId == 0 or mapId ~= GameUtil.GetCurrentMapId() then return nil end
+	if id == 0 or mapId == 0 or mapId ~= game._CurMapId then return nil end
 	if id == game._HostPlayer._ID then
 		return game._HostPlayer
 	end
@@ -206,8 +208,14 @@ def.method("boolean", "boolean").Release = function (self, is_release_scene, is_
 	if is_release_scene then
 		GameUtil.OnWorldRelease()
 
-		Object.DestroyImmediate(self._CurScene)
+		Object.Destroy(self._CurScene)
 		self._CurScene = nil
+
+		if not IsNilOrEmptyString(self._CurScenePath) then
+			GameUtil.UnloadBundle("scenes")
+			GameUtil.UnloadBundleOfAsset(self._CurScenePath)
+		end
+		self._CurScenePath = ""
 
 		self._IsReady = false
 		self._OnLoadedCallbacks = nil
@@ -217,8 +225,6 @@ def.method("boolean", "boolean").Release = function (self, is_release_scene, is_
 	end
 	
 	game:CleanOnSceneChange()
-	game:LuaGC()
-	game:GC(true)
 end
 
 CWorld.Commit()

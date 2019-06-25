@@ -112,7 +112,6 @@ end
 def.method().Update = function (self)
     self._FrameCenter:SetActive(true)
     self._FrameRight:SetActive(true)
-    self._FrameLeft:SetActive(false)
 
     self:UpdateItemsList()
     self:UpdateSelectedItemInfo(false)
@@ -239,6 +238,7 @@ def.method("boolean").UpdateSelectedItemInfo = function(self, is_upd)
             GUI.SetText(self._LabAttrNow, tostring(tmp.PropValue))
             local hp = game._HostPlayer
             local can_upd = true
+            local enough_Money = true
             local nxt_tmp = CElementData.GetSkillMasteryTemplate(masteryData.NextTid)          
             if nxt_tmp then
                 local playerGold = game._AccountInfo._RoleList[game._AccountInfo._CurrentSelectRoleIndex].Gold
@@ -254,7 +254,7 @@ def.method("boolean").UpdateSelectedItemInfo = function(self, is_upd)
                     goldDes = "<color=white>" .. GUITools.FormatMoney(nxt_tmp.CostMoneyCount) .. "</color>"
                 else
                     goldDes = "<color=red>" .. GUITools.FormatMoney(nxt_tmp.CostMoneyCount) .. "</color>"
-                    can_upd = false
+                    enough_Money = false
                 end
                 GUI.SetText(self._LabEngraveNeed, goldDes)
 
@@ -276,6 +276,14 @@ def.method("boolean").UpdateSelectedItemInfo = function(self, is_upd)
                 end
                 GUI.SetText(self._LabLevel, levelString)
                 GUI.SetText(self._LabLevelDesc, StringTable.Get(lvDescId))
+
+                local pack = hp._Package._NormalPack
+                local bag_num = pack:GetItemCount(nxt_tmp.CostItemId)
+                if bag_num >= nxt_tmp.CostItemCount and nxt_tmp.Level <= hp._InfoData._Level then
+                else
+                    can_upd = false
+                end    
+                
             else
                 self._LabAttrNxt:SetActive(false)
                 GUI.SetText(self._LabEngraveNeed,"<color=white>" .. tostring(0) .. "</color>")
@@ -283,16 +291,6 @@ def.method("boolean").UpdateSelectedItemInfo = function(self, is_upd)
                 can_upd = false
             end
 
-            local pack = hp._Package._NormalPack
-            local bag_num = pack:GetItemCount(nxt_tmp.CostItemId)
-            if bag_num >= nxt_tmp.CostItemCount and nxt_tmp.Level <= hp._InfoData._Level and 
-                game._AccountInfo._RoleList[game._AccountInfo._CurrentSelectRoleIndex].Gold >= nxt_tmp.CostMoneyCount then
-                self._UpdBtnEffect:SetActive(true)
-            else
-                self._UpdBtnEffect:SetActive(false)
-                can_upd = false
-            end                     
-            
             local item_tmp = CElementData.GetItemTemplate(tmp.CostItemId)
             self._CostItemTid = tmp.CostItemId
             if item_tmp then
@@ -303,6 +301,7 @@ def.method("boolean").UpdateSelectedItemInfo = function(self, is_upd)
                 IconTools.InitMaterialIconNew(self._ImgCostItemIcon, tmp.CostItemId, costnum)                             
             end
 
+            self._UpdBtnEffect:SetActive(can_upd and enough_Money)
             GUITools.SetBtnGray(self._BtnUpgrade, not can_upd)
 
             local property_tmp = CElementData.GetAttachedPropertyTemplate(tmp.PropID)

@@ -11,7 +11,7 @@ local ChatManager = require "Chat.ChatManager"
 
 local function OnPKChangeReturnCode(code)
 	if code == PK_RES_CODE.PK_CODE_ROLE_LEVEL then
-		game._GUIMan:ShowTipText(StringTable.Get(19401), false)
+		game._GUIMan:ShowTipText(StringTable.Get(19301), false)
 	elseif code == PK_RES_CODE.PK_CODE_CONFLIC then
 		game._GUIMan:ShowTipText(StringTable.Get(19402), false)
     elseif code == PK_RES_CODE.PK_CODE_FIGHTING then
@@ -103,6 +103,12 @@ local function OnS2CPkUpdateEvil(sender, protocol)
 		hp._InfoData._EvilNum = protocol.EvilNum
 		hp._TopPate:UpdateName(true)
 		hp:UpdatePetName()
+
+		-- 暂时只需要广播主角的
+		local EntityEvilNumChangeEvent = require "Events.EntityEvilNumChangeEvent"
+		local event = EntityEvilNumChangeEvent()
+		-- event._EntityId = protocol.EntityId
+		CGame.EventManager:raiseEvent(nil, event)
 	else
 		local player = game._CurWorld._PlayerMan._ObjMap[protocol.EntityId]
 		if player ~= nil then

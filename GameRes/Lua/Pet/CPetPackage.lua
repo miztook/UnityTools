@@ -30,7 +30,7 @@ def.method("table").Init = function(self, data)
 end
 
 def.method("number").ReSize = function(self, effectSize)
-	warn("CPetPackage::ReSize ", effectSize)
+	-- warn("CPetPackage::ReSize ", effectSize)
 	self._EffectSize = effectSize
 end
 

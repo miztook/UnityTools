@@ -43,17 +43,17 @@ def.override("dynamic").OnData = function(self, data)
 		self._Img_Time:SetActive(false)	
 		GameUtil.PlayUISfx(PATH.UI_Guild_Convoy_End_Sfx_Vistory,self._Img_Success,self._Img_Success,-1)
         CSoundMan.Instance():Play2DAudio(PATH.GUISound_GuildBFVictory, 0)
-	elseif data.RewardState == 0 then
-		self._Img_Success:SetActive(false)
-		self._Img_Failure:SetActive(false)
-		self._Img_Time:SetActive(true)	
-		GameUtil.PlayUISfx(PATH.UI_Guild_Convoy_End_Sfx_Tie,self._Img_Time,self._Img_Time,-1)
-	else
-		self._Img_Success:SetActive(false)
+	elseif data.RewardState == 2 then
+        self._Img_Success:SetActive(false)
 		self._Img_Failure:SetActive(true)
 		self._Img_Time:SetActive(false)	
 		GameUtil.PlayUISfx(PATH.UI_Guild_Convoy_End_Sfx_Failed,self._Img_Failure,self._Img_Failure,-1)
         CSoundMan.Instance():Play2DAudio(PATH.GUISound_GuildBFFail, 0)
+	else
+		self._Img_Success:SetActive(false)
+		self._Img_Failure:SetActive(false)
+		self._Img_Time:SetActive(true)	
+		GameUtil.PlayUISfx(PATH.UI_Guild_Convoy_End_Sfx_Tie,self._Img_Time,self._Img_Time,-1)
 	end
 	local count = 0
 	local callback = function()

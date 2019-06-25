@@ -15,7 +15,7 @@ def.field("table")._ServerWingsList = BlankTable						-- 已拥有翅膀列表
 def.field("table")._TalentData = BlankTable								-- 天赋加点
 def.field("table")._SkillNumTemp = BlankTable							-- 天赋加点缓冲表
 def.field("number")._TotalPoint = 0 									-- 天赋加点的数量
-def.field("number")._CostModulus = 0 									-- 升级辅助道具消耗数量系数
+def.field("number")._CostModulus = 1 									-- 升级辅助道具消耗数量系数
 def.field("boolean")._IsUseLvUpAssistItem = false						-- 是否使用升级辅助道具
 
 local WING_FUNC_TID = 23 	-- 翅膀的教学功能Tid
@@ -26,8 +26,9 @@ def.static("=>", CWingsMan).Instance = function ()
         _instance = CWingsMan()
 
 		local template = CElementData.GetSpecialIdTemplate(195)
-		if template == nil then return end
-		_instance._CostModulus = tonumber(template.Value)
+		if template ~= nil then
+			_instance._CostModulus = tonumber(template.Value)
+		end
     end
     return _instance
 end
@@ -63,7 +64,7 @@ end
 
 -- 获取单阶内的最大等级
 def.method("=>", "number").GetMaxLevelInGrade = function(self)
-	return 40
+	return 20
 end
 
 -- 计算阶数  阶数 = 1+int（(等级-1)/单阶内最大等级）
@@ -361,14 +362,6 @@ def.method("number", "=>", "boolean").CheckPointLeft = function(self, pageId)
 		end
 	end
 	return false
-end
-
-def.method("number", "=>", "number").GetTalentMaxLevel = function(self, talentLvTid)
-	local max_level = 0
-	local talent_lv_template = self:GetTalentLevelTemplate(talentLvTid)
-	if talent_lv_template ~= nil then
-
-	end
 end
 
 -- 检查天赋技能是否解锁
@@ -973,8 +966,6 @@ def.method("=>", "boolean").IsShowRedPoint = function(self)
 		end
 
 		-- 道具ID读特殊ID表
-		local CSpecialIdMan = require "Data.CSpecialIdMan"
-		local gradeUpItemId = CSpecialIdMan.Get("WingGradeUpItem")
 		for _, info in ipairs(self._ServerWingsList) do
 			local isMaxLv = self:GetWingLevelUpInfo(info.Tid, info.Level+1) == nil
 			if not isMaxLv then
@@ -984,7 +975,7 @@ def.method("=>", "boolean").IsShowRedPoint = function(self)
 					if lvUpTemplate.GradeID > 0 then
 						-- 进阶
 						local gradeUpTemplate = self:GetWingGradeUpData(lvUpTemplate.GradeID)
-						if gradeUpTemplate ~= nil and IsMaterialEnough(gradeUpItemId, gradeUpTemplate.CostItemNum) then
+						if gradeUpTemplate ~= nil and IsMaterialEnough(lvUpTemplate.NeedItemTID, gradeUpTemplate.CostItemNum) then
 							return true
 						end
 					else

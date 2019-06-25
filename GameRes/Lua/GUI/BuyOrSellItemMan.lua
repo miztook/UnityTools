@@ -1,11 +1,12 @@
 _G.TradingType = 
 {
-	BUY = 1,        --购买
-	SELL = 2,       --出售
-    COMPOSE = 3,    --合成
-    DECOMPOSE = 4,  --分解
-    USE = 5,        --使用
-    BagBuyCell = 6  -- 背包购买格子
+	BUY = 1,                -- 购买
+	SELL = 2,               -- 出售
+    COMPOSE = 3,            -- 合成
+    DECOMPOSE = 4,          -- 分解
+    USE = 5,                -- 使用
+    BagBuyCell = 6,         -- 背包购买格子
+    PetBagBuyCell = 7,      -- 购买宠物背包格子
 }
 
 local _BuyOrSellItemPanel = function (itemID,unitPrice,maxNumber,callback,tradingType,moneyType)

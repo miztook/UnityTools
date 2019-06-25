@@ -22,13 +22,14 @@ local cfg = {
     Frame_ItemIcon = -116298498,
     Img_ItemIcon = 805226344,
     Img_Quality = 916311107,
-    Btn_Enter = -1397300491,
+    Btn_Enter2 = -366642211,
     Img_EnterBg = -1326857087,
     Lab_Use = 1601251221,
     Btn_Team = -2122846560,
     Img_Bg = -2101213567,
     Img_BtnFloatFx = 1369209998,
     Lab_Engrave = 371122698,
+    Btn_Enter1 = -366642212,
 }
  
 return cfg

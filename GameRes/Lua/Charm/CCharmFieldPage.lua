@@ -208,7 +208,6 @@ end
 
 --计算当前神符页签总战斗力
 def.method("=>", "number").CalculateCombatValue = function(self)
-    local combat = 0
     local battle_params = {}
     local attrSet = self:CalculateAttrTable()
     for _,value in ipairs(attrSet) do
@@ -217,7 +216,7 @@ def.method("=>", "number").CalculateCombatValue = function(self)
         item.Value = value.AttrValue
         table.insert(battle_params, item)
     end
-    combat = CScoreCalcMan.Instance():CalcEquipScore(game._HostPlayer._InfoData._Prof, battle_params)
+    local combat = CScoreCalcMan.Instance():CalcEquipScore(game._HostPlayer._InfoData._Prof, battle_params)
     return math.ceil(combat)
 end
 

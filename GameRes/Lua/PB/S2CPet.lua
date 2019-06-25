@@ -167,6 +167,27 @@ local function OnS2CPetUpdate(sender,protocol)
 
 			CSoundMan.Instance():Play2DAudio(PATH.GUISound_Pet_Skill, 0)
 		end
+	elseif curType == EPetOptType.EPetOptType_takedown then
+		-- warn("摘除")
+		if protocol.takedown == nil then 
+			warn("Error: protocol.talent is null!")
+			return
+		end
+		local pet = petPackage:GetPetById(protocol.takedown.petId)
+		if pet == nil then 
+			warn("Error Can not find in client cache petId : ", protocol.takedown.petId)
+			return
+		else
+			local str = StringTable.Get(19087)
+			SendFlashMsg(str)
+			SendMsgToSysteamChannel(str)
+			pet:InitSkill(protocol.takedown.petSkillDatas)
+			pet:UpdateFightScore(protocol.takedown.fightScore)
+			pet:SetLastTakedownIndex(protocol.takedown.slotIndex + 1)
+			SentUpdateEvnet(curType)
+			pet:SetLastTakedownIndex(0)
+			CSoundMan.Instance():Play2DAudio(PATH.GUISound_Pet_Skill, 0)
+		end
 
 	elseif curType == EPetOptType.EPetOptType_confirmRecast then
 		--warn("确认洗练")
@@ -180,28 +201,36 @@ local function OnS2CPetUpdate(sender,protocol)
 			warn("Error Can not find in client cache petId : ", protocol.confirmRecast.petDetail.petId)
 			return
 		else
-			if not protocol.confirmRecast.bReset then
-				local name = RichTextTools.GetQualityText(pet:GetNickName(), pet._Quality)
-				local str = string.format(StringTable.Get(19064), name)
-				SendMsgToSysteamChannel(str)
-				-- SendFlashMsg(str)
-			end
-            local skill_field_count = pet:GetSkillFieldCount()
+			local skill_field_count = pet:GetSkillFieldCount()
 			pet:UpdateAll(protocol.confirmRecast.petDetail)
             if pet:GetSkillFieldCount() > skill_field_count then
                 SendFlashMsg(StringTable.Get(19076))
             end
 			SentUpdateEvnet(curType)
+			CSoundMan.Instance():Play2DAudio(PATH.GUISound_SkillCommon, 0)
+			
+			-- if not protocol.confirmRecast.bReset then
+			-- 	local name = RichTextTools.GetQualityText(pet:GetNickName(), pet._Quality)
+			-- 	local str = string.format(StringTable.Get(19064), name)
+			-- 	SendMsgToSysteamChannel(str)
+			-- 	-- SendFlashMsg(str)
+			-- end
+   --          
+			-- pet:UpdateAll(protocol.confirmRecast.petDetail)
+   --          if pet:GetSkillFieldCount() > skill_field_count then
+   --              SendFlashMsg(StringTable.Get(19076))
+   --          end
+			-- SentUpdateEvnet(curType)
 
 			-- 需要新加数据
-			local CPanelCommonCultivae = require"GUI.CPanelCommonCultivate"
-			local PanelData = 
-			{
-				NewData = protocol.confirmRecast.petDetail ,
-				OldData = protocol.confirmRecast.petDetailOld,
-				Type = CPanelCommonCultivae.OpenType.PetRecastResult,
-			}
-			game._GUIMan:Open("CPanelCommonCultivate",PanelData )
+			-- local CPanelCommonCultivae = require"GUI.CPanelCommonCultivate"
+			-- local PanelData = 
+			-- {
+			-- 	NewData = protocol.confirmRecast.petDetail ,
+			-- 	OldData = protocol.confirmRecast.petDetailOld,
+			-- 	Type = CPanelCommonCultivae.OpenType.PetRecastResult,
+			-- }
+			-- game._GUIMan:Open("CPanelCommonCultivate",PanelData )
 		end
 
 	elseif curType == EPetOptType.EPetOptType_levelup then
@@ -216,7 +245,7 @@ local function OnS2CPetUpdate(sender,protocol)
 			warn("Error Can not find in client cache petId : ", protocol.levelUp.petDetails.petId)
 			return
 		else
-			SendFlashMsg(string.format(StringTable.Get(19049), protocol.levelUp.petDetails.level))
+			-- SendFlashMsg(string.format(StringTable.Get(19049), protocol.levelUp.petDetails.level))
 			local name = RichTextTools.GetQualityText(pet:GetNickName(), pet._Quality)
 			local str = string.format(StringTable.Get(19063), name, protocol.levelUp.petDetails.level)
             local skill_field_count = pet:GetSkillFieldCount()
@@ -267,6 +296,7 @@ local function OnS2CPetUpdate(sender,protocol)
 				NewData = protocol.advance.petDetails ,
 				OldData = protocol.advance.petDetailsOld,
 				Type = CPanelCommonCultivae.OpenType.PetAdvanceResult,
+				Exp = protocol.materialPetTotalExp,
 			}
 	        game._GUIMan:Open("CPanelCommonCultivate",PanelData )
 	        
@@ -326,6 +356,70 @@ local function OnS2CPetUpdate(sender,protocol)
 		-- warn("宠物 宠物提供人物战斗力")
 		petPackage:SetTotalFightScore(protocol.totalFightScore.fightScore)
 		SentUpdateEvnet(curType)
+	elseif curType == EPetOptType.EPetOptType_fuse then
+		-- warn("宠物 融合")
+		if protocol.fuse == nil then 
+			warn("Error: protocol.fuse is null!")
+			return
+		end
+
+		local pet = petPackage:GetPetById(protocol.fuse.petDetails.petId)
+		if pet == nil then 
+			warn("Error Can not find in client cache petId : ", protocol.fuse.petDetails.petId)
+			return
+		else
+            local skill_field_count = pet:GetSkillFieldCount()
+			SendMsgToSysteamChannel(string.format(StringTable.Get(19086)))
+			pet:UpdateAll(protocol.fuse.petDetails)
+			petPackage:UpdatePetList(false, protocol.fuse.deletePetId)
+            if pet:GetSkillFieldCount() > skill_field_count then
+                SendFlashMsg(StringTable.Get(19076))
+            end
+			SentUpdateEvnet(curType)
+			local CPanelCommonCultivae = require"GUI.CPanelCommonCultivate"
+			local PanelData = 
+			{
+				NewData = protocol.fuse.petDetails ,
+				OldData = protocol.fuse.petDetailsOld,
+				Type = CPanelCommonCultivae.OpenType.PetFuseResult,
+			}
+	        game._GUIMan:Open("CPanelCommonCultivate", PanelData)
+	        
+	        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Pet_Advance, 0)
+		end
+	elseif curType == EPetOptType.EPetOptType_star then
+		-- warn("升星")
+		if protocol.star == nil then 
+			warn("Error: protocol.star is null!")
+			return
+		end
+
+		local pet = petPackage:GetPetById(protocol.star.petDetails.petId)
+		if pet == nil then 
+			warn("Error Can not find in client cache petId : ", protocol.star.petDetails.petId)
+			return
+		else
+            local skill_field_count = pet:GetSkillFieldCount()
+			SendMsgToSysteamChannel(string.format(StringTable.Get(19065)))
+			pet:UpdateAll(protocol.star.petDetails)
+			petPackage:UpdatePetList(false, protocol.star.deletePetId)
+            if pet:GetSkillFieldCount() > skill_field_count then
+                SendFlashMsg(StringTable.Get(19076))
+            end
+			SentUpdateEvnet(curType)
+			local CPanelCommonCultivae = require"GUI.CPanelCommonCultivate"
+			local PanelData = 
+			{
+				NewData = protocol.star.petDetails ,
+				OldData = protocol.star.petDetailsOld,
+				Type = CPanelCommonCultivae.OpenType.PetAdvanceResult,
+				Exp = protocol.materialPetTotalExp,
+			}
+	        game._GUIMan:Open("CPanelCommonCultivate", PanelData)
+	        
+	        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Pet_Advance, 0)
+		end
+		
 	else
 		warn("Error:: S2CPetUpdate.optType Unknown!")
 		return

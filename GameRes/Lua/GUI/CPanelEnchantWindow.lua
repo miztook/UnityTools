@@ -6,8 +6,11 @@ local CElementData = require "Data.CElementData"
 local CPanelEnchantWindow = Lplus.Extend(CPanelBase, 'CPanelEnchantWindow')
 local def = CPanelEnchantWindow.define
 
+def.field("userdata")._Frame_NoneEnchant = nil
+def.field("userdata")._Frame_Enchanted = nil
 def.field("userdata")._LabNewValue = nil 
 def.field("userdata")._LabOldValue = nil 
+def.field("userdata")._Lab_NewValueOnly = nil
 def.field("userdata")._LabTip = nil 
 def.field("table")._EnchantItemData = nil 
 def.field("table")._EquipData = nil 
@@ -27,8 +30,12 @@ def.static('=>', CPanelEnchantWindow).Instance = function ()
 end
  
 def.override().OnCreate = function(self)
+	self._Frame_NoneEnchant = self:GetUIObject("Frame_NoneEnchant")
+	self._Frame_Enchanted = self:GetUIObject("Frame_Enchanted")
+
 	self._LabNewValue = self:GetUIObject("Lab_NewValue")
 	self._LabOldValue = self:GetUIObject("Lab_OldlValue")
+	self._Lab_NewValueOnly = self:GetUIObject("Lab_NewValueOnly")
 	self._LabTip = self:GetUIObject("Lab_Tip")
 	self._Item = self:GetUIObject("Item")
 end
@@ -46,13 +53,17 @@ def.override("dynamic").OnData = function(self, data)
 	self._EnchantItemData = data.EnchantItemData
 	self._EquipData = data.EquipData
     local value  = tonumber(data.EnchantInfo.Property.ValueDesc)
-  	if self._EquipData._EnchantAttr == nil or self._EquipData._EnchantAttr.index == 0 then
-    	GUI.SetText(self._LabOldValue,StringTable.Get(10980)) 
-    else
+    local bHasEnchantAttr = self._EquipData:HasEnchantAttr()
+
+    self._Frame_NoneEnchant:SetActive( not bHasEnchantAttr )
+    self._Frame_Enchanted:SetActive( bHasEnchantAttr )
+  	if bHasEnchantAttr then
     	local fightElement = CElementData.GetPropertyInfoById(self._EquipData._EnchantAttr.index)
-    	GUI.SetText(self._LabOldValue,string.format(StringTable.Get(10979),fightElement.Name,tostring(self._EquipData._EnchantAttr.value)))
+    	GUI.SetText(self._LabNewValue,string.format(StringTable.Get(10979),data.EnchantInfo.Property.Name, GUITools.FormatNumber(value)))
+    	GUI.SetText(self._LabOldValue,string.format(StringTable.Get(10979),fightElement.Name, GUITools.FormatNumber(self._EquipData._EnchantAttr.value)))
+    else
+    	GUI.SetText(self._Lab_NewValueOnly,string.format(StringTable.Get(10979),data.EnchantInfo.Property.Name, GUITools.FormatNumber(value)))
     end
-    GUI.SetText(self._LabNewValue,string.format(StringTable.Get(10979),data.EnchantInfo.Property.Name,tostring(value)))
 
 	local frame_item_icon = GUITools.GetChild(self._Item, 0)
     local bShowArrowUp = false

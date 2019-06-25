@@ -61,8 +61,20 @@ local function OnS2CMallMonthlyCardGetReward(sender, protocol)
 end
 PBHelper.AddHandler("S2CMonthlyGetReward", OnS2CMallMonthlyCardGetReward)
 
+-- 快速兑换回复消息
 local function OnS2CQuickStoreBuyReq(sender, protocol)
-    print("快速购买消息返回", protocol)
     CMallMan.Instance():HandleQuickStoreBuyReq(protocol)
 end
 PBHelper.AddHandler("S2CQuickStoreBuyRes", OnS2CQuickStoreBuyReq)
+
+-- Banner上线的时候消息
+local function OnS2CBannerInfo(sender, protocol)
+    CMallMan.Instance():HandleBannerInfoData(protocol)
+end
+PBHelper.AddHandler("S2CBannerInfo", OnS2CBannerInfo)
+
+-- Banner更新消息
+local function OnS2CBannerUpdate(sender, protocol)
+    CMallMan.Instance():HandleBannerUpdate(protocol)
+end
+PBHelper.AddHandler("S2CBannerUpdate", OnS2CBannerUpdate)

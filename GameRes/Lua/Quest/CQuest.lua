@@ -3,11 +3,11 @@ local CGame = Lplus.ForwardDeclare("CGame")
 local QuestDef = require "Quest.QuestDef"
 local CQuestModel = require "Quest.CQuestModel"
 local CPanelMainTips = require "GUI.CPanelMainTips"
-
 local NotifyQuestDataChangeEvent = require "Events.NotifyQuestDataChangeEvent"
 local EventTriggerType = require "PB.Template".Quest.QuestEventRelated.QuestEvent.EventTriggerType
 local CElementData = require "Data.CElementData"
 local QuestTypeDef = require "Quest.QuestDef".QuestType
+
 local CQuest = Lplus.Class('CQuest')
 local def = CQuest.define
 
@@ -72,8 +72,6 @@ end
 --满足条件播放cg，不满足直接回调
 local function CheckAndTriggerCGEvent(quest_id, triggerType, on_complete)
 	local cgcomplete = function()
-		-- warn("=========CG complete!!!")
-		-- game._HostPlayer:Stand()
 		if on_complete then
 			on_complete()
 		end
@@ -84,13 +82,12 @@ local function CheckAndTriggerCGEvent(quest_id, triggerType, on_complete)
 	if quest_events ~= nil then
 		for k, v in pairs(quest_events) do
 			if v ~= nil and v.triggerType == triggerType and v.PlayCG ~= nil and v.PlayCG.CgID ~= nil and type(v.PlayCG.CgID) == "number" and v.PlayCG.CgID > 0 then
-				--warn("=========CG run quest id is : "..quest_id..", triggerType : "..tostring(triggerType)..", cg id is : "..v.PlayCG.CgID)
-				CGMan.PlayById(v.PlayCG.CgID, cgcomplete, 1)
+				CGMan.PlayCG(v.PlayCG.CgID, cgcomplete, 1, false)
 				return
 			end
 		end
 	end
-    --warn("=========CG not found, quest id is : "..quest_id..", triggerType : "..tostring(triggerType))
+	
 	cgcomplete()
 end
 
@@ -189,6 +186,8 @@ local function DispatcheCommonEvent(name, data)
 end
 
 def.method("table").OnS2CCountGroupReset = function(self, cgs)
+	--if self._CountGroupsQuestData == nil then self._CountGroupsQuestData = {} end
+	
 	self._CountGroupsQuestData[cgs.Tid] = 
 	{
 	    _Count = cgs.Count,
@@ -205,6 +204,11 @@ def.method("table").OnS2CQuestUpdateReputationList = function(self, cgs)
 			for i, v2 in ipairs(v.QuestList) do
 				if v2 and v2 > 0 then
 					QuestIDs[#QuestIDs + 1] = v2
+
+					if cgs.IsReset and self._CompletedMap ~= nil and self._CompletedMap[v2] ~= nil then
+						print("remove completed questId=============",self._CompletedMap[v2])
+						self._CompletedMap[v2] = nil
+					end
 				end
 			end
 			self._ReputationQuest[#self._ReputationQuest + 1] = { ReputationId = v.ReputationId, QuestList = QuestIDs }
@@ -292,7 +296,7 @@ def.method("table").OnS2CQuestProvide = function(self, data)
 
 	--如果完成的任务是赏金类型
 	local quest_data = CElementData.GetQuestTemplate(data.Id)
-	if quest_data.Type == QuestDef.QuestType.Reward then
+	if quest_data ~= nil and quest_data.Type == QuestDef.QuestType.Reward then
 		self._CyclicQuestData._CyclicQuestID = data.Id
 	end
 
@@ -348,7 +352,7 @@ def.method("table").OnS2CQuestProvide = function(self, data)
 		end
     end
 
-	-- 如果完成的任务是讨伐令类型
+	-- 如果接到的任务是讨伐令类型
 	if quest_data.Type == QuestDef.QuestType.Punitive then
 		local CQuestAutoMan = require"Quest.CQuestAutoMan"
 		local questAutoMan = CQuestAutoMan.Instance()
@@ -378,6 +382,10 @@ def.method("table").OnS2CQuestDeliver = function(self, data)
 	self._CompletedMap[data.Id] = data.Count
 
 	local quest_data = CElementData.GetQuestTemplate(data.Id)
+	if quest_data == nil then
+		warn("data error,id is =",data.Id)
+		return
+	end
 	--(取消功能)--判断是否是 完成副本的任务，不是完成副本的任务 弹任务奖励，防止与副本奖励冲突
 	-- local isFinishDungeon = false
  --    local datas = quest_data.ObjectiveRelated.QuestObjectives
@@ -422,6 +430,50 @@ def.method("table").OnS2CQuestDeliver = function(self, data)
 		self._CyclicQuestData._CyclicQuestID = 0
 		--服务器自己算，不需要客户端发
 		--self:ProvideCyclic()
+	end
+
+	-- 如果完成得任务是讨伐令类型 询问是否继续
+	if quest_data.Type == QuestDef.QuestType.Punitive then
+		local UserData = require "Data.UserData"
+		local LastWantedItemQuality = UserData.Instance():GetField("LastWantedItemQuality")
+
+		local EItemType = require "PB.Template".Item.EItemType
+    	local itemsList = game._HostPlayer._Package._NormalPack:GetItemListByType(EItemType.Wanted)
+	    local function sort_items(item1, item2)
+	    	if item1._Template.InitQuality == item2._Template.InitQuality then
+	    		return item1._Template.BindMode > item2._Template.BindMode
+	    	end
+	        return item1._Template.InitQuality < item2._Template.InitQuality
+	    end
+	    table.sort(itemsList, sort_items)
+
+    	local itemData = nil
+		for i,v in ipairs(itemsList) do
+			local Quality = v._Template.InitQuality
+			if LastWantedItemQuality == Quality  then
+				itemData = v
+			end
+		end
+
+		if itemData == nil and #itemsList > 0 then
+			itemData = itemsList[1]
+		end
+
+		if itemData ~= nil then
+			--local count = game._HostPlayer._Package._NormalPack:GetItemCount(itemData._Tid)
+			
+			local callback = function(val)
+				if val then
+		        	itemData:Use()
+		        end
+		    end
+            local setting = {
+                [MsgBoxAddParam.CostItemID] = itemData._Tid,
+                [MsgBoxAddParam.CostItemCount] = 1,
+            }
+		    local colStr = RichTextTools.GetQualityText(StringTable.Get(279), itemData._Template.InitQuality)
+            MsgBox.ShowMsgBox(string.format(StringTable.Get(278),colStr),StringTable.Get(279), 1, MsgBoxType.MBBT_YESNO,callback,nil,nil,nil,setting)
+		end
 	end
 
 	--交任务后检测后置任务
@@ -541,7 +593,7 @@ def.method("table").OnS2CQuestNotify = function(self, data)
 			
 			local monsterId = objectiveModel:GetTargetMonsterId()
 			if monsterId > 0 then	
-				local CAutoFightMan = require "ObjHdl.CAutoFightMan"							
+				local CAutoFightMan = require "AutoFight.CAutoFightMan"							
 				CAutoFightMan.Instance():RemovePriorityTarget(data.QuestId, monsterId)
 			end
 
@@ -553,7 +605,7 @@ def.method("table").OnS2CQuestNotify = function(self, data)
 
 		local temp = model:GetTemplate()
 		if temp.Type == QuestDef.QuestType.Hang then
-			local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+			local CAutoFightMan = require "AutoFight.CAutoFightMan"
 			CAutoFightMan.Instance():SetMode(EnumDef.AutoFightType.WorldFight, 0, true) 
 		end
 	end
@@ -564,45 +616,19 @@ end
 def.method("number").OnS2CQuestGiveUp = function(self, data)
 	-- 如果完成的任务是赏金类型
 	local quest_data = CElementData.GetQuestTemplate(data)
-	if quest_data.Type == QuestDef.QuestType.Reward then
+	if quest_data.Type == QuestDef.QuestType.Reward and self._CyclicQuestData~=nil then
 		self._CyclicQuestData._CyclicQuestID = 0
 	elseif quest_data.Type == QuestDef.QuestType.Punitive then
 		game._GUIMan:ShowTipText(StringTable.Get(596), false)
 	end
 
+	if self._InProgressQuestMap ~= nil then
 	self._InProgressQuestMap[data] = nil
-	
+	end
 	CGame.EventManager:raiseEvent(nil, NotifyQuestDataChangeEvent())
 	DispatcheCommonEvent(EnumDef.QuestEventNames.QUEST_GIVEUP, data)
 
 	CSoundMan.Instance():Play2DAudio(PATH.GUISound_Quest_Reject, 0)
-end
-
-def.method("number","=>","string").GetQuesthapterStr = function(self, Id)
-	local str = ""
-	local quest_data = CElementData.GetQuestTemplate(Id)
-	--if quest_data.Type == QuestDef.QuestType.Reward then
-	local chapterTip = string.split(quest_data.QuestChapterInfo, ".")
-	if chapterTip ~= nil and chapterTip[1] ~= "" then
-		--print_r(chapterTip)
-    	local ChapterTemplate = CElementData.GetTemplate("QuestChapter", tonumber(chapterTip[1]))
-        local GroupTemplate = CElementData.GetTemplate("QuestGroup", tonumber(chapterTip[2]))
-        if ChapterTemplate ~= nil then
-	        local Groups = string.split(ChapterTemplate.QuestGroupId, "*")
-	         if Groups ~= nil and Groups[1] ~= "" then 
-	         	for i,v in ipairs(Groups) do
-	         		if v == chapterTip[2] then
-		    			local str_type = StringTable.Get(550+quest_data.Type)
-		    			local str_chapter = string.format(StringTable.Get(569),ChapterTemplate.ChapterId,i)
-		    			str = str .. str_type
-		    			str = str .. str_chapter
-		    			return str
-	         		end
-	         	end
-	    	end
-	    end
-	end
-	return str
 end
 
 -- 替锁哥加的1 赏金任务
@@ -908,7 +934,7 @@ def.method("number", "=>", "number").GetReputationListCurQuestID = function(self
 					
     --找到此循环任务链
     while true do
-    	print("=======",lastID)
+    	--print("=======",lastID)
     	if not self:IsQuestCompleted(lastID) then
     		break
     	end
@@ -971,16 +997,16 @@ def.method("number","=>", "table").GetQuestsRecievedByType = function(self,quest
 end
 
 --获取所有当前状态可接的任务
+--[[
 def.method("=>", "table").GetQuestsCanRecieved = function(self)
 	local list = {}
 	local ids = GameUtil.GetAllTid("Quest")
 
 	for _,v in pairs(ids) do
-		if v and self:CanRecieveQuest(v) then
+		if v then
 			local tmp = CElementData.GetQuestTemplate(v)
-
-			if not tmp.IsSubQuest then
-				table.insert(list, CElementData.GetQuestTemplate(v))
+			if self:CanRecieveQuestByTemplate(tmp) and not tmp.IsSubQuest then
+				table.insert(list, tmp)
 			end
 		end
 	end
@@ -989,18 +1015,17 @@ def.method("=>", "table").GetQuestsCanRecieved = function(self)
 	end
 	return list
 end
+]]
 
 --获取所有当前状态可接的某类型任务
 def.method("number","=>", "table").GetQuestsCanRecievedByType = function(self,questType)
 	local list = {}
-	local ids = GameUtil.GetAllTid("Quest")
+	local allQuestTempSimple = CElementData.GetAllQuestTemplateSimple()
 
-	for _,v in pairs(ids) do
-		if v and self:GetQuestType(v)+1 == questType and self:CanRecieveQuest(v) then
-			local tmp = CElementData.GetQuestTemplate(v)
-
-			if not tmp.IsSubQuest then
-				list[v] = v
+	for id,tmp in pairs(allQuestTempSimple) do
+		if tmp then
+			if tmp.Type + 1 == questType and self:CanRecieveQuestByTemplate(tmp) and not tmp.IsSubQuest then
+				list[id] = id
 			end
 		end
 	end
@@ -1102,7 +1127,7 @@ end
 def.method("number", "number", "=>", "boolean").IsQuestGoalSatified = function(self, tid, parentTid)
 	if tid <= 0 then return false end
 
-	local qt = CElementData.GetQuestTemplate(tid)
+	local qt = CElementData.GetQuestTemplateSimple(tid)
 	if qt == nil then return false end
 
     if qt.IsSubQuest then
@@ -1114,19 +1139,17 @@ def.method("number", "number", "=>", "boolean").IsQuestGoalSatified = function(s
     end
 end
 
---能不能领
-def.method("number", "=>", "boolean").CanRecieveQuest = function(self, id)
-	--先判断 有没有次数组 的限制
-	local temp = CElementData.GetQuestTemplate(id)
+def.method("table", "=>", "boolean").CanRecieveQuestByTemplate = function (self, temp)
 	if temp == nil then return false end
+	local id = temp.Id
 
 	local isGroupLimit = false
 	--只有重复任务才有次数组限制 并且类型不是 声望任务
 	if temp.IsRepeated and temp.Type ~= QuestDef.QuestType.Reputation then			--重复任务
-		local v = CElementData.GetTemplate("CountGroup",temp.CountGroupTid)
+		local v = CElementData.GetTemplate("CountGroup", temp.CountGroupTid)
 
 		local count = 0
-		if self._CountGroupsQuestData[temp.CountGroupTid] ~= nil then
+		if self._CountGroupsQuestData ~= nil and self._CountGroupsQuestData[temp.CountGroupTid] ~= nil then
 			count = self._CountGroupsQuestData[temp.CountGroupTid]._Count
 		end
 
@@ -1152,6 +1175,13 @@ def.method("number", "=>", "boolean").CanRecieveQuest = function(self, id)
 	return false
 end
 
+--能不能领
+def.method("number", "=>", "boolean").CanRecieveQuest = function(self, id)
+	--先判断 有没有次数组 的限制
+	local temp = CElementData.GetQuestTemplateSimple(id)
+	return self:CanRecieveQuestByTemplate(temp)
+end
+
 --能不能交
 def.method("number", "=>", "boolean").CanDeliverQuest = function(self, id)
 	local quest = self:GetInProgressQuestModel(id)
@@ -1175,7 +1205,7 @@ end
 --是否有讨伐任务
 def.method("=>", "boolean").IsHasQuestPunitive = function(self)
 	for _,v in pairs(self._InProgressQuestMap) do
-		print("IsHasQuestPunitive",v.Id,self:GetQuestType(v.Id))
+		--print("IsHasQuestPunitive",v.Id,self:GetQuestType(v.Id))
 		if self:GetQuestType(v.Id) == QuestDef.QuestType.Punitive then
 			return true
 		end
@@ -1401,6 +1431,98 @@ def.method("number","=>","number").GetQuestChapter = function (self,quest_id)
     return -1
 end
 
+def.method("number","=>","boolean").IsFristQuest = function (self,quest_id)
+	if quest_id ~= 0 then
+		local template = CElementData.GetQuestTemplate(quest_id)
+	    local chapterTip = string.split(template.QuestChapterInfo, ".")
+	    if chapterTip ~= nil and chapterTip[1] ~= "nil"  and chapterTip[1] ~= "" then
+	    	local ChapterTemplate = CElementData.GetTemplate("QuestChapter", tonumber(chapterTip[1]))
+	        local GroupTemplate = CElementData.GetTemplate("QuestGroup", tonumber(chapterTip[2]))
+	        if ChapterTemplate ~= nil then
+		        local Groups = string.split(ChapterTemplate.QuestGroupId, "*")
+		        if Groups ~= nil and Groups[1] ~= "" and Groups[1] == chapterTip[2] and GroupTemplate.GroupFields[1].QuestId == quest_id then 
+		        	return true
+		        end
+			end
+	    end
+
+	end
+    return false
+end
+
+def.method("number","=>","string").GetQuesthapterStr = function(self, Id)
+	local str = ""
+	local quest_data = CElementData.GetQuestTemplate(Id)
+	--if quest_data.Type == QuestDef.QuestType.Reward then
+	local chapterTip = string.split(quest_data.QuestChapterInfo, ".")
+	if chapterTip ~= nil and chapterTip[1] ~= "" then
+		--print_r(chapterTip)
+    	local ChapterTemplate = CElementData.GetTemplate("QuestChapter", tonumber(chapterTip[1]))
+        local GroupTemplate = CElementData.GetTemplate("QuestGroup", tonumber(chapterTip[2]))
+        if ChapterTemplate ~= nil then
+	        local Groups = string.split(ChapterTemplate.QuestGroupId, "*")
+	         if Groups ~= nil and Groups[1] ~= "" then 
+	         	for i,v in ipairs(Groups) do
+	         		if v == chapterTip[2] then
+		    			local str_type = StringTable.Get(550+quest_data.Type)
+		    			local str_chapter = string.format(StringTable.Get(569),ChapterTemplate.ChapterId,i)
+		    			str = str .. str_type
+		    			str = str .. str_chapter
+		    			return str
+	         		end
+	         	end
+	    	end
+	    end
+	end
+	return str
+end
+
+-- 判断完成了此章节是否全部完成
+def.method("number","=>","boolean").QuestChapterIsAllFinish = function(self, ChapterId)
+	local ChapterTemplate = CElementData.GetTemplate("QuestChapter", ChapterId)
+    if ChapterTemplate ~= nil then
+        local Groups = string.split(ChapterTemplate.QuestGroupId, "*")
+		if Groups ~= nil and Groups[#Groups] ~= "" then 
+			local GroupTemplate = CElementData.GetTemplate("QuestGroup", tonumber(Groups[#Groups]))
+			local QuestID = GroupTemplate.GroupFields[#GroupTemplate.GroupFields].QuestId
+			if CQuest.Instance():IsQuestCompleted(QuestID) then
+        		return true
+        	end
+        end
+	end
+	return false
+end
+
+-- 判断完成了此章节是否已经接取
+def.method("number","=>","boolean").QuestChapterIsRecieve = function(self, ChapterId)
+	local ChapterTemplate = CElementData.GetTemplate("QuestChapter", ChapterId)
+    if ChapterTemplate ~= nil then
+        local Groups = string.split(ChapterTemplate.QuestGroupId, "*")
+		if Groups ~= nil and Groups[1] ~= "" then 
+			local GroupTemplate = CElementData.GetTemplate("QuestGroup", tonumber(Groups[1]))
+			local QuestID = GroupTemplate.GroupFields[1].QuestId
+
+			local quest_model = CQuest.Instance():FetchQuestModel(QuestID)
+			if quest_model.QuestStatus == QuestDef.Status.NotRecieved and self:CanRecieveQuest( QuestID ) then 
+				return true
+			end
+        end
+	end
+	return false
+end
+
+def.method("number","=>","number").GetChapterFristQuest = function(self, ChapterId)
+	local ChapterTemplate = CElementData.GetTemplate("QuestChapter", ChapterId)
+    if ChapterTemplate ~= nil then
+        local Groups = string.split(ChapterTemplate.QuestGroupId, "*")
+		if Groups ~= nil and Groups[1] ~= "" then 
+			local GroupTemplate = CElementData.GetTemplate("QuestGroup", tonumber(Groups[1]))
+			return GroupTemplate.GroupFields[1].QuestId
+        end
+	end
+	return false
+end
+
 --2322new 模板数据分析
 local EnumPreQuestRelation =
 { 
@@ -1585,38 +1707,29 @@ def.method("=>","boolean").IsShowBranchQuestRedPoint = function (self)
 
     --未领取支线奖励
     local RewardQuestIsShow = false
-    -- local Map = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.Quest)
-    -- if Map ~= nil then
-    --     local redDotStatusMap = Map[2]
 
-        -- if redDotStatusMap ~= nil and redDotStatusMap[1] ~= nil then
-        --     for k,v in pairs(redDotStatusMap[1]) do
-        --         if v == true then
-        --             NewQuestIsShow = true
-        --             break
-        --         end
-        --     end
-        -- end
-
-        -- if redDotStatusMap ~= nil and redDotStatusMap[2] ~= nil then
-        --     for k,v in pairs(redDotStatusMap[2]) do
-        --         if v == true then
-        --             RewardQuestIsShow = true
-        --             break
-        --         end
-        --     end
-        -- end
-        local ChaptersTemplate_id_list = GameUtil.GetAllTid("QuestChapter")
-		for i = 1, #ChaptersTemplate_id_list do 
-			local ChapterTemplate = CElementData.GetTemplate("QuestChapter", i)
-			if ChapterTemplate.QuestType == QuestDef.QuestType.Branch then
-			    RewardQuestIsShow = self:IsGiveRewardByQuestChapter( i )
-			    if RewardQuestIsShow then
-			    	break
-			    end
-			end
+    local ChaptersTemplate_id_list = GameUtil.GetAllTid("QuestChapter")
+	for i = 1, #ChaptersTemplate_id_list do 
+		local ChapterTemplate = CElementData.GetTemplate("QuestChapter", i)
+		if ChapterTemplate.QuestType == QuestDef.QuestType.Branch then
+		    RewardQuestIsShow = self:IsGiveRewardByQuestChapter( i )
+		    if RewardQuestIsShow then
+		    	break
+		    end
 		end
-    --end
+	end
+
+--626 红点修改
+--[[	for i = 1, #ChaptersTemplate_id_list do 
+		local ChapterTemplate = CElementData.GetTemplate("QuestChapter", i)
+		if ChapterTemplate.QuestType == QuestDef.QuestType.Branch then
+		    NewQuestIsShow = self:QuestChapterIsRecieve( i )
+		    if NewQuestIsShow then
+		    	break
+		    end
+		end
+	end--]]
+
  	local isShow = NewQuestIsShow or RewardQuestIsShow
     return isShow
 end

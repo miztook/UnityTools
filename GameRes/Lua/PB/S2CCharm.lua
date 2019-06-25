@@ -48,7 +48,6 @@ end
 PBHelper.AddHandler("S2CCharmFightScore", OnS2CCharmFightScore)
 
 local function OnS2CCharmPutOnBatch(sender, protocol)
-    print("protocol ", protocol)
     CCharmMan.Instance():S2CCharmPutOnBatch(protocol.Fields)
 end
 PBHelper.AddHandler("S2CCharmPutOnBatch", OnS2CCharmPutOnBatch)

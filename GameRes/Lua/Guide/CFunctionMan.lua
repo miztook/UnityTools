@@ -18,6 +18,8 @@ def.field("table")._FunData = BlankTable
 def.field("table")._FunIDData = BlankTable
 -- 除上述两种情况外，单纯判断某个功能是否解锁
 def.field("table")._FunTidData = BlankTable
+-- 运营屏蔽某些功能数据
+def.field("table")._FunForbidIDs = nil
 -- 是否作弊全开
 def.field("boolean")._OpenAll4Debug = false
 
@@ -99,6 +101,14 @@ def.method("table").ChangeFunctionData = function(self, data)
 			end
 		end
 	end
+end
+
+-- 初始化运营禁止的功能
+def.method("number", "boolean").ChangeForbidData = function(self, funTid, isForbid)
+    if self._FunForbidIDs == nil then
+        self._FunForbidIDs = {}
+    end
+    self._FunForbidIDs[funTid] = isForbid
 end
 
 -- 更改功能解锁数据(变化)
@@ -242,6 +252,22 @@ def.method("number", "=>", "boolean").IsUnlockByFunTid = function(self, tid)
 		return self._FunIDData[fun.FunID]._IsOpen
 	end
 	return true
+end
+
+-- 运营是否屏蔽功能
+def.method("number", "=>", "boolean").IsForbidFun = function(self, tid)
+    if tid < 0 then
+        return true
+    end
+    local fun = CElementData.GetTemplate("Fun", tid)
+    if fun == nil then
+        warn("Fun Template is nil, ID:", tid)
+        return true
+    end
+    if self._FunForbidIDs == nil or self._FunForbidIDs[tid] == nil then
+        return false
+    end
+    return self._FunForbidIDs[tid]
 end
 
 -- 检测教学部分

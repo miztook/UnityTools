@@ -8,12 +8,11 @@ local Data = require "PB.data"
 local CPanelMainTips = Lplus.Extend(CPanelBase, 'CPanelMainTips')
 local def = CPanelMainTips.define
 
-local CPanelRoleInfo = require"GUI.CPanelRoleInfo"
-
 def.field('userdata')._SimpleTextTipTemplate = nil
 def.field('userdata')._BottomSimpleTextTipTemplate = nil
 def.field('userdata')._IconAndTextTipTemplate = nil 		-- 带图标的tips
 
+def.field("userdata")._FightScoreHold = nil
 def.field("userdata")._FightScoreUp = nil 					-- 战斗力提升
 def.field("userdata")._FightScoreOld = nil
 def.field("userdata")._FightScoreNew = nil
@@ -24,14 +23,17 @@ def.field("userdata")._FightScoreOldDown = nil
 def.field("userdata")._FightScoreNewDown = nil
 def.field("userdata")._FightScoreDownLab = nil  				-- 战斗力提升Label
 
-def.field("table")._FSDetailList = nil 		-- 战斗力细节
+def.field("table")._FSDetailTipList = nil 		-- 战斗力细节
 def.field("table")._FSDetailMsg = nil 		-- 战斗力细节内容
-def.field("number")._FSDetailTimer = 0
+--def.field("number")._FSDetailTimer = 0
 def.field("userdata")._FrameFSDetail = nil
 def.field("userdata")._DTP_FSDetail = nil
-local FS_DETAIL_DT_GRP = "502"		--动效
+
+local _DT_GRP_FS_Show = "500"
+local _DT_GRP_FS_Close = "501"
+local _DT_GRP_FS_DETAIL = "502"		--动效
 local FS_DETAIL_ITEM_CNT = 3		--条数
-local FS_DETAIL_TICK = 1.5		--时长
+local FS_DETAIL_TICK = 2.3		--时长
 
 def.field("table")._FightScoreNum = BlankTable				-- 战斗力显示的Lab
 def.field("number")._FightScoreNumMax = 7					-- 战斗力显示的Lab最大个数
@@ -51,11 +53,12 @@ def.field('number')._QuestOpen_timer_id = -1
 def.field("boolean")._IsIgnoreDownTips = false              --是否忽略提示下提示
 def.field("userdata")._MoveTextItem = nil 					--滚屏文字item
 def.field("userdata")._MoveTextFather = nil 				--滚屏文字Parent
-def.field("userdata")._AttentionTip = nil     	--警示提醒
-def.field("userdata")._LabAttention = nil       --警示lab
-def.field("userdata")._ImgAttentionBoss = nil    --BOSS警示
-def.field("userdata")._ImgAttentionTips = nil   --普通三角警示
+--def.field("userdata")._AttentionTip = nil     	--警示提醒
+--def.field("userdata")._LabAttention = nil       --警示lab
+--def.field("userdata")._ImgAttentionBoss = nil    --BOSS警示
+--def.field("userdata")._ImgAttentionTips = nil   --普通三角警示
 def.field("userdata")._ObjAchieve = nil         --成就TIPS
+def.field("userdata")._ObjSpecialAchieve = nil  --特殊成就tips
 def.field("userdata")._LabAchieve = nil         --成就label
 def.field("userdata")._AchieveIconBG = nil      --成就ICON
 def.field("userdata")._FrameKillTips = nil 
@@ -75,21 +78,23 @@ def.field('table')._TableDownText = nil -- 所有下飘字
 def.field('table')._TableMoveText = nil--滚屏文字
 def.field('table')._TableIconText = nil --所有带图标的飘字
 def.field("table")._TableAchieve = nil  --成就提示
+def.field("table")._TableSpecialAchieve = nil --特殊成就提示
 def.field("number")._DownTipsTimer = 0 --系统提示timer
 def.field("number")._MoveTextTimer = 0 --滚屏文字timer
 def.field("number")._AchieveTimerID = 0 --成就提示Timer
-def.field("number")._FightScoreTimerID = 0 --战斗力显示timer
+def.field("number")._SpecialAchieveTimerID = 0  -- 成就特殊提示Timer
+--def.field("number")._FightScoreTimerID = 0 --战斗力显示timer
 def.field("number")._PopFightScoreTimerID = 0 --战斗力滚屏显示
 def.field("userdata")._DoTweenPlayer_Scoreup = nil
 def.field("userdata")._DoTweenPlayer_Scoredown = nil
-def.field("number")._DoTweenPlayerGroupId_Scoreup = 500
-def.field("number")._DoTweenPlayerGroupId_Scoredown = 501
+def.field("userdata")._FrameGuildDungeonTip = nil
+def.field("number")._GuildDungeonTipTimerID = 0 --公会防守提示Timer
 
-def.field("userdata")._BattleStgTip = nil	--副本中的消息提示
-def.field("userdata")._BattleStgTxt = nil
-def.field("userdata")._BattleStg_TweenPlayer = nil
-def.field("string")._DoTweenID_BattleStg1 = "503"
-def.field("string")._DoTweenID_BattleStg2 = "504"
+--def.field("userdata")._BattleStgTip = nil	--副本中的消息提示
+--def.field("userdata")._BattleStgTxt = nil
+--def.field("userdata")._BattleStg_TweenPlayer = nil
+--def.field("string")._DoTweenID_BattleStg1 = "503"
+--def.field("string")._DoTweenID_BattleStg2 = "504"
 
 local MAX_DOWNTIPS_COUNT = 3
 local MOVE_TEXT_POS = Vector3.New(0,110,0) 
@@ -124,6 +129,7 @@ def.override().OnCreate = function(self)
 		self._ManualTipsTitle = self._ManualTipsBG:FindChild("Lab_Title")
 	end
 
+	self._FightScoreHold = self:GetUIObject("Frame_FightScoreHold")
 	self._FightScoreUp = self:GetUIObject("Frame_FightScoreUp")
 	self._FrameGuildBaseTip = self:GetUIObject("Frame_GuildBF_BaseTip")
     self._FrameGuildTwerTip = self:GetUIObject("Frame_GuildBF_TwerTip")
@@ -143,13 +149,14 @@ def.override().OnCreate = function(self)
 		self._DTP_FSDetail = self._FrameFSDetail:GetComponent(ClassType.DOTweenPlayer)
 	end
 
-	self._FSDetailList = {}
+	self._FSDetailTipList = {}
 	for i = 1, FS_DETAIL_ITEM_CNT do
-		self._FSDetailList[i] = self:GetUIObject("FightScoreItem_"..i)
+		self._FSDetailTipList[i] = self:GetUIObject("FightScoreItem_"..i)
+		--warn(" "..i.." FightScoreItem_"..i)
 	end
 
 	self._TableOrignalPos = 
-	{ 
+	{
 		_SimpleTextUP = self._SimpleTextTipTemplate.localPosition,
 		_SimpleTextDown = self._BottomSimpleTextTipTemplate.localPosition,
 		_IconText = self._IconAndTextTipTemplate.localPosition
@@ -158,27 +165,39 @@ def.override().OnCreate = function(self)
 	self._MoveTextItem = self:GetUIObject('MoveTextItem')
 	self._MoveTextFather = self:GetUIObject('Frame_MoveTextTips')
 	self._MoveTextFather:SetActive(true)
-	self._LabAttention =  self:GetUIObject('LabAttention')
-	self._AttentionTip = self:GetUIObject("Frame_Attention_Tips")
-	self._ImgAttentionBoss = self: GetUIObject("Img_Boss")
-	self._ImgAttentionTips = self: GetUIObject("Img_Tips")
+	--self._LabAttention =  self:GetUIObject('LabAttention')
+	--self._AttentionTip = self:GetUIObject("Frame_Attention_Tips")
+	--self._ImgAttentionBoss = self: GetUIObject("Img_Boss")
+	--self._ImgAttentionTips = self: GetUIObject("Img_Tips")
 
 	self._ObjAchieve = self:GetUIObject("Frame_AchieveTips")
 	if not IsNil(self._ObjAchieve) then
 		self._ObjAchieve:SetActive(false)
 	end
 
+    self._ObjSpecialAchieve = self:GetUIObject("Frame_AchieveSpecialTips")
+    if not IsNil(self._ObjSpecialAchieve) then
+        self._ObjSpecialAchieve:SetActive(false)
+    end
+
+	self._FrameGuildDungeonTip = self:GetUIObject("Frame_Guild_DungeonTip")
+	if not IsNil(self._FrameGuildDungeonTip) then
+		self._FrameGuildDungeonTip:SetActive(false)
+	end
+	
+
 	self._LabAchieve = self:GetUIObject("Lab_AchieveTips")
 	self._AchieveIconBG = self:GetUIObject("AchieveIconBG")
-	self._BattleStgTip = self:GetUIObject("Frame_SkillTip")
-	self._BattleStgTxt = self:GetUIObject("Lab_SkillTip"):GetComponent(ClassType.Text)
-	self._BattleStg_TweenPlayer = self._BattleStgTip:GetComponent(ClassType.DOTweenPlayer)
+	--self._BattleStgTip = self:GetUIObject("Frame_SkillTip")
+	--self._BattleStgTxt = self:GetUIObject("Lab_SkillTip"):GetComponent(ClassType.Text)
+	--self._BattleStg_TweenPlayer = self._BattleStgTip:GetComponent(ClassType.DOTweenPlayer)
 	
 	self._TableUpText = {} --所有上飘字
 	self._TableDownText = {} -- 所有下飘字
 	self._TableIconText = {} --所有带图标的飘字
 	self._TableMoveText = {} --滚屏文字
 end
+
 
 local function RemoveMoveTextObj()
 	if instance._TableMoveTextObj == nil or #instance._TableMoveTextObj <= 0 then return end
@@ -192,12 +211,14 @@ local function RemoveMoveTextObj()
 	instance._TableMoveTextObj = nil
 end
 
+
 local function RemoveDownTimer()
 	if instance._DownTipsTimer ~= 0 then
         _G.RemoveGlobalTimer(instance._DownTipsTimer)
         instance._DownTipsTimer = 0
     end	
 end
+
 
 local function RemoveMoveTextTimer()
 	if instance._MoveTextTimer ~= 0 then
@@ -206,11 +227,26 @@ local function RemoveMoveTextTimer()
 	end
 end
 
+
 local function RemoveAchieveTimer()
 	if instance._AchieveTimerID ~= 0 then
 		_G.RemoveGlobalTimer(instance._AchieveTimerID)
         instance._AchieveTimerID = 0
 	end
+end
+
+local function RemoveSpecialAchieveTimer()
+    if instance._SpecialAchieveTimerID ~= 0 then
+        _G.RemoveGlobalTimer(instance._SpecialAchieveTimerID)
+        instance._SpecialAchieveTimerID = 0
+    end
+end
+
+local function RemoveGuildDungeonTipTimer()
+    if instance._GuildDungeonTipTimerID ~= 0 then
+        _G.RemoveGlobalTimer(instance._GuildDungeonTipTimerID)
+        instance._GuildDungeonTipTimerID = 0
+    end
 end
 
 def.override("dynamic").OnData = function(self, data)
@@ -310,7 +346,7 @@ def.method().SetDownText = function(self)
 	local tip_txt = self:GetUIObject("Lab_DownTips")
 	if IsNil(tip_txt) then return end
 	GUI.SetText(tip_txt, self._TableDownText[1]._text)
-	
+
 	if self._DownTipsTimer == 0 then
 		local callback = function()
 	 		local downData = self._TableDownText[1]               
@@ -341,7 +377,7 @@ def.method("number","table").SetTips = function(self,nType,_model)
 		local endPos = Vector3.New(self._TableOrignalPos._SimpleTextUP.x,self._TableOrignalPos._SimpleTextUP.y+25,self._TableOrignalPos._SimpleTextUP.z)
 		GUITools.DoLocalMove(self._SimpleTextTipTemplate,endPos,0.8, nil,function()
  			table.remove(self._TableUpText,1)
-        	
+
         	if (#self._TableUpText > 0) then
             	self: SetTips(1,self._TableUpText[1])
         	else          			
@@ -362,7 +398,7 @@ def.method("number","table").SetTips = function(self,nType,_model)
 		self._IconAndTextTipTemplate: SetActive(true)
 		GUITools.DoLocalMove(self._IconAndTextTipTemplate,endPos ,0.8, nil,function()
  			table.remove(self._TableIconText,1)
-    
+
         	if (#self._TableIconText > 0) then
             	self: SetTips(3,self._TableIconText[1])
         	else         
@@ -372,6 +408,7 @@ def.method("number","table").SetTips = function(self,nType,_model)
     	end)
 	end	
 end
+
 
 local function AddMoveObj(MoveData)
 	if IsNil(instance._MoveTextItem) then return end
@@ -473,9 +510,12 @@ local function AddMoveObj(MoveData)
 			IconTools.InitItemIconNew(ItemObj, MoveData._ItemID)
 		end
 		
+		local CPanelRoleInfo = require "GUI.CPanelRoleInfo"
+		local CPanelUIEquipProcess = require "GUI.CPanelUIEquipProcess"
 		--开启背包page的时候。不显示飞行效果
-		if not CPanelRoleInfo.Instance():IsCurTypePage(1) then 
-					--获得道具飞行
+		local bSkipFlyGfx = CPanelRoleInfo.Instance():IsCurTypePage(1) or CPanelUIEquipProcess.Instance():IsShow()
+		if not bSkipFlyGfx then 
+			--获得道具飞行
 			local imove = obj: FindChild("MoveItem")
 			if not IsNil(imove) then
 				if MoveData._IsFly then
@@ -566,6 +606,7 @@ def.method("number","boolean","number", "boolean").MoveItemText = function (self
     EnumMoveTextObjs(self)
 end
 
+
 def.method('string', 'function').ShowQuestChapterOpen = function(self, str, on_finish)
 		if not IsNil(self._QuestChapterOpen) then
 			self._QuestChapterOpen:SetActive(false)
@@ -652,8 +693,19 @@ def.override('string').OnClick = function(self, id)
 			}
 		}
 		game._GUIMan:Open("CPanelUIManual", data)
+    elseif id == "Btn_SpecialCheckAchieve" then
+        local data = 
+		{
+			_type = 1, 
+			_info = 
+			{
+				_Tid = self._TableSpecialAchieve[1]._Tid
+			}
+		}
+		game._GUIMan:Open("CPanelUIManual", data)
 	end
 end
+--[[
 
 def.method("string","number","number").ShowAttention = function(self,strTips, nType, nTime)
 	if not IsNil(self._AttentionTip) then
@@ -711,6 +763,7 @@ def.method().HideAttention = function(self)
 		self._AttentionTip: SetActive(false)
 	end
 end
+]]
 
 def.method("number", "number", "=>", "table").CalcValidValue = function(self, value, maxCount)
 	local nums = {}
@@ -750,42 +803,111 @@ def.method("number", "number", "=>", "number").CalcValidValueNumber = function(s
 	return count
 end
 
-def.method().ClearFightScoreTimer = function(self)
-	if self._FightScoreTimerID ~= 0 then
-		--warn("_FightScoreTimerID rem "..self._FightScoreTimerID)
-		_G.RemoveGlobalTimer(self._FightScoreTimerID)
-		self._FightScoreTimerID = 0
+--def.method().ClearFightScoreTimer = function(self)
+--	if self._FightScoreTimerID ~= 0 then
+--		--warn("_FightScoreTimerID rem "..self._FightScoreTimerID)
+--		_G.RemoveGlobalTimer(self._FightScoreTimerID)
+--		self._FightScoreTimerID = 0
+--	end
+--end
+
+--def.method("number", "number", "number").ShowFightScoreUp = function(self, oldValue, increaseValue, pos)
+--	if not self:IsShow() then return end
+
+--	if pos > 3 then pos = 3 end
+--	local Item_Height = 45
+--	if self._FightScoreHold~=nil then
+--		self._FightScoreHold.localPosition = Vector3.New(0,Item_Height*pos,0)
+--	end
+
+--	self._FightScoreUp:SetActive(increaseValue > 0)
+--	self._FightScoreDown:SetActive(increaseValue < 0)
+
+--	local newValue = oldValue + increaseValue
+--	if increaseValue > 0 then
+--		GameUtil.StopUISfx(PATH.UIFX_FS_UP, self._FightScoreUp)
+
+--		GUI.SetText(self._FightScoreNew, GUITools.FormatNumber(newValue))
+--		GUI.SetText(self._FightScoreOld, GUITools.FormatNumber(oldValue))
+--		GUI.SetText(self._FightScoreUpLab, GUITools.FormatNumber(increaseValue))
+--		self._DoTweenPlayer_Scoreup:Restart(self._DT_GRP_FS_Show)
+
+--		GameUtil.PlayUISfx(PATH.UIFX_FS_UP, self._FightScoreUp, self._FightScoreUp,-1)
+--	else
+--		GameUtil.StopUISfx(PATH.UIFX_FS_DOWN, self._FightScoreDown)
+
+--		GUI.SetText(self._FightScoreNewDown, GUITools.FormatNumber(newValue))
+--		GUI.SetText(self._FightScoreOldDown, GUITools.FormatNumber(oldValue))
+--		GUI.SetText(self._FightScoreDownLab, GUITools.FormatNumber(increaseValue))
+--		self._DoTweenPlayer_Scoredown:Restart(self._DT_GRP_FS_Close)
+
+--		GameUtil.PlayUISfx(PATH.UIFX_FS_DOWN, self._FightScoreDown, self._FightScoreDown,-1)
+--	end
+--end
+
+--------------FS DETAIL<<
+
+local EvtGroupName_FS_DETAIL = "FSDetail"
+
+def.method("boolean").OnFightScoreRestart = function(self, is_up)
+	if not self:IsShow() then return end
+
+	self._FightScoreUp:SetActive(is_up)
+	self._FightScoreDown:SetActive(not is_up)
+	if is_up then
+		self._FightScoreUp.localScale = Vector3.one
+		--GameUtil.StopUISfx(PATH.UIFX_FS_UP_2, self._FightScoreUp)
+		--GameUtil.StopUISfx(PATH.UIFX_FS_UP, self._FightScoreUp)
+		--GameUtil.StopUISfx(PATH.UIFX_FS_OVER, self._FightScoreUp)
+		self._DoTweenPlayer_Scoreup:Stop(_DT_GRP_FS_Show)
+		self._DoTweenPlayer_Scoreup:Stop(_DT_GRP_FS_Close)
+
+	else
+		self._FightScoreDown.localScale = Vector3.one
+		--GameUtil.StopUISfx(PATH.UIFX_FS_DOWN_2, self._FightScoreDown)
+		--GameUtil.StopUISfx(PATH.UIFX_FS_DOWN, self._FightScoreDown)
+		--GameUtil.StopUISfx(PATH.UIFX_FS_OVER, self._FightScoreDown)
+		self._DoTweenPlayer_Scoredown:Stop(_DT_GRP_FS_Show)
+		self._DoTweenPlayer_Scoredown:Stop(_DT_GRP_FS_Close)
 	end
 end
 
-def.method("number", "number").ShowFightScoreUp = function(self, oldValue, increaseValue)
+def.method("number", "number", "boolean").ShowFightScore = function(self, oldValue, increaseValue, is_up)
 	if not self:IsShow() then return end
-	self._FightScoreUp:SetActive(increaseValue > 0)
-	self._FightScoreDown:SetActive(increaseValue < 0)
 
 	local newValue = oldValue + increaseValue
-	if increaseValue > 0 then
-		GameUtil.StopUISfx(PATH.UIFX_FS_UP, self._FightScoreUp)
-
+	if is_up then
 		GUI.SetText(self._FightScoreNew, GUITools.FormatNumber(newValue))
 		GUI.SetText(self._FightScoreOld, GUITools.FormatNumber(oldValue))
 		GUI.SetText(self._FightScoreUpLab, GUITools.FormatNumber(increaseValue))
-		self._DoTweenPlayer_Scoreup:Restart(self._DoTweenPlayerGroupId_Scoreup)
+		self._DoTweenPlayer_Scoreup:Restart(_DT_GRP_FS_Show)
 
-		GameUtil.PlayUISfx(PATH.UIFX_FS_UP, self._FightScoreUp, self._FightScoreUp,-1)
+		GameUtil.PlayUISfx(PATH.UIFX_FS_UP_2, self._FightScoreUp, self._FightScoreUp, -1)
+		self:AddEvt_PlayFx(EvtGroupName_FS_DETAIL, 0.6, PATH.UIFX_FS_UP, self._FightScoreUp, self._FightScoreUp, 1, 1)
 	else
-		GameUtil.StopUISfx(PATH.UIFX_FS_DOWN, self._FightScoreDown)
-
 		GUI.SetText(self._FightScoreNewDown, GUITools.FormatNumber(newValue))
 		GUI.SetText(self._FightScoreOldDown, GUITools.FormatNumber(oldValue))
 		GUI.SetText(self._FightScoreDownLab, GUITools.FormatNumber(increaseValue))
-		self._DoTweenPlayer_Scoredown:Restart(self._DoTweenPlayerGroupId_Scoredown)
+		self._DoTweenPlayer_Scoredown:Restart(_DT_GRP_FS_Show)
 
-		GameUtil.PlayUISfx(PATH.UIFX_FS_DOWN, self._FightScoreDown, self._FightScoreDown,-1)
+		GameUtil.PlayUISfx(PATH.UIFX_FS_DOWN_2, self._FightScoreDown, self._FightScoreDown, -1)
+		self:AddEvt_PlayFx(EvtGroupName_FS_DETAIL, 0.6, PATH.UIFX_FS_DOWN, self._FightScoreDown, self._FightScoreDown, 1, 1)
 	end
 end
 
---------------FS DETAIL<<
+def.method("boolean").CloseFightScore = function(self, is_up)
+	if not self:IsShow() then return end
+
+	if is_up then
+		self._DoTweenPlayer_Scoreup:Restart(_DT_GRP_FS_Close)
+		--GameUtil.PlayUISfx(PATH.UIFX_FS_OVER, self._FightScoreUp, self._FightScoreUp, -1)
+		self:AddEvt_PlayFx(EvtGroupName_FS_DETAIL, 1.8, PATH.UIFX_FS_OVER, self._FightScoreUp, self._FightScoreUp, 1, 1)
+	else
+		self._DoTweenPlayer_Scoredown:Restart(_DT_GRP_FS_Close)
+		--GameUtil.PlayUISfx(PATH.UIFX_FS_OVER, self._FightScoreDown, self._FightScoreDown, -1)
+		self:AddEvt_PlayFx(EvtGroupName_FS_DETAIL, 1.8, PATH.UIFX_FS_OVER, self._FightScoreDown, self._FightScoreDown, 1, 1)
+	end
+end
 
 local function FSProp2Name(prop_type)
 	local data = CElementData.GetTemplate("FightPropertyConfig", prop_type)
@@ -800,12 +922,13 @@ local function ShowFightScoreDetailStep(self, start_id, count)
 
 	if self._FSDetailMsg == nil then return end
 	for m = 1, count do
-		local g_item=self._FSDetailList[m]
+		local g_item=self._FSDetailTipList[m]
 		if g_item ~=nil then
 			GameUtil.StopUISfx(PATH.UIFX_FS_DETAIL, g_item)
 
 			if m+start_id-1 > #self._FSDetailMsg then
 				GUITools.SetUIActive(g_item, false)
+				--warn("Hide "..m..", "..(m+start_id-1)..", "..g_item.name)
 			else
 				local msg=self._FSDetailMsg[m+start_id-1]
 				GUITools.SetUIActive(g_item, true)
@@ -817,6 +940,8 @@ local function ShowFightScoreDetailStep(self, start_id, count)
 					local img_up =  uiTemplate:GetControl(3)
 					local img_down =  uiTemplate:GetControl(4)
 
+					--warn("Show "..m..", "..(m+start_id-1)..", "..g_item.name)
+
 					GUI.SetText(lab_n, FSProp2Name(msg["type"]))
 					GUI.SetText(lab_a, GUITools.FormatNumber(msg["a"], false, 7))
 					GUI.SetText(lab_b, GUITools.FormatNumber(msg["b"], false, 7))
@@ -827,69 +952,103 @@ local function ShowFightScoreDetailStep(self, start_id, count)
 					else
 						GUITools.SetUIActive(img_down, false)
 						GUITools.SetUIActive(img_up, true)
-						GameUtil.PlayUISfx(PATH.UIFX_FS_DETAIL, g_item, self._FrameFSDetail,-1)
+						--GameUtil.PlayUISfx(PATH.UIFX_FS_DETAIL, g_item, self._FrameFSDetail,-1)
 					end
 				end
-
+				
+				local delay=(m-1)*0.2
+				self:AddEvt_PlayFx(EvtGroupName_FS_DETAIL, delay, PATH.UIFX_FS_DETAIL, g_item, g_item, 1, 1)
 			end
 		end
 	end
 
 	if self._DTP_FSDetail~=nil then
-		self._DTP_FSDetail:Restart(FS_DETAIL_DT_GRP)
+		self._DTP_FSDetail:Restart(_DT_GRP_FS_DETAIL)
 	end
 
 end
-
-local EvtGroupName_FS_DETAIL = "FSDetail"
 
 def.method().CloseFSDetails = function(self)
+--	if self._FSDetailTimer > 0 then
+--		--warn("RemoveGlobalTimer "..self._FSDetailTimer,debug.traceback())
+--		_G.RemoveGlobalTimer(self._FSDetailTimer)
+--		self._FSDetailTimer = 0
+--	end
 	self:KillEvts(EvtGroupName_FS_DETAIL)
-	if self._FSDetailTimer > 0 then
-		--warn("RemoveGlobalTimer "..self._FSDetailTimer,debug.traceback())
-		_G.RemoveGlobalTimer(self._FSDetailTimer)
-		self._FSDetailTimer = 0
-	end
+        self._FSDetailMsg = nil
 end
 
-def.method("table").ShowFightScoreDetail = function(self, msg_table)
+local start_id = 1
+local is_fs_up = false
+def.method("number","number","table").ShowFightScoreDetail = function(self, oldValue, increaseValue, msg_table)
 	--warn("ShowFightScoreDetail")
-	if msg_table == nil then return end
+	--if msg_table == nil then return end
+
+        if not self:IsShow() then return end
+        if self._FrameFSDetail == nil then return end
 
 	self:CloseFSDetails()
+
+	is_fs_up = increaseValue > 0
+	self:OnFightScoreRestart(is_fs_up)
+	self:ShowFightScore(oldValue, increaseValue, is_fs_up)
 
 	--warn("Set Table "..tostring(msg_table),debug.traceback())
 	self._FSDetailMsg = msg_table
 
-	local start_id = 1
-	if start_id <= #self._FSDetailMsg then
+	start_id = 1
+	if self._FSDetailMsg~=nil and start_id <= #self._FSDetailMsg then
 		--warn("start_id "..start_id)
 		--ShowFightScoreDetailStep(self, start_id, FS_DETAIL_ITEM_CNT)
 		--start_id = start_id + FS_DETAIL_ITEM_CNT
 
+		for i= 1,FS_DETAIL_ITEM_CNT do
+			local g_item=self._FSDetailTipList[i]
+			GUITools.SetUIActive(g_item, false)
+		end
+
+	        self._FrameFSDetail:SetActive(true)
+		self._DTP_FSDetail:Stop(_DT_GRP_FS_DETAIL)
+		--self._DTP_FSDetail:GoToEndPos(_DT_GRP_FS_DETAIL)
+
 		local function StartPopFSDetail()
-			self._FSDetailTimer = _G.AddGlobalTimer(FS_DETAIL_TICK, false, function()
-					if self._FSDetailTimer == 0 then return end
+                        if not self:IsShow() then return end
+                        if self._FrameFSDetail == nil then return end
 
-					--warn("T start_id "..start_id)
-					if start_id > #self._FSDetailMsg then
-						_G.RemoveGlobalTimer(self._FSDetailTimer)
-
+			--warn("StartPopFSDetail")
+			--self._FSDetailTimer = _G.AddGlobalTimer(FS_DETAIL_TICK, false, function()
+					--if self._FSDetailTimer == 0 then return end
+					if self._FSDetailMsg==nil or start_id > #self._FSDetailMsg then
+						--_G.RemoveGlobalTimer(self._FSDetailTimer)
 						--warn("RemoveGlobalTimer 2 "..self._FSDetailTimer..", "..start_id ,debug.traceback())
 
-						self._FSDetailTimer = 0
+						--self._FSDetailTimer = 0
 						self._FSDetailMsg = nil
 						self._FrameFSDetail:SetActive(false)
 					else
-						self._FrameFSDetail:SetActive(true)
+						--warn("ShowFightScoreDetailStep start_id "..start_id..", "..#self._FSDetailMsg)
 						ShowFightScoreDetailStep(self, start_id, FS_DETAIL_ITEM_CNT)
 						start_id = start_id + FS_DETAIL_ITEM_CNT
+
+						if start_id > #self._FSDetailMsg then
+							--warn("CloseFightScore "..start_id..", "..#self._FSDetailMsg)
+							self:CloseFightScore(is_fs_up)
+						end
+
+						self:AddEvt_LuaCB(EvtGroupName_FS_DETAIL, FS_DETAIL_TICK, StartPopFSDetail)
 					end
-				end)
+				--end)
 			--warn("AddGlobalTimer "..self._FSDetailTimer)
+			--warn("StartPopFSDetail end")
 		end
 
-		self:AddEvt_LuaCB(EvtGroupName_FS_DETAIL, 0.3, StartPopFSDetail)
+		self:AddEvt_LuaCB(EvtGroupName_FS_DETAIL, 0.7, StartPopFSDetail)
+	else
+		local function StartPopFSDetail2()
+			self:CloseFightScore(is_fs_up)
+		end
+
+		self:AddEvt_LuaCB(EvtGroupName_FS_DETAIL, 0.7, StartPopFSDetail2)
 	end
 
 end
@@ -940,6 +1099,7 @@ def.method("number", "number").ShowFightScoreUp = function(self, oldValue, incre
 	--warn("_FightScoreTimerID start "..self._FightScoreTimerID)
 end
 ]]
+
 def.method("string","string","number").ShowFindManualTips = function(self, tipsStr, tipsTit,eId)
 
     if self._ManualTipsBG == nil then return end
@@ -1010,6 +1170,37 @@ local function ShowAchieve( )
 	end
 end
 
+local function ShowSpecialAchieve()
+    if IsNil(instance._ObjSpecialAchieve) then return end
+    local achi_temp = CElementData.GetTemplate("Achievement", instance._TableSpecialAchieve[1]._Tid)
+    if achi_temp == nil then
+        warn("error !!!! 完成的成就ID错误，ID： ", instance._TableSpecialAchieve[1]._Tid)
+    end
+    instance._ObjSpecialAchieve:SetActive(true)
+    local uiTemplate = instance._ObjSpecialAchieve:GetComponent(ClassType.UITemplate)
+    local lab_achieve = uiTemplate:GetControl(0)
+    local img_icon = uiTemplate:GetControl(1)
+    GUI.SetText(lab_achieve, instance._TableSpecialAchieve[1]._Tips)
+    GUITools.SetIcon(img_icon, achi_temp.IconPath)
+
+    local do_tween_player = instance._ObjSpecialAchieve:GetComponent(ClassType.DOTweenPlayer)
+    if do_tween_player then
+        do_tween_player:Restart("color02")
+    end
+    GameUtil.PlayUISfx(PATH.UIFX_MainTip_AchievementSpecial, instance._ObjSpecialAchieve, instance._ObjSpecialAchieve, -1)
+    RemoveSpecialAchieveTimer()
+	instance._SpecialAchieveTimerID = _G.AddGlobalTimer(3, true, function()
+		if not IsNil(instance._ObjSpecialAchieve) then
+			instance._ObjSpecialAchieve:SetActive(false)
+		end
+        RemoveSpecialAchieveTimer()
+		table.remove(instance._TableSpecialAchieve,1)
+		if #instance._TableSpecialAchieve > 0 then
+			ShowSpecialAchieve()
+		end
+	end)
+end
+
 -- 显示公会战场消息
 def.method("string").ShowGuildBFBaseTip = function(self, tipStr)
     if self._FrameGuildBaseTip ~= nil then
@@ -1056,6 +1247,46 @@ def.method("string","number").ShowAchieveTips = function(self, tipsStr, nTid)
 	if self._AchieveTimerID == 0 then
 		ShowAchieve()
 	end	
+end
+
+def.method("string","number").ShowSpecialAchieveTips = function(self, tipsStr, tid)
+    if IsNil(self._ObjSpecialAchieve) then
+        warn("_ObjSpecialAchieve is nil !!!")
+    end
+    if self._TableSpecialAchieve == nil then
+        self._TableSpecialAchieve = {}
+    end
+    self._TableSpecialAchieve[#self._TableSpecialAchieve + 1] =
+    {
+        _Tips = tipsStr,
+        _Tid = tid
+    }
+    --没有数据的时候显示，有的话等序列
+	if self._SpecialAchieveTimerID == 0 then
+		ShowSpecialAchieve()
+	end	
+end
+
+-- 公会防守提示
+def.method("string").ShowFrameGuildDungeonTip = function(self, tipsStr)
+	if IsNil(self._FrameGuildDungeonTip) then
+        warn("FrameGuildDungeonTip is nil !!! Cannot display: "..tipsStr)
+        return
+    end
+
+    self._FrameGuildDungeonTip:SetActive(true)
+    local uiTemplate = self._FrameGuildDungeonTip:GetComponent(ClassType.UITemplate)
+    local lab_achieve = uiTemplate:GetControl(0)
+	GUI.SetText(lab_achieve, tipsStr)
+	
+	if self._GuildDungeonTipTimerID == 0 then
+		self._GuildDungeonTipTimerID = _G.AddGlobalTimer(2, true, function()
+			if not IsNil(self._FrameGuildDungeonTip) then
+				self._FrameGuildDungeonTip:SetActive(false)
+			end
+			self._GuildDungeonTipTimerID = 0
+		end)
+	end
 end
 
 def.method("number", "=>", "table").GetMoveObjectInfo = function (self, index)
@@ -1281,9 +1512,9 @@ def.method().DestroyMoveObjects = function(self)
 		local item = self._MoveObject[i]
 		if item.Up and item.Below then
 			if item.OrignalObj.localPosition.y ~= item.Up.localPosition.y then
-				Object.DestroyImmediate( item.Up )
+				Object.Destroy( item.Up )
 			else
-				Object.DestroyImmediate( item.Below )
+				Object.Destroy( item.Below )
 			end
 		end
 
@@ -1300,49 +1531,6 @@ def.method().RemoveScoreRunningTimer = function(self)
 	end
 end
 
-def.override().OnDestroy = function(self)
-	
-	self:DestroyMoveObjects()
-	self:RemoveScoreRunningTimer()
-
-	self._FightScoreUp = nil 					-- 战斗力提升
-	self._FightScoreNum = nil					-- 战斗力显示的Lab
-	self._FightScoreUpLab = nil  				-- 战斗力提升Label
-	self._FightScoreRunning = false				-- 数字移动模块开启状态
-	self._IsIgnoreDownTips = false				--是否忽略下提示
-    self._FrameGuildBaseTip = nil
-    self._FrameGuildTwerTip = nil
-	RemoveDownTimer()
-	RemoveMoveTextTimer()
-	RemoveMoveTextObj()
-	self:RemoveManualTipsTimer()
-	self: ClearFightScoreTimer()
-	self: ClearPopFightScoreTimer()
-	self._TableUpText = {} --所有上飘字
-	self._TableDownText = {} -- 所有下飘字
-	self._TableIconText = {} --所有带图标的飘字
-	self._TableMoveText = {} --滚屏文字
-
-	self._SimpleTextTipTemplate = nil
-	self._BottomSimpleTextTipTemplate = nil
-	self._IconAndTextTipTemplate = nil
-	self._ManualTipsBG = nil
-	self._ManualTipsLab = nil
-	self._MoveTextItem = nil
-	self._MoveTextFather = nil
-	self._AttentionTip = nil
-	self._LabAttention = nil
-	self._ImgAttentionBoss = nil
-	self._ImgAttentionTips = nil
-	self._ObjAchieve = nil
-	self._LabAchieve = nil
-	self._AchieveIconBG = nil
-
-	self._QuestChapterOpen = nil
-	self._QuestChapterOpen_TweenPlayer = nil
-	self._Lab_QuestChapterName = nil	
-end
-
 def.field("function")._OnTipFinishCB = nil
 def.method().DoTipFinishCB = function(self)
     if self._OnTipFinishCB ~= nil then
@@ -1351,10 +1539,7 @@ def.method().DoTipFinishCB = function(self)
     end
 end
 
-def.override("=>", "boolean").IsCountAsUI = function(self)
-    return false
-end
-
+--[[
 --副本中的消息提示
 local DUR_BATTLESTG = 2	--tip time
 local EvtGroupName_SkillTip = "PopBattleStgTip"
@@ -1390,16 +1575,85 @@ def.method().CloseSkillTip = function(self)
 	self:KillEvts(EvtGroupName_SkillTip)
 	CloseBattleStgTip()
 end
+]]
 
 def.override().OnHide = function(self)
     CPanelBase.OnHide(self)
-	self:CloseSkillTip()
+	--self:CloseSkillTip()
 
 	self:CloseFSDetails()
 
 	if self._FrameFSDetail ~= nil then
 		self._FrameFSDetail:SetActive(false)
 	end
+end
+
+def.override().OnDestroy = function(self)
+    RemoveAchieveTimer()
+    RemoveSpecialAchieveTimer()
+	self:DestroyMoveObjects()
+	self:RemoveScoreRunningTimer()
+	self._FightScoreHold = nil
+	self._FightScoreUp = nil 					-- 战斗力提升
+	self._FightScoreNum = nil					-- 战斗力显示的Lab
+	self._FightScoreUpLab = nil  				-- 战斗力提升Label
+	self._FightScoreRunning = false				-- 数字移动模块开启状态
+	self._IsIgnoreDownTips = false				--是否忽略下提示
+    self._FrameGuildBaseTip = nil
+    self._FrameGuildTwerTip = nil
+    self._FightScoreOld = nil
+	self._FightScoreNew = nil
+	self._FightScoreDown = nil
+	self._FightScoreOldDown = nil
+	self._FightScoreNewDown = nil
+	self._FightScoreDownLab = nil
+	self._FrameFSDetail = nil
+	self._DTP_FSDetail = nil
+	self._ManualTipsTitle = nil
+	self._ObjSpecialAchieve = nil
+	self._FrameKillTips = nil
+	self._FrameKiller = nil
+	self._FrameDeath = nil
+	self._DoTweenPlayer_Scoreup = nil
+	self._DoTweenPlayer_Scoredown = nil
+
+	RemoveDownTimer()
+	RemoveMoveTextTimer()
+	RemoveMoveTextObj()
+	self:RemoveManualTipsTimer()
+	--self: ClearFightScoreTimer()
+	self: ClearPopFightScoreTimer()
+	self._TableUpText = {} --所有上飘字
+	self._TableDownText = {} -- 所有下飘字
+	self._TableIconText = {} --所有带图标的飘字
+--	self._TableMoveText = {} --滚屏文字
+
+	self._SimpleTextTipTemplate = nil
+	self._BottomSimpleTextTipTemplate = nil
+	self._IconAndTextTipTemplate = nil
+	self._ManualTipsBG = nil
+	self._ManualTipsLab = nil
+	self._MoveTextItem = nil
+	self._MoveTextFather = nil
+--	self._AttentionTip = nil
+--	self._LabAttention = nil
+--	self._ImgAttentionBoss = nil
+--	self._ImgAttentionTips = nil
+    self._TableSpecialAchieve = nil
+    self._TableAchieve = nil
+	self._ObjAchieve = nil
+	self._LabAchieve = nil
+	self._AchieveIconBG = nil
+
+	self._QuestChapterOpen = nil
+	self._QuestChapterOpen_TweenPlayer = nil
+	self._Lab_QuestChapterName = nil	
+	self._FrameGuildDungeonTip = nil
+	RemoveGuildDungeonTipTimer()
+end
+
+def.override("=>", "boolean").IsCountAsUI = function(self)
+    return false
 end
 
 CPanelMainTips.Commit()

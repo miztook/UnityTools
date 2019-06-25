@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <PlayerNearCameraConfig>
   <ProfCfg Prof="4" IsOnRide="False">
     <DefaultParams Yaw="0" Pitch="4" Distance="2" />

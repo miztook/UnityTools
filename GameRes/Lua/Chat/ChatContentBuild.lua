@@ -10,9 +10,7 @@ local def = ChatContentBuild.define
 
 --玩家自己发送的实例化FrameMeChat
 def.static("table","=>","string").BuildHostPlayerMsg = function(msg)
-	local content = ""
 	local channel = msg.Channel
-	content = channel .. content	
 
     local StrRichMsg = ""
     if (channel == CHAT_CHANNEL_ENUM.ChatChannelCurrent or
@@ -34,14 +32,12 @@ def.static("table","=>","string").BuildHostPlayerMsg = function(msg)
         StrRichMsg = msg.StrRichMsg   
         -- warn("system message") 
     end
-	content = channel ..StrRichMsg  --频道名字 + 玩家名字 + 聊天内容 
+	local content = channel ..StrRichMsg  --频道名字 + 玩家名字 + 聊天内容 
 	return content
 end
 --其他玩家的实例化FramePlayerChat
 def.static("table","=>","string").BuildElsePlayerMsg = function(msg)
-	local content = ""
 	local PLayerchannel = msg.Channel
-	content = PLayerchannel ..content
 
     local StrRichMsg = ""
     if (PLayerchannel == CHAT_CHANNEL_ENUM.ChatChannelCurrent or
@@ -58,7 +54,7 @@ def.static("table","=>","string").BuildElsePlayerMsg = function(msg)
         StrRichMsg = msg.StrRichMsg
         -- warn("system message") 
     end
-	content = PLayerchannel .. StrRichMsg
+	local content = PLayerchannel .. StrRichMsg
 	return content
 end
 
@@ -71,11 +67,7 @@ def.static("table","=>","string").BuildOneMsg = function(msg)
 end
 
 def.static("table","=>","string").BuildSmallPanelMsg = function(msg)
-    local content = ""
     local channel = msg.Channel
-    content = content .. channel --频道
-
-    local strPrefix = "" 
 
     --role_name
     local playerChatName = msg.PlayerName
@@ -83,11 +75,10 @@ def.static("table","=>","string").BuildSmallPanelMsg = function(msg)
     if msg.Result ~= SendStatus.Success then --未发送成功的
         local strsend = msg.StrMsg
         --print("small_content",strsend)
-        local strShow = strsend 
     end
 
     local strContent = playerChatName .. StrRichMsg
-    content = content .. strContent
+    local content = channel .. strContent
     return content
 end
 

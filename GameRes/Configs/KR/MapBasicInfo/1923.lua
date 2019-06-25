@@ -67,8 +67,8 @@ local MapInfo =
 		},
 		[14291] = 
 		{
-			[1] = { x = -177.95, y = 31.60, z = -149.76, name = "수사자 투사", level = 58, SortID = 2, DropItemIds = " " },
-			[2] = { x = -167.97, y = 31.60, z = -149.44, name = "수사자 투사", level = 58, SortID = 19, DropItemIds = " " },
+			[1] = { x = -177.95, y = 31.60, z = -149.76, name = "숫사자 투사", level = 58, SortID = 2, DropItemIds = " " },
+			[2] = { x = -167.97, y = 31.60, z = -149.44, name = "숫사자 투사", level = 58, SortID = 19, DropItemIds = " " },
 		},
 		[14293] = 
 		{

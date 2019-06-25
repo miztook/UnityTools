@@ -106,7 +106,7 @@ def.method('userdata', 'string', 'number').InitItem = function(self, item, id, i
 		GUI.SetText(labName, data.Name)
         GUI.SetText(lablv, string.format(StringTable.Get(30327),data.Level))
         GUI.SetText(labIntimacy,tostring(data.Amicability))
-        GUI.SetText(labFight,tostring(data.Fight))
+        GUI.SetText(labFight,GUITools.FormatNumber(data.Fight))
         game:SetEntityCustomImg(imgHead,data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
         GameUtil.MakeImageGray(imgHead, not data.IsOnLine)
         GUI.SetText(labProfession,tostring(StringTable.Get(10300 + data.Profession - 1)))

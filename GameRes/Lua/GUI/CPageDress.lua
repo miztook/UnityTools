@@ -29,6 +29,9 @@ def.field("table")._SelectedDressMap = BlankTable -- 当前选中的时装数据
 def.field("table")._SelectedDyeMap = BlankTable -- 所有部位的选中时装的当前染色Id列表(Key为 LeftPageType )
 def.field("number")._SelectedIndex = -1 -- 左列表里已选择的时装索引（从0开始）
 def.field("table")._RedPointChangeStatusCacheMap = BlankTable -- 红点状态发生了改变的缓存表
+def.field("boolean")._CurCombatState = false -- 当前是否处于战斗状态
+def.field("number")._CombatChangeAniLength = 0
+def.field("number")._CombatChangingTimerId = 0
 
 -- 左页签类型
 local LeftPageType = {
@@ -52,6 +55,8 @@ def.static("table", "userdata", "=>", CPageDress).new = function(parent, panel)
     instance._Panel = panel
 
     instance._CDressManIns = CDressMan.Instance()
+    instance._CurCombatState = game._HostPlayer:IsInCombatState()
+    instance._CombatChangeAniLength = game._HostPlayer:GetAnimationLength(EnumDef.CLIP.UNLOAD_WEAPON)
     instance:InitPanel()
     instance:InitShowData()
 
@@ -163,6 +168,7 @@ def.method("number").InitPageData = function (self, pageType)
         end
 
         local haveMap = {}
+        local curDressData = nil
         -- 添加已拥有的
         for _, v in ipairs(dressDBList) do
             if v._DressSlot == slot1 or v._DressSlot == slot2 then
@@ -173,11 +179,18 @@ def.method("number").InitPageData = function (self, pageType)
                 data._TimeLimit = v._TimeLimit
                 data._Colors = CDress.CopyColors(v)
 
-                table.insert(slotList, data)
+                if data._IsWeared then
+                    curDressData = data
+                else
+                    table.insert(slotList, data)
+                end
                 haveMap[v._Tid] = true
             end
         end
         table.sort(slotList, sortFunc) -- 排序已拥有的
+        if curDressData ~= nil then
+            table.insert(slotList, 1, curDressData)
+        end
         -- 添加未拥有的
         local dontHaveList = {}
         if templateList ~= nil then
@@ -318,11 +331,7 @@ def.method("dynamic").Show = function(self, data)
         self:UpdateLeftPageRedPoint(pageType)
     end
 
-    if self._CurrentLeftPage == LeftPageType.Weapon then
-        game._HostPlayer:UpdateCombatState(true, true, 0, true, false)
-    else
-        game._HostPlayer:UpdateCombatState(false, true, 0, true, false)
-    end
+    self:ChangeCombatState(self._CurrentLeftPage == LeftPageType.Weapon, true)
 end
 
 def.method("boolean", "number").ChangePage = function(self, bIsLeft, pageIndex)
@@ -344,7 +353,12 @@ end
 def.method("string").OnExteriorClick = function(self, id)
     if string.find(id, "Btn_Addition") then
         -- 打开加成界面
-        game._GUIMan:Open("CPanelUIExteriorAttributeCheck", { Type = 2 })
+        game._GUIMan:Open("CPanelUIDressAttributeCheck", nil)
+    elseif string.find(id, "Btn_ChangePose") then
+        -- 切换战斗状态
+        if self._CombatChangingTimerId ~= 0 then return end
+        self:AddCombatChangingTimer() -- 防止快速点击
+        self:ChangeCombatState(not game._HostPlayer:IsInCombatState(), false)
     elseif string.find(id, "Btn_PutOn") then
         local data = self._SelectedDressMap[self._CurrentLeftPage]
         if data == nil then return end
@@ -374,12 +388,18 @@ def.method("string").OnExteriorClick = function(self, id)
         end
         local title, msg, closeType = StringTable.GetMsg(118)
         local specStr = StringTable.Get(20711)
-        local emojiStr = GUITools.GetEmojiByType(EnumDef.ExchangeMoneyToEmoji[data._Template.DecomposeMoneyId])
-        msg = StringTable.Format_AB_BA(msg, emojiStr, tostring(data._Template.DecomposeMoneyCount))
-        MsgBox.ShowMsgBox(msg, title, closeType, bit.bor(MsgBoxType.MBBT_OKCANCEL, MsgBoxType.MBT_SPEC),callback,nil,nil,nil,specStr)
+        local setting = {
+            [MsgBoxAddParam.SpecialStr] = specStr,
+            [MsgBoxAddParam.GainMoneyID] = data._Template.DecomposeMoneyId,
+            [MsgBoxAddParam.GainMoneyCount] = data._Template.DecomposeMoneyCount,
+        }
+        MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL,callback,nil,nil,nil,setting)
     elseif string.find(id, "Btn_Tint") then
         -- 染色
-        if not self:IsDyeStuffsEnough() then return end
+        if not self:IsDyeStuffsEnough() then
+            game._GUIMan:ShowTipText(StringTable.Get(20712), false)
+            return
+        end
         self:TryDyeDress()
     elseif string.find(id, "Btn_Approach_Dress") then
         local dressInfo = self._SelectedDressMap[self._CurrentLeftPage]
@@ -388,7 +408,7 @@ def.method("string").OnExteriorClick = function(self, id)
         local data = 
         {
             ApproachIDs = dressInfo._Template.ApproachIDs,
-            ParentObj = self._PanelObject.Btn_Approach
+            ParentObj = self._PanelObject.Frame_DressInfo
         }
         game._GUIMan:Open("CPanelItemApproach", data)
     elseif string.find(id, "Btn_DyeStuff_") then
@@ -465,12 +485,11 @@ def.method().OnPackageChangeEvent = function (self)
 end
 
 def.method().OnChangeFrame = function (self)
-    if self._CurrentLeftPage == LeftPageType.Weapon then
-        game._HostPlayer:UpdateCombatState(false, true, 0, true, false)
-    end
+    self:ChangeCombatState(false, true)
 end
 
 def.method().Hide = function(self)
+    self:RemoveCombatChangingTimer()
     self._RedPointChangeStatusCacheMap = {}
 end
 
@@ -608,9 +627,6 @@ def.method("userdata", "number").OnInitLeftList = function (self, item, index)
     -- 背景
     local img_bg = uiTemplate:GetControl(0)
     GameUtil.MakeImageGray(img_bg, not isGot)
-    -- 品质
-    local lab_quality = uiTemplate:GetControl(1)
-    GUITools.SetUIActive(lab_quality, isGot)
     -- 图标
     local img_icon = uiTemplate:GetControl(2)
     GUITools.SetItemIcon(img_icon, data._Template.IconPath)
@@ -639,11 +655,14 @@ def.method("userdata", "number").OnInitLeftList = function (self, item, index)
         end
         GUITools.SetUIActive(img_color_obj, not isHide)
     end
-    local nameStr = RichTextTools.GetQualityText(data._Template.ShowName, data._Template.Quality)
+    local quality = data._Template.Quality
+    local nameStr = RichTextTools.GetQualityText(data._Template.ShowName, quality)
+    local qualityStr = StringTable.Get(10000 + quality)
     -- 时限
     local lab_left_time = uiTemplate:GetControl(6)
     GUITools.SetUIActive(lab_left_time, isGot)
     if isGot then
+        qualityStr = RichTextTools.GetQualityText(qualityStr, quality)
         if data._TimeLimit == 0 then
             -- 永久
             GUI.SetText(lab_left_time, StringTable.Get(22109))
@@ -653,16 +672,17 @@ def.method("userdata", "number").OnInitLeftList = function (self, item, index)
             -- print("leftTime", leftTime)
             GUI.SetText(lab_left_time, GetShowTimeStr(leftTime))
         end
-        local quality = data._Template.Quality
-        local qualityStr = RichTextTools.GetQualityText(StringTable.Get(10000 + quality), quality)
-        GUI.SetText(lab_quality, qualityStr)
     else
         -- 字体变灰
         nameStr = "<color=#909AA8>" .. data._Template.ShowName .. "</color>"
+        qualityStr = "<color=#909AA8>" .. qualityStr .. "</color>"
     end
     -- 名字
     local lab_name = uiTemplate:GetControl(5)
     GUI.SetText(lab_name, nameStr)
+    -- 品质
+    local lab_quality = uiTemplate:GetControl(1)
+    GUI.SetText(lab_quality, qualityStr)
 end
 
 def.method("userdata", "number").OnClickLeftList = function (self, item, index)
@@ -706,7 +726,22 @@ def.method(CDress).UpdateHostPlayerDress = function (self, data)
     hp:PlayDressFightFx(data)
 end
 
+def.method("boolean", "boolean").ChangeCombatState = function (self, is_in_combat_state, ignoreLerp)
+    local hp = game._HostPlayer
+    hp:UpdateCombatState(is_in_combat_state, true, 0, ignoreLerp, false)
+    if is_in_combat_state ~= self._CurCombatState then
+        local weaponDressInfo = self._SelectedDressMap[LeftPageType.Weapon]
+        if weaponDressInfo == nil then
+            -- 没有缓存的数据，取人物身上的数据
+            weaponDressInfo = hp:GetCurDressInfoByPart(EnumDef.PlayerDressPart.Weapon)
+        end
+        hp:PlayDressFightFx(weaponDressInfo)
+    end
+    self._CurCombatState = is_in_combat_state
+end
+
 def.method("number").ChangeLeftPage = function (self, pageType)
+    self:RemoveCombatChangingTimer()
     -- 特殊处理Toggle显示
     GUI.SetGroupToggleOn(self._PanelObject.RdoGroup_Left, self._CurrentLeftPage)
     -- 镜头
@@ -715,12 +750,11 @@ def.method("number").ChangeLeftPage = function (self, pageType)
     CExteriorMan.ChangeCamParams(camType, 0)
     if pageType == LeftPageType.Weapon then
         -- 进入武器页签
-        game._HostPlayer:UpdateCombatState(true, true, 0, true, false)
+        self:ChangeCombatState(true, true)
     elseif self._CurrentLeftPage == LeftPageType.Weapon then
         -- 离开武器页签
-        game._HostPlayer:UpdateCombatState(false, true, 0, true, false)
+        self:ChangeCombatState(false, true)
     end
-
 
     -- 动效
     -- self._Parent:RestartDoTween(self._Parent._ETweenType.MoveOut, function()
@@ -1026,7 +1060,7 @@ def.method().UpdateButtonTint = function (self)
     if #newDyeIds > 0 then
         isBtnEnable = self:IsDyeStuffsEnough()
     end
-    GameUtil.SetButtonInteractable(self._PanelObject.Btn_Tint, isBtnEnable)
+    GameUtil.SetButtonInteractable(self._PanelObject.Btn_Tint, #newDyeIds > 0)
     GUITools.SetBtnExpressGray(self._PanelObject.Btn_Tint, not isBtnEnable)
     GameUtil.MakeImageGray(self._PanelObject.Img_Tint, not isBtnEnable)
 end
@@ -1096,6 +1130,22 @@ def.method("boolean").EnableRightInfo = function (self, enable)
     GUITools.SetUIActive(self._PanelObject.Frame_Right, enable)
     -- self._PanelObject.Frame_Right:SetActive(enable)
     self._Parent:EnableRightTips(not enable)
+end
+
+def.method().AddCombatChangingTimer = function (self)
+    self:RemoveCombatChangingTimer()
+    if self._CombatChangeAniLength > 0 then
+        self._CombatChangingTimerId = _G.AddGlobalTimer(self._CombatChangeAniLength, true, function()
+            self:RemoveCombatChangingTimer()
+        end)
+    end
+end
+
+def.method().RemoveCombatChangingTimer = function (self)
+    if self._CombatChangingTimerId ~= 0 then
+        _G.RemoveGlobalTimer(self._CombatChangingTimerId)
+        self._CombatChangingTimerId = 0
+    end
 end
 
 ---------------------------外部接口--------------------------

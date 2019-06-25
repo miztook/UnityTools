@@ -20,10 +20,10 @@ def.override().OnEvent = function(self)
 	local duration = self._Event.Duration / 1000
 	local param1 = self._Event.Param1
 	local param2 = self._Event.Param2
-
+	local isNotCloseToGround = self._Event.IsNotCloseToGround
 	--warn(string.format("PlaySkillIndicatorGfx, type: %d, duration: %d, param1: %d, param2: %d", type, duration, param1, param2))
 
-	caster:PlaySkillIndicatorGfx(type, duration, param1, param2)
+	caster:PlaySkillIndicatorGfx(type, duration, param1, param2,isNotCloseToGround)
 end
 
 CActorIndicatorEvent.Commit()

@@ -44,16 +44,16 @@ def.method("boolean").SetInteractable = function(self, interactable)
     local btn_input = self._InputGO:FindChild("Btn_NumInput")
     if interactable then
         GameUtil.SetButtonInteractable(btn_max, true)
-        GUITools.SetBtnGray(btn_max, false)
+        GUITools.SetBtnGray(btn_max, false, true)
         GameUtil.SetButtonInteractable(btn_min, true)
-        GUITools.SetBtnGray(btn_min, false)
+        GUITools.SetBtnGray(btn_min, false, true)
         GameUtil.SetButtonInteractable(btn_input, true)
         self:UpdateUI()
     else
         GameUtil.SetButtonInteractable(btn_max, false)
-        GUITools.SetBtnGray(btn_max, true)
+        GUITools.SetBtnGray(btn_max, true, true)
         GameUtil.SetButtonInteractable(btn_min, false)
-        GUITools.SetBtnGray(btn_min, true)
+        GUITools.SetBtnGray(btn_min, true, true)
         GameUtil.SetButtonInteractable(btn_input, false)
     end
 end
@@ -96,17 +96,17 @@ def.method().UpdateUI = function(self)
     GUI.SetText(lab_count, GUITools.FormatNumber(self._CurCount, false))
     if self._CurCount <= self._MinCount then
         GameUtil.SetButtonInteractable(btn_min, false)
-        GUITools.SetBtnGray(btn_min, true)
+        GUITools.SetBtnGray(btn_min, true, true)
     else
         GameUtil.SetButtonInteractable(btn_min, true)
-        GUITools.SetBtnGray(btn_min, false)
+        GUITools.SetBtnGray(btn_min, false, true)
     end
     if self._CurCount >= self._MaxCount then
         GameUtil.SetButtonInteractable(btn_max, false)
-        GUITools.SetBtnGray(btn_max, true)
+        GUITools.SetBtnGray(btn_max, true, true)
     else
         GameUtil.SetButtonInteractable(btn_max, true)
-        GUITools.SetBtnGray(btn_max, false)
+        GUITools.SetBtnGray(btn_max, false, true)
     end
 end
 

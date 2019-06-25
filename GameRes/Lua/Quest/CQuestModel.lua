@@ -209,7 +209,7 @@ end
 def.method("=>","table").GetCurrentQuestObjetives = function(self)
     if self._ListObjective == nil then  
         local quest_data = self:GetTemplate()
-        if quest_data.IsPartentQuest then
+        if quest_data ~= nil and quest_data.IsPartentQuest then
             if self.CurrentSubQuestId == 0 then return {} end
             quest_data = CElementData.GetQuestTemplate(self.CurrentSubQuestId)
         end
@@ -261,8 +261,17 @@ def.method("number", "=>", "boolean").IsSubQuestComplete = function(self, sub_qu
     return false
 end
 
+local function SendFlashMsg(msg, bUp)
+    game._GUIMan:ShowTipText(msg, bUp)
+end
+
 def.method().DoShortcut = function(self)
     --tmpOpen = true
+    if game._HostPlayer:IsInGlobalZone() then
+        SendFlashMsg(StringTable.Get(15556), false)
+        return
+    end
+
     local questTemp = self:GetTemplate()
 
     local status = self:GetStatus()

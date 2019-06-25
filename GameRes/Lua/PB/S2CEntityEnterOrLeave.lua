@@ -43,9 +43,12 @@ local function OnHostEnterMap( sender,msg )
 	-- 切换分线播放镜头效果
 	-- warn("------S2CEnterMap----->>>", msg.MapTemplateId, "oldMapLine ==", oldMapTid)
 	if oldMapTid == msg.MapTemplateId then
-		CGMan.PlayByName(PATH.PHARSE_EFFECT, nil)
+		game:PlayPharseEffect()
 	end
 	
+	local hp = game._HostPlayer
+	hp:SetIsInGlobalZone(msg.IsGlobalZone or false)
+
 	local event = require("Events.EntityEnterEvent")()
 	event._MapInstanceId = msg.MapInstanceId
 	CGame.EventManager:raiseEvent(nil, event)
@@ -75,7 +78,7 @@ local function OnHostLeaveMap( sender,msg )
 	    event._MapInstanceId = sceneTid
 	    CGame.EventManager:raiseEvent(nil, event)
 	end
-	GameUtil.SetCurrentMapInfo(0, 0, "")
+	game:SetCurrentMapInfo(0, 0, "")
 	game:SetMapLineInfo(-1, nil)
 	warn("HostLeaveMap", sceneTid, mapId)
 end

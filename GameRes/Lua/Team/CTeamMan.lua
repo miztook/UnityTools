@@ -40,6 +40,14 @@ end
 --							Client::Team Funcs
 ----------------------------------------------------------------------
 
+def.method("=>","boolean").IsFirtstInit = function(self)
+	return self._Team._IsFirstInit
+end
+
+def.method("boolean").SetIsFirtstInit = function(self, bIsFirstInit)
+	self._Team._IsFirstInit = bIsFirstInit
+end
+
 def.method("number").SendLinkMsg = function(self, channelType)
 	if self._Team._Setting.TargetId > 1 then
 		local ChatLinkType = require "PB.data".ChatLinkType
@@ -70,7 +78,6 @@ def.method("number").SendLinkMsg = function(self, channelType)
 	    end
 	end
 end
-
 
 def.method("=>", "boolean").HaveTeamMemberInSameMap = function(self)
 	if not self:InTeam() then return false end
@@ -190,26 +197,25 @@ def.method().ResetInvitedCache = function(self)
 end
 
 --获取link信息拼接的字符串
-def.method("number", "number", "number", "=>", "string").GetLinkStr = function(self, targetId, lv, combatPower)
+def.method("number", "number", "number", "string","=>", "string").GetLinkStr = function(self, targetId, lv, combatPower, teamName)
     local teamRoomConfig = CElementData.GetTemplate("TeamRoomConfig", targetId)
 	local str = ""
 	local lineStr = "[l]"..StringTable.Get(22019).."[-]"
     if teamRoomConfig ~= nil then
         str = teamRoomConfig.DisplayName
     end
-    local team_name = self._Team._TeamName
     
     if str == "" then
-        if team_name == "" then
+        if teamName == "" then
     	    str = string.format(StringTable.Get(22407), lv, combatPower)
         else
-            str = string.format(StringTable.Get(22413), self._Team._TeamName, lv, combatPower)
+            str = string.format(StringTable.Get(22413), teamName, lv, combatPower)
         end
     else
-        if team_name == "" then
+        if teamName == "" then
     	    str = string.format(StringTable.Get(22406), str, lineStr, lv, combatPower)
         else
-            str = string.format(StringTable.Get(22413), self._Team._TeamName, str, lineStr, lv, combatPower)
+            str = string.format(StringTable.Get(22413), teamName, str, lineStr, lv, combatPower)
         end
     end
     
@@ -635,10 +641,10 @@ def.method("table").ChangeMemberFollow = function(self, data)
 				local CQuestAutoMan = require"Quest.CQuestAutoMan"
 				CQuestAutoMan.Instance():Stop()
 				-- 关闭自动战斗
-				local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+				local CAutoFightMan = require "AutoFight.CAutoFightMan"
 				CAutoFightMan.Instance():Stop() 
 			else
-				--local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+				--local CAutoFightMan = require "AutoFight.CAutoFightMan"
 				--CAutoFightMan.Instance():Stop()
 			end
 		end
@@ -687,8 +693,8 @@ def.method().SetLeaderFollowState = function(self)
 	end
 
 	if self:HaveTeamMember() then
-		local teamMemberList = self:GetMemberList()
-		local bFollowing = false
+		--local teamMemberList = self:GetMemberList()
+		--local bFollowing = false
 		self:ChangeFollowState(EnumDef.FollowState.Leader_Followed)
 	--[[
 		for i=1, #teamMemberList do
@@ -721,6 +727,10 @@ def.method("boolean").ChangeAutoApprove = function(self, bAuto)
 	CPanelUITeamSetting.Instance():UpdateAutoApprove()
 end
 
+def.method("number", "string").ChangeMemberName = function(self, roleId, name)
+	local member = self:GetMemberInfoById(roleId)
+	member._Name = name
+end
 ----更改赏金模式
 --def.method("table").ChangeBounty = function(self, data)
 --	self._Team._IsBountyMode = data.isBounty
@@ -926,6 +936,9 @@ def.method().ResetMemberList = function (self)
 	local hp = game._HostPlayer
 	if hp == nil then return end
 
+	hp._TeamId = 0
+	self._Team._ID = 0
+	
 	local world = game._CurWorld
 	for k,v in pairs( self:GetMemberList() ) do
 		local id = v._ID
@@ -946,13 +959,14 @@ def.method().ResetMemberList = function (self)
 	
 	self._Team:Reset()
 	self._IsInited = true
-	hp._TeamId = 0
+
 	
 	local TeamJoinOrQuitEvent = require "Events.TeamJoinOrQuitEvent"
 	local event = TeamJoinOrQuitEvent()
 	event._InTeam = false
 	CGame.EventManager:raiseEvent(nil, event)
 
+	self:UpdateAllMemberPateNameInSight()
 	-- 重置红点状态
 	self:SetTeamApplyRedDotState(false)
 	self:RefreshTeamApplyRedDotState()
@@ -1006,7 +1020,7 @@ def.method("table").UpdateMemberList = function(self, data)
 				end
 				self._IsInited = false
 			else
-				local newMemberList = {}
+				--local newMemberList = {}
 				for i,v in ipairs(teamListInfo) do
 					if not self:IsTeamMember( v.roleID ) then
 						self:AddMember(v, data.info.teamID)
@@ -1073,7 +1087,12 @@ def.method("table", "number").AddMember = function (self, member, teamId)
 	
 	if member.isAssist and tonumber(member.name) ~= nil then
 		local npcName = CElementData.GetTextTemplate(tonumber(member.name))
-		pMember._Name = npcName.TextContent
+		if npcName ~= nil then
+			pMember._Name = npcName.TextContent
+		else
+			warn("Can not find NPC TID------AI Name = ", member.name)
+			pMember._Name = member.name
+		end
 	else
 		pMember._Name = member.name
 	end
@@ -1326,7 +1345,7 @@ end
 --房间相关---------------------------------------------------------
 --获取地图上的队伍列表
 def.method("number").C2SGetTeamListInRoom = function(self,roomID)
-    print("C2SGetTeamListInRoom ", roomID)
+    -- print("C2SGetTeamListInRoom ", roomID)
 	local C2STeamGetTeamList = require "PB.net".C2STeamGetTeamList
 	local protocol = C2STeamGetTeamList()
 	protocol.teamlistData.mapID = game._CurWorld._WorldInfo.MapTid
@@ -1434,7 +1453,7 @@ def.method("number", "number").OnS2CTeamStartPrepare = function(self, duration, 
 	local CQuestAutoMan = require "Quest.CQuestAutoMan"
 	CQuestAutoMan.Instance():Stop()
 
-	local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+	local CAutoFightMan = require "AutoFight.CAutoFightMan"
 	CAutoFightMan.Instance():Stop()
 end
 
@@ -1445,7 +1464,7 @@ end
 
 --选择是否进入
 def.method("boolean").C2SConfirmParepare = function(self,boolean)
-	warn("C2SConfirmParepare...........", boolean)
+	-- warn("C2SConfirmParepare...........", boolean)
 
 	local C2SConfirmParepare = require "PB.net".C2SConfirmParepare
 	local protocol = C2SConfirmParepare()
@@ -1954,6 +1973,7 @@ def.method("table").OnS2CTeamCanInviteRoleList = function(self, list)
 end
 
 def.method().SendC2SGetTeamEquipInfo = function(self)
+-- warn("SendC2SGetTeamEquipInfo.........")
 	local C2SGetTeamEquipInfo = require "PB.net".C2SGetTeamEquipInfo
 	local protocol = C2SGetTeamEquipInfo()
 	SendProtocol(protocol)
@@ -1962,7 +1982,9 @@ end
 -- 更新界面各个页签可邀请的数量
 def.method("number", "number", "number").OnS2CTeamCount  = function(self, guildCount, friendCount, applyCount)
     local CPanelUITeamInvite = require "GUI.CPanelUITeamInvite"
-    CPanelUITeamInvite.Instance():UpdateCount(guildCount, friendCount, applyCount)
+    if CPanelUITeamInvite.Instance():IsShow() then
+   		CPanelUITeamInvite.Instance():UpdateCount(guildCount, friendCount, applyCount)
+   	end
 end
 
 -- 发送队伍邀请界面各个页签的数量显示请求
@@ -2002,6 +2024,15 @@ def.method("table").OnS2CTeamEquipInfo = function(self, equipInfoList)
 	end
 
 	game._GUIMan:Open("CPanelUITeamMember", nil)
+end
+
+def.method("string", "number", "=>", "string").PaddingRoomLevel = function(self, name, lv)
+	local result = name
+    if lv > 0 then
+        result = string.format(StringTable.Get(20092), result, lv)
+    end
+
+    return result
 end
 
 def.method().ClosePanels = function(self)

@@ -16,6 +16,8 @@ local Lplus = require "Lplus"
 local EMatchType = require "PB.net".EMatchType
 local CGame = Lplus.ForwardDeclare("CGame")
 local CTeamMan = require "Team.CTeamMan"
+local CElementData = require "Data.CElementData"
+local ServerMessageMatch = require "PB.data".ServerMessageMatch
 local CPVEAutoMatch = Lplus.Class("CPVEAutoMatch")
 local def = CPVEAutoMatch.define
 local instance = nil
@@ -107,7 +109,6 @@ end
 
 def.method().StopAll = function(self)
     self._PVEMatchingTable = {}
-
     local PVEMatchEvent = require "Events.PVEMatchEvent"
     local event = PVEMatchEvent()
     event._Type = EnumDef.PVEMatchEventType.StopAll
@@ -198,9 +199,23 @@ end
 def.method("table").OnS2CMatchCancle = function(self, msg)
     if msg.MatchType == EMatchType.EMatchType_Dungeon then
         if msg.TargetId == -1 then
+            if msg.Reason ~= ServerMessageMatch.Match_EnterLocalDungeon then
+                SendFlashMsg(StringTable.Get(22082), false)
+            end
             self:StopAll()
         else
             self:StopByID(msg.TargetId)
+            if msg.Reason ~= ServerMessageMatch.Match_EnterLocalDungeon then
+                if #self._PVEMatchingTable > 0 then
+                    local target_temp = CElementData.GetTemplate("TeamRoomConfig", msg.TargetId)
+                    if target_temp ~= nil then
+                        local str = string.format(StringTable.Get(22083), target_temp.DisplayName)
+                        SendFlashMsg(str, false)
+                    end
+                else
+                    SendFlashMsg(StringTable.Get(22082), false)
+                end
+            end
         end
     end
 end

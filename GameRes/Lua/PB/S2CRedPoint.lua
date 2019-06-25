@@ -3,10 +3,13 @@ local ERedPointType = require "PB.data".ERedPointType
 local CMallMan = require "Mall.CMallMan"
 
 local function OnS2CRedPointRes(sender,msg)
-	if msg.Datas ~= nil then 
+	if msg.Datas ~= nil then		
 		for i,v in ipairs(msg.Datas) do
 			game._CCalendarMan._IsQuestFinish = false
-			if v.TypeIndex == ERedPointType.ERedPointType_Guild then 
+			if v.TypeIndex == ERedPointType.ERedPointType_Manual then 
+				CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Manual,true)
+				game._CManualMan._ManualServerRedPoint = true
+			elseif v.TypeIndex == ERedPointType.ERedPointType_Guild then 
 				CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.GuildList,true)
 			elseif v.TypeIndex == ERedPointType.ERedPointType_Mail then 
 				CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Mail,true)
@@ -36,11 +39,26 @@ local function OnS2CRedPointRes(sender,msg)
 			elseif v.TypeIndex == ERedPointType.ERedPointType_OnlineReward then 
 				if game._CFunctionMan:IsUnlockByFunID(EnumDef.EGuideTriggerFunTag.Bonus) then
 					CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Welfare,true)
-					-- game._CWelfareMan._IsQuestFinish = true
-					-- local CPanelUIWelfare = require "GUI.CPanelUIWelfare".Instance()
-					-- if CPanelUIWelfare:IsShow() then
-					-- 	CPanelUIWelfare:RefrashWelfare()
-					-- end
+				end
+			elseif v.TypeIndex == ERedPointType.ERedPointType_AdvancedGuide then 
+				if game._CFunctionMan:IsUnlockByFunID(EnumDef.EGuideTriggerFunTag.Activity) then
+					CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Activity, true)
+				end
+			elseif v.TypeIndex == ERedPointType.ERedPointType_HotTime then
+				local CPanelUIBuffEnter = require "GUI.CPanelUIBuffEnter" 
+				-- warn("lidaming ----ERedPointType_HotTime--->>> v.count = ", v.Count) 
+				if v.Count == nil then return end
+				if v.Count > 0 then
+					CPanelUIBuffEnter.Instance():IsShowHottimeBuffEnterSfx(true) 
+				elseif v.Count <= 0 then
+					CPanelUIBuffEnter.Instance():IsShowHottimeBuffEnterSfx(false) 
+				end
+			elseif v.TypeIndex == ERedPointType.ERedPointType_PVP3v3 
+				or v.TypeIndex == ERedPointType.ERedPointType_GuildGather
+				or v.TypeIndex == ERedPointType.ERedPointType_GuildBattleField
+				or v.TypeIndex == ERedPointType.ERedPointType_GuildDef then
+				if game._CFunctionMan:IsUnlockByFunID(EnumDef.EGuideTriggerFunTag.Calendar) then
+					game._CCalendarMan:MainRedPointState()
 				end
 			end
 			-- warn("lidaming ----ERedPointType_AdventureGuid--->>> v.count = ", game._CCalendarMan:GetCalendarRedPointState(), game._CCalendarMan:IsShowDailyTaskRedPoint())

@@ -3,7 +3,7 @@ local CEntity = require "Object.CEntity"
 local CGame = Lplus.ForwardDeclare("CGame")
 local CQuest = require "Quest.CQuest"
 local OBJ_TYPE = require "Main.CSharpEnum".OBJ_TYPE
-local CAutoFightBase = require "ObjHdl.CAutoFightBase"
+local CAutoFightBase = require "AutoFight.CAutoFightBase"
 local CQuestNavigation = require "Quest.CQuestNavigation"
 local CTransManage = require "Main.CTransManage"
 local CElementData = require "Data.CElementData"
@@ -120,7 +120,7 @@ local function Tick()
     local isPass = IsCurQuestKillingEnd(instance)
     if isPass then 
         -- 任务模式自动战斗在完成当前任务怪击杀目标后，不要做关闭处理，如果调用内部Self.Stop会导致UI状态与行为不一致
-        --local CAutoFightMan = require("ObjHdl.CAutoFightMan")
+        --local CAutoFightMan = require("AutoFight.CAutoFightMan")
         --CAutoFightMan.Instance():SetMode(EnumDef.AutoFightType.WorldFight, 0, false)
         --host_player:StartAutoDetectTarget()
         return 
@@ -128,14 +128,13 @@ local function Tick()
 
     local host_player = game._HostPlayer
     --锁定目标检测
-    local curTarget, target_pos = nil, nil
+    local curTarget = nil
     if instance:IsLockedCurTarget() then
         curTarget = host_player._CurTarget
         if curTarget:GetRelationWithHost() ~= "Enemy" then return end
-        target_pos = instance:GetTargetAttPos(curTarget)
     else
         -- 获取目标与位置
-        curTarget, target_pos = instance:GetTargetAndPos(true, MonsterFilter, PlayerFilter)
+        curTarget = instance:FindTarget(true, MonsterFilter, PlayerFilter)
         if curTarget and curTarget:GetObjectType() == OBJ_TYPE.ELSEPLAYER then
             host_player:UpdateTargetInfo(curTarget, true)
         else
@@ -146,7 +145,7 @@ local function Tick()
     if curTarget ~= nil and (IsTargetProper(curTarget:GetTemplateId()) or instance:IsLockedCurTarget()) then
         -- 找到合适目标 战斗 释放主角技能
         --host_player:StopAutoDetectTarget()
-        instance:ExecHostSkill(target_pos, curTarget)
+        instance:ExecHostSkill(curTarget)
     else
         -- 继续执行任务逻辑，如果存在多个任务点，去下一个地方尝试
         local questModel = CQuest.Instance():GetInProgressQuestModel(instance._QuestTid)

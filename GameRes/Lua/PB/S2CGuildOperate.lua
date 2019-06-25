@@ -10,6 +10,7 @@ local PBHelper = require "Network.PBHelper"
 local CPanelUIGuild = require "GUI.CPanelUIGuild"
 local CPanelUIGuildList = require "GUI.CPanelUIGuildList"
 local CPanelUIGuildApply = require "GUI.CPanelUIGuildApply"
+local CPanelRoleInfo = require"GUI.CPanelRoleInfo"
 local CGuildMsgParser = require "Guild.CGuildMsgParser"
 local GUILD_OPERATE_RETURN_CODE = require "PB.net".GUILD_OPERATE_RETURN_CODE
 local NotifyGuildEvent = require "Events.NotifyGuildEvent"
@@ -184,7 +185,7 @@ local function OnS2CGuildCreate(sender, msg)
         guildMan:SendC2SGuildBuildingInfo()
 		guildMan:SendC2SGuildSkillInfo()
         --打开公会界面
-        game._GUIMan:Open("CPanelUIGuild", _G.GuildPage.Building)
+        game._GUIMan:Open("CPanelUIGuild", _G.GuildPage.Info)
 
         UpdateRoleInfoToPlatform()
 	end
@@ -204,12 +205,13 @@ local function OnS2CGuildApplyAdd(sender, msg)
 				CPanelUIGuildList.Instance():OnGuildApplyAddSuccess()
 			end
 		else
+			CPanelRoleInfo.Instance():UpdateGuildInfo()
 			guildMan:UpdateGuildBaseInfo(msg.baseInfo)
 			guildMan:RequestAllGuildInfo()
 			guildMan:ShowNotifySelf(true)	
 			game._GUIMan:Close("CPanelUIGuildList")
             --打开公会界面
-            game._GUIMan:Open("CPanelUIGuild", _G.GuildPage.Building)
+            game._GUIMan:Open("CPanelUIGuild", _G.GuildPage.Info)
 
             UpdateRoleInfoToPlatform()
 		end
@@ -221,6 +223,7 @@ PBHelper.AddHandler("S2CGuildApplyAdd", OnS2CGuildApplyAdd)
 local function OnS2CGuildExit(sender, msg)
 	OnGuildOperateReturnCode(msg.resCode)
 	if msg.resCode == GUILD_OPERATE_RETURN_CODE.OK_GUILD_OPERATE_RETURN_CODE then
+		CPanelRoleInfo.Instance():UpdateGuildInfo()
 		local guildMan = game._GuildMan
 		guildMan:ShowNotifySelf(false)
 		game._HostPlayer._Guild:ResetGuild()
@@ -428,7 +431,9 @@ local function OnS2CGuildDonate(sender, msg)
 		guildMan:UpdatePageGuildBonus()
 		guildMan:UpdateGuildMembersUI()
 		guildMan:UpdatePageGuildBuilding()
+
 		game._GUIMan:ShowTipText(StringTable.Get(821), true)
+
 		local CPanelUIGuildDonate = require "GUI.CPanelUIGuildDonate"
 		if CPanelUIGuildDonate.Instance():IsShow() then
 			CPanelUIGuildDonate.Instance():OnShowBtnDonate()
@@ -474,6 +479,7 @@ local function OnS2CGuildBuildingLevelUp(sender, msg)
         event._Type = "GuildBuildingLevelUp"
         event._Param = msg.buildingInfo.buildingType
         CGame.EventManager:raiseEvent(nil, event)
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_GuildSkill, 0)
 	end
 end
 PBHelper.AddHandler("S2CGuildBuildingLevelUp", OnS2CGuildBuildingLevelUp)
@@ -732,7 +738,6 @@ local function OnS2CGuildPrayDrawReward(sender, msg)
 
 		local panel = require "GUI.CPanelUIGuildPray".Instance()
 		if panel:IsShow() then
-			panel:ShowBtnReward(msg.PoolIndex)					
 			panel:UpdatePrayData(msg.PoolIndex)
 		end
         game._GuildMan:SendC2SGuildRedPoint()
@@ -839,7 +844,7 @@ local function OnS2CGuildExpeditionDamageInfo(sender, msg)
 	OnGuildOperateReturnCode(msg.ResCode)
 	if msg.ResCode == GUILD_OPERATE_RETURN_CODE.OK_GUILD_OPERATE_RETURN_CODE then		
 		local CPanelUIGuildDungeon = require "GUI.CPanelUIGuildDungeon"
-		CPanelUIGuildDungeon.Instance():ShowDamageDatas(msg.DamageInfo.DamageDatas)	
+		CPanelUIGuildDungeon.Instance():ShowDamageDatas(msg)
 	end
 end
 PBHelper.AddHandler("S2CGuildExpeditionDamageInfo", OnS2CGuildExpeditionDamageInfo)
@@ -985,7 +990,7 @@ PBHelper.AddHandler("S2CGuildDefendComplete", OnS2CGuildDefendComplete)
 -- 公会战场报名
 local function OnS2CGuildBattleFieldOperate(sender, msg)
 	if msg.OpType == 0 then
-		if game._GuildMan:IsHostInGuild() then
+		if game._GuildMan:IsHostInGuild() and (not game._IsHideGuildBattle) then
 			game._GUIMan:Open("CPanelUIGuildBattle", msg)
 		end
 --		game._GUIMan:Open("CPanelUIGuildBattle", msg)
@@ -1017,7 +1022,7 @@ PBHelper.AddHandler("S2CGuildBattleFieldUpdate", OnS2CGuildBattleFieldUpdate)
 local function OnS2CGuildBattleFieldReward(sender, msg)
 	game._GUIMan:SetNormalUIMoveToHide(true, 0, "CPanelUIGuildBattleEnd", msg)
 	--game._GUIMan:Open("CPanelUIGuildBattleEnd", msg)
-	local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+	local CAutoFightMan = require "AutoFight.CAutoFightMan"
 	CAutoFightMan.Instance():Stop()
 end
 PBHelper.AddHandler("S2CGuildBattleFieldReward", OnS2CGuildBattleFieldReward)

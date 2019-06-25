@@ -256,67 +256,67 @@ local SoulFuncId = 2
 local function isRuneCanLvUp()
 	local game = game
 	local hp = game._HostPlayer
-	local normalPack = hp._Package._NormalPack
+
 	-- rune 纹章检查
 	do
 		if game._CFunctionMan:IsUnlockByFunTid(RuneFuncId) then
-			local bagRuneItems = {}
-			for i, v in ipairs(normalPack._ItemSet) do
-				if v:IsRune() and v:CanUse() == 0 then
-					bagRuneItems[#bagRuneItems + 1] = { Tid = v._Tid, RuneId = tonumber(v._Template.Type1Param1), RuneLevel = tonumber(v._Template.Type1Param2) }
+
+			local function HasValidRuneItem(runeID, runeLevel)
+				local rune_data = CElementSkill.GetRune(runeID)
+				local item_ids = string.split(rune_data.RuneUpdItems, "*")
+				-- 升级所需物品ID
+				local upd_itemid = item_ids[runeLevel]
+				if not upd_itemid then
+					return false
 				end
+				upd_itemid = tonumber(upd_itemid)
+				-- 背包中现有数量
+				local pack = game._HostPlayer._Package._NormalPack
+				local bag_num = pack:GetItemCount(upd_itemid)
+				-- 升级所需数量
+				local upd_counts = string.split(rune_data.RuneUpdItemCount, "*")
+				local upd_itemNeed = upd_counts[runeLevel]
+				upd_itemNeed = tonumber(upd_itemNeed)
+				return bag_num >= upd_itemNeed
 			end
 
-			local function HasValidRuneItem(runeId, runeLv)
-				for i,v in ipairs(bagRuneItems) do
-					if v.RuneId == runeId and v.RuneLevel - runeLv == 1 then													
-						return true													
+			local SkillInfo = {}
+			local userSkillMap = game._HostPlayer._UserSkillMap
+			for k, v in pairs(userSkillMap) do
+				SkillInfo[v.SkillId] = v
+			end
+			
+			local allRune = GameUtil.GetAllTid("Rune")
+			local DefaultRuneInfo = {}
+			for i, v in ipairs(allRune) do
+				local rune = CElementSkill.GetRune(v)
+				DefaultRuneInfo[rune.SkillId .. rune.UiPos] = v
+			end
+			
+			local hp = game._HostPlayer
+			local skillPoseToInfo = hp._MainSkillIDList
+			for k, v in pairs(skillPoseToInfo) do
+				local skillInfo = SkillInfo[v]
+				local runeInfo = {}
+				if skillInfo then
+					local SkillRuneInfoDatas = skillInfo.SkillRuneInfoDatas
+					for m, n in ipairs(SkillRuneInfoDatas) do
+						local rune = CElementSkill.GetRune(n.runeId)
+						runeInfo[rune.UiPos] = n
+						if HasValidRuneItem(n.runeId, n.level + 1) then
+							return true
+						end
 					end
 				end
-				return false
-			end
-
-			local userSkills = hp:GetUserSkillMap()
-			local skillLearned = {}
-			-- 纹章可升级
-			for k,v in pairs(userSkills) do
-				local runeInfos = v.SkillRuneInfoDatas
-				for k1, v1 in ipairs(runeInfos) do
-					skillLearned[v1.runeId] = v1
-					local runeId = v1.runeId
-					local runeLv = v1.level
-					if HasValidRuneItem(runeId, runeLv) then
-						return true
+				for i = 1, 3 do
+					if not runeInfo[i] then
+						if HasValidRuneItem(DefaultRuneInfo[v .. i], 1) then
+							return true
+						end
 					end
 				end
+
 			end
-
-			for k, v in ipairs(bagRuneItems) do
-				if skillLearned[v.RuneId] == nil then
-					return true
-				end
-			end
-
-			-- 纹章可装配
-			-- for i, v in ipairs(bagRuneItems) do
-			-- 	if v.RuneLevel == 1 then 
-			-- 		local hasOwn = false
-			-- 		local runeId = v.RuneId
-			-- 		for k1,v1 in pairs(userSkills) do
-			-- 			local runeInfos = v1.SkillRuneInfoDatas
-			-- 			for k2, v2 in ipairs(runeInfos) do
-			-- 				if v2.runeId == runeId and v2.isOwn then
-			-- 					hasOwn = true
-			-- 					break
-			-- 				end
-			-- 			end
-			-- 		end
-
-			-- 		if not hasOwn then
-			-- 			return true
-			-- 		end	
-			-- 	end
-			-- end
 		end
 	end
 	return false
@@ -336,7 +336,7 @@ local function isSkillCanLvUp()
 					local skillData = hp:GetSkillData(v)
 					local lvUpConditions = hp:GetSkillLevelUpConditionMap(v)
 					for i1,v1 in ipairs(lvUpConditions) do
-						if skillData.SkillLevel == v1.SkillLevel and hpLv >= v1.RoleLevel and hasGoldCnt >= v1.NeedMoneyNum then
+						if (skillData.SkillLevel - skillData.TalentAdditionLevel)  == v1.SkillLevel and hpLv >= v1.RoleLevel and hasGoldCnt >= v1.NeedMoneyNum then
 							return true					
 						end			
 					end
@@ -371,6 +371,26 @@ local function isMasteryCanLvUp( )
 	return false
 end
 
+local function getMasteryLevel()
+	local game = game
+	local hp = game._HostPlayer
+	local hpLv = hp._InfoData._Level
+	local hasGoldCnt = game._AccountInfo._RoleList[game._AccountInfo._CurrentSelectRoleIndex].Gold	
+	local normalPack = hp._Package._NormalPack
+
+	local levelCount = 0
+	local masteryInfos, _ = hp:GetSkillMasteryInfo()
+	if masteryInfos ~= nil then
+		for i = 1, #masteryInfos do
+			local tmp = CElementData.GetSkillMasteryTemplate(masteryInfos[i].Tid)
+			if tmp ~= nil then
+				levelCount = levelCount + tmp.Level
+			end
+		end
+	end
+	return levelCount
+end
+
 local function isSoulCanLvUp()
 	if game._CFunctionMan:IsUnlockByFunTid(SoulFuncId) then	
 		local CWingsMan = require "Wings.CWingsMan"
@@ -384,10 +404,13 @@ end
 local function isSkillRuneMasteryCanLvUp()
 	local game = game
 	local hp = game._HostPlayer
+
+	--[[
 	local mainSkills = hp._MainSkillIDList
 	local hpLv = hp._InfoData._Level
 	local hasGoldCnt = game._AccountInfo._RoleList[game._AccountInfo._CurrentSelectRoleIndex].Gold	
 	local normalPack = hp._Package._NormalPack
+	]]
 	
 	-- skill 升级检查
 	if isSkillCanLvUp() then
@@ -462,6 +485,7 @@ def.const("function").IsRuneCanLvUp 							= isRuneCanLvUp
 def.const("function").IsSkillCanLvUp 							= isSkillCanLvUp
 def.const("function").IsMasteryCanLvUp 							= isMasteryCanLvUp
 def.const("function").IsSoulCanLvUp 							= isSoulCanLvUp
+def.const("function").GetMasteryLevel 							= getMasteryLevel	
 
 CSkillUtil.Commit()
 return CSkillUtil

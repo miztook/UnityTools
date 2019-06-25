@@ -102,6 +102,20 @@ local cfg = {
     Img_ChangeLevel = -1671549192,
     Frame_Sans = 1721957477,
     List_Players = 417826577,
+    Frame_Glod = 1721610572,
+    Frame_Team = 1721990703,
+    Frame_Time = 1721994911,
+    Frame_GuildDefend = 1700668535,
+    Lab_DefendFloor = -776659196,
+    Frame_DefendFloor = 336256740,
+    Frame_DefendTime = -2066948875,
+    Frame4 = 2112319623,
+    Lab_DefendTime = 113907925,
+    Frame_GuildList = 1003128479,
+    Lab_DefendMax = -2074542500,
+    Frame_HostPlayer = 1305556219,
+    Lab_Team = -1900862961,
+    Img_GuildResult = 1817491252,
 }
  
 return cfg

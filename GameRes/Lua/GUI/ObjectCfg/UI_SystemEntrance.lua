@@ -97,6 +97,8 @@ local cfg = {
     Lab_Name18 = -1543322332,
     Img_RedPoint19 = -315391965,
     Img_Lock14 = -1088902966,
+    DragblePanel = 1453771453,
+    List_PageToggles = 280343535,
 }
  
 return cfg

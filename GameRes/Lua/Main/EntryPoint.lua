@@ -9,6 +9,9 @@ local CPowerSavingMan = require "Main.CPowerSavingMan"
 local QualitySettingMan = require "Main.QualitySettingMan"
 local CTeamMan = require "Team.CTeamMan"
 local CPath = require "Path.CPath"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
+local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
+local CQuestAutoMan = require "Quest.CQuestAutoMan"
 
 local just_for_scene_test = false
 local mem_hook_time = 0
@@ -19,13 +22,18 @@ _G.logs2c = false
 _G._TotalRecvProtoCount = 0
 _G.canSendPing = false
 _G.canAutoReconnect = true
-_G.monsterMove = true
-_G.monsterStopMove = true
 
 _G.lastIsStop = false
 _G.lastHostPosX, _G.lastHostPosZ = 0, 0
 _G.lastDestPosX, _G.lastDestPosZ = 0, 0
-_G.isplayingCG = false
+_G.IsCGPlaying = false
+
+--每帧统计
+_G.NumEntityMove = 0
+_G.TimeHandleEntityMove1 = 0
+_G.TimeHandleEntityMove2 = 0
+_G.TimeHandleEntityMove3 = 0
+_G.TimeHandleEntityMove4 = 0
 
 function _G.IsAndroid()
 	return Application.platform == EnumDef.RuntimePlatform.Android
@@ -63,6 +71,24 @@ function _G.StartGame()
 
 	print("StartGame")
 	game:Start()
+
+	--[[
+	local doCheck = function ()
+		if _G.NumEntityMove >= 10 then
+			warn("doCheckEntityMove", _G.NumEntityMove, _G.TimeHandleEntityMove1, _G.TimeHandleEntityMove2, _G.TimeHandleEntityMove3, _G.TimeHandleEntityMove4,
+				_G.TimeHandleEntityMove1 / _G.NumEntityMove, 
+				 _G.TimeHandleEntityMove2 / _G.NumEntityMove,
+				 _G.TimeHandleEntityMove3 / _G.NumEntityMove,
+				  _G.TimeHandleEntityMove4 / _G.NumEntityMove )
+		end
+		_G.NumEntityMove = 0
+		_G.TimeHandleEntityMove1 = 0
+		_G.TimeHandleEntityMove2 = 0
+		_G.TimeHandleEntityMove3 = 0
+		_G.TimeHandleEntityMove4 = 0
+	end
+	_G.AddGlobalTimer(1, false, doCheck)
+	]]
 end
 
 function _G.ReleaseGame()
@@ -79,6 +105,13 @@ function _G.MemoryHook(tickTime)
 	mem_hook_time = tickTime
 	local MemLeakDetector = require "Profiler.CMemLeakDetector"
 	MemLeakDetector.StartRecordAlloc(false)
+end
+
+function _G.OnLowMemory()
+	game:OnLowMemory()
+
+	collectgarbage("collect")
+	return collectgarbage("count")
 end
 
 function _G.TickGame(dt)
@@ -127,9 +160,15 @@ function _G.GetHandlerTotalCount()
 end
 
 function _G.ProcessProtocol(id, buffer, isSpecial, isSimple)
-	isSimple = isSimple or _G.isplayingCG
-
 	game._NetMan:ProcessProtocol(id, buffer, isSpecial, isSimple)
+end
+
+function _G.ProcessMoveProtocol1(entityId, curPos, curOri, moveType, moveDir, moveSpeed, interval, dstPos, isDstPos)
+	game._NetMan:ProcessMoveProtocol1(entityId, curPos, curOri, moveType, moveDir, moveSpeed, interval, dstPos, isDstPos)
+end
+
+function _G.ProcessMoveProtocol2(id, buffer, isSpecial, isSimple)
+	game._NetMan:ProcessMoveProtocol2(id, buffer, isSpecial, isSimple)
 end
 
 function _G.ClearProtocol(id, buffer, isSpecial, isSimple)
@@ -158,44 +197,40 @@ function _G.__PrintTable(table)
 	return count
 end
 
--- CG停止移动
-function _G.OnCGStopBehaviour()
-	CGMan.StopBehaviour()
-end
-
 -- CG开始
-function _G.OnCGStart(name, videoName)
-	--warn("OnCGStart", name, videoName, CGMan.GetAudioNameByVideoName(videoName))
+function _G.OnCGStart(useCgCamera)
+	if game:IsInGame() then 
+		if useCgCamera then
+			local hp = game._HostPlayer
+			if hp ~= nil then hp:StopNaviCal() end
+			CQuestAutoMan.Instance():Pause(_G.PauseMask.CGPlaying)  -- 自动任务完全停止
+			CAutoFightMan.Instance():Pause(_G.PauseMask.CGPlaying)
+			CDungeonAutoMan.Instance():Pause(_G.PauseMask.CGPlaying)
+		end
 
-	CPath.Instance():PausePathDungeon()
-	CSoundMan.Instance():Play2DAudio(CGMan.GetAudioNameByVideoName(videoName), 1)
-
-	if not IsNilOrEmptyString(videoName) then
-		_G.isplayingCG = true
-
-		CSoundMan.Instance():SetSoundBGMVolume(0, true)
-    	CSoundMan.Instance():SetSoundEffectVolume(0)
+		CPath.Instance():PausePathDungeon()
 	end
+
+	CGMan.OnStart()
 end
 
 -- CG结束调用
-function _G.OnCGFinish(name, videoName)
-	--warn("OnCGFinish", name, videoName, CGMan.GetAudioNameByVideoName(videoName))
+function _G.OnCGFinish(useCgCamera)
+	if game:IsInGame() then
+		if useCgCamera then
+			CAutoFightMan.Instance():Restart(_G.PauseMask.CGPlaying)
+			CDungeonAutoMan.Instance():Restart(_G.PauseMask.CGPlaying)
+			CQuestAutoMan.Instance():Restart(_G.PauseMask.CGPlaying)	
+		end
 
-	_G.isplayingCG = false
-
-	CGMan.Finish(name)
-	CPath.Instance():ReStartPathDungeon()
-	CSoundMan.Instance():Stop2DAudio(CGMan.GetAudioNameByVideoName(videoName),"")
-
-	if not IsNilOrEmptyString(videoName) then
-		CSoundMan.Instance():SetSoundBGMVolume(1, true)
-    	CSoundMan.Instance():SetSoundEffectVolume(1)
-    end
+		CPath.Instance():ReStartPathDungeon()
+	end
+	
+	CGMan.OnFinish()
 end
 
 function _G.GetGameDataSendFilter()
-	return { }
+	return {}
 end
 
 function _G.OnClickGround(pos)
@@ -205,8 +240,6 @@ function _G.OnClickGround(pos)
 	end
 	game:OnClickGround(pos)
 	game:RaiseNotifyClickEvent("Ground")
-
-	--warn("random test",math.random(1,4))
 end
 
 function _G.BeginSleeping()
@@ -214,26 +247,14 @@ function _G.BeginSleeping()
 end
 
 function _G.OnSingleDrag(delta)
-
 end
 
 function _G.OnTwoFingersDrag(delta)
-	--delta > 10 || delta < -10
-
-	if delta > 10 then
-		game:SetTwoFingerDrag(false)
-	elseif delta < -10 then
-		game:SetTwoFingerDrag(true)
-	end
 end
 
 function _G.OnSyncLog(log_str)
 	game:OnUnityLog(log_str)
 end
-
---function _G.NotifyClick(obj)
---	game:RaiseNotifyClickEvent(obj)
---end
 
 function _G.OnTraceBack()
 	warn(debug.traceback())
@@ -244,10 +265,8 @@ function _G.OnJoystickPressEvent(x, y)
 end
 
 function _G.OnInputKeyCode(keycode)
-
 	local base = 48
     local CPanelSkillSlot = require "GUI.CPanelSkillSlot"
-    local CAutoFightMan = require "ObjHdl.CAutoFightMan"
     local hp = game._HostPlayer
 	--键盘数字0-9
 
@@ -366,7 +385,10 @@ end
 
 function  _G.Voice_OnPlayRecordFileComplete(code, filepath)
 	--warn("_G.Voice_OnPlayRecordFileComplete", filepath)
-	CSoundMan.Instance():SetSoundBGMVolume(1, true)
+	--CSoundMan.Instance():SetSoundBGMVolume(1, true)
+
+	CSoundMan.Instance():SubChatVoiceCount()
+
 end
 
 function _G.Voice_OnRecordingFileComplete(code)
@@ -413,7 +435,7 @@ _G.MsgBoxDisconnectShow = false
 function _G.OnConnectionEvent(eventCode)
 	if eventCode == EVENT.CONNECTED then
 		warn("网络连接成功")
-
+        game:RaiseConnectEvent()
 		local callback = function()	
 			if not game._IsReconnecting then
 				game._GUIMan:CloseCircle()
@@ -429,43 +451,25 @@ function _G.OnConnectionEvent(eventCode)
 
 		--关闭所有MsgBox		
 		game._GUIMan:CloseCircle()
-		MsgBox.CloseAll()
+		MsgBox.CloseAllExceptDisconnect()
 
-		if game._AnotherDeviceLogined then
-			
-			-- 顶号重新登录
-			local callback = function()
-				game:ReturnLoginStage()
-				_G.MsgBoxDisconnectShow = false
-			end
-
-			_G.MsgBoxDisconnectShow = true
-			local title, msg, closeType = StringTable.GetMsg(79)
-			MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OK, callback, nil, nil, MsgBoxPriority.Disconnect)
-			
-			game:RaiseDisconnectEvent()
-			ClearScreenFade()
-		else
+		if not game._AnotherDeviceLogined then
 			if _G.canAutoReconnect then
-
 				--当在登录界面时忽略网络断连消息
 				local loginPanel = require "GUI.CPanelLogin".Instance()
 				if IsNil(loginPanel._Panel) or not loginPanel:IsShow() then
-
 					game:RaiseDisconnectEvent()
 					ClearScreenFade()
 
 					_G.AddGlobalTimer(5, true, function() 
-						game:AutoReconnect() 
-					end)
+							if not _G.canAutoReconnect then return end
+							game:AutoReconnect() 
+						end)
 				end
 			end
 		end
 	elseif eventCode == EVENT.CLOSED then
 		warn("网络关闭")
-		-- 平台SDK打点
-		local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
-		CPlatformSDKMan.Instance():SetBreakPoint(PlatformSDKDef.PointState.Game_User_Login_Fail)
 
 		game._GUIMan:CloseCircle()
 		MsgBox.CloseAll()
@@ -476,6 +480,12 @@ function _G.OnConnectionEvent(eventCode)
 			-- 平台SDK打点
 			local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
 			CPlatformSDKMan.Instance():SetBreakPoint(PlatformSDKDef.PointState.Game_User_Login_Fail)
+
+			-- 刷新服务器状态
+			local CPanelLogin = require "GUI.CPanelLogin"
+			if CPanelLogin and CPanelLogin.Instance():IsShow() then
+				CPanelLogin.Instance():RequestData()
+			end
 			
 			--延迟1s加载
 			local callback = function()	
@@ -509,18 +519,6 @@ function _G.TODO(msg)
 		msg = StringTable.Get(16)
 	end
 	game._GUIMan:ShowTipText(msg, false)
-end
-
-function _G.GetAllTeamMember()
-	local ids = {}
-	local memberList = CTeamMan.Instance():GetMemberList()
-	local objMap = game._CurWorld._PlayerMan._ObjMap
-	for i,v in pairs(memberList) do
-		if v._ID ~= game._HostPlayer._ID then
-			table.insert(ids, objMap[v._ID])
-		end
-	end
-	GameUtil.GetAllTeamMember(ids)
 end
 
 function _G.GetLuaMemory()
@@ -673,6 +671,11 @@ function _G.IsLoadingUI()
 	--or C3V3LoadingPanel.Instance():IsShow()
 end
 
+-- 通过拖拽退出相机锁定状态
+function _G.QuitCameraLockState()
+	game._CamLockEntityId = 0
+end
+
 -- 检查是否能进入近景相机
 function _G.TryEnterNearCam()
 	if game ~= nil and game._GUIMan ~= nil and game._HostPlayer ~= nil then
@@ -725,14 +728,21 @@ function _G.CanSkipCollision(go)
 end
 
 --UI Adapt二次修改安全区 
-function _G.ConfirmSafeArea(x, y, z, w, dev_mod)
+function _G.ConfirmSafeArea(x, y, z, w, dev_mod, platform)
 	warn("[UI] ConfirmSafeArea ("..x.." , "..y..", ".. z..", "..w..") on: "..dev_mod)
-	if string.find(dev_mod, "HUAWEI") ~= nil then
-		x=0
-		y=0
-		z=0
-		w=0
-	end
+--	if string.find(dev_mod, "HUAWEI") ~= nil then
+--		x=0
+--		y=0
+--		z=0
+--		w=0
+--	end
+
+        if platform == 1 then     --ios
+                x = x * 0.7
+                y = y * 0.7
+                z = z * 0.7
+                w = w * 0.7
+        end
 
 	return x, y, z, w
 end
@@ -756,4 +766,12 @@ function _G.ChangeCurrentWeather(weatherType)
 	--warn("weather  changed!!!!")
 end
 
+function _G.ChangeCurrentWeather2(type,EntityId,CurrentPosition,CurrentOrientation,MoveType,MoveDirection,MoveSpeed,TimeInterval,DstPosition,IsDestPosition)
+	-- body
+	--_G.CurrentWeather = weatherType
+	--warn("weather  changed!!!!")
+end
+
+
 _G.ShadowTemplate = nil
+_G.PathArrowTemplate = nil 

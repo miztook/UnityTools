@@ -27,7 +27,7 @@ local MapInfo =
 		},
 		[10122] = 
 		{
-			[1] = { x = 60.00, y = 51.82, z = -90.00, name = "사신", level = 15, SortID = 396 },
+			[1] = { x = 60.00, y = 51.82, z = -90.00, name = "사절단", level = 15, SortID = 396 },
 		},
 		[10121] = 
 		{
@@ -70,7 +70,7 @@ local MapInfo =
 			[72] = { x = 7.77, y = 50.53, z = 64.87, name = "农场", worldId = 0, PkMode = 1 },
 			[73] = { x = 145.40, y = 39.42, z = -39.67, name = "海盗营地外", worldId = 0, PkMode = 1 },
 			[74] = { x = -111.55, y = 62.28, z = 191.93, name = "로카 벌목장", worldId = 0, PkMode = 1 },
-			[77] = { x = -150.77, y = 75.86, z = 122.83, name = "레인저 주둔지", worldId = 0, PkMode = 1 },
+			[77] = { x = -150.77, y = 75.86, z = 122.83, name = "레인저 캠프", worldId = 0, PkMode = 1 },
 			[78] = { x = 173.66, y = 27.64, z = -173.21, name = "살무사 아레나", worldId = 0, PkMode = 1 },
 			[79] = { x = -227.22, y = 84.29, z = 72.01, name = "巴哈勒祭坛前", worldId = 0, PkMode = 1 },
 			[87] = { x = -85.79, y = 48.06, z = -141.68, name = "탐욕의 골짜기", worldId = 0, PkMode = 1 },
@@ -78,7 +78,7 @@ local MapInfo =
 			[89] = { x = -234.49, y = 87.86, z = 81.99, name = "바하르 제단", worldId = 0, PkMode = 1 },
 			[92] = { x = 124.47, y = 66.38, z = 194.48, name = "西门区域", worldId = 0, PkMode = 1 },
 			[93] = { x = 160.14, y = 72.15, z = 232.64, name = "商业街附近", worldId = 0, IsCanFind = 1, PkMode = 1 },
-			[94] = { x = 178.01, y = 81.40, z = 180.85, name = "그린마을", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[94] = { x = 178.01, y = 81.40, z = 180.85, name = "그린 마을", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[95] = { x = 147.48, y = 69.89, z = 247.36, name = "보부상 지회", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[96] = { x = 212.81, y = 76.04, z = 227.93, name = "教堂广场", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[97] = { x = 155.59, y = 102.64, z = 152.26, name = "연합의 광장", worldId = 0, IsCanFind = 1, PkMode = 1 },
@@ -86,7 +86,7 @@ local MapInfo =
 			[99] = { x = 23.62, y = 62.41, z = 227.20, name = "낭떠러지", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[100] = { x = -13.58, y = 54.24, z = 17.64, name = "캠벨 농장", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[101] = { x = -152.65, y = 177.43, z = 157.23, name = "로카 숲", worldId = 0, IsCanFind = 1, PkMode = 1 },
-			[102] = { x = -141.34, y = 200.98, z = 110.52, name = "레인저 주둔지", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[102] = { x = -141.34, y = 200.98, z = 110.52, name = "레인저 캠프", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[103] = { x = -137.74, y = 44.26, z = -176.92, name = "탐욕의 골짜기", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[104] = { x = 186.19, y = 36.00, z = -30.30, name = "해적 소굴", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[105] = { x = -211.75, y = 50.56, z = -201.41, name = "숲 속 주둔지", worldId = 0, IsCanFind = 1, PkMode = 1 },

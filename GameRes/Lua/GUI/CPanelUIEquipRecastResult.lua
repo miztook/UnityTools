@@ -118,10 +118,11 @@ end
 local function PlayAudio()
     CSoundMan.Instance():Play2DAudio(PATH.GUISound_EquipProcessing_Succees, 0)
 end
-local function BtnActice()
+local function BtnActive()
     instance._PanelObject.Btn_Save:SetActive(true)
     instance._PanelObject.Btn_Cancel:SetActive(true)
     instance._PanelObject.Btn_RecastAgain:SetActive(true)
+    instance:UpdateBtnRecastState()
 end
 
 def.override().OnCreate = function(self)
@@ -133,7 +134,6 @@ def.override().OnCreate = function(self)
         Btn_RecastAgain = self:GetUIObject("Btn_RecastAgain"),
         Btn_Save = self:GetUIObject('Btn_Save'),
         Btn_Cancel = self:GetUIObject('Btn_Cancel'),
-        Btn_RecastAgain = self:GetUIObject('Btn_RecastAgain'),
 
         ItemGroupNew = {},
         ItemGroupOld = {},
@@ -193,7 +193,7 @@ def.override("dynamic").OnData = function(self,data)
     root.Btn_Save:SetActive(false)
     root.Btn_Cancel:SetActive(false)
     root.Btn_RecastAgain:SetActive(false)
-    self:AddEvt_LuaCB(gfxGroupName, (self._ShowGfx and 1.8 or 0) + 0.65, BtnActice)
+    self:AddEvt_LuaCB(gfxGroupName, (self._ShowGfx and 1.8 or 0) + 0.65, BtnActive)
 end
 
 def.method().UpdateUI = function(self)
@@ -245,7 +245,8 @@ def.method().UpdateFightScoreIncreaseBoard = function(self)
     root.Lab_AddValue:SetActive(incVal ~= 0)
 
     if incVal ~= 0 then
-        GUI.SetText(root.Lab_AddValue, tostring(incVal))
+        local processStatus = incVal > 0 and EnumDef.EquipProcessStatus.Success or EnumDef.EquipProcessStatus.Failed
+        GUI.SetText(root.Lab_AddValue, RichTextTools.GetEquipProcessColorText(GUITools.FormatNumber(incVal), processStatus))
         GUITools.SetGroupImg(root.Img_UpOrDown, incVal > 0 and 1 or 0)
     end
 end
@@ -390,7 +391,7 @@ def.method("=>","boolean").CheckCanRecast = function(self)
         local MoneyNeedInfo = CEquipUtility.GetEquipRecastMoneyNeedInfo(self._ItemData)
         local moneyHave = hp:GetMoneyCountByType(MoneyNeedInfo[1])
         local moneyNeed = MoneyNeedInfo[2]
-        bRet = bRet and (moneyHave >= moneyNeed) 
+        bRet = bRet and (moneyHave >= moneyNeed)
     end
 
     return bRet

@@ -1,6 +1,7 @@
 local Lplus = require "Lplus"
 local CEntity = Lplus.ForwardDeclare("CEntity")
 local JudgementHitType = require "PB.Template".ExecutionUnit.ExecutionUnitEvent.EventJudgement.JudgementHitType
+local CFSMObjBeControlled = require "FSM.ObjectFSM.CFSMObjBeControlled"
 
 local CHitEffectInfo = Lplus.Class("CHitEffectInfo")
 local def = CHitEffectInfo.define
@@ -41,7 +42,7 @@ def.method(CEntity, "number", "table", "table").ChangeEffect = function(self, at
 		self._Host:SetDir(dir)
 	end
 	-- stop move and skill
-	local CFSMObjBeControlled = require "FSM.ObjectFSM.CFSMObjBeControlled"
+	
 	local controlled = CFSMObjBeControlled.new(self._Host, hit_type, hit_params, dest)
 	self._Host:ChangeState(controlled)
 

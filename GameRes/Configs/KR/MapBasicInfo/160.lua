@@ -66,7 +66,7 @@ local MapInfo =
 		},
 		[3080] = 
 		{
-			[1] = { x = -202.67, y = -22.48, z = 5.97, name = "엘프 잡화상인", IsCanFind = 1, IconPath = "Map_Img_Shop", Describe = "잡화 상인", SortID = 13 },
+			[1] = { x = -202.67, y = -22.48, z = 5.97, name = "엘프 잡화상인", IsCanFind = 1, IconPath = "Map_Img_Shop", Describe = "잡화상인", SortID = 13 },
 			[2] = { x = -124.93, y = -23.42, z = 37.61, name = "엘프 잡화상인", SortID = 40 },
 		},
 		[3087] = 
@@ -118,11 +118,11 @@ local MapInfo =
 		},
 		[3082] = 
 		{
-			[1] = { x = 88.98, y = -4.20, z = 46.85, name = "쿨마 라펠레트", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "쿨마", SortID = 39, FunctionName = "명성" },
+			[1] = { x = 88.98, y = -4.20, z = 46.85, name = "쿨마 라펠레트", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "쿠말", SortID = 39, FunctionName = "명성" },
 		},
 		[3085] = 
 		{
-			[1] = { x = -120.04, y = -15.52, z = 100.47, name = "벨릭 목사", SortID = 41 },
+			[1] = { x = -120.04, y = -15.52, z = 100.47, name = "벨릭 목사", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "벨릭 목사", SortID = 41, FunctionName = "명성" },
 		},
 		[3083] = 
 		{
@@ -148,7 +148,7 @@ local MapInfo =
 		},
 		[3054] = 
 		{
-			[1] = { x = 162.25, y = 17.61, z = -170.91, name = "케라 로한", SortID = 47 },
+			[1] = { x = 162.25, y = 17.61, z = -170.91, name = "케라 로한", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "케라 로한", SortID = 47, FunctionName = "명성" },
 		},
 		[3033] = 
 		{
@@ -228,7 +228,7 @@ local MapInfo =
 		},
 		[3132] = 
 		{
-			[1] = { x = -43.78, y = 2.99, z = -17.84, name = "엘프군 보급관", SortID = 80 },
+			[1] = { x = -43.78, y = 2.99, z = -17.84, name = "엘프 군수관", SortID = 80 },
 		},
 		[3147] = 
 		{
@@ -312,11 +312,11 @@ local MapInfo =
 		},
 		[2] = 
 		{
-			[297] = { x = 60.50, y = 13.60, z = -142.21, name = "장로회", isShowName = true, worldId = 0, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
-			[298] = { x = 156.79, y = 17.71, z = -175.25, name = "미스테리움", isShowName = true, worldId = 0, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
-			[299] = { x = -108.20, y = 34.64, z = -161.61, name = "엘프군 지휘소", isShowName = true, worldId = 0, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
-			[300] = { x = -135.17, y = 1.00, z = -18.75, name = "명품 거래소", isShowName = true, worldId = 0, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
-			[301] = { x = -186.61, y = -23.42, z = 49.83, name = "魔导港口", worldId = 0, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
+			[297] = { x = 60.50, y = 13.60, z = -142.21, name = "장로회", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
+			[298] = { x = 156.79, y = 17.71, z = -175.25, name = "미스테리움", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
+			[299] = { x = -108.20, y = 34.64, z = -161.61, name = "엘프군 지휘소", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
+			[300] = { x = -135.17, y = 1.00, z = -18.75, name = "명품 거래소", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
+			[301] = { x = -186.61, y = -23.42, z = 49.83, name = "魔导港口", worldId = 0, IsCanFind = 1, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
 			[302] = { x = 173.53, y = 15.27, z = -139.90, name = "换衣服区域", worldId = 0, PkMode = 0 },
 			[303] = { x = -179.29, y = -23.08, z = 19.16, name = "抵达名品交易所", worldId = 0, PkMode = 0 },
 			[304] = { x = -31.26, y = 2.99, z = -29.26, name = "抵达军事区", worldId = 0, PkMode = 0 },

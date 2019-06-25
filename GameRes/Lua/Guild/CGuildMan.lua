@@ -12,6 +12,7 @@ local PBHelper = require "Network.PBHelper"
 local CPanelUIGuild = require "GUI.CPanelUIGuild"
 local CPanelUIGuildPray = require "GUI.CPanelUIGuildPray"
 local CPanelUIGuildBattleMiniMap = require "GUI.CPanelUIGuildBattleMiniMap"
+local CPanelBagSort = require "GUI.CPanelBagSort"
 local GuildMemberType = require "PB.data".GuildMemberType
 local GuildState = require "PB.data".GuildState
 local GuildBuildingType = require "PB.data".GuildBuildingType
@@ -21,6 +22,8 @@ local EPkMode = require "PB.data".EPkMode
 local ChatManager = require "Chat.ChatManager"
 local ECHAT_CHANNEL_ENUM = require "PB.data".ChatChannel
 local EGuildRedPointType = require "PB.net".EGuildRedPointType
+local EGuildIconType = require "PB.data".EGuildIconType
+
 
 def.field("table")._ConvoyEntity = nil
 -- 用于小地图信息更新
@@ -33,6 +36,25 @@ def.field("number")._BlueRank = 0
 def.field("number")._RedDotUpdateTimerId = 0
 def.field("boolean")._IsInitMoney = true
 
+-- 公会成员排序状态
+def.field("boolean")._IsDescending = true
+def.field("number")._CurMemSortType = 0
+
+-- 公会战场是否报名
+def.field("number")._GuildBFApplySign = -1
+
+--公会相关Template数据
+--公会徽记
+def.field("table")._GuildIconData = BlankTable
+
+--工会徽记类型
+_G.GuildIconType = 
+{
+    BaseColor = 1 ,     --底色
+    Frame     = 2,      --边框
+    Image     = 3,      --图案
+}
+
 def.static("=>", CGuildMan).new = function()
 	local obj = CGuildMan()
 	return obj
@@ -41,6 +63,31 @@ end
 def.method().Init = function(self)
 	self:AddGuildRedTimer()
     self._IsInitMoney = true
+end
+
+--初始化公会徽记Template数据
+def.method().InitGuildIconData = function (self)
+	if self._GuildIconData ~= nil then return  end
+	self._GuildIconData = {}
+	self._GuildIconData[GuildIconType.BaseColor] = {}
+	self._GuildIconData[GuildIconType.Frame] = {}
+	self._GuildIconData[GuildIconType.Image] = {}
+	local allTid = GameUtil.GetAllTid("GuildIcon")
+    for i = 1, #allTid do
+        local guildIcon = CElementData.GetTemplate("GuildIcon", allTid[i])
+        if guildIcon.Type == EGuildIconType.GuildIcon_BaseColor then
+        	table.insert(self._GuildIconData[GuildIconType.BaseColor] ,guildIcon)
+        elseif guildIcon.Type == EGuildIconType.GuildIcon_Frame then
+        	table.insert(self._GuildIconData[GuildIconType.Frame] ,guildIcon)
+        elseif guildIcon.Type == EGuildIconType.GuildIcon_Image then
+        	table.insert(self._GuildIconData[GuildIconType.Image] ,guildIcon)
+        end
+    end
+end
+
+--获取公会徽记data数据
+def.method("=>","table").GetGuildIconData = function (self)
+	return self._GuildIconData
 end
 
 -- 打开公会请求
@@ -207,8 +254,12 @@ def.method("table").ShowNotifyGuild = function(self, data)
 			appoint = StringTable.Get(828)
 		end
 		msg = string.format(StringTable.Get(879), targetName, appoint)
+	elseif data.NotifyType == EGuildNotifyType.EGuildNotifyType_GuildBFApplyInfo then
+		self._GuildBFApplySign = data.GuildBFApplyInfo
 	end
-	ChatManager.Instance():ClientSendMsg(ECHAT_CHANNEL_ENUM.ChatChannelGuild, msg, false, 0, nil,nil)
+	if msg ~= "" then
+		ChatManager.Instance():ClientSendMsg(ECHAT_CHANNEL_ENUM.ChatChannelGuild, msg, false, 0, nil,nil)
+	end
 end
 
 -- 公会设置显示信息表现
@@ -384,6 +435,7 @@ local function MemberSort(a, b)
 	return a.logoutTime == 0
 end
 
+
 -- 初始化或刷新公会成员信息
 def.method("table").UpdateGuildMembers = function(self, data)
 	local hp = game._HostPlayer
@@ -395,7 +447,7 @@ def.method("table").UpdateGuildMembers = function(self, data)
 	guild._ViceNum = 0
 	guild._EliteNum = 0
 
-	table.sort(data, MemberSort)
+	-- table.sort(data, MemberSort)
 
 	for i,v in ipairs(data) do
 		local member = CGuildMember.new(v)
@@ -416,29 +468,14 @@ def.method("table").UpdateGuildMembers = function(self, data)
 		end
         mem_count = mem_count + 1
 	end
-    if #guild._MemberID > 1 then
-        local sort_func = function(item1, item2)
-            local mem1 = guild._MemberList[item1]
-            local mem2 = guild._MemberList[item2]
-            if mem1._LogoutTime ~= mem2._LogoutTime then
-                return mem1._LogoutTime == 0
-            else
-                if mem1._RoleType ~= mem2._RoleType then
-                    return mem1._RoleType < mem2._RoleType
-                else
-                    if mem1._RoleLevel ~= mem2._RoleLevel then
-                        return mem1._RoleLevel > mem2._RoleLevel
-                    else
-                        return mem1._BattlePower > mem2._BattlePower
-                    end
-                end
-            end
-        end
-        table.sort(guild._MemberID, sort_func)
-        if #guild._OnlineMemberID > 1 then
-            table.sort(guild._OnlineMemberID, sort_func)
-        end
-    end
+    -- if #guild._MemberID > 1 then
+        
+    --     table.sort(guild._MemberID, sort_func)
+    --     if #guild._OnlineMemberID > 1 then
+    --         table.sort(guild._OnlineMemberID, sort_func)
+    --     end
+    -- end
+    self:UpdateMemberIdBySort()
     guild._MemberNum = mem_count
 end
 
@@ -707,6 +744,15 @@ def.method("number", "=>", "number").GetGuildBuildingUnlockLevel = function(self
 	return 0
 end
 
+-- 是否报名公会战场
+def.method("=>", "boolean").IsGuildBFApplySign = function(self)
+	if self._GuildBFApplySign == 0 or self._GuildBFApplySign == 1 then
+		return true
+	else
+		return false
+	end
+end
+
 ----------------------------------------------------------------------
 ------------------------公会基地的常用操作----------------------------
 ----------------------------------------------------------------------
@@ -714,7 +760,32 @@ end
 -- 进入公会基地
 def.method().EnterGuildMap = function(self)
 	if self:IsHostInGuild() then
-		self:SendC2SGuildEnterMap()
+		if game._HostPlayer:IsInGlobalZone() then
+	        game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+	        return
+	    end
+		local hp = game._HostPlayer
+		if hp:IsInServerCombatState() then
+			game._GUIMan:ShowTipText(StringTable.Get(8045), true)
+		else
+			local CTransManage = require "Main.CTransManage"
+			if hp:InDungeon() then
+				local callback = function(value)
+					if value then
+						CTransManage.Instance():TransToPortalTargetByMapID(self:GetGuildSceneTid(), nil)
+						game._GUIMan:Close("CPanelUIGuild")
+	                    game:StopAllAutoSystems()
+					end
+				end
+				local title, msg, closeType = StringTable.GetMsg(17)
+				MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback)
+			elseif self:IsInGuildScene() then
+				game._GUIMan:ShowTipText(StringTable.Get(8055), true)
+			else
+				CTransManage.Instance():TransToPortalTargetByMapID(self:GetGuildSceneTid(), nil)
+	            game:StopAllAutoSystems()
+			end
+		end
 		game._GUIMan:CloseSubPanelLayer()
 	else
 		game._GUIMan:ShowTipText(StringTable.Get(8091), true)		
@@ -732,7 +803,7 @@ def.method().OpenGuildDonate = function(self)
 		if game._HostPlayer._Guild:GetDonateNum() == 0 then
 			game._GUIMan:ShowTipText(StringTable.Get(855), true)
 		else
-			game._GUIMan:Open("CPanelUIGuildDonate", nil)
+			game._GUIMan:Open("CPanelUIGuildDonate",_G.GuildPage.Bonus)
 		end
 	else
 		game._GUIMan:ShowTipText(StringTable.Get(8091), true)
@@ -883,6 +954,15 @@ end
 
 -- 公会铁匠铺是否有红点
 def.method("=>", "boolean").IsSmithyHasRedPoint = function(self)
+	local buildingList = game._HostPlayer._Guild._BuildingList
+	local isUnlock = false
+	local SmithyBuildingType = 1
+	for j, w in pairs(buildingList) do
+		if w._BuildingType == SmithyBuildingType then
+			isUnlock = w._Unlock
+		end
+	end
+	if not isUnlock then return isUnlock end 
 	local hp = game._HostPlayer
 	local normalPack = hp._Package._NormalPack
 	local costPercent = CGuildSmithyMan.Instance():GetCostPercent()
@@ -1369,9 +1449,315 @@ end
 -------------------------公会主界面红点-------------------------------
 ----------------------------------------------------------------------
 
+----------------------------------------------------------------------
+-------------------------公会基础系统成员排序-------------------------
+----------------------------------------------------------------------
+def.method("number","boolean").SaveSortData = function (self,sortType,isDescending)
+	self._IsDescending = isDescending
+	self._CurMemSortType = sortType
+end
+
+def.method("=>","number","boolean").GetSortData = function (self)
+	return self._CurMemSortType, self._IsDescending
+end
+
+--排序优先级 在线 职务 等级 战力 活跃度
+def.method("table").SortByOnLine = function (self,data)
+    local function SortDescending (item1,item2)
+    	local mem1 = game._HostPlayer._Guild._MemberList[item1]
+    	local mem2 = game._HostPlayer._Guild._MemberList[item2]
+    	if (mem1._LogoutTime == 0 and mem2._LogoutTime == 0) or
+		(mem1._LogoutTime > 0 and mem2._LogoutTime > 0) then
+			if mem1._RoleType ~= mem2._RoleType then
+            	return mem1._RoleType < mem2._RoleType
+	        else
+	            if mem1._RoleLevel ~= mem2._RoleLevel then
+	                return mem1._RoleLevel > mem2._RoleLevel
+	            else
+	            	
+	            	if mem1._BattlePower ~= mem2._BattlePower then
+	                	return mem1._BattlePower > mem2._BattlePower
+	                else
+	                	return mem1._Liveness > mem2._Liveness
+	                end
+	            end
+	        end
+		end
+		return mem1._LogoutTime == 0
+    end 
+    local function SortAscending (item1,item2)
+    	local mem1 = game._HostPlayer._Guild._MemberList[item1]
+    	local mem2 = game._HostPlayer._Guild._MemberList[item2]
+  		if (mem1._LogoutTime == 0 and mem2._LogoutTime == 0) or
+		   (mem1._LogoutTime > 0 and mem2._LogoutTime > 0) then
+			if mem1._RoleType ~= mem2._RoleType then
+	            return mem1._RoleType > mem2._RoleType
+	        else
+	            if mem1._RoleLevel ~= mem2._RoleLevel then
+	                return mem1._RoleLevel < mem2._RoleLevel
+	            else
+	            	if mem1._BattlePower ~= mem2._BattlePower then
+	                	return mem1._BattlePower < mem2._BattlePower
+	                else
+	                	return mem1._Liveness < mem2._Liveness
+	                end
+	            end
+	        end
+		end
+		return mem1._LogoutTime > 0
+    end
+    if not self._IsDescending then 
+    	table.sort( data, SortAscending )
+  	else
+  		table.sort( data, SortDescending )
+  	end 
+end
+
+--排序优先级 等级 在线 职务 战力 活跃度
+def.method("table").SortByRoleLevel = function (self,data)
+	
+    local function SortDescending (item1,item2)
+	    local mem1 = game._HostPlayer._Guild._MemberList[item1]
+	    local mem2 = game._HostPlayer._Guild._MemberList[item2]
+   	 	if mem1._RoleLevel == mem2._RoleLevel then
+    		if (mem1._LogoutTime == 0 and mem2._LogoutTime == 0) or
+		       (mem1._LogoutTime > 0 and mem2._LogoutTime > 0) then
+				if mem1._RoleType ~= mem2._RoleType then
+		            return mem1._RoleType < mem2._RoleType
+		        else
+		        	if mem1._BattlePower ~= mem2._BattlePower then
+		            	return mem1._BattlePower > mem2._BattlePower
+		            else
+		            	return mem1._Liveness > mem2._Liveness
+		            end
+		        end
+	        end
+			return mem1._LogoutTime == 0
+	    else
+	    	return mem1._RoleLevel > mem2._RoleLevel
+	    end
+    end 
+    local function SortAscending (item1,item2)
+	    local mem1 = game._HostPlayer._Guild._MemberList[item1]
+	    local mem2 = game._HostPlayer._Guild._MemberList[item2]
+    	if mem1._RoleLevel == mem2._RoleLevel then
+    		if (mem1._LogoutTime == 0 and mem2._LogoutTime == 0) or
+		    (mem1._LogoutTime > 0 and mem2._LogoutTime > 0) then
+				if mem1._RoleType ~= mem2._RoleType then
+		            return mem1._RoleType > mem2._RoleType
+		        else
+	            	if mem1._BattlePower ~= mem2._BattlePower then
+	                	return mem1._BattlePower < mem2._BattlePower
+	                else
+	                	return mem1._Liveness < mem2._Liveness
+	                end
+	        	end
+			end
+			return mem1._LogoutTime > 0
+	    else
+	    	return mem1._RoleLevel < mem2._RoleLevel
+	    end
+    end
+    if not self._IsDescending then 
+    	table.sort( data, SortAscending )
+  	else
+  		table.sort( data, SortDescending )
+  	end 
+end
+
+--排序优先级 职务 在线 等级 战力 活跃度
+def.method("table").SortByRoleType = function (self,data)
+	
+    local function SortDescending (item1,item2)
+    	local mem1 = game._HostPlayer._Guild._MemberList[item1]
+    	local mem2 = game._HostPlayer._Guild._MemberList[item2]
+    	if mem1._RoleType == mem2._RoleType then
+    		if (mem1._LogoutTime == 0 and mem2._LogoutTime == 0) or
+			    (mem1._LogoutTime > 0 and mem2._LogoutTime > 0) then
+				if mem1._RoleLevel ~= mem2._RoleLevel then
+		            return mem1._RoleLevel > mem2._RoleLevel
+		        else
+		        	if mem1._BattlePower ~= mem2._BattlePower then
+		            	return mem1._BattlePower > mem2._BattlePower
+		            else
+		            	return mem1._Liveness > mem2._Liveness
+		            end
+		        end
+	        end
+			return mem1._LogoutTime == 0
+	    else
+	    	return mem1._RoleType < mem2._RoleType
+	    end
+    end 
+    local function SortAscending (item1,item2)
+    	local mem1 = game._HostPlayer._Guild._MemberList[item1]
+    	local mem2 = game._HostPlayer._Guild._MemberList[item2]
+    	if mem1._RoleType == mem2._RoleType then
+    		if (mem1._LogoutTime == 0 and mem2._LogoutTime == 0) or
+		    (mem1._LogoutTime > 0 and mem2._LogoutTime > 0) then
+				if mem1._RoleLevel ~= mem2._RoleLevel then
+		            return mem1._RoleLevel < mem2._RoleLevel
+		        else
+	            	if mem1._BattlePower ~= mem2._BattlePower then
+	                	return mem1._BattlePower < mem2._BattlePower
+	                else
+	                	return mem1._Liveness < mem2._Liveness
+	                end
+	        	end
+			end
+			return mem1._LogoutTime > 0
+	    else
+	    	return mem1._RoleType > mem2._RoleType
+	    end    	
+    end
+    if not self._IsDescending then 
+    	table.sort( data, SortAscending )
+  	else
+  		table.sort( data, SortDescending )
+  	end 
+end
+
+--排序优先级 战力 在线 职务 等级 活跃度
+def.method("table").SortByBattlePower = function (self,data)
+    local function SortAscending (item1,item2)
+	    local mem1 = game._HostPlayer._Guild._MemberList[item1]
+	    local mem2 = game._HostPlayer._Guild._MemberList[item2]
+	    if mem1._BattlePower == mem2._BattlePower then
+    		if (mem1._LogoutTime == 0 and mem2._LogoutTime == 0) or
+		    (mem1._LogoutTime > 0 and mem2._LogoutTime > 0) then
+			    if mem1._RoleType ~= mem2._RoleType then
+		            return mem1._RoleType < mem2._RoleType
+		        else
+					if mem1._RoleLevel ~= mem2._RoleLevel then
+			            return mem1._RoleLevel > mem2._RoleLevel
+			        else
+		            	return mem1._Liveness > mem2._Liveness
+			        end
+			    end
+	        end
+			return mem1._LogoutTime == 0
+	    else
+	    	return mem1._BattlePower < mem2._BattlePower
+	    end
+    end 
+    local function SortDescending (item1,item2)
+    	local mem1 = game._HostPlayer._Guild._MemberList[item1]
+	    local mem2 = game._HostPlayer._Guild._MemberList[item2]
+	    if mem1._BattlePower == mem2._BattlePower then
+    		if (mem1._LogoutTime == 0 and mem2._LogoutTime == 0) or
+		   (mem1._LogoutTime > 0 and mem2._LogoutTime > 0) then
+			   	if mem1._RoleType ~= mem2._RoleType then
+		            return mem1._RoleType > mem2._RoleType
+		        else
+					if mem1._RoleLevel ~= mem2._RoleLevel then
+			            return mem1._RoleLevel < mem2._RoleLevel
+			        else
+		            	return mem1._Liveness < mem2._Liveness
+		        	end
+		        end
+			end
+			return mem1._LogoutTime > 0
+	    else
+	    	return mem1._BattlePower > mem2._BattlePower
+	    end
+    end
+   	if not self._IsDescending then 
+    	table.sort( data, SortAscending )
+  	else
+  		table.sort( data, SortDescending )
+  	end 
+end
+
+--排序优先级 活跃度 在线 职务 等级 战力
+def.method("table","dynamic").SortByLiveness = function (self,data,isDescending)
+    local function SortAscending (item1,item2)
+    	local mem1 = game._HostPlayer._Guild._MemberList[item1]
+	    local mem2 = game._HostPlayer._Guild._MemberList[item2]
+    	if mem1._Liveness == mem2._Liveness then
+    		if (mem1._LogoutTime == 0 and mem2._LogoutTime == 0) or
+		    (mem1._LogoutTime > 0 and mem2._LogoutTime > 0) then
+			    if mem1._RoleType ~= mem2._RoleType then
+		            return mem1._RoleType < mem2._RoleType
+		        else
+		            if mem1._RoleLevel ~= mem2._RoleLevel then
+		                return mem1._RoleLevel > mem2._RoleLevel
+		            else
+	                	return mem1._BattlePower > mem2._BattlePower
+		            end
+		        end
+	        end
+			return mem1._LogoutTime == 0
+	    else
+	    	return mem1._Liveness < mem2._Liveness
+	    end
+    	
+    end 
+    local function SortDescending (item1,item2)
+    	local mem1 = game._HostPlayer._Guild._MemberList[item1]
+	    local mem2 = game._HostPlayer._Guild._MemberList[item2]
+    	if mem1._Liveness == mem2._Liveness then
+    		if (mem1._LogoutTime == 0 and mem2._LogoutTime == 0) or
+		    (mem1._LogoutTime > 0 and mem2._LogoutTime > 0) then
+			   	if mem1._RoleType ~= mem2._RoleType then
+		            return mem1._RoleType > mem2._RoleType
+		        else
+		            if mem1._RoleLevel ~= mem2._RoleLevel then
+		                return mem1._RoleLevel < mem2._RoleLevel
+		            else
+	                	return mem1._BattlePower < mem2._BattlePower
+		            end
+		        end
+			end
+			return mem1._LogoutTime > 0
+	    else
+	    	return mem1._Liveness > mem2._Liveness
+	    end
+    	
+    end
+    local sort = self._IsDescending
+    if isDescending ~= nil then 
+    	sort = isDescending 
+    end
+    if not sort then 
+    	table.sort( data, SortAscending )
+  	else
+  		table.sort( data, SortDescending )
+  	end 
+end
+
+def.method().UpdateMemberIdBySort = function (self )
+	-- 初始化默认在线排序
+	if #game._HostPlayer._Guild._MemberID == 1 then return end
+	if self._CurMemSortType == 0 then 
+		self._CurMemSortType = CPanelBagSort.GuildSortType.Online
+	end
+	if self._CurMemSortType == CPanelBagSort.GuildSortType.Online then 
+		self:SortByOnLine(game._HostPlayer._Guild._MemberID)
+	elseif self._CurMemSortType == CPanelBagSort.GuildSortType.Profession then 
+		self:SortByRoleType(game._HostPlayer._Guild._MemberID)
+	elseif self._CurMemSortType == CPanelBagSort.GuildSortType.Level then 
+		self:SortByRoleLevel(game._HostPlayer._Guild._MemberID)
+	elseif self._CurMemSortType == CPanelBagSort.GuildSortType.Battle then 
+		self:SortByBattlePower(game._HostPlayer._Guild._MemberID)
+	elseif self._CurMemSortType == CPanelBagSort.GuildSortType.Liveness then 
+		self:SortByLiveness(game._HostPlayer._Guild._MemberID,nil)
+	end
+end
+
+----------------------------------------------------------------------
+-------------------------公会基础系统成员排序-------------------------
+----------------------------------------------------------------------
+
+def.method().ClearTemplateData = function(self)
+	self._GuildIconData = nil 
+end
+
 def.method().Release = function(self)
 	self:RemoveGuildRedTimer()
+	self:ClearTemplateData()
     self._IsInitMoney = true
+	-- 清除公会铁匠铺数据
+	CGuildSmithyMan.Instance():Clear()
 end
 
 CGuildMan.Commit()

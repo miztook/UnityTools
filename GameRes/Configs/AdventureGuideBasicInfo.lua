@@ -2,7 +2,7 @@ local AdventureGuideInfo =
 {
 	[1] = 
 	{
-		Id = 1, Name = "奇利恩刑场", Remarks = "奇利恩折磨人质的刑场，在这里经验和技巧面临更高的考验，但也会获得丰厚的奖励", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg19_001.png", IconPath2 = "System/System_Calendar", OpenLevel = 50,PlayID = "401*403*404", IndexRules = 0, TabType = 0, DateDisplayText = "每日", SortIndex = 21, PlayPos = "1", ActivityNum = 1, Liveness = 15, IsNotify = "False", ContentEventOpenUI = 0, PageId = 0, ContentEventEnterDungeon = -1, ContentEventFindMap = -1, ContentEventFindNPC = -1, ShowNumType = 0,ShowNumString = "", ShowRewardId = 1553,FunId = 15,PeopleNum = "3-5", IsSingle = "False", IsTeam = "True", TaskRequirement = "完成奇利恩刑场1次", 
+		Id = 1, Name = "奇利恩刑场", Remarks = "奇利恩折磨人质的刑场，在这里经验和技巧面临更高的考验，但也会获得丰厚的奖励", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg19_001.png", IconPath2 = "System/System_Calendar", OpenLevel = 50,PlayID = "401*403*404", IndexRules = 0, TabType = 0, DateDisplayText = "每日", SortIndex = 21, PlayPos = "1", ActivityNum = 1, Liveness = 15, IsNotify = "False", ContentEventOpenUI = 0, PageId = 0, ContentEventEnterDungeon = -1, ContentEventFindMap = -1, ContentEventFindNPC = -1, ShowNumType = 0,ShowNumString = "", ShowRewardId = 1553,FunId = 15,PeopleNum = "7-10", IsSingle = "False", IsTeam = "True", TaskRequirement = "完成奇利恩刑场1次", 
 		Play = 
 		{
 			[1] = {playId = 401, openLevel = 60, difficultyMode = 0, recommendedNumber = 10, maxJoinCount = 1, rewardId = 1550 },
@@ -13,7 +13,7 @@ local AdventureGuideInfo =
 	},
 	[2] = 
 	{
-		Id = 2, Name = "狩猎", Remarks = "光明渐远，无数残暴的生物从阴影中醒来，在最黑暗的时刻，最大的威胁降临", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg22_001.png", IconPath2 = "System/System_Calendar", OpenLevel = 30,PlayID = "1*2*3*4*5", IndexRules = 0, TabType = 3, DateDisplayText = "每日", SortIndex = 14, PlayPos = "", ActivityNum = 1, Liveness = 0, IsNotify = "False", ContentEventOpenUI = 7, PageId = 1, ContentEventEnterDungeon = -1, ContentEventFindMap = -1, ContentEventFindNPC = -1, ShowNumType = 0,ShowNumString = "", ShowRewardId = 1305,FunId = 140,PeopleNum = "不限", IsSingle = "True", IsTeam = "True", TaskRequirement = "", 
+		Id = 2, Name = "狩猎", Remarks = "光明渐远，无数残暴的生物从阴影中醒来，在最黑暗的时刻，最大的威胁降临", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg22_001.png", IconPath2 = "System/System_Calendar", OpenLevel = 30,PlayID = "1*2*3*4*5", IndexRules = 0, TabType = 3, DateDisplayText = "每日", SortIndex = 6, PlayPos = "", ActivityNum = 1, Liveness = 0, IsNotify = "False", ContentEventOpenUI = 7, PageId = 1, ContentEventEnterDungeon = -1, ContentEventFindMap = -1, ContentEventFindNPC = -1, ShowNumType = 0,ShowNumString = "", ShowRewardId = 1305,FunId = 140,PeopleNum = "不限", IsSingle = "True", IsTeam = "True", TaskRequirement = "", 
 		Play = 
 		{
 			[1] = {playId = 1, openLevel = 32, difficultyMode = 0, recommendedNumber = 10, maxJoinCount = 0, rewardId = 1300 },
@@ -47,7 +47,7 @@ local AdventureGuideInfo =
 	},
 	[5] = 
 	{
-		Id = 5, Name = "荣耀竞技", Remarks = "贝里克神庇护的演武场，参与者可以专注于技巧与配合的磨练（比赛期间参与者战力相同）", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg16_001.png", IconPath2 = "System/System_Calendar", OpenLevel = 23,PlayID = "307", IndexRules = 0, TabType = 1, DateDisplayText = "12:00-24:00", SortIndex = 15, PlayPos = "", ActivityNum = 1, Liveness = 0, IsNotify = "True", ContentEventOpenUI = 3, PageId = 0, ContentEventEnterDungeon = -1, ContentEventFindMap = -1, ContentEventFindNPC = -1, ShowNumType = 0,ShowNumString = "", ShowRewardId = 1628,FunId = 18,PeopleNum = "1-5", IsSingle = "True", IsTeam = "True", TaskRequirement = "", 
+		Id = 5, Name = "荣耀竞技", Remarks = "贝里克神庇护的演武场，参与者可以专注于技巧与配合的磨练（比赛期间参与者战力相同）", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg16_001.png", IconPath2 = "System/System_Calendar", OpenLevel = 23,PlayID = "307", IndexRules = 0, TabType = 1, DateDisplayText = "12:00-24:00", SortIndex = 15, PlayPos = "", ActivityNum = 1, Liveness = 0, IsNotify = "True", ContentEventOpenUI = 3, PageId = 0, ContentEventEnterDungeon = -1, ContentEventFindMap = -1, ContentEventFindNPC = -1, ShowNumType = 0,ShowNumString = "", ShowRewardId = 1628,FunId = 18,PeopleNum = "1-3", IsSingle = "True", IsTeam = "True", TaskRequirement = "", 
 		Play = 
 		{
 			[1] = {playId = 307, openLevel = 23, difficultyMode = 0, recommendedNumber = 6, maxJoinCount = 0, rewardId = 0 },
@@ -59,15 +59,15 @@ local AdventureGuideInfo =
 		Id = 6, Name = "异界之门", Remarks = "封印着古代巨兽的神秘空间，需要会长开启挑战，击杀头目后所有的成员获得奖励", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg8_001.png", IconPath2 = "System/System_Guild", OpenLevel = 30,PlayID = "601*602*603*611*612*613*621*622*623", IndexRules = 0, TabType = 2, DateDisplayText = "周一，四 6:00重置", SortIndex = 13, PlayPos = "1", ActivityNum = 1, Liveness = 10, IsNotify = "False", ContentEventOpenUI = 6, PageId = 0, ContentEventEnterDungeon = -1, ContentEventFindMap = -1, ContentEventFindNPC = -1, ShowNumType = 0,ShowNumString = "", ShowRewardId = 1210,FunId = 92,PeopleNum = "不限", IsSingle = "True", IsTeam = "True", TaskRequirement = "参加异界之门1次", 
 		Play = 
 		{
-			[1] = {playId = 601, openLevel = 30, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1201 },
-			[2] = {playId = 602, openLevel = 30, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1202 },
-			[3] = {playId = 603, openLevel = 30, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1203 },
-			[4] = {playId = 611, openLevel = 30, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1204 },
-			[5] = {playId = 612, openLevel = 30, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1205 },
-			[6] = {playId = 613, openLevel = 30, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1206 },
-			[7] = {playId = 621, openLevel = 30, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1207 },
-			[8] = {playId = 622, openLevel = 30, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1208 },
-			[9] = {playId = 623, openLevel = 30, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1209 },
+			[1] = {playId = 601, openLevel = 28, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1201 },
+			[2] = {playId = 602, openLevel = 28, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1202 },
+			[3] = {playId = 603, openLevel = 28, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1203 },
+			[4] = {playId = 611, openLevel = 28, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1204 },
+			[5] = {playId = 612, openLevel = 28, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1205 },
+			[6] = {playId = 613, openLevel = 28, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1206 },
+			[7] = {playId = 621, openLevel = 28, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1207 },
+			[8] = {playId = 622, openLevel = 28, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1208 },
+			[9] = {playId = 623, openLevel = 28, difficultyMode = 0, recommendedNumber = 999, maxJoinCount = 1, rewardId = 1209 },
 		},
 
 	},
@@ -96,7 +96,7 @@ local AdventureGuideInfo =
 	},
 	[9] = 
 	{
-		Id = 9, Name = "遗迹·噩梦", Remarks = "遗迹的怪物变得更强了，推荐冒险者们结伴而行，可以获得更好的史诗装备", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg2_001.png", IconPath2 = "System/System_Calendar", OpenLevel = 20,PlayID = "222*232*242*252*262", IndexRules = 1, TabType = 0, DateDisplayText = "每日", SortIndex = 5, PlayPos = "1", ActivityNum = 3, Liveness = 5, IsNotify = "False", ContentEventOpenUI = 0, PageId = 0, ContentEventEnterDungeon = -1, ContentEventFindMap = -1, ContentEventFindNPC = -1, ShowNumType = 1,ShowNumString = "详见活动界面", ShowRewardId = 1029,FunId = 105,PeopleNum = "1-5", IsSingle = "True", IsTeam = "True", TaskRequirement = "完成遗迹·噩梦3次", 
+		Id = 9, Name = "遗迹·噩梦", Remarks = "遗迹的怪物变得更强了，推荐冒险者们结伴而行，可以获得更好的史诗装备", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg2_001.png", IconPath2 = "System/System_Calendar", OpenLevel = 20,PlayID = "222*232*242*252*262", IndexRules = 1, TabType = 0, DateDisplayText = "每日", SortIndex = 5, PlayPos = "1", ActivityNum = 3, Liveness = 5, IsNotify = "False", ContentEventOpenUI = 0, PageId = 0, ContentEventEnterDungeon = -1, ContentEventFindMap = -1, ContentEventFindNPC = -1, ShowNumType = 1,ShowNumString = "详见活动界面", ShowRewardId = 1029,FunId = 13,PeopleNum = "1-5", IsSingle = "True", IsTeam = "True", TaskRequirement = "完成遗迹·噩梦3次", 
 		Play = 
 		{
 			[1] = {playId = 222, openLevel = 20, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 3, rewardId = 1011 },
@@ -112,13 +112,13 @@ local AdventureGuideInfo =
 		Id = 10, Name = "无畏战场", Remarks = "无畏者的修炼场，在这里没有规则和秩序可言，混战之中的幸存者会获得最终奖励", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg17_001.png", IconPath2 = "System/System_Calendar", OpenLevel = 25,PlayID = "406", IndexRules = 1, TabType = 1, DateDisplayText = "周一,三,五,日18:00-24:00", SortIndex = 19, PlayPos = "", ActivityNum = 1, Liveness = 0, IsNotify = "True", ContentEventOpenUI = 4, PageId = 0, ContentEventEnterDungeon = -1, ContentEventFindMap = -1, ContentEventFindNPC = -1, ShowNumType = 0,ShowNumString = "", ShowRewardId = 1601,FunId = 19,PeopleNum = "单人", IsSingle = "True", IsTeam = "False", TaskRequirement = "", 
 		Play = 
 		{
-			[1] = {playId = 406, openLevel = 25, difficultyMode = 0, recommendedNumber = 10, maxJoinCount = 10, rewardId = 1601 },
+			[1] = {playId = 406, openLevel = 35, difficultyMode = 0, recommendedNumber = 10, maxJoinCount = 10, rewardId = 1601 },
 		},
 
 	},
 	[11] = 
 	{
-		Id = 11, Name = "悬赏事务", Remarks = "各个村镇出现小股侵扰的敌人，帮助治安官击败他们可以迅速的提升自己的经验", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg11_001.png", IconPath2 = "System/System_Task", OpenLevel = 21,PlayID = "", IndexRules = 1, TabType = 3, DateDisplayText = "每日", SortIndex = 8, PlayPos = "1", ActivityNum = 1, Liveness = 20, IsNotify = "False", ContentEventOpenUI = -1, PageId = 0, ContentEventEnterDungeon = -1, ContentEventFindMap = 130, ContentEventFindNPC = 1097, ShowNumType = 0,ShowNumString = "", ShowRewardId = 1627,FunId = 71,PeopleNum = "1-5", IsSingle = "True", IsTeam = "True", TaskRequirement = "完成1组悬赏事务", 
+		Id = 11, Name = "悬赏事务", Remarks = "各个村镇出现小股侵扰的敌人，帮助治安官击败他们可以迅速的提升自己的经验", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg11_001.png", IconPath2 = "System/System_Task", OpenLevel = 21,PlayID = "", IndexRules = 1, TabType = 3, DateDisplayText = "每日", SortIndex = 12, PlayPos = "1", ActivityNum = 1, Liveness = 20, IsNotify = "False", ContentEventOpenUI = -1, PageId = 0, ContentEventEnterDungeon = -1, ContentEventFindMap = 130, ContentEventFindNPC = 1097, ShowNumType = 0,ShowNumString = "", ShowRewardId = 1627,FunId = 71,PeopleNum = "1-5", IsSingle = "True", IsTeam = "True", TaskRequirement = "完成1组悬赏事务", 
 		Play = 
 		{
 		},
@@ -167,7 +167,7 @@ local AdventureGuideInfo =
 		Id = 17, Name = "风暴试炼", Remarks = "通往亚卡伊亚的神秘高塔，每前进一层都更加危险，但是据说通过试炼者可以获得神的力量", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg6_001.png", IconPath2 = "System/System_Calendar", OpenLevel = 22,PlayID = "402", IndexRules = 0, TabType = 0, DateDisplayText = "每日", SortIndex = 17, PlayPos = "1", ActivityNum = 1, Liveness = 15, IsNotify = "False", ContentEventOpenUI = 0, PageId = 0, ContentEventEnterDungeon = -1, ContentEventFindMap = -1, ContentEventFindNPC = -1, ShowNumType = 0,ShowNumString = "", ShowRewardId = 1600,FunId = 14,PeopleNum = "1-5", IsSingle = "True", IsTeam = "True", TaskRequirement = "完成1次风暴试炼", 
 		Play = 
 		{
-			[1] = {playId = 402, openLevel = 22, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 1, rewardId = 1600 },
+			[1] = {playId = 402, openLevel = 31, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 1, rewardId = 1600 },
 		},
 
 	},
@@ -222,7 +222,7 @@ local AdventureGuideInfo =
 	},
 	[19] = 
 	{
-		Id = 19, Name = "神之视界·单人", Remarks = "阿勒堡雷亚大陆各处隐藏着,世界之壁的裂隙，使用神之视界找到它们，发掘其中的宝藏吧！", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg18_001.png", IconPath2 = "System/System_Calendar", OpenLevel = 23,PlayID = "1310*146*1510*1710*1810*1217*1917", IndexRules = 0, TabType = 3, DateDisplayText = "每日", SortIndex = 6, PlayPos = "1", ActivityNum = 5, Liveness = 2, IsNotify = "False", ContentEventOpenUI = 14, PageId = 0, ContentEventEnterDungeon = -1, ContentEventFindMap = -1, ContentEventFindNPC = -1, ShowNumType = 0,ShowNumString = "", ShowRewardId = 1631,FunId = 72,PeopleNum = "单人", IsSingle = "True", IsTeam = "False", TaskRequirement = "完成5次神之视界·单人", 
+		Id = 19, Name = "神之视界·单人", Remarks = "阿勒堡雷亚大陆各处隐藏着,世界之壁的裂隙，使用神之视界找到它们，发掘其中的宝藏吧！", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg18_001.png", IconPath2 = "System/System_Calendar", OpenLevel = 23,PlayID = "1310*146*1510*1710*1810*1217*1917", IndexRules = 0, TabType = 3, DateDisplayText = "每日", SortIndex = 7, PlayPos = "1", ActivityNum = 5, Liveness = 2, IsNotify = "False", ContentEventOpenUI = 14, PageId = 0, ContentEventEnterDungeon = -1, ContentEventFindMap = -1, ContentEventFindNPC = -1, ShowNumType = 0,ShowNumString = "", ShowRewardId = 1631,FunId = 72,PeopleNum = "单人", IsSingle = "True", IsTeam = "False", TaskRequirement = "完成5次神之视界·单人", 
 		Play = 
 		{
 			[1] = {playId = 1310, openLevel = 1, difficultyMode = 0, recommendedNumber = 1, maxJoinCount = 5, rewardId = 0 },
@@ -237,31 +237,31 @@ local AdventureGuideInfo =
 	},
 	[20] = 
 	{
-		Id = 20, Name = "神之视界·多人", Remarks = "一部分亚卡伊亚入侵者已经穿过世界之壁的裂隙,入侵阿勒堡雷亚，使用神之视界找到并消灭它们", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg18_001.png", IconPath2 = "System/System_Calendar", OpenLevel = 23,PlayID = "1311*1312*1313*1314*147*148*1511*1512*1711*1712*1811*1812*1918*1919*1920*1921", IndexRules = 0, TabType = 3, DateDisplayText = "每日", SortIndex = 7, PlayPos = "1", ActivityNum = 2, Liveness = 5, IsNotify = "False", ContentEventOpenUI = 15, PageId = 0, ContentEventEnterDungeon = -1, ContentEventFindMap = -1, ContentEventFindNPC = -1, ShowNumType = 0,ShowNumString = "", ShowRewardId = 1632,FunId = 73,PeopleNum = "3-5", IsSingle = "False", IsTeam = "True", TaskRequirement = "完成2次神之世界·多人", 
+		Id = 20, Name = "神之视界·多人", Remarks = "一部分亚卡伊亚入侵者已经穿过世界之壁的裂隙,入侵阿勒堡雷亚，使用神之视界找到并消灭它们", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg18_001.png", IconPath2 = "System/System_Calendar", OpenLevel = 23,PlayID = "1311*1312*1313*1314*147*148*1511*1512*1711*1712*1811*1812*1918*1919*1920*1921", IndexRules = 0, TabType = 3, DateDisplayText = "每日", SortIndex = 8, PlayPos = "1", ActivityNum = 2, Liveness = 5, IsNotify = "False", ContentEventOpenUI = 15, PageId = 0, ContentEventEnterDungeon = -1, ContentEventFindMap = -1, ContentEventFindNPC = -1, ShowNumType = 0,ShowNumString = "", ShowRewardId = 1632,FunId = 73,PeopleNum = "3-5", IsSingle = "False", IsTeam = "True", TaskRequirement = "完成2次神之世界·多人", 
 		Play = 
 		{
 			[1] = {playId = 1311, openLevel = 20, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1603 },
-			[2] = {playId = 1312, openLevel = 23, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1621 },
-			[3] = {playId = 1313, openLevel = 26, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1622 },
-			[4] = {playId = 1314, openLevel = 28, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1623 },
+			[2] = {playId = 1312, openLevel = 22, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1621 },
+			[3] = {playId = 1313, openLevel = 24, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1622 },
+			[4] = {playId = 1314, openLevel = 26, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1623 },
 			[5] = {playId = 147, openLevel = 30, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1604 },
-			[6] = {playId = 148, openLevel = 33, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1608 },
-			[7] = {playId = 1511, openLevel = 36, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1612 },
-			[8] = {playId = 1512, openLevel = 38, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1616 },
+			[6] = {playId = 148, openLevel = 32, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1608 },
+			[7] = {playId = 1511, openLevel = 33, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1612 },
+			[8] = {playId = 1512, openLevel = 36, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1616 },
 			[9] = {playId = 1711, openLevel = 40, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1605 },
-			[10] = {playId = 1712, openLevel = 43, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1609 },
-			[11] = {playId = 1811, openLevel = 46, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1613 },
-			[12] = {playId = 1812, openLevel = 48, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1617 },
+			[10] = {playId = 1712, openLevel = 42, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1609 },
+			[11] = {playId = 1811, openLevel = 43, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1613 },
+			[12] = {playId = 1812, openLevel = 46, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1617 },
 			[13] = {playId = 1918, openLevel = 50, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1606 },
-			[14] = {playId = 1919, openLevel = 53, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1610 },
-			[15] = {playId = 1920, openLevel = 56, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1614 },
-			[16] = {playId = 1921, openLevel = 58, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1618 },
+			[14] = {playId = 1919, openLevel = 52, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1610 },
+			[15] = {playId = 1920, openLevel = 53, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1614 },
+			[16] = {playId = 1921, openLevel = 56, difficultyMode = 0, recommendedNumber = 5, maxJoinCount = 2, rewardId = 1618 },
 		},
 
 	},
 	[24] = 
 	{
-		Id = 24, Name = "封印巨兽", Remarks = "使用魔法卷轴后能够指引冒险者封印裂隙，在有限的时间内完成封印，将获得难以入手的宠物作为奖励", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg20_001.png", IconPath2 = "System/System_Task", OpenLevel = 24,PlayID = "", IndexRules = 0, TabType = 3, DateDisplayText = "每日", SortIndex = 12, PlayPos = "1", ActivityNum = 2, Liveness = 5, IsNotify = "False", ContentEventOpenUI = -1, PageId = 0, ContentEventEnterDungeon = -1, ContentEventFindMap = 110, ContentEventFindNPC = 205, ShowNumType = 1,ShowNumString = "不限", ShowRewardId = 1633,FunId = 83,PeopleNum = "不限", IsSingle = "True", IsTeam = "True", TaskRequirement = "完成2次封印巨兽", 
+		Id = 24, Name = "封印巨兽", Remarks = "使用魔法卷轴后能够指引冒险者封印裂隙，在有限的时间内完成封印，将获得难以入手的宠物作为奖励", IconPath = "Assets/Outputs/CommonAtlas/Image/Calendar/CBT_Calendar_Bg20_001.png", IconPath2 = "System/System_Task", OpenLevel = 24,PlayID = "", IndexRules = 0, TabType = 3, DateDisplayText = "每日", SortIndex = 14, PlayPos = "1", ActivityNum = 2, Liveness = 5, IsNotify = "False", ContentEventOpenUI = -1, PageId = 0, ContentEventEnterDungeon = -1, ContentEventFindMap = 110, ContentEventFindNPC = 205, ShowNumType = 1,ShowNumString = "不限", ShowRewardId = 1633,FunId = 83,PeopleNum = "不限", IsSingle = "True", IsTeam = "True", TaskRequirement = "完成2次封印巨兽", 
 		Play = 
 		{
 		},

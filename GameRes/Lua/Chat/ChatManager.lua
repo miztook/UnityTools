@@ -28,6 +28,7 @@ do
 	def.field("table")._NotReadCounter = BlankTable
     def.field("number")._CurrentLastMsgId = 0
 	def.field("number")._WorldLastMsgId = 0
+	def.field("number")._EnergyNum = 0
 
 	def.field("boolean")._Channel_World = true
 	def.field("boolean")._Channel_Guild = true
@@ -109,12 +110,16 @@ do
 							CTeamMan.Instance():ApplyTeam(msg.LinkParam1)
 						end
 					elseif msg.LinkType == ChatLinkType.ChatLinkType_Path then
-						-- 寻路到对应的地图和位置
-						local HostPlayerPosX, HostPlayerPosZ = game._HostPlayer:GetPosXZ() -- 无内存分配的getPosition
-        				if math.ceil(HostPlayerPosX) == math.ceil(msg.Link_PathPos.x) and math.ceil(HostPlayerPosZ) == math.ceil(msg.Link_PathPos.z) then return end
-						local CTransManage = require "Main.CTransManage"
-						local targetPos = Vector3.New(msg.Link_PathPos.x, msg.Link_PathPos.y, msg.Link_PathPos.z)
-						CTransManage.Instance():StartMoveByMapIDAndPos(msg.Link_MapId, targetPos, nil, false, false)
+						if game._HostPlayer:IsInGlobalZone() then
+							game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+						else
+							-- 寻路到对应的地图和位置
+							local HostPlayerPosX, HostPlayerPosZ = game._HostPlayer:GetPosXZ() -- 无内存分配的getPosition
+							if math.ceil(HostPlayerPosX) == math.ceil(msg.Link_PathPos.x) and math.ceil(HostPlayerPosZ) == math.ceil(msg.Link_PathPos.z) then return end
+							local CTransManage = require "Main.CTransManage"
+							local targetPos = Vector3.New(msg.Link_PathPos.x, msg.Link_PathPos.y, msg.Link_PathPos.z)
+							CTransManage.Instance():StartMoveByMapIDAndPos(msg.Link_MapId, targetPos, nil, false, false)
+						end						
 					end
 				else
 					warn("lidaming msg.MsgType = ", msg.MsgType)
@@ -154,8 +159,11 @@ do
 			-- 	return
 			-- end
 		end
-		--CSoundMan.Instance():EnableBackgroundMusic(false)	-- 音量调小的值。暂时写死。
-		CSoundMan.Instance():SetSoundBGMVolume(0, true)
+--		----CSoundMan.Instance():EnableBackgroundMusic(false)	-- 音量调小的值。暂时写死。
+--		--CSoundMan.Instance():SetSoundBGMVolume(0, true)
+--		CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.Chat, true)
+		CSoundMan.Instance():AddChatVoiceCount()
+
 		local ret = VoiceUtil.OffLine_PlayRecordedFile(fileId)
 		-- ret = VoiceUtil.Translation_SpeechToText(fileId)
 		-- warn("ret == ", ret , "fileId == ", fileId)		
@@ -165,8 +173,11 @@ do
 	def.method("string").OnStopVoice = function(self , fileId)
 		-- warn("OnStopVoice CurrentPlayVoiceID == ", CurrentPlayVoiceID)
 		
-		--CSoundMan.Instance():EnableBackgroundMusic(true)
-		CSoundMan.Instance():SetSoundBGMVolume(1, true)
+--		----CSoundMan.Instance():EnableBackgroundMusic(true)
+--		--CSoundMan.Instance():SetSoundBGMVolume(1, true)
+--		CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.Chat, false)
+		CSoundMan.Instance():SubChatVoiceCount()
+
 		local ret = VoiceUtil.OffLine_StopPlayFile(fileId)
 		-- warn("OnStopVoice ret == ", ret)
 	end
@@ -193,7 +204,10 @@ do
 			if CurrentPlayVoiceID ~= nil and CurrentPlayVoiceID ~= msg.voice then
 				self:OnStopVoice(CurrentPlayVoiceID)
 			end
-			CSoundMan.Instance():SetSoundBGMVolume(0, true)
+			----CSoundMan.Instance():SetSoundBGMVolume(0, true)
+			--CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.Chat, true)
+			CSoundMan.Instance():AddChatVoiceCount()
+
 			local ret = VoiceUtil.OffLine_PlayRecordedFile(msg.voice)
 			-- ret = VoiceUtil.Translation_SpeechToText(msg.voice)
 			CurrentPlayVoiceID = msg.voice
@@ -242,7 +256,6 @@ do
 	end
 
 	def.method(CMsg).AddToMsgChain = function(self,msg)
-        local CPanelMainChat = require "GUI.CPanelMainChat"
         local channel = msg.Channel
         --该频道现有消息数量
         local count = self:GetChannelTotalCount(channel)
@@ -416,7 +429,7 @@ do
 
     def.method("number","=>","number").GetChannelTotalCount = function(self,channel)
         local count = 0
-		if self._MsgList == nil then return end
+		if self._MsgList == nil then return count end
         for _,v in pairs(self._MsgList) do
 			if v.Channel == channel then
 				count = count + 1
@@ -498,6 +511,10 @@ do
         return nil
     end
 
+	def.method("=>", "number").GetEnergyNum = function(self)
+		return self._EnergyNum
+	end
+
 	----------------------------------------------------------------
 	def.method().Toggle = function(self)
 		CPanelChatNew.Instance():Toggle()
@@ -524,10 +541,6 @@ do
 	]]
 	def.method("number","=>","string").FormatParamPlaceHolder = function(self,index)
 		return index
-	end
-
-	def.method("number","number","=>","string").MakeIvtrItemClient = function(self,pack,slot)
-		return pack,slot
 	end
 
 	------------------------------------------------------------------
@@ -557,8 +570,8 @@ do
 			--warn("Client TO Client!!!")			
 			local msg = self:NewMsg()
 			msg.Channel = Channel
-			if msg.Channel == CHAT_CHANNEL_ENUM.ChatChannelGuild then --帮派    
-				-- warn(debug.traceback())  
+			-- warn("Client TO Client!!!".. Channel .. debug.traceback())  
+			if msg.Channel == CHAT_CHANNEL_ENUM.ChatChannelGuild then --帮派    				
 				if game._GuildMan:IsHostInGuild() == false then
 					-- warn("NO GUILD !!!")
 					return
@@ -593,6 +606,7 @@ do
 		msg.Link_TargetId = linkInfo.TargetId		
 		msg.Link_Level = linkInfo.Level
 		msg.Link_FighatScore = linkInfo.CombatPower
+		msg.Link_TeamName = linkInfo.TeamName	
 		self:SendMsg(msg)
 	end
 
@@ -636,8 +650,11 @@ do
 			game._GUIMan:ShowTipText(StringTable.Get(13023), false)
 			return
 		end
+		if msg.Channel == CHAT_CHANNEL_ENUM.ChatChannelWorld and self._EnergyNum == 0 then
+			game._GUIMan:ShowTipText(StringTable.Get(13061), false)
+			return
+		end
         local C2SChat = require "PB.net".C2SChat
-		
 		local protocol = C2SChat()
 		local StrMsg = ""
         --Modify
@@ -655,7 +672,7 @@ do
 		protocol.voiceLength = msg.VoiceLength
 		protocol.Index = msg.ItemBgIndex
 		protocol.bgType = msg.ItemBgType
-
+		warn("Client TO Server,ChatLink Bug!!! channel = ", channel, "chatType = ", "StrMsg = ", StrMsg, chatType, debug.traceback())
 		if chatType == ChatType.ChatTypeLink then			
 			if channel == CHAT_CHANNEL_ENUM.ChatChannelGuild then --帮派        
 				if not game._GuildMan:IsHostInGuild() then
@@ -681,6 +698,7 @@ do
 			protocol.chatLink.PathPos.x = vPosX
 			protocol.chatLink.PathPos.y = vPosY
 			protocol.chatLink.PathPos.z = vPosZ
+			protocol.chatLink.TeamName = msg.Link_TeamName
 			PBHelper.Send(protocol)
 		else			
 			if channel == CHAT_CHANNEL_ENUM.ChatChannelGuild then --帮派        
@@ -767,7 +785,7 @@ do
 			msg.LinkType = prtc.chatLink.LinkType
 			msg.LinkParam1 = prtc.chatLink.ContentID
 			if msg.LinkType == ChatLinkType.ChatLinkType_Team then   	--队伍邀请链接						
-				StrMsg = CTeamMan.Instance():GetLinkStr(prtc.chatLink.TargetId, prtc.chatLink.Level, prtc.chatLink.FightScore)	
+				StrMsg = CTeamMan.Instance():GetLinkStr(prtc.chatLink.TargetId, prtc.chatLink.Level, prtc.chatLink.FightScore, prtc.chatLink.TeamName)	
 			elseif msg.LinkType == ChatLinkType.ChatLinkType_Path then	
         		if string.find(StrMsg, math.ceil(prtc.chatLink.PathPos.x)) and string.find(StrMsg, math.ceil(prtc.chatLink.PathPos.z)) then
 					local LinkBefore = "[l]<"
@@ -783,7 +801,7 @@ do
 			warn("UnKnown Chat Type , Please check!")
 			return
 		end
-
+		warn("Server TO Client, ChatLink Bug!!! channel = ", prtc.chatChannel, "chatType = ", prtc.chatType, "StrMsg =", StrMsg)
 		--Same Block
 		do
 			msg.RoleId = prtc.senderInfo.Id
@@ -803,6 +821,8 @@ do
 		-- 添加到消息列表
 		self._MsgList[#self._MsgList + 1] = msg
 		self:AddToMsgChain(msg)	
+
+		--[[ 移除世界频道次数限制
 		-- 世界频道聊天剩余免费次数
 		if msg.RoleId == game._HostPlayer._ID then
 			if msg.Channel == CHAT_CHANNEL_ENUM.ChatChannelWorld and game._HostPlayer._InfoData._WorldChatCount > 0 then
@@ -817,6 +837,7 @@ do
 				game._HostPlayer._InfoData._WorldChatCount = SurplusCount
 			end
 		end
+		]]
 	end
 
 	def.method().UpdateChatSetStates = function (self)

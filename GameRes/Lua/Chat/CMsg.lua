@@ -47,6 +47,7 @@ do
 	def.field("number").Link_TargetId = 0
 	def.field("number").Link_FighatScore = 0
 	def.field("number").Link_Level = 0
+	def.field("string").Link_TeamName = ""
 	-- 地图链接 需要参数  地图ID  坐标点
 	def.field("number").Link_MapId = 0
 	def.field("dynamic").Link_PathPos = 0

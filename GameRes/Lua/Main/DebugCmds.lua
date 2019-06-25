@@ -164,6 +164,10 @@ cmds["stat"] = function(c)
 	warn(info)
 end
 
+cmds["abcount"] = function(c)
+	GameUtil.DebugCommand("abcount")
+end
+
 cmds["navmesh"] = function(c)
 	if not check_params_count(c, 2) then return end
 	local cmd = "navmesh " .. c[2]
@@ -218,6 +222,12 @@ cmds["postprocess"] = function(c)
 	GameUtil.DebugCommand(cmd)
 end
 
+cmds["errormessage"] = function(c)
+	if not check_params_count(c, 2) then return end
+	local cmd = "errormessage " .. c[2]
+	GameUtil.DebugCommand(cmd)
+end
+
 --local UIShowTable = nil
 cmds["showui"] = function(c)
 
@@ -226,18 +236,6 @@ cmds["showui"] = function(c)
 
 	local cmd = "showui " .. c[2]
 	GameUtil.DebugCommand(cmd)
-end
-
-cmds["monstermove"] = function(c)
-	if not check_params_count(c, 2) then return end
-	local show = tonumber(c[2]) ~= 0
-	_G.monsterMove = show
-end
-
-cmds["monsterstopmove"] = function(c)
-	if not check_params_count(c, 2) then return end
-	local show = tonumber(c[2]) ~= 0
-	_G.monsterStopMove = show
 end
 
 cmds["playvoice"] = function (c)
@@ -249,6 +247,13 @@ cmds["playvoice"] = function (c)
 		pos = game._HostPlayer:GetPos()
 	end
 	CSoundMan.Instance():Play3DVoice(name, pos,0)
+end
+
+cmds["playbgm"] = function (c)
+	if not check_params_count(c, 2) then return end
+	local name = tostring(c[2])
+
+	CSoundMan.Instance():PlayBackgroundMusic(name,0)
 end
 
 cmds["playaudio3d"] = function (c)
@@ -500,7 +505,7 @@ cmds["autostate"] = function (c)
 	
 	local CQuestAutoMan = require "Quest.CQuestAutoMan"
 	CQuestAutoMan.Instance():Debug()
-	local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+	local CAutoFightMan = require "AutoFight.CAutoFightMan"
 	CAutoFightMan.Instance():Debug()
 	local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
 	CDungeonAutoMan.Instance():Debug()

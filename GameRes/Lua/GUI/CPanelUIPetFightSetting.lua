@@ -18,8 +18,7 @@ def.field("table")._CurrentSelectInfo = BlankTable          -- 当前选择物�
 def.field("table")._SelectObjectList = BlankTable           -- 出战助战选中框
 def.field("number")._SelectGroupType = 0                    -- 选中框类型
 def.field("table")._UIModelList = BlankTable                -- 存储UIModel的集合
-def.field("table")._UnlockInfopet1 = BlankTable             -- 解锁助战宠物栏1 信息
-def.field("table")._UnlockInfopet2 = BlankTable             -- 解锁助战宠物栏2 信息
+def.field("table")._UnlockInfopet = BlankTable             -- 解锁助战宠物栏 信息
 def.field("number")._FightFieldPropAddID = 355              -- 出战宠物属性加成特殊ID
 def.field("number")._HelpFieldPropAddID = 354               -- 助战宠物属性加成特殊ID
 def.field("table")._ItemPetData = nil                       -- 正在实例化的pet的item数据
@@ -83,8 +82,7 @@ local OnPetUpdateEvent = function(sender, event)
 end
 
 def.override().OnCreate = function(self)
-    self._UnlockInfopet1 = game._CWelfareMan:GetGloryUnlockData(EnumDef.GloryUnlockType.No2PetUnlock)
-    self._UnlockInfopet2 = game._CWelfareMan:GetGloryUnlockData(EnumDef.GloryUnlockType.No3PetUnlock)
+    self._UnlockInfopet = CPetUtility.GetPetUnlockHelpCellInfo()
     -- UI
     self._PanelObject = 
     {
@@ -264,7 +262,7 @@ def.method().UpdateHelpPetGroup = function(self)
         root.Lab_LevelNum:SetActive(bShow)
         root.Lab_PropTip:SetActive(not locked)
         if locked then
-            local str = string.format(StringTable.Get(19062), self._UnlockInfopet1.GloryDescription)
+            local str = string.format(StringTable.Get(19062), self._UnlockInfopet[1])
             GUI.SetText(root.Lab_UnLockCondition, str)
         end
 
@@ -305,7 +303,7 @@ def.method().UpdateHelpPetGroup = function(self)
         root.Lab_LevelNum:SetActive(bShow)
         root.Lab_PropTip:SetActive(not locked)
         if locked then
-            local str = string.format(StringTable.Get(19062), self._UnlockInfopet2.GloryDescription)
+            local str = string.format(StringTable.Get(19062), self._UnlockInfopet[2])
             GUI.SetText(root.Lab_UnLockCondition, str)
         end
 
@@ -485,18 +483,22 @@ end
 
 def.method("number").DoPetSet = function(self, index)
     --warn("DoPetSet :" ,index)
-    local petData = self:GetItemDataByIndex(index)
-    if self._SelectGroupType == SelectGroupType.FightPetGroup then
-        CPetUtility.SendC2SPetFighting(petData._ID, self._SelectGroupType)
-    else
-        CPetUtility.SendC2SPetHelpFighting(petData._ID, self._SelectGroupType - 1)
+    if self:CheckCanSetFightstate() then
+        local petData = self:GetItemDataByIndex(index)
+        if self._SelectGroupType == SelectGroupType.FightPetGroup then
+            CPetUtility.SendC2SPetFighting(petData._ID, self._SelectGroupType)
+        else
+            CPetUtility.SendC2SPetHelpFighting(petData._ID, self._SelectGroupType - 1)
+        end
     end
 end
 
 def.method("number").DoPetDrop = function(self, index)
     --warn("DoPetDrop :" ,index)
-    local petData = self:GetItemDataByIndex(index)
-    CPetUtility.SendC2SPetRest(petData._ID)
+    if self:CheckCanSetFightstate() then
+        local petData = self:GetItemDataByIndex(index)
+        CPetUtility.SendC2SPetRest(petData._ID)
+    end
 end
 
 def.method().UpdateSelectType = function(self)
@@ -528,7 +530,7 @@ def.override('string').OnClick = function(self, id)
         local petId = petList[1]
         local locked = petId == nil
         if locked then
-            local str = string.format(StringTable.Get(19062), self._UnlockInfopet1.GloryDescription)
+            local str = string.format(StringTable.Get(19062), self._UnlockInfopet[1])
             SendFlashMsg(str, false)
         else
             self._SelectGroupType = SelectGroupType.HelpPetGroup1
@@ -541,7 +543,7 @@ def.override('string').OnClick = function(self, id)
         local petId = petList[2]
         local locked = petId == nil
         if locked then
-            local str = string.format(StringTable.Get(19062), self._UnlockInfopet2.GloryDescription)
+            local str = string.format(StringTable.Get(19062), self._UnlockInfopet[2])
             SendFlashMsg(str, false)
         else
             self._SelectGroupType = SelectGroupType.HelpPetGroup2
@@ -552,37 +554,56 @@ def.override('string').OnClick = function(self, id)
         self._SelectGroupType = SelectGroupType.FightPetGroup
         self:UpdateSelectType()
         
-        local hp = game._HostPlayer
-        local petPackage = hp._PetPackage
-        local petId = hp:GetCurrentFightPetId()
-        CPetUtility.SendC2SPetRest( petId )
+        if self:CheckCanSetFightstate() then
+            local hp = game._HostPlayer
+            local petPackage = hp._PetPackage
+            local petId = hp:GetCurrentFightPetId()
+            CPetUtility.SendC2SPetRest( petId )
+        end
 
     elseif id == "Btn_Drop_Help1" then
         self._SelectGroupType = SelectGroupType.HelpPetGroup1
         self:UpdateSelectType()
-        local hp = game._HostPlayer
-        local petPackage = hp._PetPackage
-        local petList = hp:GetCurrentHelpPetList()
-        local petId = petList[self._SelectGroupType]
-        CPetUtility.SendC2SPetRest( petId )
+
+        if self:CheckCanSetFightstate() then
+            local hp = game._HostPlayer
+            local petPackage = hp._PetPackage
+            local petList = hp:GetCurrentHelpPetList()
+            local petId = petList[self._SelectGroupType]
+            CPetUtility.SendC2SPetRest( petId )
+        end
 
     elseif id == "Btn_Drop_Help2" then
         self._SelectGroupType = SelectGroupType.HelpPetGroup2
         self:UpdateSelectType()
 
-        local hp = game._HostPlayer
-        local petPackage = hp._PetPackage
-        local petList = hp:GetCurrentHelpPetList()
-        local petId = petList[self._SelectGroupType]
-        CPetUtility.SendC2SPetRest( petId )
+        if self:CheckCanSetFightstate() then
+            local hp = game._HostPlayer
+            local petPackage = hp._PetPackage
+            local petList = hp:GetCurrentHelpPetList()
+            local petId = petList[self._SelectGroupType]
+            CPetUtility.SendC2SPetRest( petId )
+        end
     elseif id == "Btn_AutoSet" then
-        if #self._LocalItemList == 0 then
-            SendFlashMsg(StringTable.Get(19059), false)
-        else
-            CPetUtility.SendC2SPetAutoFighting()
+        if self:CheckCanSetFightstate() then
+            if #self._LocalItemList == 0 then
+                SendFlashMsg(StringTable.Get(19059), false)
+            else
+                CPetUtility.SendC2SPetAutoFighting()
+            end
         end
     end
     CPanelBase.OnClick(self, id)
+end
+
+def.method("=>", "boolean").CheckCanSetFightstate = function (self)
+    local hp = game._HostPlayer
+    local isServerCombatState = hp:IsInServerCombatState()
+    if isServerCombatState then
+        SendFlashMsg(StringTable.Get(19046), false)
+    end
+
+    return not isServerCombatState
 end
 
 def.override().OnHide = function(self)

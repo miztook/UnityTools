@@ -44,7 +44,7 @@ def.override("number").EnterState = function(self, oldstate)
 end
 
 def.override("number").PlayMountStateAnimation = function(self, oldstate)
-	local bRide = self._Host:IsOnRide()
+	local bRide = self._Host:IsClientMounting()
 	if oldstate == FSM_STATE_TYPE.NONE then
 		if bRide then
 			local fade_time = EnumDef.SkillFadeTime.HostOther
@@ -62,7 +62,7 @@ def.override("number").PlayMountStateAnimation = function(self, oldstate)
 			StopHorseStandBehaviourComp(self)
 		end
 	else
-		if self._Host:IsInCombatState() and not self._Host:IsOnRide() then
+		if self._Host:IsInCombatState() and not bRide then
 			local animation = self._Host:GetEntityFsmAnimation(FSM_STATE_TYPE.IDLE)
 			self._Host:PlayAnimation(animation, EnumDef.SkillFadeTime.HostOther, self._IsAniQueued, 0, 1)
 		else
@@ -73,24 +73,8 @@ def.override("number").PlayMountStateAnimation = function(self, oldstate)
 					-- 在坐骑上相同动作时不做融合，直接从头播放
 					fade_time = 0
 				end
-				if self._Host:GetMountTid() == 23 or self._Host:GetMountTid() == 24 then    -- 摩托和炮车的TID。。需要配成特殊ID					
-					CSoundMan.Instance():Stop3DAudio("motorcycle_run_land","")
-					CSoundMan.Instance():Stop3DAudio("flying_carpet_run_land","")
-					CSoundMan.Instance():Stop3DAudio("flying_carpet_run_land_stop","")
-					CSoundMan.Instance():Play3DAudio("motorcycle_idle", game._HostPlayer:GetPos(), fade_time)	
-				
-				elseif self._Host:GetMountTid() == 3 then    -- 飞毯的TID。。需要配成特殊ID					
-					CSoundMan.Instance():Stop3DAudio("flying_carpet_run_land","")
-					CSoundMan.Instance():Stop3DAudio("motorcycle_idle","")
-					CSoundMan.Instance():Stop3DAudio("motorcycle_run_land","")	
-					CSoundMan.Instance():Play3DAudio("flying_carpet_run_land_stop", game._HostPlayer:GetPos(), 0)					
-				else
-					CSoundMan.Instance():Stop3DAudio("motorcycle_idle","")
-					CSoundMan.Instance():Stop3DAudio("motorcycle_run_land","")	
-					CSoundMan.Instance():Stop3DAudio("flying_carpet_run_land","")
-					CSoundMan.Instance():Stop3DAudio("flying_carpet_run_land_stop","")
-				end
 				self._Host:PlayMountAnimation(EnumDef.CLIP.COMMON_STAND, fade_time, self._IsAniQueued, 0,1)
+				self._Host:PlaySpecialMountStandSound(fade_time)
 				self._Host:PlayAnimation(animation, fade_time, self._IsAniQueued, 0, 1)
 				StarHorseStandBehaviourComp(self)				
 			else

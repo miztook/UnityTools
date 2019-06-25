@@ -54,6 +54,14 @@ def.field('boolean')._IsShowQuickMsg = false -- 是否显示快捷消息
 def.field('table')._QuickMsgList = BlankTable
 def.field('table')._QuickMsgObjList = BlankTable
 def.field("number")._MaxQuickMsgNum = 10                 -- 最大快捷消息数量
+def.field("userdata")._Frame_WorldEnergyNumTitle = nil
+def.field('boolean')._IsShowEnergyNum = false -- 是否显示精力值
+
+local WorldChatLevelSpecialId = 97
+local DailyEnergySpecialId = 672
+local DepEnergySpecialId = 673
+local EnergyPropSpecialId = 674
+local MaxEnergySpecialId = 675
 
 local instance = nil
 def.static('=>', CPanelChatNew).Instance = function ()
@@ -118,6 +126,7 @@ def.override().OnCreate = function(self)
     self._Frame_RecentList = self:GetUIObject("Frame_RecentList")
     self._Frame_FriendScroll = self:GetUIObject("Frame_FriendScroll")
     self._Frame_FriendTitle = self:GetUIObject("Frame_FriendTitle")
+    self._Frame_WorldEnergyNumTitle = self:GetUIObject("Frame_WorldEnergyNumTitle")
     self._Img_ChatBg = self:GetUIObject("Img_ChatBG")
     self._Frame_QuickMsg = self:GetUIObject("Frame_QuickMsg")
     self._Frame_FriendTitle:SetActive(false)
@@ -125,6 +134,8 @@ def.override().OnCreate = function(self)
     self._Frame_FriendScroll:SetActive(false)
     self._Frame_RecentList:SetActive(false)
     self._Channel = ChatChannel.ChatChannelWorld   -- 默认频道为世界频道
+    self._IsShowEnergyNum = true
+    self:EnergyNumTitle()
     GUI.SetGroupToggleOn(self._Rdo_TagGroup, self._Channel + 1)
     GUI.SetText(self._Lab_Title,StringTable.Get(13051))
     self:GetChannelToToggle(self._Channel)
@@ -135,9 +146,13 @@ def.override().OnCreate = function(self)
     CGame.EventManager:addHandler('TeamJoinOrQuitEvent', OnTeamJoinOrQuitEvent)
 	-- CGame.EventManager:addHandler(NotifyGuildEvent, OnNotifyGuildEvent)
     self._IsShowQuickMsg = false
-
+    self._QuickMsgObjList = {}
     for i = 1, self._MaxQuickMsgNum do
         table.insert(self._QuickMsgObjList, self:GetUIObject("List_QuickMsg"):FindChild("QuickMsg".. i))
+    end
+    local Btn_Help = self._Lab_Title:FindChild("Button_Help")
+    if Btn_Help ~= nil then
+        Btn_Help:SetActive(false)
     end
 end
 
@@ -148,17 +163,13 @@ def.override("dynamic").OnData = function(self,data)
         game._GUIMan:CloseByScript(self)
         return
     elseif data ~= nil and data.DataName ~= nil and data.DataName == "ItemLinkInfo" then
-        self._Channel = ChatChannel. ChatChannelWorld
-        GUI.SetGroupToggleOn(self._Rdo_TagGroup, self._Channel + 1)
-        self:GetChannelToToggle(self._Channel)
+        self._Channel = ChatChannel.ChatChannelWorld
+        self._IsShowEnergyNum = true        
+        GUI.SetGroupToggleOn(self._Rdo_TagGroup, self._Channel + 1)        
         self:ItemLinkInfo(data.item_data._Slot, data.bag_type, data.item_data:GetNameText())
-    elseif data ~= nil and data.IsOpenFriendChat ~= nil and data.IsOpenFriendChat then 
-        for i = 1 ,7 do
-            local Rdo_Tag = self:GetUIObject("Rdo_Tag"..i)
-            local isOpen = (i == 7)
-            Rdo_Tag:GetComponent(ClassType.Toggle).isOn = isOpen
-        end
+    elseif data ~= nil and data.IsOpenFriendChat ~= nil and data.IsOpenFriendChat then    
         self:OpenFriendChat(data.RoleData)
+        return
     end
     local Obj = self:GetUIObject("Rdo_Tag7"):FindChild("Img_RedPoint")
     CPageFriendChat.Instance():ShowRedPoint(Obj)
@@ -166,6 +177,11 @@ def.override("dynamic").OnData = function(self,data)
         CPageFriendChat.Instance()._IsInDelete = false
         self:OpenRecentList()
     end
+    if self._Channel == ChatChannel.ChatChannelSocial then 
+        self:OpenRecentList()
+    end
+    self:EnergyNumTitle()
+    self:GetChannelToToggle(self._Channel)
 end
 
 def.override('string').OnClick = function(self, id)
@@ -188,6 +204,7 @@ def.override('string').OnClick = function(self, id)
     elseif string.find(id, "Btn_SendQuickMsg") then
         local index = tonumber(string.sub(id, string.len("Btn_SendQuickMsg")+1,-1))
         local item = self._QuickMsgObjList[index]
+        if GUITools.GetChild(item , 1) == nil then return end
         local QuickMsg_Input = GUITools.GetChild(item , 1):GetComponent(ClassType.InputField)
         self._IsShowQuickMsg = not self._IsShowQuickMsg
         self._Frame_QuickMsg:SetActive(self._IsShowQuickMsg)
@@ -209,7 +226,7 @@ def.override('string').OnClick = function(self, id)
 				if roleInfo ~= nil then
 					local listFx = roleInfo["QuickMsg"]
 					if listFx ~= nil then
-						if self._QuickMsgList == nil then
+						if self._QuickMsgList == nil and #self._QuickMsgList > 0 then
 							self._QuickMsgList = {}
 						end
                         for i,v in ipairs(listFx) do
@@ -257,21 +274,38 @@ def.override('string').OnClick = function(self, id)
 
             end
         end
+    elseif id == "Button_EnergyNum" then
+        game._GUIMan:Close("CPanelUICommonNotice")        
+        local WorldChatLevel = tonumber(CElementData.GetSpecialIdTemplate(WorldChatLevelSpecialId).Value)   -- 世界频道开放等级
+        local DepEnergy = tonumber(CElementData.GetSpecialIdTemplate(DepEnergySpecialId).Value)             -- 每次消耗精力值
+        local DailyEnergy = tonumber(CElementData.GetSpecialIdTemplate(DailyEnergySpecialId).Value)         -- 每日发放精力值
+        local EnergyProp = tonumber(CElementData.GetSpecialIdTemplate(EnergyPropSpecialId).Value)           -- 精力值兑换比例
+        local MaxEnergy = tonumber(CElementData.GetSpecialIdTemplate(MaxEnergySpecialId).Value)             -- 精力值储存上限
+        local data = 
+        {
+            Title = StringTable.Get(13059),
+            Name = StringTable.Get(34200),
+            Desc = string.format(StringTable.Get(34205), WorldChatLevel, DepEnergy, WorldChatLevel, DailyEnergy, EnergyProp, MaxEnergy),
+        }
+        game._GUIMan:Open("CPanelUICommonNotice", data)
     end
     if self._Channel == ChatChannel.ChatChannelSocial then 
         CPageFriendChat.Instance():Click(id)
     end
 end
 
+-- 精力值Title
+def.method().EnergyNumTitle = function(self) 
+    self._Frame_WorldEnergyNumTitle:SetActive(self._IsShowEnergyNum)
+    if self._IsShowEnergyNum then
+        local Lab_EnergyNum = self:GetUIObject("Lab_EnergyNum")
+        local StringMsg = StringTable.Get(13059) ..":" .. GUITools.FormatMoney(ChatManager.Instance():GetEnergyNum())
+        GUI.SetText(Lab_EnergyNum, StringMsg)
+    end
+end
+
 def.override('string', 'number').OnScroll = function(self, id, value)
-    if id == 'Img_ChatBG' then
-        -- local screenRect = GameUtil.GetRootCanvasPosAndSize(self._Panel) --这个screenRect 里面有x y z w  ，  z是屏幕宽度，w是屏幕高度
-        -- local ChatBGHeight = screenRect.w - 140 -- Top和Bottom固定值是140
-        -- local BeforeHeight = self._Frame_Chat:GetComponent(ClassType.RectTransform).rect.height
-        -- local BeforePositionHeight = BeforeHeight - ChatBGHeight
-        -- local anchoredPosHeight = self._Frame_Chat:GetComponent(ClassType.RectTransform).anchoredPosition.y
-        -- 可视范围的大小。
-        -- warn("=============================>>", value)
+    if id == 'Frame_FriendScroll' then
         if value > -5 then
             self._Btn_NewMsg:SetActive(false)
         end
@@ -307,7 +341,9 @@ def.method().InitQuickMsgItem = function(self)
         local QuickMsgItem = self._QuickMsgObjList[i]
         if not IsNil(QuickMsgItem) then
             local QuickMsg_Input = GUITools.GetChild(QuickMsgItem , 1)
+            local Btn_SendQuickMsg = GUITools.GetChild(QuickMsgItem , 4)
             QuickMsg_Input.name = "Input_QuickMsg" .. i
+            Btn_SendQuickMsg.name = "Btn_SendQuickMsg" .. i
             QuickMsg_Input:GetComponent(ClassType.InputField).text = self._QuickMsgList[i]
         end
     end
@@ -334,12 +370,14 @@ def.method().SaveQuickMsgToData = function (self)
 
     local QuickMsglist = accountInfo[serverName][roleIndex]["QuickMsg"]
     QuickMsglist = {}  --不管有没有新数据，全都重新存一遍	
-
     if self._QuickMsgList ~= nil and #self._QuickMsgList > 0 then		
         for i,v in ipairs(self._QuickMsgList) do
             local item = self._QuickMsgObjList[i]
             if item == nil then return end
-            local QuickMsg_Input = GUITools.GetChild(item , 1):GetComponent(ClassType.InputField)
+            local Input_Obj = GUITools.GetChild(item, 1)  
+            if Input_Obj == nil then return end
+            local QuickMsg_Input = Input_Obj:GetComponent(ClassType.InputField)
+            if QuickMsg_Input == nil then return end
             local FilterMgr = require "Utility.BadWordsFilter".Filter
 			local StrMsg = FilterMgr.FilterChat(QuickMsg_Input.text)
             QuickMsglist[#QuickMsglist + 1] = StrMsg			
@@ -367,10 +405,14 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
     self._FirstLockChat = false
     local index = tonumber(string.sub(id,-1))
     GUI.SetText(self._Lab_Title,StringTable.Get(13049 + index))
+    self._IsShowEnergyNum = false
+    self:EnergyNumTitle()
 	if id == "Rdo_Tag1" and checked then
         self._Channel = ChatChannel.ChatChannelSystem
 	elseif id == "Rdo_Tag2" and checked then
         self._Channel = ChatChannel.ChatChannelWorld  
+        self._IsShowEnergyNum = true
+        self:EnergyNumTitle()
     elseif id == "Rdo_Tag3" and checked then
         self._Channel = ChatChannel.ChatChannelCurrent
     elseif id == "Rdo_Tag4" and checked then
@@ -383,6 +425,8 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
         self._Channel = ChatChannel.ChatChannelSocial
         self:OpenRecentList()
         return
+    elseif id == "Rdo_Tag8" and checked then
+        self._Channel = ChatChannel.ChatChannelRecruit
     end
     CPageFriendChat.Instance():Hide()
     self:GetChannelToToggle(self._Channel)
@@ -391,6 +435,7 @@ end
 def.method().OnSend = function(self)
     if self._Input_Chat == nil then return end
     local strText = self._Input_Chat.text
+    if strText == "" or strText == nil then return end
     -- if not self:CheckValid() then
     --     return
     -- else
@@ -508,52 +553,66 @@ end
 
 -- 切换频道（如果是系统频道，隐藏输入框）
 def.method("number").GetChannelToToggle = function(self, toggleChannel)
-    local is_channel_system = true
     if toggleChannel == ChatChannel.ChatChannelGuild then
-        if not game._GuildMan:IsHostInGuild() then
-            self._Frame_ChatInput:SetActive(false)
-            self:GetUIObject('Input_Chat'):SetActive(false)
-            self._Lab_Prop:SetActive(true)
-            self._Lab_Prop:GetComponent(ClassType.Text).text =  string.format(StringTable.Get(13014), StringTable.Get(13015))
+        if game._HostPlayer:IsInGlobalZone() then
+            self:IsShowChatInput(false)
+            self._Lab_Prop:GetComponent(ClassType.Text).text = StringTable.Get(13062)
         else
-            self._Frame_ChatInput:SetActive(true)
-            self:GetUIObject('Input_Chat'):SetActive(true)
-            self._Lab_Prop:SetActive(false)
+            if not game._GuildMan:IsHostInGuild() then
+                self:IsShowChatInput(false)
+                self._Lab_Prop:GetComponent(ClassType.Text).text =  string.format(StringTable.Get(13014), StringTable.Get(13015))
+            else
+                self:IsShowChatInput(true)
+            end
         end
     elseif toggleChannel == ChatChannel.ChatChannelTeam then
         if not CTeamMan.Instance():InTeam() then
-            self._Frame_ChatInput:SetActive(false)
-            self:GetUIObject('Input_Chat'):SetActive(false)
-            self._Lab_Prop:SetActive(true)
+            self:IsShowChatInput(false)
             self._Lab_Prop:GetComponent(ClassType.Text).text =  string.format(StringTable.Get(13014), StringTable.Get(13016))
         else
-            self._Frame_ChatInput:SetActive(true)
-            self:GetUIObject('Input_Chat'):SetActive(true)
-            self._Lab_Prop:SetActive(false)
+            self:IsShowChatInput(true)
         end
     elseif toggleChannel == ChatChannel.ChatChannelSystem then
-        self._Frame_ChatInput:SetActive(false)
-        self:GetUIObject('Input_Chat'):SetActive(false)
-        self._Lab_Prop:SetActive(true)
+        self:IsShowChatInput(false)
         self._Lab_Prop:GetComponent(ClassType.Text).text =  StringTable.Get(13017)
     elseif toggleChannel == ChatChannel.ChatChannelCombat then
-        self._Frame_ChatInput:SetActive(false)
-        self:GetUIObject('Input_Chat'):SetActive(false)
-        self._Lab_Prop:SetActive(true)
+        self:IsShowChatInput(false)
         self._Lab_Prop:GetComponent(ClassType.Text).text =  StringTable.Get(13037)
+    elseif toggleChannel == ChatChannel.ChatChannelRecruit then
+        if game._HostPlayer:IsInGlobalZone() then
+            self:IsShowChatInput(false)
+            self._Lab_Prop:GetComponent(ClassType.Text).text = StringTable.Get(13062)
+        else
+            self:IsShowChatInput(false)
+            self._Lab_Prop:GetComponent(ClassType.Text).text =  StringTable.Get(13058)
+        end
+    elseif toggleChannel == ChatChannel.ChatChannelWorld then
+        if game._HostPlayer:IsInGlobalZone() then
+            self:IsShowChatInput(false)
+            self._Lab_Prop:GetComponent(ClassType.Text).text = StringTable.Get(13062)
+        else
+            self:IsShowChatInput(true)
+        end
+    elseif toggleChannel == ChatChannel.ChatChannelSocial and CPageFriendChat.Instance()._CurOpenType == CPageFriendChat.OpenType.RECENTLIST then 
+       self:OpenRecentList()
     else
-        self._Frame_ChatInput:SetActive(true)
-        self:GetUIObject('Input_Chat'):SetActive(true)
-        self._Lab_Prop:SetActive(false)
-    end    
+        self:IsShowChatInput(true)
+    end   
     self:ShowChatObjData()    
     self:ShowChatMsg()
+end
+
+-- 是否显示聊天输入框
+def.method("boolean").IsShowChatInput = function(self, isShow)
+    self._Frame_ChatInput:SetActive(isShow)
+    self:GetUIObject('Input_Chat'):SetActive(isShow)
+    self._Lab_Prop:SetActive(not isShow)
 end
 
 def.method().ShowChatObjData = function(self)
     local count = #self._ChatObject
     for i = 1, count do
-       Object.DestroyImmediate(self._ChatObject[i])
+       Object.Destroy(self._ChatObject[i])
     end
     self._ChatObject = {}
 end
@@ -577,7 +636,8 @@ def.method("table").ShowOneChatMsgEx = function(self,msg)
         if (msg.Channel == ChatChannel.ChatChannelCurrent or
                 msg.Channel == ChatChannel.ChatChannelWorld or
                 msg.Channel == ChatChannel.ChatChannelTeam or
-                msg.Channel == ChatChannel.ChatChannelGuild) then
+                msg.Channel == ChatChannel.ChatChannelGuild or 
+                msg.Channel == ChatChannel.ChatChannelRecruit) then
             if msg.Prof == 0 or msg.Level == 0 then
                 self:InstSystemChat()        
                 local gtextComp = GUITools.GetChild(self._Chatobj , 4)
@@ -587,7 +647,7 @@ def.method("table").ShowOneChatMsgEx = function(self,msg)
                 local lab_channel = GUITools.GetChild(self._Chatobj , 0)
                 local chatcfg = _G.ChatCfgTable.Channel[msg.Channel]
                 GUI.SetText(lab_channel, "<color=#".. chatcfg.channelcolor .. ">" .. chatcfg.channelname .."</color>")
-                GUI.SetTextAndChangeLayout(gtextComp, tostring(msg.StrMsg), 320) 
+                GUI.SetTextAndChangeLayout(gtextComp, tostring(msg.StrMsg), 360) 
             else
                 local headIconPath = nil
                 -- warn("msg.gender == ", msg.gender)
@@ -626,12 +686,12 @@ def.method("table").ShowOneChatMsgEx = function(self,msg)
                         img_playVoice:SetActive(false)
                         chatText:SetActive(true)
                         GUI.SetText(chatText, tostring(msg.StrMsg))  
-                        GUI.SetTextAndChangeLayout(chatText, tostring(msg.StrMsg), 270)                                         
+                        GUI.SetTextAndChangeLayout(chatText, tostring(msg.StrMsg), 340)                                         
                     end
                 else
                     self:InstPlayerChat()        
                     local playerNametext = GUITools.GetChild(self._Chatobj , 5)
-                    GUI.SetText(playerNametext, tostring(msg.PlayerName))
+                    GUI.SetText(playerNametext, "<color=#A27A56FF>" .. msg.PlayerName .."</color>")
                     GUITools.SetHeadIcon(GUITools.GetChild(self._Chatobj , 1),headIconPath)                    
                     local leveltext = GUITools.GetChild(self._Chatobj , 2)
                     GUI.SetText(leveltext, tostring(msg.Level))
@@ -656,7 +716,7 @@ def.method("table").ShowOneChatMsgEx = function(self,msg)
                         img_playVoice:SetActive(false)
                         gtextComp:SetActive(true)
                         GUI.SetText(gtextComp, tostring(msg.StrMsg))  
-                        GUI.SetTextAndChangeLayout(gtextComp, tostring(msg.StrMsg), 270)                                                  
+                        GUI.SetTextAndChangeLayout(gtextComp, tostring(msg.StrMsg), 340)                                                  
                     end
                 end 
             end
@@ -665,7 +725,7 @@ def.method("table").ShowOneChatMsgEx = function(self,msg)
             self:InstSystemChat()        
             local gtextComp = GUITools.GetChild(self._Chatobj , 4)
             GUI.SetText(gtextComp, tostring(msg.StrMsg))
-            GUI.SetTextAndChangeLayout(gtextComp, tostring(msg.StrMsg), 320) 
+            GUI.SetTextAndChangeLayout(gtextComp, tostring(msg.StrMsg), 360) 
             gtextComp:GetComponent(ClassType.GText).TextID = msg.UniqueMsgID
             -- GUITools.SetGroupImg(GUITools.GetChild(self._Chatobj , 0),msg.Channel )
             local lab_channel = GUITools.GetChild(self._Chatobj , 0)
@@ -685,7 +745,8 @@ def.method().ShowChatMsg = function(self)
         if (self._Channel == ChatChannel.ChatChannelCurrent or
 			self._Channel == ChatChannel.ChatChannelWorld or
 			self._Channel == ChatChannel.ChatChannelTeam or
-			self._Channel == ChatChannel.ChatChannelGuild) then
+			self._Channel == ChatChannel.ChatChannelGuild or 
+            self._Channel == ChatChannel.ChatChannelRecruit) then
             if msg[i].Prof == 0 or msg[i].Level == 0 then
                 self:InstSystemChat()        
                 local gtextComp = GUITools.GetChild(self._Chatobj , 4)
@@ -694,7 +755,7 @@ def.method().ShowChatMsg = function(self)
                 local lab_channel = GUITools.GetChild(self._Chatobj , 0)
                 local chatcfg = _G.ChatCfgTable.Channel[self._Channel]
                 GUI.SetText(lab_channel, "<color=#".. chatcfg.channelcolor .. ">" .. chatcfg.channelname .."</color>")
-                GUI.SetTextAndChangeLayout(gtextComp, tostring(msg[i].StrMsg), 320) 
+                GUI.SetTextAndChangeLayout(gtextComp, tostring(msg[i].StrMsg), 360) 
             else
                 local headIconPath = nil
                 if msg[i].Gender == EnumDef.Gender.Female then
@@ -733,12 +794,12 @@ def.method().ShowChatMsg = function(self)
                         img_playVoice:SetActive(false)
                         chatText:SetActive(true)
                         GUI.SetText(chatText, tostring(msg[i].StrMsg))  
-                        GUI.SetTextAndChangeLayout(chatText, tostring(msg[i].StrMsg), 270)                                           
+                        GUI.SetTextAndChangeLayout(chatText, tostring(msg[i].StrMsg), 340)                                           
                     end
                 else
                     self:InstPlayerChat()
                     local playerNameText = GUITools.GetChild(self._Chatobj , 5)
-                    GUI.SetText(playerNameText, tostring(msg[i].PlayerName))
+                    GUI.SetText(playerNameText, "<color=#A27A56FF>" .. msg[i].PlayerName .."</color>")
                     GUITools.SetHeadIcon(GUITools.GetChild(self._Chatobj , 1), headIconPath)
                     local chatText = GUITools.GetChild(self._Chatobj , 11)
                     local chatTextBg = GUITools.GetChild(self._Chatobj , 10)
@@ -763,7 +824,7 @@ def.method().ShowChatMsg = function(self)
                         img_playVoice:SetActive(false)
                         chatText:SetActive(true)
                         GUI.SetText(chatText, tostring(msg[i].StrMsg))  
-                        GUI.SetTextAndChangeLayout(chatText, tostring(msg[i].StrMsg), 270)                                         
+                        GUI.SetTextAndChangeLayout(chatText, tostring(msg[i].StrMsg), 340)                                         
                     end
                 end  
             end
@@ -772,7 +833,7 @@ def.method().ShowChatMsg = function(self)
             self:InstSystemChat()        
             local gtextComp = GUITools.GetChild(self._Chatobj , 4)
             GUI.SetText(gtextComp, tostring(msg[i].StrMsg))
-            GUI.SetTextAndChangeLayout(gtextComp, tostring(msg[i].StrMsg), 320)  
+            GUI.SetTextAndChangeLayout(gtextComp, tostring(msg[i].StrMsg), 360)  
             gtextComp:GetComponent(ClassType.GText).TextID = msg[i].UniqueMsgID
 
             -- GUITools.SetGroupImg(GUITools.GetChild(self._Chatobj , 0),self._Channel )
@@ -870,18 +931,46 @@ def.override("string", "string").OnEndEdit = function(self, id, str)
         local FilterMgr = require "Utility.BadWordsFilter".Filter
         local StrMsg = FilterMgr.FilterChat(str)
         QuickMsg_Input.text = StrMsg
+    elseif string.find(id, "Input_Chat") then
+        self:OnSend()
     end
+end
+
+-- 当输入框变化
+def.override("string","string").OnValueChanged = function(self, id, str)
+	if id == "Input_Chat" then
+		self._Input_Chat.text = str
+	end
 end
 
 ------------------------------私聊-------------------------------
 -- 直接打开私聊 开始聊天
 def.method("table").OpenFriendChat = function(self,RoleData) 
+    for i = 1 ,7 do
+        local Rdo_Tag = self:GetUIObject("Rdo_Tag"..i)
+        local isOpen = (i == 7)
+        Rdo_Tag:GetComponent(ClassType.Toggle).isOn = isOpen
+    end
+    GUI.SetText(self._Lab_Title,StringTable.Get(13056))
+    self._IsShowEnergyNum = false
     self._Channel = ChatChannel.ChatChannelSocial
+    self:IsShowChatInput(true)
     CPageFriendChat.Instance():Show(self,CPageFriendChat.OpenType.CHAT,RoleData) 
+    local Obj = self:GetUIObject("Rdo_Tag7"):FindChild("Img_RedPoint")
+    CPageFriendChat.Instance():ShowRedPoint(Obj)
+    if CPageFriendChat.Instance()._IsInDelete then 
+        CPageFriendChat.Instance()._IsInDelete = false
+        self:OpenRecentList()
+    end
+    self:EnergyNumTitle()
+    self:GetChannelToToggle(self._Channel)
 end
 
 def.method().OpenRecentList = function(self)
+    self._IsShowEnergyNum = false
     self._Channel = ChatChannel.ChatChannelSocial
+    self:IsShowChatInput(false)
+    self._Lab_Prop:SetActive(false)
     CPageFriendChat.Instance():Show(self,CPageFriendChat.OpenType.RECENTLIST,nil) 
 end
 

@@ -6,7 +6,7 @@ local def = CPanelRoleInfoTips.define
 def.field("userdata")._Lab_RoleInfoTips = nil
 def.field("userdata")._Img_Background = nil
 
-local MAX_HINT_WIDTH = 262
+local MAX_HINT_WIDTH = 210
 
 local instance = nil
 def.static("=>",CPanelRoleInfoTips).Instance = function()

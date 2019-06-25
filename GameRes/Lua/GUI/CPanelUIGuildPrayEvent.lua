@@ -37,9 +37,25 @@ def.override().OnCreate = function(self)
 	self._Lab_Remind = self:GetUIObject("Lab_Remind")
 end
 
+local ParseDataAndSort = function(data)
+    local new_data = {}
+    for i,v in ipairs(data) do
+        local item = {}
+        item.HelperName = v.HelperName
+        item.OptTime = v.OptTime
+        item.ItemTID = v.ItemTID
+        new_data[#new_data + 1] = item
+    end
+    local sort_func = function(item1, item2)
+        return item1.OptTime > item2.OptTime
+    end
+    table.sort(new_data, sort_func)
+    return new_data
+end
+
 -- 当数据
 def.override("dynamic").OnData = function(self, data)
-	self._Data = data
+	self._Data = ParseDataAndSort(data)
 	local count = #self._Data
 	if count == 0 then
 		self._List_Type:SetActive(false)

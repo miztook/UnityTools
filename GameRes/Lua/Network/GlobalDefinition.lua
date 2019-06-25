@@ -11,11 +11,11 @@ _G.GlobalDefinition = {}
 	GlobalDefinition.ChallengeNonceSize		= 16 
 	GlobalDefinition.KeyExchangeNonceSize		= 16 
 	
-	GlobalDefinition.MinRoleNameLength		= 4
-	GlobalDefinition.MaxRoleNameLength		= 14 
+	GlobalDefinition.MinRoleNameLength		= 2
+	GlobalDefinition.MaxRoleNameLength		= 7
 	GlobalDefinition.MaxRoleCount				= 4
 
-	GlobalDefinition.ProfessionCount			= 4
+	GlobalDefinition.ProfessionCount			= 5
 	GlobalDefinition.FactionCount				= 7
 
 	GlobalDefinition.MinRoleLevel				= 1
@@ -33,8 +33,8 @@ _G.GlobalDefinition = {}
 	GlobalDefinition.MinItemNameLength		= 1 
 	GlobalDefinition.MaxItemNameLength		= 14 
 	
-	GlobalDefinition.MinGuildNameLength		= 2 
-	GlobalDefinition.MaxGuildNameLength		= 12 
+	GlobalDefinition.MinGuildNameLength		= 1
+	GlobalDefinition.MaxGuildNameLength		= 6
 	GlobalDefinition.MinGuildTitleLength		= 0 
 	GlobalDefinition.MaxGuildTitleLength		= 16 
 	GlobalDefinition.MinGuildAnnounceLength	= 0 
@@ -43,6 +43,10 @@ _G.GlobalDefinition = {}
 	GlobalDefinition.MaxGuildHonourNum		= 999999
 	GlobalDefinition.MinFightScoreNum			= 1
 	GlobalDefinition.MaxFightScoreNum			= 999999
+	GlobalDefinition.MinTeamNameLength 		= 1
+	GlobalDefinition.MaxTeamNameLength 		= 12
+	GlobalDefinition.MinPetNameLength 		= 1
+	GlobalDefinition.MaxPetNameLength 		= 4
 	
 
 	GlobalDefinition.MaxMonsterLevel			= 60

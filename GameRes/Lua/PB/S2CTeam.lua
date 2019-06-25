@@ -8,6 +8,7 @@ local CGame = Lplus.ForwardDeclare("CGame")
 local CTeamMan = require "Team.CTeamMan"
 local TeamInfoChangeEvent = require "Events.TeamInfoChangeEvent"
 local NotifyComponents = require "GUI.NotifyComponents"
+local CElementData = require "Data.CElementData"
 
 local function SendFlashMsg(msg)
 	game._GUIMan:ShowTipText(msg, false)
@@ -119,11 +120,15 @@ local function ChangeTeamInfo(data)
             CTeamMan.Instance():SetSelfTeamMode(data.changeMode.mode)
         end
         SendChangeEvent(TeamInfoChangeType.TeamMode, data.changeMode)
+    elseif data.type == ETeamInfo.TYPE.TYPE_NAME then
+    	warn("队员名称改变 ", data.memberName.roleId, data.memberName.newName)
+    	CTeamMan.Instance():ChangeMemberName(data.memberName.roleId, data.memberName.newName)
+    	SendChangeEvent(TeamInfoChangeType.TeamMemberName, data.memberName)
 	end
 end
 
 local function TurnPanelTeamMember()
-	--warn("=========TurnPanelTeamMember==========")
+	-- warn("=========TurnPanelTeamMember==========", debug.traceback())
 	if not CTeamMan.Instance():IsTeamLeader() then
 		game._GUIMan:Close("CPanelUITeamCreate")
 		game._GUIMan:Open("CPanelUITeamMember", nil)
@@ -143,13 +148,6 @@ local function SetTeamList(data)
 	if CPanelUITeamCreate then
 		CPanelUITeamCreate.Instance():SetTeamList(data)
 	end
-end
-
-local function CreateTeam() 
-	--创建队伍
-	--创建队伍
-	game._GUIMan:Close("CPanelUITeamCreate")
-	game._GUIMan:Open("CPanelUITeamMember",nil)
 end
 
 local function QuitTeam(data, id)
@@ -201,11 +199,21 @@ end
 
 --创建队伍
 local function OnS2CTeamCreate(sender, msg)	
---warn("OnS2CTeamCreate=============")
+-- warn("OnS2CTeamCreate=============")
 	CTeamMan.Instance():UpdateMemberList(msg.teamInfo)
     SetDefaultTeamName(msg.teamInfo.info.capture)
 	Refresh()
-	CreateTeam()
+
+	local hp = game._HostPlayer
+	game._GUIMan:Close("CPanelUITeamCreate")
+	
+	if hp:InDungeon() or game:IsInBeginnerDungeon() then
+		return
+	end
+
+	-- warn("打开组队页面显示", hp:InDungeon(), game:IsInBeginnerDungeon())
+	-- 打开组队页面显示
+	game._GUIMan:Open("CPanelUITeamMember",nil)
 end
 PBHelper.AddHandler("S2CTeamCreate", OnS2CTeamCreate)
 
@@ -220,7 +228,7 @@ PBHelper.AddHandler("S2CTeamApply", OnS2CTeamApply)
 
 --队长接受申请
 local function OnS2CTeamApplyAckAccept(sender, msg)
-
+	-- warn("OnS2CTeamApplyAckAccept...............")
 	for i,v in ipairs(msg.teamInfo.memberList) do
 		if v.roleID == msg.teamInfo.info.modifyRoleID then
 			if v.roleID == game._HostPlayer._ID then
@@ -269,7 +277,7 @@ PBHelper.AddHandler("S2CTeamInvitateAckRefuse", OnS2CTeamInvitateAckRefuse)
 
 --离开队伍
 local function OnS2CTeamLeave(sender, msg)
---warn("OnS2CTeamLeave===============")
+-- warn("OnS2CTeamLeave===============", msg.teamLeaveInfo.leaveRoleID)
 	--主动离开
 	QuitTeam(msg.teamInfo, msg.teamLeaveInfo.leaveRoleID)
 	Refresh()
@@ -351,6 +359,17 @@ PBHelper.AddHandler("S2CTeamList", OnS2CTeamList)
 --获得本队数据
 local function OnS2CTeamGetTeamInfo(sender, msg)
 	--warn("OnS2CTeamGetTeamInfo::获得本队数据")
+	-- 完全同步客户端队伍数据，因数据跨game 有几率发送不成功
+	CTeamMan.Instance():ResetMemberList()
+
+	if msg.teamInfo == nil or
+	   msg.teamInfo.info == nil or
+	   msg.teamInfo.info.teamID == nil or
+	   msg.teamInfo.info.teamID <= 0 then
+	   	Refresh()
+		return
+	end
+
 	CTeamMan.Instance():UpdateMemberList(msg.teamInfo)
 	Refresh()
 	SendChangeEvent(EnumDef.TeamInfoChangeType.ResetAllMember)
@@ -371,11 +390,11 @@ local function OnS2CTeamApplyCount(sender, msg)
 	if msg.teamApplicationCount.num > 0 then
 		
 	else
-		--清空申请列表
-		local CPanelUITeamInvite = require "GUI.CPanelUITeamInvite"
-		if CPanelUITeamInvite.Instance() then
-			CPanelUITeamInvite.Instance():UpdateApplyList({})
-		end
+		-- --清空申请列表
+		-- local CPanelUITeamInvite = require "GUI.CPanelUITeamInvite"
+		-- if CPanelUITeamInvite.Instance() then
+		-- 	CPanelUITeamInvite.Instance():UpdateApplyList({})
+		-- end
 		
 		--清空通知列表
         MsgNotify.Remove(EnumDef.NotificationType.TeamApplication)
@@ -520,7 +539,16 @@ PBHelper.AddHandler("S2CTeamNameChange", OnS2CTeamNameChange)
 
 --队员装备信息
 local function OnS2CTeamEquipInfo(sender,protocol)
---warn("=============OnS2CTeamEquipInfo=============")
+-- warn("=============OnS2CTeamEquipInfo=============")
+	local teamMan = CTeamMan.Instance()
+	local hp = game._HostPlayer
+
+	-- 如果是第一次初始化 并且 （不在新手本 或 副本中）方可显示
+	if teamMan:IsFirtstInit() and (hp:InDungeon() or game:IsInBeginnerDungeon()) then
+		teamMan:SetIsFirtstInit(false)
+		return
+	end
+
 	CTeamMan.Instance():OnS2CTeamEquipInfo(protocol.Info)
 end
 PBHelper.AddHandler("S2CTeamEquipInfo", OnS2CTeamEquipInfo)
@@ -532,7 +560,7 @@ local function OnS2CTeamAutoFight(sender,protocol)
 	local hp = game._HostPlayer
 	hp:CancelSyncPosWhenMove(not bAutoFight)
 
-	local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+	local CAutoFightMan = require "AutoFight.CAutoFightMan"
 	if bAutoFight then
 		CAutoFightMan.Instance():Start()
         CAutoFightMan.Instance():SetMode(EnumDef.AutoFightType.WorldFight, 0, false)
@@ -567,7 +595,17 @@ local function OnS2CTeamTips(sender,protocol)
         local event = NotifyPowerSavingEvent()
         event.Type = "TeamInv"
 		event.Param1 = notify._InviterName
-		event.Param2 = teamMan:GetTeamRoomNameByDungeonId(notify._DungeonID)
+
+		local roomId = teamMan:ExchangeToRoomId(notify._DungeonID)
+        local roomTemplate = CElementData.GetTemplate("TeamRoomConfig", roomId)
+        local str = ""
+        if roomTemplate == nil then
+            str = teamMan:GetTeamRoomNameByDungeonId(notify._DungeonID)
+        else
+            str = RichTextTools.GetElsePlayerNameRichText(roomTemplate.DisplayName, false)
+        end
+
+		event.Param2 = str
         CGame.EventManager:raiseEvent(nil, event)
 
 	elseif curType == EOpt.Opt_Apply then

@@ -8,7 +8,6 @@ local QuestDef = require "Quest.QuestDef"
 local CFxObject = require "Fx.CFxObject"
 local CPanelStrong = require "GUI.CPanelStrong"
 
---local CAutoFightMan = require "ObjHdl.CAutoFightMan"
 local CQuest = Lplus.ForwardDeclare("CQuest")
 local OutputType = 
 {
@@ -406,6 +405,12 @@ def.method().DoShortcut = function(self)
     elseif temp.Achievement._is_present_in_parent then
         if temp.Achievement.UIOpenId ~= 0 then
             game._AcheivementMan:DrumpToRightPanel(temp.Achievement.UIOpenId,0)
+            local CQuestAutoMan = require"Quest.CQuestAutoMan"
+            local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
+            local CAutoFightMan = require "AutoFight.CAutoFightMan"
+            CQuestAutoMan.Instance():Stop()
+            CDungeonAutoMan.Instance():Stop()
+            CAutoFightMan.Instance():Stop()
         end
     end
 end

@@ -115,9 +115,9 @@ local LessPred = function (email1, email2) --按照时间和是否已读排序
             end
         end
     end
-	-- if email1._CreateTime ~= email2._CreateTime then  --  时间晚 > 时间早
-	-- 	return email1._CreateTime < email2._CreateTime
-	-- end
+	if email1._CreateTime ~= email2._CreateTime then  --  时间早 > 时间晚
+		return email1._CreateTime > email2._CreateTime
+	end
 
 	return email1._EmailID < email2._EmailID  -- 按照是否已读排序
 end 
@@ -209,7 +209,9 @@ def.override('string').OnClick = function(self, id)
         local title, str, closeType = StringTable.GetMsg(117)
         MsgBox.ShowMsgBox(str,title, closeType, MsgBoxType.MBBT_OKCANCEL,callback) 
     elseif id == 'Btn_CheckAll' then    
-        CEmailMan:OnC2SEmailBatchDrawReward()
+        if CEmailMan:OnEmailRedPoint() then
+            CEmailMan:OnC2SEmailBatchDrawReward()
+        end
     elseif id == 'Btn_Check' then    
         CEmailMan:OnC2SEmailDrawReward(self._EmailData[self._SelectIndex]._EmailID)
     elseif id == 'Btn_Clean' then

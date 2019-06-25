@@ -129,7 +129,7 @@ def.method("string", "function").Load = function(self, asset_path, cb)
 
     if IsNil(asset_path) or asset_path == "" then
         warn("CUIScene.New: asset_path is empty!")
-        return nil
+        return
     end
 
     self._ModelAssetPath = asset_path

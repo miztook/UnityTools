@@ -1,7 +1,7 @@
 local PBHelper = require "Network.PBHelper"
 local CPanelNpcShop = require"GUI.CPanelNpcShop"
 local CQuestAutoMan = require"Quest.CQuestAutoMan"
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local ENpcSaleType = require"PB.data".ENpcSaleType
 local CQuest = require "Quest.CQuest"
 local ServerMessageBase = require "PB.data".ServerMessageBase
@@ -18,19 +18,16 @@ local function OnS2CNpcSaleBuyRes(sender,msg)
 	if CPanelNpcShop.Instance():IsShow() then 
 		CPanelNpcShop.Instance():LoadReFreshItems(msg)
 	end
-
     local item_id = 0
     local allIDs = GameUtil.GetAllTid("NpcSale")
 	for i,v in pairs(allIDs) do
 		repeat
 			local shopItem = CElementData.GetTemplate("NpcSale", v) 
-            if shopItem.IsNotShow then break end
             if shopItem.Id ~= msg.NpcSaleTid then break end
             if shopItem.NpcSaleSubs then
-                for i1,v1 in ipairs(shopItem.NpcSaleSubs) do
+                for _,v1 in ipairs(shopItem.NpcSaleSubs) do
                     repeat
                         if v1.Id ~= msg.SubId then break end
-                        if v1.IsNotShow then break end
                         if v1.NpcSaleType == ENpcSaleType.Level then 
 				            if game._HostPlayer._InfoData._Level < v1.NpcSaleParam then break end
 			            end
@@ -38,7 +35,7 @@ local function OnS2CNpcSaleBuyRes(sender,msg)
 				            if not game._GuildMan:IsHostInGuild() then break end 
 			            end
                         if v1.NpcSaleItems then
-                            for i2,v2 in ipairs(v1.NpcSaleItems) do
+                            for _,v2 in ipairs(v1.NpcSaleItems) do
                                 repeat
                                     if v2.Id ~= msg.DetailId then break end
                                     local itemTemp = CElementData.GetItemTemplate(v2.ItemId)
@@ -86,3 +83,11 @@ local function OnS2CNpcSaleRandomRefresh(sender,msg)
     end
 end
 PBHelper.AddHandler("S2CNpcSaleRandomRefreshRes", OnS2CNpcSaleRandomRefresh)
+
+local function OnS2CNpcClick(sender,msg)
+    local ho = game._HostPlayer._OpHdl
+    if ho ~= nil and ho._CurServiceNPC ~= nil and ho._CurServiceNPC._ID == msg.NpcEntityId then
+        ho:EndNPCService(nil)
+    end
+end
+PBHelper.AddHandler("S2CNpcClick", OnS2CNpcClick)

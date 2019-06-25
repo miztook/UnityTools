@@ -19,6 +19,8 @@ local cfg = {
     Img_Open = -631209594,
     Btn_GoogleAchievement = -37125165,
     Btn_WorldBoss = 1445148604,
+    Btn_Autokill = -905479088,
+    Btn_GrowthGuide = 799932370,
 }
  
 return cfg

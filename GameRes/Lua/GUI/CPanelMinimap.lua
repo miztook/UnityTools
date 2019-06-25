@@ -93,21 +93,18 @@ def.override().OnCreate = function(self)
 	-- 分线 
 	self._Btn_Line = self:GetUIObject("Btn_Line")
 	self._Lab_Line = self:GetUIObject("Lab_Line")
-	local curWorldInfo = game._CurWorld._WorldInfo
-	if #curWorldInfo.ValidLineIds <= 0 then		
-    	self:IsShowArrayLineBtn(false)
-	else
-		self:IsShowArrayLineBtn(true)
-	end
+	
 end
 
 
 -- 监听区域限制改变事件
+--[[
 local function OnRegionLimitChangeEvent(sender, event)
 	if instance ~= nil and instance:IsShow() then
 		instance:SetExitBtnStateByLimit()
 	end
 end
+]]
 
 def.override("dynamic").OnData = function (self,data)
 	CPanelBase.OnData(self,data)
@@ -129,6 +126,7 @@ def.override("dynamic").OnData = function (self,data)
     	self:ShowCommonMatch(true)
 	end 
 	--CGame.EventManager:addHandler(RegionLimitChangeEvent, OnRegionLimitChangeEvent)
+	self:UpdateArrayLineList()
 end
 
 def.override('userdata', 'string', 'number').OnInitItem = function(self, item, id, index)
@@ -168,7 +166,12 @@ def.method().LeaveDungeon = function (self)
     elseif game._HostPlayer:InPharse() then
 		title, message, closeType = StringTable.GetMsg(82)
 	elseif game._HostPlayer:InDungeon() then 
-		title, message, closeType = StringTable.GetMsg(17)
+		if game._HostPlayer:IsInGlobalZone() then
+			-- 跨服副本
+			title, message, closeType = StringTable.GetMsg(131)
+		else
+			title, message, closeType = StringTable.GetMsg(17)
+		end
 	end
 	MsgBox.ShowMsgBox(message, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback)
 end
@@ -302,14 +305,9 @@ end
 
 --[[---------------------------------分线--------------------------------------]]
 
-def.method("boolean").IsShowArrayLineBtn = function(self, IsShow)
-	if self._Btn_Line == nil then return end
-	self._Btn_Line:SetActive(IsShow)
-	self:UpdateArrayLineList()
-end
-
 def.method().UpdateArrayLineList = function(self)
 	--大世界和城镇不用判断，肯定显示分线   -- lidaming  2018/08/30
+	if self._Btn_Line == nil then return end
 	if (game._CurMapType == EWorldType.City) or (game._CurMapType == EWorldType.Town) then
 		-- 公会基地不显示分线
 		if game._GuildMan:IsInGuildScene() then 
@@ -391,7 +389,7 @@ def.method().OnBtnLeaveDungeon = function(self)
 	else
 		local CQuestAutoMan = require "Quest.CQuestAutoMan"
 		local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
-		local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+		local CAutoFightMan = require "AutoFight.CAutoFightMan"
 		CQuestAutoMan.Instance():Stop()	
 		CDungeonAutoMan.Instance():Stop()
 		CAutoFightMan.Instance():SetMode(EnumDef.AutoFightType.WorldFight, 0, true)
@@ -491,6 +489,9 @@ def.override().OnDestroy = function(self)
 	self._Btn_Line = nil
 	self._Lab_Line = nil
 	self._LastBuffInfo = {}
+	self._TweenMan = nil
+	self._Btn_Switch = nil
+	self._Lab_TargetMatchText = nil
 
 end
 

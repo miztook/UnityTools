@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 2,
 	Remarks = "远征·卡拉斯试炼者·普通",
-	TextDisplayName = "카라스 시련자 - 보통",
+	TextDisplayName = "카라스 수련자 - 보통",
 	Length = 512,
 	Width = 512,
 	NavMeshName = "Dungn05_ElfArch.navmesh",

@@ -1,5 +1,8 @@
 local Lplus = require "Lplus"
 local CPanelBase = require "GUI.CPanelBase"
+local CMallMan = require "Mall.CMallMan"
+local CElementData = require "Data.CElementData"
+local EParmType = require "PB.Template".ItemApproach.EParmType
 local CGame = Lplus.ForwardDeclare("CGame")
 local CQuest = Lplus.ForwardDeclare("CQuest")
 
@@ -75,12 +78,15 @@ do
 	def.field('userdata')._BtnOpen = nil
 	def.field('userdata')._BtnClose = nil
 	def.field('userdata')._FrameFloat = nil
+    def.field("userdata")._DragableBannerPage = nil
+    def.field("userdata")._ListBannerToggleGroup = nil
 	def.field('table')._FunctionObjs = nil
+    def.field("table")._OpenedBanner = nil
 
 	def.field("table")._ListPlayFxBtnId = nil --需要显示特效的BtnID
-	def.field("number")._FXTimerID = 0--特效计时器
+	-- def.field("number")._FXTimerID = 0--特效计时器
 
-	def.field("number")._MAX_BTN = 14
+	def.field("number")._MAX_BTN = 15
 
 	local instance = nil
 	def.static("=>", CPanelSystemEntrance).Instance = function ()
@@ -94,14 +100,18 @@ do
 	end
 
 	local RegularFuncIds = {38, 49, 7, 19}
-	local FloatingFuncIds = {30, 0, 1, 32, 31, 48, 2, 11, 34, 43, 6, 33, 35, 37}
+	local FloatingFuncIds = {30, 0, 1, 32, 31, 48, 2, 11, 34, 43, 6, 33, 35, 37, 50}
 
 	def.override().OnCreate = function(self)
 		self._BtnOpen = self:GetUIObject("Btn_Open")
 		self._BtnClose = self:GetUIObject("Btn_Close")
 		self._FrameFloat = self:GetUIObject("FrameFloat")
+        self._DragableBannerPage = self:GetUIObject("DragblePanel")
+        self._ListBannerToggleGroup = self:GetUIObject("List_PageToggles")
+        self._OpenedBanner = CMallMan.Instance():GetAllOpenedBanner()
 		self:LoadFxBtnID()
 		self:UpdateRedPointStatus()
+        
 	end
 
 	-- 监听功能解锁
@@ -114,6 +124,20 @@ do
 			end
 		end
 	end
+
+    -- 监听物品获得的事件
+    local function OnGainNewItemEvent(sender, event)
+        if instance ~= nil and instance:IsShow() then
+            instance:UpdateRedPointStatus()
+        end
+    end
+
+    local function OnBannerInfoUpdate(sender, event)
+        if instance ~= nil and instance:IsShow() then
+            instance._OpenedBanner = CMallMan.Instance():GetAllOpenedBanner()
+            instance:UpdateBanner()
+        end
+    end
 
 	def.override("dynamic").OnData = function(self, data)
 	    if self._FunctionObjs == nil then
@@ -147,25 +171,28 @@ do
 		    end
 
 		    CGame.EventManager:addHandler("NotifyFunctionEvent", OnNotifyFunctionEvent)
+            CGame.EventManager:addHandler("GainNewItemEvent", OnGainNewItemEvent)
+            CGame.EventManager:addHandler("BannerInfoUpdate", OnBannerInfoUpdate)
 
 		    SystemEntranceCfgTable = nil
 		    _G.Unrequire(cfgPath)
 		end
 	   
-	    self:ShowFloatingFrame(false) 
-		
+	    self:ShowFloatingFrame(false)
+         
+		self:UpdateBanner()
 	      -- 设置按钮红点状态
     	CRedDotMan.UpdateSystemEntranceRedDotShow(self)
 
 	       --将所有未播放解锁动画的按钮锁住
-	    if self._ListPlayFxBtnId == nil or #self._ListPlayFxBtnId <= 0 then return end
-	    for _,v in ipairs(self._ListPlayFxBtnId) do
-	    	if self._FunctionObjs[v] ~= nil then
-	    		if self._FunctionObjs[v]._LockImgObj ~= nil  then
-	    			self._FunctionObjs[v]._LockImgObj: SetActive(true)
-	    		end
-	    	end
-	    end
+	    -- if self._ListPlayFxBtnId == nil or #self._ListPlayFxBtnId <= 0 then return end
+	    -- for _,v in ipairs(self._ListPlayFxBtnId) do
+	    -- 	if self._FunctionObjs[v] ~= nil then
+	    -- 		if self._FunctionObjs[v]._LockImgObj ~= nil  then
+	    -- 			self._FunctionObjs[v]._LockImgObj: SetActive(true)
+	    -- 		end
+	    -- 	end
+	    -- end
 	end
 
 	def.method("boolean").ShowFloatingFrame = function(self, show)
@@ -175,7 +202,7 @@ do
 	    self._FrameFloat:SetActive(show)
 	    --self:UpdateLockStatus()
 
-		-- 关闭是隐藏文字。。。2018/11/5 lidaming
+		-- 关闭时隐藏文字。。。2018/11/5 lidaming
 		for i,v in ipairs(RegularFuncIds) do   -- Btn1 - 4, Img_Icon13-16
 			local key = "Btn" .. i
 			local idx = 12 + i
@@ -183,19 +210,27 @@ do
 			nameObj:SetActive(show)
 		end
 		
-		self: RemoveFXTimer()
-	    if show then
-	    	if self._ListPlayFxBtnId == nil or #self._ListPlayFxBtnId <= 0 then return end
-
-	    	local function callback( ... )
-	    		if self._ListPlayFxBtnId ~= nil and #self._ListPlayFxBtnId > 0 then
-	    			self:PlayOpenUIFx(self._ListPlayFxBtnId[1])
-	    			self._FXTimerID = _G.AddGlobalTimer(1, true, callback)
-	    		end
-	    	end
+		-- self: RemoveFXTimer()
+		if show then
+			if self._ListPlayFxBtnId == nil or #self._ListPlayFxBtnId <= 0 then return end
+			print_r(self._ListPlayFxBtnId)
+			local PlayFxBtnIdCount = #self._ListPlayFxBtnId
+			for i,v in ipairs(self._ListPlayFxBtnId) do
+				self:PlayOpenUIFx(self._ListPlayFxBtnId[i])
+				if i == #self._ListPlayFxBtnId then
+					self._ListPlayFxBtnId = {}
+				end
+			end
+			self:UpdateLockStatus()
+	    	-- local function callback( ... )
+	    	-- 	if self._ListPlayFxBtnId ~= nil and #self._ListPlayFxBtnId > 0 then
+	    	-- 		self:PlayOpenUIFx(self._ListPlayFxBtnId[1])
+	    	-- 		self._FXTimerID = _G.AddGlobalTimer(1, true, callback)
+	    	-- 	end
+	    	-- end
 	    	
-	    	self:PlayOpenUIFx(self._ListPlayFxBtnId[1])
-	    	self._FXTimerID = _G.AddGlobalTimer(1, true, callback)
+	    	-- self:PlayOpenUIFx(self._ListPlayFxBtnId[1])
+	    	-- self._FXTimerID = _G.AddGlobalTimer(1, true, callback)
 	    end
 	end
 
@@ -206,6 +241,23 @@ do
 	    	v:UpdateLockStatus()
 	    end
 	end
+
+    def.method().UpdateBanner = function(self)
+        if self._OpenedBanner ~= nil and  #self._OpenedBanner > 0 then
+            local drag_view = self._DragableBannerPage:GetComponent(ClassType.GDragablePageView)
+            local banner_data = self._OpenedBanner[1]
+            local banner_temp = CElementData.GetTemplate("Banner", banner_data.BannerTid)
+            self._DragableBannerPage:SetActive(true)
+            self._ListBannerToggleGroup:SetActive(true)
+            self._ListBannerToggleGroup:GetComponent(ClassType.GNewList):SetItemCount(#self._OpenedBanner)
+            drag_view:SetPageItemCount(#self._OpenedBanner)
+            drag_view:SetTimeInterval(banner_temp.DisplayTime)
+            GUI.SetGroupToggleOn(self._ListBannerToggleGroup, 1)
+        else
+            self._DragableBannerPage:SetActive(false)
+            self._ListBannerToggleGroup:SetActive(false)
+        end
+    end
 
 	def.method().SDKCommunityLogic = function(self)
 		-- SDK 提供的活动界面入口，社区
@@ -235,6 +287,50 @@ do
 		end
 	end
 
+    def.override("userdata", "string", "number").OnInitItem = function (self, item, id, index)
+        local index = index + 1
+        if id == "DragblePanel" then
+            local banner_data = self._OpenedBanner[index]
+            local banner_temp = CElementData.GetTemplate("Banner", banner_data.BannerTid)
+            local uiTemplate = item:GetComponent(ClassType.UITemplate)
+            local img_item = uiTemplate:GetControl(0)
+            if banner_temp ~= nil then
+                GUITools.SetItemIcon(img_item, banner_temp.IconPath)
+            end
+        end
+    end
+
+    def.override('userdata', 'string', 'number').OnSelectItem = function(self, item, id, index)
+        local index = index + 1
+        if id == "DragblePanel" then
+            -- 点击banner的item跳转
+            local banner_data = self._OpenedBanner[index]
+            local banner_temp = CElementData.GetTemplate("Banner", banner_data.BannerTid)
+            if banner_temp ~= nil then
+                local  approachItem = CElementData.GetItemApproach(banner_temp.ItemApproachId)
+                if approachItem and approachItem.ClickType == EParmType.OpenUI then
+                    game._AcheivementMan:DrumpToRightPanel(approachItem.Id, 0)
+                end
+            end
+        end
+    end
+
+    -- Banner手动滑或者自动滑的时候，index变化会回调这个方法
+    def.override("userdata", "string", "number").OnDragablePageIndexChange = function(self, item_go, pageViewName, index)
+        if pageViewName == "DragblePanel" then
+            local index = index + 1
+            local banner_data = self._OpenedBanner[index]
+            local banner_temp = CElementData.GetTemplate("Banner", banner_data.BannerTid)
+            if banner_temp ~= nil and banner_temp.DisplayTime > 0 then
+                self._DragableBannerPage:GetComponent(ClassType.GDragablePageView):SetTimeInterval(banner_temp.DisplayTime)
+            else
+                self._DragableBannerPage:GetComponent(ClassType.GDragablePageView):SetTimeInterval(0)
+            end
+
+            GUI.SetGroupToggleOn(self._ListBannerToggleGroup, index + 1)
+        end
+    end
+
 	def.method("string","=>","table").GetBtnObjectby = function(self, id)
 		--显示右上角图标
 		if self._FunctionObjs[id] == nil then return self._BtnOpen.position end
@@ -250,13 +346,11 @@ do
 		if self._ListPlayFxBtnId == nil or #self._ListPlayFxBtnId <= 0 then
 			return false
 		end
-
 		for i,v in ipairs(self._ListPlayFxBtnId) do
 			if v == id then
 				return true
 			end
 		end
-
 		return false
 	end
 
@@ -280,6 +374,7 @@ do
 		if self._FrameFloat.activeSelf then--界面开启的时候显示固定图标
 			if self._FunctionObjs[id] == nil then return end
 			CRedDotMan.UpdateSystemEntranceRedDotShow(self)
+			
 			if self._FunctionObjs[id]._LockImgObj ~= nil  then
 	    		GameUtil.PlayUISfx(PATH.UIFX_CommonUnlock, self._FunctionObjs[id]._LockImgObj, self._Panel, -1)
 	    	else
@@ -288,26 +383,25 @@ do
 	    	CRedDotMan.UpdateSystemEntranceRedDotShow(self)
 			self._FunctionObjs[id]:UpdateLockStatus()
 
-			if self._ListPlayFxBtnId == nil or #self._ListPlayFxBtnId <= 0 then return end
-			table.removebyvalue(self._ListPlayFxBtnId, id, false)
+			-- if self._ListPlayFxBtnId == nil or #self._ListPlayFxBtnId <= 0 then return end
+			-- table.removebyvalue(self._ListPlayFxBtnId, id, false)
 		else
 			CRedDotMan.UpdateSystemMenuButtonShow()
 			if self._ListPlayFxBtnId == nil then
 				self._ListPlayFxBtnId = {}
 			end
 
-			if self: IsContainKey(id) then return end
-
+			if self: IsContainKey(id) then return end			
 			self._ListPlayFxBtnId[#self._ListPlayFxBtnId + 1] = id
 		end
 	end
 
-	def.method().RemoveFXTimer = function(self)
-		if self._FXTimerID then
-        	_G.RemoveGlobalTimer(self._FXTimerID)
-        	self._FXTimerID = 0
-    	end	
-	end
+	-- def.method().RemoveFXTimer = function(self)
+	-- 	if self._FXTimerID then
+    --     	_G.RemoveGlobalTimer(self._FXTimerID)
+    --     	self._FXTimerID = 0
+    -- 	end	
+	-- end
 
 	--销毁界面的时候，还有解锁特效未播放
 	def.method().SaveFxBtnIDToData = function (self)
@@ -380,10 +474,17 @@ do
 		local CWingsMan = require "Wings.CWingsMan"
 		local bShow = CWingsMan.Instance():IsShowRedPoint()
 		CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.WingDevelop, bShow)
+        local CCharmMan = require "Charm.CCharmMan"
+		CCharmMan.Instance():ShowRedPointIfNeed()
+		
+		local CSkillUtil = require "Skill.CSkillUtil"
+		CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Skill, CSkillUtil.IsSkillRuneMasteryCanLvUp())
 	end
 
 	def.override().OnHide = function(self)
 		CGame.EventManager:removeHandler("NotifyFunctionEvent", OnNotifyFunctionEvent)
+        CGame.EventManager:removeHandler("GainNewItemEvent", OnGainNewItemEvent)
+        CGame.EventManager:removeHandler("BannerInfoUpdate", OnBannerInfoUpdate)
 	end
 
 	def.override().OnDestroy = function(self)		
@@ -394,6 +495,9 @@ do
 		self._BtnClose = nil
 		self._FrameFloat = nil
 		self._FunctionObjs = nil
+        self._DragableBannerPage = nil
+        self._ListBannerToggleGroup = nil
+        self._OpenedBanner = nil
 	end
 end
 

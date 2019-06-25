@@ -21,6 +21,7 @@ def.field("userdata")._SkillRangeGfx = nil
 
 -- 点地特效
 def.field("userdata")._ClickGroundGfx = nil
+def.field("userdata")._ClickGroundGfxOne = nil
 
 local instance = nil
 def.static("=>",CFxMan).Instance = function()
@@ -34,11 +35,12 @@ end
 def.method("table").OnClickGround = function(self,pos)
 	if IsNil(self._ClickGroundGfx)  then
 		self._ClickGroundGfx = GameUtil.RequestUncachedFx(PATH.Gfx_ClickGround)
+		self._ClickGroundGfxOne = self._ClickGroundGfx:GetComponent(ClassType.CFxOne)
 	end
 	local fx = self._ClickGroundGfx
 	pos.y = pos.y + 0.1
 	fx.position = pos
-	local fxone = fx:GetComponent(ClassType.CFxOne)
+	local fxone = self._ClickGroundGfxOne
 	fxone:Stop()
 	fxone:Play(2)
 end
@@ -154,7 +156,9 @@ end
 
 def.method(CEntity, "boolean").OnTargetSelected = function(self, target, lock)	
 	for i,v in pairs(self._ApertureGfxs) do
-		if not IsNil(v) then
+		if not v or (type(v) == "userdata" and v:Equals(nil)) then					--可能会因为挂在obj身上，obj删除而导致删除
+			self._ApertureGfxs[i] = nil
+		else
 			v.parent = self._UnCachedFxsRoot
 			v.localPosition = Vector3.zero
 			GameUtil.SetFxScale(v, 0)	
@@ -167,10 +171,7 @@ def.method(CEntity, "boolean").OnTargetSelected = function(self, target, lock)
 	-- 	self.localPosition = Vector3.zero
 	-- end
 	if not IsNil(self._BracketsFx) then
-		local follow = self._BracketsFxFollowComp
-		follow.FollowTarget = nil
-		self._BracketsFx.parent = self._UnCachedFxsRoot
-		self._BracketsFx.localPosition = Vector3.zero
+		self._BracketsFxFollowComp:Apply(false, nil, 0, 0)
 		GameUtil.SetFxScale(self._BracketsFx, 0)	
 	end
 
@@ -215,16 +216,15 @@ def.method(CEntity, "boolean").OnTargetSelected = function(self, target, lock)
 
 		if bracketsFx ~= nil then					
 			GameUtil.SetLayerRecursively(bracketsFx, EnumDef.RenderLayer.Fx)
-			local follow = self._BracketsFxFollowComp
-			follow.FollowTarget = target:GetGameObject()		
-			follow:AdjustOffset()
 			local scale = GetBracketsFxScale(self, target)
-			if scale < 1 then
-				follow.Distance = 1
+			local distance = scale < 1 and 1 or scale
+			local targetId = 0
+			if target:IsMonster() then
+				targetId = target._MonsterTemplate.Id
 			else
-				follow.Distance = scale
+				targetId = target._ID
 			end
-			self._UnCachedFxsRoot:SetActive(true)
+			self._BracketsFxFollowComp:Apply(true, target:GetGameObject(), distance, targetId)
 			GameUtil.SetFxScale(bracketsFx, scale)	
 		end
 	end
@@ -288,6 +288,7 @@ def.method("string","table","table","number", "number", "number", "=>",CFxObject
 	if self._IsAllFxHiden then return nil end
 
 	local fx, id = GameUtil.RequestFx(res_path, false, priority)
+	--if type(fx) == "userdata" and fx:Equals(nil) then return nil end   --防止这种情况
 	local fxone = nil
 	if fx then
 		local fx_scale = scale > 0 and scale or 1
@@ -317,6 +318,7 @@ def.method("string","userdata", "table", "table","number","boolean", "number", "
 	if self._IsAllFxHiden then return nil end
 
 	local fx, id = GameUtil.RequestFx(resName, isFixRot, priority)
+	--if type(fx) == "userdata" and fx:Equals(nil) then return nil end   --防止这种情况
 	local fxone = nil
 	if fx ~= nil and parent ~= nil then
 		local fx_scale = scale > 0 and scale or 1
@@ -346,7 +348,7 @@ def.method("string","table","dynamic","function","number","number","number", "=>
 	dir.y = 0
 	local rotation = Quaternion.LookRotation(dir, Vector3.up)
 	local fxobj = self:Play(resName, pos, rotation, -1, scale, priority)
-	if fxobj and fxobj:GetGameObject() then
+	if fxobj then
 		local go = fxobj:GetGameObject()
 		if go ~= nil then
 			local motor = go:AddComponent(ClassType.CLinearMotor)
@@ -383,13 +385,15 @@ def.method("string", "table", "table", "userdata", "number", "number", "number",
 		return nil 
 	end
 	local bullet = self:Play(resPath, pos, rotation, life_time, -1, priority)	
-	if bullet and not IsNil( bullet:GetGameObject()) and hudobj ~= nil then
+	if bullet and hudobj ~= nil then
 		local go = bullet:GetGameObject()
-		local motor = go:AddComponent(ClassType.CBallCurvMotor)
-		if not IsNil(motor) then
-			motor:SetParam(height, speed)
-			motor:BallCurvFly(pos, hudobj, go, angle)
-		end	
+		if not IsNil(go) then
+			local motor = go:AddComponent(ClassType.CBallCurvMotor)
+			if not IsNil(motor) then
+				motor:SetParam(height, speed)
+				motor:BallCurvFly(pos, hudobj, go, angle)
+			end	
+		end
 	else
 		return nil
 	end
@@ -451,8 +455,9 @@ end
 def.method().Reset = function(self)
 	self._IsAllFxHiden = false
 
-	GameUtil.ResetFxCacheMan()
+	GameUtil.FxCacheManCleanup()
 	self._ClickGroundGfx = nil
+	self._ClickGroundGfxOne = nil
 	self._ApertureGfxs = {}
 	self._CrossFx = nil
 	self._BracketsFx = nil

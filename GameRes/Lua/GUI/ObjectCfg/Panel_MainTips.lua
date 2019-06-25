@@ -55,10 +55,13 @@ local cfg = {
     Frame_GuildBF_TwerTip = 1619616785,
     Frame_SkillTip = 848958300,
     Lab_SkillTip = -1066088644,
-    FightScoreItem_1 = 2001673511,
-    FightScoreItem_2 = 2001673512,
-    FightScoreItem_3 = 2001673513,
     Frame_FightScoreDetail = -1524763611,
+    Frame_AchieveSpecialTips = -607856430,
+    Frame_FightScoreHold = -367938157,
+    FightScoreItem_3 = 2001673513,
+    FightScoreItem_2 = 2001673512,
+    FightScoreItem_1 = 2001673511,
+    Frame_Guild_DungeonTip = -1573512129,
 }
  
 return cfg

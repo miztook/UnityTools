@@ -125,7 +125,7 @@ def.method("number").ClickSkillBtn = function(self, index)
 	CDungeonAutoMan.Instance():Stop()
 	local CQuestAutoMan = require"Quest.CQuestAutoMan"
 	CQuestAutoMan.Instance():Stop()
-	local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+	local CAutoFightMan = require "AutoFight.CAutoFightMan"
     CAutoFightMan.Instance():SetMode(EnumDef.AutoFightType.WorldFight, 0, true)
 
 	local hostskillhdl = host._SkillHdl

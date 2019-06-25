@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 2,
 	Remarks = "远征·朱拉斯试炼者·噩梦",
-	TextDisplayName = "주라스 시련자 - 악몽",
+	TextDisplayName = "주라스 수련자 - 악몽",
 	Length = 512,
 	Width = 512,
 	NavMeshName = "Dungn04_Zuras01.navmesh",
@@ -15,7 +15,7 @@ local MapInfo =
 	{
 		[23420] = 
 		{
-			[1] = { x = -0.34, y = 14.96, z = 85.34, name = "노예 선봉군", level = 60,IsBoss = true },
+			[1] = { x = -0.34, y = 14.96, z = 85.34, name = "주라스 수련자", level = 60,IsBoss = true },
 		},
 		[23421] = 
 		{

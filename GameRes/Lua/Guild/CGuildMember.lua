@@ -30,6 +30,8 @@ def.field("number")._LivenessTime = 0
 def.field("number")._CustomImgSet = 0
 -- 二进制权限管理
 def.field("number")._Permission = 0
+--工资
+def.field("number")._Salary = 0
 
 -- 根据GuildPermission模板与RoleType综合判断当前所有权限
 _G.PermissionMask =
@@ -61,6 +63,7 @@ def.static("table", "=>", CGuildMember).new = function(data)
 	obj._Liveness = data.liveness
 	obj._LivenessTime = data.livenessTime
 	obj._CustomImgSet = data.CustomImgSet
+	obj._Salary = data.Salary
 
 	local roleType = data.roleType
 	obj._RoleType = roleType

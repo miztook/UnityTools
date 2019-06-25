@@ -118,7 +118,7 @@ local MapInfo =
 		{
 			[209] = { x = 330.18, y = 47.72, z = -81.81, name = "前线营地", worldId = 0, IsCanFind = 1, PkMode = 0 },
 			[210] = { x = 268.59, y = 42.38, z = -35.23, name = "先锋军码头", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[211] = { x = 253.86, y = 47.72, z = -28.53, name = "前线", worldId = 0, PkMode = 0 },
+			[211] = { x = 253.86, y = 47.72, z = -28.53, name = "前线", worldId = 0, IsCanFind = 1, PkMode = 0 },
 		},
 	},
 	Mine = 

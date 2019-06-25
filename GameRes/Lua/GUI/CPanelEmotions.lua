@@ -21,6 +21,9 @@ def.field("userdata")._Rdo_Position = nil
 def.field("userdata")._Frame_MapPos = nil 
 def.field("userdata")._Lab_Position = nil 
 def.field("boolean")._IsSendPosLink = false
+def.field("table")._ConsumableTypes = BlankTable
+def.field("number")._ProfMask = 0
+
 
 local instance = nil
 def.static("=>", CPanelEmotions).Instance = function() 
@@ -38,6 +41,85 @@ end
 local function InitPanelPosition(self)
 	self._FramePosition.localPosition = self._PositionObj.localPosition
 end
+
+local function sortfunction(item1, item2)
+	if item1._Tid == 0 then
+		return false
+	end
+	if item2._Tid == 0 then
+		return true
+	end
+
+	local profMask = instance._ProfMask
+
+	if item1._ProfessionMask == profMask and item2._ProfessionMask == profMask then
+		if item1._SortId == item2._SortId then
+			return item1._Slot < item2._Slot
+		else
+			return item1._SortId > item2._SortId
+		end
+	elseif item1._ProfessionMask == profMask then
+		return false
+	elseif item2._ProfessionMask == profMask then
+		return true
+	else
+		if item1._SortId == item2._SortId then
+			return item1._Slot < item2._Slot
+		else
+			return item1._SortId > item2._SortId
+		end
+	end
+end
+
+local function IsConsumableType(self,itemType)
+	for _,typeValue in ipairs(self._ConsumableTypes) do 
+		if typeValue == itemType then 
+			return true
+		end
+	end
+	return false
+end
+
+--得到分类后的物品集合
+local function GetItemSets(self,tempitemSets)
+	local itemSets = {}
+	itemSets[EnumDef.EBagItemType.Weapon] = {}
+	itemSets[EnumDef.EBagItemType.Armor] = {}
+	itemSets[EnumDef.EBagItemType.Accessory] = {}
+	itemSets[EnumDef.EBagItemType.Charm] = {}
+	itemSets[EnumDef.EBagItemType.Consumables] = {}
+	itemSets[EnumDef.EBagItemType.Else] = {}
+
+	for i,item in ipairs(tempitemSets) do
+		if item._Tid ~= 0 then
+			if item:IsEquip() and item:GetCategory() == EnumDef.ItemCategory.Weapon then
+				table.insert(itemSets[EnumDef.EBagItemType.Weapon], item)
+			end 
+			if item:IsEquip() and item:GetCategory() == EnumDef.ItemCategory.Armor then
+				table.insert(itemSets[EnumDef.EBagItemType.Armor], item)
+			end 
+			if item:IsEquip() and item:GetCategory() == EnumDef.ItemCategory.Jewelry then
+				table.insert(itemSets[EnumDef.EBagItemType.Accessory], item)
+			end
+			if item:IsCharm() then
+				table.insert(itemSets[EnumDef.EBagItemType.Charm], item)
+			end 
+			if IsConsumableType(self,item._ItemType) then 
+				table.insert(itemSets[EnumDef.EBagItemType.Consumables], item)
+			end
+			if not item:IsEquip() and not IsConsumableType(self,item._ItemType) and not item:IsCharm() then
+				table.insert(itemSets[EnumDef.EBagItemType.Else], item)
+			end  
+		end
+	end
+	for i,v in ipairs(itemSets) do 
+		if #v > 2 then 
+			table.sort(v , sortfunction)
+		end
+	end
+	return itemSets
+end
+
 
 def.override().OnCreate = function(self)
 	self._FrameEmotions = self:GetUIObject("ScrollView_Emotion")
@@ -61,6 +143,10 @@ def.override("dynamic").OnData = function(self, data)
 	self._CurSelectItem = nil 
 	self._ListItemData = nil 
 	self._IsSendPosLink = false
+	local types = string.split(CSpecialIdMan.Get("ConsumableTypesId"),"*")
+	for _,v in ipairs(types) do
+		table.insert(self._ConsumableTypes,tonumber(v))
+	end
 	InitPanelPosition(self)
 
 	self._FrameEmotions:SetActive(true)
@@ -74,8 +160,11 @@ def.override("dynamic").OnData = function(self, data)
 	self._ListEmotion:ScrollToStep(0)
 end
 
+
+
 def.override("string", "boolean").OnToggle = function(self, id, checked)
 	if id == "Rdo_Item" then 
+		self._IsSendPosLink = false
 		self._FrameItems:SetActive(true)
 		self._FrameEmotions:SetActive(false)
 		if self._ListItemData == nil or table.nums(self._ListItemData) == 0 then 
@@ -88,8 +177,13 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
 				end
 			end
 			if game._HostPlayer._Package._NormalPack._ItemSet ~= nil then 
-				for i = 1 ,#game._HostPlayer._Package._NormalPack._ItemSet do
-					self._ListItemData[#self._ListItemData + 1] = game._HostPlayer._Package._NormalPack._ItemSet[i]
+				local itemSets = GetItemSets(self,game._HostPlayer._Package._NormalPack._ItemSet)
+				for _,items in ipairs(itemSets) do
+					if items ~= nil and #items > 0 then 
+						for i = 1,#items do
+							self._ListItemData[#self._ListItemData + 1] = items[i]
+						end
+					end 
 				end
 			end
 			if #self._ListItemData == 0 then return end
@@ -98,11 +192,16 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
 		self._ListItem:ScrollToStep(0)
 		self._Frame_MapPos:SetActive(false)
 	elseif id == "Rdo_Emotion" then  
+		self._IsSendPosLink = false
 		self._FrameItems:SetActive(false)
 		self._FrameEmotions:SetActive(true)
 		self._ListEmotion:ScrollToStep(0)
 		self._Frame_MapPos:SetActive(false)
-	elseif id == "Rdo_Position" then  
+	elseif id == "Rdo_Position" then 
+		if not game._HostPlayer:InWorld() then
+			game._GUIMan:ShowTipText(StringTable.Get(13060), false)
+			return
+		end
 		self._FrameItems:SetActive(false)
 		self._FrameEmotions:SetActive(false)
 		self._ListEmotion:ScrollToStep(0)

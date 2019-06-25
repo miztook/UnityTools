@@ -174,50 +174,282 @@ def.static("table", "=>", "boolean").CheckQuickBuyExternalCondition = function(m
     return true
 end
 
--- 当对应货币不足的时候，判断能不能买（走引导购买逻辑）
-def.static("number", "boolean", "number", "=>", "boolean").CanBuyWhenNotEnough = function(itemOrMoneyID, isMoney, count)
-    local lead_temp = CMallUtility.GetQuickBuyTemp(itemOrMoneyID,isMoney)
-    if lead_temp ~= nil then
-        local have_count = 0
-        if isMoney then
-            have_count = game._HostPlayer:GetMoneyCountByType(itemOrMoneyID)
-        else
-            have_count = game._HostPlayer._Package._NormalPack:GetItemCount(itemOrMoneyID)
-        end
-        local have_money1 = game._HostPlayer:GetMoneyCountByType(lead_temp.CostMoneyId1)
-        local have_money2 = game._HostPlayer:GetMoneyCountByType(lead_temp.CostMoneyId2)
-        local have_money3 = game._HostPlayer:GetMoneyCountByType(lead_temp.CostMoneyId3)
-        local change_count = math.ceil((have_money1 + have_money2 + have_money3)/lead_temp.CostMoneyCount)
-        if change_count * lead_temp.GainCount + have_count >= count then
-            return true
-        end
-    else
-        warn("没有这个快速购买的ID：", itemOrMoneyID)
-    end
-    return false
-end
-
--- 通过要花费的货币ID得到最大能购买的数量
-def.static("number", "number", "=>", "number").GetCanBuyMaxCountByMoneyID = function(moneyID, price)
-    local lead_temp = CMallUtility.GetQuickBuyTemp(moneyID,true)
-    local have_money0 = game._HostPlayer:GetMoneyCountByType(moneyID)
-    if lead_temp ~= nil then
-        local have_money1 = game._HostPlayer:GetMoneyCountByType(lead_temp.CostMoneyId1)
-        local have_money2 = game._HostPlayer:GetMoneyCountByType(lead_temp.CostMoneyId2)
-        local have_money3 = game._HostPlayer:GetMoneyCountByType(lead_temp.CostMoneyId3)
-        local change_count = math.floor((have_money1 + have_money2 + have_money3)/lead_temp.CostMoneyCount)
-        return math.floor((change_count * lead_temp.GainCount + have_money0)/price)
-    else
-        local count = math.floor(have_money0/price)
-        if count == 0 then
-            return 1
-        else
-            return count
+-- 所有的要兑换的货币或者物品都有快速兑换的模板
+def.static("table", "=>", "boolean").IsAllQuickBuyHaveTemp = function(itemOrMoneyTable)
+    for i,v in ipairs(itemOrMoneyTable) do
+        local temp = CMallUtility.GetQuickBuyTemp(v.ID, v.IsMoney)
+        if temp == nil then
+            return false
         end
     end
+    return true
 end
 
--- 通过物品ID获得奖励列表
+-- ==================================CanBuyWhenNotEnough Start======================================
+-- itemOrMoneyTable 必须是以下结构：
+--[[
+    local itemOrMoneyTable = {
+        {ID = 1, Count = 2, IsMoney = true},
+        {ID = 1, Count = 2, IsMoney = true},
+    }
+]]
+def.static("table", "=>", "boolean").CanBuyWhenNotEnough = function(itemOrMoneyTable)
+    --[[
+        {  
+            {MoneyID = 1, Count = 2},
+            {MoneyID = 1, Count = 2},
+        }
+    ]]
+    local pre_cost_money_table = {}
+
+    local insert_to_table = function(ID, Count)
+        print("Count ", Count)
+        local finded = false
+        for i,v in ipairs(pre_cost_money_table) do
+            print("i,v ", i,v.MoneyID, v.Count )
+            if v.MoneyID == ID then
+                v.Count = v.Count + Count
+                finded = true
+            end
+        end
+        if not finded then
+            local item = {}
+            item.MoneyID = ID
+            item.Count = Count
+            pre_cost_money_table[#pre_cost_money_table + 1] = item
+        end
+    end
+
+    local get_remain_count = function(moneyID)
+        local remain_count = game._HostPlayer:GetMoneyCountByType(moneyID)
+        for i,v in ipairs(pre_cost_money_table) do
+            if v.MoneyID == moneyID then
+                remain_count = remain_count - v.Count
+            end
+        end
+        return remain_count
+    end
+    for i,v in ipairs(itemOrMoneyTable) do
+        local lead_temp = CMallUtility.GetQuickBuyTemp(v.ID, v.IsMoney)
+        if lead_temp ~= nil and v.Count ~= 0 then
+            local need_break = false
+            local need_time_count = math.ceil(v.Count/lead_temp.GainCount)
+            local total_need_money_count = need_time_count * lead_temp.CostMoneyCount
+            if lead_temp.CostMoneyId1 > 0 then
+                local remain_count = get_remain_count(lead_temp.CostMoneyId1)
+                if remain_count > 0 then
+                    total_need_money_count = total_need_money_count - remain_count
+                    if total_need_money_count <= 0 then
+                        insert_to_table(lead_temp.CostMoneyId1, total_need_money_count + remain_count)
+                        need_break = true
+                    else
+                        insert_to_table(lead_temp.CostMoneyId1, remain_count)
+                    end
+                end
+            end
+            
+            if not need_break then
+                if  lead_temp.CostMoneyId2 > 0 then
+                    local remain_count = get_remain_count(lead_temp.CostMoneyId2)
+                    if remain_count > 0 then
+                        total_need_money_count = total_need_money_count - remain_count
+                        if total_need_money_count <= 0 then
+                            insert_to_table(lead_temp.CostMoneyId2, total_need_money_count + remain_count)
+                            need_break = true
+                        else
+                            insert_to_table(lead_temp.CostMoneyId2, remain_count)
+                        end
+                    end
+                end
+                
+                if not need_break then
+                    if  lead_temp.CostMoneyId3 > 0 then
+                        local remain_count = get_remain_count(lead_temp.CostMoneyId3)
+                        if remain_count > 0 then
+                            total_need_money_count = total_need_money_count - remain_count
+                            if total_need_money_count <= 0 then
+                                insert_to_table(lead_temp.CostMoneyId2, total_need_money_count + remain_count)
+                            else
+                                insert_to_table(lead_temp.CostMoneyId2, remain_count)
+                            end
+                        end
+                    end
+
+                    if total_need_money_count > 0 then
+                        return false
+                    end
+                end
+            end
+        end
+    end
+    return true
+end
+
+--===================================GetQuickBuyNeedCostMoneyTable Start======================================
+-- itemOrMoneyTable 必须是以下结构：
+--[[
+    local itemOrMoneyTable = {
+        {ID = 1, Count = 2, IsMoney = true},
+        {ID = 1, Count = 2, IsMoney = true},
+    }
+]]
+-- 返回的table则以以下结构返回(返回的是需要消耗的货币信息)
+--[[
+    local return_table = {
+        {MoneyID = 1, Count = 2},
+        {MoneyID = 1, Count = 2},
+    }
+]]
+def.static("table", "=>", "table").GetQuickBuyNeedCostMoneyTable = function(itemOrMoneyTable)
+    local pre_cost_money_table = {}
+    local insert_to_table = function(ID, Count)
+        local finded = false
+        for i,v in ipairs(pre_cost_money_table) do
+            if v.MoneyID == ID then
+                v.Count = v.Count + Count
+                finded = true
+            end
+        end
+        if not finded then
+            local item = {}
+            item.MoneyID = ID
+            item.Count = Count
+            pre_cost_money_table[#pre_cost_money_table + 1] = item
+        end
+    end
+
+    local get_remain_count = function(moneyID)
+        local remain_count = game._HostPlayer:GetMoneyCountByType(moneyID)
+        for i,v in ipairs(pre_cost_money_table) do
+            if v.MoneyID == moneyID then
+                remain_count = remain_count - v.Count
+            end
+        end
+        return remain_count
+    end
+    for i,v in ipairs(itemOrMoneyTable) do
+        local lead_temp = CMallUtility.GetQuickBuyTemp(v.ID, v.IsMoney)
+        if lead_temp ~= nil and v.Count ~= 0 then
+            local need_break = false
+            local last_money_id = 0
+            local need_time_count = math.ceil(v.Count/lead_temp.GainCount)
+            local total_need_money_count = need_time_count * lead_temp.CostMoneyCount
+            if lead_temp.CostMoneyId1 > 0 then
+                last_money_id = lead_temp.CostMoneyId1
+                local remain_count = get_remain_count(lead_temp.CostMoneyId1)
+                if remain_count > 0 then
+                    total_need_money_count = total_need_money_count - remain_count
+                    if total_need_money_count <= 0 then
+                        insert_to_table(lead_temp.CostMoneyId1, total_need_money_count + remain_count)
+                        need_break = true
+                    else
+                        insert_to_table(lead_temp.CostMoneyId1, remain_count)
+                    end
+                end
+            end
+            
+            if not need_break then
+                if  lead_temp.CostMoneyId2 > 0 then
+                    last_money_id = lead_temp.CostMoneyId2
+                    local remain_count = get_remain_count(lead_temp.CostMoneyId2)
+                    if remain_count > 0 then
+                        total_need_money_count = total_need_money_count - remain_count
+                        if total_need_money_count <= 0 then
+                            insert_to_table(lead_temp.CostMoneyId2, total_need_money_count + remain_count)
+                            need_break = true
+                        else
+                            insert_to_table(lead_temp.CostMoneyId2, remain_count)
+                        end
+                    end
+                end
+                
+                if not need_break then
+                    if  lead_temp.CostMoneyId3 > 0 then
+                        last_money_id = lead_temp.CostMoneyId3
+                        local remain_count = get_remain_count(lead_temp.CostMoneyId3)
+                        if remain_count > 0 then
+                            total_need_money_count = total_need_money_count - remain_count
+                            if total_need_money_count <= 0 then
+                                insert_to_table(lead_temp.CostMoneyId2, total_need_money_count + remain_count)
+                            else
+                                insert_to_table(lead_temp.CostMoneyId2, remain_count)
+                            end
+                        end
+                    end
+                    if total_need_money_count > 0 then
+                        insert_to_table(last_money_id, total_need_money_count)
+                    end
+                end
+            end
+        end
+    end
+    return pre_cost_money_table
+end
+
+
+
+-- 获得需要消耗的所有moneyID的ID
+def.static("table", "=>", "table").GetCostMoneyIDs = function(itemOrMoneyTable)
+    local money_ids = {}
+    local is_have = function(id)
+        for i,v in ipairs(money_ids) do
+            if v == id then
+                return true
+            end
+        end
+        return false
+    end
+    for i,v in ipairs(itemOrMoneyTable) do
+        local lead_temp = CMallUtility.GetQuickBuyTemp(v.ID, v.IsMoney)
+        if lead_temp ~= nil then
+            if not is_have(lead_temp.CostMoneyId1) and lead_temp.CostMoneyId1 > 0 then
+                money_ids[#money_ids + 1] = lead_temp.CostMoneyId1
+            end
+
+            if not is_have(lead_temp.CostMoneyId2) and lead_temp.CostMoneyId2 > 0 then
+                money_ids[#money_ids + 1] = lead_temp.CostMoneyId2
+            end
+
+            if not is_have(lead_temp.CostMoneyId3) and lead_temp.CostMoneyId3 > 0 then
+                money_ids[#money_ids + 1] = lead_temp.CostMoneyId3
+            end
+        end
+    end
+    return money_ids
+end
+
+-- 掉落模板
+local function getDropLibraryMoneyList(dropLibrary)
+	local EDropItemType = require "PB.Template".DropLibrary.EDropItemType
+	local temp = nil
+	if type(dropLibrary) == "number" then
+		temp = CElementData.GetTemplate("DropLibrary",dropLibrary)
+	else
+		temp = dropLibrary
+	end
+
+	if temp == nil then
+		warn("the dropLibrary template data is nil.")
+		return
+	end
+	local MoneyList = {}
+    for i,v in ipairs(temp.DropMoneyExps.DropMoneyExps) do
+        MoneyList[#MoneyList + 1] = v
+    end
+	return MoneyList
+end
+
+local function CheckProf(itemID)
+    local item_temp = CElementData.GetItemTemplate(itemID)
+    if item_temp == nil then
+        return false
+    end
+    local profMask = EnumDef.Profession2Mask[game._HostPlayer._InfoData._Prof]
+    return profMask == bit.band(item_temp.ProfessionLimitMask, profMask)
+end
+
+
+-- 通过物品ID获得所有奖励列表（包括必得和随机获得）
 def.static("number", "number", "=>", "table").GetItemsShowDataByItemID = function(itemID, count)
     local rewards = {}
     local item_temp = CElementData.GetItemTemplate(itemID)
@@ -230,12 +462,32 @@ def.static("number", "number", "=>", "table").GetItemsShowDataByItemID = functio
         local drup_ID = tonumber(item_temp.Type1Param1)
         if drup_ID > 0 then
             local drup_temp = CElementData.GetTemplate("DropRule", drup_ID)
-            if drup_temp == nil then warn("彩票规则id配置错误,物品ID是：", itemID) return end
-            local reward = GUITools.GetRewardList(drup_temp.DescRewardid, true)
-            if reward == nil then return end
-            for k,v in ipairs(reward) do
-                v.Data.Count = v.Data.Count * count
-                table.insert(rewards, v)
+            if drup_temp == nil then warn("彩票规则id配置错误,物品ID是：", itemID) return{} end
+            for i,v in ipairs(drup_temp.DropLibWeights) do
+                if v.DropLibId ~= nil and v.DropLibId > 0 then
+                    local dorp_money = getDropLibraryMoneyList(v.DropLibId)
+                    for i1, v1 in ipairs(dorp_money) do
+                        if v1.Probability > 0 then
+                            local data = {}
+                            data.IsTokenMoney = true
+                            data.Data = {}
+                            data.Data.Id = v1.MoneyId
+                            data.Data.Count = v1.DropMin
+                            rewards[#rewards + 1] = data
+                        end
+                    end
+                    local drop_weight = GUITools.GetDropLibraryItemList(v.DropLibId)
+                    for i1, v1 in ipairs(drop_weight) do
+                        if v1.Probability > 0 and CheckProf(v1.ItemId) then
+                            local data = {}
+                            data.IsTokenMoney = false
+                            data.Data = {}
+                            data.Data.Id = v1.ItemId
+                            data.Data.Count = v1.MinNum
+                            rewards[#rewards + 1] = data
+                        end
+                    end
+                end
             end
         end
     else
@@ -252,6 +504,119 @@ def.static("number", "number", "=>", "table").GetItemsShowDataByItemID = functio
     end
     return rewards
 end
+
+-- 通过物品ID获得必得奖励列表
+def.static("number", "number", "=>", "table").GetNonRandomShowDataByItemID = function(itemID, count)
+    local rewards = {}
+    local item_temp = CElementData.GetItemTemplate(itemID)
+    if item_temp == nil then
+        return nil
+    end
+    local EItemType = require "PB.Template".Item.EItemType
+    local EItemEventType = require "PB.data".EItemEventType
+    if item_temp.ItemType == EItemType.TreasureBox and item_temp.EventType1 ~= nil and item_temp.EventType1 == EItemEventType.ItemEvent_OpenBox then
+        local drup_ID = tonumber(item_temp.Type1Param1)
+        if drup_ID > 0 then
+            local drup_temp = CElementData.GetTemplate("DropRule", drup_ID)
+            if drup_temp == nil then warn("彩票规则id配置错误,物品ID是：", itemID) return{} end
+            for i,v in ipairs(drup_temp.DropLibWeights) do
+                if v.DropLibId ~= nil and v.DropLibId > 0 then
+                    local dorp_money = getDropLibraryMoneyList(v.DropLibId)
+                    for i1, v1 in ipairs(dorp_money) do
+                        if v1.Probability >= 10000 then
+                            local data = {}
+                            data.IsTokenMoney = true
+                            data.Data = {}
+                            data.Data.Id = v1.MoneyId
+                            data.Data.Count = v1.DropMin
+                            rewards[#rewards + 1] = data
+                        end
+                    end
+                    local drop_weight = GUITools.GetDropLibraryItemList(v.DropLibId)
+                    for i1, v1 in ipairs(drop_weight) do
+                        if v1.Probability >= 10000 and CheckProf(v1.ItemId) then
+                            local data = {}
+                            data.IsTokenMoney = false
+                            data.Data = {}
+                            data.Data.Id = v1.ItemId
+                            data.Data.Count = v1.MinNum
+                            rewards[#rewards + 1] = data
+                        end
+                    end
+                end
+            end
+        end
+    else
+        rewards = 
+        {
+            {   IsTokenMoney = false,
+			    Data = 
+			    {
+				    Id = itemID, 
+				    Count = count
+			    }
+            },
+        }
+    end
+    return rewards
+end
+
+-- 通过物品ID随机获得奖励列表
+def.static("number", "number", "=>", "table").GetRandomShowDataByItemID = function(itemID, count)
+    local rewards = {}
+    local item_temp = CElementData.GetItemTemplate(itemID)
+    if item_temp == nil then
+        return nil
+    end
+    local EItemType = require "PB.Template".Item.EItemType
+    local EItemEventType = require "PB.data".EItemEventType
+    if item_temp.ItemType == EItemType.TreasureBox and item_temp.EventType1 ~= nil and item_temp.EventType1 == EItemEventType.ItemEvent_OpenBox then
+        local drup_ID = tonumber(item_temp.Type1Param1)
+        if drup_ID > 0 then
+            local drup_temp = CElementData.GetTemplate("DropRule", drup_ID)
+            if drup_temp == nil then warn("彩票规则id配置错误,物品ID是：", itemID) return{} end
+            for i,v in ipairs(drup_temp.DropLibWeights) do
+                if v.DropLibId ~= nil and v.DropLibId > 0 then
+                    local dorp_money = getDropLibraryMoneyList(v.DropLibId)
+                    for i1, v1 in ipairs(dorp_money) do
+                        if v1.Probability > 0 and v1.Probability < 10000 then
+                            local data = {}
+                            data.IsTokenMoney = true
+                            data.Data = {}
+                            data.Data.Id = v1.MoneyId
+                            data.Data.Count = v1.DropMin
+                            rewards[#rewards + 1] = data
+                        end
+                    end
+                    local drop_weight = GUITools.GetDropLibraryItemList(v.DropLibId)
+                    for i1, v1 in ipairs(drop_weight) do
+                        if v1.Probability > 0 and v1.Probability < 10000 and CheckProf(v1.ItemId) then
+                            local data = {}
+                            data.IsTokenMoney = false
+                            data.Data = {}
+                            data.Data.Id = v1.ItemId
+                            data.Data.Count = v1.MinNum
+                            rewards[#rewards + 1] = data
+                        end
+                    end
+                end
+            end
+        end
+    else
+        rewards = 
+        {
+            {   IsTokenMoney = false,
+			    Data = 
+			    {
+				    Id = itemID, 
+				    Count = count
+			    }
+            },
+        }
+    end
+    return rewards
+end
+
 
 -- 获得神秘商店VIP格子数信息
 def.static("=>", "table").GetMysteryShopVIPGridTable = function()
@@ -380,6 +745,31 @@ def.static("number", "=>", "string").GetItemName = function(itemID)
         return "<color=#"..EnumDef.Quality2ColorHexStr[item_temp.InitQuality]..">"..item_temp.TextDisplayName.."</color>"
     end
     return ""
+end
+
+-- 是否跳过动画(id对应LocalFields)
+def.static("string", "=>", "boolean").IsShowGfx = function(defID)
+    local account = game._NetMan._UserName
+    local UserData = require "Data.UserData"
+    local cfg = UserData.Instance():GetCfg(defID, account)
+    if cfg == nil then
+        return true
+    else
+        return cfg
+    end
+end
+
+-- 设置是否跳过动画的偏好
+def.static("string", "boolean").SetShowGfx = function(defID, bShow)
+    print("SetShowGfx ", defID, bShow)
+    local oldShow = CMallUtility.IsShowGfx(defID)
+    if oldShow == bShow then
+        --print("怎么会被return")
+        return
+    end
+    local account = game._NetMan._UserName
+    local UserData = require "Data.UserData"
+    UserData.Instance():SetCfg(defID, account, bShow)
 end
 
 CMallUtility.Commit()

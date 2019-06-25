@@ -137,6 +137,7 @@ _G.EnumDef =
         BORN = "born_c",
         LEVELUP = "levelup_c",
         WING_COMMON_STAND = "stand_common_c",
+        UNLOAD_WEAPON = "battle_end_c",
     },
 
     CAM_CTRL_MODE =
@@ -171,7 +172,8 @@ _G.EnumDef =
         HostPlayer = 16,
         EntityAttached = 17,  -- 对象附属物 （光圈 头顶字 等）
         Fx = 18,
-        
+        ClientBlockable = 21,
+
         TopPate = 25,
 
         CG = 27,
@@ -244,6 +246,13 @@ _G.EnumDef =
         [4] = "A436D7",
         [5] = "D78236",
         [6] = "DB2E1C",
+    },
+
+    EquipProcessStatus2HexStr =
+    {
+        [0] = "FFFFFF",
+        [1] = "5CBE37",
+        [2] = "DB2E1C",
     },
 
     TopPateColorHexStr = 
@@ -399,6 +408,8 @@ _G.EnumDef =
         PanelBuff = 5,
         PVPLeft = 6,
         PVPRight = 7,
+        PVP1V1Left = 8,
+        PVP1V1Right = 9,
     },
 
     NavigationType =
@@ -533,6 +544,7 @@ _G.EnumDef =
         Manual_INIT = 1,
         Manual_RECIEVE = 2,
         Manual_UPDATE = 3,
+        Manual_RECIEVETOTAL = 4,
     },
 
 
@@ -640,6 +652,7 @@ _G.EnumDef =
         TaskTrack           = 47,--任务追踪
         WingEnter           = 48,--翅膀养成
         Activity            = 49,--指南
+        Power               = 50,--省点模式
     },
 
     TokenId = 
@@ -668,12 +681,13 @@ _G.EnumDef =
         QuickEnterGameRoleInfo          = "QuickEnterGameRoleInfo",
         MedicialAutoUse                 = "MedicialAutoUse",
         MinHpValueToUseMedic            = "MinHpValueToUseMedic",
-        MedicialUseLower                = "MedicialUseLower",
+        MedicialUseHigher               = "MedicialUseHigher",
         ClickGroundMove                 = "ClickGroundMove",
         PowerSaving                     = "PowerSaving",
+		PowerSavingTime				= "PowerSavingTime",
         --IsBackgroundMusicEnable             = "IsBackgroundMusicEnable",
         --IsEffectAudioEnable                 = "IsEffectAudioEnable",
-
+        IsShowHeadInfo                  = "IsShowHeadInfo",
         PostProcessLevel                = "PostProcessLevel",
         ShadowLevel                     = "ShadowLevel",
         CharacterLevel                  = "CharacterLevel",
@@ -702,7 +716,11 @@ _G.EnumDef =
         EquipSkipGfx_Refine             = "EquipSkipGfx_Refine",
         EquipSkipGfx_LegendChange       = "EquipSkipGfx_LegendChange",
         EquipSkipGfx_Inherit            = "EquipSkipGfx_Inherit",
+        PetEggSkipGfx_PetEgg            = "PetEggSkipGfx_PetEgg",
+        MallSkipGfx_Springift           = "MallSkipGfx_Springift",
         CharmSkipGfx_Compose            = "CharmSkipGfx_Compose",
+
+		ShowHeadInfo							= "ShowHeadInfo",
 
         QuickMsg                        = "QuickMsg",
     },
@@ -764,7 +782,8 @@ _G.EnumDef =
         InvitateStatus  = 12,   --邀请状态
         TeamMode        = 13,   --队伍类型（团队还是普通队伍 data.TeamMode）
         TeamSetting     = 14,   --队伍设置变化
-
+        TeamMemberName  = 15,   --队伍成员名称变化
+        
         DeadState = 50,         --客户端维护死亡状态  前值
     },
 
@@ -1042,7 +1061,8 @@ _G.EnumDef =
         _Sign           = 1, 
         _GloryVIP       = 2,  -- 荣耀之路
         _SpecialSign    = 3,  -- 特殊签到
-        _OnLineReward   = 4,  -- 在线奖励
+        _Festival       = 4,  -- 材料兑换
+        _OnLineReward   = 5,  -- 在线奖励
     },
 
     --福利类型 1 = 签到   (暂时只有签到，以后有了再加)
@@ -1116,6 +1136,7 @@ _G.EnumDef =
         ArenaOneType = 2,
         ArenaThreeType = 3,
         EliminateType = 4,
+        GuildDefend = 5,
     },
 
     -- 外观相机枚举类型
@@ -1155,8 +1176,8 @@ _G.EnumDef =
     {
         PagePetInfo = 1,
         PageCultivate = 2,
-        PageAdvance = 3,
-        PageRecast = 4,
+        PageFuse = 3,
+        PageAdvance = 4,
         PageSkill = 5,
 
         PageNone = -1,
@@ -1216,6 +1237,7 @@ _G.EnumDef =
         FriendApply = 6, -- 好友申请
         RecentList = 7,  -- 最近联系人
         DungeonEnd = 8 , -- 副本结算
+        GuildPrayHelp = 9,      -- 月光庭院互助
     },
 
     EntitySkillType = 
@@ -1402,6 +1424,8 @@ _G.EnumDef =
         GloryShop = 6,      -- 荣耀商店
         DressShop = 7,      -- 时装兑换
         ReputationShop = 8, -- 声望商店
+        SmallCharmShop = 9, -- 铭符商店
+        BigCharmShop = 10,  -- 神符商店
     },
 
     -- 货币类型对应显示货币种类
@@ -1416,6 +1440,8 @@ _G.EnumDef =
         [6] = { 30 },
         [7] = { 32 },
         [8] = { 33, 1, 2, 3},
+        [9] = { 24 },
+        [10] = { 8 },
     },
 
     -- Emoji
@@ -1510,6 +1536,47 @@ _G.EnumDef =
 		Total=9,
 	},
 
+    EquipProcessStatus = 
+    {
+        None = 0,
+        Success = 1,
+        Failed = 2,
+    },
+    
+    ThreadPriority = 
+    {
+        Low = 0,
+        BelowNormal = 1,
+        Normal = 2,
+        High = 4
+    },
+
+    ApproachMaterialType = 
+    {
+        None = 0,
+        PetAdvance = 1,
+        PetSkillBook = 2,
+        PetFuse = 3,
+    },
+
+    -- 创建角色的相机类型
+    ECreateRoleCamType =
+    {
+        Face = 1,           -- 脸部相机
+        Halfbody = 2,       -- 半身相机
+        Body = 3,           -- 全身相机
+        Job = 4             -- 选择职业相机
+    },
+    --背包物品呢类型
+    EBagItemType = 
+    {
+        Weapon = 1,
+        Armor = 2,
+        Accessory = 3,
+        Charm = 4,
+        Consumables = 5,
+        Else = 6,
+    }
 }
 
 _G.FSM_STATE_TYPE = 
@@ -1611,7 +1678,7 @@ _G.SWITCH_HUD_TEXT = false
 _G.RelationDesc = { [0] = "Neutral", [1] = "Friendly", [2] = "Enemy" }
 
 -- 玩家数量显示控制
-_G.MAX_VISIBLE_PLAYER = 30
+_G.MAX_VISIBLE_PLAYER = 20
 _G.VISIBLE_PLAYER_INNER_RATIO = 0.4
 
 _G.BeginnerDungeonCgId = 2
@@ -1638,9 +1705,9 @@ _G.SkillUpdateFXOScale = 1.5
 _G.PanelPageConfig =
 {
     Activity = {
-        {MenuBtn = "MenuBtn1", Page = "PageAdvancedGuide", Script = "GUI.CPageAdvancedGuide", MenuText = {{key = "Lab_Name", gameTextIndex = 34101}}, RedPoint = "Img_RedPoint", IsShow = true, IsRefrash = false, FunTid = 132},
-        {MenuBtn = "MenuBtn2", Page = "PageLiveness", Script = "GUI.CPageLiveness", MenuText = {{key = "Lab_Name", gameTextIndex = 31950}}, RedPoint = "Img_RedPoint", IsShow = true, IsRefrash = false, FunTid = 130},
-        {MenuBtn = "MenuBtn3", Page = "PageDailyTask", Script = "GUI.CPageDailyTask", MenuText = {{key = "Lab_Name", gameTextIndex = 31807}}, RedPoint = "Img_RedPoint", IsShow = true, IsRefrash = true, FunTid = 76},
+        {MenuBtn = "MenuBtn1", Page = "PageAdvancedGuide", Script = "GUI.CPageAdvancedGuide", MenuText = {{key = "Lab_Name", gameTextIndex = 34101}}, RedPoint = "Img_RedPoint", IsShow = true, IsRefrash = false, FunTid = 132, HelpUrlType = HelpPageUrlType.AdvancedGuide},
+        {MenuBtn = "MenuBtn2", Page = "PageLiveness", Script = "GUI.CPageLiveness", MenuText = {{key = "Lab_Name", gameTextIndex = 31950}}, RedPoint = "Img_RedPoint", IsShow = true, IsRefrash = false, FunTid = 130, HelpUrlType = HelpPageUrlType.Liveness},
+        {MenuBtn = "MenuBtn3", Page = "PageDailyTask", Script = "GUI.CPageDailyTask", MenuText = {{key = "Lab_Name", gameTextIndex = 31807}}, RedPoint = "Img_RedPoint", IsShow = true, IsRefrash = true, FunTid = 76, HelpUrlType = HelpPageUrlType.DailyTask},
     },
 }
 

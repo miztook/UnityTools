@@ -10,10 +10,6 @@ local MapBasicConfig = require "Data.MapBasicConfig"
 local bit = require "bit"
 local ROLE_VAILD = require "PB.data".ERoleVaild
 
--- 场景
-def.field("userdata")._Scene = nil
-def.field('userdata')._AnimationClip = nil    --传送动画
-def.field("table")._TableHostPlayerPos = BlankTable   --四个职业的节点
 -- 界面
 def.field("userdata")._Lab_FightScore = nil       --战力值
 def.field("userdata")._Img_Race = nil 			-- 种族图
@@ -34,7 +30,6 @@ def.field("userdata")._Btn_Delete = nil --删角色按钮
 def.field("table")._RoleUIList = BlankTable
 -- 缓存
 def.field("number")._CurSelectIdx = 0
-def.field("table")._TablePlayerModel = BlankTable
 def.field("table")._DelRoleTimer = BlankTable   --删角色的四个timer计时器
 def.field("table")._TableFrameRolePos = BlankTable -- 各个角色框初始位置
 def.field("number")._DeleteRoleLimit = 0 -- 立刻删除角色等级限制
@@ -42,20 +37,6 @@ def.field("number")._DeleteRoleLimit = 0 -- 立刻删除角色等级限制
 ----------------- CONST 常量 ---------------------------------
 local FRAME_ROLE_POS_X_OFFSET = 30 -- 角色列表框X轴上的偏移
 local UI_MOVE_DURATION = 0.5 -- 界面移动的时间
-local CAMERA_LOOP_ANIMATION_FORMAT = "SlctChar_char%dloop" -- 相机循环动画名字格式
-local CAMERA_CHANGE_ANIMATION_FORMAT = "SlctChar_char%dto%d" -- 相机改变动画名字格式
-
-local SMOKE0 = "Background/scene_selectcharacter_smoke"
---[[
-local SMOKE1 = "Background/scene_selectcharacter_smoke/smoke03 (1)"
-local SMOKE2 = "Background/scene_selectcharacter_smoke/huijin"
-local SMOKE3 = "Background/scene_selectcharacter_smoke/huoxing"
-local SMOKE4 = "Background/scene_selectcharacter_smoke/glow"
-local SMOKE5 = "Background/scene_selectcharacter_smoke/line"
-local SMOKE6 = "Background/scene_selectcharacter_smoke/nongdu"
-local SMOKE7 = "Background/scene_selectcharacter_smoke/smoke01"
-local SMOKE8 = "Background/scene_selectcharacter_smoke/smoke04_01"
-]]
 -----------------------------------------------------------------
 
 local instance = nil
@@ -116,83 +97,7 @@ def.override().OnCreate = function(self)
 	self._Sld_EXP = self:GetUIObject("Sld_EXP"):GetComponent(ClassType.Slider)
 	self._Btn_Delete = self:GetUIObject("Btn_Delete")
 
-	-- 场景初始化
-	self._Scene = game:GetRoleSelectScene()
-	for i = 1, GlobalDefinition.MaxRoleCount do
-		self._TableHostPlayerPos[i] = self._Scene:FindChild("SelectChar_animator/SelectChar_CharPos"..i)
-	end
-	self._AnimationClip = self._Scene:FindChild("SelectChar_animator"):GetComponent(ClassType.Animation)
-
-
-	--fix
-	do
-		local obj = self._Scene:FindChild("Background/DirectionalLight_Player")
-		if obj ~= nil then
-			local enable = _G.IsUseRealTimeShadowInLogin()
-			GameUtil.EnableLightShadow(obj, enable)
-		end
-	end
-
-	do
-		local obj = self._Scene:FindChild("SelectChar_animator/SelectChar_CharCamera/Main Camera/CharacterCamera")
-		if obj ~= nil then
-			GameUtil.FixCameraSetting(obj)
-
-			local enable = _G.IsUseBloomHDInLogin()
-			GameUtil.EnableBloomHD(obj, enable)
-
-			local cam = obj:GetComponent(ClassType.Camera)
-			if cam ~= nil then
-			 	cam.useOcclusionCulling = false
-			end
-		end
-	end
-
-	--屏蔽smoke
-	do 
-		local obj = self._Scene:FindChild(SMOKE0)
-		if obj ~= nil then obj:SetActive(false) end
-	end
-
-	local CSpecialIdMan = require "Data.CSpecialIdMan"
 	self._DeleteRoleLimit = CSpecialIdMan.Get("DeleteRoleImmediatelyLevelLimit")
-
---[[
-	do 
-		local obj = self._Scene:FindChild(SMOKE2)
-		if obj ~= nil then obj:SetActive(false) end
-	end
-
-	do 
-		local obj = self._Scene:FindChild(SMOKE3)
-		if obj ~= nil then obj:SetActive(false) end
-	end
-
-	do 
-		local obj = self._Scene:FindChild(SMOKE4)
-		if obj ~= nil then obj:SetActive(false) end
-	end
-
-	do 
-		local obj = self._Scene:FindChild(SMOKE5)
-		if obj ~= nil then obj:SetActive(false) end
-	end
-
-	do 
-		local obj = self._Scene:FindChild(SMOKE6)
-		if obj ~= nil then obj:SetActive(false) end
-	end
-
-	do 
-		local obj = self._Scene:FindChild(SMOKE7)
-		if obj ~= nil then obj:SetActive(false) end
-	end
-
-	do 
-		local obj = self._Scene:FindChild(SMOKE8)
-		if obj ~= nil then obj:SetActive(false) end
-	end
---]]
 end
 
 def.override("dynamic").OnData = function(self, data)
@@ -223,13 +128,10 @@ def.method("number").ResetAll = function (self, selectedIndex)
 	if selectedIndex <= 0 then return end
 
 	game._AccountInfo._CurrentSelectRoleIndex = selectedIndex
-	-- 销毁已有模型
-	self:DestroyModel()
+	-- 重置场景
+	game._RoleSceneMan:ResetRoleSelectScene(selectedIndex)
 	-- 设置界面
 	self:InitUIRoleList()
-	-- 设置相机动画
-	local camLoopAniName = string.format(CAMERA_LOOP_ANIMATION_FORMAT, selectedIndex)
-	self._AnimationClip:Play(camLoopAniName, PlayMode.StopSameLayer)
 
 	if self._CurSelectIdx > 0 then
 		-- 清空当前选中的状态
@@ -288,6 +190,7 @@ def.method("number").SelectRole = function (self, roleIndex)
 	local originIndex = self._CurSelectIdx
 	if roleIndex == originIndex then return end
 
+	game._RoleSceneMan:ChangeRole(originIndex, roleIndex)
 	-- 先处理旧的
 	local originRoleItem = self._RoleUIList[originIndex]
 	if originRoleItem ~= nil then
@@ -315,13 +218,6 @@ def.method("number").SelectRole = function (self, roleIndex)
 		GUITools.DoLocalMove(curRoleItem.Frame_Root, destPos, UI_MOVE_DURATION, nil,nil)
 	end
 	self:InitUIRoleInfo(roleIndex)
-	-- 模型
-	self:LoadPlayerModel(roleIndex)
-	-- 相机动画
-	if originIndex > 0 then
-		local camChangeAniName = string.format(CAMERA_CHANGE_ANIMATION_FORMAT, originIndex, roleIndex)
-		self._AnimationClip:Play(camChangeAniName, PlayMode.StopSameLayer) 
-	end
 
 	self._CurSelectIdx = roleIndex
 end
@@ -390,102 +286,6 @@ def.method("number").InitUIRoleInfo = function (self, roleIndex)
 	GUI.SetText(self._Lab_Location, strLocation)
 end
 
-local function GetWalkAniSpeed(prof)
-	local speed = 1
-	if prof == EnumDef.Profession.Warrior then
-		speed = 0.692
-	elseif prof == EnumDef.Profession.Aileen then
-		speed = 0.6
-	elseif prof == EnumDef.Profession.Assassin then
-		speed = 0.55
-	elseif prof == EnumDef.Profession.Archer then
-		speed = 0.57
-	elseif prof == EnumDef.Profession.Lancer then
-		speed = 0.6
-	end
-	return speed
-end
-
-def.method("number").LoadPlayerModel = function (self, roleIndex)
-	if roleIndex <= 0 then return end
-	if self._TablePlayerModel[roleIndex] ~= nil then return end
-
-	local roleData = game._AccountInfo._RoleList[roleIndex]
-	if roleData == nil then return end
-
-	local Util = require "Utility.Util"
-	local profId = roleData.Profession
-	local modelAssetPath = Util.GetPlayerBaseModelAssetPath(profId, Profession2Gender[profId])
-	if IsNilOrEmptyString(modelAssetPath) then
-		error("LoadPlayerModel failed, modelAssetPath got nil, wrong profId:", profId)
-		return
-	end
-
-	local CModel = require "Object.CModel"
-	local playerModel = CModel.new()
-	local function OnLoad()
-		if playerModel == nil then return end
-		local go = playerModel:GetGameObject()
-		if IsNil(go) then return end
-		if roleData == nil then return end
-
-		-- 设置物体
-		if not IsNil(self._TableHostPlayerPos[roleIndex]) then
-			go:SetParent(self._TableHostPlayerPos[roleIndex])
-		end
-		go.localPosition = Vector3.zero
-		go.localScale = Vector3.zero -- 暂时先隐藏，等整体加载完毕再显示
-		go.localRotation = Quaternion.identity
-		-- 设置动画
-		local nSpeed = GetWalkAniSpeed(roleData.Profession)
-		if playerModel:HasAnimation(EnumDef.CLIP.COMMON_WALK) then
-			playerModel:PlayAnimation(EnumDef.CLIP.COMMON_WALK, 0, false, 0, nSpeed)
-		else
-			playerModel:PlayAnimation(EnumDef.CLIP.COMMON_RUN, 0, false, 0, nSpeed)
-		end
-
-		local ModelParams = require "Object.ModelParams"
-		local param = ModelParams.new()
-		param:MakeParam(roleData.Exterior, roleData.Profession)
-		-- param._IsChangeWing = false -- 不显示翅膀
-
-		playerModel._Params = ModelParams.new()
-		playerModel._Params._Prof = roleData.Profession
-		playerModel:UpdateWithModelParams(param, function()
-			if not IsNil(go) then
-				go.localScale = Vector3.one
-				GameUtil.SetLayerRecursively(go, EnumDef.RenderLayer.Player)
-			end
-
-			local wingModel = playerModel:GetAttach("WingHP")
-			if wingModel ~= nil then
-				wingModel:PlayAnimation("stand_common_c", 0, false, 0, 1) -- 翅膀通用站立动作
-				GameUtil.EnableLockWingYZRotation(true, wingModel:GetGameObject(), go) -- 锁定翅膀YZ轴旋转
-			end
-		end)
-	end
-
-	playerModel:Load(modelAssetPath, function(ret)
-		if ret then
-			OnLoad()
-		else
-			warn("LoadPlayerModel failed to load model, path:", modelAssetPath)
-		end
-	end)
-	self._TablePlayerModel[roleIndex] = playerModel
-end
-
-def.method().DestroyModel = function(self)
-	for i, v in pairs(self._TablePlayerModel) do
-		local wingModel = v:GetAttach("WingHP")
-		if wingModel ~= nil then
-			GameUtil.EnableLockWingYZRotation(false, wingModel:GetGameObject(), nil) -- 解锁翅膀YZ轴旋转
-		end
-		v:Destroy()
-	end
-	self._TablePlayerModel = {}
-end
-
 def.override("string").OnClick = function(self,id)
 	if _G.ForbidTimerId ~= 0 then				--不允许输入
 		return
@@ -518,8 +318,7 @@ def.override("string").OnClick = function(self,id)
 		if curRoleNum >= GlobalDefinition.MaxRoleCount then
 			TODO()
 		else
-			CSoundMan.Instance():StopBackgroundMusic()
-			game:EnterRoleCreateStage()
+			game._RoleSceneMan:EnterRoleCreateStage()
 		end
 	elseif id == "Btn_Delete" then
 		game:AddForbidTimer(self._ClickInterval)
@@ -536,14 +335,13 @@ def.override("string").OnClick = function(self,id)
 				PBHelper.Send(protocol)
 			end
 		end
-		local title, message, closeType = StringTable.GetMsg(27)
 		local level = game._AccountInfo._RoleList[self._CurSelectIdx].Level
 		if level < self._DeleteRoleLimit then
-			-- 不显示特殊提示
-			MsgBox.ShowMsgBox(message, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback, 0, nil, 1, nil)
+			local title, message, closeType = StringTable.GetMsg(138)
+			MsgBox.ShowMsgBox(message, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback)
 		else
-			local spec_tip = StringTable.Get(29)
-			MsgBox.ShowMsgBox(message, title, closeType, bit.bor(MsgBoxType.MBBT_OKCANCEL, MsgBoxType.MBT_SPEC), callback, 0, nil, 1, spec_tip)
+			local title, message, closeType = StringTable.GetMsg(27)
+			MsgBox.ShowMsgBox(message, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback)
 		end
 	elseif id == "Btn_Back" then
 		-- 返回
@@ -570,7 +368,7 @@ def.method().OnBtnEnter = function(self)
 			game._AccountInfo._CurrentSelectRoleIndex = curIndex
 			game:SendSelectRole(roleData.Id)
 		else
-			error("CPanelSelectRole enter game failed, role data got nil, wrong index:", curIndex)
+			error("CPanelSelectRole enter game failed, role data got nil, wrong index: " .. tostring(curIndex), 2)
 		end
 	end
 	StartScreenFade(0, 1, 0.5, callback)
@@ -670,8 +468,6 @@ def.method("number", "number").RoleDeleteFromServer = function(self, roleIndex, 
 end
 
 def.override().OnDestroy = function(self)
-	self:DestroyModel()
-
 	for _, v in pairs(self._DelRoleTimer) do
 		if v > 0 then
 			_G.RemoveGlobalTimer(v)
@@ -680,10 +476,6 @@ def.override().OnDestroy = function(self)
 	self._DelRoleTimer = {}
 	self._TableFrameRolePos = {}
 	self._CurSelectIdx = 0
-
-	self._Scene = nil
-	self._AnimationClip = nil
-	self._TableHostPlayerPos = {}
 
 	self._Lab_FightScore = nil
 	self._Img_Race = nil

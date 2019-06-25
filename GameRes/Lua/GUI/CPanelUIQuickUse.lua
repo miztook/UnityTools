@@ -13,7 +13,7 @@ local def = CPanelUIQuickUse.define
 
 def.field('userdata')._Frame_QuickUse = nil
 def.field('userdata')._Lab_Use = nil
-def.field('userdata')._Img_Tag_Arrow = nil
+-- def.field('userdata')._Img_Tag_Arrow = nil
 def.field('userdata')._Lab_ItemName = nil
 
 def.field('table')._QuickUseItems = BlankTable
@@ -44,7 +44,7 @@ local OnPackageChangeEvent = function (sender, event)
 	if not instance then return end
 	if event.PackageType == net.BAGTYPE.BACKPACK then
 		if #instance._QuickUseItems == 0 then return end
-		-- warn("lidaming event instance._QuickUseItems", #instance._QuickUseItems , event.PackageType)
+		-- warn("lidaming event instance._QuickUseItems", #instance._QuickUseItems)
     	instance:QuickUseListRefresh()
 	end
 end
@@ -86,7 +86,7 @@ end
 def.override().OnCreate = function(self)    
 	self._Frame_QuickUse = self:GetUIObject('Frame_QuickUse')
 	self._Lab_Use = self:GetUIObject("Lab_Use")
-	self._Img_Tag_Arrow = self:GetUIObject("Img_Tag_ArrowUp")
+	-- self._Img_Tag_Arrow = self:GetUIObject("Img_Tag_ArrowUp")
 	self._Lab_ItemName = self:GetUIObject("Lab_ItemName")
 	self._QuickUseItems = {}
 	self._IsShowQuickUse = false
@@ -111,7 +111,7 @@ def.static('table', 'table', '=>', 'boolean').IsProbableBetterEquip = function (
 end
 
 def.method('table').QuickUseTipAddNewItem = function(self, itemUpdateInfo)
-	--warn("-----------------lidaming QuickUseTipAddNewItem ------------------", #self._QuickUseItems)
+	-- warn("-----------------lidaming QuickUseTipAddNewItem ------------------", #self._QuickUseItems)
 	if not self:IsShow() then return end
 	-- if self._QuickUseItems == nil then return end
 	local normalPack = nil
@@ -168,19 +168,18 @@ def.method('table').QuickUseListPush = function(self, item)
 			ItemSrc = item.Src,
 			IsQuestItem = false
 		}
-		-- warn("lidaming v.Count == ", v.Count , itemElement.PileLimit)
+		-- warn("lidaming item.Count == ", item.Count , itemElement.PileLimit, #self._QuickUseItems)
 		table.insert(self._QuickUseItems, param)	
 	else
 		table.insert(self._QuickUseItems, item)		
 	end
 	-- warn("lidaming QuickUseListPush self._QuickUseItems == ", #self._QuickUseItems)
 	self:QuickUseListSort()
-	-- self:QuickUseListRefresh()
 end
 
 def.method().QuickUseListPop = function(self)
 	table.remove(self._QuickUseItems, #self._QuickUseItems)
-	-- warn("lidaming QuickUseListPop ---->>> #self._QuickUseItems == ",  #self._QuickUseItems)
+	-- warn("lidaming QuickUseListPop -table.remove--->>> #self._QuickUseItems == ",  #self._QuickUseItems)
 end
 
 
@@ -208,7 +207,7 @@ def.method().UseTopItem = function(self)
 		return
 	else
 		itemData:Use()
-		self:QuickUseListRefresh()
+		-- self:QuickUseOnBtnClose()
 	end
 	
 end
@@ -218,12 +217,15 @@ def.method().QuickUseOnBtnUse = function(self)
 	self:UseTopItem()	
 end
 
+
+-- 关闭最上面的快捷使用,然后刷新出最新的快捷使用物品
 def.method().QuickUseOnBtnClose = function(self)
-	-- warn("QuickUseOnBtnClose")
+	-- warn("QuickUseOnBtnClose")	
 	self:QuickUseListPop()
 	if #self._QuickUseItems == 0 then
 		self._Frame_QuickUse:SetActive(false)
 		self._IsShowQuickUse = false
+		self._QuickUseItems = {}
 	else
 		self:QuickUseListRefresh()
 	end
@@ -231,73 +233,54 @@ end
 
 -- 刷新快捷使用列表
 def.method().QuickUseListRefresh = function(self)	
-	-- warn("lidaming QuickUseListRefresh", #self._QuickUseItems)
-	local item = self._QuickUseItems[#self._QuickUseItems]
-	if not item then return end
-	local normalPack = nil
-	if item.BagType == net.BAGTYPE.QUESTPACK then
-		normalPack = game._HostPlayer._Package._TaskItemPack
-	else
-		normalPack = game._HostPlayer._Package._NormalPack
-	end
-	local itemData = normalPack:GetItemBySlot(item.Index)  --CIvtrItem
-	if itemData == nil then
-		for i = #self._QuickUseItems , 1 ,-1 do
-			if self._QuickUseItems[i].Index == item.Index then
-				-- warn("lidaming ---------------->>> remove ==", i)
-				table.remove(self._QuickUseItems, i)
-				if #self._QuickUseItems == 0 then
-					self:QuickUseOnBtnClose()
-				end
+	-- warn("lidaming QuickUseListRefresh================>>> ", #self._QuickUseItems)
+	for i = #self._QuickUseItems , 1 ,-1 do
+		local item = self._QuickUseItems[i]
+		if not item then return end
+		local normalPack = nil
+		if item.BagType == net.BAGTYPE.QUESTPACK then
+			normalPack = game._HostPlayer._Package._TaskItemPack
+		else
+			normalPack = game._HostPlayer._Package._NormalPack
+		end
+		local itemData = normalPack:GetItemBySlot(item.Index)  --CIvtrItem
+		if itemData ~= nil and item.ItemId == itemData._Tid then
+			if not IsNil(self._Frame_QuickUse) then
+				self._Frame_QuickUse:SetActive(true)
+				self._IsShowQuickUse = true
 			end
-		end	
-		return	
+		
+			local useStr = nil
+			if itemData:IsEquip() then
+				useStr = StringTable.Get(11100)
+				-- self._Img_Tag_Arrow:SetActive(true)
+			else
+				useStr = StringTable.Get(11105)
+				-- self._Img_Tag_Arrow:SetActive(false)
+			end
+			GUI.SetText(self._Lab_Use, useStr)
+		
+			local itemObj = self:GetUIObject('ItemIconNew')
+			if IsNil(itemObj) then 
+				warn("QuickUseItem GetUIObject: Item Is Nil")
+			return end
+			-- GUITools.SetItem(itemObj, item.ItemId, item.Count, nil, itemData:IsBind())
+			local setting =
+			{
+				[EItemIconTag.Bind] = itemData:IsBind(),
+				[EItemIconTag.Number] = item.Count,
+				[EItemIconTag.ArrowUp] = true,
+			}
+			IconTools.InitItemIconNew(itemObj, item.ItemId, setting)
+			GUI.SetText(self._Lab_ItemName, itemData._Template.TextDisplayName)
+			return
+		else
+			table.remove(self._QuickUseItems, i)
+			if #self._QuickUseItems == 0 then
+				self:QuickUseOnBtnClose()
+			end
+		end		
 	end
-	if not IsNil(self._Frame_QuickUse) then
-		self._Frame_QuickUse:SetActive(true)
-		self._IsShowQuickUse = true
-	end
-
-	local useStr = nil
-	if itemData:IsEquip() then
-		useStr = StringTable.Get(11100)
-		self._Img_Tag_Arrow:SetActive(true)
-	else
-		useStr = StringTable.Get(11105)
-		self._Img_Tag_Arrow:SetActive(false)
-	end
-	GUI.SetText(self._Lab_Use, useStr)
-
-	local itemObj = self:GetUIObject('ItemIconNew')
-	if IsNil(itemObj) then 
-		warn("QuickUseItem GetUIObject: Item Is Nil")
-	return end
-	-- GUITools.SetItem(itemObj, item.ItemId, item.Count, nil, itemData:IsBind())
-	local setting =
-    {
-        [EItemIconTag.Bind] = itemData:IsBind(),
-		[EItemIconTag.Number] = item.Count,
-		[EItemIconTag.ArrowUp] = true,
-    }
-	IconTools.InitItemIconNew(itemObj, item.ItemId, setting)
-	GUI.SetText(self._Lab_ItemName, itemData._Template.TextDisplayName)
-	--获得道具飞行
-	--[[
-	local itemTips = GameObject.Instantiate(itemObj)
-	
-	if not IsNil(itemTips) then
-		itemTips: SetParent(itemObj)
-		itemTips.localPosition = Vector3.zero
-		itemTips.localScale = Vector3.one
-		GUITools.SetItem(itemTips, item.ItemId, item.Count, nil, itemData:IsBind())
-		itemTips: SetActive(true)
-
-		local endPos = Vector3.New(249,390,0)
-		GUITools.DoLocalMove(itemTips,endPos,0.8, nil,function()
- 			itemTips:Destroy()
-   	 	end)
-	end
-	]]
 end
 
 def.method().ShowTopItemTip = function(self)
@@ -339,7 +322,7 @@ def.override().OnDestroy = function(self)
 	CGame.EventManager:removeHandler(PackageChangeEvent, OnPackageChangeEvent)
 	self._Frame_QuickUse = nil
 	self._IsShowQuickUse = false
-	self._Img_Tag_Arrow = nil
+	-- self._Img_Tag_Arrow = nil
 end
 
 CPanelUIQuickUse.Commit()

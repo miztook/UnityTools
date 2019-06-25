@@ -2,13 +2,14 @@ local Lplus = require 'Lplus'
 local CGame = Lplus.ForwardDeclare("CGame")
 local CPanelBase = require 'GUI.CPanelBase'
 local CElementData = require "Data.CElementData"
+local CEquipUtility = require "EquipProcessing.CEquipUtility"
 
 local CPanelUIEquipLegendResult = Lplus.Extend(CPanelBase, 'CPanelUIEquipLegendResult')
 local def = CPanelUIEquipLegendResult.define
 
 def.field("table")._PanelObject = BlankTable    -- 存储界面节点的集合
-def.field("table")._ItemDataOld = nil
-def.field("table")._ItemDataNew = nil
+def.field("table")._ItemData = nil
+def.field("number")._PackageType = 0
 def.field("number")._CounterTimer = 0 
 def.field("number")._CounterNum = 0
 def.field("number")._CounterMax = 5
@@ -40,7 +41,9 @@ def.method().InitGfxGroup = function(self)
 
     root.GfxBgHook1 = self:GetUIObject("SelectItem")
     root.GfxBgHook2 = self._Panel
+    root.GfxLegendNewHook = self:GetUIObject("Group_LegendNew")
 
+    root.GfxLegendNew = PATH.UI_Legend_New
     root.GfxBg1 = PATH.ETC_Fortify_Success_BG1
     root.GfxBg2 = PATH.ETC_Fortify_Success_BG2
     -- root.GfxBg1 = PATH.ETC_Legend_Result_BG1
@@ -66,6 +69,7 @@ def.method().PlayGfx = function(self)
         GameUtil.PlayUISfx(root.Gfx, root.GfxHook, root.GfxHook, -1, 20 , 3)
     end
 
+    self:AddEvt_PlayFx(gfxGroupName, (self._ShowGfx and 1.8 or 0) + 1, root.GfxLegendNew, root.GfxLegendNewHook, root.GfxLegendNewHook, -1, 1)
     self:AddEvt_SetActive(gfxGroupName, self._ShowGfx and 1.8 or 0, self._Panel:FindChild("Img_BG"), true)
     self:AddEvt_SetActive(gfxGroupName, self._ShowGfx and 1.8 or 0, self:GetUIObject("Img_ShowGroup"), true)
     self:AddEvt_PlayDotween(gfxGroupName, self._ShowGfx and 1.8 or 0, root.DoTweenPlayer, root.TweenGroupId)
@@ -116,21 +120,25 @@ def.override().OnCreate = function(self)
         LegendOld = {},
         LegendNew = {},
         Lab_Next = self:GetUIObject("Lab_Next"),
-        Btn_OK = self:GetUIObject('Btn_OK'),
+        Btn_ChangeAgain = self:GetUIObject("Btn_ChangeAgain"),
+        Btn_Save = self:GetUIObject('Btn_Save'),
+        Btn_Cancel = self:GetUIObject('Btn_Cancel'),
     }
 
     do
         local LegendOld = self._PanelObject.LegendOld
         LegendOld.Root = self:GetUIObject('Group_LegendOld')
-        LegendOld.Name = LegendOld.Root:FindChild("Lab_Legend")
-        LegendOld.Desc = LegendOld.Root:FindChild("Lab_LegendDesc")
+        LegendOld.Name = LegendOld.Root:FindChild("Group_Skill/Group/Lab_Legend")
+        LegendOld.Level = LegendOld.Root:FindChild("Group_Skill/Group/Lab_LegendLv")
+        LegendOld.Desc = LegendOld.Root:FindChild("Group_Skill/Lab_LegendDesc")
     end
 
     do
         local LegendNew = self._PanelObject.LegendNew
         LegendNew.Root = self:GetUIObject('Group_LegendNew')
-        LegendNew.Name = LegendNew.Root:FindChild("Lab_Legend")
-        LegendNew.Desc = LegendNew.Root:FindChild("Lab_LegendDesc")
+        LegendNew.Level = LegendNew.Root:FindChild("Group_Skill/Group/Lab_LegendLv")
+        LegendNew.Name = LegendNew.Root:FindChild("Group_Skill/Group/Lab_Legend")
+        LegendNew.Desc = LegendNew.Root:FindChild("Group_Skill/Lab_LegendDesc")
     end
 end
 
@@ -140,14 +148,17 @@ end
 local function PlayAudio()
     CSoundMan.Instance():Play2DAudio(PATH.GUISound_EquipProcessing_Succees, 0)
 end
-local function BtnActice()
-    instance._PanelObject.Btn_OK:SetActive(true)
+local function BtnActive()
+    instance._PanelObject.Btn_Save:SetActive(true)
+    instance._PanelObject.Btn_Cancel:SetActive(true)
+    instance._PanelObject.Btn_ChangeAgain:SetActive(true)
+    instance:UpdateBtnChangeState()
 end
 def.override("dynamic").OnData = function(self,data)
     if instance:IsShow() then
         if data ~= nil then
-            self._ItemDataNew = data.New
-            self._ItemDataOld = data.Old
+            self._PackageType = data.PackageType
+            self._ItemData = data.ItemData
             self._ShowGfx = data.ShowGfx
         end
 
@@ -162,11 +173,14 @@ def.override("dynamic").OnData = function(self,data)
     self:GfxLogic()
     -- 播放背景特效
     self:PlayGfxBg()
-    self:AddEvt_LuaCB(gfxGroupName, self._CounterMax, SetClickType)
+    -- self:AddEvt_LuaCB(gfxGroupName, self._CounterMax, SetClickType)
     self:AddEvt_LuaCB(gfxGroupName, self._ShowGfx and 1.8 or 0, PlayAudio)
     -- self:StartCounter()
-    self._PanelObject.Btn_OK:SetActive(false)
-    self:AddEvt_LuaCB(gfxGroupName, (self._ShowGfx and 1.8 or 0) + 0.65, BtnActice)
+    local root = self._PanelObject
+    root.Btn_Save:SetActive(false)
+    root.Btn_Cancel:SetActive(false)
+    root.Btn_ChangeAgain:SetActive(false)
+    self:AddEvt_LuaCB(gfxGroupName, (self._ShowGfx and 1.8 or 0) + 0.65, BtnActive)
 end
 local function CounterTick(self)
     if instance:IsShow() then
@@ -197,24 +211,37 @@ def.method().UpdateUI = function(self)
 
     local setting =
     {
-        [EItemIconTag.StrengthLv] = self._ItemDataNew.InforceLevel,
-        [EItemIconTag.Bind] = self._ItemDataNew.IsBind,
+        [EItemIconTag.StrengthLv] = self._ItemData._InforceLevel,
+        [EItemIconTag.Bind] = true,
     }
-    IconTools.InitItemIconNew(root.SelectItem, self._ItemDataOld._Tid, setting)
+    IconTools.InitItemIconNew(root.SelectItem, self._ItemData._Tid, setting)
 
     do
         local LegendOld = self._PanelObject.LegendOld
-        local talentInfo = CElementData.GetSkillInfoByIdAndLevel(self._ItemDataOld._TalentId, self._ItemDataOld._TalentLevel, true)
+        local talentInfo = CElementData.GetSkillInfoByIdAndLevel(self._ItemData._TalentId, self._ItemData._TalentLevel, true)
+
+        local strLv = string.format(StringTable.Get(10641), talentInfo.Level)
+        GUI.SetText(LegendOld.Level, strLv)
         GUI.SetText(LegendOld.Name, talentInfo.Name)
         GUI.SetText(LegendOld.Desc, talentInfo.Desc)
     end
 
     do
         local LegendNew = self._PanelObject.LegendNew
-        local talentInfo = CElementData.GetSkillInfoByIdAndLevel(self._ItemDataNew.TalentId, self._ItemDataNew.TalentLevel, true)
+        local talentInfo = CElementData.GetSkillInfoByIdAndLevel(self._ItemData._TalentIdCache, self._ItemData._TalentLevelCache, true)
+        
+        local strLv = string.format(StringTable.Get(10641), talentInfo.Level)
+        GUI.SetText(LegendNew.Level, strLv)
         GUI.SetText(LegendNew.Name, talentInfo.Name)
         GUI.SetText(LegendNew.Desc, talentInfo.Desc)
     end
+
+    self:UpdateBtnChangeState()
+end
+
+def.method().UpdateBtnChangeState = function(self)
+    local bCanChange = self:CheckCanChange()
+    GUITools.SetBtnGray(self._PanelObject.Btn_ChangeAgain, not bCanChange)
 end
 
 def.override('string').OnClick = function(self, id)
@@ -222,10 +249,43 @@ def.override('string').OnClick = function(self, id)
         game._GUIMan:CloseByScript(self)
     elseif id == 'Btn_Exit' then
         game._GUIMan:CloseSubPanelLayer()
-    elseif id == "Btn_OK" then
+    elseif id == 'Btn_Save' then
+        CEquipUtility.SendC2SItemTalentChangeConfirm(self._PackageType, self._ItemData._Slot, true)
         game._GUIMan:CloseByScript(self)
+    elseif id == 'Btn_Cancel' then
+        CEquipUtility.SendC2SItemTalentChangeConfirm(self._PackageType, self._ItemData._Slot, false)
+        game._GUIMan:CloseByScript(self)
+    elseif id == 'Btn_ChangeAgain' then
+        self:OnClickChangeAgain()
     end
     CPanelBase.OnClick(self, id)
+end
+
+def.method().OnClickChangeAgain = function(self)
+    local function Do( ret )
+        if ret then
+            CEquipUtility.SendC2SItemTalentChange(self._PackageType, self._ItemData._Slot)
+        end
+    end
+
+    local MoneyNeedInfo = CEquipUtility.GetEquipChangeMoneyNeedInfo(self._ItemData)
+    MsgBox.ShowQuickBuyBox(MoneyNeedInfo[1], MoneyNeedInfo[2], Do)
+end
+
+def.method("=>","boolean").CheckCanChange = function(self)
+    local bRet = false
+    local ChangeNeedInfo = CEquipUtility.GetEquipChangeNeedInfo(self._ItemData)
+    bRet = ChangeNeedInfo.MaterialHave >= ChangeNeedInfo.MaterialNeed
+
+    if bRet then
+        local hp = game._HostPlayer
+        local MoneyNeedInfo = CEquipUtility.GetEquipRecastMoneyNeedInfo(self._ItemData)
+        local moneyHave = hp:GetMoneyCountByType(MoneyNeedInfo[1])
+        local moneyNeed = MoneyNeedInfo[2]
+        bRet = bRet and (moneyHave >= moneyNeed)
+    end
+
+    return bRet
 end
 
 def.override().OnHide = function(self)

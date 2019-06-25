@@ -12,6 +12,7 @@ local CEquipUtility = require "EquipProcessing.CEquipUtility"
 local NotifyMoneyChangeEvent = require "Events.NotifyMoneyChangeEvent"
 local CCommonBtn = require "GUI.CCommonBtn"
 
+local gfxGroupName = "CPageEquipLegend"
 
 local function SendFlashMsg(msg, bUp)
     game._GUIMan:ShowTipText(msg, bUp)
@@ -93,6 +94,22 @@ def.method().PlayGfx = function(self)
         end
     end
 
+    local function callback3()
+        if self._PanelObject == nil or self._PanelObject.HideGroup == nil then
+            return
+        end
+        
+        local HideGroup = self._PanelObject.HideGroup
+        HideGroup.BorderBG:SetActive(false)
+        HideGroup.Img_IconGroup:SetActive(false)
+        root.BlurTex:SetActive( true ) 
+        root.DoTweenPlayer:Restart(2002)
+        
+        if root.TimerId3 > 0 then
+            _G.RemoveGlobalTimer(root.TimerId3)
+        end
+    end
+
     -- _G.AddGlobalTimer(0.05, true, function()
     root.TweenObjectHook:SetActive(true)
     root.DoTweenPlayer:Restart(root.TweenGroupId)
@@ -107,6 +124,7 @@ def.method().PlayGfx = function(self)
     root.TimerId = _G.AddGlobalTimer(root.DoTweenTimeDelay, true, callback)
     root.TimerId1 = _G.AddGlobalTimer(root.Delay1, true, callback1)
     root.TimerId2 = _G.AddGlobalTimer(root.Delay2, true, callback2)
+    root.TimerId3 = _G.AddGlobalTimer(0.5, true, callback3)
     -- end)
 end
 -- 关闭特效
@@ -135,6 +153,16 @@ def.method().ResetGfxGroup = function(self)
     GameUtil.SetButtonInteractable(self._PanelObject.Btn_Drop_Legend, true)
     GameUtil.SetButtonInteractable(self._PanelObject.SelectItem, true)
     GameUtil.SetButtonInteractable(self._PanelObject.LegendMaterialIcon, true)
+
+    local HideGroup = self._PanelObject.HideGroup
+    HideGroup.BorderBG:SetActive(true)
+    HideGroup.Img_IconGroup:SetActive(true)
+
+    if self._ItemData ~= nil and self._ItemData.ItemData ~= nil then
+        local itemData = self._ItemData.ItemData
+        local talentInfo = CElementData.GetSkillInfoByIdAndLevel(itemData._TalentId, itemData._TalentLevel, true)
+        IconTools.SetTags(self._PanelObject.SelectItem, { [EItemIconTag.Legend] = talentInfo ~= nil and talentInfo.Name or "", })
+    end
 end
 def.method().EnableBgGfx = function(self)
     if self._GfxBgIsShow then return end
@@ -166,6 +194,7 @@ def.method().Init = function(self)
     self._PanelObject = 
     {
         Group_Legend = {},
+        HideGroup = {}
     }
 
     local root = self._PanelObject
@@ -177,6 +206,7 @@ def.method().Init = function(self)
     root.Btn_Drop_Legend = self._Parent:GetUIObject("Btn_Drop_Legend")
     root.Btn_AddLegendItem = self._Parent:GetUIObject("Btn_AddLegendItem")
     root.Btn_LegendChange = self._Parent:GetUIObject('Btn_LegendChange')
+    root.Btn_LegendCheckout = self._Parent:GetUIObject("Btn_LegendCheckout")
 
     root.Lab_None_Selection = self._Parent:GetUIObject("Lab_None_Selection")
     root.Lab_Reason = self._Parent:GetUIObject('Lab_Reason')
@@ -196,6 +226,14 @@ def.method().Init = function(self)
         Group_Legend.Lab_Legend = self._Parent:GetUIObject('Lab_Legend')
         Group_Legend.Lab_LegendDesc = self._Parent:GetUIObject('Lab_LegendDesc')
         Group_Legend.Lab_Legend_Lv = self._Parent:GetUIObject("Lab_Legend_Lv")
+    end
+
+    do
+        -- 显示特效隐藏的组件
+        local HideGroup = root.HideGroup
+        HideGroup.Root = self._Parent:GetUIObject("Node_Legend")
+        HideGroup.BorderBG = self._Parent:GetUIObject("Img_LegendBorderBG")
+        HideGroup.Img_IconGroup = HideGroup.Root:FindChild("Img_IconGroup")
     end
 
     self:InitGfxGroup()
@@ -218,9 +256,9 @@ def.method("dynamic").Show = function(self, data)
         local function OnMoneyChanged()
             self:UpdateFrame()
         end
-        CGame.EventManager:addHandler('NotifyMoneyChangeEvent', OnMoneyChanged)
         self._OnMoneyChanged = OnMoneyChanged
     end
+    CGame.EventManager:addHandler('NotifyMoneyChangeEvent', self._OnMoneyChanged)
 
     -- 播放特效
     self:EnableBgGfx()
@@ -236,7 +274,7 @@ def.method().UpdateFrame = function(self)
     -- 更新选中信息
     self:UpdateSelectItem()
     -- 更新材料信息
-    self:UpdatrMaterialInfo()
+    self:UpdateMaterialInfo()
     -- 更新属性信息 材料有可能提升数值，最后计算
     self:UpdateProperty()
     -- 更新金币消耗，按钮状态
@@ -253,14 +291,19 @@ def.method().UpdateSelectItem = function(self)
     root.LegendMaterialIcon:SetActive( bShow )
     root.Group_Legend.Root:SetActive( bShow )
     root.LegendChangeTip:SetActive( bShow )
-    -- root.Lab_Reason:SetActive( false )
+
+    local bShowCache = bShow and self._ItemData.ItemData:HasUnsaveEquipTalentCache()
+    root.Btn_LegendChange:SetActive( not bShowCache )
+    root.Btn_LegendCheckout:SetActive( bShowCache )
 
     if bShow then
         local itemData = self._ItemData.ItemData
         local talentInfo = CElementData.GetSkillInfoByIdAndLevel(itemData._TalentId, itemData._TalentLevel, true)
+        local strLv = string.format(StringTable.Get(10641), talentInfo.Level)
+
         local setting = {
             [EItemIconTag.Bind] = self._ItemData.ItemData:IsBind(),
-            [EItemIconTag.Legend] = talentInfo ~= nil and talentInfo.Name or "",
+            [EItemIconTag.Legend] = talentInfo ~= nil and string.format("%s\n%s", talentInfo.Name, strLv) or "",
             [EItemIconTag.Equip] = (self._ItemData.PackageType == BAGTYPE.ROLE_EQUIP),
         }
         IconTools.InitItemIconNew(root.SelectItem, self._ItemData.ItemData._Tid, setting)
@@ -300,7 +343,7 @@ def.method().UpdateProperty = function(self)
     end
 end
 -- 更新材料信息
-def.method().UpdatrMaterialInfo = function(self)
+def.method().UpdateMaterialInfo = function(self)
     local root = self._PanelObject
     local bShow = (self._ItemData ~= nil and self._ItemData.ItemData:CanChangeLegendary())
 
@@ -309,7 +352,7 @@ def.method().UpdatrMaterialInfo = function(self)
     if bShow then
         local itemData = self._ItemData.ItemData
         local template = CElementData.GetTemplate('LegendaryGroup', itemData._LegendaryGroupId)
-        if template == nil then return nil end
+        if template == nil then return end
 
         local hp = game._HostPlayer
         local pack = hp._Package._NormalPack
@@ -338,14 +381,22 @@ def.method().UpdateButtonState = function(self)
             [EnumDef.CommonBtnParam.MoneyCost] = moneyNeed   
         }
         root.CommonBtn_LegendChange:ResetSetting(setting)
-        root.CommonBtn_LegendChange:MakeGray( moneyHave < moneyNeed or not self._IsEnoughChangeMaterial )
     else
         local setting = {
             [EnumDef.CommonBtnParam.MoneyCost] = 0   
         }
         root.CommonBtn_LegendChange:ResetSetting(setting)
-        root.CommonBtn_LegendChange:MakeGray( true )
     end
+
+    if self._ItemData == nil then
+        bActive = false
+    else
+        local itemData = self._ItemData.ItemData
+        local MaterialInfo = CEquipUtility.GetEquipChangeNeedInfo(itemData)
+        bActive = bActive and MaterialInfo ~= nil and MaterialInfo.MaterialHave >= MaterialInfo.MaterialNeed 
+    end
+
+    root.CommonBtn_LegendChange:MakeGray(not bActive)
 end
 
 def.method("=>", "table").CalcMoneyNeed = function(self)
@@ -355,10 +406,8 @@ def.method("=>", "table").CalcMoneyNeed = function(self)
     local template = CElementData.GetTemplate('LegendaryGroup', itemData._LegendaryGroupId)
     if template == nil then return nil end
 
-    local hp = game._HostPlayer
-    local pack = hp._Package._NormalPack
-
-    return {template.CostMoneyId,template.CostMoneyCount}
+    local info = CEquipUtility.GetEquipChangeMoneyNeedInfo(itemData)
+    return {info[1],info[2]}
 end
 
 def.method("boolean", "=>", "boolean").CheckCanChange = function(self, bShowReason)
@@ -384,16 +433,13 @@ def.method("boolean", "=>", "boolean").CheckCanChange = function(self, bShowReas
         ShowReason(StringTable.Get(31319))
         return false
     end
-    local template = CElementData.GetTemplate('LegendaryGroup', itemData._LegendaryGroupId)
-    if template == nil then
+    local MaterialInfo = CEquipUtility.GetEquipChangeNeedInfo(itemData)
+    if MaterialInfo == nil then
         ShowReason(StringTable.Get(31319))
         return false
     end
 
-    local MaterialId = template.CostItemId
-    local MaterialNeed = template.CostItemCount
-    local MaterialHave = pack:GetItemCount(MaterialId)
-    if MaterialHave < MaterialNeed then
+    if MaterialInfo.MaterialHave < MaterialInfo.MaterialNeed then
         ShowReason(StringTable.Get(31316))
         return false
     end
@@ -422,13 +468,15 @@ def.method("userdata", "number", "table").OnInitItem = function(self, item, inde
     local ItemIconNew = item:FindChild("ItemIconNew")
     if itemData.ItemData:IsEquip() then
         local talentInfo = CElementData.GetSkillInfoByIdAndLevel(itemData.ItemData._TalentId, itemData.ItemData._TalentLevel, true)
+        local strLv = string.format(StringTable.Get(10641), talentInfo.Level)
         local setting = {
             [EItemIconTag.Bind] = itemData.ItemData:IsBind(),
-            [EItemIconTag.Legend] = talentInfo ~= nil and talentInfo.Name or "",
+            [EItemIconTag.Legend] = talentInfo ~= nil and string.format("%s\n%s", talentInfo.Name, strLv) or "",
             [EItemIconTag.Equip] = (itemData.PackageType == BAGTYPE.ROLE_EQUIP),
         }
         IconTools.InitItemIconNew(ItemIconNew, itemData.ItemData._Tid, setting)
-        Img_UnableClick:SetActive(self._ItemData ~= nil and self._ItemData ~= itemData)
+        Img_UnableClick:SetActive(false)
+        -- Img_UnableClick:SetActive(self._ItemData ~= nil and self._ItemData ~= itemData)
     else
         local setting = {
             [EItemIconTag.Bind] = itemData.ItemData:IsBind(),
@@ -497,6 +545,19 @@ def.method("string").OnClick = function(self, id)
             local root = self._PanelObject
             CItemTipMan.ShowPackbackEquipTip(self._ItemData.ItemData, TipsPopFrom.Equip_Process,TipPosition.FIX_POSITION,root.SelectItem)
         end
+    elseif id == "Btn_LegendCheckout" then
+        local CPanelUIEquipLegendResult = require "GUI.CPanelUIEquipLegendResult"
+        if CPanelUIEquipLegendResult.Instance():IsShow() then
+            return
+        end
+        local itemData = self._ItemData.ItemData
+        local data = 
+        {
+            PackageType = self._ItemData.PackageType,
+            ItemData = itemData,
+            ShowGfx = false
+        }
+        game._GUIMan:Open("CPanelUIEquipLegendResult", data)
     end
 end
 
@@ -512,14 +573,30 @@ def.method().OnClickLegendMaterialIcon = function(self)
                              TipPosition.FIX_POSITION)
 end
 
+def.method().UIProcessingLogic = function(self)
+    self:DisableEvent()
+    local root = self._PanelObject
+    IconTools.SetTags(root.SelectItem, { [EItemIconTag.Legend] = "" })
+
+    local delay = self._Parent._ShowGfx and self._GfxObjectGroup.DoTweenTimeDelay or 0.5
+    root.Group_Legend.Root:SetActive( false )
+    self._Parent:AddEvt_SetActive(gfxGroupName, delay, root.Group_Legend.Root, true)
+end
+
+def.method().DisableEvent = function(self)
+    self._Parent:KillEvts(gfxGroupName)
+end
+
 def.method().Reset = function(self)
     self._ItemData = nil
     self:UpdateFrame()
 end
 
 def.method().Hide = function(self)
+    self:DisableEvent()
     self:DisableBgGfx()
-    
+    self:StopGfx()
+
     if self._OnMoneyChanged ~= nil then
         CGame.EventManager:removeHandler('NotifyMoneyChangeEvent', self._OnMoneyChanged)
         self._OnMoneyChanged = nil
@@ -528,6 +605,8 @@ def.method().Hide = function(self)
 end
 
 def.method().Destroy = function (self)
+    self:DisableEvent()
+
     if self._PanelObject ~= nil then
         if self._PanelObject.CommonBtn_LegendChange ~= nil then
             self._PanelObject.CommonBtn_LegendChange:Destroy()

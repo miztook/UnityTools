@@ -78,6 +78,11 @@ local function OnDamageStatistics( sender, msg )
 		data._Data = msg.damageStatistics
 		data._Type = EnumDef.DungeonEndType.ArenaThreeType
 		CPanelDungeonEnd.Instance():ShowArenaThreePlayer(data)
+	elseif msg.opt == EDamageStatisticsOpt.EDamageStatisticsOpt_GuildDefense then 
+		local data = {}
+		data._Data = msg.damageStatistics
+		data._Type = EnumDef.DungeonEndType.GuildDefend
+		CPanelDungeonEnd.Instance():ShowGuildDetailInfo(data)
 	end
 end
 PBHelper.AddHandler("S2CDamageStatistics",OnDamageStatistics)

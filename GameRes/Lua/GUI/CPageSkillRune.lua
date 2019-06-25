@@ -54,7 +54,7 @@ def.field("number")._RuneConfigThreeUnlimitLevel    = 0
 def.field("number")._SelectedRuneIndex              = 1     -- 当前选中纹章
 def.field("number")._SelectedPlanIndex              = 1     -- 当前选中纹章配置
 
-def.const("number").RuneMaxLevel                   = 9   
+def.const("number").RuneMaxLevel                   = 6   
 def.const("number").PlaneCount                     = 3     -- 纹章策略数量上限
 def.const("number").SkillTotalCount                = 8     -- 技能数量上限 
 def.const("number").RuneValueFlag                  = 10    -- 
@@ -212,7 +212,7 @@ def.method("number").Show = function (self,tid)
                         end
                     end 
                 else
-                    game._GUIMan:ShowTipText(StringTable.Get(125), true)
+                    game._GUIMan:ShowTipText(StringTable.Get(111), true)
                 end                 
             end
         end
@@ -234,7 +234,6 @@ def.method().Update = function (self)
     self:UpdateRuneInfoShow()
 
     self:InitPlanBtnState()
-    self._TotalRuneStateChange = false
     self._SpecialRuneStateChange = false;
 end
 
@@ -393,6 +392,9 @@ def.method().UpdateRuenData = function (self)
             for i = 1, 3 do
                 if not runeInfo[i] then
                     local tid = self._DefaultRuneInfo[v .. i]
+                    if IsNil(tid) then
+                        warn("DefaultRuneInfo is Null " .. v .. i)
+                    end
                     runeInfo[i] = self:MakeRuneInfo(tid)
                     local runeInfoTemp = self:HadRune(tid, 1)
                     if runeInfoTemp then
@@ -406,6 +408,9 @@ def.method().UpdateRuenData = function (self)
             local runeInfo = {}
             for i = 1, 3 do
                 local tid = self._DefaultRuneInfo[v .. i]
+                if IsNil(tid) then
+                    warn("DefaultRuneInfo is Null " .. v .. i)
+                end
                 runeInfo[i] = self:MakeRuneInfo(tid)
             end
             self._SkillToggle[k]._RuneInfo = runeInfo
@@ -544,7 +549,7 @@ def.method().UpdateSkillSmallRuenShow = function (self)
                         GameUtil.PlayUISfx(path, self._Img_RuneIcon[k], self._Img_RuneIcon[k], -1)
                     end
                     -- 切换策略之后整体会有特效显示
-                    if self._TotalRuneStateChange then
+                    if self._TotalRuneStateChange and not game._HostPlayer:IsInServerCombatState()then
                         self._Img_RuneIcon[k].parent:GetComponent(ClassType.DOTweenPlayer):Restart(RuneIconDotNameDic[self._Img_RuneIcon[k]])
                     elseif self._SpecialRuneStateChange and k == self._Parent._SelectedSkillIndex then
                         self._Img_RuneIcon[k].parent:GetComponent(ClassType.DOTweenPlayer):Restart(RuneIconDotNameDic[self._Img_RuneIcon[k]])
@@ -576,6 +581,7 @@ def.method().UpdateSkillSmallRuenShow = function (self)
 end
 
 def.method().OnShowRuneInfo = function(self)
+    self._RuneToggle[self._SelectedRuneIndex]._GameObject:FindChild("Img_D"):SetActive(true)
     local runeToggle = self._SkillToggle[self._Parent._SelectedSkillIndex]._RuneInfo[self._SelectedRuneIndex]
     local runeLevelDes = runeToggle._Level
     if runeLevelDes == 0 then
@@ -746,7 +752,6 @@ def.method("string").OnToggleRune = function(self, id)
     for i = 1, 3 do
         if id == "Rdo_Rune" .. i then
             self._RuneToggle[self._SelectedRuneIndex]._GameObject:FindChild("Img_D"):SetActive(false)
-            self._RuneToggle[i]._GameObject:FindChild("Img_D"):SetActive(true)
             self._SelectedRuneIndex = i
             self:OnShowRuneInfo()
             return
@@ -756,12 +761,7 @@ end
 
 def.method("userdata", "boolean").SetBtGray = function(self, bt, isGray)
     GUITools.SetBtnGray(bt, isGray)
-    local text = bt:FindChild("Img_Bg/Text"):GetComponent(ClassType.Text)
-    local color = Color.white
-    if isGray then
-        color = Color.gray
-    end
-    GUI.SetTextColor(bt:FindChild("Img_Bg/Text"), color)
+    GameUtil.MakeImageGray(bt:FindChild("Img_Bg"), isGray)
 end
 
 def.method("boolean").SetRuneLockBtnState = function(self, is_show)
@@ -889,13 +889,12 @@ def.method("string", "string").OnDOTComplete = function(self, go_name, dot_id)
 end
 
 def.method().OnChangeRuneConfig = function(self)
+    self._TotalRuneStateChange = false
 end
 
 def.method("number", "boolean").SetUpdBtnEffect = function(self, btn_type, state)
     if btn_type == 1 then
         self._SkillUpdBtnEff:SetActive(state)
-    elseif btn_type == 4 then                               -- prof upd btn all
-        self._ProfUpdBtnAllEff:SetActive(state)
     elseif btn_type == 5 then                               -- prof upd btn all
         self._RuneUnlockBtnEff:SetActive(state)
     end
@@ -958,7 +957,12 @@ def.method().OnBtnConfigRune = function(self)
     else
         local runeToggle = self._SkillToggle[self._Parent._SelectedSkillIndex]._RuneInfo[self._SelectedRuneIndex] --self._RuneToggle[self._SelectedRuneIndex]
         if runeToggle._IsOwn then
-            self:PlayUISfx(2, self._SelectedRuneIndex)      
+            self:PlayUISfx(2, self._SelectedRuneIndex)   
+            if not runeToggle._IsActivity then
+                CSoundMan.Instance():Play2DAudio(PATH.GUISound_RuneEquip, 0)
+            else
+                CSoundMan.Instance():Play2DAudio(PATH.GUISound_UnEquipSkillRune, 0)
+            end
             self:OnActiveRune(runeToggle._Tid, runeToggle._IsActivity)
             --TODO
             self._RuneToggle[self._SelectedRuneIndex]._GameObject:FindChild("Img_Equiped"):SetActive(true)
@@ -995,15 +999,16 @@ def.method("number").OnUseItemEvent = function(self, itemTid)
     if not runeInfo._IsOwn then
         game._GUIMan:ShowTipText(StringTable.Get(138), false)
         self:PlayUISfx(3, self._SelectedRuneIndex)
-        local itemTemp = CElementData.GetItemTemplate(itemTid)
-        if itemTemp then
-            local ECHAT_CHANNEL_ENUM = require "PB.data".ChatChannel
-            local ChatManager = require "Chat.ChatManager"
-            local msg = string.format(StringTable.Get(171), itemTemp.TextDisplayName)
-            if msg ~= nil then
-                ChatManager.Instance():ClientSendMsg(ECHAT_CHANNEL_ENUM.ChatChannelSystem, msg, false, 0, nil,nil)
-            end
-        end
+        -- 穿戴纹章不在聊天框中显示
+        -- local itemTemp = CElementData.GetItemTemplate(itemTid)
+        -- if itemTemp then
+        --     local ECHAT_CHANNEL_ENUM = require "PB.data".ChatChannel
+        --     local ChatManager = require "Chat.ChatManager"
+        --     local msg = string.format(StringTable.Get(171), itemTemp.TextDisplayName)
+        --     if msg ~= nil then
+        --         ChatManager.Instance():ClientSendMsg(ECHAT_CHANNEL_ENUM.ChatChannelSystem, msg, false, 0, nil,nil)
+        --     end
+        -- end
     else
         game._GUIMan:ShowTipText(StringTable.Get(189), false)                       
     end

@@ -51,8 +51,8 @@ end
 -- 播放背景特效
 def.method().PlayGfxBg = function(self)
     local root = self._GfxObjectGroup
-    self:AddEvt_PlayFx(gfxGroupName, 1.8, root.GfxBg1, root.GfxBgHook1, root.GfxBgHook1, -1, 1)
-    self:AddEvt_PlayFx(gfxGroupName, 1.8, root.GfxBg2, root.GfxBgHook2, root.GfxBgHook2, -1, 1)
+    self:AddEvt_PlayFx(gfxGroupName, self._ShowGfx and 1.8 or 0, root.GfxBg1, root.GfxBgHook1, root.GfxBgHook1, -1, 1)
+    self:AddEvt_PlayFx(gfxGroupName, self._ShowGfx and 1.8 or 0, root.GfxBg2, root.GfxBgHook2, root.GfxBgHook2, -1, 1)
 end
 -- 关闭背景特效
 def.method().StopGfxBg = function(self)
@@ -211,8 +211,8 @@ def.method().UpdateUI = function(self)
         local oldLv = self._ItemDataOld.InforceLevel
         local newLv = self._ItemDataNew.InforceLevel
 
-        GUI.SetText(Reinforce.Old, tostring(oldLv))
-        GUI.SetText(Reinforce.New, tostring(newLv))
+        GUI.SetText(Reinforce.Old, string.format(StringTable.Get(10973), oldLv))
+        GUI.SetText(Reinforce.New, string.format(StringTable.Get(10973), newLv))
 
         local bShow = newLv ~= oldLv
         Reinforce.Img_UpOrDown:SetActive( bShow )

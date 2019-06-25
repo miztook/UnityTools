@@ -27,18 +27,22 @@ local def = CPanelUIEquipProcess.define
 def.field("table")._PanelObject = BlankTable                -- 存储界面节点的集合
 def.field(CFrameCurrency)._Frame_Money = nil                -- 金币通用组件
 def.field("userdata")._ItemList = nil                       -- 背包列表
-def.field("number")._CurrentSortQuality = -1                 -- 当前筛选品质
+def.field("userdata")._List_NoneMaterial = nil              -- 获取途径列表
+def.field("number")._CurrentSortQuality = -1                -- 当前筛选品质
 
 def.field("table")._AllLocalItemList = BlankTable           -- 本地全部数据结构
 def.field("table")._LocalItemList = BlankTable              -- 本地数据结构
 def.field("table")._ProcessFrames = BlankTable              -- 加工的界面集合
 def.field("table")._CategoryToggleList = BlankTable         -- 右侧类别栏toggle的集合
 def.field("table")._PageToggleList = BlankTable             -- 左上功能栏toggle的集合
-def.field("table")._PageRedDotList = BlankTable                 -- 页签红点的集合
+def.field("table")._PageRedDotList = BlankTable             -- 页签红点的集合
+def.field("userdata")._Tab_NoneMaterial = nil               -- 没有强化材料时，出现的获取途径
+def.field("table")._InforceStoreFromInfo = BlankTable       -- 强化石来源信息表
 
 def.field("number")._CurrentPage = 0                        -- 当前选择的界面
 def.field("number")._CurrentCategory = 0                    -- 当前选择的类别
 def.field("table")._CurrentSelectIndexList = BlankTable     -- 当前选择物品的Index列表,按类别分类
+def.field("table")._CurrentTargetSelectInfo = BlankTable   -- 当前继承物品
 def.field("table")._ItemData = nil                          -- 当前选中Item
 def.field("table")._InheritTargetItemData = nil             -- 
 def.field("number")._InheritDotweenTimeDelay = 2
@@ -93,21 +97,26 @@ local OnEquipProcessingChangeEvent = function(sender, event)
     if instance:IsShow() then
         local itemData = clone(instance._ItemData)
 
-        -- 重置界面内容
-        instance:GetCurrentPage():Reset()
-        -- 同步背包数据
-        instance:SyncPackageData(nil)
-        -- 更新类别数据个数
-        instance:UpdateCategoryCount()
-        -- 同步选中装备
-        instance:SyncSelectItemData()
-        -- 刷新
-        instance:UpdateFrameShow()
-        -- 刷新item
-        instance:UpdateItemList()
-        
-        -- 更新功能页签红点信息
-        --instance:UpdatePageRedDot()
+        local function DoRefresh()
+            -- 重置界面内容
+            instance:GetCurrentPage():Reset()
+            -- 同步背包数据
+            instance:SyncPackageData(nil)
+            -- 更新类别数据个数
+            instance:UpdateCategoryCount()
+            -- 同步选中装备
+            instance:SyncSelectItemData()
+            -- 刷新
+            instance:UpdateFrameShow()
+            -- 刷新item
+            instance:UpdateItemList()
+            -- 更新功能页签红点信息
+            --instance:UpdatePageRedDot()
+        end
+
+        if event._Msg.devTpye ~= EItemDevType.INHERIT then
+            DoRefresh()
+        end
 
         if event._Msg ~= nil then
             local result = event._Msg.result
@@ -125,7 +134,9 @@ local OnEquipProcessingChangeEvent = function(sender, event)
                         ShowGfx = instance._ShowGfx
                     }
                     game._GUIMan:Open("CPanelUIEquipRecastResult", data)
-                    CSoundMan.Instance():Play2DAudio(PATH.GUISound_EquipProcessing_Start, 0)
+                    if instance._ShowGfx then
+                        CSoundMan.Instance():Play2DAudio(PATH.GUISound_EquipProcessing_Start, 0)
+                    end
                 end
             elseif event._Msg.devTpye == EItemDevType.QUENCH then
             -- 淬火
@@ -147,13 +158,18 @@ local OnEquipProcessingChangeEvent = function(sender, event)
                 game._GUIMan:Open("CPanelUIEquipInheritResult", data)
 
                 local function callback()
+                    DoRefresh()
+
                     instance._ProcessFrames[EnumDef.UIEquipPageState.PageInherit]:ResetTarget()
+                    instance:ResetTargetSelect()
                     instance:ResetSelectList()
                     instance:UpdateFrameShow()
                     instance:UpdateItemList()
                 end
                 RemoveInheritTimer()
-                CSoundMan.Instance():Play2DAudio(PATH.GUISound_EquipProcessing_Start, 0)
+                if instance._ShowGfx then
+                    CSoundMan.Instance():Play2DAudio(PATH.GUISound_EquipProcessing_Start, 0)
+                end
 
                 if instance._ShowGfx then
                     instance._InheritTimerId = _G.AddGlobalTimer(instance._InheritDotweenTimeDelay, true, callback)
@@ -166,16 +182,20 @@ local OnEquipProcessingChangeEvent = function(sender, event)
             elseif event._Msg.devTpye == EItemDevType.TALENTCHANGE then
             -- 传奇属性转化
                 if result == 0 then
+                    game._GUIMan:Close("CPanelUIEquipLegendResult")
+                    instance:GetCurrentPage():UIProcessingLogic()
                     instance:GetCurrentPage():PlayGfx()
                     
                     local data = 
                     {
-                        Old = itemData.ItemData,
-                        New = event._Msg.itemCell.ItemData,
+                        PackageType = instance._ItemData.PackageType,
+                        ItemData = instance._ItemData.ItemData,
                         ShowGfx = instance._ShowGfx
                     }
                     game._GUIMan:Open("CPanelUIEquipLegendResult", data)
-                    CSoundMan.Instance():Play2DAudio(PATH.GUISound_EquipProcessing_Start, 0)
+                    if instance._ShowGfx then
+                        CSoundMan.Instance():Play2DAudio(PATH.GUISound_EquipProcessing_Start, 0)
+                    end
                 end
             elseif event._Msg.devTpye == EItemDevType.INFORCE then
             -- 强化
@@ -184,6 +204,8 @@ local OnEquipProcessingChangeEvent = function(sender, event)
                    result == ERROR_CODE.EquipInforceFaild or
                    result == ERROR_CODE.EquipInforceFaildButSafe or
                    result == ERROR_CODE.EquipInforceFaildDown then
+
+                    instance:GetCurrentPage():UIProcessingLogic()
                     instance:GetCurrentPage():PlayGfx()
 
                     local data = 
@@ -195,7 +217,9 @@ local OnEquipProcessingChangeEvent = function(sender, event)
                         ShowGfx = instance._ShowGfx
                     }
                     game._GUIMan:Open("CPanelUIEquipFortityResult", data)
-                    CSoundMan.Instance():Play2DAudio(PATH.GUISound_EquipProcessing_Start, 0)
+                    if instance._ShowGfx then
+                        CSoundMan.Instance():Play2DAudio(PATH.GUISound_EquipProcessing_Start, 0)
+                    end
                 end
             else
                 -- warn("Unknown ItemDevType : CPanelUIEquipProcess:OnEquipProcessingChangeEvent")
@@ -242,7 +266,8 @@ def.override().OnCreate = function(self)
     self._PageRedDotList[EnumDef.UIEquipPageState.PageLegendChange] = self:GetUIObject("Rdo_Legend"):FindChild("Img_RedPoint_Elf")
 ]]
     self._ItemList = self:GetUIObject('List_Item'):GetComponent(ClassType.GNewList)
-
+    self._List_NoneMaterial = self:GetUIObject('List_NoneMaterial'):GetComponent(ClassType.GNewList)
+    self._Tab_NoneMaterial = self:GetUIObject("Tab_NoneMaterial")
     local dropTemplate = self:GetUIObject("Drop_Template")
     GUITools.SetupDropdownTemplate(self, dropTemplate)
     self:SetDorpdownGroup()
@@ -250,13 +275,13 @@ def.override().OnCreate = function(self)
     -- 2018.12.21 关闭精炼模块
     self:GetUIObject("Rdo_Refine"):SetActive(false)
     self:GetUIObject("BlurTex"):SetActive(false)
-    self._HelpUrlType = HelpPageUrlType.Fortify
 
     self._PanelObject = {}
     self._PanelObject.CheckBox_ShowGfx = self:GetUIObject('CheckBox_ShowGfx'):GetComponent(ClassType.Toggle)
 end
 
 def.override("dynamic").OnData = function(self,data)
+    self._HelpUrlType = HelpPageUrlType.Fortify
     if instance:IsShow() then
 --[[
 Parameters
@@ -571,6 +596,21 @@ def.method().SyncSelectItemData = function(self)
     end
 end
 
+def.method("=>", "boolean").IsGfxShowing = function(self)
+    local bRet = false
+    local CPanelUIEquipRecastResult = require "GUI.CPanelUIEquipRecastResult"
+    local CPanelUIEquipLegendResult = require "GUI.CPanelUIEquipLegendResult"
+    local CPanelUIEquipFortityResult = require "GUI.CPanelUIEquipFortityResult"
+    local CPanelUIEquipInheritResult = require "GUI.CPanelUIEquipInheritResult"
+
+    bRet = CPanelUIEquipRecastResult.Instance():IsShow() or
+           CPanelUIEquipLegendResult.Instance():IsShow() or
+           CPanelUIEquipInheritResult.Instance():IsShow() or
+           CPanelUIEquipFortityResult.Instance():IsShow()
+
+    return bRet
+end
+
 -- 刷新背包 排序规则
 def.method().UpdateSortList = function(self)
     local function sortfunction(item1, item2)
@@ -616,10 +656,23 @@ end
 def.method("number").ChangePage = function(self, pageIndex)
     --warn("ChangePage = ", pageIndex)
     local hp = game._HostPlayer
-    hp._ShowFightScoreBoard = pageIndex == EnumDef.UIEquipPageState.PageRecast
+    hp._ShowFightScoreBoard = ((pageIndex == EnumDef.UIEquipPageState.PageRecast) or
+                              (pageIndex == EnumDef.UIEquipPageState.PageLegendChange))
 
     if self._CurrentPage == pageIndex then return end
     self._CurrentPage = pageIndex
+
+    local bIsFortify = self._CurrentPage == EnumDef.UIEquipPageState.PageFortify
+    local bIsInherit = self._CurrentPage == EnumDef.UIEquipPageState.PageInherit
+
+    local obj = self._CategoryToggleList[EnumDef.ItemCategory.EquipProcessMaterial]
+    obj:SetActive( bIsFortify )
+    if not bIsFortify then
+        obj:GetComponent(ClassType.Toggle).isOn = false
+    end
+    if not bIsInherit then
+        self._CurrentTargetSelectInfo = {}
+    end
 
     self:GetCurrentPage():Reset()
     self:SyncPackageData(nil)
@@ -641,7 +694,25 @@ def.method("number").ChangeCategory = function(self, categoryIndex)
 
     self._CurrentCategory = categoryIndex
 
+    local bShowNoneMaterial = self._CurrentPage == EnumDef.UIEquipPageState.PageFortify and
+                              self._CurrentCategory == EnumDef.ItemCategory.EquipProcessMaterial and
+                              self:GetCurrentCategoryCount() == 0
+
+    self:GetUIObject('List_Item'):SetActive( not bShowNoneMaterial )
+    self._Tab_NoneMaterial:SetActive( bShowNoneMaterial )
+    if bShowNoneMaterial then
+        -- 显示强化石来源界面
+        self:ShowNoneMaterialUI()
+    end
+
     self:UpdateItemList()
+end
+
+-- 显示强化石来源界面
+def.method().ShowNoneMaterialUI = function(self)
+    self._InforceStoreFromInfo = CEquipUtility.GetInforceStoreFromInfo()
+    local count = #self._InforceStoreFromInfo
+    self._List_NoneMaterial:SetItemCount( count )
 end
 
 -- 获取当前类别数量
@@ -700,9 +771,10 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
         local itemData = self:GetItemDataByIndex(idx)
         self:GetCurrentPage():OnInitItem(item, index, itemData)
 
+        local currentTargetSelectIndex = self._CurrentTargetSelectInfo.Index or 0
         local currentSelectIndex = self._CurrentSelectIndexList[self._CurrentCategory].Index
         local setting = {
-            [EFrameIconTag.Select] = currentSelectIndex == idx,
+            [EFrameIconTag.Select] = currentSelectIndex == idx or currentTargetSelectIndex == idx,
             [EFrameIconTag.RedPoint] = false,
         }
         local ItemIconNew = item:FindChild("ItemIconNew")
@@ -710,10 +782,16 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
         if currentSelectIndex == idx then
             self._CurrentSelectIndexList[self._CurrentCategory].Object = ItemIconNew
         end
+    elseif id == "List_NoneMaterial" then
+        local info = self._InforceStoreFromInfo[idx]
+        GUI.SetText(item:FindChild("Img_Bg/Lab_Name"), info.Name)
+        GUITools.SetIcon(item:FindChild("Img_Bg/Img_Icon"), info.IconPath)
     end
 end
 
 def.override("userdata", "string", "number").OnSelectItem = function(self, item, id, index)
+    if self:IsGfxShowing() then return end
+
     local idx = index + 1
     if id == "List_Item" then
         -- 选装备，换装备 限制
@@ -727,16 +805,7 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
             end
         else
             --warn("OnSelectItem 装备")
-            -- 装备
-            if self._ItemData == nil then
-                if self._CurrentPage == EnumDef.UIEquipPageState.PageInherit then
-                    local dataSelect = self:GetItemDataByIndex(idx)
-
-                    if not dataSelect.ItemData:CanInherit() then
-                        SendFlashMsg(StringTable.Get(31333), false)
-                        return
-                    end
-                end
+            local function DoSelect()
                 if self._CurrentSelectIndexList[self._CurrentCategory].Object ~= nil then
                     local setting = {
                         [EFrameIconTag.Select] = false,
@@ -752,13 +821,98 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
                 self._CurrentSelectIndexList[self._CurrentCategory].Index = idx
                 self._ItemData = self:GetItemDataByIndex(idx)
                 self:GetCurrentPage():OnSelectItem(item, index, self._ItemData)
+            end
+
+            -- 装备
+            if self._ItemData == nil then
+                if self._CurrentPage == EnumDef.UIEquipPageState.PageInherit then
+                    local dataSelect = self:GetItemDataByIndex(idx)
+
+                    if not dataSelect.ItemData:CanInherit() then
+                        SendFlashMsg(StringTable.Get(31333), false)
+                        return
+                    end
+                end
+                -- 选中物品逻辑
+                DoSelect()
+
             elseif self._CurrentPage == EnumDef.UIEquipPageState.PageInherit then
-                -- 继承需要两个装备位置
-                self._InheritTargetItemData = self:GetItemDataByIndex(idx)
-                self:GetCurrentPage():OnSelectItem(item, index, self._InheritTargetItemData)
-            else
-                SendFlashMsg(StringTable.Get(31300), false)
+                if self._CurrentSelectIndexList[self._CurrentCategory].Index == idx then
+                    -- 源装备相同 卸下
+                    self:ResetSelectList()
+                    self:GetCurrentPage():ResetTarget()
+                    self:UpdateFrameShow()
+                    self:UpdateItemList()
+                else
+                    local newInheritTargetItemData = self:GetItemDataByIndex(idx)
+                    local bSelected = false
+
+                    if self._InheritTargetItemData == nil then
+                        -- 继承需要两个装备位置
+                        if self._ItemData.ItemData._EquipSlot == newInheritTargetItemData.ItemData._EquipSlot then
+                            self._InheritTargetItemData = newInheritTargetItemData
+
+                            self:GetCurrentPage():OnSelectItem(item, index, self._InheritTargetItemData)
+                            bSelected = true
+                        else
+                            SendFlashMsg(StringTable.Get(31335), false)
+                        end
+                    elseif self._InheritTargetItemData == newInheritTargetItemData then
+                        -- 目标装备相同 卸下
+                        self._InheritTargetItemData = nil
+                        self:GetCurrentPage():ResetTarget()
+                        self:UpdateItemList()
+                    else
+                        SendFlashMsg(StringTable.Get(31335), false)
+                        return
+                    end
+
+                    local ItemIconNew = item:FindChild("ItemIconNew")
+                    local setting = {
+                        [EFrameIconTag.Select] = bSelected,
+                    }
+                    IconTools.SetFrameIconTags(ItemIconNew, setting)
+
+                    self._CurrentTargetSelectInfo.Object = bSelected and ItemIconNew or nil
+                    self._CurrentTargetSelectInfo.Index = bSelected and idx or 0
+                end
+                
+            elseif self._CurrentSelectIndexList[self._CurrentCategory].Index == idx then
+                local function DoClear()
+                    self:ResetSelectList()
+                    self:UpdateFrameShow()
+                    self:UpdateItemList()
+                end
+
+                -- 选中同一个物品，卸下物品
+                if self._CurrentPage == EnumDef.UIEquipPageState.PageFortify then
+                    DoClear()
+                    self:TurnToEquipProcessWeaponPage()
+                elseif self._CurrentPage == EnumDef.UIEquipPageState.PageRecast then
+                    DoClear()
+                elseif self._CurrentPage == EnumDef.UIEquipPageState.PageRefine then
+                    DoClear()
+                elseif self._CurrentPage == EnumDef.UIEquipPageState.PageLegendChange then
+                    DoClear()
+                end
+
                 return
+            elseif self._CurrentPage == EnumDef.UIEquipPageState.PageFortify then
+                -- 强化则必须取消原选中物品，因优化无法提高使用效率。故不做处理
+                -- SendFlashMsg(StringTable.Get(31300), false)
+                -- return
+                self:ResetSelectList()
+                self:UpdateFrameShow()
+                self:UpdateItemList()
+                -- self:TurnToEquipProcessWeaponPage()
+                -- 选中物品逻辑
+                DoSelect()
+            else
+                -- 清空物品逻辑
+                self:ResetSelectList()
+                self:UpdateItemList()
+                -- 选中物品逻辑
+                DoSelect()
             end
 
             -- 只有装备强化界面，选择装备后跳转至 材料背包
@@ -766,6 +920,9 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
                 self:TurnToEquipProcessMaterialPage()
             end            
         end
+    elseif id == "List_NoneMaterial" then
+        local info = self._InforceStoreFromInfo[idx]
+        game._AcheivementMan:DrumpToRightPanel(info.ID,0)
     end
 
     -- 操作完材料后，需要强制刷新 材料背包， 自维护的个数和可点击状态需要重新计算
@@ -857,8 +1014,11 @@ def.method("boolean").UpdateSkipGfxToggle = function(self, bInit)
     self._PanelObject.CheckBox_ShowGfx.isOn = bSkip
     self._ShowGfx = not bSkip
 end
+-- 清空物品逻辑
 
 def.override('string').OnClick = function(self, id)
+    if self:IsGfxShowing() then return end
+
     if self._Frame_Money ~= nil and self._Frame_Money:OnClick(id) then
 
     elseif id == 'Btn_Back' then
@@ -886,10 +1046,12 @@ def.override('string').OnClick = function(self, id)
         self:UpdateItemList()
     elseif id == "Btn_Drop_OrignItem" then
         self:ResetSelectList()
+        self:ResetTargetSelect()
         self:GetCurrentPage():ResetTarget()
         self:UpdateFrameShow()
         self:UpdateItemList()
     elseif id == "Btn_Drop_TargetItem" then
+        self:ResetTargetSelect()
         self:GetCurrentPage():ResetTarget()
         self:UpdateItemList()
     elseif string.find(id, "Btn_AddFortifyMaterial") then
@@ -994,8 +1156,14 @@ def.method().ResetSelectList = function(self)
     self._CurrentSelectIndexList[EnumDef.ItemCategory.Armor] = {Index = 0, Object = nil}
     self._CurrentSelectIndexList[EnumDef.ItemCategory.Jewelry] = {Index = 0, Object = nil}
     self._CurrentSelectIndexList[EnumDef.ItemCategory.EquipProcessMaterial] = {Index = 0, Object = nil}
+    self._CurrentTargetSelectInfo = {Index = 0, Object = nil}
 
     self._ItemData = nil
+end
+
+def.method().ResetTargetSelect = function(self)
+    self._InheritTargetItemData = nil
+    self._CurrentTargetSelectInfo = {}
 end
 
 -- 关闭所有界面-除了当前界面

@@ -129,6 +129,9 @@ end
 local RuneLevelupTemplateKey = "RuneLevelUp"
 --[[获取纹章ID 升级等级的数值， 需要遍历]]
 def.static("number", "number", "number", "=>", "number").GetRuneLevelUpValue = function(runeId, levelupId, runeLevel)
+	if runeLevel == 0 then
+		return 0
+	end
 	local result = 0
 	local allRuneLevelUp = GameUtil.GetAllTid(RuneLevelupTemplateKey)
 
@@ -149,26 +152,22 @@ def.static("number", "number", "number", "=>", "number").GetRuneLevelUpValue = f
 end
 
 def.static("number", "number", "number", "=>", "number").GetTalentLevelUpValue = function(skillId, levelupId, skillLevel)
-	local TalentLevelupTemplateKey = "TalentLevelUp"
 
 	local result = 0
-	local allSkillLevelUp = GameUtil.GetAllTid( TalentLevelupTemplateKey )
-
-	local levelUpTemplate = nil
-	for i, tid in ipairs( allSkillLevelUp ) do
-		local talentLevelUpTemplate = CElementData.GetTemplate(TalentLevelupTemplateKey, tid)
-		if talentLevelUpTemplate.SkillId == skillId and talentLevelUpTemplate.LevelUpId == levelupId then
-			levelUpTemplate = talentLevelUpTemplate
+	local allSkillLevelUp = CElementData.GetAllTalentOrSkillLevelUpTemplateSimple(true)
+	local Tid = 0
+	for id, temp in ipairs( allSkillLevelUp ) do
+		if temp.SkillId == skillId and temp.LevelUpId == levelupId then
+			Tid = id
 			break
 		end
 	end
-
-	if levelUpTemplate ~= nil then
-		if levelUpTemplate.LevelDatas[skillLevel] ~= nil then
-			result = levelUpTemplate.LevelDatas[skillLevel].Value
+	if Tid > 0 then 
+		local temp = CElementData.GetTemplate( "TalentLevelUp",Tid)
+		if temp ~= nil and temp.LevelDatas[skillLevel] ~= nil then 
+			result = temp.LevelDatas[skillLevel].Value
 		end
 	end
-
 	return result
 end
 

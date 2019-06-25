@@ -16,6 +16,7 @@ def.static('=>', CPanelSkillDes).Instance = function ()
         instance._PrefabPath = PATH.UI_SkillDes
         instance._PanelCloseType = EnumDef.PanelCloseType.ClickEmpty
         instance._DestroyOnHide = true
+
         instance:SetupSortingParam()
         -- TO DO
 	end

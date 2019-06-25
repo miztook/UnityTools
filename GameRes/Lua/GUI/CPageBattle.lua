@@ -7,7 +7,7 @@ local CPanelMinimap = Lplus.ForwardDeclare("CPanelMinimap")
 local CElementData = require "Data.CElementData"
 local PBHelper = require "Network.PBHelper"
 local CPVPAutoMatch = require "ObjHdl.CPVPAutoMatch"
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local CQuestAutoMan = require "Quest.CQuestAutoMan"
 local EMatchType = require "PB.net".EMatchType
 
@@ -60,7 +60,11 @@ local function UpdateAllRoleInfo(self,obj)
 	local data = game._CArenaMan._BattleHostData
 	local labFightScore_Data = obj:FindChild("Lab_FightScore_Data")
 	GUI.SetText(labFightScore_Data,tostring(data.FightScore))
-	GUI.SetText(self._PanelObject._LabRank,tostring(game._CArenaMan._BattleHostData.Rank))
+	if game._CArenaMan._BattleHostData.Rank <= 0 then 
+		GUI.SetText(self._PanelObject._LabRank,StringTable.Get(20103))
+	else
+		GUI.SetText(self._PanelObject._LabRank,tostring(game._CArenaMan._BattleHostData.Rank))
+	end
 	GUI.SetText(self._PanelObject._LabScore,tostring(game._CArenaMan._BattleHostData.EliminateScore))
 	GUI.SetText(self._PanelObject._LabScore,tostring(game._CArenaMan._BattleHostData.EliminateScore))
 	local dungeonTid = CSpecialIdMan.Get("EliminateScene")
@@ -202,8 +206,11 @@ def.method("string").Click = function(self, id)
 end
 
 local function BanMatchTime(self,endTime)
+	GUITools.SetBtnGray(self._PanelObject._BtnCharge3V3,true)
 	self._PanelObject._BtnCancelCharge :SetActive(false)
 	GameUtil.MakeImageGray(self._PanelObject._BtnChargeBg,true)
+	self._PanelObject._FrameMatchTime:SetActive(true)
+	GUI.SetText(self._PanelObject._LabMatchBanTip,string.format(StringTable.Get(20084),StringTable.Get(20063)))
 	if self._BanMatchTimerID > 0 then
 		_G.RemoveGlobalTimer(self._BanMatchTimerID)
 		self._BanMatchTimerID = 0
@@ -213,16 +220,14 @@ local function BanMatchTime(self,endTime)
 	local callback = function()
 		local showTime = endTime - GameUtil.GetServerTime()/1000
 		timeStr = GUITools.FormatTimeFromSecondsToZero(false,showTime)
-        if not IsNil(self._PanelObject._BtnLabCharge) then
-            GUI.SetText(self._PanelObject._BtnLabCharge,StringTable.Get(20063)..timeStr)
-        end
+        GUI.SetText(self._PanelObject._LabTime,string.format(StringTable.Get(20084), timeStr))
         if showTime <= 0 then 
             -- 消除计时器
-	        GUI.SetText(self._PanelObject._BtnLabCharge,StringTable.Get(20062))
+            GUITools.SetBtnGray(self._PanelObject._BtnCharge3V3,false)
+	       	self._PanelObject._FrameMatchTime:SetActive(false)
 	        _G.RemoveGlobalTimer(self._BanMatchTimerID)
 		    self._BanMatchTimerID = 0
 		    game._CArenaMan._IsBanMatchingBattle = false
-		    GameUtil.MakeImageGray(self._PanelObject._BtnChargeBg,false)
         end            
     end
     self._BanMatchTimerID = _G.AddGlobalTimer(1, false, callback)  	
@@ -247,7 +252,7 @@ def.method("boolean").ChangeBattleBtnChargeState = function (self,isOpenTimeBatt
     	else
     		self._PanelObject._BtnCancelCharge:SetActive(false)
     		self._PanelObject._BtnChargeBattle:SetActive(true)
-            GUI.SetText(self._PanelObject._BtnLabCharge,StringTable.Get(20062))
+    		self._PanelObject._FrameMatchTime:SetActive(false)
 
 			-- ShowRemainTime(self,self._SeasonEndTime)
     	end
@@ -258,6 +263,9 @@ end
 def.method("number").ShowMatchingTimeBattle = function(self,startTime)
 	self._PanelObject._BtnCancelCharge:SetActive(true)
 	self._PanelObject._BtnChargeBattle:SetActive(false)
+	self._PanelObject._FrameMatchTime:SetActive(true)
+	GUI.SetText(self._PanelObject._LabMatchBanTip,string.format(StringTable.Get(20086),StringTable.Get(20085)))
+
 	if self._MatchingTimerID > 0 then
 		_G.RemoveGlobalTimer(self._MatchingTimerID)
 		self._MatchingTimerID = 0
@@ -267,16 +275,13 @@ def.method("number").ShowMatchingTimeBattle = function(self,startTime)
 	local showTime = 0
 	local endTime = self._MatchingWaitingTime + startTime
 	self._MatchingTimerID = _G.AddGlobalTimer(1, false, function()
-		if not IsNil(self._PanelObject._LabMatchingTime) then
-			showTime = GameUtil.GetServerTime()/1000 - startTime
-			if GameUtil.GetServerTime()/1000 >= endTime then 
-				self:CancelBattleTimer()
-				return 
-			end
-			timeStr = GUITools.FormatTimeFromSecondsToZero(false,showTime)
-			GUI.SetText(self._PanelObject._LabMatchingTime, StringTable.Get(20051))
-			GUI.SetText(self._PanelObject._LabTime,timeStr)			
+		showTime = GameUtil.GetServerTime()/1000 - startTime
+		if GameUtil.GetServerTime()/1000 >= endTime then 
+			self:CancelBattleTimer()
+			return 
 		end
+		timeStr = GUITools.FormatTimeFromSecondsToZero(false,showTime)
+		GUI.SetText(self._PanelObject._LabTime, string.format(StringTable.Get(20086),timeStr))			
 	end)
 end
 
@@ -299,7 +304,7 @@ def.method().CancelBattleTimer = function (self)
 	end
 	self._PanelObject._BtnCancelCharge:SetActive(false)
 	self._PanelObject._BtnChargeBattle:SetActive(true)
-
+	self._PanelObject._FrameMatchTime:SetActive(false)
 end
 
 def.method().Destroy = function (self)

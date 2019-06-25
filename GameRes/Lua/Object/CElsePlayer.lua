@@ -474,7 +474,7 @@ def.method("number").SetPKMode = function(self, pkmode)
 	if self._TopPate ~= nil then
 		self._TopPate:UpdateName(true)
 		self:UpdatePetName()
-		self._TopPate:SetPKIconIsShow( self:GetPkMode() == EPkMode.EPkMode_Massacre )
+		--self._TopPate:SetPKIconIsShow( self:GetPkMode() == EPkMode.EPkMode_Massacre )
 		self:UpdateTopPateRescue()
 	end
 end

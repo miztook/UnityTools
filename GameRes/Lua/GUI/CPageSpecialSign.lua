@@ -112,14 +112,17 @@ def.method().Show = function(self)
         self._Img_MaxDone:SetActive(true)  
         self._Img_MaxSelect:SetActive(false)
         GameUtil.SetCanvasGroupAlpha(self._Btn_TotalItem, 0.5)
+        GameUtil.StopUISfx(PATH.UIFX_WELFARE_SpecailSign_Get, self._Btn_TotalItem)
     elseif IsMaxCanSign then
         self._Img_MaxDone:SetActive(false)  
         self._Img_MaxSelect:SetActive(true)
         GameUtil.SetCanvasGroupAlpha(self._Btn_TotalItem, 1)
+        GameUtil.PlayUISfxClipped(PATH.UIFX_WELFARE_SpecailSign_Get, self._Btn_TotalItem, self._Btn_TotalItem, self._Btn_TotalItem.parent.parent)
     else
         self._Img_MaxDone:SetActive(false)  
         self._Img_MaxSelect:SetActive(false)
         GameUtil.SetCanvasGroupAlpha(self._Btn_TotalItem, 1)
+        GameUtil.StopUISfx(PATH.UIFX_WELFARE_SpecailSign_Get, self._Btn_TotalItem)
     end
 
     self._List_SpecialSign:SetItemCount(#self._Rewards - 1)

@@ -1,6 +1,7 @@
 local PBHelper = require "Network.PBHelper"
 local Lplus = require "Lplus"
 local CGame = Lplus.ForwardDeclare("CGame")
+local CElementData = require "Data.CElementData"
 local UseItemEvent = require "Events.UseItemEvent"
 local CPanelLottery = require"GUI.CPanelLottery"
 
@@ -17,6 +18,19 @@ local function OnItemUseResultCode(code)
 	end
 end
 
+local function UseBagCoupon(itemid,count)
+	local idList = string.split(CSpecialIdMan.Get("BackpackCouponId"),"*")
+	for i,id in ipairs(idList) do 
+		if itemid == tonumber(id) then 
+			local temp = CElementData.GetItemTemplate(itemid)
+			local totalCount = tonumber(temp.Type1Param1) * count
+			local name = RichTextTools.GetQualityText(temp.TextDisplayName,temp.InitQuality)
+			local msg = string.format(StringTable.Get(316),count,name,totalCount)
+			game._GUIMan:ShowTipText(msg, false)
+		return end
+	end
+end
+
 local function OnS2CItemUseResult(sender, msg)
 	if msg.result == 0 then
 		local event = UseItemEvent()
@@ -24,6 +38,7 @@ local function OnS2CItemUseResult(sender, msg)
 		event._ItemType = msg.itemType
 		CGame.EventManager:raiseEvent(msg, event)
 		CPanelLottery.Instance()._UseItemId = msg.itemTid
+		UseBagCoupon(msg.itemTid,msg.Count)
 	else
 		-- OnItemUseResultCode(msg.result)
 		game._GUIMan:ShowErrorCodeMsg(msg.result, nil)

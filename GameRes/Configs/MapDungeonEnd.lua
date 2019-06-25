@@ -1,6 +1,13 @@
 local DungeonEnd = 
 {
-	[711] =
+	
+[3] =
+	{
+		position = { x = 0.002543569, y = 0.9150009, z = -15.74689 },
+		rotation = { x = 0, y = 0, z = 0 },
+	},
+
+[711] =
 	{
 		position = { x = -5.775686, y = 185.5563, z = -202.5676 },
 		rotation = { x = 0, y = 270, z = 0 },
@@ -46,6 +53,11 @@ local DungeonEnd =
 		rotation = { x = 0, y = 257.7966, z = 0 },
 	},
 	[212] =
+	{
+		position = { x = -0.25, y = 54.331, z = -6.67 },
+		rotation = { x = 0, y = 44.94994, z = 0 },
+	},
+	[214] =
 	{
 		position = { x = -0.25, y = 54.331, z = -6.67 },
 		rotation = { x = 0, y = 44.94994, z = 0 },
@@ -151,6 +163,11 @@ local DungeonEnd =
 		rotation = { x = 0, y = 183.99, z = 0 },
 	},
 	[263] =
+	{
+		position = { x = -2.95, y = 9.98, z = 187.92 },
+		rotation = { x = 0, y = 57.35001, z = 0 },
+	},
+	[264] =
 	{
 		position = { x = -2.95, y = 9.98, z = 187.92 },
 		rotation = { x = 0, y = 57.35001, z = 0 },

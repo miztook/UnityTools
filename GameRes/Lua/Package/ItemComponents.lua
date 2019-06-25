@@ -223,7 +223,7 @@ do
 		local item = self._Item
 		if not item then return end
 		if item:IsEquip() and item._IsLock then 
-			game._GUIMan:ShowTipText(StringTable.Get(10078),false)
+			game._GUIMan:ShowTipText(StringTable.Get(261),false)
 			return
 		end
 
@@ -251,13 +251,10 @@ do
 				callback2(true)
 			end
 		end
-		if item._NormalCount == 1 then 
-			callback1(item._NormalCount)
-		elseif item._NormalCount > 1 then 
-            local itemTemp = CElementData.GetItemTemplate(item._Tid)
-            local des = string.format(StringTable.Get(22313),   "<color=#"..EnumDef.Quality2ColorHexStr[itemTemp.InitQuality] ..">" .. itemTemp.TextDisplayName .."</color>")
-            BuyOrSellItemMan.ShowCommonOperate(TradingType.SELL,StringTable.Get(11103), des, 1, item._NormalCount, itemTemp.RecyclePriceInGold, EResourceType.ResourceTypeGold, nil, callback1)
-		end
+		
+        local itemTemp = CElementData.GetItemTemplate(item._Tid)
+        local des = string.format(StringTable.Get(22313),   "<color=#"..EnumDef.Quality2ColorHexStr[itemTemp.InitQuality] ..">" .. itemTemp.TextDisplayName .."</color>")
+        BuyOrSellItemMan.ShowCommonOperate(TradingType.SELL,StringTable.Get(11103), des, 1, item._NormalCount, itemTemp.RecyclePriceInGold, EResourceType.ResourceTypeGold, self._Item, callback1)
 		
 	end
 	SellComponent.Commit()
@@ -317,7 +314,7 @@ do
         param.item_data = self._Item
         param.cost_type = false
     	if self._Item:IsEquip() and self._Item._IsLock then 
-			game._GUIMan:ShowTipText(StringTable.Get(10078),false)
+			game._GUIMan:ShowTipText(StringTable.Get(261),false)
 			return
 		end
 		local callback = function(val)
@@ -367,7 +364,7 @@ do
 
 	def.override().Do = function (self)
 	    if self._Item:IsEquip() and self._Item._IsLock then 
-			game._GUIMan:ShowTipText(StringTable.Get(10078),false)
+			game._GUIMan:ShowTipText(StringTable.Get(261),false)
 			return
 		end
 

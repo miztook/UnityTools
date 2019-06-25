@@ -73,6 +73,8 @@ def.override("dynamic").OnData = function(self, data)
 	else
 		self._IsFromTip = data.IsFromTip
 	end
+	CItemTipMan.IsShowTipButton(false)
+	CItemTipMan.IsSetCompareTipCenter(false)
 	self._ItemId = 0
 	if data.ItemId ~= nil and data.ItemId > 0 then 
 		self._ItemId = data.ItemId
@@ -84,7 +86,6 @@ def.override("dynamic").OnData = function(self, data)
 	if data.ParentObj ~= nil then 
 		GameUtil.SetApproachPanelPosition(data.ParentObj, self._FramePosition) 
 	end
-
 	local strApproach = data.ApproachIDs
 	if strApproach == nil and self._ItemId > 0 then 
 		local itemTemp = CElementData.GetItemTemplate(self._ItemId)
@@ -205,6 +206,12 @@ def.method("number","number", "=>", "boolean").CanMove = function(self, nMap, ap
 		return false
 	end
 
+	--跨服判断
+	if game._HostPlayer:IsInGlobalZone() then
+        game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+        return false
+    end
+    
 	--公会需要特殊操作
     if nMap ==  CSpecialIdMan.Get("GuildMapID") then
     	if not game._GuildMan:IsHostInGuild() then
@@ -250,7 +257,7 @@ def.method("number","number","number","number").Move = function(self, nType, nMa
 
 	local function CloseAuto()
 		local CQuestAutoMan = require"Quest.CQuestAutoMan"
-		local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+		local CAutoFightMan = require "AutoFight.CAutoFightMan"
 		local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
 		CQuestAutoMan.Instance():Stop()
 		CAutoFightMan.Instance():Stop()	
@@ -293,6 +300,8 @@ def.override().OnDestroy = function(self)
 	-- if self._TipPanel ~= nil then 
 	-- 	self._TipPanel._PanelCloseType = EnumDef.PanelCloseType.Tip
 	-- end
+	CItemTipMan.IsShowTipButton(true)
+	CItemTipMan.IsSetCompareTipCenter(true)
 	instance = nil 
 end
 

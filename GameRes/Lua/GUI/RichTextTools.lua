@@ -34,6 +34,11 @@ def.static("string","number","=>", "string").GetAttrColorText = function(str,sta
 	return "<color=#" .. color_code ..">" ..str .."</color>"
 end
 
+def.static("string","number","=>", "string").GetEquipProcessColorText = function(str,status)
+    local color_code = EnumDef.EquipProcessStatus2HexStr[status]
+    return "<color=#" .. color_code ..">" ..str .."</color>"
+end
+
 def.static('string', 'boolean', '=>', "string").GetOnlineColorHexText = function(str, bOnline)
 	local index = 0
 	if bOnline then
@@ -118,6 +123,15 @@ def.static("string", "boolean", "=>", "string").GetElsePlayerNameRichText = func
     else
         richText = "<color=#72B4FF>"..elsePlayerName.."</color>"
     end
+    return richText
+end
+
+-- 货币名字富文本
+def.static("number", "=>", "string").GetMoneyNameRichText = function(moneyID)
+    local money_temp = CElementData.GetMoneyTemplate(moneyID)
+    if money_temp == nil then warn("error : 货币模板数据错误，ID： ", moneyID) return "" end
+    local richText = ""
+    richText = "<color=#"..EnumDef.Quality2ColorHexStr[money_temp.Quality]..">"..money_temp.TextDisplayName .. "</color>"
     return richText
 end
 

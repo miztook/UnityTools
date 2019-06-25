@@ -43,6 +43,11 @@ local function OnNotifyRuneEvent(eventType)
 	local event = NotifyRuneEvent()
 	event.Type = eventType
 	CGame.EventManager:raiseEvent(nil, event)
+
+	-- 纹章可以改变CD数据
+	local SkillCDEvent = require "Events.SkillCDEvent"
+	local event = SkillCDEvent()
+	CGame.EventManager:raiseEvent(nil, event)
 end
 
 --初始接收技能数据(只接收改变的数据)
@@ -78,6 +83,29 @@ end
 
 PBHelper.AddHandler("S2CSkillOperateInfo", OnS2CSkillOperateInfo)
 
+-- 遗忘技能
+local function OnS2CSkillRemove(sender, msg)
+	local skillRemove = {}
+	for i, v in ipairs(msg.SkillIds) do
+		skillRemove[v] = v
+	end
+
+	local UserSkillMap = game._HostPlayer._UserSkillMap
+	local skillNew = {}
+	for k,v in pairs(UserSkillMap) do
+		if skillRemove[v.SkillId] == nil then
+			skillNew[#skillNew + 1] = v
+		end
+	end
+	game:InitHostPlayerSkill(skillNew)
+	local GainNewSkillEvent = require "Events.GainNewSkillEvent"
+	local e = GainNewSkillEvent()
+	e.SkillId = -1
+	CGame.EventManager:raiseEvent(nil, e)
+end
+
+PBHelper.AddHandler("S2CSkillRemove", OnS2CSkillRemove)
+
 local function OnS2CSkillOperateLearn(sender, msg)
 	local game = game
 	local hp = game._HostPlayer
@@ -99,10 +127,12 @@ local function OnS2CSkillOperateLearn(sender, msg)
 				hp._MainSkillLearnState[v.SkillId] = true
 				
 				--给予提示
-				local skillLearnTemp = hp:GetSkillLearnConditionTemp(v.SkillId)		
-				if skillLearnTemp and skillLearnTemp.RoleLearnType == EnumLearnType.Level then
-					local CGameTipsQueue = require "GUI.CGameTipsQueue"
-					game._CGameTipsQ:ShowNewSkillTip(v.SkillId)
+				if not game:IsInBeginnerDungeon() then
+					local skillLearnTemp = hp:GetSkillLearnConditionTemp(v.SkillId)		
+					if skillLearnTemp and skillLearnTemp.RoleLearnType == EnumLearnType.Level then
+						local CGameTipsQueue = require "GUI.CGameTipsQueue"
+						game._CGameTipsQ:ShowNewSkillTip(v.SkillId)
+					end
 				end
 
 				local GainNewSkillEvent = require "Events.GainNewSkillEvent"
@@ -198,19 +228,16 @@ local function OnS2CSkillOperateRune(sender, msg)
 					skillData.SkillRuneInfoDatas = v.SkillRuneInfoDatas
 				end
 			end
-
-			local rune = CElementSkill.GetRune(msg.skillRuneRe.runeId)
-			if msg.IsActive and rune then
-				PopChatMsg(string.format(StringTable.Get(119), rune.Name))
-			end
+			-- 穿戴纹章不在聊天框中显示
+			-- local rune = CElementSkill.GetRune(msg.skillRuneRe.runeId)
+			-- if msg.IsActive and rune then
+			-- 	PopChatMsg(string.format(StringTable.Get(119), rune.Name))
+			-- end
 			
 			OnNotifyRuneEvent("Level")
 			OnNotifyRuneEvent("Config")
 
-			-- 纹章可以改变CD数据
-			local SkillCDEvent = require "Events.SkillCDEvent"
-			local event = SkillCDEvent()
-			CGame.EventManager:raiseEvent(nil, event)
+			
 		end
 
 		local CSkillUtil = require "Skill.CSkillUtil"
@@ -258,26 +285,26 @@ PBHelper.AddHandler("S2CSkillOperateRuneConfig", OnS2CSkillOperateRuneConfig)
 
 local function OnS2CSkillPerformFailed(sender, msg)
 	-- 其它玩家应该没有，因为如果释放不出来，不会广播给周围人 只会在本地看到
-	if msg.roleId == game._HostPlayer._ID then
-		local host = game._HostPlayer
-		if host then
-			host._SkillHdl:OnSkillFailed(msg.skillId, msg.position)
-		end
+	local host = game._HostPlayer
+	if msg.roleId == host._ID then
+		host._SkillHdl:OnSkillFailed(msg.skillId, msg.position)
 
 		local CSkillUtil = require "Skill.CSkillUtil"
 		local err_content = CSkillUtil.GetSkillFailedCodeEx(msg.ret)
-		print("skill fail error code = "..msg.ret .. "  err_content = "..err_content.."   msg.skillId = "..msg.skillId)
+		print("SkillPerformFailed RrrCode = ".. msg.ret .. " ErrContent = ".. err_content.." SkillId = ".. msg.skillId)
 		if msg.ret == 8 then
-			if game._HostPlayer then
-				local pos = game._HostPlayer:GetPos()
-				print("InvalidDistance Check! HostPlayer Pos:", pos.x, pos.z)
-			end
+			local pos = host:GetPos()
+			print("InvalidDistance Check! HostPlayer Pos:", pos.x, pos.z)
 			print("InvalidDistance Check! Last SyncPos:", _G.lastIsStop, _G.lastHostPosX, _G.lastHostPosZ, _G.lastDestPosX, _G.lastDestPosZ)
 		end
+
+		--[[
+		-- OnSkillFailed中会对自动换进行处理
 		local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
 		if CDungeonAutoMan.Instance():IsOn() then
 			CDungeonAutoMan.Instance():ChangeGoal()
 		end
+		]]
 	end
 	
 end

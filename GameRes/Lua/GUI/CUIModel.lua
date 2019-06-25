@@ -10,8 +10,10 @@ local def = CUIModel.define
 def.field("number")._ShowType = 0 				-- All
 def.field("string")._ModelAssetPath = ""		-- 主模型AssetPath
 def.field(ModelParams)._ModelParams = nil       -- 为了好维护，将以下相关数据包装成 ModelParams 结构
+
 def.field('userdata')._RoleImg = nil 			-- 背景UI图片
 def.field('userdata')._ImageModelComp = nil
+
 def.field("function")._CallbackWhenInit = nil
 def.field("table")._OnLoadedCallbacks = nil
 def.field(CModel)._Model = nil
@@ -47,6 +49,8 @@ def.static("dynamic", "userdata", "number", "number", "function", "=>", CUIModel
 	local obj = CUIModel()
 
 	_IM_table[roleImge] = obj
+	obj._RoleImg = roleImge
+	obj._ImageModelComp = obj._RoleImg:GetComponent(ClassType.GImageModel)
 
 	do
 		if type(entityInfo) == "string" then
@@ -61,8 +65,6 @@ def.static("dynamic", "userdata", "number", "number", "function", "=>", CUIModel
 			warn("error params type @ CUIModel.Init")
 		end
 
-		obj._RoleImg = roleImge
-		obj._ImageModelComp = obj._RoleImg:GetComponent(ClassType.GImageModel)
 		obj._ShowType = showType
 		obj._RenderLayer = renderLayer
 
@@ -76,8 +78,23 @@ def.static("dynamic", "userdata", "number", "number", "function", "=>", CUIModel
 	return obj
 end
 
+--Release GImageModel in C#
+def.method().ReleaseGIMComp = function(self)
+	if _IM_table[self._RoleImg] == self then
+		_IM_table[self._RoleImg] = nil
+	end
+
+	self._RoleImg = nil
+	if not IsNil(self._ImageModelComp) then
+		self._ImageModelComp:SetModel(nil)
+	end
+	self._ImageModelComp=nil
+end
+
 -- Load model asset, dont call from outside
 def.method().PrivateLoad = function(self)
+	self:DestroyModel()
+
 	if self._ModelParams == nil then
 		local asset_path = self._ModelAssetPath
 		if asset_path ~= nil and asset_path ~= "" then
@@ -135,28 +152,28 @@ def.method().OnModelLoaded = function(self)
 		return
 	end
 
-	--    _UILightRefCount = _UILightRefCount + 1
-	--    print("CUIModel ref count INC " .. _UILightRefCount)
-	----    --self:SetupUILight()
+--	--    _UILightRefCount = _UILightRefCount + 1
+--	--    print("CUIModel ref count INC " .. _UILightRefCount)
+--	----    --self:SetupUILight()
 
 	if not IsNil(self._ImageModelComp) then
 
-		if self._ImageModelComp.HasModel then
-			warn("ImageModel Has Model : " .. GameUtil.GetScenePath(self._RoleImg))
-			self:DestroyModel()
-			return
-		end
+--		if self._ImageModelComp.HasModel then
+--			warn("ImageModel Has Model : " .. GameUtil.GetScenePath(self._RoleImg))
+--			self:DestroyModel()
+--			return
+--		end
 
 		local go = self._Model._GameObject
 		if IsNil(go) then return end
 
 		go.name = "UIPlayer"
-		self._ModelLoaded = true
-		GameUtil.SetLayerRecursively(go, self._RenderLayer)
 
+		GameUtil.SetLayerRecursively(go, self._RenderLayer)
 		game._GUIMan:RefUILight(1)
 
 		self._ImageModelComp:SetModel(go)
+		self._ModelLoaded = true
 
 		self._CallbackWhenInit(self)
 
@@ -187,14 +204,16 @@ end
 -- UnLoad model asset
 def.method().DestroyModel = function(self)
 	if self._Model ~= nil then
-
 		game._GUIMan:RefUILight(-1)
 		--        _UILightRefCount = _UILightRefCount - 1
 		--        print("CUIModel ref count DEC " .. _UILightRefCount)
 		--        ----self:SetupUILight()
-
 		self._Model:Destroy()
 		self._Model = nil
+	end
+
+	if not IsNil(self._ImageModelComp) then
+		self._ImageModelComp:UnLoadModel()		--will keep gui camera
 	end
 
 	self._ModelLoaded = false
@@ -303,33 +322,34 @@ def.method("table").AlignSystemWithDir = function(self, dir)
 	end
 end
 
--- Play on another imageModel
-def.method("userdata", "boolean").ChangeTargetImage = function(self, img, bPlayStandAni)
+---- Play on another GImageModel 有巨大问题 不许打开
+--def.method("userdata", "boolean").ChangeTargetImage = function(self, img, bPlayStandAni)
+--	if img == self._RoleImg then return end
 
-	if img == self._RoleImg then return end
+--	local ui_m=_IM_table[img]
+--	ui_m:Destroy()
 
-	self:AddLoadedCallback( function()
-		if IsNil(img) then return end
+--	self:AddLoadedCallback( function()
+--		self:ReleaseGIMComp()
+--		if IsNil(img) then return end
+--		local im = img:GetComponent(ClassType.GImageModel)
+--		if not IsNil(im) then
+--			_IM_table[img] = self
+--			self._RoleImg = img
+--			self._ImageModelComp=im
 
-		--        if self._ImageModelComp ~= nil then
-		--            self._ImageModelComp:SetModel(nil)
-		--        end
+--			self._ImageModelComp:SetModel(self._Model._GameObject)
 
-		self._RoleImg = img
-		self._ImageModelComp = img:GetComponent(ClassType.GImageModel)
-		if not IsNil(self._ImageModelComp) then
-			self._ImageModelComp:SetModel(self._Model._GameObject)
-
-			-- 需要默认播放站立动作时，参数填true
-			if bPlayStandAni then
-				local ani = self._Model._GameObject:GetComponent(ClassType.AnimationUnit)
-				if not IsNil(ani) then
-					ani:PlayAnimation(EnumDef.CLIP.COMMON_STAND, 0, false, 0, false, 1)
-				end
-			end
-		end
-	end )
-end
+--			-- 需要默认播放站立动作时，参数填true
+--			if bPlayStandAni then
+--				local ani = self._Model._GameObject:GetComponent(ClassType.AnimationUnit)
+--				if not IsNil(ani) then
+--					ani:PlayAnimation(EnumDef.CLIP.COMMON_STAND, 0, false, 0, false, 1)
+--				end
+--			end
+--		end
+--	end )
+--end
 
 def.method("=>", "userdata").GetGameObject = function(self)
 	if not self._ModelLoaded or self._SelfDestroyed then return nil end
@@ -347,17 +367,15 @@ def.method("dynamic").Update = function(self, newParams)
 
 	if self._ModelParams == nil then
 		if newParams ~= "" and self._ModelAssetPath ~= newParams then
+
 			self._OnLoadedCallbacks = nil
-
-			-- warn("Update destroy")
-
-			self:DestroyModel()
-			if not IsNil(self._ImageModelComp) then
-				self._ImageModelComp:SetModel(nil)
-			end
-
+--			-- warn("Update destroy")
+--			if not IsNil(self._ImageModelComp) then
+--				self._ImageModelComp:SetModel(nil)
+--			end
+--			--self:DestroyModel()
 			self._ModelAssetPath = newParams
-			self._ModelLoaded = false
+			--self._ModelLoaded = false
 
 			self:PrivateLoad()
 		end
@@ -534,7 +552,7 @@ def.method("string", "number","dynamic").SetModelParamEx = function(self, ui_res
 			local im_name = self._RoleImg.name
 			local len = string.len(im_name)
 			if len > 9 then
-				key1 = tonumber(string.sub(im_name, 10, len))
+				key1 = tonumber(string.sub(im_name, 10, len))	-- remove "Img_Role_" then to number
 			end
 		end
 
@@ -572,16 +590,8 @@ end
 
 --  Destroy
 def.method().Destroy = function(self)
-
-	if _IM_table[self._RoleImg] == self then
-		_IM_table[self._RoleImg] = nil
-	end
-
+	self:ReleaseGIMComp()
 	self:DestroyModel()
-
-	if not IsNil(self._ImageModelComp) then
-		self._ImageModelComp:SetModel(nil)
-	end
 
 	self._ShowType = 0
 	self._ModelLoaded = false

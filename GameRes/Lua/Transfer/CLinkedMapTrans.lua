@@ -43,7 +43,7 @@ def.override().StartTransLogic = function(self)
 	--如果目标地图是相位，需要特殊处理
 	if map_info_data.MapType == EWorldType.Pharse then			
 		if linkData.Portal ~= nil and linkData.Portal[1] ~= nil then
-			local isNonstop, regionPos = CTransDataHandler.Instance():GetTransLinkDataByMapAndPosition(self._MapID,nil)
+			local isNonstop, _ = CTransDataHandler.Instance():GetTransLinkDataByMapAndPosition(self._MapID,nil)
 			if isNonstop then
 				local regionPos = Vector3.New(linkData.Portal[1].x, linkData.Portal[1].y, linkData.Portal[1].z)
                 hp:SetAutoPathFlag(true)
@@ -139,6 +139,7 @@ def.override().ContinueTrans = function(self)
     end
 
 	if self._TargetPosition ~= nil then		
+        CTransStrategyBase.RaiseEvent(self, self._MapID, self._TargetPosition)
         if self._MapID == nCurMapID then
             hp: SetAutoPathFlag(true)  
 			if hp:CheckAutoHorse(self._TargetPosition) then 

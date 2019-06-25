@@ -19,6 +19,41 @@ def.field("number")._TimerId4EnvMusicChange = 0
 def.field("boolean")._IsWeatherMusicChangeWaiting = false
 def.field("number")._TimerId4WeatherMusicChange = 0
 
+_G.SOUND_ENUM = 
+{
+	--BGM=1, SFX=2, CG= 3, UI=4
+	CH = 
+	{
+		BGM=1,
+		SFX=2,
+		CG=3,
+		UI=4
+	},
+
+	MIX_MODE = 
+	{
+		--Game=0,
+		Danger=1,
+		FSUI=2,
+		CreateRole=4,
+		Chat=8,
+		CG=16,
+		PS=32,	--power saving
+	},
+
+	--Channel Vol rate
+	MIX_CFG = 
+	{
+		--[0] = {[1]=1, [2]=1, [3]=1, [4]=1},
+		[1] = {[1]=1, [2]=0, [3]=1, [4]=1},
+		[2] = {[1]=0.25, [2]=0.25, [3]=1, [4]=1},
+		[4] = {[1]=0.25, [2]=1, [3]=1, [4]=1},
+		[8] = {[1]=0, [2]=1, [3]=1, [4]=1},
+		[16] = {[1]=0, [2]=0, [3]=1, [4]=1},
+		[32] = {[1]=0, [2]=0, [3]=0, [4]=0},
+	},
+}
+
 local instance = nil
 
 def.static("=>",CSoundMan).Instance = function()
@@ -28,23 +63,44 @@ def.static("=>",CSoundMan).Instance = function()
 	return instance
 end
 
+--def.field("number")._SfxVolSetting = 1
+--def.field("number")._BgmVolSetting = 1
+--def.field("number")._CGVolSetting = 1
+
+def.field("number")._ChatVoiceCount = 0
+
+local _lastMix = {}
+local _newMix = {}
+local _mixModeList={32,16,8,4,2,1}
+
+--0 game, 01 = fs, 10 cg
+local _MixMode = 0
+
 def.method("boolean", "boolean").Init = function(self, bOnBgm, bOnEffect)
+
+	warn("---------CSound Init")
+
 	--初始化声音，默认开启，以后服务器下发用户数据是否开启
 	--self:EnableBackgroundMusic(bOnBgm)
 	--self:EnableEffectAudio(bOnEffect)
+	self._ChatVoiceCount = 0
+	_MixMode = 0
+	for i = 1, SOUND_ENUM.CH.UI do
+		_lastMix[i] = 0
+	end
 
-	do 
+	do
 		local val = UserDataIns:GetField(EnumDef.LocalFields.BGMSysVolume)
 		if val == nil then
 			val = 1
 		end
 		self:SetBGMSysVolume(val)
 		
-		if bOnBgm then
-			self:SetSoundBGMVolume(1, false)
-		else
-			self:SetSoundBGMVolume(0, false)
-		end
+--		if bOnBgm then
+--			self:SetSoundBGMVolume(1, false)
+--		else
+--			self:SetSoundBGMVolume(0, false)
+--		end
 	end
 
 	do
@@ -54,32 +110,95 @@ def.method("boolean", "boolean").Init = function(self, bOnBgm, bOnEffect)
 		end
 		self:SetEffectSysVolume(val)
 		self:SetCutSceneSysVolume(val)
+		self:SetUISysVolume(val)
 
-		if bOnEffect then
-			self:SetSoundEffectVolume(1)
-			self:SetSoundCutSceneVolume(1)
-		else
-			self:SetSoundEffectVolume(0)
-			self:SetSoundCutSceneVolume(0)
+--		if bOnEffect then
+--			SetSoundEffectVolume(self,1)
+--			SetSoundCutSceneVolume(self,1)
+--			SetSoundUIVolume(self,1)
+--		else
+--			SetSoundEffectVolume(self,0)
+--			SetSoundCutSceneVolume(self,0)
+--			SetSoundUIVolume(self,0)
+--		end
+	end
+
+	self:ApplyMixMode()
+
+end
+
+def.method("number","boolean").SetMixMode = function(self, channel, flag)
+	if flag then
+		_MixMode = bit.bor(_MixMode, channel)
+	else
+		_MixMode = bit.band(_MixMode, bit.bnot(channel))
+	end
+
+	self:ApplyMixMode()
+end
+
+def.method("number","=>","boolean").CheckMixMode = function(self, channel)
+	return bit.band(_MixMode, channel) ~= 0
+end
+
+def.method().AddChatVoiceCount = function(self)
+	self._ChatVoiceCount = self._ChatVoiceCount + 1
+	if self._ChatVoiceCount > 0 then
+		self:SetMixMode(SOUND_ENUM.MIX_MODE.Chat, true)
+	end
+end
+
+def.method().SubChatVoiceCount = function(self)
+	self._ChatVoiceCount = self._ChatVoiceCount - 1
+	if self._ChatVoiceCount <= 0 then
+		self:SetMixMode(SOUND_ENUM.MIX_MODE.Chat, false)
+	end
+end
+
+def.method().ApplyMixMode = function(self)
+	for i = 1, SOUND_ENUM.CH.UI do
+		_newMix[i] = 1
+	end
+
+	--对每个模式取最小值
+	local cfg=nil
+	local ch = 0
+	for i = 1, #_mixModeList do
+		ch=_mixModeList[i]
+		if bit.band(_MixMode, ch) ~= 0 then
+			cfg = SOUND_ENUM.MIX_CFG[ch]
+			if cfg ~= nil then
+				for k = 1, SOUND_ENUM.CH.UI do
+					--warn("sound cfg "..ch..": "..cfg[k].." "..k)
+					_newMix[k] = math.min(cfg[k], _newMix[k])
+				end
+			end
 		end
 	end
 
+	for i = 1, SOUND_ENUM.CH.UI do
+		if _newMix[i] ~= _lastMix[i] then
+			_lastMix[i] = _newMix[i]
+
+			if 	i==SOUND_ENUM.CH.BGM then
+				GameUtil.SetSoundBGMVolume(_newMix[i], true)
+			elseif 	i==SOUND_ENUM.CH.SFX then
+				GameUtil.SetSoundEffectVolume(_newMix[i])
+			elseif 	i==SOUND_ENUM.CH.CG then
+				GameUtil.SetCutSceneVolume(_newMix[i])
+			elseif 	i==SOUND_ENUM.CH.UI then
+				GameUtil.SetUIVolume(_newMix[i])
+			end
+		end
+	end
 end
 
--- 游戏模块直接调整音量
-local function ModifyByGame(v)
-	if game._CPowerSavingMan ~= nil and game._CPowerSavingMan:IsSleeping() then
-		v=v*0
-		return v
-	end
-	return v
+-- 根据游戏模式调整音量
+local function ModifyByGame(self, v, channel)			--(float,int)
+	return _newMix[channel] * v
 end
 
 --背景音乐
-def.method("number", "boolean").SetSoundBGMVolume = function(self, v, isImmediate)
-	GameUtil.SetSoundBGMVolume(ModifyByGame(v), isImmediate)
-end
-
 def.method("number").SetBGMSysVolume = function (self, v)
 	GameUtil.SetBGMSysVolume(v)
 end
@@ -89,12 +208,8 @@ def.method("=>", "number").GetBGMSysVolume = function (self)
 end
 
 --音效
-def.method("number").SetSoundEffectVolume = function(self, v)
-	GameUtil.SetSoundEffectVolume(ModifyByGame(v))
-end
-
 def.method("number").SetEffectSysVolume = function (self, v)
-	return GameUtil.SetEffectSysVolume(v)
+	GameUtil.SetEffectSysVolume(v)
 end
 
 def.method("=>", "number").GetEffectSysVolume = function (self)
@@ -102,27 +217,23 @@ def.method("=>", "number").GetEffectSysVolume = function (self)
 end
 
 --CG
-def.method("number").SetSoundCutSceneVolume = function(self, v)
-	GameUtil.SetCutSceneVolume(ModifyByGame(v))
-end
 
 def.method("number").SetCutSceneSysVolume = function (self, v)
-	return GameUtil.SetCutSceneSysVolume(v)
+	GameUtil.SetCutSceneSysVolume(v)
 end
 
 def.method("=>", "number").GetCutSceneSysVolume = function (self)
 	return GameUtil.GetCutSceneSysVolume()
 end
 
---心跳濒死声音
-def.method("=>", "number").GetHealthVolume = function (self)
-	return GameUtil.GetHealthVolume()
+--UI
+def.method("number").SetUISysVolume = function (self, v)
+	GameUtil.SetUISysVolume(v)
 end
 
-def.method("number").SetHealthVolume = function(self, v)
-	GameUtil.SetHealthVolume(v)
+def.method("=>", "number").GetUISysVolume = function (self)
+	return GameUtil.GetUISysVolume()
 end
-
 
 def.method("number").ChangeBackgroundMusic = function(self, fadeTime)
 	if fadeTime > 0 then
@@ -311,6 +422,22 @@ end
 
 def.method("string", "number").Play2DHeartBeat = function( self, soundName, priority)
 	GameUtil.Play2DHeartBeat(soundName, priority)
+end
+
+def.method("table").DebugMode = function( self, args)
+
+		if #args>2 then
+			SOUND_ENUM.MIX_CFG[2][1]=math.clamp(tonumber(args[2]),0,1)
+			SOUND_ENUM.MIX_CFG[2][2]=math.clamp(tonumber(args[3]),0,1)
+			warn("CSound set cfg "..SOUND_ENUM.MIX_CFG[2][1]..", "..SOUND_ENUM.MIX_CFG[2][2])
+		elseif #args>1 then
+			SOUND_ENUM.MIX_CFG[2][1]=math.clamp(tonumber(args[2]),0,1)
+			SOUND_ENUM.MIX_CFG[2][2]=math.clamp(tonumber(args[2]),0,1)
+			warn("CSound set cfg "..SOUND_ENUM.MIX_CFG[2][1]..", "..SOUND_ENUM.MIX_CFG[2][2])
+		else
+			warn("CSound mix ".._MixMode..", ".._newMix[1].._newMix[2].._newMix[3].._newMix[4]..", chat "..self._ChatVoiceCount)
+		end
+
 end
 
 def.method().Reset = function(self)

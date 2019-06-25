@@ -42,7 +42,7 @@ def.static("=>", CPanelMate).Instance = function()
 		instance._PrefabPath = PATH.UI_Mate
 		instance._PanelCloseType = EnumDef.PanelCloseType.None
 		instance._DestroyOnHide = true
-
+		instance._ForbidESC = true
         instance:SetupSortingParam()
 	end
 	return instance

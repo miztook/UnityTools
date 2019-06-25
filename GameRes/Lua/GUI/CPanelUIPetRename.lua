@@ -62,16 +62,17 @@ def.override("string").OnClick = function(self, id)
 		game._GUIMan:CloseByScript(self)
 	elseif id == "Btn_Sure" then
 		self:OnBtnSure()
-		game._GUIMan:CloseByScript(self)
 	end
 end
 
 def.method().OnBtnSure = function(self)
 	local name = self._InputField_Name.text
-	if GUITools.CheckName(name) then
+	local NameChecker = require "Utility.NameChecker"
+	if NameChecker.CheckPetNameValid(name) then
 		if self._Data._Callback ~= nil then
 			self._Data._Callback(name)
 		end
+		game._GUIMan:CloseByScript(self)
 	end
 end
 

@@ -7,7 +7,7 @@ local CPageDungeonGoal = require "GUI.CPageDungeonGoal"
 local CTeamMan = require "Team.CTeamMan"
 local CPanelMap = require "GUI.CPanelMap"	
 local CQuestAutoMan = require"Quest.CQuestAutoMan"
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
 local CPVPAutoMatch = require "ObjHdl.CPVPAutoMatch"
 local QuestDef = require "Quest.QuestDef"
@@ -310,22 +310,23 @@ def.method().UpdateTeamButtons = function(self)
             end
         else
             if is_matching then
-                if count == maxCount then
-                    self._Btn_Matching:SetActive(false)
-                else
+                if count ~= maxCount then
+                    if count < maxCount - 1 then
+                        self._Btn_ManageTeam:SetActive(true)
+                    end
                     self._Btn_Matching:SetActive(true)
                 end
             else
-                self._Btn_Matching:SetActive(false)
-            end
-            if count < maxCount then
-                self._Btn_ManageTeam:SetActive(true)
-                local lab_manage = self._Btn_ManageTeam:FindChild("Img_BG/Lab_ManageTeam")
-                if is_team_leader then
-                    GUI.SetText(lab_manage, StringTable.Get(22050))
-                else
-                    GUI.SetText(lab_manage, StringTable.Get(22051))
+                if count < maxCount then
+                    self._Btn_ManageTeam:SetActive(true)
                 end
+            end
+
+            local lab_manage = self._Btn_ManageTeam:FindChild("Img_BG/Lab_ManageTeam")
+            if is_team_leader then
+                GUI.SetText(lab_manage, StringTable.Get(22050))
+            else
+                GUI.SetText(lab_manage, StringTable.Get(22051))
             end
         end
         GUI.SetText(self._Lab_MemberCount, string.format(StringTable.Get(30314), count))
@@ -354,6 +355,7 @@ def.method("number").SwitchPage = function(self, page)
 		self._QuestPage:Show()
 		self._TeamPage:Hide()
 		self._DungeonGoalPage:Hide()
+		game._CGuideMan:IsShowGuide(true,self._Panel.name)
 	elseif page == PAGE.TEAM_LIST then
 		self._TogglePage.Quest.isOn = false
 		self._TogglePage.Dungeon.isOn = false
@@ -362,6 +364,7 @@ def.method("number").SwitchPage = function(self, page)
 		self._QuestPage:Hide()
 		self._DungeonGoalPage:Hide()
 		self._TeamPage:Show()
+		game._CGuideMan:IsShowGuide(false,self._Panel.name)
 	elseif page == PAGE.DUNGEON_GOAL then
 		self._TogglePage.Quest.isOn = false
 		self._TogglePage.Team.isOn = false
@@ -370,6 +373,7 @@ def.method("number").SwitchPage = function(self, page)
 		self._QuestPage:Hide()
 		self._TeamPage:Hide()
 		self._DungeonGoalPage:Show()
+		game._CGuideMan:IsShowGuide(true,self._Panel.name)
 	end
 	
 	self:UpdateTeamMemberCount()

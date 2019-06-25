@@ -23,7 +23,7 @@ def.field("table")._ActivityGainRewardTable = BlankTable
 def.field("table")._TaskDayChestTemplateTable = BlankTable
 def.field("table")._TaskWeekChestTemplateTable = BlankTable
 def.field("boolean")._IsQuestFinish = false
-
+local GuildBFApplyScriptCalendarID = 18
 def.static("=>", CCalendarMan).new = function()
     local obj = CCalendarMan()
 	return obj
@@ -56,6 +56,7 @@ def.method().LoadAllCalendarData = function(self)
 				_MaxValue = 0,			--最大获取活跃度次数
 				_PlayCurNum = 0,		--玩法当前次数
 				_PlayMaxNum = 0,		--玩法最大次数
+				_CalendarId = 0,		--对应活动日历ID
 			}
 
 			if string.len(v.DateDisplayText) > 0 and string.len(v.PlayID) then
@@ -125,8 +126,10 @@ def.method("table", "boolean").UpdateCalendarDataState = function(self, data, is
 	for _,v in pairs(self._CalendarDataTable) do
 		for _,k in pairs(data.adventureGuideDatas) do
 			if v._Data.Id == k.TId then
-				-- warn("lidaming ------updateCalendarState----->>>", v._Data.Id, v._Data.Name, k.isActivity)		
+				-- warn("lidaming ------updateCalendarState----->>>", v._Data.Id, v._Data.Name, k.isActivity, k.CalendarId)		
 				v._IsOpenByTime = k.isActivity	
+				v._CalendarId = k.CalendarId
+				
 				if game._CFunctionMan:IsUnlockByFunTid(v._Data.FunId) then
 					v._IsOpen = true
 				else
@@ -282,9 +285,22 @@ def.method("table", "=>", "boolean").GetActivityRedPointByTemData = function(sel
         ActivityData._Data.Id == 20 then
             if ActivityData._PlayCurNum ~= 0 then
                 return true
-            end
-    elseif (ActivityData._Data.Id == 5 or ActivityData._Data.Id == 14 or ActivityData._Data.Id == 15 or ActivityData._Data.Id == 18) then
-		return false
+			end
+	elseif ActivityData._Data.Id == 14 then
+		-- 活动开启，并且公会已经报过名
+		-- warn("aaaaaaa===>>>", ActivityData._IsOpenByTime, game._GuildMan:IsGuildBFApplySign(), ActivityData._CalendarId)
+		local playInfo = self:GetPlayInfoByActivityID(ActivityData._Data.Id)
+		local data = game._DungeonMan:GetDungeonData(playInfo.playId)
+		if ActivityData._IsOpenByTime and game._GuildMan:IsGuildBFApplySign() and ActivityData._CalendarId == GuildBFApplyScriptCalendarID and data.DungeonFinishFlag <= 0 then
+			return true
+		end
+	elseif ActivityData._Data.Id == 5 or ActivityData._Data.Id == 15 or ActivityData._Data.Id == 18 then
+		local playInfo = self:GetPlayInfoByActivityID(ActivityData._Data.Id)
+		-- warn("1111111111111111111=====>>>", playInfo.playId)
+		local data = game._DungeonMan:GetDungeonData(playInfo.playId)
+		if ActivityData._IsOpenByTime and data ~= nil and data.DungeonFinishFlag <= 0 then
+			return true
+		end
     elseif ActivityData._Data.Id == 10 and ActivityData._IsOpen and ActivityData._IsOpenByTime and ActivityData._PlayCurNum ~= 0 then
         return true
     elseif ActivityData._Data.Id == 2 then
@@ -319,7 +335,9 @@ def.method().MainRedPointState = function(self)
 			break
         end
 	end
-    CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Calendar, mainCalendarRedPoint)
+	if game._CFunctionMan:IsUnlockByFunID(EnumDef.EGuideTriggerFunTag.Calendar) then
+		CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Calendar, mainCalendarRedPoint)
+	end
 end
 
 ------------------------------------------------------------------
@@ -702,16 +720,7 @@ def.method("table").OpenPlayByActivityInfo = function(self, temData)
 			--判断能不能接工会任务
 			local hoh = game._HostPlayer._OpHdl
 			local isHave = hoh:HaveServiceOptionsByNPCTid(20005)
-			--工会任务服务 可否使用 
-			if hoh:JudgeServiceOption(ActivityService) and hoh:JudgeServiceOptionIsUse(ActivityService) and isHave then				
-				game:StopAllAutoSystems()
-				CQuestNavigation.Instance():NavigatToNpc(20005, nil)
-				game._GUIMan:Close("CPanelCalendar")
-				local CPanelUIActivity = require "GUI.CPanelUIActivity"
-				if CPanelUIActivity and CPanelUIActivity.Instance():IsShow() then
-					game._GUIMan:Close("CPanelUIActivity")
-				end	
-			elseif not game._GuildMan:IsHostInGuild() then                        
+			if not game._GuildMan:IsHostInGuild() then                        
 				-- game._GUIMan:ShowTipText(StringTable.Get(19471), false)
 				-- 未参加公会直接打开开启公会界面
 				if game._CFunctionMan:IsUnlockByFunID(EnumDef.EGuideTriggerFunTag.Guild) then					
@@ -724,6 +733,15 @@ def.method("table").OpenPlayByActivityInfo = function(self, temData)
 				else
 					game._CGuideMan:OnShowTipByFunUnlockConditions(1, EnumDef.EGuideTriggerFunTag.Guild)
 				end
+			--工会任务服务 可否使用 
+			elseif hoh:JudgeServiceOption(ActivityService) and hoh:JudgeServiceOptionIsUse(ActivityService) and isHave then				
+				game:StopAllAutoSystems()
+				CQuestNavigation.Instance():NavigatToNpc(20005, nil)
+				game._GUIMan:Close("CPanelCalendar")
+				local CPanelUIActivity = require "GUI.CPanelUIActivity"
+				if CPanelUIActivity and CPanelUIActivity.Instance():IsShow() then
+					game._GUIMan:Close("CPanelUIActivity")
+				end
 			else                        
 				local title, msg, closeType = StringTable.GetMsg(73)
 				MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OK)
@@ -731,7 +749,7 @@ def.method("table").OpenPlayByActivityInfo = function(self, temData)
 		elseif temData._Data.ContentEventFindNPC ~= nil then
 			-- warn("///////////////////////////",temData._Data.ContentEventFindNPC)
 			game:StopAllAutoSystems()
-			CQuestNavigation.Instance():NavigatToNpc(205, nil)			
+			CQuestNavigation.Instance():NavigatToNpc(900, nil)			
 			game._GUIMan:Close("CPanelCalendar")
 			local CPanelUIActivity = require "GUI.CPanelUIActivity"
 			if CPanelUIActivity and CPanelUIActivity.Instance():IsShow() then

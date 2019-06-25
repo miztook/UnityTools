@@ -91,9 +91,10 @@ def.override("dynamic").OnData = function(self, data)
 		-- self:ShowMoneyTopTip()
 		self._CurPage = 1
 		self:CreateItem()
-		do  --UI特效添加
+		do  --UI特效添加 
 			local img_Point = self._FrameShow:FindChild("Frame_Bg")
 			GameUtil.PlayUISfx(PATH.UIFX_Lottery_BGFX, img_Point, img_Point, -1)
+            CSoundMan.Instance():Play2DAudio(PATH.GUISound_LottertOpen, 0)
 		end
 	else
 		self:Close()
@@ -173,6 +174,40 @@ local function PileItem(self,item)
     end
 end
 
+local function PileMoney(self,moneyItem)
+    if #self._MoneyItems > 0 then 
+        local isHaven = false
+        for j,moneyData in ipairs(self._MoneyItems) do 
+            if moneyData.Id  == moneyItem.MoneyId then
+                isHaven = true
+                moneyData.Count = moneyData.Count + moneyItem.Count
+                break
+            end
+        end 
+        if not isHaven then 
+            local moneyTemp = CElementData.GetMoneyTemplate(moneyItem.MoneyId)
+            local money = 
+            {
+                Id = moneyItem.MoneyId,
+                Count = moneyItem.Count,
+                InitQuality = moneyTemp.Quality,
+                TextDisplayName = moneyTemp.TextDisplayName
+            }
+            table.insert(self._MoneyItems,money)
+        end
+    else
+        local moneyTemp = CElementData.GetMoneyTemplate(moneyItem.MoneyId)
+        local money = 
+        {
+            Id = moneyItem.MoneyId,
+            Count = moneyItem.Count,
+            InitQuality = moneyTemp.Quality,
+            TextDisplayName = moneyTemp.TextDisplayName
+        }
+        table.insert(self._MoneyItems,money)
+    end
+end
+
 -- 初始化数据
 def.method("table","=>","boolean").InitData = function (self,data)
     self._AllItemData = {}
@@ -187,12 +222,7 @@ def.method("table","=>","boolean").InitData = function (self,data)
         if #data.MoneyList ~= 0 then 
             self._MoneyItems = {}
             for i,item in ipairs(data.MoneyList) do 
-                self._MoneyItems[#self._MoneyItems + 1] = {}
-                self._MoneyItems[#self._MoneyItems].Id = item.MoneyId
-                self._MoneyItems[#self._MoneyItems].Count = item.Count
-                local moneyTemp = CElementData.GetMoneyTemplate(item.MoneyId)
-                self._MoneyItems[#self._MoneyItems].TextDisplayName = moneyTemp.TextDisplayName
-                self._MoneyItems[#self._MoneyItems].InitQuality = moneyTemp.Quality
+               PileMoney(self,item)
             end
         end
         if #data.ListItem ~= 0 then
@@ -282,14 +312,18 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
         local i = n + index + 1
         local  data  = nil
         local frame_icon = uiTemplate:GetControl(0)
+        local lab_name = uiTemplate:GetControl(1)
+        local itemName = nil 
         if i <= #self._MoneyItems then 
             data = self._MoneyItems[i]
+            itemName  = RichTextTools.GetQualityText(data.TextDisplayName,data.InitQuality)
+
             IconTools.InitTokenMoneyIcon(frame_icon, data.Id, data.Count)
         else
             i = i - #self._MoneyItems
             data = self._AllItemData[i]
-            if data.isShowInScroll  then 
-                local itemName = RichTextTools.GetQualityText(data.TextDisplayName,data.InitQuality)
+            itemName = RichTextTools.GetQualityText(data.TextDisplayName,data.InitQuality)
+            if data.isShowInScroll then 
                 if self._UseItemId ~= 0 then
                     local strName = RichTextTools.GetHostPlayerNameRichText(false)
                     local strGiftName = RichTextTools.GetItemNameRichText(self._UseItemId,1, false)
@@ -301,8 +335,8 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
                 }
             IconTools.InitItemIconNew(frame_icon, data.Id, setting, EItemLimitCheck.AllCheck)
         end
-        local lab_name = uiTemplate:GetControl(1)
-        GUI.SetText(lab_name, data.TextDisplayName)
+        GUI.SetText(lab_name, itemName)
+       
         do  --UI特效添加
             local img_Point = uiTemplate:GetControl(2)
             GameUtil.PlayUISfx(PATH.UIFX_Lottery_ItemShow, img_Point, img_Point, -1)

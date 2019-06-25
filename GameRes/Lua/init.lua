@@ -1,4 +1,4 @@
-    
+
 --[[--
 
 初始化，载入预定义的常量、模块。
@@ -127,6 +127,7 @@ _G.TemplatePath =
     AttachedPropertyGenerator = "AttachedPropertyGenerator.data",
     AttachedPropertyGroupGenerator = "AttachedPropertyGroupGenerator.data",
     AttachedProperty = "AttachedProperty.data",
+    Banner = "Banner.data",
     CharmItem = "CharmItem.data",
     CharmPage = "CharmPage.data",
     CharmField = "CharmField.data",
@@ -143,8 +144,7 @@ _G.TemplatePath =
     DropLibrary = "DropLibrary.data",
     DropLimit = "DropLimit.data",
     DropRule = "DropRule.data",
-    DungeonGroupConfig = "DungeonGroupConfig.data",
-    DyeAndEmbroidery = "DyeAndEmbroidery.data",
+        DyeAndEmbroidery = "DyeAndEmbroidery.data",
     EliminateReward = "EliminateReward.data",
     Email = "Email.data",
     Enchant = "Enchant.data",
@@ -195,6 +195,7 @@ _G.TemplatePath =
     Liveness = "Liveness.data",
     ManualAnecdote = "ManualAnecdote.data",
     ManualEntrie = "ManualEntrie.data",
+    ManualTotalReward = "ManualTotalReward.data",
     Map = "Map.data",
     MarketItem = "MarketItem.data",
     Market = "Market.data",
@@ -203,8 +204,8 @@ _G.TemplatePath =
     Money = "Money.data",
     MonsterAffix = "MonsterAffix.data",
     Monster = "Monster.data",
-    MonsterPosition = "MonsterPosition.data",
-    MonsterProperty = "MonsterProperty.data",
+    --MonsterPosition = "MonsterPosition.data",
+    --MonsterProperty = "MonsterProperty.data",
     MonthlyCard = "MonthlyCard.data",
     NavigationData = "NavigationData.data",
     Npc = "Npc.data",
@@ -279,6 +280,7 @@ _G.TemplatePath =
     HangQuest = "HangQuest.data",
     GrowthGuidance = "GrowthGuidance.data",
     EliteBossConfig = "EliteBossConfig.data",
+    FestivalActivity = "FestivalActivity.data",
 }
 
 _G.ResetLanguage = function()
@@ -327,6 +329,7 @@ _G.ResetLanguage = function()
     local CElementData = require "Data.CElementData"
     CElementData.ClearAll()
     GameUtil.ClearAllBaseDataManagers()
+    GameUtil.GC(false)
     local MapBasicConfig = require "Data.MapBasicConfig" 
     MapBasicConfig.Reset()
 
@@ -348,6 +351,21 @@ _G.SetBaseDataManagerPath = function ()
     end 
 end
 
+_G.PreLoadDataManagers = function ()
+    warn(" --PreLoadDataManagers----")
+    for name, path in pairs(_G.TemplatePath) do
+        GameUtil.PreloadTemplateFile(name)
+    end
+end
+
+_G.GetConfigsDir = function ()
+    return _G.ConfigsDir
+end
+
+_G.IsLanguageChanged = function ()
+    return _G.UserLanguageCode ~= GameUtil.GetUserLanguageCode() or _G.UserLanguagePostfix ~= GameUtil.GetUserLanguagePostfix(false)
+end
+
 _G.ResponseDevice = GameUtil.GetResponseDeviceString()
 _G.ResponseOSVersion = GameUtil.GetResponseOSVersionString()
 _G.ResponseMACString = GameUtil.GetResponseMACString()
@@ -357,4 +375,4 @@ warn("response Device-OSVersion-MAC:", _G.ResponseDevice, _G.ResponseOSVersion, 
 
 _G.SetBaseDataManagerPath()
 _G.ResetLanguage()
-
+_G.PreLoadDataManagers()

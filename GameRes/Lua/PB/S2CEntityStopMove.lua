@@ -4,9 +4,9 @@
 
 local PBHelper = require "Network.PBHelper"
 local function OnEntityStopMove( sender,msg )
+	if game._CurWorld == nil then return end
+	
 	local entity = game._CurWorld:FindObject(msg.EntityId) 
-
-	if not _G.monsterStopMove and entity and entity:IsMonster() then return end
 
 	if entity ~= nil then
 		local cur_pos = Vector3.New(msg.CurrentPosition.x, msg.CurrentPosition.y, msg.CurrentPosition.z)

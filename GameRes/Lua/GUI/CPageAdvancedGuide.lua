@@ -52,9 +52,12 @@ def.method().Init = function(self)
         advancedBtnInfo.TagOwned = btn:FindChild("TagOwned")
         advancedBtnInfo.Progress = btn:FindChild("Progress")
         advancedBtnInfo.ImgProgress = btn:FindChild("Img_Progress")
-        advancedBtnInfo.QualityBG = btn:FindChild("Img_Mask/Img_QualityBG")
+        advancedBtnInfo.QualityBG = btn:FindChild("Img_Bg/Img_Mask/Img_QualityBG")
         advancedBtnInfo.NumText = btn:FindChild("Lab_Num")
         self._AdvancedBtnInfo[i] = advancedBtnInfo
+        if i == 5 or i == 10 then
+            GameUtil.PlayUISfx(PATH.UI_AdvancedGuideSpecial, btn, btn, -1)
+        end
     end
     self._CurrentPageIndex = -1
 end
@@ -71,7 +74,7 @@ def.method("string").OnClick = function (self, id)
     elseif id == "PageForward" then
         self._CurrentPageIndex = self._CurrentPageIndex + 1 
         self:UpdateShow()
-    elseif string.find(id, "Btn") then
+    elseif string.find(id, "Btn") and not string.find(id, "Btn_Info") then
         self:ClickAdvancedBtn(id)
     end
 end
@@ -97,7 +100,7 @@ def.method("string").ClickAdvancedBtn = function (self, id)
         local preGuideComplite = self:PreGuideComplite(1, index - 1)
         if advancedInfo.isFinish and not advancedInfo.IsReceive and preGuideComplite then
             game._AcheivementMan: SendC2SReceiveReward(advancedInfo.Tid, false)
-        elseif (not advancedInfo.isFinish) or (not preGuideComplite) then
+        else --if (not advancedInfo.isFinish) or (not preGuideComplite) then
             local item_data = GUITools.GetRewardList(advancedInfo.RewardId, true)
             item_data = item_data[1]
             if item_data.IsTokenMoney then
@@ -135,7 +138,7 @@ def.method().UpdateAdvancedInfo = function(self)
      if self._CurrentPageIndex == -1 then
         for k, v in ipairs(self._AdvancedInfo) do
             if not v.IsReceive then
-                self._CurrentPageIndex = math.modf( k / (CPageAdvancedGuide.MaxAdvancedBtnCount + 1)) + 1
+                self._CurrentPageIndex = math.modf( (k - 1) / (CPageAdvancedGuide.MaxAdvancedBtnCount)) + 1
                 break
             end
         end
@@ -161,8 +164,9 @@ def.method().UpdateShow = function(self)
         if advancedInfo then
             GUI.SetText(btnInfo.Title, advancedInfo.DisPlayName)
 
-            local curValue = advancedInfo.CurValue
-            local reachParm = advancedInfo.ReachParm
+            local curValue = game._AcheivementMan:GetTargetAchievementCurrent(advancedInfo.Tid)
+            local reachParm = string.split(advancedInfo.ReachParm, "*")
+            reachParm = reachParm[1]
             GUI.SetText(btnInfo.Progress, curValue .. "/" .. reachParm)
 
             local item_data = GUITools.GetRewardList(advancedInfo.RewardId, true)
@@ -185,10 +189,9 @@ def.method().UpdateShow = function(self)
             local a = 255
             if isReceive then
                 a = 127
-            else
-                local imgProgress = btnInfo.ImgProgress:GetComponent(ClassType.Image)
-                GUITools.SetImageProgress(imgProgress, curValue / reachParm)
             end
+            local imgProgress = btnInfo.ImgProgress:GetComponent(ClassType.Image)
+            GUITools.SetImageProgress(imgProgress, curValue / reachParm)
 
             GUI.SetAlpha(btnInfo.ImgProgress, a)
             GUI.SetAlpha(btnInfo.Title, a)
@@ -200,6 +203,7 @@ def.method().UpdateShow = function(self)
             if finishIndex and finishIndex == index then
                 GameUtil.PlayUISfx(PATH.UI_AdvancedGuideFinish, btnInfo.BtnGO, btnInfo.BtnGO, -1)
                 self._FxCache[PATH.UI_AdvancedGuideFinish] = btnInfo.BtnGO
+                btnInfo.ImgProgress:SetActive(false)
             end
             local doingIndex = self._FinishShowInfo.doingIndex
             if doingIndex and doingIndex == index then

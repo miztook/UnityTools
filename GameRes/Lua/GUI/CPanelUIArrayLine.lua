@@ -55,9 +55,11 @@ def.method().UpdateArrayLineInfo = function(self)
 	-- GUI.SetText(self._Lab_Line , ("Line_"..curWorldInfo.CurMapLineId))
 	-- warn("==========================>>> SetItemCount == ", #curWorldInfo.ValidLineIds)
 	self._CurSelectLine = curWorldInfo.CurMapLineId
-	table.sort(curWorldInfo.ValidLineIds , sort_func)
-	self._List_MenuType:SetItemCount(#curWorldInfo.ValidLineIds)   
-	self._List_MenuType:SetSelection(curWorldInfo.CurMapLineId - 1)
+	if curWorldInfo.ValidLineIds ~= nil and #curWorldInfo.ValidLineIds > 0 then
+		table.sort(curWorldInfo.ValidLineIds , sort_func)
+		self._List_MenuType:SetItemCount(#curWorldInfo.ValidLineIds)   
+		self._List_MenuType:SetSelection(curWorldInfo.CurMapLineId - 1)
+	end	
 end
 
 def.override("string").OnClick = function(self,id)

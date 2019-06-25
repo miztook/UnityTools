@@ -7,7 +7,6 @@ local def = CUIItemList.define
 
 def.field("userdata")._ItemListObj = nil 
 def.field("userdata")._DropConditionObj = nil 
-def.field("userdata")._LabNothingObj = nil 
 def.field("userdata")._BtnOK = nil
 def.field("userdata")._NewListComponent = nil 
 def.field("userdata")._CurSelectItem = nil 
@@ -28,6 +27,16 @@ def.field("function")._ConditionFunc = nil
 def.field("number")._ShowTipType = 0
 def.field("userdata")._TipPos = nil 
 
+-- 材料类型, 用于设置无材料时获取途径
+def.field("number")._ApproachMaterialType = 0
+def.field("userdata")._Tab_NoneMaterial = nil
+def.field("userdata")._List_NoneMaterial = nil
+def.field("userdata")._Lab_NoneMaterial = nil
+def.field("userdata")._Lab_Nothing = nil
+def.field("table")._MaterialFromInfo = BlankTable   -- 材料来源信息表
+def.field("userdata")._Frame_Item = nil
+def.field("userdata")._Drop_Condition = nil
+
 local instance = nil
 def.static('=>', CUIItemList).Instance = function ()
     if not instance then
@@ -44,14 +53,19 @@ def.override().OnCreate = function(self)
     self._ItemListObj = self:GetUIObject('List_Item')
     self._NewListComponent = self ._ItemListObj:GetComponent(ClassType.GNewList)
     self._DropConditionObj = self:GetUIObject("Drop_Condition")
-    self._LabNothingObj = self:GetUIObject("Lab_Nothing")
     self._BtnOK = self:GetUIObject("Btn_Ok")
     self._TipPos = self:GetUIObject("TipPosition")
+    self._Tab_NoneMaterial = self:GetUIObject('Tab_NoneMaterial')
+    self._Lab_Nothing = self:GetUIObject('Lab_Nothing')
+    self._Lab_NoneMaterial = self:GetUIObject('Lab_NoneMaterial')
+    self._List_NoneMaterial = self:GetUIObject('List_NoneMaterial'):GetComponent(ClassType.GNewList)
+    self._Frame_Item = self:GetUIObject('Frame_Item')
+    self._Drop_Condition = self:GetUIObject('Drop_Condition')
+
     local dropTemplate = self:GetUIObject("Drop_Template")
     GUITools.SetupDropdownTemplate(self, dropTemplate)
     self._NothingText = StringTable.Get(28001)
 end
-
 
 def.override("dynamic").OnData = function (self,data)
     self._Sender = data.Sender
@@ -61,26 +75,48 @@ def.override("dynamic").OnData = function (self,data)
     self._ShowTipType = data.ShowTipType
     self._ConditionFunc = data.ConditionFunc
     self._AllConditionList = data.AllConditionList
-    if self._CurItemData == nil or #self._CurItemData == 0 then 
-        self._LabNothingObj:SetActive(true)
-        GUI.SetText(self._LabNothingObj,self._NothingText)
-    else
-        self._LabNothingObj:SetActive(false)
-    end
+    self._ApproachMaterialType = data.ApproachMaterialType or 0
+    self._NewListComponent.SingleSelect = self._ApproachMaterialType ~= EnumDef.ApproachMaterialType.PetFuse
+
     self:SetDropGroup()
     self:UpdateListShow()
 end
 
+def.method("boolean").UpdateNoneMaterialUI = function(self, bNoneMaterial)
+    local bActive = bNoneMaterial and self._ApproachMaterialType ~= EnumDef.ApproachMaterialType.None
+    self._Tab_NoneMaterial:SetActive( bActive )
+    self._Lab_Nothing:SetActive( bNoneMaterial and not bActive)
+    self._Frame_Item:SetActive( not bNoneMaterial )
+
+    if bActive then
+        if self._ApproachMaterialType == EnumDef.ApproachMaterialType.PetAdvance then
+            local CPetUtility = require "Pet.CPetUtility"
+            self._MaterialFromInfo = CPetUtility.GetPetFromInfo()
+            GUI.SetText(self._Lab_NoneMaterial, StringTable.Get(10988))
+        elseif self._ApproachMaterialType == EnumDef.ApproachMaterialType.PetFuse then
+            local CPetUtility = require "Pet.CPetUtility"
+            self._MaterialFromInfo = CPetUtility.GetPetFromInfo()
+            GUI.SetText(self._Lab_NoneMaterial, StringTable.Get(10988))
+        elseif self._ApproachMaterialType == EnumDef.ApproachMaterialType.PetSkillBook then
+            local CPetUtility = require "Pet.CPetUtility"
+            self._MaterialFromInfo = CPetUtility.GetPetSkillBookFromInfo()
+            GUI.SetText(self._Lab_NoneMaterial, StringTable.Get(10989))
+        end
+
+        local count = #self._MaterialFromInfo
+        self._List_NoneMaterial:SetItemCount( count )
+    end
+end
+
 def.method().UpdateListShow = function (self)
-    if self._CurItemData == nil or #self._CurItemData == 0 then 
+    local bNoneMaterial = self._CurItemData == nil or #self._CurItemData == 0
+    self:UpdateNoneMaterialUI( bNoneMaterial )
+
+    if bNoneMaterial then 
         self._ItemListObj:SetActive(false)
-        self._LabNothingObj:SetActive(true)
-        GUI.SetText(self._LabNothingObj,self._NothingText)
         GUITools.SetBtnGray(self._BtnOK, true)
-        return
     else 
         self._ItemListObj:SetActive(true)
-        self._LabNothingObj:SetActive(false)
         GUITools.SetBtnGray(self._BtnOK, false)
         self._CurSelectItemIndex = 0
         self._CurSelectItem = nil 
@@ -106,24 +142,35 @@ def.override("string", "number").OnDropDown = function(self, id, index)
     end
 end
 
-def.override("userdata", "string", "number").OnInitItem = function(self, item, id, index)   
+def.override("userdata", "string", "number").OnInitItem = function(self, item, id, index)
+    local idx = index+1
+
     if id == "List_Item" then 
         -- 初始化Item列表
-        self._InitItemFunc(self._Sender, item, self._CurItemData[index + 1])
+        self._InitItemFunc(self._Sender, item, self._CurItemData[idx])
+    elseif id == "List_NoneMaterial" then
+        local info = self._MaterialFromInfo[idx]
+        GUI.SetText(item:FindChild("Img_Bg/Lab_Name"), info.Name)
+        GUITools.SetIcon(item:FindChild("Img_Bg/Img_Icon"), info.IconPath)
     end
 end
 
 def.override("userdata", "string", "number").OnSelectItem = function(self, item, id, index)
+    local idx = index+1
     if id == "List_Item" then
-
-        local itemData = self._CurItemData[index+1]
+        local itemData = self._CurItemData[idx]
         local bCanBeSelect = self._SelectItemCall(self._Sender, item, itemData, false)
 
-        -- 选中操作
-        if self._CurSelectItemIndex == index + 1 or not bCanBeSelect then return end
-
-        self._NewListComponent:SetSelection(index)
-        self._CurSelectItemIndex = index + 1
+        if self._ApproachMaterialType ~= EnumDef.ApproachMaterialType.PetFuse then
+            -- 选中操作
+            if self._CurSelectItemIndex == idx or not bCanBeSelect then return end
+            self._NewListComponent:SetSelection(index)
+            self._CurSelectItemIndex = idx
+        end
+    elseif id == "List_NoneMaterial" then
+        local info = self._MaterialFromInfo[idx]
+        game._AcheivementMan:DrumpToRightPanel(info.ID,0)
+        game._GUIMan:CloseByScript(self)
     end
 end
 
@@ -162,12 +209,20 @@ def.override("string").OnClick = function(self,id)
         self._CurItemData = itemList
         self._NewListComponent:SetItemCount(#self._CurItemData)
     elseif id == "Btn_Ok" then 
-        if not self._IsNothing then 
-            local itemData = self._CurItemData[self._CurSelectItemIndex]
-            if itemData ~= nil then 
-                self._SelectItemCall(self._Sender, self._CurSelectItem, itemData, true)
-                game._GUIMan:CloseByScript(self)
-                return
+        if not self._IsNothing then
+            if self._ApproachMaterialType == EnumDef.ApproachMaterialType.PetFuse then
+                if self._SelectItemCall(self._Sender, self._CurSelectItem, itemData, true) then
+                    game._GUIMan:CloseByScript(self)
+                    return
+                end
+            else
+                local itemData = self._CurItemData[self._CurSelectItemIndex]
+                if itemData ~= nil then 
+                    if self._SelectItemCall(self._Sender, self._CurSelectItem, itemData, true) then
+                        game._GUIMan:CloseByScript(self)
+                        return
+                    end
+                end
             end
         end
         game._GUIMan:ShowTipText(StringTable.Get(28002),false)
@@ -176,6 +231,10 @@ end
 
 -- 设置上拉菜单
 def.method().SetDropGroup = function(self)
+    local bActive = self._ApproachMaterialType ~= EnumDef.ApproachMaterialType.PetAdvance
+    self._Drop_Condition:SetActive(bActive)
+    if not bActive then return end
+
     self._BeforeCondition = 0 
     local groupStr = self._AllConditionList[1]
     if #self._AllConditionList >= 2 then 
@@ -184,7 +243,6 @@ def.method().SetDropGroup = function(self)
         end
     end
 
-    -- GameUtil.AdjustDropdownRect(self._DropConditionObj, #self._AllConditionList)
     GUI.SetDropDownOption(self._DropConditionObj, groupStr)
 end
 

@@ -20,8 +20,7 @@ local cfg = {
     Btn_Fight1 = -343015004,
     Btn_Fight2 = -343015003,
     Btn_Fight3 = -343015002,
-    Btn_Autokill = -905479088,
-    Btn_GrowthGuide = 799932370,
+    Frame_Fight = 1829299838,
 }
  
 return cfg

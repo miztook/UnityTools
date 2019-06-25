@@ -6,7 +6,7 @@ local MapInfo =
 	Length = 800,
 	Width = 800,
 	NavMeshName = "World03Part2.navmesh",
-	BackgroundMusic = "",
+	BackgroundMusic = "BGM_Map_3/Map_3/Map_3_phase",
 	BattleMusic = "",
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-2.png",
@@ -49,7 +49,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[219] = { x = -295.29, y = 123.86, z = 21.96, name = "雪峰堡", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {4527} },
+			[219] = { x = -295.29, y = 123.86, z = 21.96, name = "雪峰堡", worldId = 0, IsCanFind = 1, PkMode = 0, IsCanHawkeye = true, QuestID = {4527} },
 			[243] = { x = -246.25, y = 119.10, z = 37.41, name = "雪峰相位", worldId = 0, PkMode = 0 },
 		},
 	},

@@ -28,15 +28,32 @@
 5. MsgBox.ShowMsgBox("消息框内容",nil, MsgBoxType.MBBT_OKCANCEL,nil,300)
 6. MsgBox.ShowMsgBoxEx(sender, "消息框内容")
 7. MsgBox.ShowMsgBox("消息框内容","消息框标题", MsgBoxType.MBBT_NONE,callback,nil,nil,nil,6,9)
-8. MsgBox.ShowMsgBox("消息框内容","购买次数", bit.bor(MsgBoxType.MBBT_YESNO, MsgBoxType.MBT_SPEC),callback,nil,nil,nil,"特别提示")
+	local setting = {
+        [MsgBoxAddParam.SpecialStr] = specTip,
+    }
+8. MsgBox.ShowMsgBox("消息框内容","购买次数", MsgBoxType.MBBT_YESNO,callback,nil,nil,nil,setting)
 9. MsgBox.ShowMsgBox("消息框内容","消息框标题", bit.bor(MsgBoxType.MBBT_YESNO, MsgBoxType.MBT_TIMEYES),callback,10)
 --普通的不再显示msgBox
-10.MsgBox.ShowMsgBox("勾选不再显示，以后再次有相同操作会直接以确定的形式处理", "不再显示提示", bit.bor(MsgBoxType.MBBT_OKCANCEL, MsgBoxType.MBT_NOTSHOW),on_disconect,nil,nil,MsgBoxPriority.Normal,nil,"CPanelCharm_0")
+	local setting = {
+        [MsgBoxAddParam.NotShowTag] = "CPanelCharm_0,
+    }
+10.MsgBox.ShowMsgBox("勾选不再显示，以后再次有相同操作会直接以确定的形式处理", "不再显示提示", MsgBoxType.MBBT_OKCANCEL,on_disconect,nil,nil,MsgBoxPriority.Normal,setting)
 --位于请求界面之下的不再显示MsgBox
-11.MsgBox.ShowMsgBox("勾选不再显示，以后再次有相同操作会直接以确定的形式处理", "不再显示提示", bit.bor(MsgBoxType.MBBT_OKCANCEL, MsgBoxType.MBT_NOTSHOW),nil,nil,nil,MsgBoxPriority.Guide,nil,"CPanelCharm_1")
+11.MsgBox.ShowMsgBox("勾选不再显示，以后再次有相同操作会直接以确定的形式处理", "不再显示提示", MsgBoxType.MBBT_OKCANCEL,nil,nil,nil,MsgBoxPriority.Guide,nil,setting)
 --最高层级的不再显示msgBox
-12.MsgBox.ShowMsgBox("勾选不再显示，以后再次有相同操作会直接以确定的形式处理", "不再显示提示", bit.bor(MsgBoxType.MBBT_OKCANCEL, MsgBoxType.MBT_NOTSHOW),nil,nil,nil,MsgBoxPriority.Disconnect,nil,"CPanelCharm_2")
-
+12.MsgBox.ShowMsgBox("勾选不再显示，以后再次有相同操作会直接以确定的形式处理", "不再显示提示", MsgBoxType.MBBT_OKCANCEL,nil,nil,nil,MsgBoxPriority.Disconnect,nil,setting)
+--显示消耗物品的msgbox
+    local setting = {
+        [MsgBoxAddParam.CostItemID] = 24000,
+        [MsgBoxAddParam.CostItemCount] = 2,
+    }
+13.MsgBox.ShowMsgBox("消息框内容","购买次数", MsgBoxType.MBBT_YESNO,callback,nil,nil,nil,setting)
+--显示消耗货币的msgbox
+    local setting = {
+        [MsgBoxAddParam.CostMoneyID] = 24000,
+        [MsgBoxAddParam.CostMoneyCount] = 2555,
+    }
+14. MsgBox.ShowMsgBox("消息框内容","购买次数", MsgBoxType.MBBT_YESNO,callback,nil,nil,nil,setting)
 一、**在game_text里面配置的MsgBox使用方法：**
 	local title, msg, closeType = StringTable.GetMsg(4)
     MsgBox.ShowMsgBox(strMsg, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback, nil,nil,MsgBoxPriority.Noranl, 等等（除了第一个参数增加的，其他和msgbox参数一样）)
@@ -93,9 +110,7 @@ _G.MsgBoxType =
 	-- 两者为 或 的关系
 	MBT_TIMEYES			= bit.lshift(1,12), -- 时间到自动选是（真）
 	MBT_TIMENO			= bit.lshift(1,13), -- 时间到自动选否（假）
-    MBT_NOTSHOW         = bit.lshift(1,14), -- 不再显示的提示
-    MBT_NOCLOSEBTN		= bit.lshift(1,15),	-- 关闭按钮
-
+    MBT_NOCLOSEBTN		= bit.lshift(1,14),	-- 关闭按钮
 }
 
 
@@ -118,6 +133,21 @@ _G.MsgBoxPriority =
 	Disconnect = 100,  --断线提示优先级最高
 }
 
+--MsgBox的额外显示条件
+_G.MsgBoxAddParam = 
+{
+    SpecialStr = 1,         -- 特殊字（比如：今日可购买次数xx/xx）
+    NotShowTag = 2,         -- 不再显示的tag标识（比如“CPanelCharm_01”,用来记录用）
+    CostItemID = 3,         -- 花费的物品ID
+    CostItemCount = 4,      -- 花费的物品数量
+    CostMoneyID = 5,        -- 花费的货币ID
+    CostMoneyCount = 6,     -- 花费的货币的数量
+    GainMoneyID = 7,        -- 获得的货币ID
+    GainMoneyCount = 8,     -- 获得的货币数量
+    GainItemID = 9,         -- 获得的物品ID
+    GainItemCount = 10,     -- 获得的物品数量
+}
+
 -- 快速购买弹窗外部条件
 _G.EQuickBuyLimit = 
 {
@@ -137,21 +167,19 @@ _G.EQuickBuyLimit =
     LuckRefMaxCount     = 14,   -- 运势最大刷新次数
 }
 
-local _MsgBoxEx = function (hwnd,lpszText,lpszCaption,nType,callback,ttl,timercallback,priority,lpszSpecText,notShowTag)
+local _MsgBoxEx = function (hwnd,lpszText,lpszCaption,nType,callback,ttl,timercallback,priority,setting)
 	if lpszText == nil then lpszText = "" end
 	if lpszCaption == nil or lpszCaption == "" then lpszCaption = "MsgBox" end
 	if not nType then nType = MsgBoxType.MBBT_OKCANCEL end
 	if not ttl then ttl = 0 end
 	if not priority then priority = 1 end
-	if not lpszSpecText then lpszSpecText = "" end
-    if not notShowTag then notShowTag = "" end
 	local boxMan = require "GUI.CMsgBoxMan"
-	boxMan.Instance():ShowMsgBox(hwnd,lpszText,lpszCaption,nType,callback,ttl,timercallback,priority,lpszSpecText,notShowTag)
+	boxMan.Instance():ShowMsgBox(hwnd,lpszText,lpszCaption,nType,callback,ttl,timercallback,priority,setting)
 end
 
-local _MsgBox = function (lpszText,lpszCaption,closeType,nType,callback,ttl,timercallback,priority,lpszSpecText,notShowTag)
+local _MsgBox = function (lpszText,lpszCaption,closeType,nType,callback,ttl,timercallback,priority,setting)
     local op_type = closeType == 0 and nType or bit.bor(nType, MsgBoxType.MBT_NOCLOSEBTN)
-	_MsgBoxEx(nil,lpszText,lpszCaption,op_type,callback,ttl,timercallback,priority,lpszSpecText,notShowTag)
+	_MsgBoxEx(nil,lpszText,lpszCaption,op_type,callback,ttl,timercallback,priority,setting)
 end
 
 --local _MsgBoxByID = function(msgID, lpszText, lpszCaption, nType, callback, ttl, timercallback, priority, lpszSpecText, notShowTag)
@@ -160,17 +188,51 @@ end
 --	_MsgBoxEx(nil,lpszText,lpszCaption,op_type,callback, ttl, timercallback, priority, lpszSpecText, notShowTag)	
 --end
 
-local _MsgBoxSystem = function(sysTid, lpszText, lpszCaption, nType, callback, ttl, timercallback, priority, lpszSpecText, notShowTag)
+local _MsgBoxSystem = function(sysTid, lpszText, lpszCaption, nType, callback, ttl, timercallback, priority, setting)
 	if not sysTid then sysTid = 0 end
 	if lpszText == nil then lpszText = "" end
 	if lpszCaption == nil then lpszCaption = "" end
 	if not nType then nType = MsgBoxType.MBBT_OKCANCEL end
 	if not ttl then ttl = 0 end
 	if not priority then priority = 1 end
-	if not lpszSpecText then lpszSpecText = "" end
-    if not notShowTag then notShowTag = "" end
 	local boxMan = require "GUI.CMsgBoxMan"
-	boxMan.Instance():ShowSystemMsgBox(sysTid, nil, lpszText,lpszCaption, nType, callback, ttl, timercallback, priority, lpszSpecText, notShowTag)
+	boxMan.Instance():ShowSystemMsgBox(sysTid, nil, lpszText,lpszCaption, nType, callback, ttl, timercallback, priority, setting)
+end
+
+--[[    第一个参数类型为以下结构
+        local rewardTable = {
+            {
+                ID = costMoneyID,
+                Count = moneyCost,
+                IsMoney = is_money
+            }, 。。。
+        }
+]]
+local _QuickBuyTable = function(rewardTable, cb)
+    local is_all_right = true
+    for i,v in ipairs(rewardTable) do
+        if v.IsMoney == nil or v.ID == nil or v.Count == nil then
+            warn("快速兑换参数不对")
+            return
+        end
+        local have_count = 0
+        if v.IsMoney then
+            have_count = game._HostPlayer:GetMoneyCountByType(v.ID)
+        else
+            have_count = game._HostPlayer._Package._NormalPack:GetItemCount(v.ID)
+        end
+        if have_count < v.Count then
+            is_all_right = false
+        end
+    end
+    if is_all_right then
+        if cb ~= nil then
+            cb(true)
+        end
+    else
+        local data = {targetRewardTable = rewardTable, callback = cb}
+        game._GUIMan:Open("CPanelQuickBuy", data)
+    end
 end
 
 local _QuickBuyBox = function(costMoneyID, moneyCost, cb, externCondition, isMoney)
@@ -198,7 +260,14 @@ local _QuickBuyBox = function(costMoneyID, moneyCost, cb, externCondition, isMon
                     game._GUIMan:ShowTipText(string.format(StringTable.Get(268), RichTextTools.GetItemNameRichText(costMoneyID, 1, false)), true)
                 end
             else
-                local data = {moneyID = costMoneyID, count = moneyCost, callback = cb, isMoney = is_money}
+                local rewardTable = {
+                    {
+                        ID = costMoneyID,
+                        Count = moneyCost,
+                        IsMoney = is_money
+                    },
+                }
+                local data = {targetRewardTable = rewardTable, callback = cb}
                 game._GUIMan:Open("CPanelQuickBuy", data)
             end
         end
@@ -215,6 +284,11 @@ local _CloseAll = function ()
 	boxMan.Instance():RemoveAll()
 end
 
+local _CloseAllExceptDisconnect = function()
+    local boxMan = require "GUI.CMsgBoxMan"
+    boxMan.Instance():RemoveAllExceptDisconnect()
+end
+
 local _RemoveAllBoxes = function()
     local boxMan = require "GUI.CMsgBoxMan"
 	boxMan.Instance():RemoveAllBoxes()
@@ -228,8 +302,10 @@ local MsgBox =
 --	ShowMsgBoxByID = _MsgBoxByID,
 	ShowSystemMsgBox = _MsgBoxSystem,
     ShowQuickBuyBox = _QuickBuyBox,
+    ShowQuickMultBuyBox = _QuickBuyTable,
 	IsShow = _IsShow,
 	CloseAll = _CloseAll,
+    CloseAllExceptDisconnect = _CloseAllExceptDisconnect,
     RemoveAllBoxes = _RemoveAllBoxes,
 }
 

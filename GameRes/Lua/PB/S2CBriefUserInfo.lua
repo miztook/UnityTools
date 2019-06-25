@@ -36,7 +36,7 @@ local function OnBriefUserInfo(sender, msg)
 	_G.canAutoReconnect = true
 
 	local CLoginMan = require "Main.CLoginMan"
-	if CLoginMan.Instance()._QuickEnterRoleId <= 0 and msg.SelectRoleId == 0 then	--登录上次角色
+	if CLoginMan.Instance():GetQuickEnterRoleId() <= 0 and msg.SelectRoleId == 0 then	--登录上次角色
 		game:ReturnSelectRole()
 	else
 		CLoginMan.Instance():OnAccountInfoSet(msg.SelectRoleId)

@@ -15,15 +15,15 @@ local function SendMsgToSysteamChannel(KillerID, EntityID)
 		if object._ID == game._HostPlayer._ID then
 			if killerobject:IsRole() and killerobject:GetPkMode() == EPkMode.EPkMode_Massacre then
 				msg = string.format(StringTable.Get(13044), killerobject._InfoData._Name, EvilNum)
-			else
-				msg = string.format(StringTable.Get(13046), killerobject._InfoData._Name)
+			-- else
+			-- 	msg = string.format(StringTable.Get(13046), killerobject._InfoData._Name)
 			end
 
 		elseif killerobject._ID == game._HostPlayer._ID then
 			if object:IsRole() and killerobject:GetPkMode() == EPkMode.EPkMode_Massacre then
 				msg = string.format(StringTable.Get(13033), object._InfoData._Name, EvilNum)
-			else
-				msg = string.format(StringTable.Get(13043), object._InfoData._Name)
+			-- else
+			-- 	msg = string.format(StringTable.Get(13043), object._InfoData._Name)
 			end
 		end
 

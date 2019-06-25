@@ -37,11 +37,10 @@ end
 
 local function OnChat(sender, msg)
 	if msg.returnCode == CHAT_RETURN_CODE.OK_CHAT_RETURN_CODE then
-		if game._HostPlayer == nil then return end
-		-- warn("msg.chatContent.chatLink.LinkType == ", msg.chatContent.chatLink.LinkType, msg.chatContent.senderInfo.Id, game._HostPlayer._ID)
+		if game._HostPlayer == nil then return end		
 		if msg.chatContent.senderInfo.Id == game._HostPlayer._ID and msg.chatContent.chatLink.LinkType == ChatLinkType.ChatLinkType_Team then
 			game._GUIMan:ShowTipText(StringTable.Get(13020), false)
-		end
+		end		
 		ChatManager.Instance():OnPrtc_ChatPublic(msg.chatContent)
 	else
 		OnChatReturnCode(msg.returnCode)
@@ -51,3 +50,14 @@ end
 PBHelper.AddHandler("S2CChat", OnChat)
 
  
+local function OnS2CUpdateChatEnergy(sender, msg)
+	if msg.roleId == game._HostPlayer._ID then
+		-- warn("lidaming msg.energyNum == ", msg.energyNum)
+		ChatManager.Instance()._EnergyNum = msg.energyNum
+		local CPanelChatNew = require "GUI.CPanelChatNew"
+		if CPanelChatNew.Instance():IsShow() then
+			CPanelChatNew.Instance():EnergyNumTitle()
+		end
+	end
+end
+PBHelper.AddHandler("S2CUpdateChatEnergy", OnS2CUpdateChatEnergy)

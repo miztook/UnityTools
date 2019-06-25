@@ -256,20 +256,20 @@ def.method("userdata", "string", "number").OnExteriorInitItem = function(self, i
         local lab_name = uiTemplate:GetControl(5) -- 名称
 
         GameUtil.MakeImageGray(img_bg, not data.IsGot)
-        GUITools.SetUIActive(lab_quality, data.IsGot)
         GUITools.SetItemIcon(img_icon, template.IconPath)
         GameUtil.MakeImageGray(img_icon, not data.IsGot)
         
         local nameStr = RichTextTools.GetQualityText(template.WingName, template.WingQuality)
+        local qualityStr = StringTable.Get(10000 + template.WingQuality)
         if not data.IsGot then
             -- 名字变灰
             nameStr = GetGreyColorStr(template.WingName)
+            qualityStr = GetGreyColorStr(qualityStr)
         else
-            local qualityStr = StringTable.Get(10000 + template.WingQuality)
             qualityStr = RichTextTools.GetQualityText(qualityStr, template.WingQuality)
-            GUI.SetText(lab_quality, qualityStr)
         end
         GUI.SetText(lab_name, nameStr)
+        GUI.SetText(lab_quality, qualityStr)
     end
 end
 
@@ -330,7 +330,7 @@ def.method("string").OnExteriorClick = function(self, id)
         local data =
         {
             ItemId = curData.ItemId,
-            ParentObj = self._Btn_Approach
+            ParentObj = self._Frame_Right
         }
         game._GUIMan:Open("CPanelItemApproach", data)
     end
@@ -534,10 +534,21 @@ def.method("table").InitWingRight = function (self, curData)
     -- 来源
     GUI.SetText(self._Lab_Origin, template.OriginOfWing)
     -- 特殊说明
-    local isShowTips = not curData.IsGot or curData.Grade < template.ShowGrade
+    local nextShowGrade = 0
+    local showGrades = string.split(template.ShowGrade, "*")
+    if showGrades ~= nil then
+        for _, gradeStr in ipairs(showGrades) do
+            local grade = tonumber(gradeStr)
+            if grade ~= nil and curData.Grade < grade then
+                nextShowGrade = grade
+                break
+            end
+        end
+    end
+    local isShowTips = nextShowGrade > 0
     GUITools.SetUIActive(self._Frame_SpecialTips, isShowTips)
     if isShowTips then
-        GUI.SetText(self._Lab_SpecialTips, string.format(StringTable.Get(19564), template.ShowGrade))
+        GUI.SetText(self._Lab_SpecialTips, string.format(StringTable.Get(19563), nextShowGrade))
     end
     -- 按钮状态
     GUITools.SetUIActive(self._Btn_Operate, curData.IsGot)

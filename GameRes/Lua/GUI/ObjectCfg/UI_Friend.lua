@@ -20,6 +20,8 @@ local cfg = {
     Rdo_BlackList = 1688135611,
     Input_Search = 372036605,
     List_Inquire = -1427812590,
+    Btn_AllAgree = -574703538,
+    Btn_AllReject = -151330243,
 }
  
 return cfg

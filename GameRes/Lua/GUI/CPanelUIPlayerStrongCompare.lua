@@ -112,13 +112,15 @@ def.override("dynamic").OnData = function(self, playerData)
 			for _, k in ipairs(v._Cells) do
 				local data =  CElementData.GetTemplate("PlayerStrongCell", k)
 				if data ~= nil and data.Id ~= nil then
-					local valueCell = game._PlayerStrongMan:GetCellFightScore(data.Id)
-					local basicValueCell = self:GetOtherPlayerCellFightScore(data.Id)
-					-- if valueCell > 0 or basicValueCell > 0 then
-					-- if game._CFunctionMan:IsUnlockByFunTid(data.FunID) then
+					if data.Id ~= 16 and data.Id ~= 17 then   -- 宠物融合和宠物升星隐藏不显示
+						local valueCell = game._PlayerStrongMan:GetCellFightScore(data.Id)
+						local basicValueCell = self:GetOtherPlayerCellFightScore(data.Id)
+						-- if valueCell > 0 or basicValueCell > 0 then
+						-- if game._CFunctionMan:IsUnlockByFunTid(data.FunID) then
 						self._ListData[nType]._Cells[cellIdex] = data
 						cellIdex = cellIdex + 1
-					-- end		
+						-- end		
+					end
 				end				
 			end
 		-- end
@@ -196,7 +198,7 @@ def.method("number","=>","number").GetHostPlayerFightScoreByValueID = function(s
 	elseif ValueId == 5 then
 		return self._OtherRoleInfo.MyScores.SwingScores.swingFight
 	elseif ValueId == 6 then
-		return self._OtherRoleInfo.MyScores.OtherScores.GuildSkills + self._OtherRoleInfo.MyScores.OtherScores.DressScore
+		return self._OtherRoleInfo.MyScores.OtherScores.GuildSkills + self._OtherRoleInfo.MyScores.OtherScores.DressScore + self._OtherRoleInfo.MyScores.OtherScores.Manual + self._OtherRoleInfo.MyScores.OtherScores.Design
 	else
 		return 0
 	end
@@ -214,7 +216,7 @@ def.method("number","=>","number").GetOtherPlayerFightScoreByValueID = function(
 	elseif ValueId == 5 then
 		return self._OtherRoleInfo.BesidesScores.SwingScores.swingFight
 	elseif ValueId == 6 then
-		return self._OtherRoleInfo.BesidesScores.OtherScores.GuildSkills + self._OtherRoleInfo.BesidesScores.OtherScores.DressScore
+		return self._OtherRoleInfo.BesidesScores.OtherScores.GuildSkills + self._OtherRoleInfo.BesidesScores.OtherScores.DressScore + self._OtherRoleInfo.BesidesScores.OtherScores.Manual + self._OtherRoleInfo.BesidesScores.OtherScores.Design
 	else
 		return 0
 	end
@@ -333,6 +335,10 @@ def.method("number","=>","number").GetHostPlayerCellFightScore = function(self, 
 		return self._OtherRoleInfo.MyScores.OtherScores.GuildSkills
 	elseif Id == 14 then--实装评分
 		return self._OtherRoleInfo.MyScores.OtherScores.DressScore
+	elseif Id == 15 then--万物志评分
+		return self._OtherRoleInfo.MyScores.OtherScores.Manual
+	elseif Id == 18 then--称号评分
+		return self._OtherRoleInfo.MyScores.OtherScores.Design
 	else
 		return 0
 	end
@@ -368,6 +374,10 @@ def.method("number","=>","number").GetOtherPlayerCellFightScore = function(self,
 		return self._OtherRoleInfo.BesidesScores.OtherScores.GuildSkills
 	elseif Id == 14 then--实装评分
 		return self._OtherRoleInfo.BesidesScores.OtherScores.DressScore
+	elseif Id == 15 then--万物志评分
+		return self._OtherRoleInfo.BesidesScores.OtherScores.Manual
+	elseif Id == 18 then--称号评分
+		return self._OtherRoleInfo.BesidesScores.OtherScores.Design
 	else
 		return 0
 	end
@@ -380,7 +390,7 @@ def.method("userdata","number","number").OnInitTabListDeep2 = function(self, ite
 	if cellData == nil or cellData.Id == nil then
 		warn("CPanelUIPlayerStrong--OnInitTabListDeep2->分类："..mainIndex.."的ID"..index.."数据错误")
 	return end
-	
+
 	local labName = GUITools.GetChild(item, 0)
 	if not IsNil(labName) then
 		GUI.SetText(labName, cellData.Name)

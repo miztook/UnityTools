@@ -12,6 +12,9 @@ local function OnCreateRoleRe(sender, msg)
 	local select_index = #role_list
 	game._AccountInfo._CurrentSelectRoleIndex = select_index
 
+	-- 新建角色清空本地相机参数
+	game:CleanCamParamsOfUserData()
+	
 	CPlatformSDKMan.Instance():UploadRoleInfoWhenCreate(msg.BriefRoleInfo.Id, msg.BriefRoleInfo.Name, msg.BriefRoleInfo.Level, msg.ZoneId, msg.BriefRoleInfo.GuildName, LuaUInt64.ToDouble(msg.RoleCreateTime))
 
 	game:SendSelectRole(msg.BriefRoleInfo.Id)

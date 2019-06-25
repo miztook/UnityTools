@@ -9,10 +9,12 @@ local CCommonBtn = require "GUI.CCommonBtn"
 local def = CPanelUIEyeEntranceTips.define
 local MapBasicConfig = require "Data.MapBasicConfig"
 
-def.field('userdata')._Lab_EntranceName = nil
+def.field('userdata')._Lab_Title = nil
 def.field('userdata')._Lab_EntranceLimitLevel = nil
 def.field('userdata')._Lab_EntranceLimitTitle = nil
 def.field('userdata')._Lab_EntranceLimitEnter = nil
+def.field('userdata').Btn_Enter1 = nil
+def.field('userdata').Btn_Enter2 = nil
 def.field('userdata')._Lab_EntranceRewardCount = nil
 def.field(CCommonBtn)._Btn_Team = nil
 def.field('userdata')._List_Gift = nil
@@ -33,10 +35,13 @@ def.static('=>', CPanelUIEyeEntranceTips).Instance = function ()
 end
 
 def.override().OnCreate = function(self)
-    self._Lab_EntranceName = self:GetUIObject('Lab_EntranceName')
+    self._Lab_Title = self:GetUIObject('Lab_Title')
     self._Lab_EntranceLimitLevel = self:GetUIObject('Lab_EntranceLimitLevel')
     self._Lab_EntranceLimitTitle = self:GetUIObject('Lab_EntranceLimitTitle')
     self._Lab_EntranceLimitEnter = self:GetUIObject('Lab_EntranceLimitEnter')
+    self.Btn_Enter1 = self:GetUIObject('Btn_Enter1')
+    self.Btn_Enter2 = self:GetUIObject('Btn_Enter2')
+    
     
     self._Lab_EntranceRewardCount = self:GetUIObject('Lab_EntranceRewardCount')
     self._List_Gift = self:GetUIObject('List_Reward'):GetComponent(ClassType.GNewList)
@@ -51,11 +56,29 @@ def.override("dynamic").OnData = function(self,data)
 
     self._Dungeondata = data._Data
     if self._Dungeondata == nil or dungeondata == nil then return end
-    GUI.SetText(self._Lab_EntranceName, dungeondata.TextDisplayName)
+    self._Dungeondata.MinEnterLevel = dungeondata.MinEnterLevel
+    GUI.SetText(self._Lab_Title, dungeondata.TextDisplayName)
     -- GUI.SetText(self._Lab_EntranceLimitLevel, StringTable.Get(12018).." "..dungeondata.MinEnterLevel)
     -- GUI.SetText(self._Lab_EntranceLimitTitle, StringTable.Get(12019).." "..dungeondata.MinRoleNum .. '~'.. dungeondata.MaxRoleNum)
     -- GUI.SetText(self._Lab_EntranceRewardCount, StringTable.Get(12020).." "..data._Data.remainCount)
-    GUI.SetText(self._Lab_EntranceLimitLevel, tostring(dungeondata.MinEnterLevel))
+
+    local levelStr = tostring(dungeondata.MinEnterLevel)
+    if dungeondata.MinEnterLevel <= game._HostPlayer._InfoData._Level then
+        levelStr = "<color=#FFFFFF>"..levelStr.."</color>"
+    else
+        levelStr = "<color=#FF0000>"..levelStr.."</color>"
+    end
+
+    if self._Dungeondata.hawkeyeType == 1 then
+        GUI.SetText(self._Lab_EntranceLimitLevel, tostring(game._HostPlayer._InfoData._Level))
+        self.Btn_Enter1:SetActive(true)
+        self.Btn_Enter2:SetActive(false)
+    else
+        GUI.SetText(self._Lab_EntranceLimitLevel, levelStr)
+        self.Btn_Enter1:SetActive(false)
+        self.Btn_Enter2:SetActive(true)
+    end
+    
     GUI.SetText(self._Lab_EntranceLimitTitle, dungeondata.MinRoleNum .. '~'.. dungeondata.MaxRoleNum)
 
     --CElementData.GetTemplate("Hawkeye", dungeondata.CountGroupTid)
@@ -114,23 +137,31 @@ end
 def.override('string').OnClick = function(self, id)
     if id == 'Btn_Back' then
         game._GUIMan:CloseByScript(self)
-    elseif id == 'Btn_Enter' then
-        if self._Dungeondata.remainCount > 0 and self._Dungeondata.challengeCount > 0 then
+    elseif id == 'Btn_Enter1' or id == 'Btn_Enter2' then
+        if self._Dungeondata.remainCount > 0 and self._Dungeondata.challengeCount > 0 and self._Dungeondata.MinEnterLevel <= game._HostPlayer._InfoData._Level then
             game:StopAllAutoSystems()
             local CTransManage = require "Main.CTransManage"
             CTransManage.Instance():TransToRegionIsNeedBroken(self._Dungeondata.mapID, self._Dungeondata.regionId, false, nil, true)
             self._ParentUI:ClosePanel()
             game._GUIMan:CloseByScript(self)     
-        else 
+        elseif self._Dungeondata.remainCount == 0 or self._Dungeondata.challengeCount == 0 then
             game._GUIMan:ShowTipText(StringTable.Get(12037), false)
+        elseif self._Dungeondata.MinEnterLevel > game._HostPlayer._InfoData._Level then
+            game._GUIMan:ShowTipText(StringTable.Get(12038), false)
         end
     elseif id == 'Btn_Team' then
-        if CTeamMan.Instance():InTeam() then
-            game._GUIMan:ShowTipText(StringTable.Get(174), false)
-        else
-            --game._GUIMan:Open("CPanelUITeamCreate", {TargetId = self._Dungeondata.dungeonId})
-            game._GUIMan:Open("CPanelUITeamCreate", { TargetMatchId = 41 })
-            game._GUIMan:CloseByScript(self)
+        if self._Dungeondata.remainCount > 0 and self._Dungeondata.challengeCount > 0 and self._Dungeondata.MinEnterLevel <= game._HostPlayer._InfoData._Level then
+            if CTeamMan.Instance():InTeam() then
+                game._GUIMan:ShowTipText(StringTable.Get(174), false)
+            else
+                --game._GUIMan:Open("CPanelUITeamCreate", {TargetId = self._Dungeondata.dungeonId})
+                game._GUIMan:Open("CPanelUITeamCreate", { TargetMatchId = 49 })
+                game._GUIMan:CloseByScript(self)
+            end  
+        elseif self._Dungeondata.remainCount == 0 or self._Dungeondata.challengeCount == 0 then
+            game._GUIMan:ShowTipText(StringTable.Get(12037), false)
+        elseif self._Dungeondata.MinEnterLevel > game._HostPlayer._InfoData._Level then
+            game._GUIMan:ShowTipText(StringTable.Get(12038), false)
         end
         
     end
@@ -148,7 +179,7 @@ def.override().OnDestroy = function(self)
         self._Btn_Team:Destroy()
         self._Btn_Team = nil
     end
-    self._Lab_EntranceName = nil
+    self._Lab_Title = nil
     self._Lab_EntranceLimitLevel = nil
     self._Lab_EntranceLimitTitle = nil
     self._Lab_EntranceLimitEnter = nil

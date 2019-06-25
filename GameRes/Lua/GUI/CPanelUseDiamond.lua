@@ -55,7 +55,7 @@ local function InitBuyItemShow(iPanel)
 
     local strName = "<color=#" .. EnumDef.Quality2ColorHexStr[iPanel._PanelData._Item._QualityIdex] ..">" .. iPanel._PanelData._Item._ItemName .."</color>"
     --local showStr = string.format(StringTable.Get(20301),strName,iPanel._PanelData._Diamond,iconName)
-    local showStr = StringTable.Format_ABC_ACB(StringTable.Get(20301), strName,iPanel._PanelData._Diamond, iconName)
+    local showStr = string.format(StringTable.Get(20301), strName,iPanel._PanelData._Diamond, iconName)
     GUI.SetText(iPanel._LabText, showStr)
     iPanel._OperaType = 1
     iPanel._TipsToggleObj: SetActive(iPanel._PanelData._tips) 
@@ -78,11 +78,11 @@ local function InitDirectlyUseDimaond(iPanel)
         if itemTemplate ~= nil then
             local strName = "<color=#" .. EnumDef.Quality2ColorHexStr[itemTemplate.InitQuality] ..">" .. itemTemplate.Name .."</color>"
             --showStr = string.format(StringTable.Get(20302),iPanel._PanelData._Diamond, iconName, iPanel._PanelData._BuyCount,strName)
-            showStr = StringTable.Format_ABCD_BADC(StringTable.Get(20302), iPanel._PanelData._Diamond, iconName, iPanel._PanelData._BuyCount,strName)
+            showStr = string.format(StringTable.Get(20302), iPanel._PanelData._Diamond, iconName, iPanel._PanelData._BuyCount,strName)
         end     
     else
         --showStr = string.format(StringTable.Get(20300),iPanel._PanelData._Diamond,iconName)
-        showStr = StringTable.Format_AB_BA(StringTable.Get(20300), iPanel._PanelData._Diamond, iconName)
+        showStr = string.format(StringTable.Get(20300), iPanel._PanelData._Diamond, iconName)
     end
 
     GUI.SetText(iPanel._LabText, showStr)

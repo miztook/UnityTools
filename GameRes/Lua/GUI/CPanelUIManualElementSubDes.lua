@@ -14,6 +14,11 @@ def.field("userdata")._Img_ElementIcon = nil
 def.field("userdata")._Lab_ElementName = nil
 def.field("userdata")._Lab_ElementNameLeft = nil
 def.field("userdata")._Lab_ElementDes = nil
+def.field("userdata")._Frame_UnLock = nil
+def.field("userdata")._Frame_Lock = nil
+def.field("userdata")._Lab_ElementNameLock = nil
+def.field("userdata")._Lab_ElementNameLeftLock = nil
+def.field("userdata")._Lab_ElementDesLock = nil
 def.field("userdata")._Btn_Next = nil
 def.field("userdata")._Btn_Last = nil
 def.field("number")._SelectIndex = 1
@@ -40,6 +45,11 @@ def.override().OnCreate = function(self)
     self._Lab_ElementNameLeft = self:GetUIObject("Lab_ElementNameLeft")
     self._Btn_Next = self:GetUIObject("Btn_Next")
     self._Btn_Last = self:GetUIObject("Btn_Last")
+    self._Frame_UnLock = self:GetUIObject("Frame_UnLock")
+    self._Frame_Lock = self:GetUIObject("Frame_Lock")
+    self._Lab_ElementNameLock = self:GetUIObject("Lab_ElementNameLock")
+    self._Lab_ElementNameLeftLock = self:GetUIObject("Lab_ElementNameLeftLock")
+    self._Lab_ElementDesLock = self:GetUIObject("Lab_ElementDesLock")
 end
 
 def.override().OnHide = function(self)
@@ -96,7 +106,7 @@ def.method().OnBookInfo = function(self)
             self._Data_Book[#self._Data_Book+1] = 
             {
                 _ChapterIndex = i,
-                _ChapterContent = StringTable.Get(20807)
+                _ChapterContent = v.UnlockTips
             }
         end
     end
@@ -115,48 +125,28 @@ end
 
 def.method().OnElementSubInfo = function(self)
     local template = CElementData.GetManualEntrieTemplate(self._Data_Element.EntrieId)
-    --print("self._Data_Element.EntrieId=",self._Data_Element.EntrieId)
-    --print_r(self._Data_Element)
+    if self._Data_Element.Details[self._Data_Element.CurIndex].IsUnlock then
+        self._Frame_UnLock:SetActive(true)
+        self._Frame_Lock:SetActive(false)
 
-    --local iconPath = "Assets/Outputs/Interfaces/Icon/" .. temData._Data.IconPath..".png"
-    --GUITools.SetSprite(self._Img_ElementIcon, iconPath)
+        GUI.SetText(self._Lab_ElementName, template.DisPlayName )
+        local strIndex = string.format(StringTable.Get(20804),self._Data_Element.CurIndex)
+        local detailTemplate = template.Details[self._Data_Element.CurIndex]
+        GUI.SetText(self._Lab_ElementNameLeft, strIndex.." "..detailTemplate.Title)
+        GUI.SetText(self._Lab_ElementDes, self._Data_Book[self._Data_Element.CurIndex]._ChapterContent)
+    else
+        self._Frame_UnLock:SetActive(false)
+        self._Frame_Lock:SetActive(true)
 
 
-    local strIndex = string.format(StringTable.Get(20804),self._Data_Book[self._Cur_Index]._ChapterIndex)
-    GUI.SetText(self._Lab_ElementNameLeft, strIndex)
+        GUI.SetText(self._Lab_ElementNameLock, template.DisPlayName )
+        local strIndex = string.format(StringTable.Get(20804),self._Data_Element.CurIndex)
+        local detailTemplate = template.Details[self._Data_Element.CurIndex]
+        GUI.SetText(self._Lab_ElementNameLeftLock, strIndex.." "..detailTemplate.Title)
+        GUI.SetText(self._Lab_ElementDesLock, detailTemplate.UnlockTips)
+    end
 
-    GUI.SetText(self._Lab_ElementDes, self._Data_Book[self._Cur_Index]._ChapterContent)
 end
-
--- def.method().OnElementSubInfo = function(self)
---     local template = CElementData.GetManualEntrieTemplate(self._Data_Element.EntrieId)
---     --print("self._Data_Element.EntrieId=",self._Data_Element.EntrieId)
---     --print_r(self._Data_Element)
-
---     --local iconPath = "Assets/Outputs/Interfaces/Icon/" .. temData._Data.IconPath..".png"
---     --GUITools.SetSprite(self._Img_ElementIcon, iconPath)
-
-
---     local strIndex = string.format(StringTable.Get(20804),self._Cur_Index)
---     GUI.SetText(self._Lab_ElementNameLeft, strIndex)
-
-
---     local detailTemplate = template.Details[self._Cur_Index]
---     for i,v in ipairs(template.Details) do
---         if v.DetailId == self._Data_Element.Details[self._Cur_Index].DetailId then
---             detailTemplate = v
---             break
---         end
---     end
---     self._Num_MaxPage = #template.Details
---     --GUI.SetText(self._Lab_ElementName, "此条目的名字" )
-
---     if self._Data_Element.Details[self._Cur_Index].IsUnlock then
---         GUI.SetText(self._Lab_ElementDes, detailTemplate.Content)
---     else
---         GUI.SetText(self._Lab_ElementDes, StringTable.Get(20807))
---     end
--- end
 
 def.method().LastPage = function(self)
     self._Cur_Index = self._Cur_Index - 1
@@ -208,6 +198,8 @@ def.override("string").OnClick = function(self,id)
         self:NextPage()
     elseif id == 'Btn_Last' then
         self:LastPage()
+    elseif id == 'Btn_Close' then
+        game._GUIMan:CloseByScript(self)
     end
 end
 

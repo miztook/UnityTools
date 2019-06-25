@@ -55,6 +55,7 @@ def.method().InitUIObject = function(self)
 	self._UIObjects.Hall_Fund_Num = parent:GetUIObject("Hall_Fund_Num")
 	self._UIObjects.Img_BtnFloatFx = parent:GetUIObject("Img_BtnFloatFx1")
     self._UIObjects.Building_List = parent:GetUIObject("Guild_Building_List"):GetComponent(ClassType.GNewList)
+    self._UIObjects.Btn_Hall_Level = parent:GetUIObject("Btn_Hall_Level")
     local OnGuildEvent = function(sender, event)
         if event ~= nil then
             if event._Type == "GuildLevelUp" then
@@ -186,9 +187,15 @@ def.method().UpdateHallInfo = function(self)
         return
     end
 	if data._IsMaxLevel then
+		GUITools.SetBtnExpressGray(self._UIObjects.Btn_Hall_Level,true)
+		local imgBtnBg = self._UIObjects.Btn_Hall_Level:FindChild("Img_Bg")
+		GameUtil.MakeImageGray(imgBtnBg,true)
 		self._UIObjects.Hall_Bar_Exp.size = 1		
 		GUI.SetText(self._UIObjects.Hall_Exp_Num, "Max")
 	else
+		local imgBtnBg = self._UIObjects.Btn_Hall_Level:FindChild("Img_Bg")
+		GameUtil.MakeImageGray(imgBtnBg,false)
+		GUITools.SetBtnExpressGray(self._UIObjects.Btn_Hall_Level,false)
 		self._UIObjects.Hall_Bar_Exp.size = guild._Exp / guildLevel.NextExperience		
 		GUI.SetText(self._UIObjects.Hall_Exp_Num, guild._Exp .. "/" .. guildLevel.NextExperience)
 	end
@@ -233,9 +240,8 @@ end
 
 -- 当点击
 def.method("string").OnClick = function(self, id) 
-	if id == "Btn_Guild_Back" then
-		self:OnBtnGuildBack()
-	elseif id == "Btn_Hall_Level" then
+	
+	if id == "Btn_Hall_Level" then
 		self:OnBtnHallLevel()
 	end
 end
@@ -259,6 +265,7 @@ def.method("userdata", "string", "number").OnInitItem = function(self, item, id,
     	GUI.SetText(lab_name, data._Name)
     	GUI.SetText(lab_level, tostring(data._Level))
     	GUI.SetText(lab_des, data._Des)
+    	-- self:CanLevelUpBuilding()
     	btn_building_up:SetActive(data._LevelUp and self:CanLevelUpBuilding() and data._Unlock)
     	lock:SetActive(not data._Unlock)
 
@@ -286,6 +293,10 @@ def.method("userdata", "string", "string", "number").OnSelectItemButton = functi
 	if id == "Guild_Building_List" then
 		index = index + 2
 		if id_btn == "Btn_Building_Up" then
+			if game._HostPlayer:IsInGlobalZone() then
+		        game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+		        return
+		    end
 			game._GUIMan:Open("CPanelUIGuildLvUp", self._Building_Config[index])
 		else
 			local buildingType = self._Building_Config[index]._BuildingType
@@ -310,6 +321,7 @@ def.method("=>", "boolean").CanLevelUpBuilding = function(self)
 		return true
 	end
 	local member = game._GuildMan:GetHostGuildMemberInfo()		
+	-- warn(" member._Permission, PermissionMask.UpgradeBuild  ", member._Permission, PermissionMask.UpgradeBuild,bit.band(member._Permission, PermissionMask.UpgradeBuild) )
 	if member ~= nil and 0 ~= bit.band(member._Permission, PermissionMask.UpgradeBuild) then	
 		for i, v in ipairs(self._Building_Config) do
 			if v._LevelUp then
@@ -322,44 +334,14 @@ def.method("=>", "boolean").CanLevelUpBuilding = function(self)
 	end
 end
 
--- 回到公会
-def.method().OnBtnGuildBack = function(self)
-	local hp = game._HostPlayer
-	if hp:IsInServerCombatState() then
-		game._GUIMan:ShowTipText(StringTable.Get(8045), true)
-	else
-		local CTransManage = require "Main.CTransManage"
-		if hp:InDungeon() then
-			local callback = function(value)
-				if value then
-					CTransManage.Instance():TransToPortalTargetByMapID(game._GuildMan:GetGuildSceneTid(), nil)
-					game._GUIMan:Close("CPanelUIGuild")
---					local CQuestAutoMan = require"Quest.CQuestAutoMan"
---					local CAutoFightMan = require "ObjHdl.CAutoFightMan"
---					local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
---					CQuestAutoMan.Instance():Stop()
---					CAutoFightMan.Instance():Stop()	
---					CDungeonAutoMan.Instance():Stop()
-					--game._GuildMan:EnterGuildMap()
-                    game:StopAllAutoSystems()
-				end
-			end
-			local title, msg, closeType = StringTable.GetMsg(17)
-			MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback)
-		elseif game._GuildMan:IsInGuildScene() then
-			game._GUIMan:ShowTipText(StringTable.Get(8055), true)
-		else
-			CTransManage.Instance():TransToPortalTargetByMapID(game._GuildMan:GetGuildSceneTid(), nil)
-            game:StopAllAutoSystems()
-			game._GUIMan:Close("CPanelUIGuild")
-		end
-	end
-end
-
 -- 大厅升级
 def.method().OnBtnHallLevel = function(self)
+	if game._HostPlayer:IsInGlobalZone() then
+        game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+        return
+    end
 	if self._Building_Config[1]._IsMaxLevel then
-		game._GUIMan:ShowTipText(StringTable.Get(849), true)
+		game._GUIMan:ShowTipText(StringTable.Get(8123),true)
 		return
 	end
 	game._GUIMan:Open("CPanelUIGuildLvUp", self._Building_Config[1])

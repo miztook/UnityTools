@@ -1,8 +1,8 @@
 local Lplus = require "Lplus"
 local CEntity = require "Object.CEntity"
 local CGame = Lplus.ForwardDeclare("CGame")
-local CWorldAutoFight = require "Main.CWorldAutoFight"
-local CQuestAutoFight = require "Quest.CQuestAutoFight"
+local CWorldAutoFight = require "AutoFight.CWorldAutoFight"
+local CQuestAutoFight = require "AutoFight.CQuestAutoFight"
 local CElementData = require "Data.CElementData"
 local bit = require "bit"
 
@@ -63,6 +63,7 @@ def.method().Start = function(self)
     end
 
     if not game._CFunctionMan:IsUnlockByFunID(EnumDef.EGuideTriggerFunTag.AutoFight) then
+        ShowAutoFightGfx(self, false)
         return    
     end
 
@@ -152,6 +153,12 @@ def.method("table").SetPriorityTargets = function(self, targets)
     else
         -- QuestFight暂无优先对象更新需求    
     end
+end
+
+-- 设置可释放的技能。
+def.method("table").SetCantRecastSkillTable = function(self, new_table)
+    CWorldAutoFight.Instance():SetForbidSkillList(new_table)
+    CQuestAutoFight.Instance():SetForbidSkillList(new_table)
 end
 
 def.method("number", "number").RemovePriorityTarget = function(self, questId, targetTid)

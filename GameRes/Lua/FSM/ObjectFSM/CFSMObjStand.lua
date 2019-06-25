@@ -9,6 +9,10 @@ local def = CFSMObjStand.define
 
 def.field("boolean")._IsAniQueued = false
 
+def.field("boolean")._StateOnRide = false
+def.field("boolean")._StateHasWing = false
+def.field("boolean")._StateInCombat = false
+
 def.final(CEntity, "=>", CFSMObjStand).new = function (ecobj)
 	local obj = CFSMObjStand()
 	obj._Host = ecobj
@@ -27,13 +31,22 @@ def.override("number").EnterState = function(self, oldstate)
 	CFSMStateBase.EnterState(self, oldstate)
 	self._Host:StopMovementLogic()
 	
-	if self._Mountable then			--动画
+	--动画
+	if self._Mountable then			
+		self._Host:UpdateWingAnimation()
 		self:PlayMountStateAnimation(oldstate)
+
+		self._StateHasWing = self._Host._WingModel ~= nil
+		self._StateOnRide = self._Host:IsClientMounting()
+		self._StateInCombat = self._Host:IsInCombatState()
 	else
-		self:PlayStateAnimation(oldstate)		
+		self:PlayStateAnimation(oldstate)	
+
+		self._StateHasWing = false
+		self._StateOnRide = self._Host:IsClientMounting()
+		self._StateInCombat = self._Host:IsInCombatState()
 	end
 
-	self._Host:UpdateWingAnimation()
 end
 
 local function StarStandBehaviourComp(self)
@@ -91,8 +104,8 @@ def.override("number").PlayStateAnimation = function(self, oldstate)
 end
 
 def.override("number").PlayMountStateAnimation = function(self, oldstate)
-	local bRide = self._Mountable and self._Host:IsOnRide()
-	if self._Host:IsInCombatState() and not self._Host:IsOnRide()then
+	local bRide = self._Mountable and self._Host:IsClientMounting()
+	if self._Host:IsInCombatState() and not bRide then
 		if self._Host:HasAnimation(EnumDef.CLIP.BATTLE_STAND) then
 			local animation = EnumDef.CLIP.BATTLE_STAND
 			if self._Host:IsPlayerType() and self._Host:GetChangePoseState() then
@@ -149,11 +162,33 @@ def.override().LeaveState = function(self)
 end
 
 def.override(CFSMStateBase).UpdateState = function(self, newstate)
-	if self._Mountable then
-		self:PlayMountStateAnimation(self._Type)
+	--状态变化后才更新动画
+	if self._Mountable then		
+		local curStateWing = self._Host._WingModel ~= nil
+		local curStateRide = self._Host:IsClientMounting()
+		local curStateInCombat = self._Host:IsInCombatState()
+
+		if curStateWing ~= self._StateHasWing or curStateRide ~= self._StateOnRide or curStateInCombat ~= self._StateInCombat then
+			self._Host:UpdateWingAnimation()
+			self:PlayMountStateAnimation(self._Type)
+		end
+
+		self._StateHasWing = curStateWing
+		self._StateOnRide = curStateRide
+		self._StateInCombat = curStateInCombat
 	else
-		self:PlayStateAnimation(self._Type)		
-	end	
+		local curStateWing = false
+		local curStateRide = self._Host:IsClientMounting()
+		local curStateInCombat = self._Host:IsInCombatState()
+
+		if curStateWing ~= self._StateHasWing or curStateRide ~= self._StateOnRide or curStateInCombat ~= self._StateInCombat then
+			self:PlayStateAnimation(self._Type)	
+		end
+
+		self._StateHasWing = curStateWing
+		self._StateOnRide = curStateRide
+		self._StateInCombat = curStateInCombat
+	end
 end
 
 CFSMObjStand.Commit()

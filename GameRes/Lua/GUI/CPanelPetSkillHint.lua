@@ -1,9 +1,9 @@
 
 local Lplus = require 'Lplus'
-local CPanelBase = require 'GUI.CPanelBase'
+local CPanelHintBase = require 'GUI.CPanelHintBase'
 local CElementData = require "Data.CElementData"
 
-local CUIPetSkillHint = Lplus.Extend(CPanelBase, 'CUIPetSkillHint')
+local CUIPetSkillHint = Lplus.Extend(CPanelHintBase, 'CUIPetSkillHint')
 local def = CUIPetSkillHint.define
  
 def.field('userdata')._Lab_EquipTips = nil
@@ -41,10 +41,9 @@ end
 --}
 
 def.override("dynamic").OnData = function(self, data) 
-    CPanelBase.OnData(self,data)
     self._TipPosition = data._TipPos
     local TalentItem = CElementData.GetTalentTemplate(data._TalentID)
-    if TalentItem == nil then return warn("TalentItem is nil ")end 
+    if TalentItem == nil then warn("TalentItem is nil", data._TalentID) end 
     local name = ""   
     if game._IsOpenDebugMode == true then
         name = "(".. data._TalentID  ..")" .. TalentItem.Name

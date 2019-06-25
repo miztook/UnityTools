@@ -31,10 +31,10 @@ local PageType =
     NONE = 0,   
     GETSTRONG = 1,       -- 我要变强
     GETEXP = 2,          -- 我要经验   
-    GETEQUIP = 3,        -- 我要装备
-    GETMONEY = 4,        -- 我要财富
-    GETMATERIAL = 5,     -- 我要材料
-    GETPET = 6,          -- 我要宠物
+    GETMONEY = 3,        -- 我要财富
+    GETEQUIP = 4,        -- 我要装备
+    GETPET = 5,          -- 我要宠物
+    GETMATERIAL = 6,     -- 我要材料
 }
 def.const("table").PageType = PageType
 
@@ -101,6 +101,7 @@ local function InitElseData(self)
     for i,id in ipairs(allIds) do
         local data = {}
         local template = CElementData.GetTemplate("GrowthGuidance",id)
+        data.Id = id
         data.Description = template.Description
         data.SortId = template.SortId
         local itemTemplate = CElementData.GetItemTemplate(template.ItemId)
@@ -144,8 +145,7 @@ local function InitElseData(self)
     end
 end
 
-local function InitPanel(self,data)
-
+local function InitPanel(self,data,selectId)
     --当前战斗力
     local curFight =  game._HostPlayer:GetHostFightScore()
     if not IsNil(self._LabCurFight) then
@@ -161,15 +161,15 @@ local function InitPanel(self,data)
     --战斗力评级S、A、B、C、 -- 3、2、1、0
     local groupID = game._PlayerStrongMan:GetImgScoreGroupID(curFight, basicValue)
     GUITools.SetGroupImg(self._ImgScore,groupID)
-    if groupID == 3 then 
-        GameUtil.PlayUISfx(PATH.UIFx_ScoreS,self._ImgScore,self._ImgScore,-1)
-    elseif groupID == 2 then 
-        GameUtil.PlayUISfx(PATH.UIFx_ScoreA,self._ImgScore,self._ImgScore,-1)
-    elseif groupID == 1 then 
-        GameUtil.PlayUISfx(PATH.UIFx_ScoreB,self._ImgScore,self._ImgScore,-1)
-    elseif groupID == 0 then 
-        GameUtil.PlayUISfx(PATH.UIFx_ScoreC,self._ImgScore,self._ImgScore,-1)
-    end
+    -- if groupID == 3 then 
+    --     GameUtil.PlayUISfx(PATH.UIFx_ScoreS,self._ImgScore,self._ImgScore,-1)
+    -- elseif groupID == 2 then 
+    --     GameUtil.PlayUISfx(PATH.UIFx_ScoreA,self._ImgScore,self._ImgScore,-1)
+    -- elseif groupID == 1 then 
+    --     GameUtil.PlayUISfx(PATH.UIFx_ScoreB,self._ImgScore,self._ImgScore,-1)
+    -- elseif groupID == 0 then 
+    --     GameUtil.PlayUISfx(PATH.UIFx_ScoreC,self._ImgScore,self._ImgScore,-1)
+    -- end
     
     if data == nil or #data <= 0 then
         self._TabListMenu:SetActive(false)
@@ -177,7 +177,16 @@ local function InitPanel(self,data)
     else
         self._TabListMenu:SetActive(true)
         if self._TabListMenu ~= nil then
-            self._NewTabList:SetItemCount(#data)    
+            self._NewTabList:SetItemCount(#data) 
+            if selectId == 0 then return end
+            local selectIndex = 0
+            for i,v in ipairs(data) do
+                if v.Id == selectId then 
+                    selectIndex = i
+                    break
+                end
+            end
+            self._NewTabList:SelectItem(selectIndex - 1,selectIndex - 1)
         end
     end
 
@@ -206,6 +215,7 @@ end
 
 -- panelData = {
 --                 PageType ,
+--                 SelectId,               --- 选中的右侧列表id
 --             }
 
 def.override("dynamic").OnData = function(self, data)
@@ -216,29 +226,34 @@ def.override("dynamic").OnData = function(self, data)
     self._MaterialListData = {}
     self._PetListData = {}
     InitElseData(self)
+    InitStrongData(self)
+    local selectId = 0
+    if data ~= nil and data.SelectId ~= nil then 
+        selectId = data.SelectId
+    end
     if data == nil or (data ~= nil and data.PageType == PageType.GETSTRONG) then
         self._CurPageType = PageType.GETSTRONG
-        InitStrongData(self)
-        InitPanel(self,self._StrongListData)
+        InitPanel(self,self._StrongListData,selectId)
     else
         self._CurPageType = data.PageType
         GUI.SetGroupToggleOn(self._FrameToggle,self._CurPageType)
-        if data ~= nil and data.PageType == PageType.GETEXP then 
-            InitPanel(self,self._ExpListData)
-        elseif data ~= nil and data.PageType == PageType.GETEQUIP then 
-            InitPanel(self,self._EquipListData)
-        elseif data ~= nil and data.PageType == PageType.GETMONEY then 
-            InitPanel(self,self._MoneyListData)
-        elseif data ~= nil and data.PageType == PageType.GETMATERIAL then 
-            InitPanel(self,self._MaterialListData)
-        elseif data ~= nil and data.PetType == PageType.GETPET then 
-            InitPanel(self,self._PetListData)
+        if data.PageType == PageType.GETEXP then 
+            InitPanel(self,self._ExpListData,selectId)
+        elseif data.PageType == PageType.GETEQUIP then 
+            InitPanel(self,self._EquipListData,selectId)
+        elseif data.PageType == PageType.GETMONEY then 
+            InitPanel(self,self._MoneyListData,selectId)
+        elseif data.PageType == PageType.GETMATERIAL then 
+            InitPanel(self,self._MaterialListData,selectId)
+        elseif data.PetType == PageType.GETPET then 
+            InitPanel(self,self._PetListData,selectId)
         end
     end
+    self._HelpUrlType = HelpPageUrlType.StrongGuide
 end
 
 def.override('string').OnClick = function(self, id)
-    
+    CPanelBase.OnClick(self,id)
     if id == 'Btn_Close' then
         game._GUIMan:CloseByScript(self)
     end
@@ -517,156 +532,6 @@ def.method("userdata","number").OnInitTabListDeep1 = function(self, item, index)
     end
 end
 
--- 策划数据表不能更改
-local function GetCellFightScore(Id)
-    local CWingsMan = require "Wings.CWingsMan"
-    local CCharmMan = require "Charm.CCharmMan"
-    if Id == 1 then -- 装备基础
-        local equipLevel = 0
-        for i,v in ipairs(game._HostPlayer._Package._EquipPack._ItemSet) do         
-            if v ~= nil and v._Tid ~= 0 then 
-                local itemData =  CElementData.GetItemTemplate(v._Tid)
-                equipLevel = equipLevel + itemData.MinLevelLimit
-            end
-        end
-        return equipLevel
-    elseif Id == 2 then--装备品质
-        local equipQuality = 0
-        for i,v in ipairs(game._HostPlayer._Package._EquipPack._ItemSet) do         
-            if v ~= nil and v._Tid ~= 0 then 
-                local itemData =  CElementData.GetItemTemplate(v._Tid)
-                equipQuality = equipQuality + itemData.InitQuality
-            end
-        end
-        return equipQuality
-    elseif Id == 3 then--强化等级
-        local equipInforceLevel = 0
-        for i,v in ipairs(game._HostPlayer._Package._EquipPack._ItemSet) do         
-            if v ~= nil and v._Tid ~= 0 then 
-                equipInforceLevel = equipInforceLevel + v._InforceLevel
-            end
-        end
-        return equipInforceLevel
-    elseif Id == 4 then--附魔战斗力加成
-        return 0
-    elseif Id == 5 then--重铸
-        local equipRecast = 0
-        for i,v in ipairs(game._HostPlayer._Package._EquipPack._ItemSet) do             
-            if v ~= nil and v._Tid ~= 0 then 
-                for j,data in ipairs(v._EquipBaseAttrs) do
-                    equipRecast = equipRecast + data.value
-                end
-            end
-        end
-        return equipRecast
-    elseif Id == 6 then--刻印
-        return 0
-    elseif Id == 7 then--技能等级
-        local userSkillMap = game._HostPlayer._UserSkillMap
-        local skillLevel = 0
-        for _, v in ipairs(userSkillMap) do
-            skillLevel = skillLevel + v.SkillLevel
-        end
-        return skillLevel
-    elseif Id == 8 then--技能文章
-        local userSkillMap = game._HostPlayer._UserSkillMap
-        local skillRune = 0
-        for _, v in ipairs(userSkillMap) do
-            for _, x in ipairs(v.SkillRuneInfoDatas) do
-                skillRune = skillRune + x.level
-            end
-        end
-        return skillRune
-    elseif Id == 9 then--出战宠物等级
-        local petLevel = 0
-        local petPackage = game._HostPlayer._PetPackage
-        local petId = game._HostPlayer:GetCurrentFightPetId()
-        if petId ~= 0 then
-            local petData = petPackage:GetPetById(petId)
-            if petData ~= nil then
-                petLevel = petData._Level
-            end
-        end
-        return petLevel
-    elseif Id == 10 then--出战宠物品质
-        local petquality = 0
-        local petPackage = game._HostPlayer._PetPackage
-        local petId = game._HostPlayer:GetCurrentFightPetId()
-        if petId ~= 0 then
-            local petData = petPackage:GetPetById(petId)
-            if petData ~= nil then
-                petquality = petData._Quality
-            end
-        end
-        return petquality
-    elseif Id == 11 then--出战宠物升阶
-        local petState = 0
-        local petPackage = game._HostPlayer._PetPackage
-        local petId = game._HostPlayer:GetCurrentFightPetId()
-        if petId ~= 0 then
-            local petData = petPackage:GetPetById(petId)
-            if petData ~= nil then
-                petState = petData._Stage
-            end
-        end
-        return petState
-    elseif Id == 12 then--宠物技能数量
-        local petPackage = game._HostPlayer._PetPackage
-        local petId = game._HostPlayer:GetCurrentFightPetId()
-        if petId ~= 0 then
-            local petData = petPackage:GetPetById(petId)
-            if petData ~= nil then
-                return petData:GetSkillCount()
-            end
-        end
-        return 0 
-    elseif Id == 13 then--宠物技能品质
-        local petPackage = game._HostPlayer._PetPackage
-        local petId = game._HostPlayer:GetCurrentFightPetId()
-        if petId ~= 0 then
-            local petData = petPackage:GetPetById(petId)
-            if petData ~= nil then
-                return petData:GetAllSkillQualityAmount()
-            end
-        end
-        return 0
-    elseif Id == 14 then--宠物属性洗练
-        return 0
-    elseif Id == 15 then--铭符等级
-        --return CCharmMan.Instance(): GetTotalSmallCharmMinLevel()
-        return 0
-    elseif Id == 16 then--铭符数量
-        --return CCharmMan.Instance():GetTotalSmallCharmCount()
-        return 0
-    elseif Id == 17 then--铭符祝福
-        --return CCharmMan.Instance(): GetTotalSmallCharmWishes()
-        return 0
-    elseif Id == 18 then--神符等级
-        --return CCharmMan.Instance(): GetTotalBigCharmMinLevel()
-        return 0
-    elseif Id == 19 then--神符数量
-        --return CCharmMan.Instance():GetTotalBigCharmCount()
-        return 0
-    elseif Id == 20 then--神符祝福
-        --return CCharmMan.Instance(): GetTotalBigCharmWishes()
-        return 0
-    elseif Id == 21 then--翅膀数量
-        return CWingsMan.Instance():GetWingsTotalNum()
-    elseif Id == 22 then--翅膀等级
-        return CWingsMan.Instance():GetAllWingsLevel()
-    elseif Id == 23 then--天赋技能
-        return 0
-    elseif Id == 24 then--称号
-        return game._DesignationMan: GetDesignationFightScore() 
-    elseif Id == 25 then--公会技能
-        return game._HostPlayer._Guild:GetGuildSkillScore()
-    elseif Id == 26 then--实装站力
-        return CDressMan.Instance():GetCurFightScore()
-    else
-        return 0
-    end
-end
-
 local function InitStrongTabDeep2(self,item, mainIndex,index,data)
     local cellData = self._StrongListData[mainIndex]._Cells[index]
     
@@ -682,7 +547,6 @@ local function InitStrongTabDeep2(self,item, mainIndex,index,data)
     labTag3:SetActive(false)
     labTag2:SetActive(false)
     GUI.SetText(labTag1, cellData.Name)
-    
     local value = game._PlayerStrongMan:GetCellFightScore(cellData.Id)
     local basicValue = game._PlayerStrongMan: GetBasicValueByValueID(cellData.ValueId)
     local slider = uiTemplate:GetControl(1):GetComponent(ClassType.Image)

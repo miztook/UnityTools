@@ -5,6 +5,7 @@ local NotifyMoneyChangeEvent = require "Events.NotifyMoneyChangeEvent"
 
 -- 获得货币发送系统消息提示
 local function SendMsgToSysteamChannel(ItemID, nCount, AddCause)
+    --[[ 取消获得货币系统提示
     local ENUM_ITEM_SRC = require "PB.data".ENUM_ITEM_SRC
     local ECHAT_CHANNEL_ENUM = require "PB.data".ChatChannel
 	local ChatManager = require "Chat.ChatManager"
@@ -31,6 +32,7 @@ local function SendMsgToSysteamChannel(ItemID, nCount, AddCause)
     if msg ~= nil then
         ChatManager.Instance():ClientSendMsg(ECHAT_CHANNEL_ENUM.ChatChannelSystem, msg, false, 0, nil,nil)
     end
+    ]]
 end
 
 local function OnS2CMoneyChanged(sender, protocol)

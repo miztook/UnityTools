@@ -457,14 +457,12 @@ def.method("table", "table", "table", "=>", "dynamic").GenStateActor = function(
 		scale_num = GetColRadius(belonged_creature) / 0.5
 	end
 
-
-	local gfxObj = nil
-	local BirthPlaceType = Template.ExecutionUnit.ExecutionUnitEvent.EventGenerateActor.BirthPlaceType
-
 	local priority = EnumDef.CFxPriority.Ignore
 	if belonged_creature then
 		priority = belonged_creature:GetCfxPriority(EnumDef.CFxSubType.ClientFx)
 	end
+
+	local gfxObj = nil
 
 	-- 生成Gfx
 	do

@@ -33,7 +33,6 @@ def.field("userdata")._FrameFriendChat = nil
 def.field("userdata")._InputChat = nil 
 
 def.field("table")._RecentListData = nil 
-def.field("number")._CurOpenType = 0
 -- def.field("userdata")._CurSelectItem = nil 
 def.field("number")._CurSelectIndex = 0 
 def.field("boolean")._IsInDelete = false 
@@ -52,6 +51,8 @@ local OpenType = {
 					RECENTLIST = 2,
 				}
 def.const("table").OpenType = OpenType
+def.field("number")._CurOpenType = OpenType.RECENTLIST
+
 
 --用于系统聊天中的好友私聊
 local instance = nil
@@ -85,7 +86,7 @@ local function formatTime1(time)
 	local timeText = ""
 	if d > 0 then 
 		timeText = os.date("%m.%d",time/1000)
-	elseif d == 0 then 
+	elseif d <= 0 then 
 		timeText = os.date("%H:%M",time/1000)
 	end
 	return timeText
@@ -119,7 +120,9 @@ end
 
 -- 停止播放语音
 local function OnStopVoice(self , fileId)
-	CSoundMan.Instance():SetSoundBGMVolume(1, true)
+	----CSoundMan.Instance():SetSoundBGMVolume(1, true)
+	--CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.FChat, false)
+	CSoundMan.Instance():SubChatVoiceCount()
 	local ret = VoiceUtil.OffLine_StopPlayFile(fileId)
 end
 
@@ -129,7 +132,9 @@ local function OnPlayVoice(self , fileId)
 	if self._CurPlayVoiceID ~= nil then
 		OnStopVoice(self,self._CurPlayVoiceID)
 	end
-	CSoundMan.Instance():SetSoundBGMVolume(0, true)
+	----CSoundMan.Instance():SetSoundBGMVolume(0, true)
+	--CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.FChat, true)
+	CSoundMan.Instance():AddChatVoiceCount()
 	local ret = VoiceUtil.OffLine_PlayRecordedFile(fileId)
 	self._CurPlayVoiceID = fileId
 end
@@ -247,16 +252,15 @@ local function ShowOneChatMsg(self,msg,msgId)
     local imgSystemHead = GUITools.GetChild(chatObj,9)
 	local imgLv = GUITools.GetChild(chatObj,10)
     labTextChat:GetComponent(ClassType.GText).TextID = msgId
-
 	if self._PreMsg ~= nil then
 		if (msg.time - self._PreMsg.time)/1000 >= 300 then 
-			labTextChat:SetActive(true)
-			GUI.SetText(labChatTime,os.date("%m-%d %H:%M", self._PreMsg.time/1000))
+			labChatTime:SetActive(true)
+			GUI.SetText(labChatTime,os.date("%m-%d %H:%M", msg.time/1000))
 		else
 			labChatTime:SetActive(false)
 		end
 	elseif self._PreMsg == nil and msgId == 1 then 
-		labTextChat:SetActive(true)
+		labChatTime:SetActive(true)
 		GUI.SetText(labChatTime,os.date("%m-%d %H:%M", msg.time/1000))
 	else
 		labChatTime:SetActive(false)
@@ -266,6 +270,7 @@ local function ShowOneChatMsg(self,msg,msgId)
     GUI.SetText(labName, msg.senderInfo.Name)
     -- 非系统消息id
     if msg.senderInfo.Id ~= -1 then
+    	imgLv:SetActive(true)
     	imgSystemHead:SetActive(false)
     	imgHead:SetActive(true)
     	if msg.senderInfo.Id ~= game._HostPlayer._ID then 
@@ -307,6 +312,7 @@ local function ShowMsgs(self,roleId)
 	self._CurChatMsgListData = game._CFriendMan:GetChatMessagesTable(roleId)
 	-- warn("#self._CurChatMsgListData   ",#self._CurChatMsgListData)
 	-- if #self._CurChatMsgListData == 0 then return end
+	self._PreMsg = nil 
 	ClearChatObjDataAndGameObject(self)
 
 	if #self._CurChatMsgListData > 0 then 
@@ -507,17 +513,18 @@ def.method('userdata', 'string', 'number').InitItem = function(self, item, id, i
 			lablv:SetActive(false)
 			imgProfession:SetActive(false)
 		return end
-		
 		imgSystemHead:SetActive(false)
 		imgHead:SetActive(true)
         game:SetEntityCustomImg(imgHead,data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
         GUITools.SetGroupImg(imgProfession,data.Profession - 1)
+		lablv:SetActive(true)
         GUI.SetText(lablv,string.format(StringTable.Get(30327),data.Level))
         GameUtil.MakeImageGray(imgHead, not data.IsOnLine)
         GameUtil.MakeImageGray(imgBg, not data.IsOnLine) 
         GameUtil.MakeImageGray(imgChatBg, not data.IsOnLine)
 		if not data.IsOnLine then
 			if data.LogoutTime == nil then warn(" RECENTLIST Lack logoutTime ",data.RoleId) end
+			labState:SetActive(true)
 			GUI.SetText(labState,formatTime((GameUtil.GetServerTime() - data.LogoutTime)/1000) ..StringTable.Get(30343) )
 			GUI.SetAlpha(imgHead,128)
 			GUI.SetAlpha(imgBg,128)
@@ -589,8 +596,23 @@ def.method().UpdateRecentList = function(self)
 	self._LabNo:SetActive(false)
 	self._ListRecent:SetActive(true)
 	self._ItemList = {}
-	warn(" #self._RecentListData 最近联系人个数 ",#self._RecentListData)
 	self._ListRecent:GetComponent(ClassType.GNewList):SetItemCount(#self._RecentListData)
+end
+
+-- 移除最近联系人更新界面
+def.method().UpdateFriendChatPanel = function(self)
+	if self._CurOpenType == OpenType.RECENTLIST then 
+		self:UpdateRecentList()
+	elseif self._CurOpenType == OpenType.CHAT then
+		self._CurOpenType = OpenType.RECENTLIST
+		self._FrameRecentList:SetActive(true)
+		self._BtnChatSet:SetActive(false)
+		self._ElseScroll:SetActive(false)
+		self._FriendScroll:SetActive(false)
+		self._FrameChatInput:SetActive(false)
+		self._FrameFriendTitle:SetActive(false)
+		self:UpdateRecentList()
+	end
 end
 
 -- 删除对话成功 更新界面
@@ -642,9 +664,14 @@ end
 def.method("userdata").ShowRedPoint = function(self,obj)
 	if obj ~= nil then 
 		obj:SetActive(game._CFriendMan:IsHaveUnreadMsg())
-		return
+		if not game._CFriendMan:IsHaveUnreadMsg() then return end
+		local labText = obj:FindChild("Text")
+		GUI.SetText(labText,tostring(game._CFriendMan:GetUnreadMsgNum()))
 	elseif self._Parent:IsShow() and self._RdoRedPoint ~= nil then 
 		self._RdoRedPoint:SetActive(game._CFriendMan:IsHaveUnreadMsg())
+		if not game._CFriendMan:IsHaveUnreadMsg() then return end
+		local labText = self._RdoRedPoint:FindChild("Text")
+		GUI.SetText(labText,tostring(game._CFriendMan:GetUnreadMsgNum()))
 	end
 end
 
@@ -669,6 +696,7 @@ end
 
 def.method().Hide = function(self)
 	if self._Parent ==  nil then return end
+	self._PreMsg = nil 
 	self._IsInDelete = false
 	self._FrameChatInput:SetActive(false)
 	self._FrameFriendTitle:SetActive(false)

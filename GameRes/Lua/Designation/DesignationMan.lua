@@ -21,6 +21,9 @@ def.field("table")._Table_Designations = BlankTable--称号数据，组合好的
 def.field("table")._Table_RedPoint = BlankTable --小红点信息
 def.field("table")._Table_TypeRedPoint = BlankTable --分类红点信息
 
+def.field("table")._Table_GetDesignations = BlankTable	--已获得的称号数据
+def.field("table")._Table_TalentID = BlankTable  -- 所有称号属性加成列表
+
 def.static("=>", DesignationMan).new = function()
    	--LoadAllDesignationData()
     local obj = DesignationMan()
@@ -30,18 +33,24 @@ end
 def.method().LoadAllDesignationData = function (self)
 	self._Table_Designations = {}
 	local allDesignation = GameUtil.GetAllTid("Designation")
-	--warn("DesignationCount"..#allDesignation.."!!!!!!!!!!!!!!!!!!!!")
+	--warn("DesignationCount"..#allDesignation.."!!!!!!!!!!!!!!!!!!!!")	
 
+	-- self._Table_Designations[#self._Table_Designations + 1] =
+	-- {  
+	-- 	_Data = nil,--模板数据
+	-- 	_lock = 1,-- 0=锁定 1=解锁 2=当前称号
+	-- 	_Time = 0 --默认是表里面的时间
+	-- }
 	for _,v in ipairs(allDesignation) do
 		if v > 0 then
 			local DesignationData = CElementData.GetTemplate("Designation", v)
 			if DesignationData ~= nil then
-				local ntype = DesignationData.TypeID
-				
+				local ntype = DesignationData.TypeID		
+				-- warn("DesignationCount"..DesignationData.TypeID.."!!!!!!".. DesignationData.TypeName)	
 				if self._Table_Designations[ntype] == nil then
 					self._Table_Designations[ntype] = {}
 				end
-
+				
 				self._Table_Designations[ntype][#self._Table_Designations[ntype] + 1] =
 				{  
 					_Data = DesignationData,--模板数据
@@ -103,9 +112,11 @@ end
 --通过TID获取称号分类
 def.method("number","=>","number").GetTypeByTid = function(self, nID)
 	for i,v in pairs(self._Table_Designations) do
-		for _,k in pairs(v) do
-			if k._Data.Id == nID then
-				return i
+		if #v > 0 then
+			for _,k in pairs(v) do
+				if k._Data.Id == nID then
+					return i
+				end
 			end
 		end
 	end
@@ -170,14 +181,16 @@ def.method("=>","number").GetDesignationFightScore = function(self)
 	local fightScore = 0
 	local prop = {}
 	for _,v in pairs(self._Table_Designations) do
-		for _,k in pairs(v) do
-			if k._lock ~= 0 then --获得的称号
-				for _,m in ipairs(k._Data.Attrs) do		
-    				if m ~= nil then
-    					local propInfo = {}
-						propInfo.ID = m.AttrId
-						propInfo.Value = m.AttrValue							
-						table.insert(prop, propInfo)
+		if #v > 0 then
+			for _,k in pairs(v) do
+				if k._lock ~= 0 then --获得的称号
+					for _,m in ipairs(k._Data.Attrs) do		
+						if m ~= nil then
+							local propInfo = {}
+							propInfo.ID = m.AttrId
+							propInfo.Value = m.AttrValue							
+							table.insert(prop, propInfo)
+						end
 					end
 				end
 			end
@@ -189,6 +202,102 @@ def.method("=>","number").GetDesignationFightScore = function(self)
 	fightScore = CScoreCalcMan.Instance():CalcEquipScore(game._HostPlayer._InfoData._Prof, prop)
 
 	return fightScore
+end
+
+-- 已获取的称号数量
+def.method("=>","number").GetDesignationNum = function(self)	
+	local designationNum = 0
+	for _,v in pairs(self._Table_Designations) do
+		if #v > 0 then
+			for _,k in pairs(v) do
+				if k._lock ~= 0 then --获得的称号
+					designationNum = designationNum + 1		
+					self._Table_GetDesignations[#self._Table_GetDesignations + 1] = k			
+				end
+			end
+		end
+	end
+	return designationNum
+end
+
+-- 所有称号数量
+def.method("=>","number").GetALLDesignationNum = function(self)	
+	local designationNum = 0
+	for _,v in pairs(self._Table_Designations) do
+		if #v > 0 then
+			designationNum = designationNum + #v
+		end
+	end
+	return designationNum
+end
+
+-- 获得当前称号数据
+def.method("=>","table").GetCurDesignationData = function(self)	
+	for _,v in pairs(self._Table_Designations) do
+		if #v > 0 then
+			for _,k in pairs(v) do
+				if k._lock > 0 then
+					if k._Data.Id == self._CurDesignationID  then
+						return k
+					end
+				end	
+			end
+		end
+	end
+	return nil
+end
+
+-- 获取当前已经获得称号数据
+def.method("=>","table").CurGetCurDesignation = function(self)	
+	self._Table_GetDesignations = {}
+	
+	for _,v in pairs(self._Table_Designations) do
+		if #v > 0 then
+			for _,k in pairs(v) do
+				if k._lock ~= 0 then --获得的称号	
+					self._Table_GetDesignations[#self._Table_GetDesignations + 1] = k		
+				end
+			end
+		end
+	end
+	return self._Table_GetDesignations
+end
+
+def.method().GetAllDesignationAttrs = function(self)	
+	self._Table_TalentID = {}
+	if #self:CurGetCurDesignation() > 0 then
+		for _,k in pairs(self:CurGetCurDesignation()) do
+			for i_,Attrs in ipairs(k._Data.Attrs) do
+				if Attrs ~= nil then				
+					local IsHaveAttrs = false
+					if #self._Table_TalentID > 0 then
+						for _,v in pairs(self._Table_TalentID) do
+							if v.AttrId == Attrs.AttrId then							
+								IsHaveAttrs = true
+								v.Id = Attrs.Id
+								v.AttrId = Attrs.AttrId							
+								v.AttrValue = v.AttrValue + Attrs.AttrValue
+								break
+							end
+						end
+					end
+					if not IsHaveAttrs then				
+						self._Table_TalentID[#self._Table_TalentID + 1] =   	
+						{
+							Id = Attrs.Id,
+							AttrId = Attrs.AttrId,
+							AttrValue = Attrs.AttrValue
+						}		
+					end
+				end
+			end
+		end
+	end
+end
+
+
+def.method("=>","table").GetDesignationAttrsTable = function(self)	
+	return self._Table_TalentID
 end
 
 --用于主界面的显示
@@ -263,10 +372,11 @@ end
 
 --清除所有分类里面的红点数据(查看过一次，就清除所有红点)
 def.method("number").ClearAllTypeRedPoint = function(self, nType)
-	if self._Table_Designations[nType] == nil then return end
-
-	for _,k in pairs(self._Table_Designations[nType]) do
-		self: SetRedPointState(k._Data.Id, false)
+	if self._Table_Designations[nType] == nil or nType == 0 then return end
+	if #self._Table_Designations[nType] > 0 then
+		for _,k in pairs(self._Table_Designations[nType]) do
+			self: SetRedPointState(k._Data.Id, false)
+		end
 	end
 end
 
@@ -308,16 +418,18 @@ def.method("number","number").ChangeDesignationID = function(self,nRoleID,nID)
 	if nRoleID == player._ID then		
 		if self._CurDesignationID == nID then return end
 		for _,v in pairs(self._Table_Designations) do
-			for _,k in pairs(v) do
-				if k._lock > 0 then
-					if k._Data.Id == self._CurDesignationID  then
-						k._lock = 1--将前置状态设置回来
-					end
+			if #v > 0 then
+				for _,k in pairs(v) do
+					if k._lock > 0 then
+						if k._Data.Id == self._CurDesignationID  then
+							k._lock = 1--将前置状态设置回来
+						end
 
-					if nID == k._Data.Id then
-						k._locl = 2 --当前称号
-					end
-				end	
+						if nID == k._Data.Id then
+							k._locl = 2 --当前称号
+						end
+					end	
+				end
 			end
 		end
 
@@ -325,7 +437,6 @@ def.method("number","number").ChangeDesignationID = function(self,nRoleID,nID)
 			CPanelDesignation.Instance():TakeOffDesignation(self._CurDesignationID)
 			CPanelDesignation.Instance():PutOnDesignation(nID)
 		end
-
 		self._CurDesignationID = nID		
 	else--视野内玩家，只做头顶显示
 		local table_Player = game._CurWorld._PlayerMan._ObjMap
@@ -334,6 +445,7 @@ def.method("number","number").ChangeDesignationID = function(self,nRoleID,nID)
 		for _,v in pairs(table_Player) do
 			if v._ID == nRoleID then
 				player = v
+				v._InfoData._DesignationId = nID
 			break
 			end
 		end
@@ -356,15 +468,17 @@ def.method("number","number").ChangeDesignationLockState = function(self, nID,nT
 	return end
 
 	for _,v in pairs(self._Table_Designations) do
-		for _,k in pairs(v) do
-			if k._Data.Id == nID then
-				if nID == self._CurDesignationID then
-					k._lock = 2 --当前称号
-				else
-					k._lock = 1 --称号解锁
-				end
-				k._Time = nTimeLimit --时间		
-			return end	
+		if #v > 0 then
+			for _,k in pairs(v) do
+				if k._Data.Id == nID then
+					if nID == self._CurDesignationID then
+						k._lock = 2 --当前称号
+					else
+						k._lock = 1 --称号解锁
+					end
+					k._Time = nTimeLimit --时间		
+				return end	
+			end
 		end
 	end
 end
@@ -376,14 +490,16 @@ def.method("number","number").RemoveDesignation = function (self, nRoleID, nID)
 
 	--删除的称号是未解锁状态
 	for _,v in pairs(self._Table_Designations) do
-		for _,k in pairs(v) do
-			if k._Data.Id == nID then
-				if nID == self._CurDesignationID then
-					k._lock = 0
-					k._Time = k._Data.TimeLimit --时间					
-					break;
-				end				
-			end	
+		if #v > 0 then
+			for _,k in pairs(v) do
+				if k._Data.Id == nID then
+					if nID == self._CurDesignationID then
+						k._lock = 0
+						k._Time = k._Data.TimeLimit --时间					
+						break;
+					end				
+				end	
+			end
 		end
 	end
 
@@ -408,7 +524,7 @@ def.method("number","number").RemoveDesignation = function (self, nRoleID, nID)
 	end
 
 	if player == nil then return end
-
+	
 	player._InfoData._TitleName = ""
 	player:UpdateTopPate(EnumDef.PateChangeType.TitleName)
 end
@@ -432,6 +548,8 @@ end
 def.method().Release = function(self)	
 	self._CurDesignationID = 0
 	self._Table_Designations = {}
+	self._Table_TalentID = {}
+	self._Table_GetDesignations = {}
 end
 
 DesignationMan.Commit()

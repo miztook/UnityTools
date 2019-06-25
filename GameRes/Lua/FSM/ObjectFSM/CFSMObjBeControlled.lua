@@ -64,13 +64,16 @@ local function Update(self)
 		
 		local dis = hit_params[1]
 		local time = hit_params[2]/1000
-		local root = host:GetGameObject()
-
-		GameUtil.AddMoveBehavior(root, self._MoveDest, dis/time, function(ret) 		
-				if host:IsHostPlayer() then					
-					GameUtil.SetGameCamCtrlParams(false, EnumDef.CAMERA_LOCK_PRIORITY.LOCKED_IN_SKILL_COMMON)
-				end
-			end, false)
+		if time ~= 0 then
+			local root = host:GetGameObject()
+			GameUtil.AddMoveBehavior(root, self._MoveDest, dis/time, function(ret) 		
+					if host:IsHostPlayer() then					
+						GameUtil.SetGameCamCtrlParams(false, EnumDef.CAMERA_LOCK_PRIORITY.LOCKED_IN_SKILL_COMMON)
+					end
+				end, false)
+		else
+			host:SetPos(self._MoveDest)
+		end
 	elseif self._ControlType == JudgementHitType.Knockdown then
 		local time = hit_params[1]/1000
 		local ani = {"hurt_fell_c", "standup_c"} 
@@ -109,12 +112,16 @@ local function Update(self)
 		if host:IsHostPlayer() then
 			GameUtil.SetGameCamCtrlParams(true, EnumDef.CAMERA_LOCK_PRIORITY.LOCKED_IN_SKILL_COMMON)
 		end
-		local root = host:GetGameObject()
-		GameUtil.AddMoveBehavior(root, self._MoveDest, dis/fly_time, function(ret)
-			if host:IsHostPlayer() then 
-				GameUtil.SetGameCamCtrlParams(false, EnumDef.CAMERA_LOCK_PRIORITY.LOCKED_IN_SKILL_COMMON)
-			end
-		end, false)		
+		if fly_time ~= 0 then
+			local root = host:GetGameObject()
+			GameUtil.AddMoveBehavior(root, self._MoveDest, dis/fly_time, function(ret)
+				if host:IsHostPlayer() then 
+					GameUtil.SetGameCamCtrlParams(false, EnumDef.CAMERA_LOCK_PRIORITY.LOCKED_IN_SKILL_COMMON)
+				end
+			end, false)
+		else
+			host:SetPos(self._MoveDest)
+		end
 	end
 end
 

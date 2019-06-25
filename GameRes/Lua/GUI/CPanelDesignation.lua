@@ -7,7 +7,7 @@ local CGame = Lplus.ForwardDeclare("CGame")
 local CElementData = require "Data.CElementData"
 local DynamicText = require "Utility.DynamicText"
 local PropertyInfoConfig = require "Data.PropertyInfoConfig" 
-
+local EFightPropertiesType = require "PB.data".EFightPropertiesType
 local CCommonBtn = require "GUI.CCommonBtn"
 def.field(CCommonBtn)._CommonBtn = nil
 
@@ -16,7 +16,6 @@ def.field('userdata')._TabList_Menu  = nil --称号类型list
 def.field("userdata")._LabName 		 = nil --称号
 -- def.field("userdata")._LabPlayerName = nil --玩家名字
 def.field("userdata")._LabDescribe   = nil --称号描述
-def.field("userdata")._LabTypeName   = nil --类型名称
 def.field("userdata")._LabTime       = nil --时间
 def.field("userdata")._TabProperty   = nil --属性列表
 def.field("userdata")._Btn_On        = nil --装备
@@ -40,12 +39,17 @@ def.field("number")._CurClickTID = 0 --当前选中的ID
 def.field("number")._TimerID = 0 --称号倒计时的ID
 def.field("table")._TableTalentID = nil --天赋ID
 
+def.field("table")._Table_OverViewTalentID = nil --总览天赋ID
+
 -- def.field("table")._Table_titleClickObj = nil--称号title控件
 -- def.field("table")._Table_ChildClickObj = nil--二级菜单选择
 
 def.field("table")._DesignationList = nil--称号，用作显示
 def.field("boolean")._IsOpenList = false -- list是不是打开的
 
+def.field("userdata")._Frame_OverView      = nil --总览
+def.field("userdata")._Frame_TitleInfo       = nil --称号信息
+def.field("userdata")._Frame_EmptyPanel       = nil --没称号
 
 local instance = nil
 def.static("=>",CPanelDesignation).Instance = function ()
@@ -68,7 +72,6 @@ def.override().OnCreate = function(self)
 	self._LabName       = self:GetUIObject("Lab_ShowTitle")
 	-- self._LabPlayerName = self:GetUIObject("Lab_Name")
 	self._LabDescribe   = self:GetUIObject("Lab_Decribe")
-	self._LabTypeName   = self:GetUIObject("Lab_Type")
 	self._LabTime       = self:GetUIObject("Lab_Time")
 	self._TabProperty  	= self:GetUIObject("PropertyList"):GetComponent(ClassType.GNewList)
 	self._Btn_On        = self:GetUIObject("Btn_PutOn")
@@ -77,6 +80,13 @@ def.override().OnCreate = function(self)
 	self._Btn_Title_TotalCombat      = self:GetUIObject("Btn_Title_TotalCombat")
 	self._ImgTitleBg 	= self:GetUIObject("Img_TitleBg")
 	self._Btn_Title_TotalCombat:SetActive(false)
+
+	self._Frame_OverView       = self:GetUIObject("Frame_OverView")
+	self._Frame_TitleInfo       = self:GetUIObject("Frame_TitleInfo")
+	self._Frame_EmptyPanel       = self:GetUIObject("EmptyPanel")
+	self._Frame_OverView:SetActive(false)
+	self._Frame_TitleInfo:SetActive(false)
+	self._Frame_EmptyPanel:SetActive(false)
 	-- self._ImgIcon1      = self:GetUIObject("Image2")
 	-- self._ImgIcon2      = self:GetUIObject("Image1")
 	-- self._ImgIcon3      = self:GetUIObject("Image1_1")
@@ -101,10 +111,12 @@ def.override("dynamic").OnData = function(self, data)
 	-- self._Table_ChildClickObj = {}
 	self._IsOpenList = false
 	game._DesignationMan: SortTable() --打开界面做排序
+	game._DesignationMan:GetAllDesignationAttrs()
 	self._CurDesignationID = game._DesignationMan: GetCurDesignation()
 	self._DesignationList = game._DesignationMan: GetAllDesignation()	
+	
 	if self._TabList_Menu ~= nil then
-		self._TabList_Menu:SetItemCount(#self._DesignationList)	
+		self._TabList_Menu:SetItemCount(#self._DesignationList + 1)	
 	end
 
 	local openID = self._CurDesignationID	--打开当前装备称号
@@ -114,7 +126,7 @@ def.override("dynamic").OnData = function(self, data)
 
 	local idex = 0
 	local curType = 0
-	curType,idex = self: GetTypeIdexByID(openID)
+	curType,idex = self: GetTypeIndexByID(openID)
 	if curType < 0 then
 		curType = 1 --默认开启第一个
 		idex = 1
@@ -139,8 +151,8 @@ end
 
 
 --通过成就ID，获取类型type和索引
-def.method("number","=>","number","number").GetTypeIdexByID = function(self, nID)
-	if self._DesignationList == nil or table.nums(self._DesignationList) <= 0 then return -1 end 
+def.method("number","=>","number","number").GetTypeIndexByID = function(self, nID)
+	if self._DesignationList == nil or table.nums(self._DesignationList) <= 0 then return -1, -1 end 
 
 	for i,v in pairs(self._DesignationList) do
 		if v ~= nil then
@@ -152,7 +164,7 @@ def.method("number","=>","number","number").GetTypeIdexByID = function(self, nID
 		end
 	end
 
-	return -1,-1
+	return -1, -1
 end
 
 --清空称号list的选中状态
@@ -180,46 +192,57 @@ end
 -- end
 
 def.method("userdata","number").OnInitTabListDeep1 = function(self, item, index)
-	local nType = index + 1
-    if self._DesignationList == nil or table.nums(self._DesignationList) <= 0 then return end
-	if self._DesignationList[nType] == nil or #self._DesignationList[nType] <= 0 then return end
-    local nameText = item:FindChild("Lab_Text")   -- GUITools.GetChild(item, 1) 
-	local nameStr = self._DesignationList[nType][1]._Data.TypeName
-	GUI.SetText(nameText, nameStr)
-	local isNeedRed = game._DesignationMan: NeedRedPointByType(nType)
-	local imgRed = item:FindChild("Img_RedPoint")   -- GUITools.GetChild(item, 4)
-	if not IsNil(imgRed) then
-		imgRed: SetActive(isNeedRed)
-	end 
+	local nType = index   -- + 1    
+	local nameText = item:FindChild("Lab_Text")   -- GUITools.GetChild(item, 1) 
+	if nType == 0 then
+		GUI.SetText(nameText, StringTable.Get(21519))
+		item:FindChild("Img_Arrow"):SetActive(false)
+	else
+		if self._DesignationList == nil or table.nums(self._DesignationList) <= 0 then return end
+		if self._DesignationList[nType] == nil or #self._DesignationList[nType] <= 0 then return end
+		local nameStr = self._DesignationList[nType][1]._Data.TypeName
+		GUI.SetText(nameText, nameStr)
+		local isNeedRed = game._DesignationMan: NeedRedPointByType(nType)
+		local imgRed = item:FindChild("Img_RedPoint")   -- GUITools.GetChild(item, 4)
+		if not IsNil(imgRed) then
+			imgRed: SetActive(isNeedRed)
+		end	
+		item:FindChild("Img_Arrow"):SetActive(true)	
+	end
 	GUITools.SetGroupImg(item:FindChild("Img_Arrow"), 0)
 end
 
 def.method("userdata","number","number").OnInitTabListDeep2 = function(self, item, mainIndex, index)
-	local nType = mainIndex + 1
+	local nType = mainIndex
 	local nIndex = index + 1
-    if self._DesignationList == nil or table.nums(self._DesignationList) <= 0 then return end
-	if self._DesignationList[nType] == nil or #self._DesignationList[nType] <= 0 then return end
    	-- if self._Table_ChildClickObj[nType] == nil then
 	-- 	self._Table_ChildClickObj[nType] = {}
 	-- end
-
-    local nameText = item:FindChild("Lab_Text")  -- GUITools.GetChild(item, 1) 
-	local nameStr = self._DesignationList[nType][nIndex]._Data.Name
-	GUI.SetText(nameText, nameStr)
-	-- local lightNameText = GUITools.GetChild(item, 3) 
-	-- GUI.SetText(lightNameText, nameStr)
-	-- self._Table_ChildClickObj[nType][nIndex] = item:FindChild("Img_D")   -- GUITools.GetChild(item,2)
-
-	if self._DesignationList[nType][nIndex]._lock == 0 then
-		item:FindChild("Img_Lock"):SetActive(true)
-	else
+	local nameText = item:FindChild("Lab_Text")  -- GUITools.GetChild(item, 1) 
+	if nType == 0 then
+		GUI.SetText(nameText, StringTable.Get(21519))
 		item:FindChild("Img_Lock"):SetActive(false)
-	end	
+		item:FindChild("Img_Arrow"):SetActive(false)
+	else
+		if self._DesignationList == nil or table.nums(self._DesignationList) <= 0 then return end
+		if self._DesignationList[nType] == nil or #self._DesignationList[nType] <= 0 then return end
+		local nameStr = self._DesignationList[nType][nIndex]._Data.Name
+		GUI.SetText(nameText, nameStr)
+		-- local lightNameText = GUITools.GetChild(item, 3) 
+		-- GUI.SetText(lightNameText, nameStr)
+		-- self._Table_ChildClickObj[nType][nIndex] = item:FindChild("Img_D")   -- GUITools.GetChild(item,2)
 
-	local imgRed = item:FindChild("Img_RedPoint")   -- GUITools.GetChild(item, 4)
-	if not IsNil(imgRed) then
-		local isNeedRed = game._DesignationMan:NeedRedPoint(self._DesignationList[nType][nIndex]._Data.Id)
-		imgRed: SetActive(isNeedRed)
+		if self._DesignationList[nType][nIndex]._lock == 0 then
+			item:FindChild("Img_Lock"):SetActive(true)
+		else
+			item:FindChild("Img_Lock"):SetActive(false)
+		end	
+
+		local imgRed = item:FindChild("Img_RedPoint")   -- GUITools.GetChild(item, 4)
+		if not IsNil(imgRed) then
+			local isNeedRed = game._DesignationMan:NeedRedPoint(self._DesignationList[nType][nIndex]._Data.Id)
+			imgRed: SetActive(isNeedRed)
+		end
 	end
 end
 
@@ -258,23 +281,58 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
 			end
 			GUI.SetText(labValue, valStr)
 		end
+	elseif string.find(id, "List_Property") then
+		local talentData = CElementData.GetAttachedPropertyTemplate(self._Table_OverViewTalentID[index + 1].AttrId)
+		if talentData == nil then return end
+
+		local labName = GUITools.GetChild(item, 0)
+		if not IsNil(labName) then
+			GUI.SetText(labName, talentData.TextDisplayName)
+		end
+
+		local labValue = GUITools.GetChild(item, 1)
+		local valStr = nil
+		if not IsNil(labValue) then
+			local isRatio = PropertyInfoConfig.IsRatio(self._Table_OverViewTalentID[index + 1].AttrId)
+			if isRatio then
+				-- 属于百分比属性
+				local percent = fixFloat(self._Table_OverViewTalentID[index + 1].AttrValue * 100)
+				valStr = fixFloatStr(percent, 1) .. "%" -- 修正浮点数，保留小数点后一位
+			else
+				valStr = tostring(self._Table_OverViewTalentID[index + 1].AttrValue)
+			end
+			GUI.SetText(labValue, valStr)
+		end
 	end
 end
 
---显示具体某类成就列表
+--显示具体某类称号列表
 def.method("number").ShowDesignationByType = function(self, nType)
-	if self._DesignationList == nil or table.nums(self._DesignationList) <= 0 then return end
-	if self._DesignationList[nType] == nil or #self._DesignationList[nType] <= 0 then return end
 	self._CurType = nType
 	-- warn("aaaaaaaaaaa=========>>>", nType, #self._Table_titleClickObj)
 	-- ClearTitleObjState()
 	-- self._Table_titleClickObj[nType]: SetActive(true)
-	
-	if not IsNil(self._TabList_Menu) then
-		self._TabList_Menu:OpenTab(#self._DesignationList[nType])
+	if self._CurType > 0 then
+		if self._DesignationList == nil or table.nums(self._DesignationList) <= 0 then return end
+		if self._DesignationList[nType] == nil or #self._DesignationList[nType] <= 0 then return end
+		self._Frame_OverView:SetActive(false)
+		self._Frame_TitleInfo:SetActive(true)
+		self._Frame_EmptyPanel:SetActive(false)
+		if not IsNil(self._TabList_Menu) then
+			self._TabList_Menu:OpenTab(#self._DesignationList[nType])
+		end
+		self:ShowClickDesignation(nType, 1)--默认选中第一个
+	elseif self._CurType == 0 then
+		if game._DesignationMan:GetDesignationNum() <= 0 then
+			self._Frame_EmptyPanel:SetActive(true)
+			self._Frame_OverView:SetActive(false)
+		else
+			self._Frame_OverView:SetActive(true)
+			self._Frame_EmptyPanel:SetActive(false)
+		end
+		self._Frame_TitleInfo:SetActive(false)
+		self:OverViewInfo()
 	end
-
-	self:ShowClickDesignation(nType, 1)--默认选中第一个
 end
 
 def.method("number", "number").FreshTimeShow = function(self, nTime, nLimitTime)
@@ -329,6 +387,73 @@ def.method("number").SetLockStateShow = function(self, nTime)
     end 
 end
 
+def.method().OverViewInfo = function(self)
+	-- 称号完成度 当前称号 使用时限 战斗力 属性列表	
+	local temData = game._DesignationMan:GetCurDesignationData()
+	
+	local Lab_OverViewNum = self:GetUIObject("Lab_OverViewNum")    					-- 称号完成度
+	local Lab_OverViewFightScore = self:GetUIObject("Lab_OverViewFightScore")		-- 称号战力加成
+	local Lab_OverViewTitle = self:GetUIObject("Lab_OverViewTitle")					-- 当前称号
+	local Lab_OverViewTime = self:GetUIObject("Lab_OverViewTime")					-- 当前称号有效时间
+	local Img_PutOnTitleBg = self:GetUIObject("Img_PutOnTitleBg")					-- 当前称号品质图标
+	local Lab_TakeOffTitle = self:GetUIObject("Lab_TakeOffTitle")
+	local List_Property = self:GetUIObject("List_Property"):GetComponent(ClassType.GNewList)
+	GUI.SetText(Lab_OverViewNum, ("<color=#5CBE37FF>".. game._DesignationMan:GetDesignationNum() .. "</color>".."/".. game._DesignationMan:GetALLDesignationNum()))
+	GUI.SetText(Lab_OverViewFightScore, GUITools.FormatMoney(game._PlayerStrongMan:GetFightScoreByPropertiesType(EFightPropertiesType.Design)))
+
+	self._Table_OverViewTalentID = {}
+	self._Table_OverViewTalentID = game._DesignationMan:GetDesignationAttrsTable()
+	List_Property:SetItemCount(#self._Table_OverViewTalentID)
+
+	if temData ~= nil then
+		Lab_TakeOffTitle:SetActive(false)
+		Img_PutOnTitleBg:SetActive(true)
+		local strName = "<color="..temData._Data.ColorRGB..">" ..temData._Data.Name.."</color>"
+		if not IsNil(Lab_OverViewTitle) then
+			GUI.SetText(Lab_OverViewTitle, strName)
+		end	
+
+		if not IsNil(Img_PutOnTitleBg) then
+			GUITools.SetGroupImg(Img_PutOnTitleBg, temData._Data.Quality)
+		end
+
+		if temData._Time ~= 0 then
+			local function callback( ... )
+				local time = (temData._Time - GameUtil.GetServerTime())/1000 	
+				local strTime = ""
+				if time < 0 then 
+					if self._TimerID ~= 0 then
+						_G.RemoveGlobalTimer(self._TimerID)
+						self._TimerID  = 0
+					end
+				else		
+					local nDay = math.ceil(time / (3600 * 24))
+					if nDay > 1 then
+						strTime = string.format(StringTable.Get(703), nDay) 
+					else 
+						strTime = StringTable.Get(704)
+					end
+				end
+
+				if not IsNil(Lab_OverViewTime)	 then   			
+					GUI.SetText(Lab_OverViewTime, strTime) 
+				end 	
+			end
+
+			self._TimerID = _G.AddGlobalTimer(30, false, callback)--以天计时。不用太频繁
+		else
+			if not IsNil(Lab_OverViewTime)	 then   			
+				GUI.SetText(Lab_OverViewTime, StringTable.Get(705)) 
+			end 
+		end
+	else
+		Lab_TakeOffTitle:SetActive(true)
+		Img_PutOnTitleBg:SetActive(false)
+		GUI.SetText(Lab_OverViewTime, StringTable.Get(20104)) 
+	end
+end
+
+
 --称号Cell显示设置
 def.method("number","number").ShowClickDesignation = function(self, nType, nIndex)
 	if self._DesignationList == nil or table.nums(self._DesignationList) <= 0 then return end
@@ -370,12 +495,8 @@ def.method("number","number").ShowClickDesignation = function(self, nType, nInde
 
     	if not IsNil(self._LabDescribe) then
     		GUI.SetText(self._LabDescribe, temData._Data.DisplayName)
-    	end
-
-    	if not IsNil(self._LabTypeName)then
-    		GUI.SetText(self._LabTypeName, temData._Data.TypeName) 
-    	end	
-
+		end
+		
     	if not IsNil(self._LabTips) then
     		GUI.SetText(self._LabTips, temData._Data.SrcDescript) 
     	end
@@ -392,14 +513,14 @@ def.method("number","number").ShowClickDesignation = function(self, nType, nInde
     		GUI.SetText(self._LabName,strName)
     	end	
 
-    	--属性
-    	self._TableTalentID = {}
-    	for i_,v in ipairs(temData._Data.Attrs) do
-    		if v ~= nil then				
-    			self._TableTalentID[#self._TableTalentID + 1] = v  			
-    		end
-    	end
-    	self._TabProperty:SetItemCount(#self._TableTalentID)
+		--属性
+		self._TableTalentID = {}
+		for i_,v in ipairs(temData._Data.Attrs) do
+			if v ~= nil then			
+				self._TableTalentID[#self._TableTalentID + 1] = v  			
+			end
+		end
+		self._TabProperty:SetItemCount(#self._TableTalentID)
 
     	if temData._lock == 0 then
     		self: SetLockStateShow(temData._Time)	
@@ -439,27 +560,34 @@ def.override("userdata", "userdata", "number", "number").OnTabListSelectItem = f
 	  if string.find(list.name, "TabList") then
     	if sub_index == -1 then
     		game._DesignationMan: SetTypeRedPointState(main_index + 1, false)
-    		-- local clickImg = GUITools.GetChild(item, 5)
-    		if self._CurType ~= main_index + 1 then
-    			self._IsOpenList = true
-				self: ShowDesignationByType(main_index + 1)
-				GUITools.SetGroupImg(item:FindChild("Img_Arrow"), 2)
-    			-- GUITools.SetGroupImg(clickImg, 2)
-                -- GUITools.SetNativeSize(clickImg)
-    		else
-    			if self._IsOpenList then
-    				self._TabList_Menu:OpenTab(0)
+			-- local clickImg = GUITools.GetChild(item, 5)
+			if self._CurType ~= main_index then
+				if main_index == 0 then
+					self._TabList_Menu:OpenTab(0)
 					self._IsOpenList = false
 					GUITools.SetGroupImg(item:FindChild("Img_Arrow"), 0)
-    				-- GUITools.SetGroupImg(clickImg, 1)
-                    -- GUITools.SetNativeSize(clickImg)
-    			else
-					self: ShowDesignationByType(main_index + 1)
+					self: ShowDesignationByType(main_index)
+				else
+					self._IsOpenList = true
+					self: ShowDesignationByType(main_index)
 					GUITools.SetGroupImg(item:FindChild("Img_Arrow"), 2)
-    				self._IsOpenList = true
-    				-- GUITools.SetGroupImg(clickImg, 2)
-                    -- GUITools.SetNativeSize(clickImg)
-    			end
+					-- GUITools.SetGroupImg(clickImg, 2)
+					-- GUITools.SetNativeSize(clickImg)
+				end
+			else
+				if self._IsOpenList then
+					self._TabList_Menu:OpenTab(0)
+					self._IsOpenList = false
+					GUITools.SetGroupImg(item:FindChild("Img_Arrow"), 0)
+					-- GUITools.SetGroupImg(clickImg, 1)
+					-- GUITools.SetNativeSize(clickImg)
+				else
+					self: ShowDesignationByType(main_index)
+					GUITools.SetGroupImg(item:FindChild("Img_Arrow"), 2)
+					self._IsOpenList = true
+					-- GUITools.SetGroupImg(clickImg, 2)
+					-- GUITools.SetNativeSize(clickImg)
+				end
     		end
 
     		local imgRed = item:FindChild("Img_RedPoint")   -- GUITools.GetChild(item, 4)
@@ -498,7 +626,7 @@ end
 --卸载称号
 def.method("number").TakeOffDesignation = function(self,nID)
 	self._CurDesignationID = 0
-	local nType,nIdex = self:GetTypeIdexByID(nID)
+	local nType,nIdex = self:GetTypeIndexByID(nID)
 	nIdex = nIdex - 1
 	if nType ~= self._CurType or nIdex < 0 then return end
 	self:SetBtn(true)
@@ -507,7 +635,7 @@ end
 --装备称号
 def.method("number").PutOnDesignation = function(self, nID)
 	self._CurDesignationID = nID
-	local nType,nIdex = self:GetTypeIdexByID(nID)
+	local nType,nIdex = self:GetTypeIndexByID(nID)
 	nIdex = nIdex - 1
 	if nType ~= self._CurType or nIdex < 0 then return end
 
@@ -518,7 +646,7 @@ end
 --删除称号
 def.method("number").RemoveDesignation = function(self, nID)
 	if self._CurDesignationID ~= nID then return end --不是当前暂时的不用处理
-	local nType,nIdex = self:GetTypeIdexByID(nID)
+	local nType,nIdex = self:GetTypeIndexByID(nID)
 	self._CurDesignationID = 0
 	if nType < 0 or nIdex < 0 then return end
 	local DataTem = self._DesignationList[nType][nIdex]
@@ -550,13 +678,12 @@ def.override().OnDestroy = function(self)
     -- self._Table_titleClickObj = {}
  	-- self._Table_ChildClickObj = {}
     self._TableTalentID = {}
-
+	self._Table_OverViewTalentID = {}
 	self._TabList_Menu = nil
 	-- self._LabTitleName = nil
 	self._LabName = nil
 	-- self._LabPlayerName = nil
 	self._LabDescribe = nil
-	self._LabTypeName = nil
 	self._LabTime = nil
 	self._TabProperty = nil
 	self._Btn_On = nil
@@ -569,7 +696,7 @@ def.override().OnDestroy = function(self)
 	-- self._ImgLock = nil
 	-- self._Img_Role = nil
 	self._IsOpenList = false
-
+	self._Frame_EmptyPanel = nil
     if self._TimerID ~= 0 then
     	_G.RemoveGlobalTimer(self._TimerID)
 		self._TimerID  = 0

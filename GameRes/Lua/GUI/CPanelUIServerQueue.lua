@@ -63,7 +63,7 @@ def.override("dynamic").OnData = function(self, data)
 	GUITools.SetUIActive(self._Frame_OverLoad, not isShowQueue)
 
 	if isShowQueue then
-		local curNum, totalNum = -1, -1
+		local curNum, totalNum = 0, 0
 		if data ~= nil then
 			if type(data.CurNum) == "number" then
 				curNum = data.CurNum
@@ -98,7 +98,7 @@ def.method("number", "number").UpdateQueueShow = function (self, curNum, totalNu
 	local infoStr = string.format(StringTable.Get(32200), curNumStr, totalNumStr)
 	GUI.SetText(self._Lab_QueueInfo, infoStr)
 	-- 预计等待时间
-	local waitMin = math.ceil((curNum * self._SecondsPerPerson) / 60) -- 单位：分
+	local waitMin = math.ceil((curNum * self._SecondsPerPerson) / 60) + 0 -- 单位：分
 	local waitMinStr =  GUITools.FormatNumber(waitMin, false)
 	if waitMin > MAX_QUEUE_MINUTE then
 		waitMinStr = string.format(COLOR_BULE_HEX, waitMinStr .. "+")

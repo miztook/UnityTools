@@ -9,8 +9,8 @@
 	 
 	 <WwiseBGMVolume value="341651998" />
 	<WwiseSFXVolume value="1564184899" />
-	<WwiseHealth value="3677180323" />
-	<WwiseTimeOfDay value="207908541" />
+	<WwiseCutsceneVolume value="1766603218" />
+	<WwiseUIVolume value="1719345792" />
 	
 	<WwiseBGEffect value="2706344916" />
 	<WwiseBGEffectSound value="Tuto_BG_Effect"/>

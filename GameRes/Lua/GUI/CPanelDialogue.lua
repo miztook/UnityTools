@@ -3,7 +3,7 @@ local CPanelBase = require 'GUI.CPanelBase'
 local DynamicText = require "Utility.DynamicText"
 local CUIModel = require "GUI.CUIModel"
 local CElementData = require "Data.CElementData"
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local CQuestAutoMan = require "Quest.CQuestAutoMan"
 local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
 
@@ -53,6 +53,7 @@ def.static('=>', CPanelDialogue).Instance = function()
 		instance._PrefabPath = PATH.UI_SceneDialogue
 		instance._PanelCloseType = EnumDef.PanelCloseType.None
 		instance._DestroyOnHide = false
+		instance._ForbidESC = true
 
 		instance:SetupSortingParam()
 

@@ -17,7 +17,7 @@ def.static('=>', CPanelUIAppMsgBox).Instance = function ()
 	if not instance then
         instance = CPanelUIAppMsgBox()
         instance._PrefabPath = PATH.UI_AppMsgbox
-        instance._PanelCloseType = EnumDef.PanelCloseType.ClickAnyWhere
+        instance._PanelCloseType = EnumDef.PanelCloseType.None
         instance._DestroyOnHide = false
         instance:SetupSortingParam()
 	end
@@ -40,12 +40,18 @@ def.override().OnCreate = function(self)
 
 end
 
-def.override("dynamic").OnData = function(self,data)  
+def.override("dynamic").OnData = function(self,data)
     if data == nil then return end
     -- warn("lidaming !!!", debug.traceback())
-    GUI.SetText(self._Lab_MsgTitle , tostring(data.AppMsgBoxCfg.Title))
-    GUI.SetText(self._Lab_MsgDesc_01 , tostring(data.AppMsgBoxCfg.Desc1))
-    GUI.SetText(self._Lab_MsgDesc_01 , tostring(data.AppMsgBoxCfg.Desc2))
+    if self._Lab_MsgTitle ~= nil then
+        GUI.SetText(self._Lab_MsgTitle , tostring(data.AppMsgBoxCfg.Title))
+    end
+    if self._Lab_MsgDesc_02 ~= nil then
+        GUI.SetText(self._Lab_MsgDesc_01 , tostring(data.AppMsgBoxCfg.Desc1))
+    end
+    if self._Lab_MsgDesc_02 ~= nil then
+        GUI.SetText(self._Lab_MsgDesc_02 , tostring(data.AppMsgBoxCfg.Desc2))
+    end
 end
 
 def.override('string').OnClick = function(self, id)

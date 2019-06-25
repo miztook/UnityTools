@@ -60,7 +60,7 @@ def.override().OnCreate = function(self)
     self._ManualsTable =
     {
         [1] = {data = self._Achievement, HelpUrlType = HelpPageUrlType.Achievement},
-        [2] = {data = self._ManualPage, HelpUrlType = HelpPageUrlType.Achievement},
+        [2] = {data = self._ManualPage, HelpUrlType = HelpPageUrlType.Manual},
     }
     self._CurPageClass = nil
     self._CurFrameType = 1

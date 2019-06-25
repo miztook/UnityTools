@@ -30,8 +30,12 @@ local function OnS2CAdventureGuideUpdate(sender,msg)
 			--warn("lidaming ---->>>  S2CAdventureGuideUpdate ==>>>", k.TId)
 			if k.TId ~= nil then
 				local adventureGuideData = game._CCalendarMan:GetCalendarDataByID(k.TId)
+				
 				if k.isActivity then
-					if adventureGuideData._Data.ContentEventOpenUI == EnumDef.ActivityOpenUIType.GuildDefend
+					
+					if adventureGuideData ~= nil and adventureGuideData._Data.IsNotify ~= "False" then
+						-- 活动快捷提示判断是否有公会
+						if adventureGuideData._Data.ContentEventOpenUI == EnumDef.ActivityOpenUIType.GuildDefend
 						or adventureGuideData._Data.ContentEventOpenUI == EnumDef.ActivityOpenUIType.GuildDungeon
 						or adventureGuideData._Data.ContentEventOpenUI == EnumDef.ActivityOpenUIType.GuildBattle
 						or adventureGuideData._Data.ContentEventOpenUI == EnumDef.ActivityOpenUIType.GuildQuest
@@ -39,24 +43,33 @@ local function OnS2CAdventureGuideUpdate(sender,msg)
 						or adventureGuideData._Data.ContentEventOpenUI == EnumDef.ActivityOpenUIType.GuildConvoy
 						or adventureGuideData._Data.ContentEventOpenUI == EnumDef.ActivityOpenUIType.ReputationQuest
 						or adventureGuideData._Data.ContentEventOpenUI == EnumDef.ActivityOpenUIType.GuildTreasure then
-						if not game._GuildMan:IsHostInGuild() then
-							game._GUIMan:ShowTipText(StringTable.Get(12031), false)
-						return end
-					end
-					if adventureGuideData ~= nil and adventureGuideData._Data.IsNotify ~= "False" then
-						local cb = function(val)
-							if val == false then return end
-							game._CCalendarMan:OpenPlayByActivityInfo(adventureGuideData)
+							if not game._GuildMan:IsHostInGuild() then
+								game._GUIMan:ShowTipText(StringTable.Get(12031), false)
+							return end
 						end
-						local NotifyComponents = require "GUI.NotifyComponents"
-						local notify = NotifyComponents.TimeLimitActivityNotify.new(adventureGuideData._Data.Name, cb)
-						MsgNotify.Add(notify)
 
-						local NotifyPowerSavingEvent = require "Events.NotifyPowerSavingEvent"
-						local event = NotifyPowerSavingEvent()
-						event.Type = "Activity"
-						event.Param1 = notify._ActivityName
-						CGame.EventManager:raiseEvent(nil, event)
+						local PlayInfo = game._CCalendarMan:GetPlayInfoByActivityID(k.TId)
+                        local GuildBattleSpecialCheck = function()
+                            if adventureGuideData._Data.ContentEventOpenUI == EnumDef.ActivityOpenUIType.GuildBattle and game._IsHideGuildBattle then
+                                return false
+                            end
+                            return true
+                        end
+						if PlayInfo ~= nil and game._DungeonMan:DungeonIsOpen(PlayInfo.playId) and GuildBattleSpecialCheck() then
+							local cb = function(val)
+								if val == false then return end
+								game._CCalendarMan:OpenPlayByActivityInfo(adventureGuideData)
+							end
+							local NotifyComponents = require "GUI.NotifyComponents"
+							local notify = NotifyComponents.TimeLimitActivityNotify.new(adventureGuideData._Data.Name, cb)
+							MsgNotify.Add(notify)
+
+							local NotifyPowerSavingEvent = require "Events.NotifyPowerSavingEvent"
+							local event = NotifyPowerSavingEvent()
+							event.Type = "Activity"
+							event.Param1 = notify._ActivityName
+							CGame.EventManager:raiseEvent(nil, event)
+						end
 					end
 				else
 					-- 活动关闭

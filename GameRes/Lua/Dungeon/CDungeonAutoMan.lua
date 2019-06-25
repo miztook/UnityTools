@@ -6,7 +6,7 @@ local SkillCollision = require "SkillCollision"
 local CEntity = require "Object.CEntity"
 local CElementData = require "Data.CElementData"
 local CPath = require"Path.CPath"
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local EGoalType = require "PB.data".EObjType
 local MapBasicConfig = require "Data.MapBasicConfig" 
 local CTransManage = require "Main.CTransManage"
@@ -23,8 +23,8 @@ def.field("number")._PauseMask = 0
 
 def.field('table')._DungeonGoal = nil           --副本目标
 def.field('table')._GoalPos = nil               --副本目标坐标
+def.field("number")._GoalPosOffset = 0   
 def.field('table')._SceneInfo = nil             --地图数据
-def.field('boolean')._IsOffsetRequired = false   --是否需要2.5的偏移量
 def.field('boolean')._IsGoalFinished = false     --是否完成事件中 1.采集 2，NPC对话等
 
 def.field("number")._StateCheckTimerId = -1
@@ -77,53 +77,59 @@ local function GetNearestEntity(entityList)
     return entity  
 end
 
-local function SetGoalPos(self,sceneTid)
+local function CollectGoalInfo(self,sceneTid)
     self._GoalPos = nil
+    self._GoalPosOffset = 0
 
     if self._DungeonGoal == nil then
         warn("Can not set GoalPos, bcz DungeonGoal is nil")
         return
     end
 
+    local hp = game._HostPlayer
     local targetID = self._DungeonGoal.TemplateId  
     if self._DungeonGoal.GoalType == EGoalType.ObjType_KillMonster then
         if targetID > 0 then
-            if  self._SceneInfo.Monster[targetID] == nil then 
+            local generatorData = self._SceneInfo.Monster[targetID]
+            if generatorData == nil then 
                 warn("MapBasicInfo："..sceneTid.."找不到怪物："..targetID) 
                 return 
             end
 
-            local monster = GetNearestEntity(self._SceneInfo.Monster[targetID])
-            if monster == nil then 
+            local nearestGeneratorPos = GetNearestEntity(generatorData)
+            if nearestGeneratorPos == nil then 
                 warn("MapBasicInfo："..sceneTid.."找不到怪物："..targetID) 
                 return
             end
-            self._GoalPos = Vector3.New(monster.x,monster.y,monster.z)
+            self._GoalPos = Vector3.New(nearestGeneratorPos.x, nearestGeneratorPos.y, nearestGeneratorPos.z)
         elseif targetID == 0 then -- 任意怪，随意找一只就开打
             if self._DungeonGoal.Param == 0 then
-                local monster = game._CurWorld._NPCMan:GetByFilter("Enemy", nil)
-                if monster ~= nil then
-                    self._GoalPos = monster:GetPos()
+                local target = game._CurWorld._NPCMan:GetByFilter("Enemy", nil)
+                if target ~= nil then
+                    self._GoalPos = target:GetPos()
                 else
                     self._GoalPos = game._HostPlayer:GetPos()
                 end
             else
-                self._GoalPos  = MapBasicConfig.GetEntityPosByMapIDAndTId(0,self._DungeonGoal.Param)
+                self._GoalPos = MapBasicConfig.GetEntityPosByMapIDAndTId(0,self._DungeonGoal.Param)
             end    
         end
+        self._GoalPosOffset = 2.5
     elseif self._DungeonGoal.GoalType == EGoalType.ObjType_Gather then
-        if self._SceneInfo.Mine[targetID] == nil then 
+        local generatorData = self._SceneInfo.Mine[targetID]
+        if generatorData == nil then 
             warn("MapBasicInfo："..sceneTid.."找不到采集物："..targetID) 
             return
         end
 
-        local mine = GetNearestEntity(self._SceneInfo.Mine[targetID])
-        if mine == nil then 
+        local nearestGeneratorPos = GetNearestEntity(generatorData)
+        if nearestGeneratorPos == nil then 
             warn("MapBasicInfo："..sceneTid.."找不到采集物："..targetID) 
             return
         end
 
-        self._GoalPos = Vector3.New(mine.x,mine.y,mine.z) 
+        self._GoalPos = Vector3.New(nearestGeneratorPos.x, nearestGeneratorPos.y, nearestGeneratorPos.z) 
+        self._GoalPosOffset = 2.5
     elseif self._DungeonGoal.GoalType == EGoalType.ObjType_ArriveRegion then
         --2 类型是普通区域
         local region =  self._SceneInfo.Region
@@ -144,51 +150,56 @@ local function SetGoalPos(self,sceneTid)
             warn("MapBasicInfo："..sceneTid.."找不到区域ID："..targetID) 
             return
         end
-
-        local V2pos = Vector2.New(region.x,region.z)
-        local posY = GameUtil.GetMapHeight(V2pos) 
-        self._GoalPos = Vector3.New(region.x,posY,region.z)
+        self._GoalPos = Vector3.New(region.x, 0,region.z)
     elseif self._DungeonGoal.GoalType == EGoalType.ObjType_Conversation then
-        if self._SceneInfo == nil or self._SceneInfo.Npc == nil or self._SceneInfo.Npc[targetID] == nil then
+        if self._SceneInfo.Npc == nil then
             warn("MapBasicInfo："..sceneTid.."找不到NPC："..targetID) 
             return
         end
-        local npc = GetNearestEntity(self._SceneInfo.Npc[targetID])
-        if npc == nil then 
+
+        local generatorData = self._SceneInfo.Npc[targetID]
+        if generatorData == nil then 
+            warn("MapBasicInfo："..sceneTid.."找不到NPC："..targetID) 
+            return 
+        end
+
+        local nearestGeneratorPos = GetNearestEntity(generatorData)
+        if nearestGeneratorPos == nil then 
             warn("MapBasicInfo："..sceneTid.."找不到NPC："..targetID) 
             return
         end
-        self._GoalPos = Vector3.New(npc.x,npc.y,npc.z)
+        self._GoalPos = Vector3.New(nearestGeneratorPos.x,nearestGeneratorPos.y,nearestGeneratorPos.z) 
+        self._GoalPosOffset = 2.5    
     elseif self._DungeonGoal.GoalType == EGoalType.ObjType_Convoy then
-        return
+        
     end
 end
 
 --到达任务目标点(回掉函数)
 local function OnReach() 
+    instance._GoalPos = nil
+    instance._GoalPosOffset = 0
+
     local host_player = game._HostPlayer
     if instance._DungeonGoal == nil then 
         host_player:StopNaviCal()
         return 
     end
-    instance._GoalPos = nil
-    local npc_manager = game._CurWorld._NPCMan
+    
     if instance._DungeonGoal.GoalType == EGoalType.ObjType_KillMonster then--怪物
-        if not CAutoFightMan.Instance():IsOn() then
-            host_player:StopNaviCal()
-        end
+        host_player:StopNaviCal()
+        -- 自动战斗Tick逻辑会自动触发杀怪行为
     elseif instance._DungeonGoal.GoalType == EGoalType.ObjType_Gather then--采集
        instance._IsGoalFinished = true
         local m = game._CurWorld._MineObjectMan:GetByFilter(DungeonGoal_filter)
         if m == nil then
             warn("Cannot find mine of template id: ", instance._DungeonGoal.TemplateId)
         else
-            -- warn("---CDungeonAutoMan--- OnReach ---采集-----",debug.traceback())
             m:AddLoadedCallback(function() m:OnClick() end)
         end
     elseif instance._DungeonGoal.GoalType == EGoalType.ObjType_Conversation then--NPC对话
         instance._IsGoalFinished = true
-        local npc = npc_manager:GetByTid(instance._DungeonGoal.TemplateId)
+        local npc = game._CurWorld._NPCMan:GetByTid(instance._DungeonGoal.TemplateId)
         if npc ~= nil then
             host_player._OpHdl:TalkToServerNpc(npc, nil)
         end
@@ -202,6 +213,14 @@ local function OnReach()
         host_player:StopNaviCal()  
         host_player:SetAutoPathFlag(false)
     end
+end
+
+local function OnFailed() 
+    instance._GoalPos = nil
+    instance._GoalPosOffset = 0
+    local host_player = game._HostPlayer
+    host_player:StopNaviCal()  
+    host_player:SetAutoPathFlag(false)
 end
 
 --移动
@@ -218,38 +237,18 @@ local function MoveToGoalPos(self)
 
     if host_player:CanMove() then
         host_player:SetAutoPathFlag(true)
+        if self._GoalPosOffset > 0 then
+            host_player:MoveAndDonotCareCollision(self._GoalPos, self._GoalPosOffset, OnReach, OnFailed)
+        else
+            host_player:Move(self._GoalPos, 0, OnReach, OnFailed)
+        end
+        CPath.Instance():ShowPath(self._GoalPos)        
     end
-    
-    local hostPosX, hostPosY, hostPosZ = host_player:GetPosXYZ()
-    local callback = OnReach
-    if not self._IsOffsetRequired then         
-        -- 瑞龙自动化中不要提示
-        if host_player:CanMove() then
-            host_player:Move(self._GoalPos, 0, callback, nil)
-            CPath.Instance():ShowPath(self._GoalPos) 
-        end
-    else
-        local offset = _G.NAV_OFFSET
-        if self._DungeonGoal ~= nil and self._DungeonGoal.GoalType == EGoalType.ObjType_Gather then
-            local dis = Vector3.SqrDistanceH_XZ(hostPosX, hostPosZ, self._GoalPos.x, self._GoalPos.z)
-            if dis < offset * offset and callback then
-                callback()
-                self._GoalPos = nil
-                return 
-            end
-        end
-        -- 瑞龙自动化中不要提示
-        if host_player:CanMove() then
-            host_player:MoveAndDonotCareCollision(self._GoalPos, offset, callback, nil)
-            CPath.Instance():ShowPath(self._GoalPos)        
-        end
-    end
-
 end
 
 local function GetSenceInfo(self)
     local sceneTid = game._CurWorld._WorldInfo.SceneTid
-    self._SceneInfo = MapBasicConfig.GetMapBasicConfigBySceneID( sceneTid )
+    self._SceneInfo = MapBasicConfig.GetMapBasicConfigBySceneID(sceneTid)
 end
 
 -- 根据目标类型获取的目标数据信息行动
@@ -264,7 +263,7 @@ local function ActionStart(self)
     end
 
     local sceneTid = game._CurWorld._WorldInfo.SceneTid
-    SetGoalPos(self, sceneTid)
+    CollectGoalInfo(self, sceneTid)
 
     local nGoalType = self._DungeonGoal.GoalType
     if self._GoalPos == nil then
@@ -299,9 +298,7 @@ local function ActionStart(self)
         end
     end
 
-    self._IsOffsetRequired = ( nGoalType == EGoalType.ObjType_Conversation or nGoalType == EGoalType.ObjType_Gather or nGoalType == EGoalType.ObjType_KillMonster)
     self._IsGoalFinished = false
-
     MoveToGoalPos(self)  
 end
 
@@ -328,8 +325,8 @@ local function StopAuto()
     instance._IsOn = false
     instance._IsPause = false
     instance._GoalPos = nil                           
-    instance._IsOffsetRequired = false
     instance._PauseMask = 0
+    instance._SceneInfo = nil
 
     local hp = game._HostPlayer
     --hp:StartAutoDetectTarget() 
@@ -479,7 +476,6 @@ end
 
 def.method().Release = function(self)
     self:Stop()
-    self._SceneInfo = nil        
 end
 
 CDungeonAutoMan.Commit()

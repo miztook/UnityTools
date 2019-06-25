@@ -26,6 +26,7 @@ local CFxObject = require "Fx.CFxObject"
 local CElementData = require "Data.CElementData"
 local SkillDef = require "Skill.SkillDef"
 local SqrDistanceH = Vector3.SqrDistanceH_XZ
+local BEHAVIOR = require "Main.CSharpEnum".BEHAVIOR
 
 local CObjectSkillHdl = Lplus.Class("CObjectSkillHdl")
 local def = CObjectSkillHdl.define
@@ -368,7 +369,6 @@ def.method().ClearDashBehavior = function(self)
 		self._DashTimerId = 0
 	end
 
-    local BEHAVIOR = require "Main.CSharpEnum".BEHAVIOR
 	GameUtil.RemoveBehavior(self._Host:GetGameObject(), BEHAVIOR.DASH)
 end
 
@@ -720,17 +720,25 @@ def.virtual("table", "function", "function").SkillMove = function(self, pos, suc
 end
 
 --播放预警指示特效
-def.method("number", "number", "number", "number", "=>", "boolean").PlaySkillIndicatorGfx = function (self, skill_indicator_type, duration, param1, param2)
+def.method("number", "number", "number", "number","boolean", "=>", "boolean").PlaySkillIndicatorGfx = function (self, skill_indicator_type, duration, param1, param2,IsNotCloseToGround)
 	local gfx_path = nil
 	local scale = Vector3.one
 	if skill_indicator_type == EIndicatorType.Circular then
-		gfx_path = PATH.Etc_Yujing_Ring
+		if not IsNotCloseToGround then 
+			gfx_path = PATH.Etc_Yujing_Ring_Decl
+		else
+			gfx_path = PATH.Etc_Yujing_Ring
+		end
 		
 		scale.x = param1 + self._Host:GetRadius() + 0.5
 		scale.y = 1
 		scale.z = param1 + self._Host:GetRadius() + 0.5
 	elseif skill_indicator_type == EIndicatorType.Fan then
-		gfx_path = PATH["Etc_Yujing_Shanxing"..param2]
+		if not IsNotCloseToGround then 
+			gfx_path = PATH["Etc_Yujing_Shanxing"..param2.."_Decl"]
+		else
+			gfx_path = PATH["Etc_Yujing_Shanxing"..param2]
+		end
 
 		if gfx_path == nil then
 			warn("Cannot find path:", "Etc_Yujing_Shanxing"..param2)
@@ -741,7 +749,11 @@ def.method("number", "number", "number", "number", "=>", "boolean").PlaySkillInd
 		scale.y = 1
 		scale.z = param1 + self._Host:GetRadius() + 0.5
 	elseif skill_indicator_type == EIndicatorType.Rectangle then
-		gfx_path = PATH.Etc_Yujing_Juxing
+		if not IsNotCloseToGround then 
+			gfx_path = PATH.Etc_Yujing_Juxing_Decl
+		else
+			gfx_path = PATH.Etc_Yujing_Juxing
+		end
 
 		scale.x = param1 + 1
 
@@ -761,8 +773,8 @@ def.method("number", "number", "number", "number", "=>", "boolean").PlaySkillInd
 	local pos = go.position
 	pos.y = GameUtil.GetMapHeight(pos) + 0.2
 	local dir = self._Host._SkillDestDir or go.forward
-
-	local fx, id = GameUtil.PlayEarlyWarningGfx(gfx_path, pos, dir, scale, duration)
+	-- warn("gfx_path，scale ，IsNotCloseToGround ",gfx_path,scale.x,scale.y,scale.z,IsNotCloseToGround)
+	local fx, id = GameUtil.PlayEarlyWarningGfx(gfx_path, pos, dir, scale, duration,IsNotCloseToGround)
 	if fx ~= nil then
 		if self._SkillIndicatorFx == nil then
 			self._SkillIndicatorFx = CFxObject.new()

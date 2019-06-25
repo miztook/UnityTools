@@ -11,6 +11,7 @@ local NotifyGuildEvent = require "Events.NotifyGuildEvent"
 local EntityEnterEvent = require "Events.EntityEnterEvent"
 local EConvoyActState = require "PB.net".EConvoyActState
 local EConvoyUpdateType = require "PB.net".EConvoyUpdateType
+local EItemType = require "PB.Template".Item.EItemType
 local ChatChannel = require "PB.data".ChatChannel
 local CTeamMan = require "Team.CTeamMan"
 local CPanelChatNew = require "GUI.CPanelChatNew"
@@ -164,10 +165,10 @@ def.override().OnCreate = function(self)
     self._PageInteractive = CPageInteractive.new(self, panelInteractive)  
     self._ChatTemplate = {}    
     --没有交互图标，暂时关闭
-    local interBtn = self._Panel:FindChild("Btn_Interactive")
-    if not IsNil(interBtn) then
-        interBtn: SetActive(false)
-    end
+    -- local interBtn = self._Panel:FindChild("Btn_Interactive")
+    -- if not IsNil(interBtn) then
+    --     interBtn: SetActive(false)
+    -- end
 
     -- 背包
     self._Btn_Bag = self:GetUIObject("Btn_Bag")
@@ -211,13 +212,27 @@ def.override('dynamic').OnData = function(self, data)
     local voiceMode = VoiceUtil.GetVoiceMode()
     local bSuccess = VoiceUtil.SwitchToVoiceMode(EnumDef.VoiceMode.OffLine);
     voiceMode = VoiceUtil.GetVoiceMode()
+    self:ShowBagRed()
     -- 按钮红点
-    CRedDotMan.UpdateMainChatRedDotShow(self._Panel)
+    CRedDotMan.UpdateMainChatRedDotShow(self:GetUIObject("Frame_Social"))
     
     -- 背包百分比
     self:SetBagCapacityLast(self._BagPercentNum)
     -- 显示时间 电量和网络
     self:SetSystemInfo()
+end
+
+--显示背包红点
+def.method().ShowBagRed = function(self)
+       -- 检测背包是否显示红点
+    local isShowRed = false
+    for i,item in ipairs(game._HostPlayer._Package._NormalPack._ItemSet) do 
+        if item._ItemType == EItemType.TreasureBox then 
+            isShowRed = true
+            break 
+        end  
+    end
+    CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Bag,isShowRed)  
 end
 
 -- 设置背包剩余
@@ -269,30 +284,35 @@ def.method().SetSystemInfo = function(self)
     end
     local function callback()
         GUI.SetText(labTime,os.date("%H:%M",GameUtil.GetServerTime()/1000 )) 
-        if BatStatus ~= game:GetBatteryStatus() then 
-            if game:GetBatteryStatus() == EnumDef.BatteryStatus.Charging then 
+
+        local batteryStatus = game:GetBatteryStatus()
+        local batteryLevel = game:GetBatteryLevel()
+        local networkStatus = game:GetNetworkStatus()
+
+        if BatStatus ~= batteryStatus then 
+            if batteryStatus == EnumDef.BatteryStatus.Charging then 
                 imgRechange:SetActive(true)
                 GUITools.SetGroupImg(imgBtttery,1)
             else
                 imgRechange:SetActive(false)
                 GUITools.SetGroupImg(imgBtttery,0)
             end
-            BatStatus = game:GetBatteryStatus()
+            BatStatus = batteryStatus
         end
-        if BttteryLv ~= game:GetBatteryLevel() then 
-            filled.fillAmount = game:GetBatteryLevel() 
-            BttteryLv = game:GetBatteryLevel()
+        if BttteryLv ~= batteryLevel then 
+            filled.fillAmount = batteryLevel 
+            BttteryLv = batteryLevel
         end
         local imgNetwork = nil
-        if game:GetNetworkStatus() == EnumDef.NetworkStatus.DataNetwork then 
+        if networkStatus == EnumDef.NetworkStatus.DataNetwork then 
             imgData:SetActive(true)
             imgWifi:SetActive(false)
             imgNetwork = imgData
-        elseif game:GetNetworkStatus() == EnumDef.NetworkStatus.LocalNetwork then 
+        elseif networkStatus == EnumDef.NetworkStatus.LocalNetwork then 
             imgData:SetActive(false)
             imgWifi:SetActive(true)
             imgNetwork = imgWifi
-        elseif game:GetNetworkStatus() == EnumDef.NetworkStatus.NotReachable then
+        elseif networkStatus == EnumDef.NetworkStatus.NotReachable then
             return
         end
         local ping = game:GetPing() 
@@ -323,12 +343,14 @@ def.method("table").UpdateMsgInShow = function(self, msg)
         if IsNilOrEmptyString(msg.StrMsg) then return end
         
         local hp = game._HostPlayer
-        if msg.RoleId ~= nil and msg.RoleId == hp._ID then
-            hp:OnTalkPopTopChange(true, msg.StrMsg, 10)
-        else
-            local entity = game._CurWorld:FindObject(msg.RoleId)
-            if entity then
-                entity:OnTalkPopTopChange(true, msg.StrMsg, 10)	    
+        if msg.Channel ~= ChatChannel.ChatChannelSocial then        -- 私聊不显示头顶气泡
+            if msg.RoleId ~= nil and msg.RoleId == hp._ID then
+                hp:OnTalkPopTopChange(true, msg.StrMsg, 10)
+            else
+                local entity = game._CurWorld:FindObject(msg.RoleId)
+                if entity then
+                    entity:OnTalkPopTopChange(true, msg.StrMsg, 10)	    
+                end
             end
         end
         if (msg.Channel == ChatChannel.ChatChannelWorld and ChatManager.Instance()._Channel_World == false)            
@@ -501,6 +523,7 @@ end
 
 def.method().UpdateExpInfo = function(self)
     local info_data = game._HostPlayer._InfoData
+    if info_data == nil then return end
     local levelUpExpTemplate = CElementData.GetLevelUpExpTemplate(info_data._Level)
     local curExp = info_data._Exp
     local maxExp = levelUpExpTemplate.Exp or 1
@@ -555,8 +578,8 @@ end
 def.method("table").OnUpdateGuildDefend = function(self, data)
     if self._Should_Set_HPInfo then
         self._Frame_HPBar:SetActive(true)
-        local npc = CElementData.GetTemplate("Npc", data.EntityInfo.NpcTid)
-        GUI.SetText(self._Lab_HPInfo, npc.TextOverlayDisplayName)
+        local npc = CElementData.GetTemplate("Monster", data.EntityInfo.NpcTid)
+        GUI.SetText(self._Lab_HPInfo, npc.TextDisplayName)
         self._Should_Set_HPInfo = false  
     end
     if data.EntityInfo.CurrentHp <= 0 or data.EntityInfo.MaxHp <= 0 then

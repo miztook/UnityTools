@@ -3,6 +3,7 @@ local CMallPageBase = require "Mall.CMallPageBase"
 local CElementData = require "Data.CElementData"
 local CMallMan = require "Mall.CMallMan"
 local CMallUtility = require "Mall.CMallUtility"
+local CCommonBtn = require "GUI.CCommonBtn"
 local CGame = Lplus.ForwardDeclare("CGame")
 local CMallPageElf = Lplus.Extend(CMallPageBase, "CMallPageElf")
 local def = CMallPageElf.define
@@ -24,10 +25,13 @@ def.field("number")._FlowerItemCount = 0
 def.field("number")._MaterialItemCount = 0
 def.field("number")._TenFlowerItemCount = 0
 def.field("number")._TenMaterialItemCount = 0
+def.field(CCommonBtn)._Btn_ElfMoneyOne = nil
+def.field(CCommonBtn)._Btn_ElfMoneyTen = nil
 
 def.static("=>", CMallPageElf).new = function()
-	local PageEggShop = CMallPageElf()
-	return PageEggShop
+	local PageElfShop = CMallPageElf()
+    PageElfShop._HasBGVideo = true
+	return PageElfShop
 end
 
 def.override().OnCreate = function(self)
@@ -39,21 +43,48 @@ def.override().OnCreate = function(self)
     self._PanelObjects._Lab_Des = uiTemplate:GetControl(1)
     self._PanelObjects._Frame_MatNoEnough = uiTemplate:GetControl(4)
     self._PanelObjects._Img_BG = uiTemplate:GetControl(5)
+    self._PanelObjects._Btn_ElfMoneyOne = uiTemplate:GetControl(6)
+    self._PanelObjects._Btn_ElfMoneyTen = uiTemplate:GetControl(7)
+    self._PanelObjects._Rdo_Skip = uiTemplate:GetControl(8)
+    self._PanelObjects._Lab_Tip = uiTemplate:GetControl(9)
+--    self._PanelObjects._Img_Elf = uiTemplate:GetControl(10)
     self._PanelObjects._Frame_MatNoEnough:SetActive(false)
+    local setting = {
+        [EnumDef.CommonBtnParam.MoneyID] = 2,
+        [EnumDef.CommonBtnParam.MoneyCost] = 300
+    }
+    self._Btn_ElfMoneyOne = CCommonBtn.new(self._PanelObjects._Btn_ElfMoneyOne, setting)
+    local setting1 = {
+        [EnumDef.CommonBtnParam.MoneyID] = 2,
+        [EnumDef.CommonBtnParam.MoneyCost] = 2900 
+    }
+    self._Btn_ElfMoneyTen = CCommonBtn.new(self._PanelObjects._Btn_ElfMoneyTen, setting1)
 end
     
 def.override("dynamic").OnData = function(self, data)
+    -- [ 暂时隐藏掉消耗货币的按钮 ]
+    self._Btn_ElfMoneyOne:SetActive(false)
+    self._Btn_ElfMoneyTen:SetActive(false)
+    self._PanelObjects._Rdo_Skip:GetComponent(ClassType.Toggle).isOn = not CMallUtility.IsShowGfx(EnumDef.LocalFields.MallSkipGfx_Springift)
     self:InitElfData()
     self:UpdatePanel()
 end
 
+def.override().PlayVideoBG = function (self)
+	-- local function callback()
+ --    end
+	-- GameUtil.PlayVideo(self._PanelObjects._Img_Elf, "Mall_CG01_Loop.mp4", true, false, callback)
+    GameUtil.ActivateVideoUnit(self._PanelMall._VideoPlayer_Elf, self._PanelMall._Img_Screen_Video)
+end
+
 def.override().OnShow = function(self)
-    
+    self:PlayVideoBG()
 end
 
 def.override().OnRegistUIEvent = function(self)
     GUITools.RegisterGNewListOrLoopEventHandler(self._Panel, self._GameObject, true)
     GUITools.RegisterButtonEventHandler(self._Panel, self._GameObject,true)
+    GUITools.RegisterToggleEventHandler(self._Panel, self._GameObject, true)
 end
 
 def.override("=>", "string").GetMallPageTemplatePath = function(self)
@@ -61,10 +92,12 @@ def.override("=>", "string").GetMallPageTemplatePath = function(self)
 end
 
 def.method().UpdatePanel = function(self)
-    if self._ElfUseDropRuleTemplate ~= nil and self._ElfUseTenDropRuleTemplate ~= nil then 
-        self:UpdateMaterialNum()
-    end
+    self:UpdateMaterialNum()
     GUI.SetText(self._PanelObjects._Lab_Des,StringTable.Get(30204))
+    local text_temp = CElementData.GetTemplate("Text", 3)
+    if text_temp ~= nil then
+        GUI.SetText(self._PanelObjects._Lab_Tip, text_temp.TextContent)
+    end
 end
 
 def.method().InitElfData = function(self)
@@ -100,6 +133,10 @@ end
 
 --刷新界面消耗材料的数量
 def.method().UpdateMaterialNum = function (self)
+    if self._ElfUseDropRuleTemplate == nil or self._ElfUseTenDropRuleTemplate == nil then
+        warn("error !!! 单抽或者十连抽的彩票规则模板为空")
+        return
+    end
     local uiTemplate = self._PanelObjects._FrameSummon:GetComponent(ClassType.UITemplate)
     local tab_free = uiTemplate:GetControl(2)
     local img_flower = uiTemplate:GetControl(3)
@@ -150,6 +187,11 @@ def.method().UpdateMaterialNum = function (self)
     else
         img_ten_fx:SetActive(false)
     end
+end
+
+-- 更新花费金钱的按钮
+def.method().UpdateCostMoneyBtns = function(self)
+    
 end
 
 def.override("table", "table").OnGainItem = function(self, sender, event)
@@ -278,6 +320,12 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
     end
 end
 
+def.override("string", "boolean").OnToggle = function(self, id, checked)
+    if id == "Rdo_ShowGfx" then
+        CMallUtility.SetShowGfx(EnumDef.LocalFields.MallSkipGfx_Springift, not checked)
+    end
+end
+
 def.override('string').OnClick = function(self, id)
     if id == "Btn_ShowAllReward" then
         self:InitRewardPanelListNode()
@@ -286,35 +334,41 @@ def.override('string').OnClick = function(self, id)
     elseif id == "Btn_ElfOne" then
         local callback = function(val)
             if val then
-                local callback1 = function(val1)
-                    if val1 then
-                        local C2SSprintGiftReq = require "PB.net".C2SSprintGiftReq
-                        local protocol = C2SSprintGiftReq()
-                        protocol.Count = 1
-                        local PBHelper = require "Network.PBHelper"
-                        PBHelper.Send(protocol)
-                    end
-                end
-                MsgBox.ShowQuickBuyBox(self._ElfUseDropRuleTemplate.CostItemId1, self._ElfUseDropRuleTemplate.CostItemCount1, callback1, nil, false)
+                CMallMan.Instance():ElfExtract(1)
             end
         end
-        MsgBox.ShowQuickBuyBox(self._ElfUseDropRuleTemplate.CostItemId2, self._ElfUseDropRuleTemplate.CostItemCount2, callback, nil, false)
+        local rewardTable = {
+            {
+                ID = self._ElfUseDropRuleTemplate.CostItemId2,
+                Count = self._ElfUseDropRuleTemplate.CostItemCount2,
+                IsMoney = false
+            },
+            {
+                ID = self._ElfUseDropRuleTemplate.CostItemId1,
+                Count = self._ElfUseDropRuleTemplate.CostItemCount1,
+                IsMoney = false
+            },
+        }
+        MsgBox.ShowQuickMultBuyBox(rewardTable, callback)
     elseif id == "Btn_ElfTen" then
         local callback = function(val)
             if val then
-                local callback1 = function(val1)
-                    if val1 then
-                        local C2SSprintGiftReq = require "PB.net".C2SSprintGiftReq
-                        local protocol = C2SSprintGiftReq()
-                        protocol.Count = 10
-                        local PBHelper = require "Network.PBHelper"
-                        PBHelper.Send(protocol)
-                    end
-                end
-                MsgBox.ShowQuickBuyBox(self._ElfUseTenDropRuleTemplate.CostItemId1, self._ElfUseTenDropRuleTemplate.CostItemCount1, callback1, nil, false)
+                CMallMan.Instance():ElfExtract(10)
             end
         end
-        MsgBox.ShowQuickBuyBox(self._ElfUseTenDropRuleTemplate.CostItemId2, self._ElfUseTenDropRuleTemplate.CostItemCount2, callback, nil, false)
+        local rewardTable = {
+            {
+                ID = self._ElfUseTenDropRuleTemplate.CostItemId2,
+                Count = self._ElfUseTenDropRuleTemplate.CostItemCount2,
+                IsMoney = false
+            },
+            {
+                ID = self._ElfUseTenDropRuleTemplate.CostItemId1,
+                Count = self._ElfUseTenDropRuleTemplate.CostItemCount1,
+                IsMoney = false
+            },
+        }
+        MsgBox.ShowQuickMultBuyBox(rewardTable, callback)
     elseif id == "Btn_ShowProbability" then
         local strValue = CElementData.GetSpecialIdTemplate(self._RateShowUrlSpecialID).Value
         CPlatformSDKMan.Instance():ShowInAppWeb(strValue)
@@ -326,6 +380,7 @@ def.override('string').OnClick = function(self, id)
 end
 
 def.override().OnHide = function(self)
+    GameUtil.DeactivateVideoUnit(self._PanelMall._VideoPlayer_Elf)
     self._FlowerItemCount = 0
     self._MaterialItemCount = 0
     self._TenFlowerItemCount = 0
@@ -334,6 +389,15 @@ end
 
 def.override().OnDestory = function(self)
     CMallPageBase.OnDestory(self)
+
+    if self._Btn_ElfMoneyOne ~= nil then
+        self._Btn_ElfMoneyOne:Destroy()
+        self._Btn_ElfMoneyOne = nil
+    end
+    if self._Btn_ElfMoneyTen ~= nil then
+        self._Btn_ElfMoneyTen:Destroy()
+        self._Btn_ElfMoneyTen = nil
+    end
     self._PanelObjects = nil
     self._AllRewardTable = nil
     self._ListNodeName = nil

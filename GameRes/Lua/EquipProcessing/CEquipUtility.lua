@@ -29,6 +29,19 @@ def.static("number", "number", "boolean").SendC2SItemRebuildConfirm = function(b
 	SendProtocol(protocol)
 end
 
+-- 转化确认 放弃
+def.static("number", "number", "boolean").SendC2SItemTalentChangeConfirm = function(bagType, itemSlot, bIsConfirm)
+	-- warn("C2SItemTalentChangeConfirm")
+	local C2SItemTalentChangeConfirm = require "PB.net".C2SItemTalentChangeConfirm
+	local protocol = C2SItemTalentChangeConfirm()
+	
+	protocol.BagType = bagType
+	protocol.Index = itemSlot
+	protocol.IsConfirm = bIsConfirm
+
+	SendProtocol(protocol)
+end
+
 -- 淬火
 def.static("number", "number").SendC2SItemQuench = function(bagType, itemSlot)
 	--warn("C2SItemQuench")
@@ -490,11 +503,65 @@ end
 --获取 重铸需要的金币
 def.static("table", "=>", "table").GetEquipRecastMoneyNeedInfo = function(itemData)
     local recastTemplate = CElementData.GetTemplate("EquipConsumeConfig", itemData._Template.RecastCostId)
-    local hp = game._HostPlayer
     local moneyId = recastTemplate.Money.ConsumePairs[1].ConsumeId
     local moneyNeed = recastTemplate.Money.ConsumePairs[1].ConsumeCount
 
     return {moneyId,moneyNeed}
+end
+
+--获取 转化材料
+def.static("table", "=>", "table").GetEquipChangeNeedInfo = function(itemData)
+	local hp = game._HostPlayer
+    local pack = hp._Package._NormalPack
+
+    local template = CElementData.GetTemplate("LegendaryGroup", itemData._LegendaryGroupId)
+    if template == nil then return nil end
+
+    local MaterialId = template.CostItemId
+    local MaterialNeed = template.CostItemCount
+    local MaterialHave = pack:GetItemCount(MaterialId)
+
+    local info = 
+    {
+    	MaterialId = MaterialId,
+    	MaterialNeed = MaterialNeed,
+    	MaterialHave = MaterialHave,
+	}
+
+    return info
+end
+
+--获取 转化需要的金币
+def.static("table", "=>", "table").GetEquipChangeMoneyNeedInfo = function(itemData)
+    local template = CElementData.GetTemplate('LegendaryGroup', itemData._LegendaryGroupId)
+    local hp = game._HostPlayer
+    local moneyId = template.CostMoneyId
+    local moneyNeed = template.CostMoneyCount
+
+    return {moneyId,moneyNeed}
+end
+
+-- 获取 强化石来源信息
+def.static("=>", "table").GetInforceStoreFromInfo = function()
+	local retTable = {}
+	local CSpecialIdMan = require  "Data.CSpecialIdMan"
+	local str = CSpecialIdMan.Get("InforceStoreFromInfo")
+	local infoList = string.split(str, "*")
+
+	for i=1, #infoList do
+		local tid = tonumber(infoList[i])
+		local template = CElementData.GetItemApproach(tid)
+		local data = {}
+		if template ~= nil then
+			data.ID = tid
+			data.Name = template.DisplayName
+			data.FuncID = template.FunID
+			data.IconPath = template.IconPath
+			table.insert(retTable, data)
+		end
+	end
+
+	return retTable
 end
 
 def.static("table", "=>", "table").CalcRecommendProperty = function(itemData)

@@ -15,6 +15,7 @@ local NotifyGuildEvent = require "Events.NotifyGuildEvent"
 local CGame = Lplus.ForwardDeclare("CGame")
 local GuildBuildingType = require "PB.data".GuildBuildingType
 local CFrameCurrency = require "GUI.CFrameCurrency"
+local CMallUtility = require "Mall.CMallUtility"
 local CPanelUIGuildShop = Lplus.Extend(CPanelBase, "CPanelUIGuildShop")
 local def = CPanelUIGuildShop.define
 
@@ -85,11 +86,11 @@ def.override().OnCreate = function(self)
 
 --	-- 临时屏蔽资金商店
 --	self:GetUIObject("Tab_Fund"):SetActive(false)
-	self._HelpUrlType = HelpPageUrlType.Guild_Shop
 end
 
 -- 当数据
 def.override("dynamic").OnData = function(self, data)
+	self._HelpUrlType = HelpPageUrlType.Guild_Shop
 	self._Fund_Template = data
 
 	self._Guild_Honor_List:SetItemCount(#self._Honor_Template.GuildShopItems)
@@ -109,10 +110,11 @@ end
 -- Button点击
 def.override("string").OnClick = function(self, id)
 	CPanelBase.OnClick(self,id)
+	if self._Frame_Money:OnClick(id) then return end
 	if id == "Btn_Back" then
 		game._GUIMan:CloseByScript(self)
 		local CPanelUIGuildPray = require "GUI.CPanelUIGuildPray"
-		CPanelUIGuildPray.Instance():UpdateBagPrayInfo(1)
+		CPanelUIGuildPray.Instance():UpdateBagPrayInfo()
     elseif id == "Btn_Exit" then
         game._GUIMan:CloseSubPanelLayer()
 	end
@@ -174,7 +176,7 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
             uiTemplate:GetControl(13):SetActive(true)
             uiTemplate:GetControl(7):SetActive(true)
 			GUITools.SetTokenMoneyIcon(uiTemplate:GetControl(3), shopItem.CostMoneyId)
-			GUI.SetText(uiTemplate:GetControl(4), tostring(shopItem.CostMoneyNum))
+			GUI.SetText(uiTemplate:GetControl(4), GUITools.FormatNumber(shopItem.CostMoneyNum))
 		else
 			uiTemplate:GetControl(1):SetActive(false)
 			uiTemplate:GetControl(5):SetActive(true)
@@ -205,7 +207,7 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
 			uiTemplate:GetControl(15):SetActive(false)
 			uiTemplate:GetControl(16):SetActive(false)
 			GUITools.SetTokenMoneyIcon(uiTemplate:GetControl(3), shopItem.CostMoneyID)
-			GUI.SetText(uiTemplate:GetControl(4), tostring(shopItem.CostNum))
+			GUI.SetText(uiTemplate:GetControl(4), GUITools.FormatNumber(shopItem.CostNum))
 		else
 			uiTemplate:GetControl(1):SetActive(false)
 			uiTemplate:GetControl(5):SetActive(true)
@@ -239,7 +241,12 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
 		end
         local itemTemp = CElementData.GetItemTemplate(shopItem.ItemId)
         local des = string.format(StringTable.Get(22312),   "<color=#"..EnumDef.Quality2ColorHexStr[itemTemp.InitQuality] ..">" .. itemTemp.TextDisplayName .."</color>")
-        BuyOrSellItemMan.ShowCommonOperate(TradingType.BUY,StringTable.Get(11115), des, 1, -1, shopItem.CostMoneyNum, shopItem.CostMoneyId, nil, callback)
+        local max_number = -1
+        if CMallUtility.GetQuickBuyTid(shopItem.CostMoneyId, true) <= 0 then
+            local money_have = game._GuildMan:GetMoneyValueByTid(shopItem.CostMoneyId)	
+            max_number = math.floor(money_have/shopItem.CostMoneyNum)
+        end
+        BuyOrSellItemMan.ShowCommonOperate(TradingType.BUY,StringTable.Get(11115), des, 1, max_number, shopItem.CostMoneyNum, shopItem.CostMoneyId, nil, callback)
 	elseif id == "Guild_Fund_List" then
 		local member = game._GuildMan:GetHostGuildMemberInfo()
 		if member ~= nil and member._RoleType ~= GuildMemberType.GuildLeader then

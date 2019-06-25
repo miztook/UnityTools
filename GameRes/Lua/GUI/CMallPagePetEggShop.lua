@@ -33,6 +33,7 @@ def.field("table")._ListNodeName = nil                          -- 提示品质�
 
 def.static("=>", CMallPagePetEggShop).new = function()
 	local PageEggShop = CMallPagePetEggShop()
+    PageEggShop._HasBGVideo = true
 	return PageEggShop
 end
 
@@ -53,6 +54,7 @@ def.override().OnCreate = function(self)
     self._PanelObjects.ImgPetFreeFX = uiTemplate:GetControl(27)
     self._PanelObjects.Img_Free = uiTemplate:GetControl(28)
     self._PanelObjects.Tab_Cost = uiTemplate:GetControl(29)
+    self._PanelObjects.Rdo_Skip = uiTemplate:GetControl(30)
     
 --    self._PanelObjects.FrameShowReward = uiTemplate:GetControl(30)
 --    self._PanelObjects.ListItemPreview = uiTemplate:GetControl(31)
@@ -82,6 +84,8 @@ def.override().OnCreate = function(self)
     table.insert(self._PanelObjects.LabExchangeMoney,uiTemplate:GetControl(26))
     self._PanelObjects._FrameAllRewardPanel = uiTemplate:GetControl(32)
     self._PanelObjects._FrameRewardScroll = uiTemplate:GetControl(33)
+    self._PanelObjects._Lab_Tip = uiTemplate:GetControl(37)
+--    self._PanelObjects._Img_Pet = uiTemplate:GetControl(38)
 end
     
 def.override("dynamic").OnData = function(self, data)
@@ -93,13 +97,31 @@ def.override("dynamic").OnData = function(self, data)
     game._CGuideMan:AnimationEndCallBack(self._PanelMall)
 end
 
+def.override().OnShow = function(self)
+    self:PlayVideoBG()
+end
+
+def.override().PlayVideoBG = function (self)
+	-- local function callback()
+ --    end
+	-- GameUtil.PlayVideo(self._PanelObjects._Img_Pet, "Mall_CG02_Loop.mp4", true, false, callback)
+    GameUtil.ActivateVideoUnit(self._PanelMall._VideoPlayer_Pet, self._PanelMall:GetUIObject("Img_Elf"))
+end
+
 def.override().OnRegistUIEvent = function(self)
     GUITools.RegisterButtonEventHandler(self._Panel, self._GameObject,true)
     GUITools.RegisterGNewListOrLoopEventHandler(self._Panel, self._GameObject, true)
+    GUITools.RegisterToggleEventHandler(self._Panel, self._GameObject, true)
 end
 
 def.override("=>", "string").GetMallPageTemplatePath = function(self)
     return "UITemplate/Page_MallPetEgg"
+end
+
+def.override("string", "boolean").OnToggle = function(self, id, checked)
+    if id == "Rdo_ShowGfx" then
+        CMallUtility.SetShowGfx(EnumDef.LocalFields.PetEggSkipGfx_PetEgg, not checked)
+    end
 end
 
 def.override('string').OnClick = function(self, id)
@@ -122,11 +144,7 @@ def.override('string').OnClick = function(self, id)
 
         local callback = function(val)
             if val then
-                local C2SPetDropRuleReq = require "PB.net".C2SPetDropRuleReq
-                local protocol = C2SPetDropRuleReq()
-                protocol.Count = Count
-                local PBHelper = require "Network.PBHelper"
-                PBHelper.Send(protocol)
+                CMallMan.Instance():PetExtract(Count)
                 if Count == 1 then
                     self._PanelObjects.ImgPetFreeFX:SetActive(false)
                     CMallMan.Instance():SaveRedPointState(self._PageData.StoreId, false)
@@ -223,16 +241,21 @@ def.method().InitPetPanel = function(self)
     local dropRuleTemplate = CElementData.GetTemplate("DropRule",dropRuleId)
     local dropTenRuleTemplate = CElementData.GetTemplate("DropRule", dropTenRuleId)
     if dropRuleTemplate == nil then warn(" droupRule id".. dropRuleId .." is nil") return end
+    local text_temp = CElementData.GetTemplate("Text", 4)
+    if text_temp ~= nil then
+        GUI.SetText(self._PanelObjects._Lab_Tip, text_temp.TextContent)
+    end
     self._OneCostMoneyCount = dropRuleTemplate.CostMoneyCount
     self._TenCostMoneyCount = dropTenRuleTemplate.CostMoneyCount
     self._HaveCount = game._HostPlayer:GetMoneyCountByType(dropRuleTemplate.CostMoneyId)
     self._TenHaveCount = game._HostPlayer:GetMoneyCountByType(dropTenRuleTemplate.CostMoneyId)
     self._OneCostMoneyID = dropRuleTemplate.CostMoneyId
     self._TenCostMoneyID = dropTenRuleTemplate.CostMoneyId
-    GUI.SetText(self._PanelObjects.LabPetCost1,tostring(dropRuleTemplate.CostMoneyCount))
-    GUI.SetText(self._PanelObjects.LabPetCost2,tostring(dropTenRuleTemplate.CostMoneyCount))
+    GUI.SetText(self._PanelObjects.LabPetCost1,GUITools.FormatNumber(dropRuleTemplate.CostMoneyCount, false))
+    GUI.SetText(self._PanelObjects.LabPetCost2,GUITools.FormatNumber(dropTenRuleTemplate.CostMoneyCount, false))
     GUITools.SetTokenMoneyIcon(self._PanelObjects.ImgPetCost1,dropRuleTemplate.CostMoneyId)
     GUITools.SetTokenMoneyIcon(self._PanelObjects.ImgPetCost2,dropTenRuleTemplate.CostMoneyId)
+    self._PanelObjects.Rdo_Skip:GetComponent(ClassType.Toggle).isOn = not CMallUtility.IsShowGfx(EnumDef.LocalFields.PetEggSkipGfx_PetEgg)
 end
 
 def.method("number","number").GetRewardListBySpecialId = function (self,specialId,nameId)
@@ -383,24 +406,24 @@ def.method().ShowExchangePanel = function(self)
         if itemTemp.InitQuality == 5 then
             GUITools.SetGroupImg(self._PanelObjects.ImgExchangePetBg[i],0)
             GUITools.SetGroupImg(self._PanelObjects.ImgExchangePetQuality[i],0)
-        elseif itemTemp.InitQuality == 4 then
+        elseif itemTemp.InitQuality == 3 then
             GUITools.SetGroupImg(self._PanelObjects.ImgExchangePetBg[i],1)
             GUITools.SetGroupImg(self._PanelObjects.ImgExchangePetQuality[i],1)
-        elseif itemTemp.InitQuality == 3 then
+        elseif itemTemp.InitQuality == 2 then
             GUITools.SetGroupImg(self._PanelObjects.ImgExchangePetBg[i],2)
             GUITools.SetGroupImg(self._PanelObjects.ImgExchangePetQuality[i],2)
         end
         local dropRuleId = tonumber(CElementData.GetSpecialIdTemplate(460 + i).Value)
         local dropRuleTemplate = CElementData.GetTemplate("DropRule",dropRuleId)
         if dropRuleTemplate == nil then warn(" droupRule id".. dropRuleId .." is nil") return end
-        GUI.SetText(self._PanelObjects.LabExchangeMoney[i],tostring(dropRuleTemplate.CostMoneyCount))
+        GUI.SetText(self._PanelObjects.LabExchangeMoney[i],GUITools.FormatNumber(dropRuleTemplate.CostMoneyCount, false))
         table.insert(self._CostCountExchangeDataList,dropRuleTemplate.CostMoneyCount)
         GUITools.SetTokenMoneyIcon(self._PanelObjects.ImgMoneyExchange[i],dropRuleTemplate.CostMoneyId)
         costId = dropRuleTemplate.CostMoneyId
     end
     self._PetExchangeCostMoneyId = costId
     self._HaveExchangeMoneyCount = game._HostPlayer:GetMoneyCountByType(self._PetExchangeCostMoneyId)
-    GUI.SetText(self._PanelObjects.LabHaveMoney,tostring(self._HaveExchangeMoneyCount))
+    GUI.SetText(self._PanelObjects.LabHaveMoney,GUITools.FormatNumber(self._HaveExchangeMoneyCount, false))
     GUITools.SetTokenMoneyIcon(self._PanelObjects.ImgHaveMoney,costId)
 end
 
@@ -414,14 +437,16 @@ end
 
 def.method().UpdateMoney = function(self)
     self._HaveExchangeMoneyCount = game._HostPlayer:GetMoneyCountByType(self._PetExchangeCostMoneyId)
-    GUI.SetText(self._PanelObjects.LabHaveMoney,tostring(self._HaveExchangeMoneyCount))
+    GUI.SetText(self._PanelObjects.LabHaveMoney,GUITools.FormatNumber(self._HaveExchangeMoneyCount, false))
 end
 
 def.override().OnHide = function(self)
+    GameUtil.DeactivateVideoUnit(self._PanelMall._VideoPlayer_Pet)
 end
 
 def.override().OnDestory = function(self)
     CMallPageBase.OnDestory(self)
+
     if self._PetFreeTimer ~= 0 then 
         _G.RemoveGlobalTimer(self._PetFreeTimer)
         self._PetFreeTimer = 0

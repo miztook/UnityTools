@@ -17,6 +17,8 @@ def.field("table")._Table_EliteBoss = BlankTable
 def.field("number")._WorldBossDropCount = -1
 def.field("boolean")._WorldBossRedPointmark = true
 
+def.field("number")._WorldBossNextOpenTime = -1
+
 def.static("=>", CWorldBossMan).new = function()
     local obj = CWorldBossMan()
 	return obj
@@ -43,8 +45,9 @@ def.method().LoadAllWorldBossData = function(self)
                     _Data = WorldBossData,--模板数据
                     _BossID = 0,
                     _Reason = BossState.DEFAULT,
-                    _OpenTime = "", --开启时间                    
-                    _CloseTime = "", --关闭时间
+                    _OpenTime = 0, --开启时间                    
+                    _CloseTime = 0, --关闭时间
+                    _NextOpenTime = 0, --开启时间 
                     _Isopen = false, --Boss是否开启
                     _IsDeath = true, --Boss是否死亡
                     _GuildName = "",
@@ -93,6 +96,15 @@ def.method("boolean", "number").SendC2SEliteBossMapStateInfo = function(self, Is
 	PBHelper.Send(protocol)
 end
 
+-- 请求世界Boss下次开启时间
+def.method().SendC2SWorldBossNextOpenTime = function(self)
+	local C2SScriptNextOpenTime = require "PB.net".C2SScriptNextOpenTime
+    local protocol = C2SScriptNextOpenTime()
+    local ScriptId = tonumber(CElementData.GetTemplate("SpecialId", 423).Value)
+    protocol.ScriptId = ScriptId
+	PBHelper.Send(protocol)
+end
+
 --------------------------S2C-----------------------------
 
 --更新世界Boss数据
@@ -100,11 +112,11 @@ def.method("table").ChangeWorldBossState = function(self, msg)
 	if msg == nil then return end
 	for _,v in pairs(self._Table_WorldBoss) do
 		for _,k in pairs(msg.data) do
-			if v._Data.Id == k.ActivityId then   
-                -- warn("!!!!!!!!!!!!!!!S2CChangeWorldBossState k.BossTId == ", k.BossTId)             
+			if v._Data.Id == k.ActivityId then              
                 v._BossID = k.BossTId
 				v._OpenTime = k.OpenTime	
                 v._CloseTime = k.CloseTime
+                v._NextOpenTime = k.NextOpenTime
                 v._IsDeath = k.IsDeath
                 v._Reason = msg.OptType
                 v._GuildName = msg.GuildName	
@@ -118,16 +130,33 @@ def.method("table").ChangeWorldBossState = function(self, msg)
                     -- v._Isopen = false
                     -- warn("ChangeWorldBossState WorldBoss Death !!!")
                     --%s被%s讨伐成功
-
+                    local ChatMsg = ""
                     if v._GuildName == "" or v._GuildName == nil then
                         local strName =  RichTextTools.GetElsePlayerNameRichText(v._RoleName,false)
-                        game._GUIMan:OpenSpecialTopTips(string.format(StringTable.Get(21013), v._Data.Name, strName, msg.LastShotEntityName))
+                        local lastShotEntity = msg.LastShotEntityName
+                        if lastShotEntity == nil then
+                            lastShotEntity = strName
+                        end
+                        ChatMsg = string.format(StringTable.Get(21013), v._Data.Name, strName, lastShotEntity)
+                        
                     else
                         -- 13015 公会
                         local strName =  RichTextTools.GetGuildNameRichText(v._GuildName,false)
                         local GuildName = strName.. StringTable.Get(13015)
                         -- warn(string.format(StringTable.Get(21010), GuildName, v._Data.Name))
-                        game._GUIMan:OpenSpecialTopTips(string.format(StringTable.Get(21013), v._Data.Name, GuildName, msg.LastShotEntityName))
+                        local lastShotEntity = msg.LastShotEntityName
+                        if lastShotEntity == nil then
+                            lastShotEntity = GuildName
+                        end
+                        ChatMsg = string.format(StringTable.Get(21013), v._Data.Name, GuildName, msg.LastShotEntityName)
+                    end
+
+                    if ChatMsg ~= "" then
+                        game._GUIMan:OpenSpecialTopTips(ChatMsg)
+
+                        local ECHAT_CHANNEL_ENUM = require "PB.data".ChatChannel
+                        local ChatManager = require "Chat.ChatManager"
+                        ChatManager.Instance():ClientSendMsg(ECHAT_CHANNEL_ENUM.ChatChannelSystem, ChatMsg, false, 0, nil,nil)
                     end
                 elseif v._Reason == OperatorType.Init then
                     if k.IsDeath == true then
@@ -180,6 +209,11 @@ def.method("table").ChangeEliteBossMapState = function(self, msg)
         CPanelMap:UpdateMapBossState()
     end
 end
+
+def.method("number").ChangeWorldBossNextOpenTime = function(self, msg)
+    if msg == nil then return end
+    self._WorldBossNextOpenTime = msg
+end
 ------------------------------------------------------
 
 --获取所有世界Boss
@@ -229,6 +263,11 @@ end
 def.method("=>","number").GetWorldBossDropCount = function(self)
     -- warn("GetWorldBossDropCount   self._WorldBossDropCount == ", self._WorldBossDropCount)
 	return self._WorldBossDropCount
+end
+
+def.method("=>","number").GetWorldBossNextOpenTime = function(self)
+    -- warn("GetWorldBossDropCount   self._WorldBossDropCount == ", self._WorldBossDropCount)
+	return self._WorldBossNextOpenTime
 end
 
 -- 获取精英boss红点状态

@@ -306,12 +306,23 @@ def.method("table").Exc = function(self, evt)
 --        self._Blocker = evt
 --    else
     if evt.evtType == EnumDef.NOTICE_EVENT_TYPE.FIGHTSCORE then
-        local CPanelMainTips = require "GUI.CPanelMainTips"
-        CPanelMainTips.Instance():ShowFightScoreUp(evt.oldValue, evt.increaseValue)
-        CPanelMainTips.Instance():ShowFightScoreDetail(evt.props)		
+        local CPanelMainTips = require "GUI.CPanelMainTips"		
+        --CPanelMainTips.Instance():ShowFightScoreUp(evt.oldValue, evt.increaseValue, evt.props~=nil and #evt.props or 0)
+        CPanelMainTips.Instance():ShowFightScoreDetail(evt.oldValue, evt.increaseValue, evt.props)
     elseif evt.evtType == EnumDef.NOTICE_EVENT_TYPE.ACHIEVE then
         local CPanelMainTips = require "GUI.CPanelMainTips"
-        CPanelMainTips.Instance():ShowAchieveTips(evt.tipsStr, evt.nTid)
+        local CElementData = require "Data.CElementData"
+        local achi_temp = CElementData.GetTemplate("Achievement", evt.nTid)
+        if achi_temp == nil then
+            warn("error !!! 成就模板数据为空 ID： ", evt.nTid)
+            return
+        end
+        if achi_temp.IsSpecial then
+            CPanelMainTips.Instance():ShowSpecialAchieveTips(evt.tipsStr, evt.nTid)
+            CSoundMan.Instance():Play2DAudio(PATH.GUISound_AchieveGotSpecial, 0)
+        else
+            CPanelMainTips.Instance():ShowAchieveTips(evt.tipsStr, evt.nTid)
+        end
         self._BlockerA = evt
     elseif evt.evtType == EnumDef.NOTICE_EVENT_TYPE.LVUP then
         local function cb()
@@ -483,22 +494,10 @@ local function OnCGEvent(sender, event)
     if event.Id ~= 0 then       --special cg not accounted for
         if event.Type == "start" then
             self._StateStack = bit.bor(self._StateStack, MASK_CG)
-            --warn("TIPQ CG ON "..event.Id.." "..self._StateStack)
         else
             self._StateStack = bit.band(self._StateStack, bit.bnot(MASK_CG))
-            --warn("TIPQ CG OFF "..event.Id.." "..self._StateStack)
         end
     end
-
---[[
-        if event.Type == "start" then
-            --self._StateStack = bit.bor(self._StateStack, MASK_CG)
-            warn("TIPQ CG ON "..event.Id.." "..self._StateStack)
-        else
-            --self._StateStack = bit.band(self._StateStack, bit.bnot(MASK_CG))
-            warn("TIPQ CG OFF "..event.Id.." "..self._StateStack)
-        end
-]]
 end
 
 -- CG 播放后

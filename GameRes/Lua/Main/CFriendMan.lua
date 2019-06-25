@@ -621,6 +621,17 @@ def.method("=>","boolean").IsHaveUnreadMsg = function(self)
     end
 end
 
+def.method("=>","number").GetUnreadMsgNum = function(self)
+    local num = 0
+    if self._UnreadMsgList == nil then return num end
+    for i ,v in pairs(self._UnreadMsgList) do 
+        if  self._UnreadMsgList[i] ~= nil then 
+            num = num + #self._UnreadMsgList[i]
+        end
+    end
+    return num
+end
+
 -- -- 角色id为roleId 是不是在向别人申请的列表中
 -- def.method("number","=>","boolean").IsInApplyList = function(self,roleId)
 -- 	if #self._ApplyList <= 0 then return end
@@ -840,6 +851,10 @@ end
 
 -- 申请好友(外部)
 def.method("number").DoApply = function(self, role_id)
+    if game._HostPlayer:IsInGlobalZone() then
+        game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+        return
+    end
     if self:IsFriendNumberOverMax() then return end
     if self:IsInBlackList(role_id) then 
         local function callback(value)
@@ -861,6 +876,10 @@ end
 
 --删除好友
 def.method("number").DoDeleteFriend = function (self,role_id)
+    if game._HostPlayer:IsInGlobalZone() then
+        game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+        return
+    end
     local function callback( value )
         if not value then return end
         self:SendProtocol("C2SSocialOperation", {{role_id}, SOCIAL_OPT_TYPE.Delete})
@@ -1019,6 +1038,10 @@ end
 
 -- 私聊按钮接口 (陌生人添加需要发送消息)
 def.method("number").AddChat = function (self,roleId)
+    if game._HostPlayer:IsInGlobalZone() then
+        game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+        return
+    end
 	local roleData = GetFriendByRoleId(self,roleId)
 	if roleData == nil then 
 		self:SendProtocol("C2SSocialOperation",{{roleId},SOCIAL_OPT_TYPE.ContactsIn})
@@ -1068,7 +1091,6 @@ def.method("table").OnS2CSocialOperation = function(self, data)
         game._GUIMan:ShowTipText(StringTable.Get(30338), false)
     elseif data.OptType == SOCIAL_OPT_TYPE.Agree then  
     	if #data.Roles  == 1 then 
-    		-- todo 错误码
         	content = StringTable.Get(30302)
 		    for i,v in ipairs(self._ApplyList) do
 	            if v.RoleId == data.Roles[1].RoleId then
@@ -1163,7 +1185,7 @@ def.method("table").OnS2CSocialOperation = function(self, data)
 	elseif data.OptType == SOCIAL_OPT_TYPE.ContactsOut then 
 		if data.ErrorCode == 0 then
 			RemoveRecentContactByRoleId(self,data.Roles[1].RoleId)
-            CPageFriendChat.Instance():UpdateRecentList()
+            CPageFriendChat.Instance():UpdateFriendChatPanel()
             AddIDToRemovedTable(self,data.Roles[1].RoleId)
 		end
     elseif data.OptType == SOCIAL_OPT_TYPE.Amicability then 
@@ -1215,8 +1237,9 @@ def.method("table").OnS2CSocialSyncData = function(self, data)
                 self._ApplyListToElse[data.Player.RoleId] = nil  
             end  
         end
-       
-        self._RecentList = UpdateMemberAmicability(self,data.Player,self._RecentList)
+        local msg = string.format(StringTable.Get(30354),data.Player.Name)
+        ChatManager.Instance():ClientSendMsg(ChatChannel.ChatChannelSystem, msg, false, 0, nil,nil)
+        -- self._RecentList = UpdateMemberAmicability(self,data.Player,self._RecentList)
         game._GUIMan:ShowTipText(string.format(StringTable.Get(30331),data.Player.Name),false)
         CPanelFriend.Instance():UpdatePageShow(CPanelFriend.OpenPageType.FRIENDLIST)
     elseif data.OptType == SOCIAL_OPT_TYPE.Delete then 

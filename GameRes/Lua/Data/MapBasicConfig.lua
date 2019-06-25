@@ -434,7 +434,7 @@ end
 
 def.static("number", "number", "=>", "table").GetPosDataByPosID = function(mapID, posID)
     local points = MapBasicConfig.GetAllTargetPosition(mapID)    
-    if points == nil then return end
+    if points == nil then return nil end
 
     return points[posID]
 end
@@ -446,7 +446,7 @@ def.static("number","number","=>","string").GetMapAndRegionName = function(nMapI
 	local map = MapBasicConfig.GetMapBasicConfigBySceneID(nMapID)
 	if map == nil then
 		warn("Scene template is nil, scene id:", nMapID)
-		return
+		return ""
 	end
 
 	local showName = map.TextDisplayName
@@ -528,7 +528,7 @@ def.static("number", "=>","number", "number").GetLinkRegionID = function(nMapID)
 
 	if temData == nil then				
 		warn("mapID:"..nMapID.."模板错误","tip",2)
-    return -1 end
+    return -1, -1 end
 
    	local mainMapTid = temData.AssociatedPathfindingMainMapId	
 	local link = MapBasicConfig.GetLink() 	
@@ -536,7 +536,7 @@ def.static("number", "=>","number", "number").GetLinkRegionID = function(nMapID)
 	if link[mainMapTid] == nil then
 	    warn("MapLinkInfo数据错误，"..mainMapTid.."不存在！！","tip", 3)
 		game._HostPlayer: SetAutoPathFlag(false)   
-	return -1 end
+	return -1, -1 end
 
 	local linkData = link[mainMapTid][nMapID]
 	if linkData == nil then

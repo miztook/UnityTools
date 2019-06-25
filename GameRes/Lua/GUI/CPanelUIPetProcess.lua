@@ -13,7 +13,7 @@ local CUIModel = require "GUI.CUIModel"
 local CPagePetInfo = require "Pet.CPagePetInfo"
 local CPagePetCultivate = require "Pet.CPagePetCultivate"
 local CPagePetAdvance = require "Pet.CPagePetAdvance"
-local CPagePetRecast = require "Pet.CPagePetRecast"
+local CPagePetFuse = require "Pet.CPagePetFuse"
 local CPagePetSkill = require "Pet.CPagePetSkill"
 
 local PetRetDotUpdateEvent = require "Events.PetRetDotUpdateEvent"
@@ -30,6 +30,7 @@ def.field("table")._LocalItemList = BlankTable              -- 本地数据结�
 def.field("table")._ProcessFrames = BlankTable              -- 加工的界面集合
 def.field("table")._PageToggleList = BlankTable             -- 右侧功能栏toggle的集合
 def.field("table")._PageRedDotList = BlankTable             -- 右侧功能栏红点的集合
+def.field("table")._AdvanceMeterialPetList = BlankTable     -- 宠物融合 & 宠物升星 选中
 
 def.field("number")._CurrentPage = 0                        -- 当前选择的界面
 def.field("table")._CurrentSelectInfo = BlankTable          -- 当前选择物品的Index,object
@@ -38,13 +39,21 @@ def.field("table")._ItemData = nil                          -- 当前选中Item
 def.field("table")._PetItemData = nil                       -- 当前正在设置的宠物item的data
 def.field(CUIModel)._UIModel = nil                          -- 当前的宠物model
 
-def.field("userdata")._CurAdvanceMeterialPetItem = nil      -- 当前升星选中的材料宠Item(背包列表)
-def.field("table")._PetItemList = BlankTable                -- 存储宠物背包Item列表
+def.field("number")._CurAdvanceMeterialPetItemIndex = -1    -- 当前升星选中的材料宠Item(背包列表) 位置
 def.field("number")._CurAdvanceMeterialPetId = 0            -- 当前升星选中的材料宠Id
 
 def.field("number")._TimerID = 0        -- timer
 def.field("number")._Interval = 1       -- tick时间差
 def.field("number")._TimeDelay = 15 
+
+local HelpUrlTab =
+{
+    [EnumDef.UIPetPageState.PagePetInfo]    = HelpPageUrlType.PetInfo,
+    [EnumDef.UIPetPageState.PageCultivate]  = HelpPageUrlType.PetCultivate,
+    [EnumDef.UIPetPageState.PageFuse]       = HelpPageUrlType.PetFuse,
+    [EnumDef.UIPetPageState.PageAdvance]    = HelpPageUrlType.PetAdvance,
+    [EnumDef.UIPetPageState.PageSkill]      = HelpPageUrlType.PetSkill,
+}
 
 local listQuality = 
 {
@@ -87,6 +96,7 @@ local OnPetUpdateEvent = function(sender, event)
         
         instance:UpdateItemList()
         instance:PlayLevelupAni()
+        instance:PlayLevelupGfx()
         instance:UpdateSelectPet()
         instance:UpdateSetFightRedDotState()
         instance._ProcessFrames[EnumDef.UIPetPageState.PageCultivate]:ShowLevelUpGfx()
@@ -103,7 +113,8 @@ local OnPetUpdateEvent = function(sender, event)
         instance:UpdateItemList()
         instance:UpdateSelectPet()
         GameUtil.PlayUISfx(PATH.UIFX_ITEM_END,instance._Panel, instance._Panel, -1)
-
+        instance:UpdateSetFightRedDotState()
+        
     elseif EPetOptType.EPetOptType_advance == event._Type then          --进阶
         instance:SyncPackageData()
         instance:UpdateSortList()
@@ -117,6 +128,30 @@ local OnPetUpdateEvent = function(sender, event)
         instance:UpdateSetFightRedDotState()
         --将升星结果 界面改为在S2CPetUpdate 打开，当该界面关闭后 广播消息更新CPanelUIProcess界面
         -- game._GUIMan:Open("CPanelCommonConltivate", instance._ItemData)
+    elseif EPetOptType.EPetOptType_star == event._Type then          -- 升星
+        instance:SyncPackageData()
+        instance:UpdateSortList()
+        instance:SyncSelectItemData()
+        instance:UpdateCommonUI()
+        instance:FixSelectInfo()
+
+        instance:UpdateItemList()
+        instance:PlayLevelupAni()
+        instance:UpdateSelectPet()
+        instance:UpdateSetFightRedDotState()
+
+    elseif EPetOptType.EPetOptType_fuse == event._Type then          -- 融合
+        instance:SyncPackageData()
+        instance:UpdateSortList()
+        instance:SyncSelectItemData()
+        instance:UpdateCommonUI()
+        instance:FixSelectInfo()
+
+        instance:UpdateItemList()
+        instance:PlayLevelupAni()
+        instance:UpdateSelectPet()
+        instance:UpdateSetFightRedDotState()
+
     elseif EPetOptType.EPetOptType_talent == event._Type then           --被动技能学习
         instance:SyncSelectItemData()
         instance:UpdateCommonUI()
@@ -124,7 +159,12 @@ local OnPetUpdateEvent = function(sender, event)
         instance:UpdateSelectPet()
         instance._ProcessFrames[EnumDef.UIPetPageState.PageSkill]:PlaySkillLeanGfx()
         instance:UpdateSetFightRedDotState()
-
+    elseif EPetOptType.EPetOptType_takedown == event._Type then
+        instance:SyncSelectItemData()
+        instance:UpdateCommonUI()
+        instance:UpdateItemList()
+        instance:UpdateSelectPet()
+        instance:UpdateSetFightRedDotState()
     elseif EPetOptType.EPetOptType_confirmRecast == event._Type then    --重铸确认
         instance:SyncSelectItemData()
         instance:UpdateCommonUI()
@@ -174,20 +214,20 @@ def.override().OnCreate = function(self)
     self._ProcessFrames = {}
     self._ProcessFrames[EnumDef.UIPetPageState.PagePetInfo] = CPagePetInfo.new(self, self:GetUIObject("Frame_PetInfo"))
     self._ProcessFrames[EnumDef.UIPetPageState.PageCultivate] = CPagePetCultivate.new(self, self:GetUIObject("Frame_Cultivate"))
+    self._ProcessFrames[EnumDef.UIPetPageState.PageFuse] = CPagePetFuse.new(self, self:GetUIObject("Frame_Fuse"))
     self._ProcessFrames[EnumDef.UIPetPageState.PageAdvance] = CPagePetAdvance.new(self, self:GetUIObject("Frame_Advance"))
-    self._ProcessFrames[EnumDef.UIPetPageState.PageRecast] = CPagePetRecast.new(self, self:GetUIObject("Frame_Recast"))
     self._ProcessFrames[EnumDef.UIPetPageState.PageSkill] = CPagePetSkill.new(self, self:GetUIObject("Frame_Skill"))
 
     self._PageToggleList = {}
     self._PageToggleList[EnumDef.UIPetPageState.PagePetInfo] = self:GetUIObject('Rdo_PetInfo'):GetComponent(ClassType.Toggle)
     self._PageToggleList[EnumDef.UIPetPageState.PageCultivate] = self:GetUIObject('Rdo_Cultivate'):GetComponent(ClassType.Toggle)
+    self._PageToggleList[EnumDef.UIPetPageState.PageFuse] = self:GetUIObject('Rdo_Fuse'):GetComponent(ClassType.Toggle)
     self._PageToggleList[EnumDef.UIPetPageState.PageAdvance] = self:GetUIObject('Rdo_Advance'):GetComponent(ClassType.Toggle)
-    self._PageToggleList[EnumDef.UIPetPageState.PageRecast] = self:GetUIObject('Rdo_Recast'):GetComponent(ClassType.Toggle)
     self._PageToggleList[EnumDef.UIPetPageState.PageSkill] = self:GetUIObject('Rdo_Skill'):GetComponent(ClassType.Toggle)
 
     self._PageRedDotList = {}
+    self._PageRedDotList[EnumDef.UIPetPageState.PagePetInfo] = self:GetUIObject('Rdo_PetInfo'):FindChild("Img_RedPoint")
     self._PageRedDotList[EnumDef.UIPetPageState.PageCultivate] = self:GetUIObject('Rdo_Cultivate'):FindChild("Img_RedPoint")
-    self._PageRedDotList[EnumDef.UIPetPageState.PageRecast] = self:GetUIObject('Rdo_Recast'):FindChild("Img_RedPoint")
     self._PageRedDotList[EnumDef.UIPetPageState.PageSkill] = self:GetUIObject('Rdo_Skill'):FindChild("Img_RedPoint")
     self:ResetSelectItem()
 
@@ -196,6 +236,7 @@ def.override().OnCreate = function(self)
     {
         Lab_PackageSize = self:GetUIObject('Lab_PackageSize'),
         Frame_ShowBoard = {},
+        Group_StageInfo = self:GetUIObject('Group_StageInfo')
     }
 
     local root = self._PanelObject
@@ -218,10 +259,10 @@ def.override().OnCreate = function(self)
 
     self._ItemList = self:GetUIObject('List_PetView'):GetComponent(ClassType.GNewListLoop)
     self:SetDorpdownGroup()
-    self._HelpUrlType = HelpPageUrlType.Pet
 end
 
 def.override("dynamic").OnData = function(self,data)
+    self._HelpUrlType = HelpPageUrlType.Pet
     if instance:IsShow() then
 --[[
 Parameters
@@ -389,6 +430,8 @@ def.method().UpdateSortList = function(self)
             return true
         elseif hp:IsHelpingPetById(item2._ID) then
             return false
+        elseif item1:GetFightScore() == item2:GetFightScore() then
+            return item1._Tid > item2._Tid
         else
             return item1:GetFightScore() > item2:GetFightScore()-- and true or false
         end
@@ -423,6 +466,7 @@ def.method().UpdateShowBoard = function(self)
 
     root.Root:SetActive( bSelected )
     root.Lab_NoPetSelect:SetActive( not bSelected )
+    self._PanelObject.Group_StageInfo:SetActive( bSelected )
 
     if bSelected then
         --昵称
@@ -471,6 +515,12 @@ def.method().PlayLevelupAni = function(self)
     self._UIModel:PlayAnimationQueue(EnumDef.CLIP.LEVELUP, false)
     self._UIModel:PlayAnimationQueue(EnumDef.CLIP.COMMON_STAND, true)
 end
+
+def.method().PlayLevelupGfx = function(self)
+    local hook = self._PanelObject.Frame_ShowBoard.Model_Pet
+    GameUtil.PlayUISfx(PATH.UIFX_PetModel_LevelUp, hook, hook, -1)
+end
+
 def.method().UpdateModel = function(self)
     CancelAniTick(self)
     if self._ItemData == nil then return end
@@ -500,7 +550,8 @@ end
 def.method("number").ChangePage = function(self, pageIndex)
     --warn("ChangePage = ", pageIndex)
     if self._CurrentPage == pageIndex then return end
-    self:ClearAdvanceMeterialPetItemBg()
+	self._HelpUrlType = HelpUrlTab[pageIndex]
+    self:ClearAdvanceMeterialPetList()
     self._CurrentPage = pageIndex
     self:UpdateFrameShow()
 end
@@ -508,37 +559,75 @@ end
 -- 重置背包 List
 def.method().UpdateItemList = function(self)
     local count = #self._LocalItemList
-    self._PetItemList = {}
-    self._CurAdvanceMeterialPetItem = nil 
+    self._CurAdvanceMeterialPetItemIndex = -1
     self._ItemList:SetItemCount( count )
 end
 
--- 设置背包中升星材料宠Item的选中效果 
-def.method("number").SetAdvanceMeterialPetItemBg = function(self,petId)
-    local index = 0
+def.method("number","=>","number").GeLocalIndexByPetId = function(self, petId)
+    local nRet = 0
     for i ,pet in ipairs(self._LocalItemList) do 
         if pet._ID == petId then 
-            index = i
+            nRet = i
             break
         end
     end
-    if self._CurAdvanceMeterialPetItem ~= nil then 
-        local imgMerBg = self._CurAdvanceMeterialPetItem :FindChild("Img_AdvanceMeterialPetBg") 
-        imgMerBg:SetActive(false)
-    end
-    self._CurAdvanceMeterialPetItem = self._PetItemList[index]
-    self._CurAdvanceMeterialPetId = petId
-    if self._CurAdvanceMeterialPetItem == nil then return end
-    local imgMerBg = self._CurAdvanceMeterialPetItem :FindChild("Img_AdvanceMeterialPetBg") 
-    imgMerBg:SetActive(true)
+
+    return nRet
 end
 
-def.method().ClearAdvanceMeterialPetItemBg = function(self)
-    if self._CurAdvanceMeterialPetItem == nil  then return end
-    local imgMerBg = self._CurAdvanceMeterialPetItem :FindChild("Img_AdvanceMeterialPetBg") 
-    imgMerBg:SetActive(false)
-    self._CurAdvanceMeterialPetItem = nil 
-    self._CurAdvanceMeterialPetId = 0
+-- 更新置灰状态
+def.method("number", "boolean").UpdateUnclickState = function(self, petId, bUnclick)
+    local index = self:GeLocalIndexByPetId(petId)
+    local curItem = self._ItemList:GetItem(index-1)
+    if curItem ~= nil then
+        local imgMerBg = curItem:FindChild("Img_AdvanceMeterialPetBg") 
+        imgMerBg:SetActive(bUnclick)
+    end
+
+    if bUnclick then
+        -- 新增置灰位置
+        table.insert(self._AdvanceMeterialPetList, petId)
+    else
+        -- 删除置灰位置
+        local reomveIndex = table.indexof(self._AdvanceMeterialPetList, petId)
+        if reomveIndex then
+            -- warn("reomveIndex...", reomveIndex)
+            table.remove(self._AdvanceMeterialPetList, reomveIndex)
+        end
+    end
+end
+
+-- 更新 融合 & 升星 选中逻辑
+def.method("table").UpdateAdvanceMeterialPetList = function(self, petIdList)
+    -- 置灰
+    for _, petId in ipairs(petIdList) do
+        local oldIndex = table.indexof(self._AdvanceMeterialPetList, petId)
+        if not oldIndex then
+            -- 新增位置
+            self:UpdateUnclickState(petId, true)
+        end
+    end
+
+    -- 取消置灰
+    for _, petId in ipairs(self._AdvanceMeterialPetList) do
+        local newIndex = table.indexof(petIdList, petId)
+        if not newIndex then
+            -- 不在新列表中,需要取消置灰状态
+            self:UpdateUnclickState(petId, false)
+        end
+    end
+end
+
+def.method().ClearAdvanceMeterialPetList = function(self)
+    -- warn("ClearAdvanceMeterialPetList..........Count", #self._AdvanceMeterialPetList)
+    if self._AdvanceMeterialPetList == nil or #self._AdvanceMeterialPetList <= 0 then return end
+
+    local cloneList = clone(self._AdvanceMeterialPetList)
+    for _, petId in ipairs(cloneList) do
+        self:UpdateUnclickState(petId, false)
+    end
+    -- 列表制空
+    self._AdvanceMeterialPetList = {}
 end
 
 --更新是否显示分界面
@@ -584,7 +673,6 @@ def.method("userdata", "number").SetPetInfo = function(self, item, index)
         img_Fight:SetActive(false)
         img_Help:SetActive(false)
     end
-    imgAdvanceMerPetBg:SetActive(false)
     GUITools.SetIcon(img_ItemIcon, self._PetItemData._IconPath)
     GUITools.SetGroupImg(img_QualityBG, self._PetItemData._Quality)
     GUITools.SetGroupImg(img_Quality, self._PetItemData._Quality)
@@ -595,9 +683,9 @@ def.method("userdata", "number").SetPetInfo = function(self, item, index)
     GUITools.RegisterGNewListOrLoopEventHandler(self._Panel, petInfo:FindChild("List_ItemStar"), true)
     item_star_list.PageWidth = self._PetItemData._MaxStage
     item_star_list:SetItemCount(self._PetItemData._MaxStage)
-    if self._PetItemData._ID == self._CurAdvanceMeterialPetId then 
-        imgAdvanceMerPetBg:SetActive(true)
-    end
+
+    local oldIndex = table.indexof(self._AdvanceMeterialPetList, self._PetItemData._ID)
+    imgAdvanceMerPetBg:SetActive(oldIndex~=false)
     -- local retDotObj = item:FindChild("RedPoint")
     -- local bShow = CPetUtility.CalcPetRedDotState(self._PetItemData)
     -- retDotObj:SetActive( bShow )
@@ -607,7 +695,6 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
     local idx = index + 1
     if id == "List_PetView" then
         self:SetPetInfo(item, idx)
-        table.insert(self._PetItemList,item)
         local currentSelectIndex = self._CurrentSelectInfo.Index
         local img_select = item:FindChild("Img_D")
         img_select:SetActive(currentSelectIndex == idx)
@@ -681,15 +768,14 @@ def.method().DoPackageAdd = function(self)
     local hp = game._HostPlayer
     local callback = function(val)
         if val then
-            local Do = function(val)
-                if val then
-                    CPetUtility.SendC2SPetUnLockPetBag(1)
-                end
-            end
             local title, msg, closeType = StringTable.GetMsg(85)
-            local moneyName = CTokenMoneyMan.Instance():GetEmoji(info[1])
-            msg = string.format(msg, moneyName, info[2])
-            MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, Do)
+            local Do = function(buyNum)
+                CPetUtility.SendC2SPetUnLockPetBag(buyNum)
+            end  
+
+            local money_have = game._GuildMan:GetMoneyValueByTid(info[1])  
+            local max_number = math.min(maxSize - effectSize, math.floor(money_have/info[2]))
+            BuyOrSellItemMan.ShowCommonOperate(TradingType.PetBagBuyCell,title, msg, 1, max_number, info[2], info[1], nil, Do)
         end
     end
 
@@ -732,31 +818,8 @@ def.override('string').OnClick = function(self, id)
 end
 
 def.override("string").OnPointerLongPress = function(self, id)
-    if self._CurrentPage == EnumDef.UIPetPageState.PageCultivate then
-        self:GetCurrentPage():OnPointerLongPress(id)
-    elseif self._CurrentPage == EnumDef.UIPetPageState.PageAdvance then 
-        self:GetCurrentPage():OnPointerLongPress(id)
-    end
+    self:GetCurrentPage():OnPointerLongPress(id)
 end
---[[
-def.override("string").OnPointerDown = function(self,id)
-    if self._CurrentPage == EnumDef.UIPetPageState.PageCultivate then
-        self:GetCurrentPage():OnPointerDown(id)
-    end
-end
-
-def.override("string").OnPointerUp = function(self,id)
-    if self._CurrentPage == EnumDef.UIPetPageState.PageCultivate then
-        self:GetCurrentPage():OnPointerUp(id)
-    end
-end
-
-def.override("string").OnPointerExit = function(self,id)
-    if self._CurrentPage == EnumDef.UIPetPageState.PageCultivate then
-        self:GetCurrentPage():OnPointerExit(id)
-    end
-end
-]]
 
 def.override('userdata','string','number').OnLongPressItem = function(self, item, id, index)
     if self._CurrentPage == EnumDef.UIPetPageState.PageCultivate then
@@ -786,10 +849,10 @@ def.override("string", "boolean").OnToggle = function(self,id, checked)
         self:ChangePage(EnumDef.UIPetPageState.PagePetInfo)
     elseif id == "Rdo_Cultivate" and checked then
         self:ChangePage(EnumDef.UIPetPageState.PageCultivate)
+    elseif id == "Rdo_Fuse" and checked then
+        self:ChangePage(EnumDef.UIPetPageState.PageFuse)
     elseif id == "Rdo_Advance" and checked then
         self:ChangePage(EnumDef.UIPetPageState.PageAdvance)
-    elseif id == "Rdo_Recast" and checked then
-        self:ChangePage(EnumDef.UIPetPageState.PageRecast)
     elseif id == "Rdo_Skill" and checked then
         self:ChangePage(EnumDef.UIPetPageState.PageSkill)
     end
@@ -798,27 +861,20 @@ end
 -- 更新页签 红点状态
 def.method().UpdatePageRedDotState = function(self)
     do
+        local bShow = CPetUtility.CalcPetFightingSetRedDotState()
+        self._PageRedDotList[EnumDef.UIPetPageState.PagePetInfo]:SetActive( bShow )
+    end
+
+    do
         local bShow = CPetUtility.CalcPetCultivatePageRedDotState()
         self._PageRedDotList[EnumDef.UIPetPageState.PageCultivate]:SetActive( bShow )
     end
-
-    -- 洗练 刷新洗练内部红点状态    废弃洗练
-    -- do
-    --     local bShow = CPetUtility.CalcPetRecastPageRedDotState()
-    --     self._PageRedDotList[EnumDef.UIPetPageState.PageRecast]:SetActive( bShow )
-    -- end
-
-    -- -- 洗练 刷新洗练内部红点状态    废弃洗练
-    -- if self._CurrentPage == EnumDef.UIPetPageState.PageRecast then
-    --     self:GetCurrentPage():UpdateRedDotState()
-    -- end
 
     -- 技能 出战宠物没有学习过技能 且 背包内有技能书的情况
     do
         local bShow = CPetUtility.CalcFightPetSkillRedDotState()
         self._PageRedDotList[EnumDef.UIPetPageState.PageSkill]:SetActive( bShow )
     end
-
 end
 
 -- 更新出战 红点状态

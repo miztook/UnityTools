@@ -12,6 +12,8 @@ local CCommonBtn = require "GUI.CCommonBtn"
 local CPageEquipFority = Lplus.Class("CPageEquipFority")
 local def = CPageEquipFority.define
 
+local gfxGroupName = "CPageEquipFority"
+
 --存储UI的集合，便于OnHide()时置空
 def.field("table")._PanelObject = BlankTable
 def.field("table")._Parent = nil
@@ -44,6 +46,7 @@ def.method().Init = function(self)
         Btn_Drop_FortifyMaterialGroup = {},
         Btn_AddFortifyMaterialGroup = {},
         SuccessRateInfo = {},
+        HideGroup = {}
     }
 
     local root = self._PanelObject
@@ -117,6 +120,14 @@ def.method().Init = function(self)
         SuccessRateInfo.Lab_Success_Rate = self._Parent:GetUIObject('Lab_Success_Rate_Fortify')
     end
 
+    -- 显示特效隐藏的组件
+    do
+        local HideGroup = root.HideGroup
+        HideGroup.Root = self._Parent:GetUIObject("Node_Fortify")
+        HideGroup.BorderBG = self._Parent:GetUIObject("Img_FortifyBorderBG")
+        HideGroup.Img_IconGroup = HideGroup.Root:FindChild("Img_IconGroup")
+    end
+
 
     -- 暂时先注掉，UE不修改，待需求确认
     root.Img_FortifyMaxBG:SetActive( false )
@@ -163,7 +174,6 @@ def.method().PlayGfx = function(self)
 
     local root = self._GfxObjectGroup
     -- root.TweenObjectHook:SetActive(false)
-    root.BlurTex:SetActive( true ) 
 
     local function callback()
         self:StopGfx()
@@ -183,6 +193,21 @@ def.method().PlayGfx = function(self)
         end
     end
 
+    local function callback3()
+        if self._PanelObject == nil or self._PanelObject.HideGroup == nil then
+            return
+        end
+        local HideGroup = self._PanelObject.HideGroup
+        HideGroup.BorderBG:SetActive(false)
+        HideGroup.Img_IconGroup:SetActive(false)
+        root.BlurTex:SetActive( true ) 
+        root.DoTweenPlayer:Restart(2002)
+        
+        if root.TimerId3 > 0 then
+            _G.RemoveGlobalTimer(root.TimerId3)
+        end
+    end
+
     -- _G.AddGlobalTimer(0.05, true, function()
         -- root.TweenObjectHook:SetActive(true)
     IconTools.SetTags(self._PanelObject.SelectItem, { [EItemIconTag.StrengthLv] = 0 })
@@ -198,6 +223,7 @@ def.method().PlayGfx = function(self)
     
     root.TimerId = _G.AddGlobalTimer(root.DoTweenTimeDelay, true, callback)
     root.TimerId1 = _G.AddGlobalTimer(root.Delay1, true, callback1)
+    root.TimerId3 = _G.AddGlobalTimer(0.5, true, callback3)
     -- end)
 end
 -- 关闭特效
@@ -217,13 +243,21 @@ def.method().ResetGfxGroup = function(self)
     root.TweenObjectHook.localPosition = root.OrignPosition
     root.TweenObjectHook.localScale = root.OrignScale
     root.Frame_Remove:SetActive( true )
-    IconTools.SetTags(self._PanelObject.SelectItem, { [EItemIconTag.StrengthLv] = self._ItemData.ItemData:GetInforceLevel() })
     root.BlurTex:SetActive( false )
+
     --强化按钮可点击状态
     self._PanelObject.CommonBtn_Fortify:SetInteractable(true)
     GameUtil.SetButtonInteractable(self._PanelObject.Btn_AutoSelectMateral, true)
     GameUtil.SetButtonInteractable(self._PanelObject.Btn_Drop_Fortify, true)
     GameUtil.SetButtonInteractable(self._PanelObject.SelectItem, true)
+
+    local HideGroup = self._PanelObject.HideGroup
+    HideGroup.BorderBG:SetActive(true)
+    HideGroup.Img_IconGroup:SetActive(true)
+
+    if self._ItemData ~= nil and self._ItemData.ItemData ~= nil then
+        IconTools.SetTags(self._PanelObject.SelectItem, { [EItemIconTag.StrengthLv] = self._ItemData.ItemData:GetInforceLevel() })
+    end
 end
 
 def.method().EnableBgGfx = function(self)
@@ -259,13 +293,26 @@ def.method("dynamic").Show = function(self, data)
         local function OnMoneyChanged()
             self:UpdateFrame()
         end
-
-        CGame.EventManager:addHandler('NotifyMoneyChangeEvent', OnMoneyChanged)
         self._OnMoneyChanged = OnMoneyChanged
     end
+    CGame.EventManager:addHandler('NotifyMoneyChangeEvent', self._OnMoneyChanged)
     
     -- 播放特效
     self:EnableBgGfx()
+end
+
+def.method().UIProcessingLogic = function(self)
+    self:DisableEvent()
+
+    local root = self._PanelObject
+    local delay = self._Parent._ShowGfx and self._GfxObjectGroup.DoTweenTimeDelay or 0.5
+    root.Group_Fortify:SetActive( false )
+    self._Parent:AddEvt_SetActive(gfxGroupName, delay, root.Group_Fortify, true)
+
+end
+
+def.method().DisableEvent = function(self)
+    self._Parent:KillEvts(gfxGroupName)
 end
 
 def.method().DisablePropertyItem = function(self)
@@ -285,7 +332,7 @@ def.method().UpdateFrame = function(self)
     -- 更新选中信息
     self:UpdateSelectItem()
     -- 更新材料信息
-    self:UpdatrMaterialInfo()
+    self:UpdateMaterialInfo()
     -- 更新属性信息 材料有可能提升数值，最后计算
     self:UpdateProperty()
     -- 更新金币消耗，按钮状态
@@ -331,7 +378,8 @@ def.method().UpdateProperty = function(self)
     local bHasSaveStore = self:HasSaveStore()
 
     root.Group_Fortify:SetActive( bCanFortity )
-    root.Lab_Fortify_Desc:SetActive( bShow and bCanFortity and not bHasSaveStore )
+    -- root.Lab_Fortify_Desc:SetActive( bShow and bCanFortity and not bHasSaveStore )
+    root.Lab_Fortify_Desc:SetActive( bShow and bCanFortity)
 
     if bCanFortity then
         local itemData = self._ItemData.ItemData
@@ -351,7 +399,8 @@ def.method().UpdateProperty = function(self)
         local ReinforceInfo = self:CalcReinforceInfo()
 
         root.CommonBtn_Fortify:MakeGray(bIsMaxLevel)
-        root.Lab_Fortify_Desc:SetActive( not bIsMaxLevel and not bHasSaveStore )
+        -- root.Lab_Fortify_Desc:SetActive( not bIsMaxLevel and not bHasSaveStore )
+        root.Lab_Fortify_Desc:SetActive(not bIsMaxLevel)
 
         if bIsMaxLevel then
             GUI.SetText(root.FortifyInfo.NewVal, StringTable.Get(10908))
@@ -379,16 +428,33 @@ def.method().UpdateProperty = function(self)
             GUI.SetText(root.AttributeInfo.NewVal, strNextVal)
             -- 成功率
             local rate = self:CalcSuccessRate()
-            root.Lab_Fortify_Desc:SetActive( not bSafe and rate < 100 and not bHasSaveStore )
-            local strSuccessRate = string.format("%s%%", fmtVal2Str(rate))
+            -- root.Lab_Fortify_Desc:SetActive( not bSafe and rate < 100 and not bHasSaveStore )
+            GUI.SetText(root.Lab_Fortify_Desc, self:GetFortifyDesc(bSafe or rate >= 100 or bHasSaveStore))
+            local strSuccessRate = string.format("%s%%", rate)
+
             GUI.SetText(root.SuccessRateInfo.Lab_Success_Rate, strSuccessRate)
         end
         GUI.SetText(root.AttributeInfo.OldVal, GUITools.FormatNumber(ReinforceInfo.Value))
         GUI.SetText(root.FortifyInfo.OldVal, tostring(lv))
     end
+
+
 end
+
+def.method("boolean", "=>", "string").GetFortifyDesc = function(self, bSafe)
+    local str = ""
+
+    if bSafe then
+        str = StringTable.Get(31343)
+    else
+        str = StringTable.Get(31342)
+    end
+
+    return str
+end
+
 -- 更新材料信息
-def.method().UpdatrMaterialInfo = function(self)
+def.method().UpdateMaterialInfo = function(self)
     local root = self._PanelObject
 
     local function SetMaterialInfo(item, itemData)
@@ -441,7 +507,6 @@ def.method().UpdateButtonState = function(self)
             [EnumDef.CommonBtnParam.MoneyCost] = 0   
         }
         root.CommonBtn_Fortify:ResetSetting(setting)
-        root.CommonBtn_Fortify:MakeGray(true)
     else
         local moneyHave = hp:GetMoneyCountByType(moneyNeedInfo[1])
         local moneyNeed = moneyNeedInfo[2]
@@ -453,9 +518,8 @@ def.method().UpdateButtonState = function(self)
             local strCutOff = tostring(math.ceil(moneyNeedInfo[3] * 100))
             GUI.SetText(root.Lab_FortifySaleCutOff, strCutOff)
         end
-        root.CommonBtn_Fortify:MakeGray(moneyHave < moneyNeed)
     end
-
+    root.CommonBtn_Fortify:MakeGray(not self:HasReinforceStore())
     GUITools.SetBtnGray(self._PanelObject.Btn_AutoSelectMateral, self._ItemData == nil)
 end
 
@@ -493,6 +557,20 @@ def.method("=>", "boolean").HasSaveStore = function(self)
         if materialInfo.ItemData ~= nil and
            materialInfo.ItemData.ItemData ~= nil and
            materialInfo.ItemData.ItemData:IsSafeStone() then
+            bRet = true
+        end
+    end
+
+    return bRet
+end
+
+def.method("=>", "boolean").HasReinforceStore = function(self)
+    local bRet = false
+    for i=1, #self._MaterialSelectList do
+        local materialInfo = self._MaterialSelectList[i]
+        if materialInfo.ItemData ~= nil and
+           materialInfo.ItemData.ItemData ~= nil and
+           materialInfo.ItemData.ItemData:IsInforceStone() then
             bRet = true
         end
     end
@@ -765,6 +843,11 @@ def.method("table", "boolean", "=>", "boolean").CheckCanSelectMaterial = functio
         end
         -- 保底石
         if materialItemData:IsSafeStone() then
+            if materialItemData._Template.SafeStoneLevel < self._ItemData.ItemData:GetInforceLevel() then
+                ShowReason(StringTable.Get(31345))
+                return false
+            end
+
             -- 只能有一个保底石
             for i=1,#self._MaterialSelectList do
                 if self._MaterialSelectList[i] ~= nil and
@@ -890,7 +973,8 @@ def.method("userdata", "number", "table").OnInitItem = function(self, item, inde
             [EItemIconTag.Equip] = (itemData.PackageType == BAGTYPE.ROLE_EQUIP),
         }
         IconTools.InitItemIconNew(ItemIconNew, itemData.ItemData._Tid, setting)
-        Img_UnableClick:SetActive(self._ItemData ~= nil and self._ItemData ~= itemData)
+        Img_UnableClick:SetActive(false)
+        -- Img_UnableClick:SetActive(self._ItemData ~= nil and self._ItemData ~= itemData)
     else
         local setting = {
             [EItemIconTag.Bind] = itemData.ItemData:IsBind(),
@@ -971,11 +1055,13 @@ def.method("string").OnClick = function(self, id)
         end
     elseif id == "Btn_AutoSelectMateral" then
         -- 请先选择装备
-        if self._ItemData == nil then
+        if self._ItemData == nil or self._ItemData.ItemData == nil then
             game._GUIMan:ShowTipText(StringTable.Get(31301), false)
-            return
+        elseif self._ItemData.ItemData:IsMaxReinforceLevel() then
+            game._GUIMan:ShowTipText(StringTable.Get(31331), false)
+        else
+            self:CalcOptimalMaterialSolution()
         end
-        self:CalcOptimalMaterialSolution()
     elseif string.find(id, "Btn_Drop_FortifyMaterial") then
         local index = tonumber(string.sub(id,-1))
         self:DropMaterialItem(index)
@@ -993,6 +1079,15 @@ def.method("string").OnClick = function(self, id)
             local materialItemData = self._MaterialSelectList[index].ItemData.ItemData
             materialItemData:ShowTip(TipPosition.FIX_POSITION, self._Parent:GetUIObject(id))
        end
+    elseif id == "Btn_Fortify_Desc" then
+        game._GUIMan:Close("CPanelUICommonNotice")
+        local data = 
+        {
+            Title = StringTable.Get(34201),
+            Name = StringTable.Get(34200),
+            Desc = StringTable.Get(34202),
+        }
+        game._GUIMan:Open("CPanelUICommonNotice", data)
     end
 end
 
@@ -1034,8 +1129,10 @@ def.method().Reset = function(self)
 end
 
 def.method().Hide = function(self)
+    self:DisableEvent()
     self:RestoneMaterialList()
     self:DisableBgGfx()
+    self:StopGfx()
 
     if self._OnMoneyChanged ~= nil then
         CGame.EventManager:removeHandler('NotifyMoneyChangeEvent', self._OnMoneyChanged)
@@ -1045,6 +1142,8 @@ def.method().Hide = function(self)
 end
 
 def.method().Destroy = function (self)
+    self:DisableEvent()
+
     if self._PanelObject ~= nil then
         if self._PanelObject.CommonBtn_Fortify ~= nil then
             self._PanelObject.CommonBtn_Fortify:Destroy()

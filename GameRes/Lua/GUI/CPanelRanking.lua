@@ -36,6 +36,7 @@ local RankingTips ={
     [11] = 20110,
     [12] = 20111,
     [13] = 20111,
+    [14] = 20114,
 }
 def.field("userdata")._MenuRanking = nil
 def.field('userdata')._LabMyNumber = nil
@@ -57,6 +58,7 @@ def.field("userdata")._Frame_Member5 = nil
 def.field("userdata")._Frame_Member6 = nil
 def.field("userdata")._Frame_Member7 = nil
 def.field("userdata")._Frame_Member8 = nil
+def.field("userdata")._Frame_Empty = nil
 def.field('number')._StatisticsType = 0  -- 统计对象
 def.field("userdata")._List = nil 
 def.field("userdata")._ImgHead = nil 
@@ -119,6 +121,7 @@ def.override().OnCreate = function(self)
     self._Frame_Member6 = self:GetUIObject("Frame_Member6")
     self._Frame_Member7 = self:GetUIObject("Frame_Member7")
     self._Frame_Member8 = self:GetUIObject("Frame_Member8")  
+    self._Frame_Empty = self:GetUIObject("EmptyPanel")
     self._LabMyNumber = self:GetUIObject("Lab_MyNumber")
     self._ImgMyNumber = self:GetUIObject("Img_Number")
     self._ImgHead = self:GetUIObject("Img_Head")
@@ -145,6 +148,13 @@ def.override().OnCreate = function(self)
 end
 
 def.override("dynamic").OnData = function(self, data)
+    self._HelpUrlType = HelpPageUrlType.Ranking
+    -- 跨服匹配 功能不能使用
+    if game._HostPlayer:IsInGlobalZone() then
+        game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+        game._GUIMan:CloseByScript(self)
+        return
+    end
     if self._Frame_Money == nil then
         self._Frame_Money = CFrameCurrency.new(self, self:GetUIObject("Frame_Money"), EnumDef.MoneyStyleType.None)
     else
@@ -160,6 +170,7 @@ def.override("dynamic").OnData = function(self, data)
     self._Frame_Member6:SetActive(false)
     self._Frame_Member7:SetActive(false)
     self._Frame_Member8:SetActive(false)
+    self._Frame_Empty:SetActive(false)
     self._List:SetItemCount(#self._RankMainType)
     -- self._MenuRanking:Open(#self._RankMainType)
     self._IsTabOpen = false
@@ -186,6 +197,29 @@ def.override('string').OnClick = function(self, id)
         game._GUIMan:CloseSubPanelLayer()
     end
 end
+
+def.method("=>", "table").GetMyRankData = function(self)
+    if self._RankData == nil then return nil end
+    local hp = game._HostPlayer
+    for i,v in ipairs(self._RankData) do
+        if v.SubjectId == hp._ID then
+            return v
+        end
+    end
+    return nil
+end
+
+def.method("=>", "table").GetMyGuildRankData = function(self)
+    if self._RankData == nil then return nil end
+    local my_guild_id = game._HostPlayer._Guild._GuildID
+    for i,v in ipairs(self._RankData) do
+        if v.SubjectId == my_guild_id then
+            return v
+        end
+    end
+    return nil
+end
+
 def.method("table","number").UpdateListItem = function(self,data,rankId)
     local IsSelf = false
     self._RankData = data
@@ -209,6 +243,13 @@ def.method("table","number").UpdateListItem = function(self,data,rankId)
         end
         self._Frame_HostPlayer:SetActive(true)
         self:ShowHostPlayerInfo(myRank,IsSelf)
+        if #self._RankData > 0 then
+            self._ListGuildListGO:SetActive(true)
+            self._Frame_Empty:SetActive(false)
+        else
+            self._ListGuildListGO:SetActive(false)
+            self._Frame_Empty:SetActive(true)
+        end
         self._ListGuildList:SetItemCount(#self._RankData)
     end    
 end
@@ -238,6 +279,7 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
     local InfoData = hp._InfoData
     self._MyRank = myRank
     self._IsSelf = isSelf
+    local my_data_from_server = self:GetMyRankData()
     if isSelf then
         if myRank > 3 then
             self._LabMyNumber:SetActive(true)
@@ -258,7 +300,7 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
         GUI.SetText(self._LabMyNumber,StringTable.Get(20103))
     end
     self._ImgHead:SetActive(true)
-    if self._CurrentRankMainDataType < ERankDataType.PVPSTAGESTAR then 
+    if self._CurrentRankMainDataType < ERankDataType.PVPSTAGESTAR or self._CurrentRankMainDataType == ERankDataType.ACHIEVEMENTCOUNT then 
         self._Host1:SetActive(true)
         self._Host2:SetActive(false)
         self._Img_San:SetActive(false)
@@ -288,7 +330,7 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
                     self._Frame_HostPlayer:SetActive(true)
                     local info_data = InfoData._FightProperty
                     local ENUM = require "PB.data".ENUM_FIGHTPROPERTY
-                    GUI.SetText(self._LabMainData1, GUITools.FormatMoney(hp:GetHostFightScore()))
+                    GUI.SetText(self._LabMainData1, GUITools.FormatNumber(my_data_from_server ~= nil and my_data_from_server.MainData or hp:GetHostFightScore(), false))
                     GUI.SetText(self._MyMainDataTip, StringTable.Get(20055))
                 end
             else
@@ -296,22 +338,22 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
                 self._Frame_HostPlayer:SetActive(true)
                 local info_data = InfoData._FightProperty
                 local ENUM = require "PB.data".ENUM_FIGHTPROPERTY
-                GUI.SetText(self._LabMainData1, GUITools.FormatMoney(hp:GetHostFightScore()))
+                GUI.SetText(self._LabMainData1, GUITools.FormatNumber(my_data_from_server ~= nil and my_data_from_server.MainData or hp:GetHostFightScore(), false))
                 GUI.SetText(self._MyMainDataTip, StringTable.Get(20055))
             end
 
         elseif self._CurrentRankMainDataType == ERankDataType.GOLD then 
             local pack = game._HostPlayer._Package
-            local num = GUITools.FormatMoney(pack._GoldCoinCount)
+            local num = GUITools.FormatMoney(my_data_from_server ~= nil and my_data_from_server.MainData or pack._GoldCoinCount)
             GUI.SetText(self._LabMainData1, num)
             GUI.SetText(self._MyMainDataTip, StringTable.Get(400))
         elseif self._CurrentRankMainDataType == ERankDataType.JJC1X1SCORE then 
             self._LabMainData1:SetActive(true)
-            GUI.SetText(self._LabMainData1,tostring(game._HostPlayer._InfoData._ArenaJJCScore))
+            GUI.SetText(self._LabMainData1,GUITools.FormatNumber(my_data_from_server ~= nil and my_data_from_server.MainData or game._HostPlayer._InfoData._ArenaJJCScore, false))
             GUI.SetText(self._MyMainDataTip, StringTable.Get(20105))
         elseif self._CurrentRankMainDataType == ERankDataType.ELIMINATESCORE then
             self._LabMainData1:SetActive(true)
-            GUI.SetText(self._LabMainData1,tostring(game._HostPlayer._InfoData._EliminateScore))
+            GUI.SetText(self._LabMainData1,GUITools.FormatNumber(my_data_from_server ~= nil and my_data_from_server.MainData or game._HostPlayer._InfoData._EliminateScore, false))
             GUI.SetText(self._MyMainDataTip, StringTable.Get(20108))
         elseif self._CurrentRankMainDataType == ERankDataType.PVPSTAGE then
             self._LabMainData1:SetActive(false)
@@ -327,7 +369,7 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
                 if game._HostPlayer._InfoData._Arena3V3Stage == 16 then 
 			        img_level:SetActive(false)
 			        lab_level:SetActive(true)
-			        GUI.SetText(lab_level,tostring(game._HostPlayer._InfoData._Arena3V3Star))
+			        GUI.SetText(lab_level,GUITools.FormatNumber(game._HostPlayer._InfoData._Arena3V3Star, false))
 		        else
                     img_level:SetActive(true)
 			        lab_level:SetActive(false)
@@ -336,6 +378,11 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
             else
                 warn("error !!!! 角斗场段位数据错误，段位等级为：", game._HostPlayer._InfoData._Arena3V3Stage)
             end
+        elseif self._CurrentRankMainDataType == ERankDataType.ACHIEVEMENTCOUNT then
+            self._LabMainData1:SetActive(true)
+            local totalCount, finishCount =  game._AcheivementMan:GetAchievementCountValue()
+            GUI.SetText(self._LabMainData1,GUITools.FormatNumber(my_data_from_server ~= nil and my_data_from_server.MainData or finishCount, false))
+            GUI.SetText(self._MyMainDataTip, StringTable.Get(20114))
         end
         --end
     elseif self._CurrentRankMainDataType == ERankDataType.GUILD_CONTRIBUTE or self._CurrentRankMainDataType == ERankDataType.BATTLE_WINCOUNT then
@@ -365,6 +412,7 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
                 GUI.SetText(lab_num_tip, StringTable.Get(20110))
             end
         else
+            my_data_from_server = self:GetMyGuildRankData()
             local myGuildData = game._HostPlayer._Guild
             local guildFlag = uiTemplate:GetControl(0)
             local _Guild_Icon_Image = {}
@@ -380,12 +428,12 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
                 GUI.SetText(lab_battle_tip, StringTable.Get(20109))
                 GUI.SetText(lab_num_tip, StringTable.Get(12019))
                 GUI.SetText(labGuildNum,tostring(myGuildData._MemberNum.."/"..myGuildData._MaxMemberNum))
-                GUI.SetText(labGuildAchi, tostring(myGuildData._GuildLiveness))
+                GUI.SetText(labGuildAchi, GUITools.FormatNumber(my_data_from_server ~= nil and my_data_from_server.MainData or myGuildData._GuildLiveness, false))
             else
                 GUI.SetText(lab_battle_tip, StringTable.Get(20113))
                 GUI.SetText(lab_num_tip, StringTable.Get(20110))
-                GUI.SetText(labGuildNum,tostring(myGuildData._GuildBFWinCount))
-                GUI.SetText(labGuildAchi, tostring(myGuildData._GuildBFRank))
+                GUI.SetText(labGuildNum,GUITools.FormatNumber(my_data_from_server ~= nil and my_data_from_server.MainData or myGuildData._GuildBFWinCount, false))
+                GUI.SetText(labGuildAchi, GUITools.FormatNumber(my_data_from_server ~= nil and my_data_from_server.SubData or myGuildData._GuildBFRank, false))
             end
         end
     elseif self._CurrentRankMainDataType == ERankDataType.ROLELEVEL then 
@@ -411,7 +459,7 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
         else
             GUI.SetText(self._LabMainData1,game._HostPlayer._Guild._GuildName)
         end
-        GUI.SetText(self._LabLevel,tostring(InfoData._Level))
+        GUI.SetText(self._LabLevel,tostring(my_data_from_server ~= nil and my_data_from_server.MainData or InfoData._Level))
         GUI.SetText(self._MyMainDataTip, StringTable.Get(20107))
     elseif self._CurrentRankMainDataType == ERankDataType.ELIMINATESCORE then
         self._Host1:SetActive(true)
@@ -432,7 +480,7 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
             GUI.SetText(self._LabJob1, tostring(StringTable.Get(10300 + InfoData._Prof - 1)))
             game:SetEntityCustomImg(self._ImgHead,game._HostPlayer._ID,ECustomSet.ECustomSet_Defualt,Profession2Gender[InfoData._Prof],InfoData._Prof)
         end
-        GUI.SetText(self._LabMainData1,tostring(game._HostPlayer._InfoData._EliminateScore))
+        GUI.SetText(self._LabMainData1,GUITools.FormatNumber(my_data_from_server ~= nil and my_data_from_server.MainData or game._HostPlayer._InfoData._EliminateScore, false))
         GUI.SetText(self._LabLevel,tostring(InfoData._Level))
         GUI.SetText(self._MyMainDataTip, StringTable.Get(20108))
     elseif self._CurrentRankMainDataType == ERankDataType.TOWERTIER or self._CurrentRankMainDataType == ERankDataType.TOWERTIME then
@@ -455,9 +503,9 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
             GUI.SetText(self._LabJob1, tostring(StringTable.Get(10300 + InfoData._Prof - 1)))
             game:SetEntityCustomImg(self._ImgHead,game._HostPlayer._ID,ECustomSet.ECustomSet_Defualt,Profession2Gender[InfoData._Prof],InfoData._Prof)
         end
-        GUI.SetText(self._LabMainData1, GUITools.FormatTimeSpanFromSeconds(nTime))
+        GUI.SetText(self._LabMainData1, GUITools.FormatTimeSpanFromSeconds(my_data_from_server ~= nil and my_data_from_server.SubData or nTime))
         GUI.SetText(self._MyMainDataTip, StringTable.Get(20111))
-        GUI.SetText(self._LabMainData2,tostring(nFloor))
+        GUI.SetText(self._LabMainData2,tostring(my_data_from_server ~= nil and my_data_from_server.MainData or nFloor))
         GUI.SetText(self._MyMainDataTip1, StringTable.Get(20112))
     end
 end
@@ -603,7 +651,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
             if v.MainData == 16 then
                 img_level:SetActive(false)
                 lab_level:SetActive(true)
-                GUI.SetText(lab_level, tostring(v.SubData))
+                GUI.SetText(lab_level, GUITools.FormatNumber(v.SubData, false))
             else
                 img_level:SetActive(true)
                 lab_level:SetActive(false)
@@ -674,7 +722,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
             GUI.SetText(lab_battle_tip, StringTable.Get(20113))
             GUI.SetText(lab_num_tip, StringTable.Get(20110))
             GUI.SetText(labNums,mainData)
-            GUI.SetText(labGuildAchi, tostring(v.SubData))
+            GUI.SetText(labGuildAchi, GUITools.FormatNumber(v.SubData, false))
         end
         GUI.SetText(labName,name)
         GUI.SetText(labLevel,baseData2)
@@ -882,6 +930,7 @@ def.override().OnHide = function(self)
     self._Frame_Member6 = nil
     self._Frame_Member7 = nil
     self._Frame_Member8 = nil
+    self._Frame_Empty = nil
     self._LabMyNumber = nil
     self._ImgMyNumber = nil
     self._ImgHead = nil

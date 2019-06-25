@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ServerList>
-  <Server zoneId = "-1000" name="kakao-180分支-146" ip="10.35.49.146" port="8003" recommend="true" show="true" newFlag="true" /> 
-  <Server zoneId = "-1001" name="kakao-180-KR" ip="125.209.241.205" port="11001" recommend="true" show="true" newFlag="true" />
+  <Server zoneId = "-98" name="内网主干" ip="10.35.49.148" port="8003" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-1001" name="分支外服" ip="106.3.134.202" port="9310" recommend="true" show="true" newFlag="true" /> 
+  <Server zoneId = "-1002" name="kakao-190-KR" ip="125.209.245.240" port="11001" recommend="true" show="true" newFlag="true" />
   <Server zoneId = "-1" name="本机测试服" ip="127.0.0.1" port="8001" recommend="true" show="true" newFlag="false" /> 
   <Server zoneId = "-2" name="JP_C" ip="10.127.193.154" port="11000" recommend="false" show="true" newFlag="false" />
   <Server zoneId = "-3" name="202" ip="10.115.118.202" port="11000" recommend="false" show="true" newFlag="false" />

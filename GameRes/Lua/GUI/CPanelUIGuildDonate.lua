@@ -50,6 +50,8 @@ def.override().OnCreate = function(self)
 		GUI.SetText(self:GetUIObject("Lab_Exp" .. index), tostring(donate.GuildExp))
 		GUI.SetText(self:GetUIObject("Lab_Contribute" .. index), tostring(donate.RewardContribute))
 		GUI.SetText(self:GetUIObject("Lab_RewardPoints" .. index), tostring(donate.RewardPoints))
+		GUI.SetText(self:GetUIObject("Lab_Liveness" .. index), tostring(donate.RewardPoints))
+
 
         local setting = {
             [EnumDef.CommonBtnParam.MoneyID] = donate.CostType,
@@ -95,10 +97,11 @@ def.method().OnShowBtnDonate = function(self)
 		local donate = self._Data[i]
         if self._CommonBtns ~= nil and self._CommonBtns[i] ~= nil then
 		    local moneyValue = game._GuildMan:GetMoneyValueByTid(donate.CostType)
+        	local labCost = self:GetUIObject("Btn_Donate_" .. i):FindChild("Img_Bg/Node_Content/Icon_Money/Lab_EngraveNeed")
             if moneyValue < donate.CostNum then
-        	    self._CommonBtns[i]:MakeGray(true)
-            else
-        	    self._CommonBtns[i]:MakeGray(false)
+            	GUI.SetText(labCost,string.format(StringTable.Get(8136), GUITools.FormatNumber(donate.CostNum )))
+        	else
+        		GUI.SetText(labCost,string.format(StringTable.Get(8135),GUITools.FormatNumber(donate.CostNum )))
             end
             if game._HostPlayer._Guild:GetDonateNum() < 1 then
         	    self._CommonBtns[i]:MakeGray(true)
@@ -120,10 +123,11 @@ end
 def.method("number").OnBtnDonate = function(self, index)
 	local donate = self._Data[index]
 	local moneyValue = game._GuildMan:GetMoneyValueByTid(donate.CostType)
+	if game._HostPlayer._Guild:GetDonateNum() == 0 then
+		game._GUIMan:ShowTipText(StringTable.Get(855), true)
+		return
+	end
 	if moneyValue < donate.CostNum then
-		--[[local money = CElementData.GetTemplate("Money", donate.CostType)
-		game._GUIMan:ShowTipText(string.format(StringTable.Get(847), money.TextDisplayName), true)
-		return]]
 		local callback = function(value)
 			if value then
 				local protocol = (require "PB.net".C2SGuildDonate)()
@@ -135,9 +139,7 @@ def.method("number").OnBtnDonate = function(self, index)
 		MsgBox.ShowQuickBuyBox(donate.CostType, donate.CostNum, callback)
 		return
 	end
-	if game._HostPlayer._Guild:GetDonateNum() == 0 then
-		game._GUIMan:ShowTipText(StringTable.Get(855), true)
-	elseif game._GuildMan:IsFundMax() then
+	if game._GuildMan:IsFundMax() then
 		local callback = function(value)
 			if value then
 				local protocol = (require "PB.net".C2SGuildDonate)()

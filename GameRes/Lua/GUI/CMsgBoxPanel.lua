@@ -12,19 +12,7 @@ do
 	local CMsgBoxMan = Lplus.ForwardDeclare("CMsgBoxMan")
 	local def = CMsgBoxPanel.define
     local instance = nil
-
-	def.field('userdata')._LabMsgTitle = nil
-	def.field('userdata')._LabMessage = nil
-	def.field('userdata')._LabSpec = nil
-	def.field('userdata')._BtnYes = nil
-	def.field('userdata')._BtnNo = nil
-	def.field('userdata')._LabYes = nil
-	def.field('userdata')._LabNo = nil
-	def.field('userdata')._LabTips = nil
-    def.field('userdata')._CheckBoxShow = nil
-    def.field('userdata')._Img_MsgBG = nil
-    def.field('userdata')._BtnClose = nil
-
+    def.field("table")._PanelObject = nil
 	def.field('number')._PosXOfBtnYes = 0
 	def.field('number')._PosXOfBtnNo = 0
     def.field('number')._Priority = MsgBoxPriority.Normal
@@ -73,32 +61,48 @@ do
 	end
 
 	def.override().OnCreate = function(self)
-	    self._LabMsgTitle = self:GetUIObject('Lab_MsgTitle')
-	    self._LabMessage = self:GetUIObject('Lab_Message')
-	    self._LabSpec = self:GetUIObject('Lab_Special')
-	    self._BtnYes = self:GetUIObject('Btn_Yes')
-	    self._BtnNo = self:GetUIObject('Btn_No')
-	    self._LabYes = self:GetUIObject('Lab_Yes')
-	    self._LabNo = self:GetUIObject('Lab_No')
-	    self._LabTips = self:GetUIObject('Lab_CloseTips')
-        self._CheckBoxShow = self:GetUIObject('CheckBox_ShowAgain')
-        self._Img_MsgBG = self:GetUIObject('Img_MessageBg')
-        self._BtnClose = self:GetUIObject('Btn_Close')
-	    local rect = self._BtnYes:GetComponent(ClassType.RectTransform)
+        self._PanelObject = {}
+
+	    self._PanelObject._LabMsgTitle = self:GetUIObject('Lab_MsgTitle')
+	    self._PanelObject._LabMessage = self:GetUIObject('Lab_Message')
+	    self._PanelObject._LabSpec = self:GetUIObject('Lab_Special')
+	    self._PanelObject._BtnYes = self:GetUIObject('Btn_Yes')
+	    self._PanelObject._BtnNo = self:GetUIObject('Btn_No')
+	    self._PanelObject._LabYes = self:GetUIObject('Lab_Yes')
+	    self._PanelObject._LabNo = self:GetUIObject('Lab_No')
+	    self._PanelObject._LabTips = self:GetUIObject('Lab_CloseTips')
+        self._PanelObject._CheckBoxShow = self:GetUIObject('CheckBox_ShowAgain')
+        self._PanelObject._Img_MsgBG = self:GetUIObject('Img_MessageBg')
+        self._PanelObject._BtnClose = self:GetUIObject('Btn_Close')
+        self._PanelObject._Img_MoneyBG = self:GetUIObject("Img_MoneyBG")
+        self._PanelObject._Img_MoneyIcon = self:GetUIObject("Img_MoneyIcon")
+        self._PanelObject._Lab_CostNumber = self:GetUIObject("Lab_CostNumber")
+        self._PanelObject._ItemIconNew = self:GetUIObject("ItemIconNew")
+        self._PanelObject._Lab_ItemName = self:GetUIObject("Lab_ItemName")
+        self._PanelObject._Frame_Middle = self:GetUIObject("Frame_Middle")
+	    local rect = self._PanelObject._BtnYes:GetComponent(ClassType.RectTransform)
 	    self._PosXOfBtnYes = rect.anchoredPosition.x
 
-	    rect = self._BtnNo:GetComponent(ClassType.RectTransform)
+	    rect = self._PanelObject._BtnNo:GetComponent(ClassType.RectTransform)
 	    self._PosXOfBtnNo = rect.anchoredPosition.x
 
-	    self._LabSpec:SetActive(false)
-	    self._LabTips:SetActive(false)
-	    self._BtnClose:SetActive(true)
+	    self._PanelObject._LabSpec:SetActive(false)
+        self._PanelObject._CheckBoxShow:SetActive(false)
+	    self._PanelObject._LabTips:SetActive(false)
+        self._PanelObject._Img_MoneyBG:SetActive(false)
+        self._PanelObject._ItemIconNew:SetActive(false)
+	    self._PanelObject._BtnClose:SetActive(true)
 	    self._StrOfYes = StringTable.Get(2)
 	    self._StrOfNo = StringTable.Get(1)
         CGame.EventManager:addHandler(ApplicationQuitEvent, OnApplicationQuit)
 	end
 
 	def.override('dynamic').OnData = function(self, data)
+        local new_data = CMsgBoxMan.Instance():GetChacheMsgData()
+        if new_data ~= nil then
+            data = new_data
+            CMsgBoxMan.Instance():ReSetChacheMsgData()
+        end
         if self._TimerId > 0 then
 	        _G.RemoveGlobalTimer(self._TimerId)
 	        self._TimerId = 0 
@@ -113,40 +117,100 @@ do
         end
         --ReSetSortingLayerByPriority(self)
         --self:SetupUISorting()
-        if self._CheckBoxShow then
-            self._CheckBoxShow:GetComponent(ClassType.Toggle).isOn = false
+        if self._PanelObject._CheckBoxShow then
+            self._PanelObject._CheckBoxShow:GetComponent(ClassType.Toggle).isOn = false
         end
         self._Panel:FindChild("Frame"):SetActive(false)
         self._Panel:FindChild("Frame"):SetActive(true)
 	end
 
---    def.method("number").SetupSortingParamSpecial = function(self, priority)
-
---    end
+    -- 更新额外附加的UI的显示
+    def.method("table").UpdateAddPart = function(self, msgData)
+        if self._PanelObject._Frame_Middle then
+            if (msgData._CostItemID == nil or msgData._CostItemID <= 0)
+                and (msgData._CostMoneyID == nil or msgData._CostMoneyID <= 0)
+                and (msgData._GainItemID == nil or msgData._GainItemCount <= 0)
+                and (msgData._GainMoneyID == nil or msgData._GainMoneyCount <= 0)
+                and (msgData._SpecTip == nil or msgData._SpecTip == "")
+                and (msgData._NotShowTag ~= nil or msgData._NotShowTag == "") then
+                self._PanelObject._Frame_Middle:SetActive(false)
+            else
+                self._PanelObject._Frame_Middle:SetActive(true)
+            end
+        end
+        -- 消耗物品的UI
+        if msgData._CostItemID > 0 or msgData._GainItemID > 0 then
+            self._PanelObject._ItemIconNew:SetActive(true)
+            local is_cost = msgData._CostItemID > 0
+            local lab_number = self._PanelObject._ItemIconNew:FindChild("Frame_ItemIcon/Lab_Number")
+            local count_str = ""
+            if is_cost then
+                local have_count = game._HostPlayer._Package._NormalPack:GetItemCount(msgData._CostItemID)
+                if have_count >= msgData._CostItemCount then
+                    count_str = string.format(StringTable.Get(20082), have_count, msgData._CostItemCount)
+                else
+                    count_str = string.format(StringTable.Get(20081), have_count, msgData._CostItemCount)
+                end
+                IconTools.InitItemIconNew(self._PanelObject._ItemIconNew, msgData._CostItemID, nil, EItemLimitCheck.AllCheck)
+                GUI.SetText(self._PanelObject._Lab_ItemName, RichTextTools.GetItemNameRichText(msgData._CostItemID, 1, false))
+            else
+                local have_count = game._HostPlayer._Package._NormalPack:GetItemCount(msgData._GainItemID)
+                count_str = string.format(StringTable.Get(20082), have_count, msgData._GainItemCount)
+                IconTools.InitItemIconNew(self._PanelObject._ItemIconNew, msgData._GainItemID, nil, EItemLimitCheck.AllCheck)
+                GUI.SetText(self._PanelObject._Lab_ItemName, RichTextTools.GetItemNameRichText(msgData._GainItemID, 1, false))
+            end
+            GUI.SetText(lab_number, count_str)
+        else
+            self._PanelObject._ItemIconNew:SetActive(false)
+        end
+        -- 消耗货币的UI
+        if msgData._CostMoneyID > 0 or msgData._GainMoneyID > 0 then
+            self._PanelObject._Img_MoneyBG:SetActive(true)
+            local is_cost = msgData._CostMoneyID > 0
+            if is_cost then
+                GUITools.SetTokenMoneyIcon(self._PanelObject._Img_MoneyIcon, msgData._CostMoneyID)
+                local have_count = game._HostPlayer:GetMoneyCountByType(msgData._CostMoneyID)
+                if have_count >= msgData._CostMoneyCount then
+                    GUI.SetText(self._PanelObject._Lab_CostNumber, GUITools.FormatNumber(msgData._CostMoneyCount, false))
+                else
+                    GUI.SetText(self._PanelObject._Lab_CostNumber, string.format(StringTable.Get(20446), GUITools.FormatNumber(msgData._CostMoneyCount, false)))
+                end
+            else
+                GUITools.SetTokenMoneyIcon(self._PanelObject._Img_MoneyIcon, msgData._GainMoneyID)
+                GUI.SetText(self._PanelObject._Lab_CostNumber, GUITools.FormatNumber(msgData._GainMoneyCount, false))
+            end
+        else
+            self._PanelObject._Img_MoneyBG:SetActive(false)
+        end
+        -- 特殊提示的UI
+        if msgData._SpecTip ~= nil and msgData._SpecTip ~= "" then
+            self._PanelObject._LabSpec:SetActive(true)
+    		GUI.SetText(self._PanelObject._LabSpec, msgData._SpecTip)
+        else
+            self._PanelObject._LabSpec:SetActive(false)
+        end
+        local isNotShowAgain = (msgData._NotShowTag ~= nil and msgData._NotShowTag ~= "")
+        self._PanelObject._CheckBoxShow:SetActive(isNotShowAgain)
+    end
 
 	def.method('table').Update = function(self, msgData)
-		GUI.SetText(self._LabMsgTitle, msgData._Title)
-		GUI.SetText(self._LabMessage, msgData._Message)
-		GUI.SetText(self._LabSpec, msgData._SpecTip)
+		GUI.SetText(self._PanelObject._LabMsgTitle, msgData._Title)
+		GUI.SetText(self._PanelObject._LabMessage, msgData._Message)
 
         local msgBoxType = msgData._Type
 		if msgBoxType ~= self._CurType then
 			-- 类型不同才需要更改的内容
-			local isTypeSpec = (bit.band(msgBoxType, MsgBoxType.MBT_SPEC) == MsgBoxType.MBT_SPEC)
-            local isNotShowAgain = bit.band(msgBoxType, MsgBoxType.MBT_NOTSHOW) == MsgBoxType.MBT_NOTSHOW
 			local isNOCloseBtn = (bit.band(msgBoxType, MsgBoxType.MBT_NOCLOSEBTN) == MsgBoxType.MBT_NOCLOSEBTN)
-			self._LabSpec:SetActive(isTypeSpec)
-            self._CheckBoxShow:SetActive(isNotShowAgain)
-			self._LabTips:SetActive(msgData._IsNoBtn)
---            local bgRect = self._Img_MsgBG:GetComponent(ClassType.RectTransform)
+			self._PanelObject._LabTips:SetActive(msgData._IsNoBtn)
+--            local bgRect = self._PanelObject._Img_MsgBG:GetComponent(ClassType.RectTransform)
 			if isNOCloseBtn then
-				self._BtnClose:SetActive(false)
+				self._PanelObject._BtnClose:SetActive(false)
 			else
-				self._BtnClose:SetActive(true)
+				self._PanelObject._BtnClose:SetActive(true)
 			end
 			if msgData._IsNoBtn then
-				self._BtnYes:SetActive(false)
-				self._BtnNo:SetActive(false)
+				self._PanelObject._BtnYes:SetActive(false)
+				self._PanelObject._BtnNo:SetActive(false)
                 --bgRect.sizeDelta = Vector2.New(bgRect.rect.width,294)
 			else
                 --bgRect.sizeDelta = Vector2.New(bgRect.rect.width,189)
@@ -165,21 +229,21 @@ do
 				local isShowNo = (bit.band(msgBoxType, MsgBoxType.MBBT_NO) == MsgBoxType.MBBT_NO)
 
 				if isShowOKCancel or isShowYesNo then
-					self._BtnYes:SetActive(true)
-	            	self._BtnNo:SetActive(true)
-	            	local rect = self._BtnYes:GetComponent(ClassType.RectTransform)
+					self._PanelObject._BtnYes:SetActive(true)
+	            	self._PanelObject._BtnNo:SetActive(true)
+	            	local rect = self._PanelObject._BtnYes:GetComponent(ClassType.RectTransform)
 		            rect.anchoredPosition = Vector2.New(self._PosXOfBtnYes,rect.anchoredPosition.y)
-		            rect = self._BtnNo:GetComponent(ClassType.RectTransform)
+		            rect = self._PanelObject._BtnNo:GetComponent(ClassType.RectTransform)
 		            rect.anchoredPosition = Vector2.New(self._PosXOfBtnNo,rect.anchoredPosition.y)
 				elseif isShowOk or isShowYes then
-					self._BtnYes:SetActive(true)
-	            	self._BtnNo:SetActive(false)
-	            	local rect = self._BtnYes:GetComponent(ClassType.RectTransform)
+					self._PanelObject._BtnYes:SetActive(true)
+	            	self._PanelObject._BtnNo:SetActive(false)
+	            	local rect = self._PanelObject._BtnYes:GetComponent(ClassType.RectTransform)
 	            	rect.anchoredPosition = Vector2.New(0,rect.anchoredPosition.y)
 	            elseif isShowCancel or isShowNo then
-					self._BtnYes:SetActive(false)
-	            	self._BtnNo:SetActive(true)
-	            	local rect = self._BtnNo:GetComponent(ClassType.RectTransform)
+					self._PanelObject._BtnYes:SetActive(false)
+	            	self._PanelObject._BtnNo:SetActive(true)
+	            	local rect = self._PanelObject._BtnNo:GetComponent(ClassType.RectTransform)
 	            	rect.anchoredPosition = Vector2.New(0,rect.anchoredPosition.y)
 				end
 
@@ -188,14 +252,14 @@ do
 				elseif isShowYes then
 					self._StrOfYes = StringTable.Get(4)
 				end
-				GUI.SetText(self._LabYes, self._StrOfYes)
+				GUI.SetText(self._PanelObject._LabYes, self._StrOfYes)
 
 				if isShowCancel then
 					self._StrOfNo = StringTable.Get(1)
 				elseif isShowNo then
 					self._StrOfNo = StringTable.Get(3)
 				end
-				GUI.SetText(self._LabNo, self._StrOfNo)
+				GUI.SetText(self._PanelObject._LabNo, self._StrOfNo)
 			end
 			self._CurType = msgBoxType
             if msgData._IsNoBtn then
@@ -203,6 +267,7 @@ do
             else
                 self._PanelCloseType = EnumDef.PanelCloseType.None
             end
+            self:UpdateAddPart(msgData)
 		end
 
 	    if self._TimerId > 0 then
@@ -222,19 +287,19 @@ do
 	            	self:OnTimerOut(isTimeYes)
 	            else
 					if msgData._IsNoBtn then
-		        		GUI.SetText(self._LabTips, string.format(time_str, life_time))
+		        		GUI.SetText(self._PanelObject._LabTips, string.format(time_str, life_time))
 		        	else
 		        		if isTimeYes then
-		        			GUI.SetText(self._LabYes, self._StrOfYes .. "(" .. life_time .. ")")
+		        			GUI.SetText(self._PanelObject._LabYes, self._StrOfYes .. "(" .. life_time .. ")")
 		        		elseif isTimeNo then
-		        			GUI.SetText(self._LabNo, self._StrOfNo .. "(" .. life_time .. ")")
+		        			GUI.SetText(self._PanelObject._LabNo, self._StrOfNo .. "(" .. life_time .. ")")
 		        		end
 		        	end
 				end
 			end)
 		else
 			if msgData._IsNoBtn then
-				GUI.SetText(self._LabTips, StringTable.Get(20))
+				GUI.SetText(self._PanelObject._LabTips, StringTable.Get(20))
 			end
 	    end
 	end
@@ -244,6 +309,10 @@ do
 			self:OnResult(true)
 	    elseif id == 'Btn_No' or id == 'Btn_Close' then
 			self:OnResult(false)
+        elseif id == "ItemIconNew" then
+            if self._MsgBoxData._CostItemID > 0 then
+                CItemTipMan.ShowItemTips(self._MsgBoxData._CostItemID, TipsPopFrom.OTHER_PANEL)
+            end
 		end
 	end
 
@@ -301,7 +370,6 @@ do
 
 	def.method("function", "boolean").CallResult = function(self, callBack, result)
 		if callBack == nil then return end
-
 		self._IsInCallback = true
 		callBack(result)
 		self._IsInCallback = false
@@ -318,17 +386,7 @@ do
 	end
 
 	def.override().OnDestroy = function (self)
-		self._LabMsgTitle = nil
-		self._LabMessage = nil
-		self._LabSpec = nil
-		self._BtnYes = nil
-		self._BtnNo = nil
-		self._LabYes = nil
-		self._LabNo = nil
-		self._LabTips = nil
-		self._CheckBoxShow = nil
-		self._Img_MsgBG = nil
-		self._BtnClose = nil
+		self._PanelObject = nil
         self._MsgBoxData = nil
 		if self._TimerId > 0 then
 	        _G.RemoveGlobalTimer(self._TimerId)
@@ -337,18 +395,25 @@ do
 	    self._CurType = 0
 	end
 
-	def.method("=>", "boolean").HandleEscapeKeyManually = function(self)
+	def.method("number", "=>", "boolean").HandleEscapeKeyManually = function(self, layer_id)
 		--warn("Msg Esc "..self._Name)
 		if self:IsOpen() then
-			if(self._MsgBoxData ~= nil)then
-				self:OnClick("Btn_No")
-			else
-				self:Close()
-			end
-			return true
+            if self._Layer == layer_id or layer_id == 0 then
+			    if self._MsgBoxData ~= nil then
+				    self:OnResult(false)
+			    else
+				    self:ShowNextOrClose()
+			    end
+			    return true
+            end
 		end
 
 		return false
+	end
+
+	-- 返回键
+	def.override("=>", "boolean").HandleEscapeKey = function(self)
+		return self:HandleEscapeKeyManually(0)
 	end
 
 end

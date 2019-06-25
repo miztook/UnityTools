@@ -45,7 +45,6 @@ end
 --增加神符卡槽操作
 -------------------------------------------------
 local function AddCharmField(self, field)
-	local hp = game._HostPlayer
 	local data = CCharmFieldData.new()
 
 	--物品模板
@@ -262,7 +261,6 @@ end
 -- 计算单个神符的战斗力
 ------------------------------------------------------
 def.method("number", "=>", "number").CalculateCharmItemCombatValue = function(self, charmID)
-    local combat = 0
     local attrTable = {}
     local charmItemTemp = CElementData.GetTemplate("CharmItem", charmID)
     if charmItemTemp == nil then return 0 end
@@ -312,7 +310,7 @@ def.method("number", "=>", "number").CalculateCharmItemCombatValue = function(se
         item.Value = v.AttrValue
         table.insert(battle_params, item)
     end
-    combat = CScoreCalcMan.Instance():CalcEquipScore(game._HostPlayer._InfoData._Prof, battle_params)
+    local combat = CScoreCalcMan.Instance():CalcEquipScore(game._HostPlayer._InfoData._Prof, battle_params)
     return math.ceil(combat)
 end
 
@@ -452,7 +450,7 @@ def.method("=>", "number").CalculateAllSmallCharmCombatValue = function(self)
             v.AttrValue = v.AttrValue * (1 + attrSet[key][k].AttrPercent/10000)
         end
     end
-    local battle_params = {}
+
     for key,value in pairs(attrTable) do
         local battle_params = {}
         for k,v in pairs(value) do
@@ -478,6 +476,48 @@ def.method("number", "=>", "string").CalcFieldOpenNeedDesc = function(self, fiel
         msg = string.format(StringTable.Get(19350), fieldID)
     end
     return msg
+end
+
+def.method("dynamic", "number", "=>", "boolean").CompareTwoCharmItem = function(self, id1, id2)
+    if id1 == nil and id2 ~= nil then return true end
+    if type(id1) ~= "number" or type(id2) ~= "number" then
+        warn("error !!! 要比较的两个神符ID必须为Number类型")
+        return false
+    end
+    if id1 <= 0 and id2 > 0 then return true end
+    if id1 == id2 then return false end
+    local temp1 = CElementData.GetTemplate("CharmItem", id1)
+    local temp2 = CElementData.GetTemplate("CharmItem", id2)
+    if temp1 == nil or temp2 == nil then
+        warn("error !!! 要比较的两个神符的模板数据有的为null")
+        return false
+    end
+    if temp1.CharmSize == temp2.CharmSize then
+        if temp1.CharmSize == ECharmSize.ECharmSize_Big then
+            if temp1.PropID1 == nil and temp2.PropID1 ~= nil then
+                return true
+            elseif temp1.PropID2 == nil and temp2.PropID2 ~= nil then
+                return true
+            end
+            if temp1.PropID1 == temp2.PropID1 and temp1.PropID2 == temp2.PropID2 then
+                if temp1.PropValue1 < temp2.PropValue1 and temp1.PropValue2 < temp2.PropValue2 then
+                    return true
+                end
+            end
+        else
+            if temp1.PropID1 == nil and temp2.PropID1 ~= nil then
+                return true
+            elseif temp1.PropID2 == nil and temp2.PropID2 ~= nil then
+                return true
+            end
+            if temp1.PropID1 == temp2.PropID1 then
+                if temp1.PropValue1 < temp2.PropValue1 then return true end
+            elseif temp1.PropID2 == temp2.PropID2 then
+                if temp1.PropValue2 < temp2.PropValue2 then return true end
+            end
+        end
+    end
+    return false
 end
 
 -- 获得是否显示神符合成特效的玩家偏好
@@ -528,33 +568,28 @@ def.method("table").PutOnBatch = function(self, charms)
         local batch = CharmPutOnStruct()
         batch.FieldId = v.FieldId
         batch.ItemIndex = v.ItemIndex
-        print("batch.FieldId ", batch.FieldId, batch.ItemIndex)
         table.insert(protocol.Charms, batch)
     end
     SendProtocol(protocol)
 end
 
 --合成
-def.method("number", "table").Compose = function(self, charmIndex, mats)
+def.method("number", "number").Compose = function(self, charmTid, count)
     local C2SCharmCompose = require "PB.net".C2SCharmCompose
     local protocol = C2SCharmCompose()
-    protocol.CharmIndex = charmIndex
-    protocol.IsInField = false
-    for _,v in ipairs(mats) do
-        table.insert(protocol.MaterialIndexs, v)
-    end
+    protocol.CharmTid = charmTid
+    protocol.CharmFieldId = 0
+    protocol.Count = count
     SendProtocol(protocol)
 end
 
-def.method("number", "table").FieldCompose = function(self, fieldID, mats)
-    print("槽位合成", fieldID)
+-- 槽位合成
+def.method("number", "number", "number").FieldCompose = function(self, fieldID, charmTid, count)
     local C2SCharmCompose = require "PB.net".C2SCharmCompose
     local protocol = C2SCharmCompose()
-    protocol.CharmIndex = fieldID
-    protocol.IsInField = true
-    for _,v in ipairs(mats) do
-        table.insert(protocol.MaterialIndexs, v)
-    end
+    protocol.CharmTid = charmTid
+    protocol.CharmFieldId = fieldID
+    protocol.Count = count
     SendProtocol(protocol)
 end
 
@@ -567,43 +602,47 @@ end
 ------------------------------------------------
 def.method("table", "boolean").CharmComposeResult = function(self, msg, isSuccess)
     local data = {}
-    data.NewCharmTid = msg.NewCharmTid
-     print("msg.NewCharmTid ",msg.NewCharmTid)
-    data.OldCharmTid = msg.OldCharmTid
-    data.IsSuccess = isSuccess
-    if not isSuccess then
-        data.Mat1 = msg.MaterialCharmTid1
-        data.Mat2 = msg.MaterialCharmTid2
-    end
-    game._GUIMan:Open("CPanelCharmComposeResult",data)
-    if msg.IsInField then
+    local callback = function()
         local CharmOptionEvent = require "Events.CharmOptionEvent"
-        if isSuccess then
-            local field = self:GetFieldDataByFieldID(msg.CharmFieldId)
-            field:PutOn(msg.NewCharmTid)
-	        RefreshPanel(self)
-        end
         local event = CharmOptionEvent()
         event._CharmID = msg.NewCharmTid
-        event._Option = "FieldCompose"
+
+        if msg.CharmFieldId and msg.CharmFieldId > 0 then
+            if isSuccess then
+                local field = self:GetFieldDataByFieldID(msg.CharmFieldId)
+                field:PutOn(msg.NewCharmTid)
+            end
+            event._Option = "FieldCompose"
+        else
+            event._Option = "Compose" 
+        end
         CGame.EventManager:raiseEvent(nil, event)
+	    RefreshPanel(self)
+         -- 同步到系统聊天通知
+        local ChatManager = require "Chat.ChatManager"
+        local msg = ""
+        if isSuccess then
+            msg = string.format(StringTable.Get(19356), RichTextTools.GetItemNameRichText(data.NewCharmTid, 1, false))
+        else
+            msg = StringTable.Get(19357)
+        end
+        ChatManager.Instance():ClientSendMsg(ECHAT_CHANNEL_ENUM.ChatChannelSystem, msg, false, 0, nil,nil)
     end
-     -- 同步到系统聊天通知
-    local ChatManager = require "Chat.ChatManager"
-    local msg = ""
-    if isSuccess then
-        msg = string.format(StringTable.Get(19356), RichTextTools.GetItemNameRichText(data.NewCharmTid, 1, false))
-    else
-        msg = StringTable.Get(19357)
-    end
-    ChatManager.Instance():ClientSendMsg(ECHAT_CHANNEL_ENUM.ChatChannelSystem, msg, false, 0, nil,nil)
+    data.NewCharmTid = msg.NewCharmTid
+    data.OldCharmTid = msg.OldCharmTid
+    data.IsSuccess = isSuccess
+    data.Count = msg.Count
+    data.CallBack = callback
+    game._GUIMan:Open("CPanelCharmComposeResult",data)
+
+   
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_EquipProcessing_Start, 0)    
 end
 
 ------------------------------------------------
 --更新神符卡槽数据
 ------------------------------------------------
 def.method("table", "number", "number").UpdateCharmField = function(self, field, optType, oldCharmID)
-	local hp = game._HostPlayer
     local CharmOptionEvent = require "Events.CharmOptionEvent"
 	local event = CharmOptionEvent()
     event._FieldID = field.FieldID
@@ -651,7 +690,6 @@ def.method("table").S2CCharmPutOnBatch = function(self, fields)
         item.CharmID = v.CharmID
         item.ItemTID = v.ItemTID
         Fields[#Fields + 1] = item
-        print("fields ", v.FieldID,  v.CharmID)
     end
     local CharmOptionEvent = require "Events.CharmOptionEvent"
     local event = CharmOptionEvent()

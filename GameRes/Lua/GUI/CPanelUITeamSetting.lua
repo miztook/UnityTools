@@ -215,8 +215,16 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
         Img_Select:SetActive(self._RightSelectIndex == idx)
         Img_UnableClick:SetActive( not current_smallData.Open )
 
-
-        GUI.SetText(Lab_TargetName, current_smallData.Data.ChannelTwoName)
+        local name = current_smallData.Data.ChannelTwoName
+        local limitedLv = current_smallData.Data.DisplayLevel
+        local Lab_Lv = item:FindChild("Lab_Lv")
+        Lab_Lv:SetActive(limitedLv>0)
+        if limitedLv > 0 then
+            local str = string.format(StringTable.Get(10714), limitedLv)
+            GUI.SetText(Lab_Lv, str)
+        end
+        
+        GUI.SetText(Lab_TargetName, name)
 
         if self._RightSelectIndex == idx then
             self._RightSelectItem = Img_Select
@@ -310,22 +318,13 @@ end
 --当输入框结束操作
 def.override("string", "string").OnEndEdit = function(self, id, str)
     local s = tonumber(str)
-    if id == "Input_FightScore" then
-        if s == nil or s < 0 then
+    if id == "Input_TeamName" then
+        local NameChecker = require "Utility.NameChecker"
+        if not NameChecker.CheckTeamNameValid(str) then
+            self._Input_TeamName.text = self._TeamMan:GetTeamName()
             return
         end
-        self._SettingData.CombatPower = tonumber(self._Input_FightScore.text)
-    elseif id == "Input_Level" then
-        if s == nil or s < 0 then
-            return
-        end
-        self._SettingData.Level = tonumber(self._Input_Level.text)
-    elseif id == "Input_TeamName" then
-        if str == "" then return end
-
-        local strMsg = FilterMgr.FilterChat(str)
-        self._Input_TeamName.text = strMsg
-        self._TeamMan:SendC2SChangeTeamName(strMsg)
+        self._TeamMan:SendC2SChangeTeamName(str)
     end
 end
 
@@ -364,12 +363,7 @@ def.method().OnClick_Btn_OK = function(self)
     local mem_count = self._TeamMan:GetMemberCount()
     local callback = function(val)
         if val then
-            self._TeamMan:C2SModifyMatchSetting(self._SettingData.TargetId,
-                                        self._SettingData.Level,
-                                        self._SettingData.CombatPower,
-                                        self._LocalAutoApprove,
-                                        self._SettingData.GuildOnly,
-                                        self._SettingData.FriendOnly)
+            self._TeamMan:C2SModifyMatchSetting(self._SettingData.TargetId, self._SettingData.Level, self._SettingData.CombatPower, self._LocalAutoApprove, self._SettingData.GuildOnly, self._SettingData.FriendOnly)
             -- 发送队伍招募信息
             if self:GetLocalSendMsgState() then
                 self._TeamMan:SendLinkMsg(ChatChannel.ChatChannelWorld)
@@ -385,6 +379,7 @@ def.method().OnClick_Btn_OK = function(self)
                 if dungeon_temp.InstanceTeamType ~= EInstanceTeamType.EInstanceTeam_Corps then
                     if mem_count > smallTeamMaxMemCount then
                         SendFlashMsg(StringTable.Get(22068), false)
+                        return
                     else
                         local title, msg, closeType = StringTable.GetMsg(125)
                         local callback1 = function(val)

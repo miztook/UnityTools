@@ -50,6 +50,12 @@ def.field("table")._Lab_SkillNext = BlankTable
 def.field("table")._LabDesAnchoredPos = nil 
 def.field("table")._SkillPoseToRuen = BlankTable    -- 位置为Key，runeID为value
 
+
+def.const("table")._WhiteColor = Color.New(1, 0.96, 0.68, 1)
+def.const("table")._GrayColor = Color.New(1, 0.96, 0.68, 0.7)
+def.const("table")._RedColor = Color.New(1, 0, 0, 1)
+
+
 -- 数据
 def.field("number")._CurIndex = 1   -- 当前选中index
 def.field("boolean")._IsShown = false
@@ -98,41 +104,44 @@ def.method().Init = function(self)
     
     local hp = game._HostPlayer
     for i = 1, 8 do
-        self._SkillToggle[i] = {}
+        local skillToggle = {}
         local activeGo = nil      
         if i ~= 8 then
             local go = self._Parent:GetUIObject("Rdo_Skill" .. i)
             activeGo = go
-            local runeIcon = self._Parent:GetUIObject("Img_RuneIcon" .. (i - 1))
-            runeIcon:SetActive(false)
+            -- local runeIcon = self._Parent:GetUIObject("Img_RuneIcon" .. (i - 1))
+            -- runeIcon:SetActive(false)
+            skillToggle.SmallRuneIcon = activeGo:FindChild("Rune_Small" .. i .. "/Img_RuneIcon")
         else            
             local go = self._Parent:GetUIObject("Rdo_Skill" .. i)
             local nextGo = self._Parent:GetUIObject("Rdo_Skill" .. (i + 1))
-            local runeIcon = self._Parent:GetUIObject("Img_RuneIcon" .. (i - 1))
-            local nextRuneIcon = self._Parent:GetUIObject("Img_RuneIcon" .. i)
+            -- local runeIcon = self._Parent:GetUIObject("Img_RuneIcon" .. (i - 1))
+            -- local nextRuneIcon = self._Parent:GetUIObject("Img_RuneIcon" .. i)
             
             if hp._InfoData._Prof ~= EnumDef.Profession.Archer then -- normal
                 go:SetActive(true)
                 nextGo:SetActive(false)
                 activeGo = go
-                runeIcon:SetActive(false)
-                nextRuneIcon:SetActive(false)
+                -- runeIcon:SetActive(false)
+                -- nextRuneIcon:SetActive(false)
+                skillToggle.SmallRuneIcon = activeGo:FindChild("Rune_Small" .. i .. "/Img_RuneIcon")
             else -- Archer
                 go:SetActive(false)
                 nextGo:SetActive(true)
                 activeGo = nextGo
-                runeIcon:SetActive(false)
-                nextRuneIcon:SetActive(false)
+                -- runeIcon:SetActive(false)
+                -- nextRuneIcon:SetActive(false)
+                skillToggle.SmallRuneIcon = activeGo:FindChild("Rune_Small" .. (i+1) .. "/Img_RuneIcon")
             end
         end
-
-        self._SkillToggle[i].SkillIcon = activeGo:FindChild("Img_U/Img_SkillIcon")
-        self._SkillToggle[i].LockIcon = activeGo:FindChild("Img_U/Img_SkillLock")
-        self._SkillToggle[i].LockLvLabel = activeGo:FindChild("Img_U/Img_SkillLock/Lab_LockLevel")
-        self._SkillToggle[i].LabLevelBg = activeGo:FindChild("Img_U/Img_SkillIcon/Lab_Level_Bg")
-        self._SkillToggle[i].LabLevel = activeGo:FindChild("Img_U/Img_SkillIcon/Lab_Level_Bg/Lab_Level")
-        self._SkillToggle[i].ToggleOnImg = activeGo:FindChild("Img_U/Img_SkillIcon/Img_D")
-        self._SkillToggle[i].UpLevelIcon = activeGo:FindChild("Img_LevelUp")
+        skillToggle.SkillIcon = activeGo:FindChild("Img_U/Img_SkillIcon")
+        skillToggle.LockIcon = activeGo:FindChild("Img_U/Img_SkillLock")
+        skillToggle.LockLvLabel = activeGo:FindChild("Img_U/Img_SkillLock/Lab_LockLevel")
+        skillToggle.LabLevelBg = activeGo:FindChild("Img_U/Img_SkillIcon/Lab_Level_Bg")
+        skillToggle.LabLevel = activeGo:FindChild("Img_U/Img_SkillIcon/Lab_Level_Bg/Lab_Level")
+        skillToggle.ToggleOnImg = activeGo:FindChild("Img_U/Img_SkillIcon/Img_D")
+        skillToggle.UpLevelIcon = activeGo:FindChild("Img_LevelUp")
+        self._SkillToggle[i] = skillToggle
     end
 
     self._Frame_Des = self._Parent:GetUIObject("Frame_Des0")
@@ -205,6 +214,18 @@ def.method().UpdateSkillList = function(self)
         local curToggle = self._SkillToggle[i]
         curToggle._Tid = v
 
+        local runeId = self._SkillPoseToRuen[i]
+        curToggle.SmallRuneIcon:SetActive(runeId ~= nil)
+        if runeId then
+            if runeId then
+                local runeTemplate = CElementData.GetTemplate("Rune", runeId)
+                local icon = CElementSkill.GetRune(runeId).RuneSmallIcon
+                GUITools.SetSkillIcon(curToggle.SmallRuneIcon, icon)
+            end
+        else
+
+        end
+
         if skillData ~= nil then
             curToggle._IsLearned = true
 
@@ -226,6 +247,7 @@ def.method().UpdateSkillList = function(self)
             curToggle.LockIcon:SetActive(false)
             curToggle.LabLevelBg:SetActive(true)
             GUI.SetText(curToggle.LabLevel, tostring(skillData.SkillLevel))
+
 
             self:UpdateSkillLine(i, true)
 
@@ -329,13 +351,16 @@ def.method().DoUpgradeAllCheck = function(self)
         local haveGold = game._AccountInfo._RoleList[game._AccountInfo._CurrentSelectRoleIndex].Gold
         local levelDes = nil
         local canUpgrade = haveGold >= needGold
+        local txtColor = CPageSkillInfo._WhiteColor
         if canUpgrade then
-            levelDes = "<color=white>" .. GUITools.FormatMoney(needGold) ..  "</color>"     
+            levelDes = GUITools.FormatMoney(needGold)   
         else
-            levelDes = "<color=red>" .. GUITools.FormatMoney(needGold) ..  "</color>"
+            txtColor = CPageSkillInfo._RedColor
+            levelDes = GUITools.FormatMoney(needGold)
         end
         
-        GUI.SetText(self._UpgradeAllCost, levelDes)     
+        GUI.SetText(self._UpgradeAllCost, levelDes)
+        GameUtil.SetTextColor(self._UpgradeAllCost:GetComponent(ClassType.Text), txtColor)
     end
 end
 
@@ -524,20 +549,29 @@ def.method("number", "number", "number").UpdateCurSkillLevelUpInfo = function(se
         end
         GUI.SetText(self._Lab_NeedLevel, levelDes)
         local goldDes = nil
+        local txtColor = CPageSkillInfo._WhiteColor
         if playerGold >= needGold then
             if expextMoneyMeet then
-                goldDes = "<color=white>" .. GUITools.FormatMoney(needGold) .. "</color>"
+                -- goldDes = "<color=white>" .. GUITools.FormatMoney(needGold) .. "</color>"
+                goldDes = GUITools.FormatMoney(needGold)
             else
-                goldDes = "<color=grey>" .. GUITools.FormatMoney(needGold) .. "</color>"
+                txtColor = CPageSkillInfo._GrayColor
+                -- goldDes = "<color=grey>" .. GUITools.FormatMoney(needGold) .. "</color>"
+                goldDes = GUITools.FormatMoney(needGold)
             end
         else
             if expextMoneyMeet then
-                goldDes = "<color=red>" .. GUITools.FormatMoney(needGold) .. "</color>"
+                txtColor = CPageSkillInfo._RedColor
+                -- goldDes = "<color=red>" .. GUITools.FormatMoney(needGold) .. "</color>"
+                goldDes = GUITools.FormatMoney(needGold)
             else
-                goldDes = "<color=grey>" .. GUITools.FormatMoney(needGold) .. "</color>"
+                txtColor = CPageSkillInfo._GrayColor
+                -- goldDes = "<color=grey>" .. GUITools.FormatMoney(needGold) .. "</color>"
+                goldDes = GUITools.FormatMoney(needGold)
             end
         end
         GUI.SetText(self._Lab_CostMoney, goldDes)
+        GameUtil.SetTextColor(self._Lab_CostMoney:GetComponent(ClassType.Text), txtColor)
     end
 end
 
@@ -574,10 +608,13 @@ def.method("number").OnLearnNewSkill = function(self, skillId)
 end
 
 def.method("string").OnClick = function (self, id)
-    if id == "Btn_UpgradeSkill" then
+    if id == "Set_Btn" then
+        game._GUIMan:Open("CPanelUISetting", EnumDef.SettingPageType.BattleSetting)
+    elseif id == "Btn_UpgradeSkill" then
         self:OnBtnUpgradeCurSkill()
     elseif id == "Btn_UpgradeSkillAll" then
         self:OnBtnUpgradeSkillAll()
+        
     elseif string.find(id, "Rdo_Skill") then
         self:OnToggleSkill(id)
     end
@@ -587,7 +624,7 @@ def.method().OnBtnUpgradeCurSkill = function(self)
     local index = self._CurIndex
 
     if not self._SkillToggle[index]._IsLearned then
-        game._GUIMan:ShowTipText(StringTable.Get(125), true)
+        game._GUIMan:ShowTipText(StringTable.Get(111), true)
         return
     end
 
@@ -630,7 +667,7 @@ def.method().OnBtnUpgradeSkillAll = function(self)
     local haveGold = game._AccountInfo._RoleList[game._AccountInfo._CurrentSelectRoleIndex].Gold
     if haveGold >= needGold and needGold > 0 then      
         local title, str, closeType = StringTable.GetMsg(98)        
-        local str_col = string.format(str, GUITools.FormatMoney(needGold))
+--        local str_col = string.format(str, GUITools.FormatMoney(needGold))
         local function cb(val) 
             if val then
                 CSoundMan.Instance():Play2DAudio(PATH.GUISound_SkillUpgrade, 0)
@@ -638,7 +675,11 @@ def.method().OnBtnUpgradeSkillAll = function(self)
                 PBHelper.Send(protocol)
             end
         end
-        MsgBox.ShowMsgBox(str_col, title, closeType, MsgBoxType.MBBT_OKCANCEL, cb)
+        local setting = {
+            [MsgBoxAddParam.CostMoneyID] = 1,
+            [MsgBoxAddParam.CostMoneyCount] = needGold,
+        }
+        MsgBox.ShowMsgBox(str, title, closeType, MsgBoxType.MBBT_OKCANCEL, cb, nil, nil, MsgBoxPriority.Normal, setting)
     else
         if needGold <= 0 then
             game._GUIMan:ShowTipText(StringTable.Get(126), false)           
@@ -646,14 +687,18 @@ def.method().OnBtnUpgradeSkillAll = function(self)
             local function callback(val)
                 if val then
                     local title, str, closeType = StringTable.GetMsg(98)        
-                    local str_col = string.format(str, GUITools.FormatMoney(needGold) )
-                    MsgBox.ShowMsgBox(str_col, title, closeType, MsgBoxType.MBBT_OKCANCEL,function(val) 
+                    --local str_col = string.format(str, GUITools.FormatMoney(needGold) )
+                    local setting = {
+                        [MsgBoxAddParam.CostMoneyID] = 1,
+                        [MsgBoxAddParam.CostMoneyCount] = needGold,
+                    }
+                    MsgBox.ShowMsgBox(str, title, closeType, MsgBoxType.MBBT_OKCANCEL,function(val) 
                             if val then
                                 CSoundMan.Instance():Play2DAudio(PATH.GUISound_SkillUpgrade, 0)
                                 local protocol = (require "PB.net".C2SSkillOperateSkillLevelUpAll)()
                                 PBHelper.Send(protocol)
                             end
-                        end)
+                        end, nil, nil, nil, setting)
                 end
             end
             MsgBox.ShowQuickBuyBox(EResourceType.ResourceTypeGold, needGold, callback)
@@ -695,7 +740,7 @@ def.method().RefreshSkillRemindGfx  = function(self)
         if skillData ~= nil then
             local maps = hp:GetSkillLevelUpConditionMap(skillId)
             for i, v in ipairs(maps) do
-                if v.SkillLevel == skillData.SkillLevel then
+                if v.SkillLevel == (skillData.SkillLevel - skillData.TalentAdditionLevel) then
                     if (hp._InfoData._Level >= v.RoleLevel) and (haveGold >= v.NeedMoneyNum) then -- 等级 金币 满足
                         isOk = true
                     end 
@@ -704,18 +749,7 @@ def.method().RefreshSkillRemindGfx  = function(self)
             end
         end
 
-        if isOk then
-            -- GameUtil.PlayUISfx(Special_Effect_Ten, toggle.SkillIcon, toggle.SkillIcon, -1)
-            -- if i == 1 then
-            --     GUITools.ScaleChildFXObj(toggle.SkillIcon, SkillUpdateFXOScale)
-            -- else
-            --     GUITools.ScaleChildFXObj(toggle.SkillIcon, 1)
-            -- end
-            toggle.UpLevelIcon:SetActive(true)
-        else
-            -- GameUtil.StopUISfx(Special_Effect_Ten, toggle.SkillIcon)
-            toggle.UpLevelIcon:SetActive(false)
-        end
+        toggle.UpLevelIcon:SetActive(isOk)
 
         if i == self._CurIndex then
             self._SkillUpdBtnEff:SetActive(isOk)
@@ -734,7 +768,7 @@ def.method("=>", "number").GetGoldCount2LevelupAll = function(self)
         local skillId = hp._MainSkillIDList[i]
         local skillData = hp:GetSkillData(skillId)
         if skillData ~= nil then
-            local skillLv = skillData.SkillLevel
+            local skillLv = skillData.SkillLevel - skillData.TalentAdditionLevel
             local map = hp:GetSkillLevelUpConditionMap(skillId)
             for _,v in ipairs(map) do
                 if v.RoleLevel <= playerLevel and v.SkillLevel >= skillLv then
@@ -743,7 +777,6 @@ def.method("=>", "number").GetGoldCount2LevelupAll = function(self)
             end
         end
     end
-
     return needGold
 end
 

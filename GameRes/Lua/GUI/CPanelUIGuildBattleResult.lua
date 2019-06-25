@@ -133,7 +133,18 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
     if id == "RewardList" then
     	index = index + 1
 		local itemTid = self._RewardData[index].Data.Id
-		CItemTipMan.ShowItemTips(itemTid, TipsPopFrom.OTHER_PANEL, item, TipPosition.FIX_POSITION)
+        local data = self._RewardData[index]
+        if data.IsTokenMoney then
+            local panelData = 
+            {
+                _MoneyID = itemTid,
+                _TipPos = TipPosition.FIX_POSITION,
+                _TargetObj = item,
+            } 
+            CItemTipMan.ShowMoneyTips(panelData)
+        else
+		    CItemTipMan.ShowItemTips(itemTid, TipsPopFrom.OTHER_PANEL, item, TipPosition.FIX_POSITION)
+        end
     end
 end
 

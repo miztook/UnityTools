@@ -7,10 +7,13 @@ local cfg = {
     Frame_Left = 1721752537,
     Img_Sort = -631090982,
     Drop_Condition = -1699486773,
-    Lab_Nothing = -190934309,
     Drop_Template = -240205878,
     TipPosition = 461871812,
     Btn_Ok = 2000023263,
+    Lab_NoneMaterial = 1887292977,
+    List_NoneMaterial = 595033728,
+    Tab_NoneMaterial = 2097986857,
+    Lab_Nothing = -190934309,
 }
  
 return cfg

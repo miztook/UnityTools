@@ -5,19 +5,34 @@
 local PBHelper = require "Network.PBHelper"
 
 local function OnEntityMove( sender,msg )
+	--[[
+	_G.NumEntityMove = _G.NumEntityMove + 1
+	local last = os.clock()
+	]]
 	local entity = game._CurWorld:FindObject(msg.EntityId) 
 
 	if entity ~= nil then
-		local curStepDestPos = Vector3.New(msg.CurrentPosition.x, msg.CurrentPosition.y, msg.CurrentPosition.z)
-		local curOri = Vector3.New(msg.CurrentOrientation.x, msg.CurrentOrientation.y, msg.CurrentOrientation.z)
-		local moveDir = Vector3.New(msg.MoveDirection.x, msg.MoveDirection.y, msg.MoveDirection.z)
-		local finalDstPos = Vector3.New(msg.DstPosition.x, msg.DstPosition.y, msg.DstPosition.z)
+		local msgCurPos = msg.CurrentPosition
+		local msgCurOri = msg.CurrentOrientation
+		local msgDir = msg.MoveDirection
+		local msgDstPos = msg.DstPosition
+
+		local curStepDestPos = Vector3.New(msgCurPos.x, msgCurPos.y, msgCurPos.z)
+		local curOri = Vector3.New(msgCurOri.x, msgCurOri.y, msgCurOri.z)
+		local moveDir = Vector3.New(msgDir.x, msgDir.y, msgDir.z)
+		local finalDstPos = Vector3.New(msgDstPos.x, msgDstPos.y, msgDstPos.z)
 		entity:OnMove(curStepDestPos, curOri, msg.MoveType, moveDir, msg.MoveSpeed, msg.IsDestPosition, finalDstPos)
 	else
 		--warn("S2CEntityMove can not find entity with id " .. msg.EntityId)
 	end
 
-	--warn(Time.frameCount, msg.EntityId, msg.MoveType)
+	--[[
+	do 
+		local now = os.clock()
+		_G.TimeHandleEntityMove1 = _G.TimeHandleEntityMove1 + (now - last) * 1000
+		last = now
+	end
+	]]
 end
 
 PBHelper.AddHandler("S2CEntityMove",OnEntityMove)

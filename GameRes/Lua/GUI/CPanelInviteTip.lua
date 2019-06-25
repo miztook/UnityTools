@@ -19,7 +19,7 @@ def.static('=>', CPanelInviteTip).Instance = function ()
         instance._PrefabPath = PATH.UI_TeamInviteTip
         instance._PanelCloseType = EnumDef.PanelCloseType.ClickEmpty
         instance._DestroyOnHide = false
-
+	instance._ForbidESC = true
         instance:SetupSortingParam()
 	end
 	return instance

@@ -180,11 +180,9 @@ end
 def.method("number", "=>", CElsePlayer).GetByHostQuickRescue = function (self, quicktalk_distance_sqr)
 	local players = self._ObjMap
 	local dis = 9999999
-	local target_radius = 0.5
 	local result = nil
 	local host = game._HostPlayer
-	local hostPosX, hostPosY, hostPosZ = host:GetPosXYZ()
-	local hostDirX, hostDirY, hostDirZ = host:GetDirXYZ()
+	local hostPosX, hostPosZ = host:GetPosXZ()
 
 	for _,v in pairs(players) do
 		if not v:IsReleased() and v:CanRescue() and v:IsFriendly() then
@@ -215,8 +213,8 @@ local sort = table.sort
 
 -- 玩家隐藏后，他的宠物也应做相应的处理，故将显隐逻辑放在CWorld层
 def.override().Update = function (self)
-	do return end
-	local maxPlayerCount = --[[UserData:GetField(EnumDef.LocalFields.ManPlayersInScreen) or]] _G.MAX_VISIBLE_PLAYER
+	--do return end
+	local maxPlayerCount = game._MaxPlayersInScreen - 1  -- 去除主角计数 1
 	local orderPlayersList = self._OrderPlayerList
 	local needLimit = (#orderPlayersList >= maxPlayerCount)
 
@@ -231,7 +229,6 @@ def.override().Update = function (self)
 	--人数超出限制
 	sort(orderPlayersList, SortPlayers)
 
-
 	-- 方案1：显示最近的maxPlayerCount个，简单粗暴
 	--[[
 	for i,v in ipairs(orderPlayersList) do
@@ -241,7 +238,7 @@ def.override().Update = function (self)
 	end
 	]]
 
-	-- 方案2：分层显示，内层全部显示，完成挑选显示
+	-- 方案2：分层显示，内层全部显示，外层挑选显示
 	local totalCount = #orderPlayersList
 	-- 优先显示内圈选手，数量控制在总量的某个比例，全部显示
 	local maxVisiblePlayerInner = math.floor(maxPlayerCount * _G.VISIBLE_PLAYER_INNER_RATIO)
@@ -314,7 +311,7 @@ def.override("boolean").Release = function (self, is_2_release_root)
 	CEntityMan.Release(self, is_2_release_root)
 
 	if is_2_release_root then
-		Object.DestroyImmediate(self._PlayersRoot)
+		Object.Destroy(self._PlayersRoot)
 		self._PlayersRoot = nil
 	end
 end

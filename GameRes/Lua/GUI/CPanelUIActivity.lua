@@ -87,6 +87,7 @@ def.method().UpdateData = function(self)
 		pageInfo.IsShow = v.IsShow
 		pageInfo.IsRefrash = v.IsRefrash
 		pageInfo.FunTid = v.FunTid
+		pageInfo.HelpUrlType = v.HelpUrlType
 		-- 红点
 		if v.RedPoint then
 			pageInfo.RedPoint = menuBtnGO:FindChild(v.RedPoint)
@@ -99,7 +100,7 @@ def.method().UpdateData = function(self)
 			end
 		end
 		pageInfo.Page = self._PageRoot:FindChild(v.Page)
-		-- pageInfo.Page:SetActive(false)
+		pageInfo.Page:SetActive(false)
 		self._Page[menuBtnName] = pageInfo
 	end
 end
@@ -159,7 +160,9 @@ end
 -- 菜单按钮红点和选中状态
 def.method().UpdateBtnInfo = function(self)
 	self:UpdateDefaultMenuBtnName()
-	self:ChangeShowPage(self._DefaultMenuName)
+	if self._CurrentMenuName == "" then
+		self:ChangeShowPage(self._DefaultMenuName)
+	end
 
 	for k, v in pairs(self._Page) do
 		local menuBtnName = v.MenuBtnName	
@@ -212,6 +215,7 @@ def.method("string").ChangeShowPage = function(self, MenuBtnName)
 		if scriptObj then
 			scriptObj:Show()
 		end
+		self._HelpUrlType = pageInfo.HelpUrlType
 	end
 end
 

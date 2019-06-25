@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 3,
 	Remarks = "",
-	TextDisplayName = "성가신 부탁 [명성]",
+	TextDisplayName = "성가신 부탁【명성】",
 	Length = 512,
 	Width = 512,
 	NavMeshName = "City02.navmesh",
@@ -34,15 +34,15 @@ local MapInfo =
 		},
 		[854] = 
 		{
-			[1] = { x = 89.71, y = -4.20, z = 44.06, name = "연금대", SortID = 4, FunctionName = " " },
+			[1] = { x = 89.71, y = -4.20, z = 44.06, name = "연금술대", SortID = 4, FunctionName = " " },
 		},
 		[855] = 
 		{
-			[1] = { x = 92.40, y = -4.20, z = 49.69, name = "연금대", SortID = 5, FunctionName = " " },
+			[1] = { x = 92.40, y = -4.20, z = 49.69, name = "연금술대", SortID = 5, FunctionName = " " },
 		},
 		[856] = 
 		{
-			[1] = { x = 86.93, y = -4.20, z = 49.72, name = "연금대", SortID = 6, FunctionName = " " },
+			[1] = { x = 86.93, y = -4.20, z = 49.72, name = "연금술대", SortID = 6, FunctionName = " " },
 		},
 	},
 	Region = 

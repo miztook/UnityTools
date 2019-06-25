@@ -5,7 +5,7 @@ local PBHelper = require "Network.PBHelper"
 
 local function OnCgEvent( sender,msg )
 	if msg.Flag == 0 then
-		CGMan.PlayById(msg.CgAssetId, nil, 1)
+		CGMan.PlayCG(msg.CgAssetId, nil, 1, false)
 	else
 		CGMan.StopCG()
 	end

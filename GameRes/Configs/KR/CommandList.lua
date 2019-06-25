@@ -74,7 +74,7 @@ CommandList:AddCommandInfo()
 {
 	name = "아이템(장비) 추가",
 	cmd = "c 31 ", 
-	desc = "C 31 아이템ID  수량",
+	desc = "C 31 아이템 ID 수량",
 	type = 2,
 }
 
@@ -192,7 +192,7 @@ CommandList:AddCommandInfo()
 
 CommandList:AddCommandInfo()
 {
-	name = "콘텐츠",
+	name = "활동",
 	cmd = "c 103 2 ", 
 	desc = "c 103 2 이벤트 id 횟수 증가",
 	type = 4,
@@ -243,6 +243,14 @@ CommandList:AddCommandInfo()
 	name = "Npc 음성 재생",
 	cmd = "playvoice ", 
 	desc = "playvoice <name>",
+	type = 4,
+}
+
+CommandList:AddCommandInfo()
+{
+	name = "播放BGM",
+	cmd = "playbgm ", 
+	desc = "playbgm <name>",
 	type = 4,
 }
 
@@ -545,7 +553,7 @@ CommandList:AddCommandInfo()
 
 CommandList:AddCommandInfo()
 {
-	name = "길드 기지",
+	name = "길드기지",
 	cmd = "c 110", 
 	desc = "c 110 길드 기지",
 	type = 8,

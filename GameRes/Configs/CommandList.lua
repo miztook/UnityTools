@@ -248,6 +248,14 @@ CommandList:AddCommandInfo()
 
 CommandList:AddCommandInfo()
 {
+	name = "播放BGM",
+	cmd = "playbgm ", 
+	desc = "playbgm <name>",
+	type = 4,
+}
+
+CommandList:AddCommandInfo()
+{
 	name = "播放3D音效",
 	cmd = "playaudio3d ", 
 	desc = "playaudio3d <name> [distance]",

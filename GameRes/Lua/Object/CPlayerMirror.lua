@@ -50,8 +50,13 @@ local function PlayerComponentInit(self, info)
 	pc._ProfessionTemplate = CElementData.GetProfessionTemplate(info.ProfessionId)
 	pc._InfoData._CurShield = creature_info.ShieldValue
 	if info.OriginParam < 0 then
-		local npcName = CElementData.GetTextTemplate(tonumber(creature_info.Name))
-		pc._InfoData._Name = npcName.TextContent
+		local nameId = tonumber(creature_info.Name)
+		if nameId ~= nil then
+			local npcName = CElementData.GetTextTemplate(nameId)
+			if npcName ~= nil then
+				pc._InfoData._Name = npcName.TextContent
+			end
+		end
 	else
 		pc._InfoData._Name = creature_info.Name
 	end
@@ -66,10 +71,10 @@ local function PlayerComponentInit(self, info)
 
 	if info.Exterior.guildName ~= nil then
 		pc._Guild._GuildName = info.Exterior.guildName
-		if info.Exterior.GuildIcon ~= nil then
-			pc._Guild._GuildIconInfo._BaseColorID = info.Exterior.GuildIcon.BaseColorID
-			pc._Guild._GuildIconInfo._FrameID = info.Exterior.GuildIcon.FrameID
-			pc._Guild._GuildIconInfo._ImageID = info.Exterior.GuildIcon.ImageID
+		if info.Exterior.guildIcon ~= nil then
+			pc._Guild._GuildIconInfo._BaseColorID = info.Exterior.guildIcon.BaseColorID
+			pc._Guild._GuildIconInfo._FrameID = info.Exterior.guildIcon.FrameID
+			pc._Guild._GuildIconInfo._ImageID = info.Exterior.guildIcon.ImageID
 		end
 		self:UpdateTopPate(EnumDef.PateChangeType.GuildName)
 	end
@@ -322,13 +327,15 @@ def.method("boolean").ChangeWeaponHangpoint = function(self, isOnBack)
 end
 
 def.override().CreatePate = function (self)
-	local CPlayerMirrorTopPate = require "GUI.CPate".CPlayerMirrorTopPate
-	local pate = CPlayerMirrorTopPate.new()
+	local CPlayerTopPate = require "GUI.CPate".CPlayerTopPate
+	local pate = CPlayerTopPate.new()
 	self._TopPate = pate
-	local callback = function()
-		self:OnPateCreate()
-	end
-	pate:Create(self, callback)
+--	local callback = function()
+--		self:OnPateCreate()
+--	end
+	pate._IsMirrorPlayer = true
+	pate:Init(self, nil, true)
+	self:OnPateCreate()
 end
 
 def.override().OnPateCreate = function(self)
@@ -484,6 +491,7 @@ local function add_combat_clear_timer(self, last_time)
     self._CombatStateClearTimerId = self:AddTimer(last_time, true, function()
             if not self._IsReady or self._IsReleased or self:IsDead() then return end
 	    	self._IsInCombatState = false
+	    	self._PlayerComponent._IsInCombatState = false
             self._CombatStateClearTimerId = 0
 			local prof = self._InfoData._Prof
             local weapon_pos_change_time = WeaponChangeCfg[prof][3]
@@ -491,6 +499,8 @@ local function add_combat_clear_timer(self, last_time)
             self._CombatStateChangeComp:ChangeState(false, false, weapon_scale_change_time, weapon_pos_change_time)
 			CSoundMan.Instance():Play3DAudio(WeaponChangeSoundCfg[prof][1], self:GetPos(), 0)
             self._SkillHdl:StopGfxPlay(EnumDef.EntityGfxClearType.BackToPeace)
+			self._PlayerComponent:PlayCurDressFightFx(EnumDef.PlayerDressPart.Weapon)
+			self._PlayerComponent:UpdateWingAnimation()
         end)
 end
 
@@ -501,10 +511,11 @@ def.override("boolean", "boolean", "number", "boolean", "boolean").UpdateCombatS
 		self:AddLoadedCallback( function()
 				if self._IsReleased then return end
 				local old_combat_state = self._IsInCombatState
-		        self._IsInCombatState = is_in_combat_state
-		        self._PlayerComponent._IsInCombatState = is_in_combat_state  
 
 		        if is_in_combat_state then 
+		        	self._IsInCombatState = true
+		        	self._PlayerComponent._IsInCombatState = true
+
 		            self._IgnoreClientStateChange = true
 		            remove_combat_clear_timer(self)
 		            if not old_combat_state then
@@ -518,6 +529,7 @@ def.override("boolean", "boolean", "number", "boolean", "boolean").UpdateCombatS
 					    	CSoundMan.Instance():Play3DAudio(WeaponChangeSoundCfg[prof][2], self:GetPos(), 0)
 		                end
 		            	self._PlayerComponent:PlayCurDressFightFx(EnumDef.PlayerDressPart.Weapon)
+		            	self._PlayerComponent:UpdateWingAnimation()
 		            end
 		            --self._SkillHdl:InterruptSpecialSkill()  -- 镜像没休闲技能
 		        else
@@ -596,7 +608,8 @@ def.override("number", "=>", "string", "string", "number").GetEntityFsmAnimation
     local animation, wingAnimation = "", ""
     local rate = 1
     if fsm_type == FSM_STATE_TYPE.IDLE then 
-    	if self:IsInCombatState() then
+    	local inCombat = self:IsInCombatState()
+    	if inCombat then
             animation = EnumDef.CLIP.BATTLE_STAND
         else
             animation = EnumDef.CLIP.COMMON_STAND
@@ -604,7 +617,7 @@ def.override("number", "=>", "string", "string", "number").GetEntityFsmAnimation
         
         if self:GetChangePoseState() then            
     		local data = nil            
-            if self:IsInCombatState() then
+            if inCombat then
                 data = self:GetChangePoseData(EnumDef.PostureType.FightStandAction)
             else
                 data = self:GetChangePoseData(EnumDef.PostureType.StandAction)
@@ -615,8 +628,9 @@ def.override("number", "=>", "string", "string", "number").GetEntityFsmAnimation
             end   
         end        
     elseif fsm_type == FSM_STATE_TYPE.MOVE then
-    	local baseSpeed,fightSpeed = self:GetBaseSpeedAndFightSpeed()     
-        if self:IsInCombatState() then                   
+    	local baseSpeed,fightSpeed = self:GetBaseSpeedAndFightSpeed()   
+    	local inCombat = self:IsInCombatState()  
+        if inCombat then                   
             animation, rate = self:CheckRunBattleAnimation(fightSpeed)   
         else
             animation, rate = self:CheckRunAnimation(baseSpeed,fightSpeed)            
@@ -624,7 +638,7 @@ def.override("number", "=>", "string", "string", "number").GetEntityFsmAnimation
         
         if self:GetChangePoseState() then  
     		local data = nil            
-            if self:IsInCombatState() then
+            if inCombat then
                 data = self:GetChangePoseData(EnumDef.PostureType.FightMoveAction)
             else
                 data = self:GetChangePoseData(EnumDef.PostureType.MoveAction)

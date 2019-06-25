@@ -4,6 +4,7 @@ local CTeamMan = require "Team.CTeamMan"
 local CCommonBtn = require "GUI.CCommonBtn"
 local CElementData = require "Data.CElementData"
 local CGame = Lplus.ForwardDeclare("CGame")
+local EInstanceTeamType = require "PB.Template".Instance.EInstanceTeamType
 
 local CPanelUITeamConfirm = Lplus.Extend(CPanelBase, "CPanelUITeamConfirm")
 local def = CPanelUITeamConfirm.define
@@ -22,6 +23,8 @@ def.field("userdata")._DoTweenPlayerTen = nil
 def.field("function")._CallBack = nil
 def.field("boolean")._IsMatchMode = false
 def.field("table")._MatchList = nil
+def.field(CCommonBtn)._CommonBtn_Buy = nil
+def.field("boolean")._IsBigTeam = false
 
 def.static("=>", CPanelUITeamConfirm).Instance = function()
 	if not instance then
@@ -29,8 +32,8 @@ def.static("=>", CPanelUITeamConfirm).Instance = function()
 		instance._PrefabPath = PATH.UI_TeamConfirm
 		instance._PanelCloseType = EnumDef.PanelCloseType.None
 		instance._DestroyOnHide = true
-
-        instance:SetupSortingParam()
+                instance._ForbidESC = true
+                instance:SetupSortingParam()
 	end
 	return instance
 end
@@ -50,9 +53,12 @@ def.override().OnCreate = function(self)
         Lab_LeftTime = self:GetUIObject('Lab_LeftTime'),
         PlayerItemGroup = self:GetUIObject("PlayerItemGroup"),
         PlayerTenItemGroup = self:GetUIObject("PlayerTenItemGroup"),
-
+       
     }
-
+    local setting = {
+        [EnumDef.CommonBtnParam.BtnTip] = StringTable.Get(955),
+    }
+    self._CommonBtn_Buy = CCommonBtn.new(self._PanelObject.Btn_Buy, setting)
     self._DoTweenPlayer = self:GetUIObject("PlayerItemGroup"):GetComponent(ClassType.DOTweenPlayer)
     self._DoTweenPlayerTen = self:GetUIObject("PlayerTenItemGroup"):GetComponent(ClassType.DOTweenPlayer)
     self._PanelObject.Lab_Sure:SetActive(false)
@@ -81,6 +87,18 @@ def.override("dynamic").OnData = function (self,data)
         self._IsMatchMode = false
         self._LeftTime = data.Duration/1000
     end
+
+    if data.DungeonId == nil or data.DungeonId <= 0 then
+        GUI.SetText(self._PanelObject.Lab_MsgTitle, StringTable.Get(22007))
+    else
+        self._DungeonID = data.DungeonId
+        self:UpdateDungeonTitle()
+    end
+
+    local targetDungeon = CElementData.GetTemplate("Instance", self._DungeonID)
+    self._IsBigTeam = targetDungeon.InstanceTeamType == EInstanceTeamType.EInstanceTeam_Corps
+
+
     self:ResetAll()
     self._Sld_Ready = self:GetUIObject('Sld_Ready')
     local img_Cap = self:GetUIObject("Img_Cap1")
@@ -89,6 +107,7 @@ def.override("dynamic").OnData = function (self,data)
 
     self._TimerId = _G.AddGlobalTimer(1, false ,function()
         if self._LeftTime > 0 then
+            if self._PanelObject == nil or self._PanelObject.Lab_LeftTime == nil then return end
             GUI.SetText(self._PanelObject.Lab_LeftTime, string.format(StringTable.Get(22045), self._LeftTime))
             self._LeftTime = self._LeftTime - 1
         else
@@ -99,24 +118,15 @@ def.override("dynamic").OnData = function (self,data)
         end
     end)
 
-    if data.DungeonId == nil or data.DungeonId <= 0 then
-        GUI.SetText(self._PanelObject.Lab_MsgTitle, StringTable.Get(22007))
-    else
-        self._DungeonID = data.DungeonId
-        self:UpdateDungeonTitle()
-    end
-
     if data.CallBack ~= nil then
         self._CallBack = data.CallBack
     end
         
     self._PanelObject.Lab_Reward:SetActive(self._TeamMan:IsBountyMode())
-    
 
 	local NotifyPowerSavingEvent = require "Events.NotifyPowerSavingEvent"
 	local event = NotifyPowerSavingEvent()
 	event.Type = "Dungeon"
-    local targetDungeon = CElementData.GetTemplate("Instance", self._DungeonID)
     if targetDungeon == nil then
 		event.Param1=""
 	else
@@ -155,19 +165,22 @@ def.method().UpdateBuyCountInfo = function(self)
     local bHave = remain_count > 0
     local root = self._PanelObject
 
-    root.Btn_Yes:SetActive( bHave )
-    root.Btn_Buy:SetActive( not bHave )
+    local hp = game._HostPlayer
+    local member = self:GetMemberById(hp._ID)
+
+    root.Btn_Yes:SetActive( bHave and not member._IsFollow )
+    root.Btn_Buy:SetActive( not bHave and not member._IsFollow )
 
     if not bHave then
         local dungeonTemplate = CElementData.GetTemplate("Instance", self._DungeonID)
-        local info = game:MoneyInfoByCountGroupId(dungeonTemplate.CountGroupTid)
+        local info = game._CCountGroupMan:MoneyInfoByCountGroupId(dungeonTemplate.CountGroupTid)
 
         local setting = {
             [EnumDef.CommonBtnParam.BtnTip] = StringTable.Get(955),
             [EnumDef.CommonBtnParam.MoneyID] = info.MoneyType,
-            [EnumDef.CommonBtnParam.MoneyCost] = info.MoneyCount   
+            [EnumDef.CommonBtnParam.MoneyCost] = info.MoneyCount
         }
-        root.CommonBtn_Buy = CCommonBtn.new(root.Btn_Buy ,setting)
+        self._CommonBtn_Buy:ResetSetting(setting)
     end
 end
 
@@ -186,62 +199,47 @@ def.method().ResetTeamMemberList = function(self)
         self._TeamMemberList = self._TeamMan:GetMemberList()
     end
 end
-
 --初始化控件信息
 def.method().ResetItemList = function(self)
     self._PanelObject.TeamMemberItemList = {}
-    local is_big_team = CTeamMan.Instance():IsBigTeam()
     local memberCnt = #self._TeamMemberList
-    if self._IsMatchMode then
-        is_big_team = true
+
+
+    self._PanelObject.PlayerItemGroup:SetActive(not self._IsBigTeam)
+    self._PanelObject.PlayerTenItemGroup:SetActive(self._IsBigTeam)
+
+
+    if self._IsBigTeam then
         memberCnt = #self._TeamMemberList
-        self._PanelObject.PlayerItemGroup:SetActive(false)
-        self._PanelObject.PlayerTenItemGroup:SetActive(true)
         local uiTemplate = self._PanelObject.PlayerTenItemGroup:GetComponent(ClassType.UITemplate)
-        for i=1,10 do
+        for i=1, 10 do
             local obj = uiTemplate:GetControl(i-1)
             if obj == nil then
                 warn("obj is null??????????? 1111")
             end
+
             local bShow = (i <= memberCnt)
             obj:SetActive( bShow )
             if bShow then
-                local key = self._TeamMemberList[i].RoleID
+                local member = self._TeamMemberList[i]
+                local key = self._IsMatchMode and member.RoleID or member._ID
                 self._PanelObject.TeamMemberItemList[key] = obj
             end
         end
-    else
-        if is_big_team then
-            self._PanelObject.PlayerItemGroup:SetActive(false)
-            self._PanelObject.PlayerTenItemGroup:SetActive(true)
-            local uiTemplate = self._PanelObject.PlayerTenItemGroup:GetComponent(ClassType.UITemplate)
-            for i=1,10 do
-                local obj = uiTemplate:GetControl(i-1)
-                if obj == nil then
-                    warn("obj is null??????????? 1111")
-                end
-                local bShow = (i <= memberCnt)
-                obj:SetActive( bShow )
-                if bShow then
-                    local key = self._TeamMemberList[i]._ID
-                    self._PanelObject.TeamMemberItemList[key] = obj
-                end
-            end
-        else
-            self._PanelObject.PlayerItemGroup:SetActive(true)
-            self._PanelObject.PlayerTenItemGroup:SetActive(false)
-            for i=1,5 do
-                local obj = self:GetUIObject('Item'..i)
-                if obj == nil then
-                    warn("obj is null???????????")
-                end
 
-                local bShow = (i <= memberCnt)
-                obj:SetActive( bShow )
-                if bShow then
-                    local key = self._TeamMemberList[i]._ID
-                    self._PanelObject.TeamMemberItemList[key] = obj
-                end
+    else
+        for i=1,5 do
+            local obj = self:GetUIObject('Item'..i)
+            if obj == nil then
+                warn("obj is null???????????")
+            end
+
+            local bShow = (i <= memberCnt)
+            obj:SetActive( bShow )
+            if bShow then
+                local member = self._TeamMemberList[i]
+                local key = self._IsMatchMode and member.RoleID or member._ID
+                self._PanelObject.TeamMemberItemList[key] = obj
             end
         end
     end
@@ -249,22 +247,14 @@ end
 
 def.method().UpdateItemList = function(self)
     for i, member in ipairs( self._TeamMemberList ) do
-        if self._IsMatchMode then
-            if self._PanelObject.TeamMemberItemList[member.RoleID] ~= nil then
-                self:SetMatchItemInfo(self._PanelObject.TeamMemberItemList[member.RoleID], member, i)
-            end
-        else
-            if self._PanelObject.TeamMemberItemList[member._ID] ~= nil then
-                if self._IsMatchMode then
-                    self:SetMatchItemInfo(self._PanelObject.TeamMemberItemList[member.RoleID], member, i)
-                else
-                    self:SetItemInfo(self._PanelObject.TeamMemberItemList[member._ID], member, i)
-                end
+        local key = self._IsMatchMode and member.RoleID or member._ID
+        if self._PanelObject.TeamMemberItemList[key] ~= nil then
+            if self._IsMatchMode then
+                self:SetMatchItemInfo(self._PanelObject.TeamMemberItemList[key], member, i)
             else
-                warn("error teaminfo Item Object nil? | ::UpdateItemList()")
+                self:SetItemInfo(self._PanelObject.TeamMemberItemList[key], member, i)
             end
         end
-        
     end
 end
 
@@ -274,7 +264,6 @@ def.method("userdata", "table", "number").SetMatchItemInfo = function(self, item
     GUITools.SetProfSymbolIcon(item:FindChild("Lab_Name/Img_Prof"), prof_template.SymbolAtlasPath)
 
     local name = ""
-
     if tonumber(memberInfo.Name) ~= nil then
         local npcName = CElementData.GetTextTemplate(tonumber(memberInfo.Name))
         name = npcName.TextContent
@@ -301,7 +290,7 @@ def.method("userdata", "table", "number").SetMatchItemInfo = function(self, item
     item:FindChild("Img_Ready"):SetActive(false)
     local Img_AssistTag = item:FindChild("Img_AssistTag")
     if Img_AssistTag ~= nil then
-        Img_AssistTag:SetActive(false)
+        Img_AssistTag:SetActive(memberInfo.IsPlayerMirror)
     end
 end
 
@@ -310,8 +299,7 @@ def.method("userdata", "table", "number").SetItemInfo = function(self, item, mem
     local CElementData = require "Data.CElementData"
     local prof_template = CElementData.GetProfessionTemplate(memberInfo._Profession)
     GUITools.SetProfSymbolIcon(item:FindChild("Lab_Name/Img_Prof"), prof_template.SymbolAtlasPath)
-    local is_big_team = CTeamMan.Instance():IsBigTeam()
-    if is_big_team then
+    if self._IsBigTeam then
         if GUITools.UTFstrlen(memberInfo._Name) > 4 then
             GUI.SetText(item:FindChild("Lab_Name"), GUITools.SubUTF8String(memberInfo._Name, 1, 4).."...")
         else
@@ -332,7 +320,7 @@ def.method("userdata", "table", "number").SetItemInfo = function(self, item, mem
         self._PanelObject.Btn_Yes:SetActive(not memberInfo._IsFollow)
         self._PanelObject.Btn_No:SetActive(not memberInfo._IsFollow)
     else
-        if is_big_team then
+        if self._IsBigTeam then
             self._DoTweenPlayerTen:Restart(index)
         else
             self._DoTweenPlayer:Restart(index)
@@ -372,7 +360,7 @@ def.override("string").OnClick = function(self,id)
         local dungeonTid = self._TeamMan:ExchangeToDungeonId(self._DungeonID)
         local remainderCount = game._DungeonMan:GetRemainderCount(self._DungeonID)
         local dungeonTemplate = CElementData.GetTemplate("Instance", self._DungeonID)
-        game:BuyCountGroup(remainderCount ,dungeonTemplate.CountGroupTid)
+        game._CCountGroupMan:BuyCountGroup(remainderCount ,dungeonTemplate.CountGroupTid)
 	end
 end
 
@@ -395,6 +383,25 @@ def.method("number", "=>", "number").GetIndexById = function(self, roleId)
     return index
 end
 
+def.method("number", "=>", "table").GetMemberById = function(self, roleId)
+    local info = nil
+    for i,v in ipairs(self._TeamMemberList) do
+        if self._IsMatchMode then
+            if v.RoleID == roleId then
+                info = v
+                break
+            end
+        else
+            if v._ID == roleId then
+                info = v
+                break
+            end
+        end
+    end
+
+    return info
+end
+
 --更新确认入队的图标
 def.method('number').UpdateTeamMemberConfirmed = function(self,roleId)
     if instance == nil or not instance:IsShow() then return end 
@@ -413,8 +420,7 @@ def.method('number').UpdateTeamMemberConfirmed = function(self,roleId)
             self._PanelObject.Btn_Buy:SetActive(false)
         else
             local index = self:GetIndexById(roleId)
-            local is_big_team = CTeamMan.Instance():IsBigTeam()
-            if is_big_team then
+            if self._IsBigTeam then
                 self._DoTweenPlayerTen:Stop(index)
                 self._DoTweenPlayerTen:GoToStartPos(index)      
             else
@@ -439,6 +445,20 @@ def.override().OnHide = function(self)
     end
     CGame.EventManager:removeHandler("CountGroupUpdateEvent", OnCountGroupUpdateEvent)
     CPanelBase.OnHide(self)
+end
+
+def.override().OnDestroy = function(self)
+    if self._CommonBtn_Buy ~= nil then
+        self._CommonBtn_Buy:Destroy()
+        self._CommonBtn_Buy = nil
+    end
+    self._PanelObject = nil
+    self._TeamMemberList = nil
+    self._Sld_Ready = nil
+    self._DoTweenPlayer = nil
+    self._DoTweenPlayerTen = nil
+    self._CallBack = nil
+    self._MatchList = nil
 end
 
 CPanelUITeamConfirm.Commit()

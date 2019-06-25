@@ -497,7 +497,7 @@ def.method("=>", "number").GetFightPetSkillFightScore = function(self)
         local petId = hp:GetCurrentFightPetId()
         local pet = petPackage:GetPetById(petId)
         if pet ~= nil then
-            result = result + pet:GetSkillScore()
+            result = result + pet:CalcSkillFightScoreWithoutTalent()
         end
     end
 

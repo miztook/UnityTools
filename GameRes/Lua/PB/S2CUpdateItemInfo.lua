@@ -65,7 +65,7 @@ local function OnUpdateItemInfo(sender, protocol)
 					game:OnAppMsgBoxStatic(EnumDef.TriggerTag.GetIDItem, v.UpdateItem.ItemData.Tid)
 					game:OnAppMsgBoxStatic(EnumDef.TriggerTag.GetQualityItem, item._Quality)
 				end
-				if v.UpdateItem.ItemData.Tid == 0 and v.Cause == Data.EItemConsumeCause.ItemConsumeItemDecompose then 
+				if  v.Cause == Data.EItemConsumeCause.ItemConsumeItemDecompose then 
 					table.insert(decomposedSlots,v.UpdateItem.Index)
 				end
 				if data[i].Src ~=  Data.ENUM_ITEM_SRC.EQUIP_TAKEOFF 
@@ -73,13 +73,16 @@ local function OnUpdateItemInfo(sender, protocol)
 				and data[i].Src ~= Data.ENUM_ITEM_SRC.OPEN_BOX 
 				and data[i].Src ~= Data.ENUM_ITEM_SRC.NULL 
 				and data[i].Src ~= Data.ENUM_ITEM_SRC.ADMIN
+                and data[i].Src ~= Data.ENUM_ITEM_SRC.PETDROP
+                and data[i].Src ~= Data.ENUM_ITEM_SRC.SPRINTGIFT
 				and data[i].Src ~= Data.ENUM_ITEM_SRC.CHARM_TAKEOFF then 
 					local nCurBagCount = normalPack:GetItemCountBySlot(v.UpdateItem.Index)
 					local nDelta = v.UpdateItem.ItemData.Count - nCurBagCount
 					if nDelta > 0 then -- 道具增加了
 						if data[i].Src ~=  Data.ENUM_ITEM_SRC.SPRINTGIFT and 
 						data[i].Src ~=  Data.ENUM_ITEM_SRC.PETDROP and
-						data[i].Src ~=  Data.ENUM_ITEM_SRC.CHARM_COMPOSE then
+						data[i].Src ~=  Data.ENUM_ITEM_SRC.CHARM_COMPOSE and
+						data[i].Src ~=  Data.ENUM_ITEM_SRC.INFORCEREFUND then
 							game._GUIMan:ShowMoveItemTextTips(v.UpdateItem.ItemData.Tid,false,nDelta, true)
 						end
 						-- 获得物品发送系统消息提示
@@ -89,7 +92,7 @@ local function OnUpdateItemInfo(sender, protocol)
 						local msg = nil
 						if data[i].Src == Data.ENUM_ITEM_SRC.LOOT then
 							-- msg = string.format(StringTable.Get(13034), nDelta, ItemName)
-							msg = StringTable.Format_AB_BA(StringTable.Get(13034), nDelta, ItemName)
+							msg = string.format(StringTable.Get(13034), nDelta, ItemName)
 						elseif data[i].Src == Data.ENUM_ITEM_SRC.ITEM_DECOMPOSE then
 							-- 物品分解已有提示
 							msg = nil
@@ -178,6 +181,7 @@ local function OnUpdateItemInfo(sender, protocol)
 		SendPackageChangeNotify(tids,decomposedSlots)
 		local CPanelMainChat = require "GUI.CPanelMainChat"
 		local last = normalPack:GetEmptySlotNum()
+		CPanelMainChat.Instance():ShowBagRed()
 		CPanelMainChat.Instance():SetBagCapacityLast( (normalPack._EffectSize - last) /normalPack._EffectSize)
 
 		local Lplus = require "Lplus"

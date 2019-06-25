@@ -31,6 +31,9 @@ local cfg = {
     Img_Money = 1905470724,
     Lab_HaveMoney = -2105659450,
     Lab_ExchangeTime = 1543149890,
+    VideoPlayer_Pet = -1965148836,
+    VideoPlayer_Elf = -1965159204,
+    Img_Elf = -713107997,
 }
  
 return cfg

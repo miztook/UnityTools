@@ -15,8 +15,8 @@ game._GUIMan: ShowTipText("Test",true)
 --下飘字提示
 game._GUIMan: ShowTipText("Test",false)
 
---带图标的提示
-game._GUIMan:ShowIconAndTextTip("IconPath","前缀XX","后缀XX")
+----带图标的提示
+--game._GUIMan:ShowIconAndTextTip("IconPath","前缀XX","后缀XX")
 
 --走马灯置顶提示
 game._GUIMan:OpenSpecialTopTips("Test")
@@ -116,7 +116,7 @@ MenuList.Show(comps, alignTarget, EnumDef.AlignType.Bottom)
 --===========================================================
 -- 次数组购买接口，参数（当前剩余次数，次数组ID）
 -----------------------------------------------------------
-game:BuyCountGroup(CurNum,CountGroupTid)
+game._CCountGroupMan:BuyCountGroup(CurNum,CountGroupTid)
 
 local function OnCountGroupUpdateEvent(sender, event)
 	if instance ~= nil and instance:IsShow() then

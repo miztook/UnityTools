@@ -74,28 +74,17 @@ end
 
 -- 点击确定按钮
 def.method().OnBtnSure = function(self)
-	local moneyValue = game._GuildMan:GetMoneyValueByTid(self._Data._Tid)
 	local name = self._InputField_Name.text
-	if GUITools.CheckName(name) then
-		if self._Data._Cost > moneyValue then
-			game._GUIMan:ShowTipText(StringTable.Get(813), true)
-			return
-		end
-		if self._Data._Min ~= nil then
-			if GameUtil.GetStringLength(name) < self._Data._Min then
-				game._GUIMan:ShowTipText(StringTable.Get(26), true)	
-				return
-			end
-		end
-		if self._Data._Max ~= nil then
-			if GameUtil.GetStringLength(name) > self._Data._Max then
-				game._GUIMan:ShowTipText(StringTable.Get(27), true)
-				return
-			end
-		end
-		if self._Data._Callback ~= nil then
-			self._Data._Callback(name)
-		end
+	local NameChecker = require "Utility.NameChecker"
+	if not NameChecker.CheckGuildNameValid(name) then return end
+	
+	local moneyValue = game._GuildMan:GetMoneyValueByTid(self._Data._Tid)
+	if self._Data._Cost > moneyValue then
+		game._GUIMan:ShowTipText(StringTable.Get(813), true)
+		return
+	end
+	if self._Data._Callback ~= nil then
+		self._Data._Callback(name)
 	end
 end
 

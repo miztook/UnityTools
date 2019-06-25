@@ -32,6 +32,7 @@ local QuickMatchStateEvent = require "Events.QuickMatchStateEvent"
 def.field(CFrameCurrency)._Frame_Money = nil
 def.field("table")._FrameTable = BlankTable
 def.field("userdata")._Lab_PanelTitle = nil
+def.field("userdata")._Img_Line = nil
 def.field("userdata")._Lab_DgnName = nil
 def.field("userdata")._Lab_DgnMode = nil
 def.field("userdata")._Lab_DgnDes = nil
@@ -154,6 +155,7 @@ def.override().OnCreate = function(self)
 	end
 	self._Frame_Money = CFrameCurrency.new(self, self:GetUIObject("Frame_Money"), EnumDef.MoneyStyleType.None)
 	self._Lab_PanelTitle = self:GetUIObject("Lab_PanelTitle")
+	self._Img_Line = self:GetUIObject("Img_Line")
 	self._Lab_DgnName = self:GetUIObject("Lab_DgnName")
 	self._Lab_DgnMode = self:GetUIObject("Lab_DgnMode")
 	self._Lab_DgnDes = self:GetUIObject("Lab_DgnDes")
@@ -341,7 +343,8 @@ def.method("number", "dynamic").ShowFrame = function (self, nType, uiData)
 		GameUtil.PlayUISfx(PATH.UIFX_DungeonDragon, self._Img_DragonNestBoss, self._Img_DragonNestBoss, -1)
 	end
 	-- 2018/06/14 wuyou新需求：风暴试炼不显示次数组购买按钮。
-	GUITools.SetUIActive(self._Btn_Buy, nType ~= DungeonPage._TowerDungeon)
+	-- 2019/06/13 yangzonghan新需求：奇利恩不显示次数组购买按钮。
+	GUITools.SetUIActive(self._Btn_Buy, nType ~= DungeonPage._TowerDungeon and nType ~= DungeonPage._Gilliam)
 
 	self._Frame_TowerPassTime:SetActive(nType == DungeonPage._TowerDungeon)
 	self._Frame_TowerContent:SetActive(nType == DungeonPage._TowerDungeon)
@@ -349,6 +352,7 @@ def.method("number", "dynamic").ShowFrame = function (self, nType, uiData)
 	-- 遗迹普通或遗迹噩梦
 	local isRuin = nType == DungeonPage._NormalDungeon or nType == DungeonPage._NightmareDungeon
 	self._Frame_DungeonList:SetActive(isRuin)
+	GUITools.SetUIActive(self._Img_Line, isRuin)
 
 	self._IsOpenAssist = true
 	self._CurDungeonPage = nType
@@ -454,8 +458,7 @@ def.method().UpdateQuickJoinState = function(self)
 	local dungeonTemp = CElementData.GetInstanceTemplate(self._CurPageClass:GetCurDungeonId())
 	if dungeonTemp == nil then return end
 
-	local curMatchDungeonId = CTeamMan.Instance():ExchangeToDungeonId(game._DungeonMan:GetQuickMatchTargetId())
-	GUI.SetText(self._Lab_QuickJoin, StringTable.Get(dungeonTemp.IsQuickMatch and (curMatchDungeonId == self._CurPageClass:GetCurDungeonId() and 936 or 935) or 934))
+	GUI.SetText(self._Lab_QuickJoin, StringTable.Get(dungeonTemp.IsQuickMatch and 935 or 934))
 end
 
 -- 设置奖励物品列表
@@ -633,7 +636,7 @@ def.method("number", "number").SetRuinList = function (self, count, index)
 	if count > 0 then
 		GUITools.SetUIActive(self._View_Dungeon, true)
 		self._List_Dungeon:SetItemCount(count)
-		self._List_Dungeon:ScrollToStep(index)
+		self._List_Dungeon:ScrollToStep(index-2)		--显示在第3个位置
 		self._List_Dungeon:SetSelection(index)
 	else
 		GUITools.SetUIActive(self._View_Dungeon, false)
@@ -758,10 +761,10 @@ def.method().EnterLogic = function(self)
 		if countGroupTemplate ~= nil then
 			if countGroupTemplate.InitBuyCount > 0 then
 				-- 属于可购买次数的副本
-				-- local leftTime = game:OnCurLaveCount(dungeonTemp.CountGroupTid) -- 剩余可购买次数
+				-- local leftTime = game._CCountGroupMan:OnCurLaveCount(dungeonTemp.CountGroupTid) -- 剩余可购买次数
 				-- if leftTime > 0 then
 					-- 还可以购买
-					game:BuyCountGroupWhenEnter(dungeonTemp.CountGroupTid)
+					game._CCountGroupMan:BuyCountGroupWhenEnter(dungeonTemp.CountGroupTid)
 					return
 				-- end
 			end
@@ -805,7 +808,7 @@ def.override('string').OnClick = function(self, id)
 		end
 
 		local dungeonTemplate = CElementData.GetTemplate("Instance", dungeonTid)
-		game:BuyCountGroup(game._DungeonMan:GetRemainderCount(dungeonTid) ,dungeonTemplate.CountGroupTid)
+		game._CCountGroupMan:BuyCountGroup(game._DungeonMan:GetRemainderCount(dungeonTid) ,dungeonTemplate.CountGroupTid)
 	elseif id == "IOSToggle_Assist" then
 		self:EnableAssist(not self._IsOpenAssist)
 	else
@@ -884,6 +887,7 @@ def.override().OnDestroy = function(self)
 	end
 	self._RdoTable_Difficulty ={}
 	self._Lab_PanelTitle = nil
+	self._Img_Line = nil
 	self._Lab_DgnName = nil
 	self._Lab_DgnMode = nil
 	self._Lab_DgnDes = nil

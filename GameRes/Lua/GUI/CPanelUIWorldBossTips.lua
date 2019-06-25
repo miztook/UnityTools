@@ -226,7 +226,7 @@ def.override('string').OnClick = function(self, id)
             -- 停止任务自动化
             local CQuestAutoMan = require"Quest.CQuestAutoMan"
             CQuestAutoMan.Instance():Stop()
-            local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+            local CAutoFightMan = require "AutoFight.CAutoFightMan"
             CAutoFightMan.Instance():Pause(_G.PauseMask.TransBroken)
 
             local function DoCallback()

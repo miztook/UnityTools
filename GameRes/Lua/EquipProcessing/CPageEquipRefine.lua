@@ -153,9 +153,9 @@ def.method("dynamic").Show = function(self, data)
         local function OnMoneyChanged()
             self:UpdateFrame()
         end
-        CGame.EventManager:addHandler('NotifyMoneyChangeEvent', OnMoneyChanged)
         self._OnMoneyChanged = OnMoneyChanged
     end
+    CGame.EventManager:addHandler('NotifyMoneyChangeEvent', self._OnMoneyChanged)
 end
 
 -- 更新是否显示附魔界面
@@ -169,7 +169,7 @@ def.method().UpdateFrame = function(self)
     -- 更新选中信息
     self:UpdateSelectItem()
     -- 更新材料信息
-    self:UpdatrMaterialInfo()
+    self:UpdateMaterialInfo()
     -- 更新属性信息 材料有可能提升数值，最后计算
     self:UpdateProperty()
     -- 更新金币消耗，按钮状态
@@ -242,7 +242,7 @@ def.method().UpdateProperty = function(self)
     end
 end
 -- 更新材料信息
-def.method().UpdatrMaterialInfo = function(self)
+def.method().UpdateMaterialInfo = function(self)
     local root = self._PanelObject
     local bShow = self._ItemData ~= nil
     
@@ -395,7 +395,8 @@ def.method("userdata", "number", "table").OnInitItem = function(self, item, inde
             [EItemIconTag.Equip] = (itemData.PackageType == BAGTYPE.ROLE_EQUIP),
         }
         IconTools.InitItemIconNew(ItemIconNew, itemData.ItemData._Tid, setting)
-        Img_UnableClick:SetActive(self._ItemData ~= nil and self._ItemData ~= itemData)
+        Img_UnableClick:SetActive(false)
+        -- Img_UnableClick:SetActive(self._ItemData ~= nil and self._ItemData ~= itemData)
     else
         local setting = {
             [EItemIconTag.Bind] = itemData.ItemData:IsBind(),

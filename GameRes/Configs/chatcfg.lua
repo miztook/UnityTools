@@ -88,4 +88,15 @@ data.Channel[6] =
     cooltime = 0,
 }
 
+data.Channel[7] = 
+{
+	channel = 7,     --招募频道
+	channelname = "[招募]",
+	mainbtnname = "招募",
+	channelcolor = "F25D80",
+	rolenamecolor = "66CDAA", 
+	textcolor = "F25D80",
+    cooltime = 7,
+}
+
 return data

@@ -19,7 +19,6 @@ def.field("userdata")._Frame_Soul_R = nil
 
 -- 界面
 def.field("userdata")._Btn_Reset = nil
-def.field("userdata")._Lab_PageDescTitle = nil
 def.field("userdata")._Lab_PageDesc = nil
 def.field("userdata")._Lab_PointNum = nil
 def.field("userdata")._Lab_Title = nil
@@ -68,7 +67,6 @@ def.method().Init = function(self)
 
 	self._Btn_Reset = self._Root:GetUIObject("Btn_Reset")
     self._Lab_PageDesc = self._Root:GetUIObject("Lab_Desc_Page")
-    self._Lab_PageDescTitle = self._Root:GetUIObject("Lab_DescTitle_Page")
     self._Lab_PointNum = self._Root:GetUIObject("Lab_PointNum")
     self._FramePoint = self._Lab_PointNum.parent
     self._LabMaxDes = self._FramePoint.parent:FindChild("Lab_Max_Des")
@@ -88,6 +86,11 @@ def.method().Init = function(self)
     self._Btn_Save = self._Root:GetUIObject("Btn_Save")
 	self._Btn_CloseHint = self._Root:GetUIObject("Btn_CloseSoulHint")
     self._Btn_CloseHint:SetActive(false)
+    local frame_gift_1 = self._Root:GetUIObject("Frame_Gift1")
+    local img_new = GUITools.GetChild(frame_gift_1, 4)
+    if not IsNil(img_new) then
+        GUITools.SetUIActive(img_new, false) -- 第一个不会出现New
+    end
 
     -- 重置消耗货币数量读特殊ID表
     local CSpecialIdMan = require "Data.CSpecialIdMan"
@@ -158,9 +161,12 @@ def.method("string").OnClick = function (self, id)
                 end
             end
             local title, msg, closeType = StringTable.GetMsg(78)
-            local emojiStr = GUITools.GetEmojiByType(EnumDef.ExchangeMoneyToEmoji[RESET_MONEY_ID])
-            msg = StringTable.Format_AB_BA(msg, emojiStr, tostring(self._ResetCostNum))
-            MsgBox.ShowMsgBox(msg, title, closeType, bit.bor(MsgBoxType.MBBT_OKCANCEL, MsgBoxType.MBT_NOTSHOW),callback,nil,nil,nil,nil,"CPanelUIWing_2")
+            local setting = {
+                -- [MsgBoxAddParam.NotShowTag] = "CPanelUIWing_2",
+                [MsgBoxAddParam.CostMoneyID] = RESET_MONEY_ID,
+                [MsgBoxAddParam.CostMoneyCount] = self._ResetCostNum,
+            }
+            MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL,callback,nil,nil,nil,setting)
         else
             -- 没有天赋加点
             game._GUIMan:ShowTipText(StringTable.Get(19560), false)
@@ -261,7 +267,6 @@ def.method().Destroy = function (self)
     self._Btn_Reset = nil
     self._Btn_CloseHint = nil
     self._Lab_PageDesc = nil
-    self._Lab_PageDescTitle = nil
 
     self._Frame_Soul_C = nil
     self._Frame_Soul_L = nil
@@ -371,13 +376,14 @@ def.method("number").TalentSkillClickCallBack = function(self, index)
             -- 更新加减点按钮状态
             local hasLeftPoint = CWingsMan.Instance():CheckTempPointLeft(self._Cur_Talent_Page)
             local enableBtnUp = canPointUp and hasLeftPoint
-            GUITools.SetBtnGray(self._Btn_PointUp, not enableBtnUp)
+            GUITools.SetBtnGray(self._Btn_PointUp, not enableBtnUp, true)
             local enableBtnDown = CWingsMan.Instance():CheckTalentPointDown(talent_data.WingTalentID, self._Cur_Talent_Page, false)
-            GUITools.SetBtnGray(self._Btn_PointDown, not enableBtnDown)
+            GUITools.SetBtnGray(self._Btn_PointDown, not enableBtnDown, true)
 
             local showMax = CWingsMan.Instance():GetStaticAddPoint(self._Cur_Talent_Page, talent_data.WingTalentID) >= max_level
-            self._FrameDes:SetActive(enableBtnUp)
-            if enableBtnUp then
+            self._FrameDes:SetActive(true)
+            -- if enableBtnUp then
+            do
                 -- 升级数值预览
                 local talentID = wing_talent_data.TalentID
                 local valuenow = CElementSkill.GetTalentLevelUpValue(talentID, 1, self._CurAddNum)
@@ -440,7 +446,7 @@ end
 
 def.method("table").SoulPanelUpdate = function(self, data)
     if not data or #data <= 0 then
-        return;
+        return
     end
      
     local prefix = "Rdo_List"
@@ -464,10 +470,10 @@ def.method("table").SoulPanelUpdate = function(self, data)
 
         if page_data then
             local label = self._Root:GetUIObject(prefix ..i)
-            -- local lab_list = GUITools.GetChild(label, 1)
-            -- if not IsNil(lab_list) then
-            --     GUI.SetText(lab_list,tostring(page_data.TalentName))
-            -- end        
+            local lab_list = GUITools.GetChild(label, 1)
+            if not IsNil(lab_list) then
+                GUI.SetText(lab_list,tostring(page_data.TalentName))
+            end
             local img_icon = GUITools.GetChild(label, 4)
             if not IsNil(img_icon) then
                 GUITools.SetIcon(img_icon, page_data.IconPath)
@@ -691,8 +697,8 @@ def.method("number").SetSoulPanelByIndex = function(self, index)
     local pageTemplate = CWingsMan.Instance():GetWingPageData(data[index].PageId)
     if pageTemplate ~= nil then
         local titleStr = string.format(StringTable.Get(19534), pageTemplate.TalentName)
-        GUI.SetText(self._Lab_PageDescTitle, titleStr)
-        GUI.SetText(self._Lab_PageDesc, pageTemplate.DescribeText)
+        local descStr = titleStr .."  "..pageTemplate.DescribeText -- 标题和具体描述中间隔两个空格
+        GUI.SetText(self._Lab_PageDesc, descStr)
     end
 
     -- 刷新

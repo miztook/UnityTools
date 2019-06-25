@@ -7,6 +7,7 @@ local Data = require "PB.data"
 local CPanelUIWelfare = require"GUI.CPanelUIWelfare"
 local CPanelMall = require "GUI.CPanelMall"
 local CElementData = require "Data.CElementData"
+local CMallUtility = require "Mall.CMallUtility"
 local EFormatType = require "PB.Template".Store.EFormatType
 
 
@@ -42,18 +43,50 @@ local function OnS2CGuildItems(sender, msg)
             panelData = 
             {
                 IsFromRewardTemplate = false,
+                ItemSrc = msg.ItemSrc,
                 ListItem = msg.Items,
                 MoneyList = msg.Moneys,
             }
-            game._GUIMan:Open("CPanelMallLottery",panelData) 
---            local cg_complete = function()
+            local net_cb_id = 0
+            local is_disconnect = false
+            local cg_complete = function()
+                if is_disconnect then
+                    is_disconnect = false
+                    return
+                end
+                game._GUIMan:Open("CPanelMallLottery",panelData)
+                if net_cb_id > 0 then
+                    game._CNetAutomicMan:UnRegistAutomicHandle(net_cb_id)
+                    net_cb_id = 0
+                end
+            end
+            local is_show_fx = true
+            if msg.ItemSrc == Data.ENUM_ITEM_SRC.SPRINTGIFT then
+                is_show_fx = CMallUtility.IsShowGfx(EnumDef.LocalFields.MallSkipGfx_Springift)
+            else
+                is_show_fx = CMallUtility.IsShowGfx(EnumDef.LocalFields.PetEggSkipGfx_PetEgg)
+            end
+            if is_show_fx then
+                local cg_id = (msg.ItemSrc == Data.ENUM_ITEM_SRC.SPRINTGIFT and 26 or 27)
+                local disconnect_cb = function()
+                    is_disconnect = true
+                    CGMan.StopCG()
+                end
 
---            end
---            if msg.ItemSrc == Data.ENUM_ITEM_SRC.SPRINTGIFT then
---                CGMan.PlayById(26, cg_complete, 1)
---            else
---                CGMan.PlayById(27, cg_complete, 1)
---            end
+                local reconnect_cb = function()
+                    --_G.OnCGFinish(false)
+                    cg_complete()
+                end
+                if msg.ItemSrc == Data.ENUM_ITEM_SRC.SPRINTGIFT then
+                    net_cb_id = game._CNetAutomicMan:RegistAutomicHandle(disconnect_cb, reconnect_cb)
+                    CGMan.PlayCG(cg_id, cg_complete, 1, false)
+                else
+                    net_cb_id = game._CNetAutomicMan:RegistAutomicHandle(disconnect_cb, reconnect_cb)
+                    CGMan.PlayCG(cg_id, cg_complete, 1, false)
+                end
+            else
+                cg_complete()
+            end
         end
     end
    
@@ -79,7 +112,6 @@ PBHelper.AddHandler("S2CGuildItems", OnS2CGuildItems)
 local function OnS2CSprintGiftRes(sender, msg )
     if CPanelMall.Instance():IsShow() and CPanelMall.Instance()._CurrentPage._PageType == EFormatType.SprintGiftTemp then
         if msg.result == 0 then 
-            print("2222222222222")
             CPanelMall.Instance()._CurrentPage:UpdateMaterialNum()
         else
             game._GUIMan:ShowErrorTipText(msg.result)

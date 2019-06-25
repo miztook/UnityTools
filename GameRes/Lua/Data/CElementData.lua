@@ -61,7 +61,6 @@ do
 		if map ~= nil and map[tid] ~= nil then
 			return map[tid]
 		else
-			LogMemoryUsedMsg(false, true, name, tid)
 			local data = GameUtil.GetTemplateData(name, tid)
 			local template_class = pb_template[name]
 			local template = template_class()
@@ -75,7 +74,6 @@ do
 				warn("Failed to get " .. name .. " template data (tid = " .. tid .. ")", debug.traceback())
 				return nil
 			end
-			LogMemoryUsedMsg(false, false, name, tid)
 			return template
 		end
 	end
@@ -102,6 +100,7 @@ do
 	}
 
 	def.static("string", "number", "=>", "table").GetTemplate = function(name, id)
+	--[[
 		if beginUsageStatistics then
 			if templateUsageStatistics == nil then templateUsageStatistics = {} end
 			if templateUsageStatistics[name] == nil then templateUsageStatistics[name] = {} end
@@ -113,8 +112,14 @@ do
 				statis[id][3] = os.time()
 			end
 		end
+	]]
 		if isCachedAll and templateData[name] == nil then templateData[name] = {} end
 		return GetTemplateInternal(id, name, templateData[name])
+	end
+
+	def.static("string", "number", "=>", "table").GetTemplateNoCache = function(name, id)
+		--warn("GetTemplateNoCache:", name, id)
+		return GetTemplateInternal(id, name, nil)
 	end
 
 	def.static().DumpStatistics = function()
@@ -158,13 +163,13 @@ do
 		return AllGuildPermission
 	end
 
-	local AllGuide = nil
-	def.static("=>", "table").GetAllGuide = function()
-		if AllGuide == nil then
-			AllGuide = GameUtil.GetAllTid("Guide")
-		end
-		return AllGuide
-	end
+	-- local AllGuide = nil
+	-- def.static("=>", "table").GetAllGuide = function()
+	-- 	if AllGuide == nil then
+	-- 		AllGuide = GameUtil.GetAllTid("Guide")
+	-- 	end
+	-- 	return AllGuide
+	-- end
 
 	def.static("=>", "table").GetAllFun = function()
 		return GameUtil.GetAllTid("Fun")
@@ -292,9 +297,6 @@ do
 		return GetTemplateInternal(tid, "SpecialId", nil)
 	end
 
-	def.static("number", "=>", "table").GetHearsayTemplate = function(tid)
-		return GetTemplateInternal(tid, "Hearsay", nil)
-	end
 
 	def.static("number", "=>", "table").GetTextTemplate = function(tid)
 		return CElementData.GetTemplate("Text", tid)
@@ -320,6 +322,10 @@ do
 		return CElementData.GetTemplate("ManualAnecdote", tid)
 	end
 
+	def.static("number", "=>", "table").GetManualTotalRewardTemplate = function(tid)
+		return CElementData.GetTemplate("ManualTotalReward", tid)
+	end
+	
 	def.static("number", "=>", "table").GetGuildSmithyTemplate = function(tid)
 		return CElementData.GetTemplate("GuildSmithy", tid)
 	end
@@ -403,17 +409,13 @@ do
 		return CElementData.GetTemplate("Trans", tid)
 	end
 
-	def.static("number", "=>", "table").GetDungeonGroupConfigTemplate = function(tid)
-		return CElementData.GetTemplate("DungeonGroupConfig", tid)
-	end
-
 	def.static("number", "=>", "table").GetExecutionUnitTemplate = function(tid)
 		return CElementData.GetTemplate("ExecutionUnit", tid)
 	end
 
-	def.static("number", "=>", "table").GetGuideTemplate = function(tid)
-		return CElementData.GetTemplate("Guide", tid)
-	end
+	-- def.static("number", "=>", "table").GetGuideTemplate = function(tid)
+	-- 	return CElementData.GetTemplate("Guide", tid)
+	-- end
 
 	def.static("number", "=>", "table").GetFunTemplate = function(tid)
 		return CElementData.GetTemplate("Fun", tid)
@@ -483,7 +485,7 @@ do
 		local template_class = pb_template[key]
 		local template = template_class()
 		if data ~= nil and string.len(data) > 0 then
-			template:ParseFromString(data)
+			template:ParseFromString(data) 
 			--template = _G.LSMan.GetTemplate(key, template)
 		else
 			--warn(key .. " template data has error")
@@ -769,6 +771,8 @@ do
 
 	-- 	if LegendaryGroupInfoMap[id] == nil then
 	-- 		LegendaryGroupInfoMap[id] = {}
+
+	-- 		local DynamicText = require "Utility.DynamicText"
 	-- 		--传奇属性组
 	-- 		local groupTemplate = CElementData.GetTemplate('LegendaryGroup', id)
 	-- 		--传奇属性（天赋/被动技能 类似的名字...）
@@ -776,7 +780,72 @@ do
 	-- 		for _,v in ipairs(legendarys) do
 	-- 			local map = CElementData.GetSkillInfoByIdAndLevel(v.TalentID, v.TalentLevel, true)
 	-- 			if map ~= nil then
-	-- 				table.insert(LegendaryGroupInfoMap[id], map)
+	-- 				local info = DynamicText.GetParseSkillDescTextKeyValue(v.TalentID, v.TalentLevel, true)
+	-- 				-- warn("组织    组织v.TalentID = ", v.TalentID)
+	-- 				if LegendaryGroupInfoMap[id][v.TalentID] == nil then
+	-- 					map.MinLv = map.Level
+	-- 					map.MaxLv = map.Level
+	-- 					map.InfoMin = clone(info)
+	-- 					map.InfoMax = clone(info)
+
+	-- 					LegendaryGroupInfoMap[id][v.TalentID] = map
+	-- 				else
+	-- 					local old = LegendaryGroupInfoMap[id][v.TalentID]
+	-- 					old.MinLv = math.min(old.MinLv ,map.Level)
+	-- 					old.MaxLv = math.max(old.MaxLv ,map.Level)
+	-- 					-- calc min integer
+	-- 					for i, oldInfo in ipairs(old.InfoMin.Integer) do
+	-- 						oldInfo.Value = math.min(oldInfo.Value, info.Integer[i].Value)
+	-- 					end
+	-- 					-- calc max integer
+	-- 					for i, oldInfo in ipairs(old.InfoMax.Integer) do
+	-- 						oldInfo.Value = math.max(oldInfo.Value, info.Integer[i].Value)
+	-- 					end
+	-- 					-- calc min percentage
+	-- 					for i, oldInfo in ipairs(old.InfoMin.Percentage) do
+	-- 						oldInfo.Value = math.min(oldInfo.Value, info.Percentage[i].Value)
+	-- 					end
+	-- 					-- calc max percentage
+	-- 					for i, oldInfo in ipairs(old.InfoMax.Percentage) do
+	-- 						oldInfo.Value = math.max(oldInfo.Value, info.Percentage[i].Value)
+	-- 					end
+	-- 				end
+	-- 			end
+	-- 		end
+
+	-- 		for k,skillInfo in pairs(LegendaryGroupInfoMap[id]) do
+	-- 			-- warn("skillInfo.MinLv = ",skillInfo.ID, skillInfo.MinLv, skillInfo.MaxLv)
+	-- 			if skillInfo.MinLv ~= skillInfo.MaxLv then
+	-- 				local resultInfo = {Integer={}, Percentage={}}
+	-- 				-- Integer fixed replace
+	-- 				for i,v in ipairs(skillInfo.InfoMin.Integer) do
+	-- 					local data = {}
+	-- 					local minStr = fmtVal2Str(v.Value)
+	-- 					local maxStr = fmtVal2Str(skillInfo.InfoMax.Integer[i].Value)
+	-- 					local replaceStr = string.format(StringTable.Get(31337), minStr, maxStr)
+	-- 					data.Key = v.Key
+	-- 					data.Value = replaceStr
+	-- 					-- warn("replaceStr = ", replaceStr)
+	-- 					table.insert(resultInfo.Integer, data)
+	-- 				end
+	-- 				-- Percentage fixed replace
+	-- 				for i,v in ipairs(skillInfo.InfoMin.Percentage) do
+	-- 					local data = {}
+	-- 					local minStr = string.format("%s%%", fmtVal2Str(tonumber(fmtVal2Str(v.Value))))
+	-- 					local maxStr = string.format("%s%%", fmtVal2Str(tonumber(fmtVal2Str(skillInfo.InfoMax.Percentage[i].Value))))
+	-- 					local replaceStr = string.format(StringTable.Get(31337), minStr, maxStr)
+	-- 					data.Key = v.Key
+	-- 					data.Value = replaceStr
+	-- 					-- warn("replaceStr%%%%%%%%%%%%%%%%%%%%%% = ", replaceStr)
+	-- 					table.insert(resultInfo.Percentage, data)
+	-- 				end
+	-- 				skillInfo.LvDesc = string.format(StringTable.Get(31339), skillInfo.MinLv, skillInfo.MaxLv)
+	-- 				skillInfo.SkillDesc = DynamicText.ExchangeParseSkillDescText(skillInfo.ID, 1, true, resultInfo)
+	-- 			else
+	-- 				skillInfo.LvDesc = string.format(StringTable.Get(31338), skillInfo.Level)
+	-- 				skillInfo.SkillDesc = skillInfo.Desc
+	-- 				-- warn("等级描述一致： ", skillInfo.LvDesc)
+	-- 				-- warn("只有一种文字描述 ： ", skillInfo.Desc)
 	-- 			end
 	-- 		end
 	-- 	end
@@ -805,67 +874,83 @@ do
 					if LegendaryGroupInfoMap[id][v.TalentID] == nil then
 						map.MinLv = map.Level
 						map.MaxLv = map.Level
-						map.InfoMin = clone(info)
-						map.InfoMax = clone(info)
-
+						map.ID = v.TalentID
 						LegendaryGroupInfoMap[id][v.TalentID] = map
 					else
 						local old = LegendaryGroupInfoMap[id][v.TalentID]
 						old.MinLv = math.min(old.MinLv ,map.Level)
 						old.MaxLv = math.max(old.MaxLv ,map.Level)
-						-- calc min integer
-						for i, oldInfo in ipairs(old.InfoMin.Integer) do
-							oldInfo.Value = math.min(oldInfo.Value, info.Integer[i].Value)
-						end
-						-- calc max integer
-						for i, oldInfo in ipairs(old.InfoMax.Integer) do
-							oldInfo.Value = math.max(oldInfo.Value, info.Integer[i].Value)
-						end
-						-- calc min percentage
-						for i, oldInfo in ipairs(old.InfoMin.Percentage) do
-							oldInfo.Value = math.min(oldInfo.Value, info.Percentage[i].Value)
-						end
-						-- calc max percentage
-						for i, oldInfo in ipairs(old.InfoMax.Percentage) do
-							oldInfo.Value = math.max(oldInfo.Value, info.Percentage[i].Value)
-						end
 					end
 				end
 			end
 
+			local function AddPadding(a,b)
+				return string.format("%s/%s",a,b)
+			end
+
 			for k,skillInfo in pairs(LegendaryGroupInfoMap[id]) do
-				-- warn("skillInfo.MinLv = ",skillInfo.ID, skillInfo.MinLv, skillInfo.MaxLv)
 				if skillInfo.MinLv ~= skillInfo.MaxLv then
+					-- warn("skillInfo.MinLv = ",skillInfo.ID, skillInfo.MinLv, skillInfo.MaxLv)
 					local resultInfo = {Integer={}, Percentage={}}
+
+					-- 多重替换
+					local exampleData = DynamicText.GetParseSkillDescTextKeyValue(skillInfo.ID, skillInfo.MinLv, true)
+
 					-- Integer fixed replace
-					for i,v in ipairs(skillInfo.InfoMin.Integer) do
+					for i,v in ipairs(exampleData.Integer) do
 						local data = {}
-						local minStr = fmtVal2Str(v.Value)
-						local maxStr = fmtVal2Str(skillInfo.InfoMax.Integer[i].Value)
-						local replaceStr = string.format(StringTable.Get(31337), minStr, maxStr)
 						data.Key = v.Key
-						data.Value = replaceStr
-						-- warn("replaceStr = ", replaceStr)
+						local replaceStr = ""
+						local counterIndex = 1
+						
+						for lv=skillInfo.MinLv, skillInfo.MaxLv do
+							local info = DynamicText.GetParseSkillDescTextKeyValue(skillInfo.ID, lv, true)
+							local strValue = fmtVal2Str(info.Integer[i].Value)
+
+							-- 按等级遍历 AddPadding
+							if counterIndex == 1 then
+								replaceStr = strValue
+							else
+								replaceStr = AddPadding(replaceStr, strValue)
+							end
+
+							data.Value = replaceStr
+							counterIndex = counterIndex + 1
+						end
+
 						table.insert(resultInfo.Integer, data)
 					end
+
 					-- Percentage fixed replace
-					for i,v in ipairs(skillInfo.InfoMin.Percentage) do
+					for i,v in ipairs(exampleData.Percentage) do
 						local data = {}
-						local minStr = string.format("%s%%", fmtVal2Str(tonumber(fmtVal2Str(v.Value))))
-						local maxStr = string.format("%s%%", fmtVal2Str(tonumber(fmtVal2Str(skillInfo.InfoMax.Percentage[i].Value))))
-						local replaceStr = string.format(StringTable.Get(31337), minStr, maxStr)
 						data.Key = v.Key
-						data.Value = replaceStr
-						-- warn("replaceStr%%%%%%%%%%%%%%%%%%%%%% = ", replaceStr)
+						local replaceStr = ""
+						local counterIndex = 1
+
+						for lv=skillInfo.MinLv, skillInfo.MaxLv do
+							local info = DynamicText.GetParseSkillDescTextKeyValue(skillInfo.ID, lv, true)
+							local strValue = string.format("%s%%", fmtVal2Str(tonumber(fmtVal2Str(info.Percentage[i].Value))))
+
+							-- 按等级遍历 AddPadding
+							if counterIndex == 1 then
+								replaceStr = strValue
+							else
+								replaceStr = AddPadding(replaceStr, strValue)
+							end
+
+							data.Value = replaceStr
+							counterIndex = counterIndex + 1
+						end
+
 						table.insert(resultInfo.Percentage, data)
 					end
+
 					skillInfo.LvDesc = string.format(StringTable.Get(31339), skillInfo.MinLv, skillInfo.MaxLv)
 					skillInfo.SkillDesc = DynamicText.ExchangeParseSkillDescText(skillInfo.ID, 1, true, resultInfo)
 				else
 					skillInfo.LvDesc = string.format(StringTable.Get(31338), skillInfo.Level)
 					skillInfo.SkillDesc = skillInfo.Desc
-					-- warn("等级描述一致： ", skillInfo.LvDesc)
-					-- warn("只有一种文字描述 ： ", skillInfo.Desc)
 				end
 			end
 		end
@@ -951,6 +1036,10 @@ do
 		info.Name = template.Name
 		info.Level = level
 		info.Desc = DynamicText.ParseSkillDescText(id, level, bIsTalent)
+		
+		local propertyId = template.ExecutionUnits[1].Event.AddAttachedProperty.Id
+		local fightElement = CElementData.GetAttachedPropertyTemplate(propertyId)
+		info.PropertyName = fightElement ~= nil and fightElement.TextDisplayName or ""
 
 		return info
 	end
@@ -961,7 +1050,7 @@ do
 
 		local key = tostring(quality)
 		if PetSkillCellInfoMap[key] == nil then
-			local data = {}
+
 			--quality 从0开始，lua索引从1开始，故++操作
 			local petQualityInfoData = CElementData.GetTemplate("PetQualityInfo", quality+1)
 			local CPetUtility = require "Pet.CPetUtility"
@@ -1012,9 +1101,6 @@ do
 
 		local key = tostring(level)
 		if EquipEngravingInfoMap[key] == nil then
-			local map = {}
-			local tidList = {}
-
 			local allIds = GameUtil.GetAllTid("EquipEngraving")
 			for i, tid in ipairs(allIds) do
 				local data = CElementData.GetTemplate("EquipEngraving", tid)
@@ -1023,15 +1109,18 @@ do
 
 				if EquipEngravingInfoMap[keyLevel] == nil then EquipEngravingInfoMap[keyLevel] = {} end
 				if EquipEngravingInfoMap[keyLevel][keySlot] == nil then EquipEngravingInfoMap[keyLevel][keySlot] = {} end
-				EquipEngravingInfoMap[keyLevel][keySlot].MoneyId = data.CostMoneyId
-				EquipEngravingInfoMap[keyLevel][keySlot].MoneyNeed = data.CostMoneyCount
-				EquipEngravingInfoMap[keyLevel][keySlot].GrindStoneNeed = data.CostGrindStoneCount
-				EquipEngravingInfoMap[keyLevel][keySlot].StoneIdList = {}
+
+				local slotTable = EquipEngravingInfoMap[keyLevel][keySlot]
+
+				slotTable.MoneyId = data.CostMoneyId
+				slotTable.MoneyNeed = data.CostMoneyCount
+				slotTable.GrindStoneNeed = data.CostGrindStoneCount
+				slotTable.StoneIdList = {}
 
 				--刻印石ID
 				local EngravingStoneIds = string.split(data.EngravingStoneIds, "*")
 				for i=1, #EngravingStoneIds do
-					table.insert(EquipEngravingInfoMap[keyLevel][keySlot].StoneIdList, tonumber(EngravingStoneIds[i]))
+					table.insert(slotTable.StoneIdList, tonumber(EngravingStoneIds[i]))
 				end
 			end
 		end
@@ -1118,6 +1207,64 @@ do
 		return EquipInforceInfoMap[equipInforceId] or nil
 	end
 
+	--任务信息缓存，只保留有用信息
+	local AllQuest = nil
+	def.static("number", "=>", "table").GetQuestTemplateSimple = function (tid)
+		if AllQuest == nil then
+			AllQuest = {}
+		 	local ids = GameUtil.GetAllTid("Quest")
+			for _,v in pairs(ids) do
+				if v then
+					local tmp = CElementData.GetTemplateNoCache("Quest", v)
+					AllQuest[v] = { Id = tmp.Id, IsSubQuest = tmp.IsSubQuest, IsRepeated = tmp.IsRepeated, Type = tmp.Type, CountGroupTid = tmp.CountGroupTid }
+				end
+			end
+		end
+		return AllQuest[tid]
+	end
+
+	def.static("=>", "table").GetAllQuestTemplateSimple = function ()
+		if AllQuest == nil then
+			AllQuest = {}
+		 	local ids = GameUtil.GetAllTid("Quest")
+			for _,v in pairs(ids) do
+				if v then
+					local tmp = CElementData.GetTemplateNoCache("Quest", v)
+					AllQuest[v] = { Id = tmp.Id, IsSubQuest = tmp.IsSubQuest, IsRepeated = tmp.IsRepeated, Type = tmp.Type, CountGroupTid = tmp.CountGroupTid }
+				end
+			end
+		end
+		return AllQuest
+	end
+
+	--TalentLevelUp缓存，只保留有用信息
+	local AllTalentLevelUp = nil
+	local AllSkillLevelUp = nil 
+	def.static("boolean","=>", "table").GetAllTalentOrSkillLevelUpTemplateSimple = function (IsTalent)
+		local AllData = AllTalentLevelUp
+		local templateName = "TalentLevelUp"
+		if not IsTalent then 
+			AllData = AllSkillLevelUp
+			templateName = "SkillLevelUp"
+		end
+		if AllData == nil then
+			AllData = {}
+		 	local ids = GameUtil.GetAllTid(templateName)
+			for _,v in pairs(ids) do
+				if v then
+					local tmp = CElementData.GetTemplateNoCache(templateName, v)
+					AllData[v] = { SkillId = tmp.SkillId, LevelUpId = tmp.LevelUpId }
+				end
+			end
+		end
+		if not IsTalent then 
+			AllSkillLevelUp = AllData
+		else 
+			AllTalentLevelUp = AllData
+		end
+		return AllData
+	end
+
 	def.static().ClearAll = function()
 		templateData = 
 		{
@@ -1137,11 +1284,12 @@ do
 			CountGroup = {},
 			Quest = {},
 		}
-
+		AllQuest = nil
+		AllTalentLevelUp = nil 
+		AllSkillLevelUp = nil 
 		AllGuildLevel = nil
 		AllGuildBuildLevel = nil
 		AllGuildPermission = nil
-		AllGuide = nil
 		PetSkillCellInfoMap = nil
 		EquipAttrInfoMap = nil
 		PetAllGuideInfo = nil

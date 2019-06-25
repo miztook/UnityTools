@@ -35,7 +35,14 @@ def.method().Load = function (self)
 					self._Model = m
 					self._GameObject = m._GameObject
 					self._GameObject.name = self._GameObject.name .. "-" .. tostring(self._ID)
-					GameUtil.SetLayerRecursively( self._GameObject, EnumDef.RenderLayer.Blockable)
+
+					local LimitedType = require "PB.Template".Obstacle.LimitedType
+					if template.Limited == LimitedType.PlayerNotMove then
+						-- 只阻挡移动，不阻挡攻击
+						GameUtil.SetLayerRecursively(self._GameObject, EnumDef.RenderLayer.ClientBlockable)
+					else
+						GameUtil.SetLayerRecursively(self._GameObject, EnumDef.RenderLayer.Blockable)
+					end
 
 					self._IsReady = true
 					self:OnModelLoaded()				

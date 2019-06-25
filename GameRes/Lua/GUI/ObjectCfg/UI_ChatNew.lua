@@ -91,6 +91,9 @@ local cfg = {
     Btn_QuickMsg = 883652887,
     Img_QuickMsgMenu = 446448911,
     List_QuickMsg = 1416989909,
+    Frame_WorldEnergyNumTitle = -1566376134,
+    Button_EnergyNum = -591248623,
+    Lab_EnergyNum = -1602768020,
 }
  
 return cfg

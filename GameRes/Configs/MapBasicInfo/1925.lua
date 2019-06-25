@@ -1,6 +1,6 @@
 local MapInfo = 
 {
-	MapType = 3,
+	MapType = 4,
 	Remarks = "新手副本",
 	TextDisplayName = "亚卡伊亚裂隙",
 	Length = 512,

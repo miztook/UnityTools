@@ -98,11 +98,11 @@ def.override().OnCreate = function(self)
     self._PanelObject = {}
     self._PanelObject._Rdo_TagGroup = self:GetUIObject("Rdo_TagGroup")
     self._PanelObject._Frame_SideTabs = self:GetUIObject("Frame_SideTabs")
-    self._HelpUrlType = HelpPageUrlType.Charm
 end
 
 --{pageType = 1, data = nil or 1}
 def.override("dynamic").OnData = function (self,data)
+    self._HelpUrlType = HelpPageUrlType.Charm
     self._AllPages = {}
     self:SetCurPageIndex(FrameType.CharmInlay)
     self._CharmMaxLevel = tonumber(CElementData.GetSpecialIdTemplate(self._CharmMaxLevelSpecialID).Value)

@@ -77,6 +77,7 @@ local cfg = {
     Lab_PlayDescription = 2103579958,
     Img_PassTime = 843978682,
     Img_PassFloor = 380697791,
+    Img_Line = -631305424,
 }
  
 return cfg

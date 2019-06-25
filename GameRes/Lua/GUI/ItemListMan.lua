@@ -20,7 +20,7 @@ _G.ShowTipType =
     ShowPetTip = 3,
     None = 0,
 }
-local _ItemListManPanel = function (sender,curItemList,initItemFunc,selectItemCall,showTipType,conditionFunc,allConditionList)
+local _ItemListManPanel = function (sender,curItemList,initItemFunc,selectItemCall,showTipType,conditionFunc,allConditionList,approachMaterialType)
 	local data = {}
 
     data.Sender = sender
@@ -30,6 +30,7 @@ local _ItemListManPanel = function (sender,curItemList,initItemFunc,selectItemCa
     data.ShowTipType = showTipType
     data.ConditionFunc = conditionFunc
     data.AllConditionList = allConditionList
+    data.ApproachMaterialType = approachMaterialType
 
 	game._GUIMan:Open("CPanelItemList",data)
 end

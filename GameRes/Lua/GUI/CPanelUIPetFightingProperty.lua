@@ -6,8 +6,9 @@ local CPetUtility = require "Pet.CPetUtility"
 local CPanelUIPetFightingProperty = Lplus.Extend(CPanelBase, "CPanelUIPetFightingProperty")
 local def = CPanelUIPetFightingProperty.define
 
-def.field("userdata")._List_Prop = nil                      -- 属性List GO
-def.field("table")._PetsPropInfo = BlankTable               -- 存储宠物属性信息的集合
+def.field("userdata")._List_Prop = nil          -- 属性List GO
+def.field("table")._PetsPropInfo = BlankTable   -- 存储宠物属性信息的集合
+def.field("userdata")._Lab_FightScore = nil     -- 战斗力
 
 local instance = nil
 def.static("=>",CPanelUIPetFightingProperty).Instance = function()
@@ -24,11 +25,18 @@ end
 
 def.override().OnCreate = function(self)
     self._List_Prop = self:GetUIObject("List_Property"):GetComponent(ClassType.GNewList)
+    self._Lab_FightScore = self:GetUIObject("Lab_FightScore")
 end
 
 def.override("dynamic").OnData = function(self,data)
     self._PetsPropInfo = CPetUtility.CalcPropertyInfo()
     self._List_Prop:SetItemCount(#self._PetsPropInfo)
+
+    local hp = game._HostPlayer
+    local petPackage = hp._PetPackage
+    local score = petPackage:GetTotalFightScore()
+    GUI.SetText(self._Lab_FightScore, GUITools.FormatNumber(score))
+    
     CPanelBase.OnData(self,data)
 end
 

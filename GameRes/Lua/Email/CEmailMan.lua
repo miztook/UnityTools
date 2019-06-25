@@ -216,6 +216,9 @@ def.method("number").GetEmailIDToDrawReward = function(self, emailId)
             email._IsDraw = true            
         end
     end
+    local CPanelMail = require "GUI.CPanelMail"
+    CPanelMail.Instance()._IsSelect = false
+    CPanelMail.Instance()._SelectIndex = 0
     self:OnEmailListData()
 end
 
@@ -249,6 +252,9 @@ def.method("number").GetEmailIDToRemove = function(self, emailId)
             
         end
     end
+    local CPanelMail = require "GUI.CPanelMail"
+    CPanelMail.Instance()._IsSelect = false
+    CPanelMail.Instance()._SelectIndex = 0
     self:OnEmailListData()
 end
 
@@ -266,6 +272,9 @@ def.method("table").GetEmailIDToBatchRemove = function(self, emailIds)
             end
         end
     end
+    local CPanelMail = require "GUI.CPanelMail"
+    CPanelMail.Instance()._IsSelect = false
+    CPanelMail.Instance()._SelectIndex = 0
     self:OnEmailListData()
 end
 

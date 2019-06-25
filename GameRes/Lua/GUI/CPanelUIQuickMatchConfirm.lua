@@ -20,8 +20,8 @@ def.static("=>", CPanelUIQuickMatchConfirm).Instance = function()
 		instance._PrefabPath = PATH.UI_QuickMatchConfirm
 		instance._PanelCloseType = EnumDef.PanelCloseType.None
 		instance._DestroyOnHide = true
-
-        instance:SetupSortingParam()
+		instance._ForbidESC = true
+                instance:SetupSortingParam()
 	end
 	return instance
 end

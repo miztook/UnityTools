@@ -66,6 +66,7 @@ def.field("number")._CurQuality = -1 -- 当前品质
 def.field("number")._CurLevel = 0 -- 当前等级
 def.field("table")._CurMachiningData = nil -- 当前打开的加工详细信息
 def.field("boolean")._IsOpenDetail = false -- 是否打开了打造细节
+def.field("boolean")._IsOpenTabListDeep1 = false -- 是否已展开主List
 
 local FORGE_COOLDOWN_TIME = 2000 -- 打造时间（毫秒）
 local TWEEN_INTERVAL = 0.5
@@ -237,7 +238,11 @@ def.method("number").InitCurMachiningData = function (self, itemId)
 		local fixedPorpGroupTemp = CElementData.GetAttachedPropertyGroupGeneratorTemplateMap(itemTemplate.AttachedPropertyGroupGeneratorId)		
 		local fixedPorpCountInfo = fixedPorpGroupTemp.CountData.GenerateCounts
 		local fixedPorpMinNum = fixedPorpCountInfo[1].Count
-		local fixedPorpMaxNum = fixedPorpCountInfo[#fixedPorpCountInfo].Count
+		local fixedPorpMaxNum = 0
+		for _, info in ipairs(fixedPorpCountInfo) do
+			if info.Weight == 0 then break end
+			fixedPorpMaxNum = info.Count
+		end
 
 		-- local randomPorpGroupTemp = CElementData.GetAttachedPropertyGroupGeneratorTemplateMap(itemTemplate.AttachedPropertyGroupGeneratorId2)
 		-- local randomPorpCountInfo = randomPorpGroupTemp.CountData.GenerateCounts
@@ -284,6 +289,7 @@ end
 
 -- @param data:目标装备Tid
 def.override("dynamic").OnData = function (self, data)
+    self._HelpUrlType = HelpPageUrlType.Guild_Smithy
 	self:InitPanelData()
 
 	-- 重置状态
@@ -297,14 +303,17 @@ def.override("dynamic").OnData = function (self, data)
 
 	self._CurMachiningData = nil
 	self._IsOpenDetail = false
+	self._IsOpenTabListDeep1 = false
 
 	-- 设置左菜单主List
 	self._TabList_Menu:SetItemCount(#self._ShowQualityList)
 	self:UpdateQualityRedPoint()
 
 	self._SelectedItemId = 0
+	local main_index, sub_index = 0, 0
 	local selectedQuality, selectedLevel = 0, 0
 	if type(data) == "number" then
+		-- 指定特定的装备
 		for quality, levelMap in pairs(self._ItemIdMap) do
 			for level, idList in pairs(levelMap) do
 				for _, id in ipairs(idList) do
@@ -317,9 +326,6 @@ def.override("dynamic").OnData = function (self, data)
 				end
 			end
 		end
-	end
-	if self._SelectedItemId > 0 then
-		local main_index, sub_index = 0, 0
 		for index, quality in ipairs(self._ShowQualityList) do
 			if selectedQuality == quality then
 				main_index = index - 1
@@ -337,11 +343,24 @@ def.override("dynamic").OnData = function (self, data)
 				break
 			end
 		end
-		self._TabList_Menu:SelectItem(main_index, sub_index)
 	else
-		-- 没有指定，默认选中第一大项的第一小项
-		self._TabList_Menu:SelectItem(0,0)
+		-- 默认打开菜单，选中第一个
+		if #self._ShowQualityList > 0 then
+			selectedQuality = self._ShowQualityList[1]
+			local showLevelList = {}
+			for level, _ in pairs(self._ItemIdMap[selectedQuality]) do
+				table.insert(showLevelList, level)
+			end
+			table.sort(showLevelList)
+			if #showLevelList > 0 then
+				selectedLevel = showLevelList[1]
+			end
+		end
 	end
+	-- print("selectedQuality", selectedQuality, "selectedLevel", selectedLevel, "main_index", main_index, "sub_index", sub_index, "data", data)
+	self._TabList_Menu:SetSelection(main_index, sub_index)
+	self:SelectTabListDeep1(selectedQuality)
+	self:SelectTabListDeep2(selectedLevel)
 
 	CGame.EventManager:addHandler(PackageChangeEvent, OnPackageChangeEvent)
 	CGame.EventManager:addHandler(NotifyMoneyChangeEvent, OnNotifyMoneyChangeEvent)
@@ -501,12 +520,48 @@ end
 -- 点击主List
 def.method("userdata", "number").OnClickTabListDeep1 = function (self, item, index)
 	local quality = self._ShowQualityList[index+1]
-	if quality == self._CurQuality then return end
-
-	if self._CurLevel > 0 then
-		self:ResetPanel()
+	if self._CurQuality == quality then
+		local img_arrow = item:FindChild("Img_Arrow")
+		if self._IsOpenTabListDeep1 then
+			-- 点击已展开的
+			self._IsOpenTabListDeep1 = false
+			self._TabList_Menu:OpenTab(0)
+			if not IsNil(img_arrow) then
+				GUITools.SetGroupImg(img_arrow, 2)
+			end
+		else
+			self:SelectTabListDeep1(quality)
+			if not IsNil(img_arrow) then
+				GUITools.SetGroupImg(img_arrow, 1)
+			end
+		end
+	else
+		-- 点击新的
+		if self._CurLevel > 0 then
+			self:ResetPanel()
+		end
+		self._TabList_Menu:SetSelection(index, 0)
+		self:SelectTabListDeep1(quality)
+		if #self._ShowLevelList > 0 then
+			-- 默认选中次List第一个
+			self:SelectTabListDeep2(self._ShowLevelList[1])
+		end
 	end
+end
+
+-- 点击次List
+def.method("userdata", "number", "number").OnClickTabListDeep2 = function (self, item, main_index, sub_index)
+	local level = self._ShowLevelList[sub_index+1]
+	if level == self._CurLevel then return end
+
+	self:SelectTabListDeep2(level)
+end
+
+def.method("number").SelectTabListDeep1 = function (self, quality)
 	self._CurQuality = quality
+	self._IsOpenTabListDeep1 = true
+
+	self._ImgTable_Tab2RedPoint = {}
 	self._ShowLevelList = {}
 	local levelMap = self._ItemIdMap[quality]
 	if levelMap ~= nil then
@@ -515,20 +570,15 @@ def.method("userdata", "number").OnClickTabListDeep1 = function (self, item, ind
 		end
 		table.sort(self._ShowLevelList)
 	end
-	-- 设置左菜单次List
-	self._ImgTable_Tab2RedPoint = {}
 	self._TabList_Menu:OpenTab(#self._ShowLevelList)
 	self:UpdateLevelRedPoint(quality)
 end
 
--- 点击次List
-def.method("userdata", "number", "number").OnClickTabListDeep2 = function (self, item, main_index, sub_index)
-	local level = self._ShowLevelList[sub_index+1]
-	if level == self._CurLevel then return end
-
+def.method("number").SelectTabListDeep2 = function (self, level)
 	local equipList = GetItemList(self, self._CurQuality, level)
 	if equipList == nil then return end
 
+	-- 重置界面
 	self._FrameTable_ListIcon = {}
 	if self._CurLevel > 0 then
 		self:CloseDetail()
@@ -641,9 +691,7 @@ def.method().UpdateQualityRedPoint = function (self)
 				end
 			end
 		end
-		if img_red_point.activeSelf ~= isShow then
-			img_red_point:SetActive(isShow)
-		end
+		img_red_point:SetActive(isShow)
 	end
 end
 
@@ -654,9 +702,7 @@ def.method("number").UpdateLevelRedPoint = function (self, quality)
 
 	for level, img_red_point in pairs(self._ImgTable_Tab2RedPoint) do
 		local isShow = self:IsShowLevelRedPoint(quality, level)
-		if img_red_point.activeSelf ~= isShow then
-			img_red_point:SetActive(isShow)
-		end
+		img_red_point:SetActive(isShow)
 	end
 end
 

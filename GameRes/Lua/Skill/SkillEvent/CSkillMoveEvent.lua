@@ -81,8 +81,8 @@ def.override().OnEvent = function(self)
 	end
 
 	if distance > 0.01 then
-		local info = caster._SkillHdl._MoveEventInfo
 		local time = distance/event.Speed
+		if time > event.Duration/1000 then time = event.Duration/1000 end
 		GameUtil.AddDashBehavior(caster:GetGameObject(), destPos, time, event.PierceTarget, event.KillTargetGoOnMove, event.CollisionCurrentTarget, false)
 	end
 end

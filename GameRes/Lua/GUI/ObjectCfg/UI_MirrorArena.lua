@@ -48,16 +48,13 @@ local cfg = {
     Frame_1V1Info = -736937880,
     Lab_Win1 = -1900769401,
     Lab_WinPoint1 = -1470177493,
-    Img_Quality3 = -1659126704,
     Lab_RemainTime = 1583498635,
     Btn_CancelChargeBattle = -541614295,
     Lab_BattleMatchingTime = -1394803340,
     Lab_Chance3 = -1581318515,
     Frame_Model3V3 = -1912564455,
     Frame_SeasonTime = -1265787230,
-    Lab_TimeTip1 = -990928363,
     Lab_Time = -1900858753,
-    Img_ItemIcon3 = -807787061,
     Img_Level = 1904256968,
     Img_PanelBG = -531977075,
     Lab_SanLevel = -1237773770,
@@ -75,6 +72,9 @@ local cfg = {
     Lab_BattleRewardTimes = -1010248947,
     Btn_BattleRule = -822448681,
     Lab_Title1 = -1363942389,
+    Frame_MatchBan = -996599076,
+    Lab_MatchBanTime = 1113446313,
+    Lab_MatchBanTip = 313012287,
 }
  
 return cfg

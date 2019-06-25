@@ -19,7 +19,6 @@ local PackageChangeEvent = require "Events.PackageChangeEvent"
 local CombatStateChangeEvent = require "Events.CombatStateChangeEvent"
 local UserData = require "Data.UserData".Instance()
 
-local SkillTriggerEvent = require "Events.SkillTriggerEvent"
 local EWorldType = require "PB.Template".Map.EWorldType
 local EPlaceType = require "PB.Template".SkillMastery.EPlaceType
 local CSharpEnum = require "Main.CSharpEnum"
@@ -41,11 +40,17 @@ local OBJ_TYPE = require "Main.CSharpEnum".OBJ_TYPE
 local CFSMStateBase = require "FSM.CFSMStateBase"
 local CQuestAutoMan = require"Quest.CQuestAutoMan"
 local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local EquipRetDotUpdateEvent = require "Events.EquipRetDotUpdateEvent"
 local PetRetDotUpdateEvent = require "Events.PetRetDotUpdateEvent"
 local MapBasicConfig = require "Data.MapBasicConfig"
 local CFxObject = require "Fx.CFxObject"
+local ENTITY_MOVE_TYPE = require "PB.net".ENTITY_MOVE_TYPE
+local BEHAVIOR = require "Main.CSharpEnum".BEHAVIOR
+local SkillStateUpdateEvent = require "Events.SkillStateUpdateEvent"
+local BaseStateChangeEvent = require "Events.BaseStateChangeEvent"
+local ENUM = require "PB.data".ENUM_FIGHTPROPERTY
+local HATE_OPTION = require "PB.net".HATE_OPT
 
 local CHostPlayer = Lplus.Extend(CPlayer, "CHostPlayer")
 local def = CHostPlayer.define
@@ -77,6 +82,7 @@ def.field("number")._MineGatherId = 0       -- 正在采集的矿物ID 欢呼中
 def.field(CEntity)._CurTarget = nil        -- CHostPlayer
 def.field("boolean")._IsTargetLocked = false    
 def.field("table")._HatedEntityMap = BlankTable
+def.field("boolean")._IsInGlobalZone = false
 
 -----------------------------------------------------------
 -- 【主角技能相关信息】
@@ -131,28 +137,27 @@ def.field("table")._SkillMasteryInfo = nil
 def.field("number")._MasteryFightScore = 0 
 def.field("boolean")._IsForbidDrug = false
 
-def.field("function")._OnObjectDisable = nil
-def.field("function")._OnPackageUpdate = nil
-def.field("function")._OnQuestCommon = nil
 def.field("boolean")._ShowFightScoreBoard = true
 
 -- 静态数据
 def.field("boolean")._IsMedicalAutoUse = true -- 是否开启自动使用药水
-def.field("boolean")._IsAutoUseLowLvDrug = true   -- 低等级还是高等级排序药水
+def.field("boolean")._IsAutoUseHighLvDrug = true   -- 低等级还是高等级排序药水
 def.field("number")._AutoUseDrugPercent = 0.5   -- 自动使用药水的血量（0.3/0.5/0.7）
 def.field("boolean")._IsClickGroundMove = true     -- 是否开启点地移动
 
 --李卓伦：红点需求，不刷新主界面了。暂时注释，怕又改回来 2018.05.30 
 --李卓伦：红点需求，添加刷新主界面了。暂时解开注释，果然回来了 2018.08.27
-def.field("function")._OnEquipRetDotUpdateEvent = nil
-def.field("function")._OnPetRetDotUpdateEvent = nil
-
 def.field("userdata")._BipSpine = nil
 def.field(CFxObject)._TransOutFx = nil
 
 def.field("number")._ServerZoneId = 0
 def.field("number")._RoleCreateTime = 0 	-- 角色创建时间
 def.field("number")._RoleLevelMTime = 0 	-- 角色等级变化时间
+
+def.field("function")._OnObjectDisable = nil
+def.field("function")._OnPackageUpdate = nil
+def.field("function")._OnQuestCommonEvent = nil
+def.field("function")._OnPetRetDotUpdateEvent = nil
 
 local CHECK_HORSE_DISTANCE = 18
 
@@ -325,79 +330,64 @@ def.method("table").ResetServerState = function (self, info)
 end
 
 def.method().ListenEvents = function(self)
-	local function OnObjectDisable(sender, event)
-	 	if self._CurTarget ~= nil and event._ObjectID == self._CurTarget._ID then				
-			self:UpdateTargetInfo(nil, false)
-			
-			local target = CTargetDetector.Instance():Detect()
-			self:UpdateTargetInfo(target, false)
-	 	end
+	if self._OnObjectDisable == nil then
+		local function OnObjectDisable(sender, event)
+		 	if self._CurTarget ~= nil and event._ObjectID == self._CurTarget._ID then				
+				self:UpdateTargetInfo(nil, false)
+				
+				local target = CTargetDetector.Instance():Detect()
+				self:UpdateTargetInfo(target, false)
+		 	end
+		end
+		self._OnObjectDisable = OnObjectDisable
 	end
 
-	CGame.EventManager:addHandler(ObjectDieEvent, OnObjectDisable)	
-	CGame.EventManager:addHandler(EntityDisappearEvent, OnObjectDisable)
+	CGame.EventManager:addHandler(ObjectDieEvent, self._OnObjectDisable)	
+	CGame.EventManager:addHandler(EntityDisappearEvent, self._OnObjectDisable)
 
-	local function OnPackageUpdate(sender, event)
-		local net = require "PB.net"
+	if self._OnPackageUpdate == nil then
+		local function OnPackageUpdate(sender, event)
+			local net = require "PB.net"
 
-		if event.PackageType == net.BAGTYPE.BACKPACK then
-			-- 普通背包
+			if event.PackageType == net.BAGTYPE.BACKPACK then
+				-- 普通背包
 
-			-- 更新菜单红点
-			do
-				-- 飞翼养成
-				local CWingsMan = require "Wings.CWingsMan"
-				CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.WingDevelop, CWingsMan.Instance():IsShowRedPoint())
+				-- 更新菜单红点
+				do
+					-- 飞翼养成
+					local CWingsMan = require "Wings.CWingsMan"
+					CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.WingDevelop, CWingsMan.Instance():IsShowRedPoint())
+				end
 			end
-		-- elseif event.PackageType == net.BAGTYPE.ROLE_EQUIP then
-		-- 	-- 装备背包
-		-- 	local template = require "PB.Template"
-		-- 	local equipPack = self._Package._EquipPack
-		-- 	local equips = {}
-		-- 	local armoritem = equipPack:GetItemBySlot(template.Item.EquipmentSlot.Armor)
-		-- 	if armoritem ~= nil then
-		-- 		equips.ArmorTid = armoritem._Tid
-		-- 	else
-		-- 		equips.ArmorTid = 0
-		-- 	end
-
-		-- 	local weaponitem = equipPack:GetItemBySlot(template.Item.EquipmentSlot.Weapon)
-		-- 	if weaponitem ~= nil then
-		-- 		equips.WeaponTid = weaponitem._Tid
-		-- 	else
-		-- 		equips.WeaponTid = 0
-		-- 	end
-
-		-- 	self:ShowEquipments(equips)
 		end
+		self._OnPackageUpdate = OnPackageUpdate
 	end
 
 	local function OnNotifyLeaveCurrentMap(sender, event)
 		self:Stand()
 	end
 
-	CGame.EventManager:addHandler(PackageChangeEvent, OnPackageUpdate)	
+	CGame.EventManager:addHandler(PackageChangeEvent, self._OnPackageUpdate)	
 
-	self._OnObjectDisable = OnObjectDisable
-	self._OnPackageUpdate = OnPackageUpdate
-
-	--任务完成后 提示玩家组队
-	local function OnQuestCommonEvent(sender, event)
-		if event._Name == EnumDef.QuestEventNames.QUEST_RECIEVE then
-			local targetRoomIDs = CTeamQuickCheck.CheckQuestQuickTeam(event._Data.Id)
-			local count = 0  
-			for k,v in pairs(targetRoomIDs) do  
-			    count = count + 1  
-			end  
-			if count > 0 then
-				-- print("====================")
-				-- print_r(targetRoomIDs)
-				game._GUIMan:Open("CPanelQuickTeam", targetRoomIDs)
-			end
-		end 
+	if self._OnQuestCommonEvent == nil then
+		--任务完成后 提示玩家组队
+		local function OnQuestCommonEvent(sender, event)
+			if event._Name == EnumDef.QuestEventNames.QUEST_RECIEVE then
+				local targetRoomIDs = CTeamQuickCheck.CheckQuestQuickTeam(event._Data.Id)
+				local count = 0  
+				for k,v in pairs(targetRoomIDs) do  
+				    count = count + 1  
+				end  
+				if count > 0 then
+					-- print("====================")
+					-- print_r(targetRoomIDs)
+					game._GUIMan:Open("CPanelQuickTeam", targetRoomIDs)
+				end
+			end 
+		end
+		self._OnQuestCommonEvent = OnQuestCommonEvent
 	end
-	CGame.EventManager:addHandler("QuestCommonEvent", OnQuestCommonEvent)
-	self._OnQuestCommon = OnQuestCommonEvent
+	CGame.EventManager:addHandler("QuestCommonEvent", self._OnQuestCommonEvent)
 end
 
 def.method().UnlistenEvents = function(self)
@@ -410,13 +400,9 @@ def.method().UnlistenEvents = function(self)
 		CGame.EventManager:removeHandler(PackageChangeEvent, self._OnPackageUpdate)
 	end
 
-	self._OnObjectDisable = nil
-	self._OnPackageUpdate = nil
-
-	if self._OnQuestCommon ~= nil then
-		CGame.EventManager:removeHandler('QuestCommonEvent', self._OnQuestCommon)
+	if self._OnQuestCommonEvent ~= nil then
+		CGame.EventManager:removeHandler('QuestCommonEvent', self._OnQuestCommonEvent)
 	end
-	self._OnQuestCommon = nil
 
 	--李卓伦：红点需求，不刷新主界面了。暂时注释，怕又改回来 2018.05.30 
 	--李卓伦：红点需求，添加刷新主界面了。暂时解开注释，果然回来了 2018.08.27
@@ -424,7 +410,6 @@ def.method().UnlistenEvents = function(self)
 	if self._OnPetRetDotUpdateEvent ~= nil then
 		CGame.EventManager:removeHandler(PetRetDotUpdateEvent, self._OnPetRetDotUpdateEvent)
 	end
-	self._OnPetRetDotUpdateEvent = nil
 end
 
 def.method().Load = function (self)
@@ -487,12 +472,15 @@ def.method().OnLoad = function (self)
 		local CPetUtility = require "Pet.CPetUtility"
 		CPetUtility.UpdatePetRedDot()
 	end
-	local function OnPetRetDotUpdateEvent(sender, event)
-		DoPetRetDotUpdateEvent()
+	if self._OnPetRetDotUpdateEvent == nil then
+		local function OnPetRetDotUpdateEvent(sender, event)
+			local CPetUtility = require "Pet.CPetUtility"
+			CPetUtility.UpdatePetRedDot()
+		end
+		self._OnPetRetDotUpdateEvent = OnPetRetDotUpdateEvent
 	end
 	DoPetRetDotUpdateEvent()
-	CGame.EventManager:addHandler(PetRetDotUpdateEvent, OnPetRetDotUpdateEvent)
-	self._OnPetRetDotUpdateEvent = OnPetRetDotUpdateEvent
+	CGame.EventManager:addHandler(PetRetDotUpdateEvent, self._OnPetRetDotUpdateEvent)
 
 	self:InitHostPlayerConfig()	
 end
@@ -511,7 +499,7 @@ def.method().InitHostPlayerConfig = function(self)
         isAutoUseHP = true
     end
     -- 药水使用是低等级还是高等级
-    local autoUseLowLv = UserData:GetField(EnumDef.LocalFields.MedicialUseLower)
+    local autoUseLowLv = UserData:GetField(EnumDef.LocalFields.MedicialUseHigher)
     if autoUseLowLv == nil or type(autoUseLowLv) ~= "boolean" then
         autoUseLowLv = true
     end
@@ -529,20 +517,20 @@ end
 
 def.method().SaveHostPlayerConfig = function(self)
     UserData:SetField(EnumDef.LocalFields.MedicialAutoUse, self._IsMedicalAutoUse)
-    UserData:SetField(EnumDef.LocalFields.MedicialUseLower, self._IsAutoUseLowLvDrug)
+    UserData:SetField(EnumDef.LocalFields.MedicialUseHigher, self._IsAutoUseHighLvDrug)
     UserData:SetField(EnumDef.LocalFields.MinHpValueToUseMedic, self._AutoUseDrugPercent)
     UserData:SetField(EnumDef.LocalFields.ClickGroundMove, self._IsClickGroundMove)
 end
 
-def.method("boolean", "boolean", "number", "boolean").UpdateHostPlayerConfig = function(self, isAutoUseHP, isAutoUseLowLv, minHPToUseMedic, isClickGroundMove)
+def.method("boolean", "boolean", "number", "boolean").UpdateHostPlayerConfig = function(self, isAutoUseHP, isAutoUseHighLv, minHPToUseMedic, isClickGroundMove)
 	self._IsMedicalAutoUse = isAutoUseHP
-    self._IsAutoUseLowLvDrug = isAutoUseLowLv
+    self._IsAutoUseHighLvDrug = isAutoUseHighLv
     self._AutoUseDrugPercent = minHPToUseMedic
     self._IsClickGroundMove = isClickGroundMove
 end
 
 def.method("=>", "boolean", "boolean", "number", "boolean").GetHostPlayerConfig = function(self)
-	return self._IsMedicalAutoUse, self._IsAutoUseLowLvDrug, self._AutoUseDrugPercent, self._IsClickGroundMove
+	return self._IsMedicalAutoUse, self._IsAutoUseHighLvDrug, self._AutoUseDrugPercent, self._IsClickGroundMove
 end
 
 def.override("number").SetMoveSpeed = function(self, speed)
@@ -1231,7 +1219,8 @@ def.method().HalfRelease = function (self)
 	if CPanelInExtremis.Instance():IsShow() then
 		-- warn("lidaming3 --->>> TERA-3155 跟踪 - 濒死效果结束", num)
 		game._GUIMan:Close("CPanelInExtremis")  -- 关闭濒死音乐的时候背景音乐还原。
-		CSoundMan.Instance():SetHealthVolume(1)
+		--CSoundMan.Instance():SetHealthVolume(1)
+		CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.Danger,false)
 		CSoundMan.Instance():Play2DHeartBeat("", 0)
 	end
 	
@@ -1483,7 +1472,8 @@ def.override("number", "number", "number", "boolean").OnDie = function (self, ki
 	if CPanelInExtremis.Instance():IsShow() then
 		-- warn("lidaming2 --->>> TERA-3155 跟踪 - 濒死效果结束", num)
 		game._GUIMan:Close("CPanelInExtremis")
-		CSoundMan.Instance():SetHealthVolume(1)
+		--CSoundMan.Instance():SetHealthVolume(1)
+		CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.Danger,false)
 		CSoundMan.Instance():Play2DHeartBeat("", 0)
 	end
 	--死亡关闭NPC对话
@@ -1643,6 +1633,7 @@ def.method("boolean","number").SetHawkeyeState = function (self,isEnable,time)
     if isEnable then
 		self:StartHawkeye()
 		game:RaiseUIShortCutEvent(EnumDef.EShortCutEventType.HawkEyeActive,{useTime = time})
+		CSoundMan.Instance():Play2DAudio(PATH.GUISound_Eyes, 0)
 	else
 		self:FinishHawkeye()
 		game:RaiseUIShortCutEvent(EnumDef.EShortCutEventType.HawkEyeDeactive,nil)
@@ -1653,9 +1644,9 @@ def.method().StartHawkeye = function (self)
 	self._HawkEyeCount = self._HawkEyeCount - 1
     self._IsHawkEyeState = true
     self._IsHawkEyeEffectIsOver = false
-	CGMan.PlayByName("Assets/Outputs/CG/City01/CG_shenzhishijie.prefab", function()
-		self._IsHawkEyeEffectIsOver = true
-		end)
+	CGMan.PlayCG("Assets/Outputs/CG/City01/CG_shenzhishijie.prefab", function()
+			self._IsHawkEyeEffectIsOver = true
+		end, 0, false)
 
 	if self._TimerIdHawkEyeEffect ~= 0 then
 		self:RemoveTimer(self._TimerIdHawkEyeEffect)
@@ -1679,15 +1670,15 @@ def.method().FinishHawkeye = function (self)
 	end
 end
 
-def.method("table","number").UpdateHawkEyeTargetPos = function (self,regions,status)
+def.method("table").UpdateHawkEyeTargetPos = function (self,regions)
 	self._TableHawkEyeTargetPos = {}
 	--print("regions=",#regions)
 	local mapId = game._CurWorld._WorldInfo.SceneTid
 	--local regionInfo = _G.MapBasicInfoTable[mapId].Region
 	local regionInfo = MapBasicConfig.GetMapBasicConfigBySceneID(mapId).Region
 	for k,v in ipairs(regions) do
-		if v.regionId and v.regionId > 0 and regionInfo[2] ~= nil and regionInfo[2][v.regionId] ~= nil and v.type ~= 0 then
-			self._TableHawkEyeTargetPos[v.regionId] = { pos=Vector3.New(v.posx,0,v.posz), type=v.type, status = status }
+		if v.regionId and v.regionId > 0 and regionInfo[2] ~= nil and regionInfo[2][v.regionId] ~= nil and v.hawkeyeType ~= 0 then
+			self._TableHawkEyeTargetPos[v.regionId] = { pos=Vector3.New(v.posx,0,v.posz), hawkeyeType=v.hawkeyeType, status=v.status }
 		end
 	end
 
@@ -1767,9 +1758,8 @@ end
 def.override("table", "table", "number").OnStopMove = function (self, cur_pos, facedir, movetype)
     -- if not self._IsReady or self:IsDead() then return end
     if not self._IsReady  then return end --死亡可以被移动
-    local ENTITY_MOVE_TYPE = require "PB.net".ENTITY_MOVE_TYPE
     if movetype == ENTITY_MOVE_TYPE.SkillMove then
-        local BEHAVIOR = require "Main.CSharpEnum".BEHAVIOR        
+                
         GameUtil.RemoveBehavior(self:GetGameObject(), BEHAVIOR.DASH)
     elseif movetype == ENTITY_MOVE_TYPE.ForceSync then
     	-- 强制拉回把 movebehavior  停一下 吸附发现有些问题
@@ -1788,6 +1778,7 @@ def.override("table", "table", "number").OnStopMove = function (self, cur_pos, f
 
 		GameUtil.EnableBlockCanvas(true) -- 屏蔽点击
 		StartScreenFade(1, 0, 1, function()
+            if self._IsReleased then return end
 			CAutoFightMan.Instance():Restart(_G.PauseMask.SameMapTrans)
 			CQuestAutoMan.Instance():Restart(_G.PauseMask.SameMapTrans)
 			CDungeonAutoMan.Instance():Restart(_G.PauseMask.SameMapTrans)
@@ -1802,17 +1793,9 @@ def.override("table", "table", "number").OnStopMove = function (self, cur_pos, f
        	self:SetDir(facedir)
 
        	game:OnHostPlayerPosChange(cur_pos)
-
-       	--同地图传送，清理资源
-       	local sceneTid = game._CurWorld._WorldInfo.SceneTid
-       	if sceneTid == GameUtil.GetCurrentSceneTid() then
-
-       		game:CleanOnSceneChange()
-       		game:LuaGC()
-       		game:GC(true)
-       	end
     elseif movetype == ENTITY_MOVE_TYPE.TeamFollowing then -- 暂时修改成这样
     		local function cb()
+                if self._IsReleased then return end
         		self:StopNaviCal()
 		    end
 		    self:Move(cur_pos, 0, cb, cb)
@@ -1822,14 +1805,6 @@ def.override("table", "table", "number").OnStopMove = function (self, cur_pos, f
     	self:StopNaviCal()
        	--self:SetPos(cur_pos)
        	self:SetDir(facedir)
-
-       	--同地图传送，清理资源
-       	local sceneTid = game._CurWorld._WorldInfo.SceneTid
-       	if sceneTid == GameUtil.GetCurrentSceneTid() then
-       		game:CleanOnSceneChange()
-       		game:LuaGC()
-       		game:GC(true)
-       	end
 
         game:OnHostPlayerPosChange(cur_pos)
 
@@ -2077,7 +2052,6 @@ def.method("=>","boolean").InPharse = function(self)
 	 return game._DungeonMan: InPharse()
 end
 
-
 --是否在大世界中
 def.method("=>", "boolean").InWorld = function(self)
 	local curMapType = game._CurMapType
@@ -2102,6 +2076,15 @@ def.method("=>","boolean").InEliminateFight = function(self)
 	return game._DungeonMan:GetEliminateWorldTID() == game._CurWorld._WorldInfo.SceneTid
 end
 
+-- 设置 是否在跨服中
+def.method("boolean").SetIsInGlobalZone = function(self, bIsInGlobalZone)
+	self._IsInGlobalZone = bIsInGlobalZone
+end
+-- 是否在跨服中
+def.method("=>", "boolean").IsInGlobalZone = function(self)
+	return self._IsInGlobalZone
+end
+
 -- 此接口仅做 自动寻路标志显隐 & 内部属性更新
 -- 真正的行动在CTransManage发起
 def.method("boolean").SetAutoPathFlag = function(self, isAutoPath)
@@ -2109,9 +2092,9 @@ def.method("boolean").SetAutoPathFlag = function(self, isAutoPath)
     	self:HaveTransOffset(false)
 	end
 	self._IsAutoPathing = isAutoPath
-	if self._TopPate ~= nil then
-		self._TopPate:SetAutoPathingState(isAutoPath)
-	end
+	--if self._TopPate ~= nil then
+		--self._TopPate:SetAutoPathingState(isAutoPath)
+	--end
 end
 
 --清除自动寻路目标位置
@@ -2177,10 +2160,10 @@ def.method("boolean", "=>", "table").GetNoEquipedPotions = function(self, needCo
 			end
 
 			local function SortFunc(itm1,itm2)
-		    	if self._IsAutoUseLowLvDrug then
-		    		return itm1[1] < itm2[1]
-		    	else
+		    	if self._IsAutoUseHighLvDrug then
 		    		return itm1[1] > itm2[1]
+		    	else
+		    		return itm1[1] < itm2[1]
 		    	end
 		    end
 		    table.sort(avalidPotions, SortFunc)
@@ -2190,10 +2173,10 @@ def.method("boolean", "=>", "table").GetNoEquipedPotions = function(self, needCo
 			end
 
 			local function SortFunc(itm1,itm2)
-		    	if self._IsAutoUseLowLvDrug then
-		    		return itm1 < itm2
-		    	else
+		    	if self._IsAutoUseHighLvDrug then
 		    		return itm1 > itm2
+		    	else
+		    		return itm1 < itm2
 		    	end
 		    end
 		    table.sort(avalidPotions, SortFunc)
@@ -2229,18 +2212,18 @@ end
 
 --所有仇恨列表
 def.method("number", "number").SetEntityHate = function(self, hate_opt, entityId)
-	local HATE_OPTION = require "PB.net".HATE_OPT
 	--查看列表中有没有对应的entitid
 	local index = table.indexof(self._HatedEntityMap, entityId)
 
 	if hate_opt == HATE_OPTION.HATE_OPT_ADD then
 		if not index then -- 如果没有对应的id就添加
 			table.insert(self._HatedEntityMap, entityId)		
-
+			game:UpdateCameraLockState(entityId, true)
 		end
 	elseif hate_opt == HATE_OPTION.HATE_OPT_REMOVE then
 		if index then  -- 如果有对应的id 就移除
 			table.remove(self._HatedEntityMap, index)
+			game:UpdateCameraLockState(entityId, false)
 		end
 	end
 
@@ -2272,6 +2255,17 @@ def.method("=>", "table").GetHatedEntityList = function(self)
 	return self._HatedEntityMap
 end
 
+def.method("=>","boolean").IsInPkState = function (self)
+	local isInPkState = false
+	for i,id in ipairs(self._HatedEntityMap) do
+		isInPkState = IDMan.ISROLEID(id)
+		if isInPkState then 
+			break
+		end
+	end
+	return isInPkState
+end
+
 def.method("=>", "boolean").IsCollectingMineral = function(self)
 	if self._SkillHdl == nil then return false end
 
@@ -2281,7 +2275,6 @@ end
 -- 返回战力
 def.method("=>", "number").GetHostFightScore = function(self)
 	if self._InfoData then
-		local ENUM = require "PB.data".ENUM_FIGHTPROPERTY
 		return math.ceil(self._InfoData._FightProperty[ENUM.FIGHTSCORE][1])
 	end
 end
@@ -2315,7 +2308,6 @@ end
 
 --tips战斗力滚动面板
 def.method("number","table").ShowFightScoreUp = function(self, newVal, props)
-	local ENUM = require "PB.data".ENUM_FIGHTPROPERTY
 	local oldVal = math.ceil(self._InfoData._FightProperty[ENUM.FIGHTSCORE][1])
 
 	if oldVal > 0 then
@@ -2326,11 +2318,9 @@ def.method("number","table").ShowFightScoreUp = function(self, newVal, props)
 	end
 end
 
---tips战斗力shuxing面板
-def.method("number","=>","boolean").IsFSDetail = function(self, newVal)
-	local ENUM = require "PB.data".ENUM_FIGHTPROPERTY
-	if newVal ==ENUM.STRENGTH or newVal ==ENUM.DEXTERITY or newVal ==ENUM.INTELLIGENCE or newVal ==ENUM.VITALITY
-		or newVal ==ENUM.MAXHP or newVal ==ENUM.ATTACK or newVal ==ENUM.DEFENSE or newVal ==ENUM.CRITICALLEVEL
+-- tips战斗力shuxing面板
+def.method("number", "=>", "boolean").IsFSDetail = function(self, newVal)
+	if newVal == ENUM.MAXHP or newVal == ENUM.ATTACK or newVal == ENUM.DEFENSE or newVal == ENUM.CRITICALLEVEL or newVal == ENUM.IMMUNLEVEL
 	then
 		return true
 	end
@@ -2356,14 +2346,16 @@ def.method().NearDeathState = function(self)
 		if not CPanelInExtremis.Instance():IsShow() then
 			game._GUIMan:Open("CPanelInExtremis",nil)
 			--CSoundMan.Instance():SetSoundBGMVolume(tonumber(MinBGMVolume), true) -- 播放濒死音乐的时候背景音乐调小一半。
-			CSoundMan.Instance():SetHealthVolume(0)
+			--CSoundMan.Instance():SetHealthVolume(0)
+			CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.Danger,true)
 			CSoundMan.Instance():Play2DHeartBeat(PATH.GUISound_Effect_NearDeath, 0)
 		end
 	-- 如果主角的血为0，或者已经死亡，关闭濒死效果。
 	elseif num >= 0 or self:IsDead() then
 		-- warn("lidaming1 --->>> TERA-3155 跟踪 - 濒死效果结束", num)
-		game._GUIMan:Close("CPanelInExtremis")  -- 关闭濒死音乐的时候背景音乐还原。	
-		CSoundMan.Instance():SetHealthVolume(1)
+		game._GUIMan:Close("CPanelInExtremis")  -- 关闭濒死音乐的时候背景音乐还原。 
+		--CSoundMan.Instance():SetHealthVolume(1)
+		CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.Danger,false)
 		CSoundMan.Instance():Play2DHeartBeat(PATH.GUISound_Effect_NearDeathEnd, 0)	
 	end
 end
@@ -2371,13 +2363,12 @@ end
 def.override("table", "boolean").UpdateFightProperty = function(self, properties, isNotifyFightScore)
     if self._InfoData == nil then return end
 
-    local ENUM_FIGHTPROPERTY = require "PB.data".ENUM_FIGHTPROPERTY
     local hpChanged = false
 	local FS_detail = {}
 	local is_showFS=false
 	local show_FS_value=0
     for k,v in pairs(properties) do
-        if v.Index == ENUM_FIGHTPROPERTY.MAXHP or v.Index == ENUM_FIGHTPROPERTY.CURRENTHP then
+        if v.Index == ENUM.MAXHP or v.Index == ENUM.CURRENTHP then
         	hpChanged = true
         end
 
@@ -2385,10 +2376,10 @@ def.override("table", "boolean").UpdateFightProperty = function(self, properties
 		if isNotifyFightScore and self._ShowFightScoreBoard then
 			if v.Index == nil then
 
-			elseif v.Index == ENUM_FIGHTPROPERTY.FIGHTSCORE then
+			elseif v.Index == ENUM.FIGHTSCORE then
 				--战斗力提升弹板提示
 				show_FS_value = math.ceil(v.Value)
-				is_showFS=true
+				is_showFS = true
 			elseif self:IsFSDetail(v.Index) then
 				local oldVal = math.ceil(self._InfoData._FightProperty[v.Index][1])
 				table.insert(FS_detail, {["type"]=v.Index, ["a"]=oldVal, ["b"] = math.ceil(v.Value)})
@@ -2396,7 +2387,7 @@ def.override("table", "boolean").UpdateFightProperty = function(self, properties
 		end
     end
 
-	if is_showFS then
+	if is_showFS and not game:IsInBeginnerDungeon() then
 		self:ShowFightScoreUp(show_FS_value, FS_detail)
 	end
 	
@@ -2407,18 +2398,25 @@ def.override("table", "boolean").UpdateFightProperty = function(self, properties
 end
 
 def.override().OnClick = function(self)
-	local CPanelUIExterior = require "GUI.CPanelUIExterior"
-	if self:IsInExterior() and CPanelUIExterior ~= nil then
-		-- 外观界面，点击主角
-		CPanelUIExterior.Instance():ClickHostPlayer()
-	end
+	-- local CPanelUIExterior = require "GUI.CPanelUIExterior"
+	-- if self:IsInExterior() and CPanelUIExterior ~= nil then
+	-- 	-- 外观界面，点击主角
+	-- 	CPanelUIExterior.Instance():ClickHostPlayer()
+	-- end
+end
+
+def.method("boolean").SendBaseStateChangeEvent = function(self, isEnter)
+    
+    local event = BaseStateChangeEvent()
+    event.IsEnterState = isEnter
+    CGame.EventManager:raiseEvent(nil, event)
 end
 
 def.override().OnEnterPhysicalControled = function(self)
     CEntity.OnEnterPhysicalControled(self)
 
+    self:CancelCachedAction()
     self:SendBaseStateChangeEvent(true)
-	local SkillStateUpdateEvent = require "Events.SkillStateUpdateEvent"
 	CGame.EventManager:raiseEvent(nil, SkillStateUpdateEvent())
 end
 
@@ -2430,9 +2428,26 @@ def.override().OnLeavePhysicalControled = function(self)
             self._CachedAction()
             self._CachedAction = nil
         end
-		local SkillStateUpdateEvent = require "Events.SkillStateUpdateEvent"
 		CGame.EventManager:raiseEvent(nil, SkillStateUpdateEvent())
     	self:SendBaseStateChangeEvent(false)
+    end
+end
+
+-- 单体更新
+def.override("number").AddMagicControl = function (self, state)
+    CEntity.AddMagicControl(self, state)
+
+    self:CancelCachedAction()
+    self:SendBaseStateChangeEvent(true)
+end
+
+-- 移除状态
+def.override("number").RemoveMagicControl = function (self, state)
+    CEntity.RemoveMagicControl(self, state)
+
+    -- 受控状态结束，转到Stand状态
+    if not self:IsMagicControled() and not self:IsDead() and not self:IsPhysicalControled() then
+        self:SendBaseStateChangeEvent(false)
     end
 end
 
@@ -2557,6 +2572,8 @@ def.method("boolean").CancelSyncPosWhenMove = function(self, canceled)
 	self._IsFollowingServer = canceled
 
 	GameUtil.EnableHostPosSyncWhenMove(not canceled)
+
+	--print("EnableHostPosSyncWhenMove: ", not canceled)
 	--warn("CancelSyncPosWhenMove", debug.traceback())
 end
 
@@ -2599,7 +2616,8 @@ def.method("=>","number").GetIdleRandomTime = function(self)
 		self._TableRandomTime = {}
 		for _,v in ipairs(listStr) do
 			local nTime = tonumber(v)
-			self._TableRandomTime[#self._TableRandomTime + 1] = nTime
+			local length = self:GetAnimationLength(EnumDef.CLIP.COMMON_STAND)
+			self._TableRandomTime[#self._TableRandomTime + 1] = nTime * length
 		end
 	end
 
@@ -2622,9 +2640,7 @@ def.method().StartIdleAnimation = function(self)
 		return
 	end
 
-	local idleTime = self:GetIdleRandomTime()
-	local time = 0
-	local function callback( ... )
+	local function callback()
 		if self:IsPhysicalControled() or self:IsMagicControled() then  -- 受控状态
 			self:ClearIdleState()
 			return
@@ -2635,18 +2651,14 @@ def.method().StartIdleAnimation = function(self)
 			self:ClearIdleState()
 			return
 		end
-
-		time = time + 1
-		if time > idleTime then
-			self:RemoveIdleAnimationTimer()
-			local skillTid = self:GetIdleSkillTid()
-			--warn("skillTid---------------->",skillTid)
-			self._SkillHdl:CastSkill(skillTid, false)			
-		end
-	end 
-
+		self:RemoveIdleAnimationTimer()
+		local skillTid = self:GetIdleSkillTid()
+		--warn("skillTid---------------->",skillTid)
+		self._SkillHdl:CastSkill(skillTid, false)
+	end
+	local idleTime = self:GetIdleRandomTime()
 	self:RemoveIdleAnimationTimer()
-	self._IdleAnimationTimer = self:AddTimer(1, false, callback)
+	self._IdleAnimationTimer = self:AddTimer(idleTime, true, callback)
 end
 
 def.method().ContinueIdleSkill = function(self)
@@ -2675,23 +2687,19 @@ def.override().BeginIdleState = function(self)
 
 	local CSpecialIdMan = require  "Data.CSpecialIdMan"
 	local stateTime = CSpecialIdMan.Get("IDLE_STATE_TIME")
-	local time = 0
 	local function callStateback()
-			--骑马的时候，不进入待机状态
-			if self:IsOnRide() then
-				self:ClearIdleState()
-				return
-			end
-
-			time = time + 1
-			if time > stateTime then			 
-				self:RemoveIdleStateTimer()	
-				self._IsIdleState = true
-				self:StartIdleAnimation()		
-			end					
+		--骑马的时候，不进入待机状态
+		if self:IsOnRide() then
+			self:ClearIdleState()
+			return
 		end
+
+		self:RemoveIdleStateTimer()
+		self._IsIdleState = true
+		self:StartIdleAnimation()
+	end
 	self:RemoveIdleStateTimer()
-	self._IdleStateTimer = self:AddTimer(1, false, callStateback)
+	self._IdleStateTimer = self:AddTimer(1, true, callStateback)
 end
 
 --状态机改变的地方
@@ -2727,6 +2735,8 @@ def.override().UnRide = function (self)
 	end
 
 	--self:CloseMoveBlurEffect()
+
+	self:StopSpecialMountSound()
 end
 
 def.method().ClearIdleState = function(self)
@@ -2827,6 +2837,48 @@ end
 
 def.method("number").UpdateLevelMTime = function (self, time)
 	self._RoleLevelMTime = time
+end
+
+-- 播放特殊坐骑站立音效
+def.method("number").PlaySpecialMountStandSound = function (self, fade_time)
+	if self:GetMountTid() == 23 or self:GetMountTid() == 24 then    -- 摩托和炮车的TID。。需要配成特殊ID					
+		CSoundMan.Instance():Stop3DAudio("motorcycle_run_land","")
+		CSoundMan.Instance():Stop3DAudio("flying_carpet_run_land","")
+		CSoundMan.Instance():Stop3DAudio("flying_carpet_run_land_stop","")
+		CSoundMan.Instance():Play3DAudio("motorcycle_idle", self:GetPos(), fade_time)
+	elseif self:GetMountTid() == 3 then    -- 飞毯的TID。。需要配成特殊ID					
+		CSoundMan.Instance():Stop3DAudio("flying_carpet_run_land","")
+		CSoundMan.Instance():Stop3DAudio("motorcycle_idle","")
+		CSoundMan.Instance():Stop3DAudio("motorcycle_run_land","")	
+		CSoundMan.Instance():Play3DAudio("flying_carpet_run_land_stop", self:GetPos(), 0)					
+	else
+		self:StopSpecialMountSound()
+	end
+end
+
+-- 播放特殊坐骑移动音效
+def.method("number").PlaySpecialMountMoveSound = function (self, fade_time)
+	if self:GetMountTid() == 23 or self:GetMountTid() == 24 then    -- 摩托和炮车的TID。。需要配成特殊ID					
+		CSoundMan.Instance():Stop3DAudio("motorcycle_idle","")
+		CSoundMan.Instance():Stop3DAudio("flying_carpet_run_land","")
+		CSoundMan.Instance():Stop3DAudio("flying_carpet_run_land_stop","")
+		CSoundMan.Instance():Play3DAudio("motorcycle_run_land", self:GetPos(), 0)
+	elseif self:GetMountTid() == 3 then    -- 飞毯的TID。。需要配成特殊ID					
+		CSoundMan.Instance():Stop3DAudio("flying_carpet_run_land_stop","")
+		CSoundMan.Instance():Stop3DAudio("motorcycle_idle","")
+		CSoundMan.Instance():Stop3DAudio("motorcycle_run_land","")	
+		CSoundMan.Instance():Play3DAudio("flying_carpet_run_land", self:GetPos(), 0)
+	else
+		self:StopSpecialMountSound()
+	end
+end
+
+-- 停止坐骑音效
+def.method().StopSpecialMountSound = function (self)
+	CSoundMan.Instance():Stop3DAudio("motorcycle_idle","")
+	CSoundMan.Instance():Stop3DAudio("motorcycle_run_land","")	
+	CSoundMan.Instance():Stop3DAudio("flying_carpet_run_land","")
+	CSoundMan.Instance():Stop3DAudio("flying_carpet_run_land_stop","")
 end
 
 def.override().Release = function (self)

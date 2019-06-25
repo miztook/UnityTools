@@ -8,10 +8,8 @@ local PBHelper = require "Network.PBHelper"
 local UserData = require "Data.UserData".Instance()
 local ROLE_VAILD = require "PB.data".ERoleVaild
 local CElementData = require "Data.CElementData"
-local CPanelLoginIns = require "GUI.CPanelLogin".Instance()
 
 def.field("number")._QuickEnterRoleId = 0 -- 快速进入的角色Id
-def.field("string")._OrderRoleName = "" -- 预约的角色名字
 
 local instance = nil
 def.static("=>", CLoginMan).Instance = function ()
@@ -21,24 +19,42 @@ def.static("=>", CLoginMan).Instance = function ()
 	return instance
 end
 
--- 获取账号信息列表
-def.static("string", "boolean", "=>", "table").GetAccountRoleList = function (account, isRefresh)
-	--[[
-	roleList =
-	{
-		[1] =
-		{
-			roleId,
-			level,
-			name,
-			profession,
-			customSet,
-			zoneId,
-		},
-		...
-	}
-	--]]
-	local roleList = GameUtil.GetAccountRoleList(account, isRefresh) -- 先从中心服获取
+-- 请求服务器列表
+def.static("function").RequestServerList = function (callback)
+	-- 平台SDK打点
+	local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
+	CPlatformSDKMan.Instance():SetBreakPoint(PlatformSDKDef.PointState.Game_Get_Server_List)
+	GameUtil.RequestServerList(function (isSuccessful)
+		-- warn("RequestServerList", isSuccessful)
+		-- if isSuccessful then
+			callback()
+		-- end
+	end)
+end
+
+-- 获取服务器列表
+def.static("=>", "table").GetServerList = function ()
+	local serverList = GameUtil.GetServerList(true)
+	return serverList
+end
+
+-- 请求张海角色信息列表
+def.static("string", "function").RequestAccountRoleList = function (account, callback)
+	if IsNilOrEmptyString(account) then
+		warn("RequestAccountRoleList failed, account got nil or empty", debug.traceback())
+		return
+	end
+
+	GameUtil.RequestAccountRoleList(account, function (isSuccessful)
+		if callback ~= nil then
+			callback()
+		end
+	end)
+end
+
+-- 获取账号角色信息列表
+def.static("string", "=>", "table").GetAccountRoleList = function (account)
+	local roleList = GameUtil.GetAccountRoleList()
 	local localRoleList = UserData:GetCfg(EnumDef.LocalFields.RecentLoginRoleInfo, account)
 	if localRoleList ~= nil then
 		-- 加入本地服务器的本地角色数据
@@ -104,7 +120,7 @@ end
 
 -- 服务器是否维护中
 def.static("string", "number", "=>", "boolean").CanServerUse = function (ip, port)
-	local serverList = GameUtil.GetServerList(false)
+	local serverList = CLoginMan.GetServerList()
 	if serverList ~= nil then
 		for _, info in ipairs(serverList) do
 			if ip == info.ip and port == info.port then
@@ -115,17 +131,28 @@ def.static("string", "number", "=>", "boolean").CanServerUse = function (ip, por
 	return false
 end
 
--- 设置快速进入角色Id
-def.method("number").SetQuickEnterRoleId = function (self, roleId)
-	self._QuickEnterRoleId = roleId
+-- 获取服务器ID
+def.static("string", "number", "string", "=>", "number").GetServerZoneId = function (ip, port, name)
+	local serverList = CLoginMan.GetServerList()
+	if serverList ~= nil then
+		for _, info in ipairs(serverList) do
+			if ip == info.ip and port == info.port and name == info.name then
+				return info.zoneId
+			end
+		end
+	end
+	return 0
 end
 
-def.method("=>", "string").GetOrderRoleName = function (self)
-	return self._OrderRoleName
-end
-
-def.method("string").SetOrderRoleName = function (self, roleName)
-	self._OrderRoleName = roleName
+-------------------------------------- 账号相关 start ---------------------------------
+local function RefreshLoginUI()
+	CLoginMan.RequestServerList(function ()
+		local CPanelLogin = require "GUI.CPanelLogin"
+		if CPanelLogin ~= nil and CPanelLogin.Instance():IsShow() then
+			local server_list = CLoginMan.GetServerList()
+			CPanelLogin.Instance():RefreshServerList(server_list)
+		end
+	end)
 end
 
 -- 连接服务器
@@ -135,10 +162,7 @@ def.method("string", "number", "string", "string", "string").ConnectToServer = f
 	if not CLoginMan.CanServerUse(ip, port) then
 		-- 服务器维护中，刷新服务器列表
 		game._GUIMan:ShowTipText(StringTable.Get(32), false)
-		if CPanelLoginIns:IsShow() then
-			local server_list = GameUtil.GetServerList(true)
-			CPanelLoginIns:RefreshServerList(server_list)
-		end
+		RefreshLoginUI()
 		return
 	end
 
@@ -162,10 +186,7 @@ def.method("string", "number", "string", "string", "string").ConnectToServer = f
 			MsgBox.CloseAll()
 
 			--如果连接失败，刷新服务器列表
-			if CPanelLoginIns:IsShow() then
-				local server_list = GameUtil.GetServerList(true)
-				CPanelLoginIns:RefreshServerList(server_list)
-			end
+			RefreshLoginUI()
 		end
 		do
 			local message = ""
@@ -218,7 +239,7 @@ def.method().QuickStartGame = function(self)
 		local title, msg, closeType = StringTable.GetMsg(52)
 		MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OK)
 	else
-		self._QuickEnterRoleId = 0
+		self:SetQuickEnterRoleId(0)
 
 		if game._NetMan:IsValidIpAddress(last_login_server_ip) then
 			game._NetMan:Connect(last_login_server_ip, last_login_server_port, last_login_server_name, last_use_account_account, last_use_account_password)
@@ -229,10 +250,7 @@ def.method().QuickStartGame = function(self)
 				MsgBox.CloseAll()
 
 				--如果连接失败，刷新服务器列表
-				if CPanelLoginIns:IsShow() then
-					local server_list = GameUtil.GetServerList(true)
-					CPanelLoginIns:RefreshServerList(server_list)
-				end
+				RefreshLoginUI()
 			end
 			do
 				local message = ""
@@ -248,48 +266,6 @@ def.method().QuickStartGame = function(self)
 			end
 			_G.AddGlobalTimer(1.5, true, callback)
 		end
-	end
-end
-
-def.method("number").OnAccountInfoSet = function (self, selectedRoleId)
-	GameUtil.ReportUserId(game._NetMan._UserName)
-
-	if self._QuickEnterRoleId > 0 then
-		-- 玩家自己选择快速进入
-		self:DoEnterWorld(self._QuickEnterRoleId, false)
-		self._QuickEnterRoleId = 0
-	elseif selectedRoleId > 0 then
-		-- 服务器推送进入
-		self:DoEnterWorld(selectedRoleId, true)
-	else
-		-- 进入选择角色场景
-		-- 默认选择上次登录的角色，没有则选择第一个
-		local roleIndex = 1
-		do
-			local curZoneId = game._NetMan:GetCurZoneId()
-			if curZoneId > 0 then
-				local curRoleId = 0
-				local roleList = CLoginMan.GetAccountRoleList(game._NetMan._UserName, true)
-				if roleList ~= nil then
-					for _, info in ipairs(roleList) do
-						if info.zoneId == curZoneId then
-							curRoleId = info.roleId
-							break
-						end
-					end
-				end
-				if curRoleId > 0 then
-					for index, info in ipairs(game._AccountInfo._RoleList) do
-						if info.Id == curRoleId then
-							roleIndex = index
-							break
-						end
-					end
-				end
-			end
-		end
-		-- 进入账号角色相关界面
-		game:EnterRoleSelectStage(roleIndex)
 	end
 end
 
@@ -309,7 +285,63 @@ def.method("number").QuickEnterWorld = function (self, index)
 		self:DoEnterWorld(selectedRoleId, false)
 	end
 end
+-------------------------------------- 账号相关 end ---------------------------------
 
+-------------------------------------- 角色数据相关 start --------------------------------
+-- 获取快速进入角色Id
+def.method("=>", "number").GetQuickEnterRoleId = function (self)
+	return self._QuickEnterRoleId
+end
+
+-- 设置快速进入角色Id
+def.method("number").SetQuickEnterRoleId = function (self, roleId)
+	self._QuickEnterRoleId = roleId
+end
+
+-- 获取账号信息后，执行角色阶段逻辑
+def.method("number").OnAccountInfoSet = function (self, selectedRoleId)
+	GameUtil.ReportUserId(game._NetMan._UserName)
+
+	if self._QuickEnterRoleId > 0 then
+		-- 玩家自己选择快速进入
+		self:DoEnterWorld(self._QuickEnterRoleId, false)
+		self._QuickEnterRoleId = 0
+	elseif selectedRoleId > 0 then
+		-- 服务器推送进入
+		self:DoEnterWorld(selectedRoleId, true)
+	else
+		-- 进入选择角色场景
+		-- 默认选择上次登录的角色，没有则选择第一个
+		CLoginMan.RequestAccountRoleList(game._NetMan._UserName, function ()
+			local roleIndex = 1
+			local curZoneId = CLoginMan.GetServerZoneId(game._NetMan._IP, game._NetMan._Port, game._NetMan._ServerName)
+			if curZoneId ~= 0 then
+				local curRoleId = 0
+				local roleList = CLoginMan.GetAccountRoleList(game._NetMan._UserName)
+				if roleList ~= nil then
+					for _, info in ipairs(roleList) do
+						if info.zoneId == curZoneId then
+							curRoleId = info.roleId
+							break
+						end
+					end
+				end
+				if curRoleId > 0 then
+					for index, info in ipairs(game._AccountInfo._RoleList) do
+						if info.Id == curRoleId then
+							roleIndex = index
+							break
+						end
+					end
+				end
+			end
+			-- 进入账号角色相关界面
+			game._RoleSceneMan:EnterRoleSelectStage(roleIndex)
+		end)
+	end
+end
+
+-- 选择角色进入游戏
 def.method("number", "boolean").DoEnterWorld = function (self, selectedRoleId, bServerQuickEnter)
 	if selectedRoleId <= 0 then return end
 
@@ -321,7 +353,8 @@ def.method("number", "boolean").DoEnterWorld = function (self, selectedRoleId, b
 				game._GUIMan:CloseCircle()	
 			else 
 				game._AccountInfo._CurrentSelectRoleIndex = i
-				if not bServerQuickEnter then				--客户端发C2SRoleSelect才会收到S2CSelfDefiniteInfo
+				if not bServerQuickEnter then
+					--客户端发 C2SRoleSelect 才会收到 S2CSelfDefiniteInfo
 					local function callback()
 						game._GUIMan:Close("CPanelServerSelect")
 						game._GUIMan:Close("CPanelLogin")
@@ -331,9 +364,8 @@ def.method("number", "boolean").DoEnterWorld = function (self, selectedRoleId, b
 						game:SendSelectRole(role.Id)
 					end
 					StartScreenFade(0, 1, 0.5, callback)
-				else                             --接下来会收到S2CSelfDefiniteInfo
-					game._AccountInfo._CurrentSelectRoleIndex = i
-
+				else
+					--接下来会收到 S2CSelfDefiniteInfo
 					game._GUIMan:Close("CPanelServerSelect")
 					game._GUIMan:Close("CPanelLogin")
 					game._GUIMan:Close("CPanelUIServerQueue")
@@ -347,6 +379,7 @@ def.method("number", "boolean").DoEnterWorld = function (self, selectedRoleId, b
 		end
 	end
 end
+-------------------------------------- 角色数据相关 end --------------------------------
 
 CLoginMan.Commit()
 return CLoginMan

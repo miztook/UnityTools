@@ -14,7 +14,7 @@ local CPanelUIGuildList = Lplus.Extend(CPanelBase, "CPanelUIGuildList")
 local def = CPanelUIGuildList.define
 local CFrameCurrency = require "GUI.CFrameCurrency"
 local CCommonBtn = require "GUI.CCommonBtn"
-local CCommonNumInput = require "GUI.CCommonNumInput"
+local NameChecker = require "Utility.NameChecker"
 
 def.field("number")._GuildCreateDiamondCost = 0
 def.field("number")._Text_Type = ClassType.Text
@@ -27,6 +27,7 @@ def.field("table")._Guild_Icon_2 = BlankTable
 def.field("table")._List_Item_2 = BlankTable
 def.field("table")._Guild_Icon_3 = BlankTable
 def.field("table")._List_Item_3 = BlankTable
+
 -- 公会列表
 def.field("table")._Guild_List = nil
 -- 上次点击item
@@ -64,9 +65,7 @@ def.field("userdata")._Group_List_2 = nil
 def.field("userdata")._Group_List_3 = nil
 def.field("table")._Guild_Icon_Image = BlankTable
 def.field("userdata")._InputField_Name = nil
-def.field("userdata")._Btn_Sub_Score = nil
 def.field("userdata")._Default_Lab = nil
-def.field("userdata")._Btn_Plus_Score = nil
 def.field("userdata")._Frame_Toggle = nil
 --def.field("userdata")._Rdo_Check_No = nil
 --def.field("userdata")._Rdo_Check_Yes = nil
@@ -75,7 +74,9 @@ def.field("userdata")._Rdo_Check = nil     --<GNewIOSToggle>
 --def.field("userdata")._Lab_Create_Money = nil
 def.field("userdata")._TagGroup = nil
 def.field(CCommonBtn)._Btn_Create = nil
-def.field(CCommonNumInput)._Input_Battle = nil
+def.field("userdata")._Lab_Count = nil 
+def.field("userdata")._Btn_Plus = nil
+def.field("userdata")._Btn_Minus = nil
 
 local instance = nil
 def.static("=>", CPanelUIGuildList).Instance = function()
@@ -135,10 +136,6 @@ def.override().OnDestroy = function(self)
         self._Btn_Create:Destroy()
         self._Btn_Create = nil
     end
-    if self._Input_Battle ~= nil then
-        self._Input_Battle:Destroy()
-        self._Input_Battle = nil
-    end
     instance = nil
 end
 
@@ -148,9 +145,10 @@ def.override("string").OnClick = function(self, id)
     if self._Frame_Money ~= nil and self._Frame_Money:OnClick(id) then
         return
     end
-    if self._Input_Battle ~= nil and self._Input_Battle:OnClick(id) then
-        return
-    end
+
+    -- if self._Input_Battle ~= nil and self._Input_Battle:OnClick(id) then
+    --     return
+    -- end
     if id == "Btn_Back" then
         game._GUIMan:CloseByScript(self)
     elseif id == "Btn_Exit" then
@@ -190,11 +188,21 @@ def.override("string").OnClick = function(self, id)
             lab_off:SetActive(false)
             lab_on:SetActive(true)
         end
+    elseif id == "Btn_NumInput" then
+        local cb = function(count)
+            local real_count = (count or 0)
+            self._Need_Value = math.max(real_count, 0)
+            self._Need_Value = math.min(self._Need_Value, GlobalDefinition.MaxFightScoreNum)
+            self:UpdateInputState()
+        end
+        game._GUIMan:OpenNumberKeyboard(self._Lab_Count, nil, 0, GlobalDefinition.MaxFightScoreNum, cb, nil)
+    elseif id == "Btn_Plus_Score" then
+        self:OnBtnPlusScore()
+    elseif id == "Btn_Minus_Score" then
+        self:OnBtnMinusScore()
 	end
 
 end
-
-
 
 def.override("string","boolean").OnToggle = function(self, id,checked)
     if id == "Tab_Add" then
@@ -207,8 +215,6 @@ def.override("string","boolean").OnToggle = function(self, id,checked)
         end
     end
 end
-
-
 
 -- 初始化列表
 def.override("userdata", "string", "number").OnInitItem = function(self, item, id, index)
@@ -272,8 +278,9 @@ def.override("string", "string").OnValueChanged = function(self, id, str)
             self._Search_Success:SetActive(false)
             self._Add_List:GetComponent(ClassType.GNewListLoop):SetItemCount(#self._Guild_List)
         end
-        if GameUtil.GetStringLength(str) > GlobalDefinition.MaxGuildNameLength then
-            self._InputField_Search:GetComponent(self._Input_Type).text = GameUtil.SetStringLength(str, GlobalDefinition.MaxGuildNameLength)
+        local ret = NameChecker.SubGuildName(str)
+        if ret ~= str then
+            self._InputField_Search:GetComponent(self._Input_Type).text = ret
         end
     end
 end
@@ -308,6 +315,7 @@ def.method().OnInit = function(self)
         [EnumDef.CommonBtnParam.MoneyID] = 3,
     }
     self._Btn_Create:ResetSetting(setting)
+    self:UpdateInputState()
 
 --    GUITools.SetTokenMoneyIcon(self._Img_Money, 3)
 end
@@ -317,8 +325,6 @@ def.method().OnInitUIObject = function(self)
     self._Frame_Money = CFrameCurrency.new(self, self:GetUIObject("Frame_Money"), EnumDef.MoneyStyleType.None)
 
     self._Search = self:GetUIObject("Search")
-    -- self._Img_D0 = self:GetUIObject("Tab_Add"):FindChild("Img_D")
-    -- self._Img_D1 = self:GetUIObject("Tab_Create"):FindChild("Img_D")
     self._TagGroup = self:GetUIObject("TagGroup")
     self._Frame_Add = self:GetUIObject("Frame_Add")
     self._Add_List_Rect = self:GetUIObject("Add_List_Rect")
@@ -335,29 +341,14 @@ def.method().OnInitUIObject = function(self)
     self._Guild_Icon_Image[2] = img_Flag:FindChild("Img_Flag_Flower_1")
     self._Guild_Icon_Image[3] = img_Flag:FindChild("Img_Flag_Flower_2")
     self._InputField_Name = self:GetUIObject("InputField_Name")
-    self._Btn_Sub_Score = self:GetUIObject("Btn_Sub_Score")
     self._Default_Lab = self:GetUIObject("DefaultLab")
-    self._Btn_Plus_Score = self:GetUIObject("Btn_Plus_Score")
-    GameUtil.SetButtonInteractable(self._Btn_Sub_Score, false) 
-    GameUtil.SetButtonInteractable(self._Btn_Plus_Score, true)
-    --GUITools.SetGroupImg(self._Btn_Sub_Score, 1)
-    --GUITools.SetGroupImg(self._Btn_Plus_Score, 0)
-    --self._Rdo_Check_No = self:GetUIObject("Rdo_Check_No")
-    --self._Rdo_Check_Yes = self:GetUIObject("Rdo_Check_Yes")
-
+    self._Btn_Plus = self:GetUIObject("Btn_Plus_Score")
+    self._Btn_Minus = self:GetUIObject("Btn_Minus_Score")
+    self._Lab_Count = self:GetUIObject("Lab_Count")
     self._Frame_Toggle = self:GetUIObject("Rdo_Check")
 	self._Rdo_Check = self._Frame_Toggle:GetComponent(ClassType.GNewIOSToggle)
-    --GUITools.RegisterUIEventHandler(self._Panel, self._Frame_Toggle, ClassType.GNewIOSToggle)
     GameUtil.RegisterUIEventHandler(self._Panel, self._Frame_Toggle, ClassType.GNewIOSToggle)
-
---    self._Img_Money = self:GetUIObject("Img_Money")
---    self._Lab_Create_Money = self:GetUIObject("Lab_Create_Money")
     self._Btn_Create = CCommonBtn.new(self:GetUIObject("Btn_Create_Guild"), nil)
-    local onValueChange = function(count)
-        self:OnInputValueChange(count)
-    end
-    self._Input_Battle = CCommonNumInput.new(self:GetUIObject("Frame_NumInput"), onValueChange, 0, GlobalDefinition.MaxFightScoreNum)
-    self._Input_Battle:SetTextWithOutCb(StringTable.Get(8110))
     self._Search_Success:SetActive(false)
 end
 
@@ -394,25 +385,26 @@ def.method("userdata", "number", "table").OnSetSingleItem = function(self, item,
     local battlePower = data.addLimit.battlePower
     if data.MemberNum == guild.MemberNumber or game._HostPlayer:GetHostFightScore() < battlePower then
         GUITools.SetBtnGray(item:FindChild("Btn_Add_Guild"), true)
-        GameUtil.SetButtonInteractable(item:FindChild("Btn_Add_Guild"), false)
-        --item:FindChild("Btn_Add_Guild/Img_Lock"):SetActive(true)
     else
         GUITools.SetBtnGray(item:FindChild("Btn_Add_Guild"), false)
-        GameUtil.SetButtonInteractable(item:FindChild("Btn_Add_Guild"), true)
-        --item:FindChild("Btn_Add_Guild/Img_Lock"):SetActive(false)
     end
     local labScore = item:FindChild("Lab_Score_Des/Lab_Score")
+    local labLimit = item:FindChild("Lab_Score_Des/Lab_Limit")
     if game._HostPlayer:GetHostFightScore() < battlePower then
+        labLimit:SetActive(false)
+        labScore:SetActive(true)
         GUI.SetText(labScore, "<color=#FF412DFF>" .. GUITools.FormatNumber(battlePower, false) .. "</color>")
     else
         if battlePower == 0 then
-            GUI.SetText(labScore, StringTable.Get(8086))
+            labLimit:SetActive(true)
+            labScore:SetActive(false)
+            GUI.SetText(labLimit, StringTable.Get(8086))
         else
+            labLimit:SetActive(false)
+            labScore:SetActive(true)
             GUI.SetText(labScore, tostring("<color=#97E039FF>" .. GUITools.FormatNumber(battlePower, false) .. "</color>"))
         end
     end
-    --GUITools.SetBtnGray(item:FindChild("Btn_Add_Guild"), false)
-    labScore:SetActive(true)
     item:FindChild("Lab_Score_Des/Lab_Remind"):SetActive(false)
     if data.needAgree then
         GUI.SetText(item:FindChild("Btn_Add_Guild/Img_Bg/Lab_Engrave"), StringTable.Get(22409))   
@@ -474,67 +466,92 @@ end
 
 -- 展示旗帜列表
 def.method("userdata", "number").OnSetGroupList1 = function(self, item, index)
+    local uiTemplate = item:GetComponent(ClassType.UITemplate)
+    local ImgU = uiTemplate:GetControl(6)
+    local ImgD = uiTemplate:GetControl(1)
+    local ImgLockBg = uiTemplate:GetControl(2)
+    local LabCost = uiTemplate:GetControl(7)
+    local ImgUseBg = uiTemplate:GetControl(4)
     if index == 0 then
-        item:FindChild("Img_U"):SetActive(true)
+        ImgU:SetActive(true)
         self._List_Item_1._Item = item
         self._List_Item_1._Index = index + 1
+    else
+        ImgU:SetActive(false)
     end
     local guildIcon = self._Guild_Icon_1[index + 1]
     if guildIcon.CostMoneyNum > 0 then
-        item:FindChild("Img_Lock_Bg"):SetActive(true)
+        ImgLockBg:SetActive(true)
+        GUI.SetText(LabCost,tostring(guildIcon.CostMoneyNum))
     else
-        item:FindChild("Img_Lock_Bg"):SetActive(false)
+        ImgLockBg:SetActive(false)
     end
-    item:FindChild("Img_Use_Bg"):SetActive(false)
-    GameUtil.SetImageColor(item:FindChild("Img_D"), guildIcon.ColorValue)
+    ImgUseBg:SetActive(false)
+    ImgD:SetActive(true)
+    GameUtil.SetImageColor(ImgD, guildIcon.ColorValue)
 end
 
 def.method("userdata", "number").OnSetGroupList2 = function(self, item, index)
+    local uiTemplate = item:GetComponent(ClassType.UITemplate)
+    local ImgU = uiTemplate:GetControl(6)
+    local ImgD = uiTemplate:GetControl(1)
+    local ImgLockBg = uiTemplate:GetControl(2)
+    local LabCost = uiTemplate:GetControl(7)
+    local ImgUseBg = uiTemplate:GetControl(4)
+    ImgU:SetActive(false)
     if index == 0 then
-        item:FindChild("Img_U"):SetActive(true)
+        ImgU:SetActive(true)
         self._List_Item_2._Item = item
         self._List_Item_2._Index = index + 1
     end
     local guildIcon = self._Guild_Icon_2[index + 1]
     if guildIcon.CostMoneyNum > 0 then
-        item:FindChild("Img_Lock_Bg"):SetActive(true)
+        ImgLockBg:SetActive(true)
+        GUI.SetText(LabCost,tostring(guildIcon.CostMoneyNum))
     else
-        item:FindChild("Img_Lock_Bg"):SetActive(false)
+        ImgLockBg:SetActive(false)
     end
-    item:FindChild("Img_Use_Bg"):SetActive(false)
-    GUITools.SetGuildIcon(item:FindChild("Img_D"), guildIcon.IconPath)
+    ImgUseBg:SetActive(false)
+    GUITools.SetGuildIcon(ImgD, guildIcon.IconPath)
 end
 
 def.method("userdata", "number").OnSetGroupList3 = function(self, item, index)
+    local uiTemplate = item:GetComponent(ClassType.UITemplate)
+    local ImgU = uiTemplate:GetControl(6)
+    local ImgD = uiTemplate:GetControl(1)
+    local ImgLockBg = uiTemplate:GetControl(2)
+    local LabCost = uiTemplate:GetControl(7)
+    local ImgUseBg = uiTemplate:GetControl(4)
     if index == 0 then
-        item:FindChild("Img_U"):SetActive(true)
+        ImgU:SetActive(true)
         self._List_Item_3._Item = item
         self._List_Item_3._Index = index + 1
     end
     local guildIcon = self._Guild_Icon_3[index + 1]
     if guildIcon.CostMoneyNum > 0 then
-        item:FindChild("Img_Lock_Bg"):SetActive(true)
+        ImgLockBg:SetActive(true)
+        GUI.SetText(LabCost,tostring(guildIcon.CostMoneyNum))
     else
-        item:FindChild("Img_Lock_Bg"):SetActive(false)
+        ImgLockBg:SetActive(false)
     end
-    item:FindChild("Img_Use_Bg"):SetActive(false)
-    GUITools.SetGuildIcon(item:FindChild("Img_D"), guildIcon.IconPath)   
+    ImgUseBg:SetActive(false)
+    GUITools.SetGuildIcon(ImgD, guildIcon.IconPath)   
 end
 
 -- 申请加入公会
 def.method("number").OnBtnAddGuild = function(self, index)
     local guild = game._HostPlayer._Guild
     local guildList = self._Guild_List[index + 1]
+    if game._HostPlayer:GetHostFightScore() < guildList.addLimit.battlePower then
+        game._GUIMan:ShowTipText(StringTable.Get(811), true)
+        return
+    end
     local callback = function(val)
         if val then
             for i = 1, #guild._ApplyList do
                 if guildList.guildID == guild._ApplyList[i] then
                     return
                 end
-            end
-            if game._HostPlayer:GetHostFightScore() < guildList.addLimit.battlePower then
-                game._GUIMan:ShowTipText(StringTable.Get(811), true)
-                return
             end
             game._GuildMan:SendC2SGuildApplyAdd(guildList.guildID)
         end
@@ -614,13 +631,35 @@ def.method("table").ShowSearchGuild = function(self, result)
     end
 end
 
-def.method("number").OnInputValueChange = function(self, count)
-    if count <=0 then
-        self._Need_Value = 0
-        self._Input_Battle:SetTextWithOutCb(StringTable.Get(8110))
-        return
+def.method().OnBtnPlusScore = function(self)
+    self._Need_Value = self._Need_Value + 1
+    self._Need_Value = math.min(self._Need_Value, GlobalDefinition.MaxFightScoreNum)
+    self:UpdateInputState()
+end
+
+def.method().OnBtnMinusScore = function(self)
+    self._Need_Value = self._Need_Value - 1
+    self._Need_Value = math.max(self._Need_Value, 0)
+    self:UpdateInputState()
+end
+
+def.method().UpdateInputState = function(self)
+    if self._Need_Value <= 0 then
+        GUI.SetText(self._Lab_Count, StringTable.Get(8110))
+        GameUtil.SetButtonInteractable(self._Btn_Minus, false)
+        GUITools.SetBtnGray(self._Btn_Minus, true, true)
+    else
+        GUI.SetText(self._Lab_Count, tostring(self._Need_Value))
+        GameUtil.SetButtonInteractable(self._Btn_Minus, true)
+        GUITools.SetBtnGray(self._Btn_Minus, false, true)
     end
-    self._Need_Value = count
+    if self._Need_Value >= GlobalDefinition.MaxFightScoreNum then
+        GameUtil.SetButtonInteractable(self._Btn_Plus, false)
+        GUITools.SetBtnGray(self._Btn_Plus, true, true)
+    else
+        GameUtil.SetButtonInteractable(self._Btn_Plus, true)
+        GUITools.SetBtnGray(self._Btn_Plus, false, true)
+    end
 end
 
 ---- 点击不需要审批按钮
@@ -674,18 +713,14 @@ end
 
 -- 创建公会
 def.method().OnBtnCreateGuild = function(self)
-    local name = self._InputField_Name:FindChild("Text"):GetComponent(self._Text_Type).text
+    local name = self._InputField_Name:GetComponent(self._Input_Type).text
+    if not NameChecker.CheckGuildNameValid(name) then
+        self._InputField_Name:GetComponent(self._Input_Type).text = ""
+        return  
+    end
     local cb = function(val)
         if val then
-            if not GUITools.CheckName(name) then
-                self._InputField_Name:GetComponent(self._Input_Type).text = ""
-                return  
-            end
-            if GameUtil.GetStringLength(name) < GlobalDefinition.MinGuildNameLength then
-                game._GUIMan:ShowTipText(string.format(StringTable.Get(856), GlobalDefinition.MinGuildNameLength), true)
-            elseif GameUtil.GetStringLength(name) > GlobalDefinition.MaxGuildNameLength then
-                game._GUIMan:ShowTipText(string.format(StringTable.Get(857), GlobalDefinition.MaxGuildNameLength), true)
-            elseif game._HostPlayer:GetBindDiamonds() < self._Create_Money then
+            if game._HostPlayer:GetBindDiamonds() < self._Create_Money then
                 local callback = function(value)
                     if value then
                         local protocol = (require "PB.net".C2SGuildCreate)()
@@ -715,7 +750,12 @@ def.method().OnBtnCreateGuild = function(self)
     end
     local title, msg, closeType = StringTable.GetMsg(122)
     msg = string.format(msg, RichTextTools.GetGuildNameRichText(name, false))
-    MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, cb)
+    local setting =
+    {
+        [MsgBoxAddParam.CostMoneyID] = 3,
+        [MsgBoxAddParam.CostMoneyCount] = self._Create_Money,
+    }
+    MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, cb, nil, nil, MsgBoxPriority.Normal, setting)
 end
 
 -- 会长请求援助

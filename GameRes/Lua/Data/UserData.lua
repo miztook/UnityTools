@@ -29,7 +29,9 @@ def.method().Init = function(self)
 end
 
 def.method().SaveDataToFile = function(self)
-	local path = document_path .. "/UserData/usercfg.lua"
+	GameUtil.CheckUserDataDir() -- 检查文件夹是否存在，不存在会自动创建
+	local doc_path = GameUtil.GetDocumentPath()
+	local path = doc_path .. "/UserData/usercfg.lua"
 	local bSucc, err = malut.toCodeToFile(self._DataTable, path)
 	if not bSucc then
 		error(err)

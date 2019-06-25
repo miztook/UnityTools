@@ -24,7 +24,7 @@ local MapInfo =
 			[4] = { x = -75.45, y = 34.38, z = -117.68, name = "高等精灵卫兵", SortID = 9 },
 			[5] = { x = -84.74, y = 34.38, z = -112.18, name = "高等精灵卫兵", SortID = 10 },
 			[6] = { x = 67.32, y = 13.39, z = -50.45, name = "高等精灵卫兵", SortID = 31 },
-			[7] = { x = 54.65, y = 13.39, z = -50.56, name = "高等精灵卫兵", SortID = 32 },
+			[7] = { x = 55.39, y = 13.39, z = -50.54, name = "高等精灵卫兵", SortID = 32 },
 			[8] = { x = 141.45, y = 14.84, z = -123.97, name = "高等精灵卫兵", SortID = 33 },
 			[9] = { x = 141.45, y = 14.84, z = -116.25, name = "高等精灵卫兵", SortID = 34 },
 			[10] = { x = 54.65, y = 13.39, z = -78.43, name = "高等精灵卫兵", SortID = 35 },
@@ -122,7 +122,7 @@ local MapInfo =
 		},
 		[3085] = 
 		{
-			[1] = { x = -120.04, y = -15.52, z = 100.47, name = "贝里克牧师", SortID = 41 },
+			[1] = { x = -120.04, y = -15.52, z = 100.47, name = "贝里克牧师", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "贝里克牧师", SortID = 41, FunctionName = "声望" },
 		},
 		[3083] = 
 		{
@@ -131,7 +131,7 @@ local MapInfo =
 		[3030] = 
 		{
 			[1] = { x = -83.91, y = -3.91, z = 47.75, name = "精灵平民女", SortID = 43 },
-			[2] = { x = 62.39, y = 7.23, z = -163.31, name = "精灵平民女", SortID = 57 },
+			[2] = { x = 40.33, y = 7.23, z = -171.24, name = "精灵平民女", SortID = 57 },
 		},
 		[3031] = 
 		{
@@ -148,11 +148,11 @@ local MapInfo =
 		},
 		[3054] = 
 		{
-			[1] = { x = 162.25, y = 17.61, z = -170.91, name = "凯拉·洛汉", SortID = 47 },
+			[1] = { x = 162.25, y = 17.61, z = -170.91, name = "凯拉·洛汉", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "凯拉·洛汉", SortID = 47, FunctionName = "声望" },
 		},
 		[3033] = 
 		{
-			[1] = { x = 59.02, y = 7.23, z = -165.54, name = "精灵平民男", SortID = 56 },
+			[1] = { x = 39.60, y = 7.23, z = -168.82, name = "精灵平民男", SortID = 56 },
 		},
 		[3032] = 
 		{
@@ -312,11 +312,11 @@ local MapInfo =
 		},
 		[2] = 
 		{
-			[297] = { x = 60.50, y = 13.60, z = -142.21, name = "长老会", isShowName = true, worldId = 0, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
-			[298] = { x = 156.79, y = 17.71, z = -175.25, name = "米斯特瑞姆", isShowName = true, worldId = 0, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
-			[299] = { x = -108.20, y = 34.64, z = -161.61, name = "精灵军指挥所", isShowName = true, worldId = 0, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
-			[300] = { x = -135.17, y = 1.00, z = -18.75, name = "名品交易所", isShowName = true, worldId = 0, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
-			[301] = { x = -186.61, y = -23.42, z = 49.83, name = "魔导港口", worldId = 0, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
+			[297] = { x = 60.50, y = 13.60, z = -142.21, name = "长老会", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
+			[298] = { x = 156.79, y = 17.71, z = -175.25, name = "米斯特瑞姆", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
+			[299] = { x = -108.20, y = 34.64, z = -161.61, name = "精灵军指挥所", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
+			[300] = { x = -135.17, y = 1.00, z = -18.75, name = "名品交易所", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
+			[301] = { x = -186.61, y = -23.42, z = 49.83, name = "魔导港口", worldId = 0, IsCanFind = 1, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night" },
 			[302] = { x = 173.53, y = 15.27, z = -139.90, name = "换衣服区域", worldId = 0, PkMode = 0 },
 			[303] = { x = -179.29, y = -23.08, z = 19.16, name = "抵达名品交易所", worldId = 0, PkMode = 0 },
 			[304] = { x = -31.26, y = 2.99, z = -29.26, name = "抵达军事区", worldId = 0, PkMode = 0 },
@@ -330,9 +330,9 @@ local MapInfo =
 			[434] = { x = 94.94, y = 14.57, z = -114.51, name = "声望躲藏的宠物1", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {66109} },
 			[435] = { x = 48.12, y = 5.46, z = -4.99, name = "声望躲藏的宠物2", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {66109} },
 			[436] = { x = -15.07, y = 3.99, z = -33.99, name = "声望躲藏的宠物3", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {66109} },
-			[437] = { x = 24.67, y = 40.45, z = 46.05, name = "区域-进入相位161", worldId = 0, PkMode = 0 },
+			[437] = { x = 24.67, y = 1.00, z = 46.05, name = "区域-进入相位161", worldId = 0, PkMode = 0 },
 			[585] = { x = 79.30, y = -4.20, z = 47.86, name = "声望-炼金术相位进入", worldId = 0, PkMode = 0 },
-			[586] = { x = -119.44, y = 34.38, z = -181.98, name = "生命之花进入点", worldId = 0, PkMode = 0 },
+			[586] = { x = -118.92, y = 34.38, z = -182.11, name = "生命之花相位进入", worldId = 0, PkMode = 0 },
 		},
 	},
 	Mine = 
@@ -670,7 +670,7 @@ local MapInfo =
 		},
 		[32] = 
 		{
-			x = 54.65, y = 13.39, z = -50.56, Type = 2,
+			x = 55.39, y = 13.39, z = -50.54, Type = 2,
 			Tid = 
 			{
 				[3035] = 1,
@@ -854,7 +854,7 @@ local MapInfo =
 		},
 		[56] = 
 		{
-			x = 59.02, y = 7.23, z = -165.54, Type = 2,
+			x = 39.60, y = 7.23, z = -168.82, Type = 2,
 			Tid = 
 			{
 				[3033] = 1,
@@ -862,7 +862,7 @@ local MapInfo =
 		},
 		[57] = 
 		{
-			x = 62.39, y = 7.23, z = -163.31, Type = 2,
+			x = 40.33, y = 7.23, z = -171.24, Type = 2,
 			Tid = 
 			{
 				[3030] = 1,

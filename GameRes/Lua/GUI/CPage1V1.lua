@@ -12,14 +12,14 @@ local CPageBattle = require"GUI.CPageBattle"
 local Util = require "Utility.Util"
 local PBHelper = require "Network.PBHelper"
 local net = require "PB.net"
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 
 local CPage1V1 = Lplus.Class("CPage1V1")
 local def = CPage1V1.define
 
 def.field("userdata")._Panel = nil
 def.field("table")._PanelObject = nil
-def.field("number")._1V1RewardTemplate = 2
+def.field("number")._1V1RewardTemplate = 2                                                           
 def.field(CUIModel)._Model4ImgRender_1 = nil
 def.field(CUIModel)._Model4ImgRender_2 = nil
 def.field("table")._RankReward1V1Data = nil 
@@ -43,24 +43,6 @@ local function OnCountGroupUpdateEvent(sender, event)
 		-- warn("CountGroupUpdateEvent event._CountGroupTid ==", event._CountGroupTid, instance._ArenaInstanceTid)
 		instance:UpdateInfoEnterTime(instance._ArenaInstanceTid)
 	end
-end
-
-local function UpdateRoleInfo(self,obj)
-	local labName = obj:FindChild("Lab_Name")
-	local data = game._CArenaMan._1V1HostData
-
-	GUI.SetText(labName,data.Name)
-
-	local labFightScore_Data = obj:FindChild("Lab_FightScore_Data")
-	GUI.SetText(labFightScore_Data,GUITools.FormatMoney(data.FightScore))
-	local labRank = obj:FindChild("Lab_Rank")
-	local labPoint = obj:FindChild("Lab_PointTips/Lab_Point")
-	if data.Rank == 0 then 
-		GUI.SetText(labRank,StringTable.Get(20103))
-	else
-		GUI.SetText(labRank,tostring(data.Rank))
-	end
-	GUI.SetText(labPoint,tostring(data.Score))
 end
 
 -- 1v1当前排名奖励
@@ -119,19 +101,37 @@ local function UpdateCombatGains(self)
 	end
 end
 
+def.method( "userdata").UpdateRoleInfo = function(self,obj)
+	local labName = obj:FindChild("Lab_Name")
+	local data = game._CArenaMan._1V1HostData
+
+	GUI.SetText(labName,data.Name)
+
+	local labFightScore_Data = obj:FindChild("Lab_FightScore_Data")
+	GUI.SetText(labFightScore_Data,GUITools.FormatMoney(data.FightScore))
+	local labRank = obj:FindChild("Lab_Rank")
+	local labPoint = obj:FindChild("Lab_PointTips/Lab_Point")
+	if data.Rank == 0 then 
+		GUI.SetText(labRank,StringTable.Get(20103))
+	else
+		GUI.SetText(labRank,tostring(data.Rank))
+	end
+	GUI.SetText(labPoint,tostring(data.Score))
+end
+
 def.method("table", "userdata").Show = function(self, linkInfo, root)
 	self._Panel = root              --该分解的root 节点
     self._PanelObject = linkInfo    --存储引用的table在上层传递进来
     if self._ArenaInstance == nil then
 		self._ArenaInstance = CElementData.GetTemplate("Instance", self._ArenaInstanceTid)
 	end
-
 	CGame.EventManager:addHandler("CountGroupUpdateEvent", OnCountGroupUpdateEvent)
     self:InitPanel()
 end
 
 def.method().InitPanel = function (self)
-	UpdateRoleInfo(self,self._PanelObject._FrameRoleInfo1V1)
+	self._PanelObject._FrameMatchTime:SetActive(false)
+	self:UpdateRoleInfo(self._PanelObject._FrameRoleInfo1V1)
 	RankReward1V1(self)
 	UpdateCombatGains(self)
 end
@@ -167,13 +167,11 @@ def.method("string").Click = function(self, id)
 			game._GUIMan:ShowTipText(StringTable.Get(20076),false)
 			return
 		end
-		-- 战斗中（和服务器统一 判断仇恨列表）
-		local hateList = hp:GetHatedEntityList()
-		if #hateList > 0 then game._GUIMan:ShowTipText(StringTable.Get(20077),false) return end
 		-- 次数
 		if self._RemainCount == 0 then game._GUIMan:ShowTipText(StringTable.Get(20078),false) return end
 		--处于杀戮模式
 		if hp:IsMassacre() then game._GUIMan:ShowTipText(StringTable.Get(20079),false)  return end
+		if hp:IsInPkState() then game._GUIMan:ShowTipText(StringTable.Get(20083),false) return end
 		game._GUIMan:Open("CPanelArenaOneMatching",nil)
 		CQuestAutoMan.Instance():Stop()
 		CAutoFightMan.Instance():Stop()
@@ -181,11 +179,12 @@ def.method("string").Click = function(self, id)
 		hp:StopAutoTrans()
 		self:StartJJC1x1Math()	
 	elseif id == "Btn_Rank" then
+		game._CArenaMan:OpenArena(game._DungeonMan:Get1v1WorldTID())
 		game._GUIMan:Open("CPanelRanking",ERankId.JJC1v1)
 	elseif id == "Btn_PlusChance"  then 
 		-- warn("-----------lidaming 1V1---------------", game._CArenaMan._1V1HostData.EnterNum)
-		game:BuyCountGroup(game._CArenaMan._1V1HostData.EnterNum , self._ArenaInstance.CountGroupTid)
-	elseif id == "Btn_ShowAward"  then 
+		game._CCountGroupMan:BuyCountGroup(game._CArenaMan._1V1HostData.EnterNum , self._ArenaInstance.CountGroupTid)
+	elseif id == "Btn_ShowAward"  then
 		local panelData = {
 								_RewardData = self._RankReward1V1Data,
 								_MyRank = game._CArenaMan._1V1HostData.Rank
@@ -210,10 +209,6 @@ end
 
 --匹配对手C2S消息
 def.method().StartJJC1x1Math = function(self)
-	if game._HostPlayer:IsInServerCombatState() then	
-		game._GUIMan:ShowTipText(StringTable.Get(20074), false)
-		return
-	end
 	local C2SJJC1x1Math = require "PB.net".C2SJJC1x1Math
 	PBHelper.Send(C2SJJC1x1Math()) 
 end

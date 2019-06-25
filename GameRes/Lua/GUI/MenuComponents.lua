@@ -76,7 +76,7 @@ do
 		return obj
 	end
     def.override("=>", "string").GetBtnName = function (self)
-        return StringTable.Get(19115)
+        return StringTable.Get(21419)
     end
     def.override("=>", "boolean").IsMeetCondition = function(self)
         --TODO
@@ -173,7 +173,11 @@ do
     end
     def.override("=>", "boolean").IsMeetCondition = function(self)
         if not game._CFriendMan:IsInBlackList(self._RoleID) then
-            return true
+            if game._HostPlayer:IsInGlobalZone() then
+                return false
+            else
+                return true
+            end
         else
             return false
         end
@@ -243,6 +247,10 @@ do
         end
     end
 	def.override().HandleClick = function (self)
+        if game._HostPlayer:IsInGlobalZone() then
+            game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+            return
+        end
         if self._Member ~= nil then
             game._GUIMan:Open("CPanelUIGuildSet", self._Member)
             MenuComponent.HandleClick(self)
@@ -359,6 +367,9 @@ do
         return StringTable.Get(21404)
     end
     def.override("=>", "boolean").IsMeetCondition = function(self)
+        if game._HostPlayer:IsInGlobalZone() then
+            return false
+        end
         return true
     end
 	def.override().HandleClick = function (self)

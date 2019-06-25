@@ -15,7 +15,7 @@ local MapInfo =
 	{
 		[10063] = 
 		{
-			[1] = { x = 216.09, y = 52.06, z = 61.33, name = "제국 척후병", level = 1, SortID = 11 },
+			[1] = { x = 216.09, y = 52.06, z = 61.33, name = "제국 정찰병", level = 1, SortID = 11 },
 		},
 		[10055] = 
 		{
@@ -24,7 +24,7 @@ local MapInfo =
 		},
 		[10075] = 
 		{
-			[1] = { x = 216.84, y = 57.45, z = 97.39, name = "아논 공성대", level = 2, SortID = 27 },
+			[1] = { x = 216.84, y = 57.45, z = 97.39, name = "아논 공격대", level = 2, SortID = 27 },
 		},
 		[10065] = 
 		{
@@ -32,15 +32,15 @@ local MapInfo =
 		},
 		[10074] = 
 		{
-			[1] = { x = 216.38, y = 53.78, z = 76.65, name = "제국 척후병", level = 1, SortID = 33 },
+			[1] = { x = 216.38, y = 53.78, z = 76.65, name = "제국 정찰병", level = 1, SortID = 33 },
 		},
 		[10064] = 
 		{
-			[1] = { x = 171.34, y = 64.87, z = 141.54, name = "핏빛 폭군", level = 1, SortID = 16,IsBoss = true },
+			[1] = { x = 171.34, y = 64.87, z = 141.54, name = "피의 폭군", level = 1, SortID = 16,IsBoss = true },
 		},
 		[10072] = 
 		{
-			[1] = { x = 217.77, y = 61.31, z = 131.24, name = "아논 공성대", level = 2, SortID = 45 },
+			[1] = { x = 217.77, y = 61.31, z = 131.24, name = "아논 공격대", level = 2, SortID = 45 },
 		},
 	},
 	Npc = 
@@ -85,7 +85,7 @@ local MapInfo =
 		[2] = 
 		{
 			[49] = { x = 185.80, y = 76.07, z = 95.68, name = "그린마을 항구", isShowName = true, worldId = 0, PkMode = 0 },
-			[76] = { x = 178.45, y = 59.84, z = 145.33, name = "그린마을", isShowName = true, worldId = 0, PkMode = 0 },
+			[76] = { x = 178.45, y = 59.84, z = 145.33, name = "그린 마을", isShowName = true, worldId = 0, PkMode = 0 },
 			[90] = { x = 213.87, y = 53.43, z = 46.34, name = "初始抵达区", worldId = 0, PkMode = 0 },
 			[128] = { x = 218.58, y = 57.88, z = 86.81, name = "队长刷新区域", worldId = 0, PkMode = 0 },
 			[179] = { x = 189.38, y = 64.53, z = 142.70, name = "前往boss区域", worldId = 0, PkMode = 0 },

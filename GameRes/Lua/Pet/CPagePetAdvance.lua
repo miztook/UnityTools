@@ -50,23 +50,12 @@ def.method().InitPanel = function(self)
     self._PanelObject = {
         PropertyList = {},
         AptitudeList = {},
-        Group_AdvanceStar = {},
         Group_Advance = {},
         Group_AdvanceTalent = {},
         Btn_Advance = self._Parent:GetUIObject("Btn_Advance"),
+        Btn_AdvanceTalent = self._Parent:GetUIObject("Btn_AdvanceTalent"),
     }
---[[
-    --属性
-    for i=1, MaxPropertyCount do
-        local property = {}
-        property.Root = self._Parent:GetUIObject('Frame_Advance_Property'..i)
-        property.Lab_Property = property.Root:FindChild("Lab_Property")
-        property.Lab_OldValue = property.Root:FindChild("Lab_OldValue")
-        property.Lab_NewValue = property.Root:FindChild("Lab_NewValue")
 
-        table.insert(self._PanelObject.PropertyList, property)
-    end
-]]
     --资质
     for i=1, 5 do
         if i <= MaxAptitudeCount then 
@@ -78,6 +67,7 @@ def.method().InitPanel = function(self)
             aptitude.Lab_Value = sld:FindChild('Lab_Value')
             aptitude.Img_AddValue = sld:FindChild('Img_AddValue')
             aptitude.Img_Up = sld:FindChild('Img_Up')
+            aptitude.Img_CanReset = aptitude.Root:FindChild("Img_CanReset")
 
             table.insert(self._PanelObject.AptitudeList, aptitude)
         else
@@ -89,19 +79,11 @@ def.method().InitPanel = function(self)
     -- 天赋
     do
         local root = self._PanelObject.Group_AdvanceTalent
+        root.TalentIcon = self._Parent:GetUIObject("Img_AdvanceTalentIcon")
         root.Lab_TalentName = self._Parent:GetUIObject('Lab_AdvanceTalentName')
         root.Frame_TalentAdd = self._Parent:GetUIObject('Frame_TalentAdd')
         root.Lab_Add = self._Parent:GetUIObject('Lab_TalentAdd')
-        root.Lab_TalentDes = self._Parent:GetUIObject('Lab_AdvanceTalentDesc')
         root.Lab_Max = self._Parent:GetUIObject('Lab_AdvanceTalentMaxLevel')
-    end
-
-    -- 星级类型
-    do
-        local root = self._PanelObject.Group_AdvanceStar
-        root.Lab_Type = self._Parent:GetUIObject('Lab_AdvanceType')
-        root.Frame_Star = self._Parent:GetUIObject('Frame_AdvanceStar')
-        root.Img_Type = self._Parent:GetUIObject('Img_AdvanceType')
     end
 
     do
@@ -127,17 +109,7 @@ local OnPetUpdateEvent = function(sender, event)
         --instance:UpdateAdvanceLimit()
     end
 end
---[[
-def.method().UpdateAdvanceLimit = function(self)
-    local root = self._PanelObject.Group_Advance
-    if self._PetData:IsMaxStage() then
-        --FIXME  MAX情况 显示啥，需要图例
-    else
-        local limitLevel = self._AdvanceLimitLevelInfo[self._PetData:GetStage() + 1]
-        GUI.SetText(root.Lab_Value, tostring(limitLevel))
-    end
-end
-]]
+
 def.method("table").UpdateSelectPet = function(self, data)
     self._Panel:SetActive(data ~= nil)
     self:ResetMeterialPetInfo()
@@ -152,7 +124,7 @@ end
 def.method().ResetMeterialPetInfo = function(self)
     self._CurrentSelectMeterialPetData = nil
     self._LocalPetList = {}
-    self._Parent:ClearAdvanceMeterialPetItemBg()
+    self._Parent:ClearAdvanceMeterialPetList()
     local Group_Advance = self._PanelObject.Group_Advance
     Group_Advance.Img_ItemIcon:SetActive(false)
     Group_Advance.Img_Quality:SetActive(false)
@@ -168,37 +140,49 @@ def.method().UpdateProperty = function(self)
     --资质
     local petData = self._PetData
     local materialPetData  = self._CurrentSelectMeterialPetData
+    local star = petData:GetStage()
     local root = self._PanelObject.AptitudeList
 
     if materialPetData ~= nil then 
         local petAptitudes = petData._AptitudeList
         local materialpetAptitudes = materialPetData._AptitudeList
         for i=1, #petData._AptitudeList do
-            local aptitudeMax = petData:GetAptitudeMaxByIndex(i)
+            local inc = petData._AptitudeMaxIncrease[i]
+            local addValue = petData._AptitudeIncrease[i]
+
+            local aptitudeMax = petData:GetAptitudeMaxByIndex(i) + inc * math.min(star + 1, 5)
 
             if i > #materialPetData._AptitudeList then return end
             -- warn("petAptitudes[i].FightPropertyId == materialpetAptitudes[i].FightPropertyId",petAptitudes[i].FightPropertyId,materialpetAptitudes[i].FightPropertyId)
-            if petAptitudes[i].FightPropertyId == materialpetAptitudes[i].FightPropertyId and materialpetAptitudes[i].Value > 0 then 
-                local UIInfo = root[i]
-                local addValue = math.ceil( materialpetAptitudes[i].Value * 0.2 )
-                if (petAptitudes[i].Value + addValue) > aptitudeMax then 
-                    addValue = aptitudeMax - petAptitudes[i].Value
-                end
-                UIInfo.Img_AddValue:SetActive(true)
-                UIInfo.Img_Up:SetActive(true)
-                local imgfill = UIInfo.Img_AddValue:GetComponent(ClassType.Image)
-                imgfill.fillAmount = math.clamp((petAptitudes[i].Value + addValue)/aptitudeMax, 0, 1)
-                GUI.SetText(UIInfo.Lab_Value, string.format(StringTable.Get(19075),petAptitudes[i].Value,addValue,aptitudeMax))
+            -- if petAptitudes[i].FightPropertyId == materialpetAptitudes[i].FightPropertyId and materialpetAptitudes[i].Value > 0 then 
+            local UIInfo = root[i]
+            local aptitudeInfo = petAptitudes[i]
+            
+            if (aptitudeInfo.Value + addValue) > aptitudeMax then 
+                addValue = aptitudeMax - aptitudeInfo.Value
+            end
+            UIInfo.Img_AddValue:SetActive(true)
+            UIInfo.Img_Up:SetActive(true)
+            UIInfo.Img_CanReset:SetActive( aptitudeInfo.CanReset ) 
+            local imgfill = UIInfo.Img_AddValue:GetComponent(ClassType.Image)
+            imgfill.fillAmount = math.clamp((aptitudeInfo.Value + addValue)/aptitudeMax, 0, 1)
+
+            if addValue > 0 then
+                GUI.SetText(UIInfo.Lab_Value, string.format(StringTable.Get(19088),aptitudeInfo.Value,addValue,aptitudeMax,inc))
+            else
+                GUI.SetText(UIInfo.Lab_Value, string.format(StringTable.Get(19098),aptitudeInfo.Value,aptitudeMax,inc))
             end
         end
     else
         for i=1, #petData._AptitudeList do
-            local aptitudeMax = petData:GetAptitudeMaxByIndex(i)
+            local inc = petData._AptitudeMaxIncrease[i]
+            local aptitudeMax = petData:GetAptitudeMaxByIndex(i) + inc * star
             local aptitudeInfo = petData._AptitudeList[i]
             local UIInfo = root[i]
             GUI.SetText(UIInfo.Lab_Aptitude, aptitudeInfo.Name)
             UIInfo.Img_AddValue:SetActive(false)
             UIInfo.Img_Up:SetActive(false)
+            UIInfo.Img_CanReset:SetActive( aptitudeInfo.CanReset ) 
             if aptitudeInfo.Value >= aptitudeMax then 
                 GUI.SetText(UIInfo.Lab_Value, string.format(StringTable.Get(19074), aptitudeMax))
             else
@@ -206,49 +190,6 @@ def.method().UpdateProperty = function(self)
                 GUI.SetText(UIInfo.Lab_Value, string.format(StringTable.Get(19070), aptitudeInfo.Value, aptitudeMax))
             end
             UIInfo.Sld.value = math.clamp(aptitudeInfo.Value/aptitudeMax, 0, 1)
-        end
-    end
---[[
-    --属性
-    local root = self._PanelObject.PropertyList
-    for i=1, #self._PetData._PropertyList do
-        local propertyInfo = self._PetData._PropertyList[i]
-
-        local UIInfo = root[i]
-        GUI.SetText(UIInfo.Lab_Property, propertyInfo.Name)
-        GUI.SetText(UIInfo.Lab_OldValue, tostring(propertyInfo.Value))
-
-        if self._PetData:IsMaxStage() then
-            GUI.SetText(UIInfo.Lab_NewValue, StringTable.Get(19008))
-        else
-            local groupTemplate = CElementData.GetAttachedPropertyGeneratorTemplate(propertyInfo.FightPropertyId)
-            local baseVal = self._PetData:GetBasePropertyById(propertyInfo.ID)
-            local newVal = self._PetData:CalcProperty(propertyInfo.ID, baseVal, self._PetData._Level, self._PetData._Stage+1)  --当前计算后的属性值
-            GUI.SetText(UIInfo.Lab_NewValue, tostring(newVal))
-        end
-    end
-]]
-end
-
--- 星级和类型
-def.method().UpdateInfo = function(self)
-    local root = self._PanelObject.Group_AdvanceStar
-    GUI.SetText(root.Lab_Type,StringTable.Get(19022 + self._PetData._Genus))
-    GUITools.SetGroupImg(root.Img_Type,self._PetData._Genus)
-    local FrameStar = root.Frame_Star
-
-    for i = 1, 5 do
-        if i <= self._PetData._Stage  and i <= self._PetData._MaxStage then 
-            local imgStar = FrameStar:FindChild("Img_Star"..i)
-            imgStar:SetActive(true)
-            GUITools.SetGroupImg(imgStar,0)
-        elseif i > self._PetData._Stage  and i <= self._PetData._MaxStage then 
-            local imgStar = FrameStar:FindChild("Img_Star"..i)
-            imgStar:SetActive(true)
-            GUITools.SetGroupImg(imgStar,1)
-        elseif i >self._PetData._MaxStage then 
-            local imgStar = FrameStar:FindChild("Img_Star"..i)
-            imgStar:SetActive(false)
         end
     end
 end
@@ -259,12 +200,12 @@ def.method().UpdateTalent = function(self)
     local maxTalentLv = CPetUtility.GetMaxPetTalentLevel() 
     local root = self._PanelObject.Group_AdvanceTalent
     if self._CurrentSelectMeterialPetData ~= nil and data._TalentId == self._CurrentSelectMeterialPetData._TalentId and self._CurrentSelectMeterialPetData._TalentLevel > 0 and data._TalentLevel < maxTalentLv then 
-        local addLevel = self._CurrentSelectMeterialPetData._TalentLevel
+        -- local addLevel = self._CurrentSelectMeterialPetData._TalentLevel
         root.Frame_TalentAdd:SetActive(true)
-        if (data._TalentLevel + addLevel) > maxTalentLv then 
-            addLevel  = maxTalentLv - data._TalentLevel
-        end
-        GUI.SetText(root.Lab_Add,tostring(addLevel))
+        -- if (data._TalentLevel + addLevel) > maxTalentLv then
+            -- addLevel  = maxTalentLv - data._TalentLevel
+        -- end
+        GUI.SetText(root.Lab_Add, string.format(StringTable.Get(10691), 1))
         return        
     elseif self._CurrentSelectMeterialPetData ~= nil and data._TalentId ~= self._CurrentSelectMeterialPetData._TalentId then
         return
@@ -274,7 +215,7 @@ def.method().UpdateTalent = function(self)
         root.Frame_TalentAdd:SetActive(false)
     end 
     local talentTemplate = CElementData.GetTemplate("Talent", data._TalentId)
-    GUI.SetText(root.Lab_TalentDes,DynamicText.ParseSkillDescText(data._TalentId, data._TalentLevel, true))
+    GUITools.SetIcon(root.TalentIcon, talentTemplate.Icon)
     GUI.SetText(root.Lab_TalentName, string.format(StringTable.Get(10663), talentTemplate.Name, data._TalentLevel))
     if data._TalentLevel == maxTalentLv then 
         root.Lab_Max:SetActive(true)
@@ -287,9 +228,13 @@ end
 def.method().UpdatePanel = function(self)
     self._IsMaxAptitude = true
     self:UpdateProperty()
-    self:UpdateInfo()
+    -- self:UpdateInfo()
     self:UpdateTalent()
     self:PlayRedDotGfx( self:CalcRedDotState() )
+end
+
+def.method().UpdateInfo = function(self)
+
 end
 
 def.method("dynamic").SelectAdvanceMeterialPet = function(self, petItem)
@@ -319,30 +264,34 @@ def.method("dynamic").Show = function(self, data)
 end
 
 local function OnInitItem(self, item, data)
+    local Frame_SkillbookInfo = item:FindChild("Frame_SkillbookInfo")
+    local Frame_PetInfo = item:FindChild("Frame_PetInfo")
     local Img_UnableClick = item:FindChild("Img_UnableClick")
+    local Frame_PetIcon = item:FindChild("Btn_Icon/PetIcon")
+    local Frame_ItemIcon = item:FindChild("Btn_Icon/ItemIconNew")
+
+    local root = Frame_PetInfo
+    local Lab_Fight = root:FindChild("Lab_Fight")
+    local Lab_ItemName = root:FindChild("Lab_ItemName")
+    local Img_QualityBg = Frame_PetIcon:FindChild("Img_QualityBG")
+    local Img_Quality = Frame_PetIcon:FindChild("Img_Quality")
+    local Img_ItemIcon = Frame_PetIcon:FindChild("Img_ItemIcon")
+    local Lab_Lv = Frame_PetIcon:FindChild("Lab_PetLv")
+
     Img_UnableClick:SetActive(false)
-
-    local Frame_ItemIcon = GUITools.GetChild(item, 1)
+    Frame_SkillbookInfo:SetActive(false)
     Frame_ItemIcon:SetActive(false)
-    local Frame_PetIcon = GUITools.GetChild(item, 5)
+    Frame_PetInfo:SetActive(true)
     Frame_PetIcon:SetActive(true)
-    local Lab_Des = GUITools.GetChild(item, 4)
-    Lab_Des:SetActive(false)
-    local Lab_Fight = GUITools.GetChild(item, 3)
-    GUI.SetText(Lab_Fight, string.format(StringTable.Get(19055), data:GetFightScore()))
-    local Lab_ItemName = GUITools.GetChild(item, 2)
-    GUI.SetText(Lab_ItemName, RichTextTools.GetQualityText(data:GetNickName(), data:GetQuality()))
 
-    local Img_QualityBg = GUITools.GetChild(Frame_PetIcon, 0)
-    local Img_Quality = GUITools.GetChild(Frame_PetIcon, 1)
-    local Img_ItemIcon = GUITools.GetChild(Frame_PetIcon, 2)
-    local Lab_Lv = GUITools.GetChild(Frame_PetIcon, 3)
+    GUI.SetText(Lab_Fight, string.format(StringTable.Get(19055), data:GetFightScore()))
+    GUI.SetText(Lab_ItemName, RichTextTools.GetQualityText(data:GetNickName(), data:GetQuality()))
     GUITools.SetGroupImg(Img_QualityBg, data._Quality)
     GUITools.SetGroupImg(Img_Quality, data._Quality)
     GUITools.SetIcon(Img_ItemIcon, data._IconPath)
     GUI.SetText(Lab_Lv, string.format(StringTable.Get(10641), data._Level))
 
-    local Group_Stars = item:FindChild("Group_Stars")
+    local Group_Stars = Frame_PetInfo:FindChild("Group_Stars")
     Group_Stars:SetActive(true)
     local pet_star = data:GetStage()
     local pet_max_star = data._MaxStage
@@ -361,7 +310,7 @@ local function OnSelectItem(self, item, data, bIsConfirm)
 
     if bIsConfirm then
         self._CurrentSelectMeterialPetData = data
-        self._Parent:SetAdvanceMeterialPetItemBg(data._ID)
+        self._Parent:UpdateAdvanceMeterialPetList({data._ID})
         self:SelectAdvanceMeterialPet(data)
         self:UpdateProperty()
         self:UpdateTalent()
@@ -459,26 +408,28 @@ def.method().ShowUIItemList = function(self)
             --if pet._Tid == self._PetData._Tid and pet._ID ~= self._PetData._ID and pet:GetStage() == self._PetData:GetStage() then
                 --self._LocalPetList[#self._LocalPetList+1] = pet
             --end
-            if pet._ID ~= self._PetData._ID then
+            if pet._ID ~= self._PetData._ID and pet._Tid == self._PetData._Tid then
                 self._LocalPetList[#self._LocalPetList+1] = pet
             end
         end
     end
 
-    if #self._LocalPetList > 0 then
-        table.sort(self._LocalPetList , sortfunction)
-        _G.ItemListMan.ShowItemListManPanel(self, self._LocalPetList, OnInitItem, OnSelectItem, _G.ShowTipType.ShowPetTip, conditionFunc, self:GetQualityGroup())
-    else
-        --没有可以用于进阶的宠物
-        SendFlashMsg(StringTable.Get(19040))
-    end
+    table.sort(self._LocalPetList , sortfunction)
+    _G.ItemListMan.ShowItemListManPanel(self, 
+                                        self._LocalPetList, 
+                                        OnInitItem, 
+                                        OnSelectItem, 
+                                        _G.ShowTipType.ShowPetTip, 
+                                        conditionFunc, 
+                                        self:GetQualityGroup(), 
+                                        EnumDef.ApproachMaterialType.PetAdvance)
 end
 
 --点击进阶按钮逻辑
 def.method().OnClickBtn_Advance = function(self)
-    local function SendC2SPetAdvance()
+    local function SendC2SPetStarUp()
         --发送阶级协议
-        CPetUtility.SendC2SPetAdvance(self._PetData._ID, self._CurrentSelectMeterialPetData._ID)
+        CPetUtility.SendC2SPetStarUp(self._PetData._ID, self._CurrentSelectMeterialPetData._ID)
         local root = self._PanelObject.Group_Advance
         GameUtil.PlayUISfx(PATH.UIFx_DecompseBg, root.GfxHook, root.GfxHook, 1, 20, 1)
     end
@@ -495,7 +446,7 @@ def.method().OnClickBtn_Advance = function(self)
         local title, msg, closeType = StringTable.GetMsg(108)
         local  function callback(value)
             if value then 
-                SendC2SPetAdvance()
+                SendC2SPetStarUp()
             end
         end
         MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL,callback)
@@ -503,11 +454,13 @@ def.method().OnClickBtn_Advance = function(self)
     elseif self._CurrentSelectMeterialPetData._Quality >= 3 then
         local title, msg, closeType = StringTable.GetMsg(107)
         local name = self._CurrentSelectMeterialPetData._Name
-        name = "<color=#" .. EnumDef.Quality2ColorHexStr[self._CurrentSelectMeterialPetData._Quality] ..">" .. name .."</color>"
-        msg = string.format(msg,self._CurrentSelectMeterialPetData._Stage,name)
+        msg = string.format(msg, self._CurrentSelectMeterialPetData:GetStage(), 
+                             RichTextTools.GetPetNickNameRichText(self._CurrentSelectMeterialPetData._Tid, name, false),
+                             tostring(self._CurrentSelectMeterialPetData._Level))
+
         local  function callback(value)
             if value then 
-                SendC2SPetAdvance()
+                SendC2SPetStarUp()
             end
         end
         MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL,callback)
@@ -522,7 +475,20 @@ def.method().OnClickBtn_Advance = function(self)
     end
 
     --以上全部为过滤逻辑
-    SendC2SPetAdvance()
+    SendC2SPetStarUp()
+end
+
+--点击天赋 弹出tip逻辑
+def.method().OnClickBtn_AdvanceTalent = function(self)
+    local panelData = 
+    {
+        _TalentID = self._PetData._TalentId,
+        _TalentLevel = self._PetData._TalentLevel,
+        _TipPos = TipPosition.FIX_POSITION,
+        _TargetObj = self._PanelObject.Btn_AdvanceTalent,
+    }
+
+    CItemTipMan.ShowPetSkillTips(panelData)
 end
 
 def.method("string").OnClick = function(self, id)
@@ -533,9 +499,73 @@ def.method("string").OnClick = function(self, id)
     elseif id == "Btn_Drop_PetNeed" then
         self:ResetMeterialPetInfo()
         self:UpdateProperty()
-        self:UpdateInfo()
+        -- self:UpdateInfo()
         self:UpdateTalent()
+    elseif id == "Btn_AdvanceTalent" then
+        self:OnClickBtn_AdvanceTalent()
+    elseif string.find(id, "Frame_Advance_Aptitude") then
+        -- 暂时注释，后期修改显示方案
+        -- local index = tonumber(string.sub(id, -1))
+        -- self:ShowPropertyTip(index)
     end
+end
+
+def.method("number").ShowPropertyTip = function(self, index)
+    local fightPropertyId = self._PetData._AptitudeList[index].FightPropertyId
+    local fix_id = CPetUtility.ExchangeToPropertyTipsID(fightPropertyId)
+    local data = CElementData.GetTemplate("FightPropertyConfig", fix_id)
+
+    if data == nil or data.DetailDesc == "" then return end
+
+    local cnt = 0
+    local replaceIdStr = data.ReplaceIdStr
+    local strIds = {}
+
+    if replaceIdStr ~= nil and replaceIdStr ~= "" then
+        strIds = string.split(replaceIdStr, "*")
+        cnt = #strIds
+    end
+
+    local exchangeIndex1 = index
+    local exchangeIndex2 = 0
+    local strDesc = ""
+
+    if cnt == 1 then
+        exchangeIndex1 = tonumber(strIds[1])
+    elseif cnt == 2 then
+        exchangeIndex1 = tonumber(strIds[1])
+        exchangeIndex2 = tonumber(strIds[2])
+    end
+
+    local value = self._PetData._AptitudeList[index].Value
+    if value == nil then return end
+
+    if exchangeIndex2 == 0 then
+        local ModuleProfDiffConfig = require "Data.ModuleProfDiffConfig" 
+        local config = ModuleProfDiffConfig.GetModuleInfo("FightProperty")
+        if config ~= nil and config.DESC ~= nil and config.DESC[index] ~= nil then
+            strDesc = config.DESC[index][game._HostPlayer._InfoData._Prof]
+        else
+            local exchangeData = CElementData.GetTemplate("FightPropertyConfig", exchangeIndex1)
+            if string.sub(exchangeData.ValueFormat, -1) == "%" then
+                value = value * 100
+            end
+            
+            strDesc = string.format(data.DetailDesc, value)
+        end     
+    else
+        local value1 = value*100
+        local value2 = self._PetData._AptitudeList[index].Value * 100
+        strDesc = string.format(data.DetailDesc, value1, value2)
+    end
+
+    local param = 
+    {
+        Obj = self._Parent:GetUIObject("Frame_Advance_Aptitude"..index),
+        Value = strDesc,
+        AlignType = EnumDef.AlignType.Top,
+    }
+    game._GUIMan:Open("CPanelRoleInfoTips", param)
 end
 
 def.method('string').OnPointerLongPress = function(self,id)

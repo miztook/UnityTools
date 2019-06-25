@@ -15,6 +15,7 @@ local cfg = {
     Rdo_Quality6 = 1218170073,
     Rdo_Quality7 = 1218170074,
     Rdo_Timer = -1465761597,
+    Rdo_Part7 = -1469688798,
 }
  
 return cfg

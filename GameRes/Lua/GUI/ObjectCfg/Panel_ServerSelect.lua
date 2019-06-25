@@ -9,6 +9,7 @@ local cfg = {
     List_Role = 778882935,
     View_Server = 880161309,
     List_Server = 1201783300,
+    Lab_WaitTips = 1331776767,
 }
  
 return cfg

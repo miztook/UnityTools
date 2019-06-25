@@ -53,6 +53,11 @@ def.override().OnCreate = function(self)
         Btn_Close = self:GetUIObject('Btn_Close'),
         Lab_OrignDesc = self:GetUIObject('Lab_OrignDesc'),
         Btn_Tips = self:GetUIObject("Btn_Tips"),
+        Lab_TalentName = self:GetUIObject('Lab_TalentName'),
+        Lab_TalentDesc = self:GetUIObject('Lab_TalentDesc'),
+        Lab_Name = self:GetUIObject('Lab_Name'),
+        Lab_Genre = self:GetUIObject('Lab_Genre'),
+        Img_Genre = self:GetUIObject('Img_Genre')
     }
     
     do
@@ -278,13 +283,19 @@ def.method().UpdatePetInfoBoard = function(self)
             local bShow = (skillInfo ~= nil)
             uiInfo.Root:SetActive(bShow)
             if bShow then
-                GUI.SetText(uiInfo.Lab_SkilName, skillInfo.Name)
+                GUI.SetText(root.Lab_TalentName, skillInfo.Name)
+                GUI.SetText(root.Lab_TalentDesc, skillInfo.Desc)
+
+                -- GUI.SetText(uiInfo.Lab_SkilName, skillInfo.Name)
                 GUITools.SetIcon(uiInfo.Img_ItemIcon, skillInfo.IconPath)
                 GUITools.SetGroupImg(uiInfo.Img_Quality, skillInfo.Quality)
             end
         end
     end
 
+    GUI.SetText(root.Lab_Name, RichTextTools.GetQualityText(self._ItemData.Name, self._ItemData.Quality))
+    GUI.SetText(root.Lab_Genre, StringTable.Get(19022+self._ItemData.Genus))
+    GUITools.SetGroupImg(root.Img_Genre, self._ItemData.Genus)
     GUI.SetText(root.Lab_OrignDesc, self._ItemData.PetStroy)
 end
 

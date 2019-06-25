@@ -1,0 +1,498 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="hoba">
+      <UniqueIdentifier>{efeb38d5-79f6-4bf1-b3fe-77d383da0c47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hoba\3rd">
+      <UniqueIdentifier>{e85adb6f-ab6d-40f6-8c03-04408d10790c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hoba\Base">
+      <UniqueIdentifier>{ff1e2b07-3a8b-4507-9412-070972ee55b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hoba\Common">
+      <UniqueIdentifier>{8d9e10c6-6d3b-40cb-a74c-8de1d4585178}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hoba\Platform">
+      <UniqueIdentifier>{c88fd5cc-62e6-455e-ae3e-28e97a698872}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hoba\3rd\7zDecode">
+      <UniqueIdentifier>{52179dbd-7c44-4c4f-896f-0a43b86a266c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hoba\updatelib">
+      <UniqueIdentifier>{1d439b70-a8ee-4f9b-b3e6-fb61370c5062}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="JupUnpack.cpp" />
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\7zAlloc.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\7zArcIn.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\7zBuf.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\7zBuf2.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\7zCrc.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\7zCrcOpt.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\7zDec.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\7zFile.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\7zStream.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Aes.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\AesOpt.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Alloc.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Bcj2.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Bcj2Enc.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Bra.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Bra86.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\BraIA64.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\CpuArch.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Delta.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\DllSecur.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\LzFind.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\LzFindMt.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Lzma2Dec.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Lzma2Enc.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Lzma86Dec.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Lzma86Enc.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\LzmaDec.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\LzmaEnc.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\LzmaLib.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\MtCoder.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Ppmd7.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Ppmd7Dec.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Ppmd7Enc.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Sha256.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Sort.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Threads.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\Xz.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\XzCrc64.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\XzCrc64Opt.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\XzDec.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\XzEnc.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\XzIn.c">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DCollision.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DFuncs.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DGeometry.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DMatrix.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DQuaternion.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DTrace.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AAssist.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFI.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFile.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFileImage.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFilePackage.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFilePackBase.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFilePackGame.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFilePackMan.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFramework.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\ALog.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AString.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\ASys.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\ASysCodeCvt.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\ASysThread.cpp">
+      <Filter>hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\csshare\Common\CMd5Hash.cpp">
+      <Filter>hoba\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\csshare\Common\elementpckdir.cpp">
+      <Filter>hoba\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.cpp">
+      <Filter>hoba\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.cpp">
+      <Filter>hoba\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\source\Platform\Windows\AWinSys.cpp">
+      <Filter>hoba\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\updatelib\7zReader.cpp">
+      <Filter>hoba\updatelib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\updatelib\7zreader_export.cpp">
+      <Filter>hoba\updatelib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\updatelib\FileOperate.cpp">
+      <Filter>hoba\updatelib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\updatelib\packfunc_export.cpp">
+      <Filter>hoba\updatelib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\lib_hoba\updatelib\VersionMan.cpp">
+      <Filter>hoba\updatelib</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\7z.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\7zAlloc.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\7zBuf.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\7zCrc.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\7zFile.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\7zTypes.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\7zVersion.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\Aes.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\Alloc.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\Bcj2.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\Bra.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\Compiler.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\CpuArch.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\Delta.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\DllSecur.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\LzFind.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\LzFindMt.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\LzHash.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\Lzma2Dec.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\Lzma2Enc.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\Lzma86.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\LzmaDec.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\LzmaEnc.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\LzmaLib.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\MtCoder.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\Ppmd.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\Ppmd7.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\Precomp.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\RotateDefs.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\Sha256.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\Sort.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\Threads.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\Xz.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\XzCrc64.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\dependency\7zDecode\XzEnc.h">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3D.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DCollision.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DFuncs.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DGeometry.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DMacros.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DMatrix.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DQuaternion.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DTrace.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DTypes.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DVector.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AAssist.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ACounter.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\af.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFI.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFile.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFileImage.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFilePackage.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFilePackBase.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFilePackGame.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFilePackMan.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFPI.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFramework.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ALine.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ALock.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ALog.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\APoint.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ARect.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AString.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ASys.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ASysCodeCvt.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ASysSync.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ASysThread.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ATempMemBuffer.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ATypes.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\base.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\compileconfig.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\function.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\stringext.h">
+      <Filter>hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\csshare\Common\CMd5Hash.h">
+      <Filter>hoba\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\csshare\Common\elementpckdir.h">
+      <Filter>hoba\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.h">
+      <Filter>hoba\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.h">
+      <Filter>hoba\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\updatelib\7zReader.h">
+      <Filter>hoba\updatelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\updatelib\7zreader_export.h">
+      <Filter>hoba\updatelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\updatelib\FileOperate.h">
+      <Filter>hoba\updatelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\updatelib\packfunc_export.h">
+      <Filter>hoba\updatelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\lib_hoba\updatelib\VersionMan.h">
+      <Filter>hoba\updatelib</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\Engine\lib_hoba\dependency\7zDecode\7zVersion.rc">
+      <Filter>hoba\3rd\7zDecode</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

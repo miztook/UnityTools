@@ -1,7 +1,5 @@
 local cfg = {
     Frame_QuestTalk = 1068816412,
-    Img_QuestTalk = -428684558,
-    Lab_Talk = -1900866466,
     Frame_Inf = -1745577521,
     Img_Inf = -713104091,
     Frame_Top = -1745566909,

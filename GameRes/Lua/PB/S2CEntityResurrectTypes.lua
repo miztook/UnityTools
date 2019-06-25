@@ -33,10 +33,17 @@ local function OnEntityResurrectTypes(sender, msg)
 	end
 ]]
 	local killerName = ""
-	if msg.KillserData.EntityType == EntityType.Role or 
-	   msg.KillserData.EntityType == EntityType.PlayerMirror then
+	if msg.KillserData.EntityType == EntityType.Role then
 		--warn("EntityType : Role")
-		killerName = msg.KillserData.Name
+	 	killerName = msg.KillserData.Name
+	elseif msg.KillserData.EntityType == EntityType.PlayerMirror then
+		--warn("EntityType : PlayerMirror")
+		if tonumber(msg.KillserData.Name) ~= nil then
+			local npcName = CElementData.GetTextTemplate(tonumber(msg.KillserData.Name))
+			killerName = npcName.TextContent
+		else
+			killerName = msg.KillserData.Name
+		end
 	elseif msg.KillserData.EntityType == EntityType.Monster then
 		--warn("EntityType : Monster")
 		local obj = CElementData.GetTemplate("Monster", msg.KillserData.Tid)

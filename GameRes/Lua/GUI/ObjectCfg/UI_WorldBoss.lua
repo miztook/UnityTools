@@ -49,6 +49,9 @@ local cfg = {
     Lab_TipsDesc = -892591973,
     Rdo_2 = 78817488,
     Rdo_1 = 78817487,
+    List_EliteBossView = -1691449980,
+    List_EliteBoss = -1127936449,
+    Btn_RewardList = -1185123728,
 }
  
 return cfg

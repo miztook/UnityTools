@@ -55,13 +55,13 @@ def.override("dynamic").OnData = function(self,data)
     self._EnoughMaterial = (MaterialHave >= MaterialNeed) 
 
     local template = CElementData.GetTemplate("Item", MaterialId)
-    local name = RichTextTools.GetQualityText(self._PetData:GetNickName(), self._PetData:GetQuality()) .. string.format(StringTable.Get(19073), self._PetData:GetLevel())
+    local name = RichTextTools.GetQualityText(self._PetData:GetNickName(), self._PetData:GetQuality()) .. string.format(StringTable.Get(10657), self._PetData:GetLevel())
     -- local lv = template.InitLevel
     local msgObj = self:GetUIObject('Lab_Message')
     -- local size = GUITools.GetTextSize(msgObj)
     
     -- if size ~= nil and lv > 0 then
-    --     local strLv = string.format(StringTable.Get(19073), lv)
+    --     local strLv = string.format(StringTable.Get(10657), lv)
     --     strLv = GUITools.FormatRichTextSize(size-2, strLv)
     --     name = name..strLv
     -- end

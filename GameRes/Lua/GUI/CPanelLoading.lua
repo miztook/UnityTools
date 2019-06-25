@@ -20,23 +20,23 @@ def.field("boolean")._IsRealLoadFinish = false
 def.field("table")._LoadingImgCfg = nil
 
 def.static("=>",CPanelLoading).Instance = function ()
-	if not instance then 
-		instance = CPanelLoading()
-		instance._PrefabPath = PATH.Panel_Loading
-        instance._PanelCloseType = EnumDef.PanelCloseType.None
-        instance._DestroyOnHide = false
+        if not instance then 
+	        instance = CPanelLoading()
+	        instance._PrefabPath = PATH.Panel_Loading
+                instance._PanelCloseType = EnumDef.PanelCloseType.None
+                instance._DestroyOnHide = false
+	        instance._ForbidESC = true
+                instance:SetupSortingParam()
 
-        instance:SetupSortingParam()
-
-        local ret, msg, result = pcall(dofile, "Configs/LoadingCfg.lua")
-        if ret then
-			instance._LoadingImgCfg = result 
-		else
-			warn(msg)
-		end
-		--print("Instance",debug.traceback())
+                local ret, msg, result = pcall(dofile, "Configs/LoadingCfg.lua")
+                if ret then
+		        instance._LoadingImgCfg = result 
+	        else
+		        warn(msg)
+	        end
+	        --print("Instance",debug.traceback())
 	end
-	return instance
+        return instance
 end
 
 --记录调用的地方
@@ -183,6 +183,13 @@ def.override().OnDestroy = function(self)
     self._Label = nil
     self._LoadingImgCfg = nil
     instance = nil
+end
+
+-- 返回键
+def.override("=>", "boolean").HandleEscapeKey = function(self)
+        if self:IsOpen() then
+                return true
+        end
 end
 
 CPanelLoading.Commit()

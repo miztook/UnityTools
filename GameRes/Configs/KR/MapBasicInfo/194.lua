@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 3,
 	Remarks = "",
-	TextDisplayName = "망자 엔진",
+	TextDisplayName = "네크론티어 엔진",
 	Length = 800,
 	Width = 800,
 	NavMeshName = "World05.navmesh",

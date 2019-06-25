@@ -21,6 +21,9 @@ def.field("number")._CacheGoodsID = -1                  -- 从推荐页传过来
 def.field("userdata")._WebView = nil                    -- WebView的载体
 def.field("userdata")._List_BigTab = nil                -- 大页签List
 def.field("userdata")._TabList_SmallTab = nil           -- 小页签TabList
+def.field("userdata")._VideoPlayer_Pet = nil
+def.field("userdata")._Img_Screen_Video = nil
+def.field("userdata")._VideoPlayer_Elf = nil
 def.field("number")._CurrentSelectBigTabID = 0          -- 当前选择的大页签ID
 def.field("number")._CurrentSelectSmallTabID = 0        -- 当前选择的小页签ID
 def.field("number")._CurrentSelectBigTabIndex = 0       -- 当前选择的大页签的index
@@ -54,6 +57,13 @@ def.override().OnCreate = function(self)
     self._WebView = self._PanelObjects.ViewPort:GetComponent(ClassType.GWebView)
     self._List_BigTab = self:GetUIObject("List_BigMenu"):GetComponent(ClassType.GNewList)
     self._TabList_SmallTab = self:GetUIObject("TabList"):GetComponent(ClassType.GNewTabList)
+
+    self._VideoPlayer_Elf = self:GetUIObject("VideoPlayer_Elf")
+    self._VideoPlayer_Pet = self:GetUIObject("VideoPlayer_Pet")
+    self._Img_Screen_Video = self:GetUIObject("Img_Elf")
+    self._Img_Screen_Video:SetActive(false)
+    GameUtil.PrepareVideoUnit(self._VideoPlayer_Elf, "Mall_CG01_Loop.mp4")
+    GameUtil.PrepareVideoUnit(self._VideoPlayer_Pet, "Mall_CG02_Loop.mp4")
 end
 
 def.override("dynamic").OnData = function(self, data)
@@ -83,6 +93,7 @@ def.method("table").Init = function(self, data)
     self:CleanOldPage()
     self:StoreUnlockCheck()
     self:GenerateTabs(data)
+    self:ReSetHelpURL()
     if self._CacheMallID ~= -1 then
         self._CurrentSelectBigTabIndex = 0
         self._CurrentSelectSmallTabIndex = 0
@@ -110,7 +121,15 @@ def.method("number").InitFrameMoney = function(self, styleType)
     self._Frame_Money:Update()
 end
 
+def.override("string", "boolean").OnToggle = function(self, id, checked)
+    if self._CurrentPage then
+        self._CurrentPage:OnToggle(id, checked)
+    end
+end
+
+
 def.override('string').OnClick = function(self, id)
+    CPanelBase.OnClick(self,id)
     if self._Frame_Money ~= nil and self._Frame_Money:OnClick(id) then
 		return
     elseif id == "Btn_Back" then
@@ -131,6 +150,12 @@ def.override("string").OnReceiveWebViewMessage = function(self, msg)
         warn("OnReceiveWebViewMessage :", k,v)
     end
     self._WebView:EvaluatingJavaScript(msgTable.num2)
+end
+
+def.method().PlayVideoBG = function(self)
+    if self._CurrentPage then
+        self._CurrentPage:PlayVideoBG()
+    end
 end
 
 --初始化，sub_index为-1时是第一级，否则是二级
@@ -284,6 +309,33 @@ def.method().ReGetPageData = function(self)
 end
 
 --------------------------------------------------------------
+----重新设置帮助页面的链接
+--------------------------------------------------------------
+def.method().ReSetHelpURL = function(self)
+    if self._CurrentSelectBigTabID == 1 then            -- 推荐
+        self._HelpUrlType = HelpPageUrlType.MallRecommond
+    elseif self._CurrentSelectBigTabID == 2 then        -- 礼包商店
+        self._HelpUrlType = HelpPageUrlType.MallBagShop
+    elseif self._CurrentSelectBigTabID == 3 then        -- 货币兑换
+        self._HelpUrlType = HelpPageUrlType.MallMoneyExchange
+    elseif self._CurrentSelectBigTabID == 4 then        -- 召唤
+        self._HelpUrlType = HelpPageUrlType.MallExtract
+    elseif self._CurrentSelectBigTabID == 5 then        -- 资源商店
+        self._HelpUrlType = HelpPageUrlType.MallAssetShop
+    elseif self._CurrentSelectBigTabID == 6 then        -- 外观商店
+        self._HelpUrlType = HelpPageUrlType.MallOutLookShop
+    elseif self._CurrentSelectBigTabID == 7 then        -- 成长福利
+        self._HelpUrlType = HelpPageUrlType.MallFundAndMonth
+    elseif self._CurrentSelectBigTabID == 8 then        -- 神秘商店
+        self._HelpUrlType = HelpPageUrlType.NONE
+    elseif self._CurrentSelectBigTabID == 9 then        -- 积分商店
+        self._HelpUrlType = HelpPageUrlType.MallPointsShop
+    else
+        self._HelpUrlType = HelpPageUrlType.NONE
+    end
+end
+
+--------------------------------------------------------------
 ----请求页签数据
 --------------------------------------------------------------
 def.method().RequestTabsData = function(self)
@@ -324,6 +376,11 @@ def.method("table").HandleSmallTabData = function(self, data)
             self._PanelObjects._TabList:SetActive(false)
         else
             self._PanelObjects._TabList:SetActive(true)
+        end
+        if self._CurrentPage._HasBGVideo then
+            self._Img_Screen_Video:SetActive(true)
+        else
+            self._Img_Screen_Video:SetActive(false)
         end
     end
     self._CacheGoodsID = -1
@@ -427,6 +484,7 @@ def.method("number", "number").OnClickSmallTab = function(self, bigType, smallTy
         if self._CurrentPage ~= nil then
             self._CurrentPage:Hide()
         end
+        self:ReSetHelpURL()
         self:RequestSmallTabData(self._CurrentSelectBigTabID, self._CurrentSelectSmallTabID)
     end
 end
@@ -522,6 +580,15 @@ def.method("table").HandleBuyItemSuccess = function(self, data)
         if self._CurrentPage ~= nil then
             self._CurrentPage:OnBuySuccess(data)
         end
+    end
+end
+
+--------------------------------------------------------------
+--处理领取成功
+--------------------------------------------------------------
+def.method("number").HandleReceiveRewardSuccess = function(self, storeID)
+    if self._CurrentPage ~= nil then
+        self._CurrentPage:OnReceiveRewardSuccess(storeID)
     end
 end
 
@@ -668,6 +735,11 @@ def.override().OnDestroy = function(self)
         end
         self._Pages = {}
     end
+    GameUtil.ReleaseVideoUnit(self._VideoPlayer_Elf)
+    GameUtil.ReleaseVideoUnit(self._VideoPlayer_Pet)
+    self._VideoPlayer_Pet = nil
+    self._VideoPlayer_Elf = nil
+    self._Img_Screen_Video = nil
     CMallMan.Instance():Clear()
 end
 CPanelMall.Commit()

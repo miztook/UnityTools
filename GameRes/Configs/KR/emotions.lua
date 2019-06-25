@@ -135,7 +135,7 @@ emotion_list:addEmotion(24,"당당")
 	pingyin = "deyi",
 	sprite = "Emotion24_deyi",
 }
-emotion_list:addEmotion(25,"패배")
+emotion_list:addEmotion(25,"실패")
 {
 	pingyin = "shibai",
 	sprite = "Emotion25_shibai",

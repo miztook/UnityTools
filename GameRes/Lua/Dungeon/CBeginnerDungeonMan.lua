@@ -5,7 +5,7 @@ local Lplus = require "Lplus"
 local CBeginnerDungeonMan = Lplus.Class("CBeginnerDungeonMan")
 local def = CBeginnerDungeonMan.define
 
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
 local CPath = require "Path.CPath"
 

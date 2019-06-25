@@ -77,6 +77,7 @@ def.override().OnCreate = function(self)
 	    info._FrameRoleInfo1V1 = self:GetUIObject("Img_RoleInfo1V1")
 	    info._ItemIcon1 = self:GetUIObject("ItemIcon1")
 	    info._ItemIcon2 = self:GetUIObject("ItemIcon2")
+	    info._FrameMatchTime = self:GetUIObject("Frame_MatchBan")
 	    info._LabWin = self:GetUIObject("Lab_Win")
 	    info._LabWinPoint = self:GetUIObject("Lab_WinPoint")
 	    info._LabChance = self:GetUIObject("Lab_Chance")
@@ -107,8 +108,10 @@ def.override().OnCreate = function(self)
 	    info._LabSeasonTime = self:GetUIObject("Lab_TimeTip2")
 	    info._LabAwardStage2 = self:GetUIObject("Lab_AwardStage2")
 	    info._FriendInfoModel = self._Frame_Model3V3
-	    info._LabChanceAndBanTime = self:GetUIObject("Lab_TimeTip1")
+	    info._FrameMatchTime = self:GetUIObject("Frame_MatchBan")
+	    info._LabChanceAndBanTime = self:GetUIObject("Lab_MatchBanTime")
 	    info._FrameSeasonTime = self:GetUIObject("Frame_SeasonTime")
+	    info._LabMatchBanTip = self:GetUIObject("Lab_MatchBanTip")
         info._ImgPanelBG = self:GetUIObject("Img_PanelBG")
 	end
 	do 
@@ -129,8 +132,10 @@ def.override().OnCreate = function(self)
 		info._BtnChargeBattle = self:GetUIObject("Btn_ChargeBattle")
 		info._LabMatchingTime = self:GetUIObject("Lab_BattleMatchingTime")
 		info._BtnLabCharge = self:GetUIObject("Lab_Charge")
+	    info._FrameMatchTime = self:GetUIObject("Frame_MatchBan")
+	    info._LabMatchBanTip = self:GetUIObject("Lab_MatchBanTip")
 		info._BtnChargeBg = info._BtnChargeBattle:FindChild("Img_Bg")
-		info._LabTime = self:GetUIObject("Lab_Time")
+		info._LabTime = self:GetUIObject("Lab_MatchBanTime")
         info._ImgPanelBG = self:GetUIObject("Img_PanelBG")
 	end
 end
@@ -163,10 +168,9 @@ def.override("string").OnClick = function(self, id)
 		TODO()
 	elseif id == "Btn_Shop"  then 
 		local ShopId = 0
-		if game._CArenaMan._CurOpenArenaType == EnumDef.OpenArenaType.Open3V3 then
+		-- 荣耀商店
+		if game._CArenaMan._CurOpenArenaType == EnumDef.OpenArenaType.Open3V3 or game._CArenaMan._CurOpenArenaType == EnumDef.OpenArenaType.Open1V1 then
 			ShopId = 16
-		elseif game._CArenaMan._CurOpenArenaType == EnumDef.OpenArenaType.Open1V1 then
-			ShopId = ENpcSaleServiceType.NpcSale_Arena
 		else
 			ShopId = 17
 		end
@@ -313,6 +317,12 @@ end
 
 def.method().Update3V3FriendModel = function(self)
 	CPage3V3.Instance():UpdateFriendModel()
+end
+
+def.method().Update1V1RoleInfo = function(self)
+	local obj = self:GetUIObject("Img_RoleInfo1V1")
+	if obj == nil then return end
+	CPage1V1.Instance():UpdateRoleInfo(obj)
 end
 
 def.override().OnDestroy = function(self)

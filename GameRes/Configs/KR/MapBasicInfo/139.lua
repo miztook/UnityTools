@@ -47,7 +47,7 @@ local MapInfo =
 		},
 		[1098] = 
 		{
-			[1] = { x = 210.17, y = 67.94, z = -96.27, name = "로탈 중위", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "로타 상위", SortID = 39, FunctionName = "명성" },
+			[1] = { x = 210.17, y = 67.94, z = -96.27, name = "로탈 중위", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "로탈 중위", SortID = 39, FunctionName = "명성" },
 		},
 	},
 	Region = 

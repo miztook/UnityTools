@@ -17,11 +17,11 @@ end
 PBHelper.AddHandler("S2CHawkeyeState", OnHawkeyeState)
 
 local function OnHawkeyeInfo(sender, msg)
-	print( "OnHawkeyeInfo",msg.remainCount,msg.recoverTime,msg.enabel,msg.status )
+	--print( "OnHawkeyeInfo",msg.remainCount,msg.recoverTime,msg.enabel,msg.status )
 	local hp = game._HostPlayer
 
 	hp._HawkEyeCount = msg.remainCount
-	hp:UpdateHawkEyeTargetPos( msg.regions,msg.status )
+	hp:UpdateHawkEyeTargetPos( msg.regions )
 	hp:SetHawkeyeState( msg.enabel,msg.enableTime )
 
 	if msg.status > 0 then

@@ -2,7 +2,7 @@ local Lplus = require "Lplus"
 local CEntity = require "Object.CEntity"
 local CGame = Lplus.ForwardDeclare("CGame")
 local OBJ_TYPE = require "Main.CSharpEnum".OBJ_TYPE
-local CAutoFightBase = require "ObjHdl.CAutoFightBase"
+local CAutoFightBase = require "AutoFight.CAutoFightBase"
 local CTeamMan = require "Team.CTeamMan"
 
 local CWorldAutoFight = Lplus.Extend(CAutoFightBase, "CWorldAutoFight")
@@ -96,17 +96,16 @@ local function Tick()
     end
     
     --锁定目标检测
-    local target, target_pos = nil, nil
+    local target = nil
     if instance:IsLockedCurTarget() then
         target = host_player._CurTarget
         if target:GetRelationWithHost() ~= "Enemy" then return end
-        target_pos = instance:GetTargetAttPos(target)
     else
         -- 获取目标与位置
         if #instance._TargetTidList > 0 then
-            target, target_pos = instance:GetTargetAndPos(true, TargetFilter, nil)
+            target = instance:FindTarget(true, TargetFilter, nil)
         else
-            target, target_pos = instance:GetTargetAndPos(true, nil, nil)
+            target = instance:FindTarget(true, nil, nil)
         end
 
         if target and target:GetObjectType() == OBJ_TYPE.ELSEPLAYER  then
@@ -116,7 +115,7 @@ local function Tick()
         end
     end
 
-    instance:ExecHostSkill(target_pos, target)
+    instance:ExecHostSkill(target)
     ChangeTarget(instance, target)
 end
 
@@ -176,7 +175,8 @@ def.method("boolean").EnableGuardMode = function(self, enable)
 end
 
 def.method("=>", "boolean").IsNeedBack2OringinPos = function(self)
-    if not self._IsGuardMode or self._OriginPos == nil then
+    local teamMan = CTeamMan.Instance()
+    if not self._IsGuardMode or self._OriginPos == nil or (teamMan and teamMan:IsFollowing()) then
         return false
     end
     

@@ -1,11 +1,11 @@
 
 local Lplus = require 'Lplus'
-local CPanelBase = require 'GUI.CPanelBase'
 local CPetClass = require"Pet.CPetClass"
+local CPanelHintBase = require 'GUI.CPanelHintBase'
 local CElementData = require "Data.CElementData"
 local DynamicText = require "Utility.DynamicText"
 
-local CPanelPetHint = Lplus.Extend(CPanelBase, 'CPanelPetHint')
+local CPanelPetHint = Lplus.Extend(CPanelHintBase, 'CPanelPetHint')
 local def = CPanelPetHint.define
 
 def.field(CPetClass)._PetData = nil 
@@ -56,7 +56,6 @@ end
 --     _TargetObj, -- 目标物体（根据位置不同设定）
 --}
 def.override("dynamic").OnData = function(self, data)
-    CPanelBase.OnData(self,data)
     self._PetData = data._PetData
     self._TipPosition = data._TipPos
     local name = ""   
@@ -181,10 +180,7 @@ def.method().InitPetSkill = function (self)
     local MaxSkillCount = CPetUtility.GetMaxSkillCount()         --技能最大个数
 
     local root = self._SkillList
-
     for i=1, MaxSkillCount do
-         
-        warn("self._PetData._SkillList   " ,#self._PetData._SkillList)
         local skillInfo = self._PetData._SkillList[i]
         local UIInfo = root[i]
 

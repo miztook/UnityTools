@@ -6,8 +6,9 @@ local CPanelBase = require "GUI.CPanelBase"
 local bit = require "bit"
 local UserData = require "Data.UserData".Instance()
 local CGame = Lplus.ForwardDeclare("CGame")
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local QualitySettingMan = require "Main.QualitySettingMan"
+local CElementData = require "Data.CElementData"
 
 local CPanelUISetting = Lplus.Extend(CPanelBase, "CPanelUISetting")
 local def = CPanelUISetting.define
@@ -18,20 +19,24 @@ def.field("table")._LanguageTextList = BlankTable
 def.field("string")._OriginLanguageCode = ""
 def.field("boolean")._IsShowLanguage = false
 def.field("boolean")._IgnoreClick = false
+def.field("boolean")._IsScriptToggle = false
 --基础设置
 def.field("number")._FrameRate = 30                 -- 帧率
 def.field("boolean")._IsOpenPlayerPush = false      -- 是否接收推送
 def.field("boolean")._IsOpenNightPush = false       -- 是否接收夜间推送
-def.field("number")._ManPlayersInScreen = _G.MAX_VISIBLE_PLAYER
+def.field("number")._MaxPlayersInScreen = _G.MAX_VISIBLE_PLAYER
 def.field("number")._BGMVolume = 0                  -- 背景音乐
 def.field("number")._SoundVolume = 0                -- 音效
 def.field("number")._OrigBGMVolume = 0              -- 背景音乐
 def.field("number")._OrigSoundVolume = 0            -- 音效
 def.field("number")._DataPage = -1                  -- 外部传到界面的data
-def.field("boolean")._IsEnablePowerSaving = false      -- 是否开启省电模式
+def.field("boolean")._IsEnablePowerSaving = false   -- 是否开启省电模式
+def.field("number")._PowerSavingIndex = 1           -- 省点模式Index
 def.field("boolean")._IsClickGroundMove = true      -- 是否开启点地面移动
+def.field("boolean")._IsShowHeadInfo = true         -- 是否显示头顶信息
 def.field("boolean")._IsBossLensLock = false        -- 是否开启Boss镜头锁定
 def.field("boolean")._IsPvpLensLock = false         -- 是否开启PVP镜头锁定
+
 --渲染设置
 def.field("number")._WholeQualityLevel = 0          -- 总体质量等级
 def.field("number")._ShadowLevel = 0                -- 阴影效果等级
@@ -49,15 +54,16 @@ def.field("boolean")._IsWaterReflect = true         -- 水面反射效果开启�
 --def.field("boolean")._IsHighFrame = true            -- 开启高帧率？
 --战斗设置
 def.field("boolean")._IsMedicalAutoUse = true       -- 药水自动使用开启？
-def.field("boolean")._IsDrugSortBuyLow = true       -- 药水自动使用低等级还是高等级
+def.field("boolean")._IsDrugSortBuyHigh = true       -- 药水自动使用低等级还是高等级
 def.field("number")._HPMinNumber = 0                -- 最低使用药水的HP百分比（0-100）
+def.field("table")._UserSkillMap = nil              -- 目前学习的技能（用于自动化战斗时是否释放）
 
 local instance = nil
 def.static("=>", CPanelUISetting).Instance = function()
     if not instance then
         instance = CPanelUISetting()
         instance._DestroyOnHide = true
-        instance._ClickInterval = 3
+        instance._ClickInterval = 0.2
         instance._PrefabPath = PATH.UI_Setting
         instance._PanelCloseType = EnumDef.PanelCloseType.None
         instance:SetupSortingParam()
@@ -68,9 +74,6 @@ end
 def.override().OnCreate = function(self)
     self._PanelObjects = {}
     self._PanelObjects._RdoGroup_Menu = self:GetUIObject("Rdo_MenuGroup")
-    self._PanelObjects._Frame_PersonNum = self:GetUIObject("Frame_PersonNum")
-    self._PanelObjects._Frame_PersonNum:SetActive(false)
-    local personNumSld = self:GetUIObject("Sld_PersonNum")
     local bgmSld = self:GetUIObject("Sld_BGM")
     local effectSoundSld = self:GetUIObject("Sld_EffectSound")
     local hpMinSld = self:GetUIObject("Sld_HPMinValue")
@@ -83,19 +86,17 @@ def.override().OnCreate = function(self)
     self._PanelObjects._Frame_BattleSetting = self:GetUIObject("Frame_BattleSetting")
     self._PanelObjects._Frame_AccountSetting = self:GetUIObject("Frame_AccountSetting")
     -- 基础设置
-    self._PanelObjects._Sld_PersonNum = personNumSld:GetComponent(ClassType.Slider)
+    self._PanelObjects._RdoGroup_PersonNum = self:GetUIObject("Group_PersonNum")
     self._PanelObjects._Sld_BGM = bgmSld:GetComponent(ClassType.Slider)
     self._PanelObjects._Sld_EffectSound = effectSoundSld:GetComponent(ClassType.Slider)
-    self._PanelObjects._Lab_PersonVal = self:GetUIObject("Lab_PersonVal")
     self._PanelObjects._Lab_BGMVal = self:GetUIObject("Lab_BGMVal")
     self._PanelObjects._Lab_EffectSoundVal = self:GetUIObject("Lab_EffectSoundVal")
-    self._PanelObjects._RdoGroup_PlayerPush = self:GetUIObject("Frame_PlayerPush")
-    self._PanelObjects._RdoGroup_NightPush = self:GetUIObject("Frame_NightPush")
-    self._PanelObjects._RdoGroup_ClickGroundMove = self:GetUIObject("Frame_MoveClickGroud")
-    self._PanelObjects._RdoGroup_PowerSaving = self:GetUIObject("Frame_PowerSaving")
-    self._PanelObjects._Rdo_FightLockPVE = self:GetUIObject("Rdo_FightLock_PVE"):GetComponent(ClassType.Toggle)
-    self._PanelObjects._Rdo_FightLockPVP = self:GetUIObject("Rdo_FightLock_PVP"):GetComponent(ClassType.Toggle)
-    self._PanelObjects._Rdo_Camera_SkillRecover = self:GetUIObject("Rdo_Camera_SkillRecover"):GetComponent(ClassType.Toggle)
+    self._PanelObjects._RdoGroup_PlayerPush = self:GetUIObject("Group_PlayerPush")
+    self._PanelObjects._RdoGroup_NightPush = self:GetUIObject("Group_NightPush")
+    self._PanelObjects._RdoGroup_ClickGroundMove = self:GetUIObject("Group_ClickGroud")
+    self._PanelObjects._RdoGroup_PowerSaving = self:GetUIObject("Group_Power")
+    self._PanelObjects._RdoGroup_HeadInfo = self:GetUIObject("Group_HeadInfo")
+    self._PanelObjects._RdoGroup_SkillRecover = self:GetUIObject("Group_Camera_SkillRecover")
     self._PanelObjects._Drop_Language = self:GetUIObject("Drop_Language")
     self._PanelObjects._Img_BGM = self:GetUIObject("Img_BGM")
     self._PanelObjects._Img_EffectSound = self:GetUIObject("Img_EffectSound")
@@ -111,23 +112,23 @@ def.override().OnCreate = function(self)
     self._PanelObjects._RdoGroup_MipMap = self:GetUIObject("Rdo_MipMapGroup")
     --self._PanelObjects._Rdo_HighFX = self:GetUIObject("Rdo_HighFX"):GetComponent(ClassType.Toggle)
     --self._PanelObjects._Rdo_Weather = self:GetUIObject("Rdo_Weather")
-    self._PanelObjects._Rdo_Fog = self:GetUIObject("Rdo_Fog")
+    self._PanelObjects._RdoGroup_Fog = self:GetUIObject("Group_Fog")
     --self._PanelObjects._Rdo_FootFX = self:GetUIObject("Rdo_FootFX"):GetComponent(ClassType.Toggle)
     --self._PanelObjects._Rdo_DetailSound = self:GetUIObject("Rdo_DetailSound")
     self._PanelObjects._RdoGroup_FrameRate = self:GetUIObject("Rdo_FrameRateGroup")
-    self._PanelObjects._Rdo_DepthOfFocus = self:GetUIObject("Rdo_DepthOfFocus")
-    self._PanelObjects._Rdo_WaterReflect = self:GetUIObject("Rdo_WaterReflect")
+    self._PanelObjects._RdoGroup_DepthOfFocus = self:GetUIObject("Group_DepthOfFocus")
+    self._PanelObjects._RdoGroup_WaterReflect = self:GetUIObject("Group_WaterReflect")
     self._PanelObjects._Rdo_Frame_Rate3 = self:GetUIObject("Rdo_FrameRate_3")
     --self._PanelObjects._Rdo_HighFrame = self:GetUIObject("Rdo_HighFrame"):GetComponent(ClassType.Toggle)
 
     -- 战斗设置
-    self._PanelObjects._Rdo_FightLockPVE = self:GetUIObject("Rdo_FightLock_PVE"):GetComponent(ClassType.Toggle)
-    self._PanelObjects._Rdo_FightLockPVP = self:GetUIObject("Rdo_FightLock_PVP"):GetComponent(ClassType.Toggle)
-    self._PanelObjects._Rdo_Group_AutoUse = self:GetUIObject("Frame_AutoUse")
-    self._PanelObjects._Rdo_Group_UseSort = self:GetUIObject("Frame_UseSort")
+    self._PanelObjects._Group_FightLock_PVE = self:GetUIObject("Group_FightLock_PVE")
+    self._PanelObjects._Group_FightLock_PVP = self:GetUIObject("Group_FightLock_PVP")
+    self._PanelObjects._Group_AutoUse = self:GetUIObject("Group_AutoUse")
+    self._PanelObjects._Group_UseSort = self:GetUIObject("Group_UseSort")
     self._PanelObjects._Lab_HPMinVal = self:GetUIObject("Lab_HPMinVal")
-    self._PanelObjects._Rdo_HPAutoBuy = self:GetUIObject("Rdo_AutoBuy"):GetComponent(ClassType.Toggle)
     self._PanelObjects._Sld_HpMinVal = hpMinSld:GetComponent(ClassType.Slider)
+    self._PanelObjects._Frame_Skill = self:GetUIObject("Frame_Skill")
 
     --账号设置
     self._PanelObjects._Input_UserID = self:GetUIObject("Input_UserID"):GetComponent(ClassType.InputField)
@@ -143,14 +144,10 @@ def.override().OnCreate = function(self)
     self._PanelObjects._Btn_5 = self:GetUIObject("Btn_5")
     self._PanelObjects._Btn_6 = self:GetUIObject("Btn_6")
 
-    GUITools.RegisterSliderEventHandler(self._Panel, personNumSld)
     GUITools.RegisterSliderEventHandler(self._Panel, bgmSld)
     GUITools.RegisterSliderEventHandler(self._Panel, effectSoundSld)
     GUITools.RegisterSliderEventHandler(self._Panel, hpMinSld)
-    GameUtil.RegisterUIEventHandler(self._Panel, self._PanelObjects._Rdo_DepthOfFocus, ClassType.GNewIOSToggle)
-    GameUtil.RegisterUIEventHandler(self._Panel, self._PanelObjects._Rdo_Fog, ClassType.GNewIOSToggle)
     --GameUtil.RegisterUIEventHandler(self._Panel, self._PanelObjects._Rdo_Weather, ClassType.GNewIOSToggle)
-    GameUtil.RegisterUIEventHandler(self._Panel, self._PanelObjects._Rdo_WaterReflect, ClassType.GNewIOSToggle)
     --GameUtil.RegisterUIEventHandler(self._Panel, self._PanelObjects._Rdo_DetailSound, ClassType.GNewIOSToggle)
     -- 多语言
     self._LanguageList =
@@ -195,12 +192,126 @@ local HandleIOSToggleShow = function(iosToggleGO, isOn)
     iosToggleGO:GetComponent(ClassType.GNewIOSToggle).Value = isOn
 end
 
+--5,10,15,20
+local GetGroupIndexByPersonNum = function(personNum)
+    if personNum == 1 then
+        return 1
+    elseif personNum == 5 then
+        return 2
+    elseif personNum == 10 then
+        return 3
+    else
+        return 4
+    end
+end
+
+local GetNewPersonNumberByIndex = function(index)
+    if index == 1 then
+        return 1
+    elseif index == 2 then
+        return 5
+    elseif index == 3 then
+        return 10
+    elseif index == 4 then
+        return 20
+    end
+    return _G.MAX_VISIBLE_PLAYER
+end
+
+local GetPowerSaveIndex = function(seconds)
+    if seconds == 0 then
+        return 1
+    elseif seconds == 180 then
+        return 2
+    elseif seconds == 300 then
+        return 3
+    elseif seconds == 600 then
+        return 4
+    end
+    return 1
+end
+
+local GetPowerSaveSeconds = function(index)
+    if index == 1 then
+        return 300
+    elseif index == 2 then
+        return 180
+    elseif index == 3 then
+        return 300
+    elseif index == 4 then
+        return 600
+    end
+    return 0
+end
+
+
+local InitSkillMap = function(self)
+    self._UserSkillMap = {}
+    local userSkillMap = game._HostPlayer._MainSkillIDList
+    local userSkillState = game._HostPlayer._MainSkillLearnState
+    for k, v in ipairs(userSkillMap) do
+        if k ~= 1 and userSkillState[v] then
+            local skill_is_forbid = UserData:GetField("UserSkillAuto"..v)
+            local item = {}
+            item._SkillID = v
+            if skill_is_forbid ~= nil then
+                item._IsOn = not skill_is_forbid
+            else
+                item._IsOn = true
+            end
+            self._UserSkillMap[#self._UserSkillMap + 1] = item
+        end
+    end
+end
+
+
+local SaveSkillMap = function(self)
+    for i,v in ipairs(self._UserSkillMap) do
+        if v ~= nil and v._IsOn ~= nil then
+            UserData:SetField("UserSkillAuto"..v._SkillID, not v._IsOn)
+        end
+    end
+end
+
+local SelectForbidAutoSkill = function(self)
+    local new_table = {}
+    for i,v in ipairs(self._UserSkillMap) do
+        if v ~= nil and not v._IsOn then
+            new_table[#new_table + 1] = v._SkillID
+        end
+    end
+    return new_table
+end
+
+local UpdateSkillUI = function(self)
+    local uiTemplate = self._PanelObjects._Frame_Skill:GetComponent(ClassType.UITemplate)
+    for i=1,7 do
+        local rdo_skill = uiTemplate:GetControl(i-1)
+        local skill_data = self._UserSkillMap[i]
+        if skill_data then
+            rdo_skill:SetActive(true)
+            rdo_skill:GetComponent(ClassType.Toggle).isOn = self._UserSkillMap[i]._IsOn
+            local skill_temp = CElementData.GetSkillTemplate(skill_data._SkillID)
+            if skill_temp ~= nil then
+                GUITools.SetSkillIcon(rdo_skill:FindChild("Img_BG"), skill_temp.IconName)
+                GUITools.SetSkillIcon(rdo_skill:FindChild("Img_Open"), skill_temp.IconName)
+            end
+        else
+            rdo_skill:SetActive(false)
+        end
+        GameUtil.MakeImageGray(rdo_skill:FindChild("Img_BG"), true)
+    end
+end
+
 def.override("dynamic").OnData = function(self, data)
+    self._HelpUrlType = HelpPageUrlType.Setting
     if data ~= nil and type(data) == "number" then
         self._DataPage = data
     else
         self._DataPage = EnumDef.SettingPageType.BaseSetting
     end
+    --技能信息数据初始化
+    InitSkillMap(self)
     self:UpdateValues()
     self:UpdatePage()
     self:UpdateControlStates()
@@ -268,18 +379,21 @@ def.method().UpdateValues = function(self)
 --    self._IsHighFrame = QualitySettingMan.Instance():GetFPSLimit() == 60 or QualitySettingMan.Instance():GetFPSLimit() == 200
     self._FrameRate = QualitySettingMan.Instance():GetFPSLimit()
 
+    self._IsShowHeadInfo = game._MiscSetting:IsShowHeadInfo()
+
     -- TODO 景深、水面反射、开启高帧率
-    self._ManPlayersInScreen = UserData:GetField(EnumDef.LocalFields.ManPlayersInScreen) or _G.MAX_VISIBLE_PLAYER
+    self._MaxPlayersInScreen = UserData:GetField(EnumDef.LocalFields.ManPlayersInScreen) or _G.MAX_VISIBLE_PLAYER
     self._BGMVolume = CSoundMan.Instance():GetBGMSysVolume()
     self._OrigBGMVolume = self._BGMVolume
     self._SoundVolume = CSoundMan.Instance():GetEffectSysVolume()
     self._OrigSoundVolume = self._SoundVolume
     self._IsBossLensLock = game._IsOpenPVECamLock
     self._IsPvpLensLock = game._IsOpenPVPCamLock
-
+    
     -- 药品相关
-    self._IsMedicalAutoUse, self._IsDrugSortBuyLow, self._HPMinNumber, self._IsClickGroundMove = game._HostPlayer:GetHostPlayerConfig()
-	self._IsEnablePowerSaving=game._CPowerSavingMan:IsEnabled()
+    self._IsMedicalAutoUse, self._IsDrugSortBuyHigh, self._HPMinNumber, self._IsClickGroundMove = game._HostPlayer:GetHostPlayerConfig()
+	self._IsEnablePowerSaving = game._CPowerSavingMan:IsEnabled()
+    self._PowerSavingIndex = GetPowerSaveIndex(self._IsEnablePowerSaving and game._EnterPowerSaveSeconds or 0)
     --SDK相关
     self._IsOpenPlayerPush = CPlatformSDKMan.Instance():GetPlayerPushStatus()
     self._IsOpenNightPush = CPlatformSDKMan.Instance():GetNightPushStatus()
@@ -291,7 +405,7 @@ def.method().UpdateControlStates = function(self)
     if self._WholeQualityLevel > 0 then
         GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, self._WholeQualityLevel)
     else
-        GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, 5)
+        GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, 6)
     end
     -- 后处理
     GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_PostProcess, self._PostProcessLevel + 1)
@@ -303,11 +417,10 @@ def.method().UpdateControlStates = function(self)
     GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_SceneDetail, self._SceneDetialLevel + 1)
     -- 特效级别
     GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_FXLevel, self._FXLevel + 1)
-
     --高级特效效果
     --self._PanelObjects._Rdo_HighFX.isOn = self._IsHighEffectOn
     --后处理雾
-    HandleIOSToggleShow(self._PanelObjects._Rdo_Fog, self._IsFogOn)
+    GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_Fog, self._IsFogOn and 2 or 1)
     --天气效果(暂时屏蔽)
     --HandleIOSToggleShow(self._PanelObjects._Rdo_Weather, self._IsSnowRainOn)
     --脚步效果
@@ -315,9 +428,9 @@ def.method().UpdateControlStates = function(self)
     --细节脚步声（暂时屏蔽）
     --HandleIOSToggleShow(self._PanelObjects._Rdo_DetailSound, self._IsDetailSoundOn)
     --景深效果
-    HandleIOSToggleShow(self._PanelObjects._Rdo_DepthOfFocus, self._IsDepthOfFocus)
+    GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_DepthOfFocus, self._IsDepthOfFocus and 2 or 1)
     --水面反射
-    HandleIOSToggleShow(self._PanelObjects._Rdo_WaterReflect, self._IsWaterReflect)
+    GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_WaterReflect, self._IsWaterReflect and 2 or 1)
 --    --开启高帧率
 --    self._PanelObjects._Rdo_HighFrame.isOn = self._IsHighFrame
     if QualitySettingMan.Instance():CanSetHighFrameRate() then
@@ -336,11 +449,8 @@ def.method().UpdateControlStates = function(self)
             GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_FrameRate, 2)
         end
     end
-
     -- 同屏人数
-    GUI.SetText(self._PanelObjects._Lab_PersonVal, tostring(self._ManPlayersInScreen))
-    --self:SetValueLab(self._PanelObjects._Lab_PersonVal, value, MAX_PERSON_NUM, false)
-    self._PanelObjects._Sld_PersonNum.value = self._ManPlayersInScreen / _G.MAX_VISIBLE_PLAYER
+    GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_PersonNum, GetGroupIndexByPersonNum(self._MaxPlayersInScreen))
     -- 背景音乐
     self._PanelObjects._Sld_BGM.value = self._BGMVolume
     self:SetValueLab(self._PanelObjects._Lab_BGMVal, self._BGMVolume, 100, true)
@@ -351,28 +461,36 @@ def.method().UpdateControlStates = function(self)
     GUITools.SetGroupImg(self._PanelObjects._Img_EffectSound,self._SoundVolume <= 0 and 1 or 0)
 
     -- 镜头
-    self._PanelObjects._Rdo_FightLockPVE.isOn = game._IsOpenPVECamLock -- PVE镜头锁定
-    self._PanelObjects._Rdo_FightLockPVP.isOn = game._IsOpenPVPCamLock -- PVP镜头锁定
-    self._PanelObjects._Rdo_Camera_SkillRecover.isOn = game._IsOpenCamSkillRecover -- 相机的技能回正
+    GUI.SetGroupToggleOn(self._PanelObjects._Group_FightLock_PVE, game._IsOpenPVECamLock and 2 or 1)
+    GUI.SetGroupToggleOn(self._PanelObjects._Group_FightLock_PVP, game._IsOpenPVPCamLock and 2 or 1)
+    GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_SkillRecover, game._IsOpenCamSkillRecover and 2 or 1)
     --血量限制
     self._PanelObjects._Sld_HpMinVal.value = self._HPMinNumber
     self:SetValueLab(self._PanelObjects._Lab_HPMinVal, self._HPMinNumber, 100, true)
-    GUI.SetGroupToggleOn(self._PanelObjects._Rdo_Group_AutoUse, self._IsMedicalAutoUse and 1 or 2)
     -- 药水自动使用
-    GUI.SetGroupToggleOn(self._PanelObjects._Rdo_Group_UseSort, self._IsDrugSortBuyLow and 1 or 2)
+    GUI.SetGroupToggleOn(self._PanelObjects._Group_AutoUse, self._IsMedicalAutoUse and 2 or 1)
+    print("self._IsDrugSortBuyHigh ", self._IsDrugSortBuyHigh, self._IsDrugSortBuyHigh and 2 or 1)
+    GUI.SetGroupToggleOn(self._PanelObjects._Group_UseSort, self._IsDrugSortBuyHigh and 2 or 1)
     -- 消息推送
-    GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_PlayerPush, self._IsOpenPlayerPush and 1 or 2)
-    GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_NightPush, self._IsOpenNightPush and 1 or 2)
+    GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_PlayerPush, self._IsOpenPlayerPush and 2 or 1)
+    GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_NightPush, self._IsOpenNightPush and 2 or 1)
     -- 点地移动
-    GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_ClickGroundMove, self._IsClickGroundMove and 1 or 2)
+    GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_ClickGroundMove, self._IsClickGroundMove and 2 or 1)
 	--省电
-	GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_PowerSaving, self._IsEnablePowerSaving and 1 or 2)
+	GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_PowerSaving, self._PowerSavingIndex)
+	--GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_PowerSaving, self._IsEnablePowerSaving and 2 or 1)
+	--头顶
+    GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_HeadInfo, game._MiscSetting:IsShowHeadInfo() and 2 or 1)
+
     --玩家ID
     self._PanelObjects._Input_UserID.text = CPlatformSDKMan.Instance():GetUserID()
     self:SetAccountBtn()
+    --技能信息界面更新
+    UpdateSkillUI(self)
 end
 
 def.override('string').OnClick = function(self, id)
+    CPanelBase.OnClick(self,id)
     if string.find(id, "Rdo_") == nil then          --限制点击频率
         if _G.ForbidTimerId ~= 0 then               --不允许输入
             return
@@ -385,6 +503,7 @@ def.override('string').OnClick = function(self, id)
         CSoundMan.Instance():SetBGMSysVolume(self._OrigBGMVolume)
         CSoundMan.Instance():SetEffectSysVolume(self._OrigSoundVolume)
         CSoundMan.Instance():SetCutSceneSysVolume(self._OrigSoundVolume)
+        CSoundMan.Instance():SetUISysVolume(self._OrigSoundVolume)
 
         -- 保存
         game:SaveCamParamsToUserData()
@@ -392,23 +511,11 @@ def.override('string').OnClick = function(self, id)
         game:SaveGameConfigToUserData()
         
         game._GUIMan:CloseByScript(self)
-    elseif id == "Rdo_DepthOfFocus" then
-        save_value = true
-        self._IsDepthOfFocus = not self._IsDepthOfFocus
-        HandleIOSToggleShow(self._PanelObjects._Rdo_DepthOfFocus, self._IsDepthOfFocus)
-    elseif id == "Rdo_Fog" then
-        save_value = true
-        self._IsFogOn = not self._IsFogOn
-        HandleIOSToggleShow(self._PanelObjects._Rdo_Fog, self._IsFogOn)
     -- 天气特效暂时屏蔽
 --    elseif id == "Rdo_Weather" then
 --        save_value = true
 --        self._IsSnowRainOn = not self._IsSnowRainOn
 --        HandleIOSToggleShow(self._PanelObjects._Rdo_Weather, self._IsSnowRainOn)
-    elseif id == "Rdo_WaterReflect" then
-        save_value = true
-        self._IsWaterReflect = not self._IsWaterReflect
-        HandleIOSToggleShow(self._PanelObjects._Rdo_WaterReflect, self._IsWaterReflect)
     -- 细节音效暂时屏蔽
 --    elseif id == "Rdo_DetailSound" then
 --        save_value = true
@@ -499,6 +606,23 @@ def.override('string').OnClick = function(self, id)
         CPlatformSDKMan.Instance():AccountConversion()
     elseif string.find(id, "Btn_Copy") then
         GameUtil.CopyTextToClipboard(self._PanelObjects._Input_UserID.text)
+    elseif id == "Btn_HpMin" then
+        GUITools.ShowCommonTip(StringTable.Get(29003), StringTable.Get(29004), self:GetUIObject("Btn_HpMin"))
+    elseif id == "Btn_SkillInfo" then
+        local prof = game._HostPlayer._InfoData._Prof
+        local str = StringTable.Get(29006)
+        if prof == EnumDef.Profession.Aileen then
+            str = StringTable.Get(29007)
+        elseif prof == EnumDef.Profession.Archer then
+            str = StringTable.Get(29008)
+        end
+        GUITools.ShowCommonTip(StringTable.Get(29005), str, self:GetUIObject("Btn_SkillInfo"))
+    elseif id == "Btn_CameraInfo" then
+        GUITools.ShowCommonTip(StringTable.Get(29009), StringTable.Get(29010), self:GetUIObject("Btn_CameraInfo"))
+    elseif id == "Btn_ReBackBattleValues" then
+        self:ReBackBattleValues()
+        self:SaveValues()
+        self:UpdateControlStates()
     end
     if save_value then
         self:SaveValues()
@@ -571,7 +695,10 @@ def.override("string", "number").OnDropDown = function(self, id, index)
                 self:ResetDropGroup()
             end
         end
-        MsgBox.ShowMsgBox(message, title, closeType, bit.bor(MsgBoxType.MBBT_OKCANCEL, MsgBoxType.MBT_SPEC), callback, nil, nil, nil, specTip)
+        local setting = {
+            [MsgBoxAddParam.SpecialStr] = specTip,
+        }
+        MsgBox.ShowMsgBox(message, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback, nil, nil, nil, setting)
     end
 end
 
@@ -586,12 +713,17 @@ def.method("string", "=>", "boolean").IsYes = function(self, id)
 end
 
 def.override("string", "boolean").OnToggle = function(self, id, checked)
+    if self._IsScriptToggle then
+        self._IsScriptToggle = false
+        return
+    end
     local shouldSave = true
     if string.find(id, "Rdo_MainControl_") and checked then
         -- 渲染设置
+        -- 从左到右依次是 极速->低->中->高->最高->自定义，预设最后一个数组分别是 1，2，3，4，5，6
         self._WholeQualityLevel = tonumber(string.sub(id, -1))
 
-        if self._WholeQualityLevel == 5 then self._WholeQualityLevel = 0 end
+        if self._WholeQualityLevel > 5 then self._WholeQualityLevel = 0 end
         QualitySettingMan.Instance():SetWholeQualityLevel(self._WholeQualityLevel)
 
         --总体效果设置要更新其他设置
@@ -615,16 +747,28 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
         self._FXLevel = QualitySettingMan.Instance():GetFxLevel()
         GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_FXLevel, self._FXLevel + 1)
 
+         --后处理雾
+        self._IsFogOn = QualitySettingMan.Instance():IsUsePostProcessFog()
+        GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_Fog, self._IsFogOn and 2 or 1)
+        
+        --景深效果
+        self._IsDepthOfFocus = QualitySettingMan.Instance():IsUseDOF()
+        GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_DepthOfFocus, self._IsDepthOfFocus and 2 or 1)
+        
+        --水面反射
+        self._IsWaterReflect = QualitySettingMan.Instance():IsUseWaterReflection()
+        GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_WaterReflect, self._IsWaterReflect and 2 or 1)
+
     elseif string.find(id, "Rdo_ShadowLevel_") and checked then
         -- 关闭阴影
         self._ShadowLevel = tonumber(string.sub(id, -1)) - 1
 
         --重新计算总体效果
-        self._WholeQualityLevel = QualitySettingMan.Instance():CalcWholeQualityLevel(self._PostProcessLevel, self._ShadowLevel, self._RoleModelLevel, self._SceneDetialLevel, self._FXLevel)
+        self._WholeQualityLevel = QualitySettingMan.Instance():CalcWholeQualityLevel(self._PostProcessLevel, self._ShadowLevel, self._RoleModelLevel, self._SceneDetialLevel, self._FXLevel, self._IsDepthOfFocus, self._IsFogOn, self._IsWaterReflect)
         if self._WholeQualityLevel > 0 then
             GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, self._WholeQualityLevel)
         else
-            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, 5)
+            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, 6)
         end
 
     elseif string.find(id, "Rdo_PostProcess_") and checked then
@@ -632,11 +776,11 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
         self._PostProcessLevel = tonumber(string.sub(id, -1)) - 1
 
         --重新计算总体效果
-        self._WholeQualityLevel = QualitySettingMan.Instance():CalcWholeQualityLevel(self._PostProcessLevel, self._ShadowLevel, self._RoleModelLevel, self._SceneDetialLevel, self._FXLevel)
+        self._WholeQualityLevel = QualitySettingMan.Instance():CalcWholeQualityLevel(self._PostProcessLevel, self._ShadowLevel, self._RoleModelLevel, self._SceneDetialLevel, self._FXLevel, self._IsDepthOfFocus, self._IsFogOn, self._IsWaterReflect)
         if self._WholeQualityLevel > 0 then
             GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, self._WholeQualityLevel)
         else
-            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, 5)
+            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, 6)
         end
 
     elseif string.find(id, "Rdo_BG_") and checked then
@@ -644,11 +788,11 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
         self._SceneDetialLevel = tonumber(string.sub(id, -1)) - 1
 
         --重新计算总体效果
-        self._WholeQualityLevel = QualitySettingMan.Instance():CalcWholeQualityLevel(self._PostProcessLevel, self._ShadowLevel, self._RoleModelLevel, self._SceneDetialLevel, self._FXLevel)
+        self._WholeQualityLevel = QualitySettingMan.Instance():CalcWholeQualityLevel(self._PostProcessLevel, self._ShadowLevel, self._RoleModelLevel, self._SceneDetialLevel, self._FXLevel, self._IsDepthOfFocus, self._IsFogOn, self._IsWaterReflect)
         if self._WholeQualityLevel > 0 then
             GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, self._WholeQualityLevel)
         else
-            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, 5)
+            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, 6)
         end
 
     elseif string.find(id, "Rdo_FXLevel_") and checked then
@@ -656,11 +800,11 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
         self._FXLevel = tonumber(string.sub(id, -1)) - 1
 
         --重新计算总体效果
-        self._WholeQualityLevel = QualitySettingMan.Instance():CalcWholeQualityLevel(self._PostProcessLevel, self._ShadowLevel, self._RoleModelLevel, self._SceneDetialLevel, self._FXLevel)
+        self._WholeQualityLevel = QualitySettingMan.Instance():CalcWholeQualityLevel(self._PostProcessLevel, self._ShadowLevel, self._RoleModelLevel, self._SceneDetialLevel, self._FXLevel, self._IsDepthOfFocus, self._IsFogOn, self._IsWaterReflect)
         if self._WholeQualityLevel > 0 then
             GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, self._WholeQualityLevel)
         else
-            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, 5)
+            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, 6)
         end
 
     elseif string.find(id, "Rdo_RoleModel_") and checked then
@@ -668,11 +812,11 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
         self._RoleModelLevel = tonumber(string.sub(id, -1)) - 1
 
         --重新计算总体效果
-        self._WholeQualityLevel = QualitySettingMan.Instance():CalcWholeQualityLevel(self._PostProcessLevel, self._ShadowLevel, self._RoleModelLevel, self._SceneDetialLevel, self._FXLevel)
+        self._WholeQualityLevel = QualitySettingMan.Instance():CalcWholeQualityLevel(self._PostProcessLevel, self._ShadowLevel, self._RoleModelLevel, self._SceneDetialLevel, self._FXLevel, self._IsDepthOfFocus, self._IsFogOn, self._IsWaterReflect)
         if self._WholeQualityLevel > 0 then
             GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, self._WholeQualityLevel)
         else
-            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, 5)
+            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, 6)
         end
     --[[
     elseif string.find(id, "Rdo_HighFX") then
@@ -681,6 +825,42 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
     elseif string.find(id, "Rdo_FootFX") then
         self._IsFootEffectOn = checked
     ]]
+    elseif string.find(id, "Rdo_DepthOfFocus") then
+        local is_yes = self:IsYes(id)
+        self._IsDepthOfFocus = is_yes
+
+        --重新计算总体效果
+        self._WholeQualityLevel = QualitySettingMan.Instance():CalcWholeQualityLevel(self._PostProcessLevel, self._ShadowLevel, self._RoleModelLevel, self._SceneDetialLevel, self._FXLevel, self._IsDepthOfFocus, self._IsFogOn, self._IsWaterReflect)
+        if self._WholeQualityLevel > 0 then
+            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, self._WholeQualityLevel)
+        else
+            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, 6)
+        end
+
+    elseif string.find(id, "Rdo_Fog") then
+        local is_yes = self:IsYes(id)
+        self._IsFogOn = is_yes
+
+        --重新计算总体效果
+        self._WholeQualityLevel = QualitySettingMan.Instance():CalcWholeQualityLevel(self._PostProcessLevel, self._ShadowLevel, self._RoleModelLevel, self._SceneDetialLevel, self._FXLevel, self._IsDepthOfFocus, self._IsFogOn, self._IsWaterReflect)
+        if self._WholeQualityLevel > 0 then
+            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, self._WholeQualityLevel)
+        else
+            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, 6)
+        end
+
+    elseif string.find(id, "Rdo_WaterReflect") then
+        local is_yes = self:IsYes(id)
+        self._IsWaterReflect = is_yes
+
+        --重新计算总体效果
+        self._WholeQualityLevel = QualitySettingMan.Instance():CalcWholeQualityLevel(self._PostProcessLevel, self._ShadowLevel, self._RoleModelLevel, self._SceneDetialLevel, self._FXLevel, self._IsDepthOfFocus, self._IsFogOn, self._IsWaterReflect)
+        if self._WholeQualityLevel > 0 then
+            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, self._WholeQualityLevel)
+        else
+            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_MainControl, 6)
+        end
+
     elseif string.find(id, "Rdo_FrameRate_") and checked then
         local idx = tonumber(string.sub(id, -1))
         if idx == 1 then
@@ -690,27 +870,55 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
         else
             self._FrameRate = 60
         end
-    elseif string.find(id, "Rdo_FightLock_PVE") then
+    elseif string.find(id, "Rdo_PersonNum") then
+        local idx = tonumber(string.sub(id, -1))
+        local new_num = GetNewPersonNumberByIndex(idx)
+        self._MaxPlayersInScreen = new_num
+    elseif string.find(id, "Group_FightLock_PVE") then
         -- Boss镜头锁定
-        self._IsBossLensLock = checked
-    elseif string.find(id, "Rdo_FightLock_PVP") then
+        local is_yes = self:IsYes(id)
+        self._IsBossLensLock = is_yes
+    elseif string.find(id, "Group_FightLock_PVP") then
         -- PVP镜头锁定
-        self._IsPvpLensLock = checked
+        local is_yes = self:IsYes(id)
+        self._IsPvpLensLock = is_yes
     elseif string.find(id, "Rdo_Camera_SkillRecover") then
         -- 相机的技能回正
-        game._IsOpenCamSkillRecover = checked
-    elseif string.find(id, "Rdo_PowerSaving") then
         local is_yes = self:IsYes(id)
-        self._IsEnablePowerSaving = is_yes
+        game._IsOpenCamSkillRecover = is_yes
+--    elseif string.find(id, "Rdo_PowerSaving") then
+--        local is_yes = self:IsYes(id)
+--        self._IsEnablePowerSaving = is_yes
+    elseif string.find(id, "Rdo_PowerSaving") then
+        local idx = tonumber(string.sub(id, -1))
+        self._PowerSavingIndex = idx
+        if idx <= 1 then
+            self._IsEnablePowerSaving = false
+        else
+            self._IsEnablePowerSaving = true
+        end
     elseif string.find(id, "Rdo_ClickGroud") then
         local is_yes = self:IsYes(id)
         self._IsClickGroundMove = is_yes
+    elseif string.find(id, "Rdo_HeadInfo") then
+        local is_yes = self:IsYes(id)
+        self._IsShowHeadInfo = is_yes
     elseif string.find(id, "Rdo_AutoUse") then
         local is_yes = self:IsYes(id)
         self._IsMedicalAutoUse = is_yes
-    elseif string.find(id, "Rdo_UseLow") then
-        local is_low = self:IsYes(id)
-        self._IsDrugSortBuyLow = is_low
+    elseif string.find(id, "Rdo_UseSort") then
+        local is_high = self:IsYes(id)
+        self._IsDrugSortBuyHigh = is_high
+    elseif string.find(id, "Rdo_Skill") then
+        local idx = tonumber(string.sub(id, -1))
+        if idx then
+            local skill_info = self._UserSkillMap[idx]
+            if skill_info then
+                skill_info._IsOn = checked
+            else
+                warn("error !!! 技能index对不上")
+            end
+        end
     elseif string.find(id, "Rdo_PlayerPush") then
         -- 接收推送
         local checked = self:IsYes(id)
@@ -720,7 +928,7 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
         if not checked and self._IsOpenNightPush then
             -- 关闭接收推送时，夜间推送也需要关闭
             self._IsOpenNightPush = false
-            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_NightPush, self._IsOpenNightPush and 1 or 2)
+            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_NightPush, self._IsOpenNightPush and 2 or 1)
             CPlatformSDKMan.Instance():EnableNightPush(false, nil)
         end
         CPlatformSDKMan.Instance():EnablePlayerPush(checked, nil)
@@ -730,7 +938,8 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
         if self._IsOpenNightPush == checked then return end
         if not self._IsOpenPlayerPush and checked then
             -- 接收推送关闭时，无法打开夜间推送
-            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_NightPush, 2)
+            self._IsScriptToggle = true
+            GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_NightPush, 1)
             game._GUIMan:ShowTipText(StringTable.Get(19720), false)
             return
         end
@@ -765,18 +974,13 @@ end
 def.method().UpdatePushStatus = function(self)
     self._IsOpenPlayerPush = CPlatformSDKMan.Instance():GetPlayerPushStatus()
     self._IsOpenNightPush = CPlatformSDKMan.Instance():GetNightPushStatus()
-    GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_PlayerPush, self._IsOpenPlayerPush and 1 or 2)
-    GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_NightPush, self._IsOpenNightPush and 1 or 2)
+    GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_PlayerPush, self._IsOpenPlayerPush and 2 or 1)
+    GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_NightPush, self._IsOpenNightPush and 2 or 1)
 end
 
 -- 滑动条值改变的回调
 def.method("string", "number").OnSliderChanged = function(self, id, value)
-    if string.find(id, "Sld_PersonNum") then
-        -- 同屏人数
-        self._ManPlayersInScreen = math.floor(value * _G.MAX_PERSON_NUM)
-        GUI.SetText(self._PanelObjects._Lab_PersonVal, tostring(self._ManPlayersInScreen))
-
-    elseif string.find(id, "Sld_BGM") then
+    if string.find(id, "Sld_BGM") then
         -- 背景音乐
         self._BGMVolume = value
         CSoundMan.Instance():SetBGMSysVolume(value)
@@ -787,6 +991,7 @@ def.method("string", "number").OnSliderChanged = function(self, id, value)
         self._SoundVolume = value
         CSoundMan.Instance():SetEffectSysVolume(value)
         CSoundMan.Instance():SetCutSceneSysVolume(value)
+        CSoundMan.Instance():SetUISysVolume(value)
         self:SetValueLab(self._PanelObjects._Lab_EffectSoundVal, value, 100, true)
         GUITools.SetGroupImg(self._PanelObjects._Img_EffectSound,self._SoundVolume <= 0 and 1 or 0)
     elseif string.find(id, "Sld_HPMinValue") then
@@ -829,10 +1034,10 @@ def.method().SetAccountBtn = function(self)
     self._PanelObjects._Btn_Account_Conversion:SetActive(bKakaoPlatform)
     self._PanelObjects._Btn_GoogleService:SetActive(bKakaoPlatform)
     self._PanelObjects._Btn_Account_Delete:SetActive(bKakaoPlatform)
-    self._PanelObjects._Btn_3:SetActive(bKakaoPlatform)
+    self._PanelObjects._Btn_3:SetActive(false)
     self._PanelObjects._Btn_4:SetActive(bKakaoPlatform)
     self._PanelObjects._Btn_5:SetActive(bKakaoPlatform)
-    self._PanelObjects._Btn_6:SetActive(bKakaoPlatform)
+    self._PanelObjects._Btn_6:SetActive(bKakaoPlatform and _G.IsAndroid()) -- 优惠券按钮只在安卓显示
     if bKakaoPlatform then
         self:UpdateKakaoAccountBtn()
     end
@@ -843,14 +1048,24 @@ def.method().UpdateKakaoAccountBtn = function(self)
     self._PanelObjects._Btn_GuestLogout:SetActive(isGuest)
     self._PanelObjects._Btn_KakaoLogout:SetActive(not isGuest)
     self._PanelObjects._Btn_Account_Conversion:SetActive(isGuest)
-    self._PanelObjects._Btn_GoogleService:SetActive(not isGuest)
+    self._PanelObjects._Btn_GoogleService:SetActive(not isGuest and _G.IsAndroid())
     if not isGuest then
         local googleStr = CPlatformSDKMan.Instance():IsGoogleGameLogined() and StringTable.Get(19722) or StringTable.Get(19721)
         GUI.SetText(self._PanelObjects._Lab_GoogleService, googleStr)
     end
 end
 
+-- 回复默认设置（战斗设置）
+def.method().ReBackBattleValues = function(self)
+    for i,v in ipairs(self._UserSkillMap) do
+        v._IsOn = true
+    end
+end
+
+-- 让玩家设置的内容生效。
 def.method().SaveValues = function(self)
+    --warn("Save Values", debug.traceback())
+
     QualitySettingMan.Instance():SetPostProcessLevel(self._PostProcessLevel)
     QualitySettingMan.Instance():SetShadowLevel(self._ShadowLevel)
     QualitySettingMan.Instance():SetCharacterLevel(self._RoleModelLevel)
@@ -879,34 +1094,46 @@ def.method().SaveValues = function(self)
     if not self._IsPvpLensLock then
         game:UpdateCameraLockState(0, false)
     end
+    game._MaxPlayersInScreen = self._MaxPlayersInScreen
+    UserData:SetField(EnumDef.LocalFields.ManPlayersInScreen, self._MaxPlayersInScreen)
     --game._HostPlayer._IsClickGroundMove = self._IsClickGroundMove
     --设置主角的Userdata
-    game._HostPlayer:UpdateHostPlayerConfig(self._IsMedicalAutoUse, self._IsDrugSortBuyLow, self._HPMinNumber, self._IsClickGroundMove)
+    game._HostPlayer:UpdateHostPlayerConfig(self._IsMedicalAutoUse, self._IsDrugSortBuyHigh, self._HPMinNumber, self._IsClickGroundMove)
 	--省电
-	game._CPowerSavingMan:Enable(self._IsEnablePowerSaving)
+--	game._CPowerSavingMan:Enable(self._IsEnablePowerSaving)
+    if self._PowerSavingIndex > 1 then
+        game._EnterPowerSaveSeconds = GetPowerSaveSeconds(self._PowerSavingIndex)
+        game._CPowerSavingMan:SetSleepingTime(GetPowerSaveSeconds(self._PowerSavingIndex))
+    end
+    game._CPowerSavingMan:Enable(self._IsEnablePowerSaving)
+    game._MiscSetting:SetShowHeadInfo(self._IsShowHeadInfo)
+    --DOTO设置是否显示头顶信息（上面这行只是保存了配置，并没有生效）
 
     CSoundMan.Instance():SetBGMSysVolume(self._BGMVolume)
     CSoundMan.Instance():SetEffectSysVolume(self._SoundVolume)
     CSoundMan.Instance():SetCutSceneSysVolume(self._SoundVolume)
+    CSoundMan.Instance():SetUISysVolume(self._SoundVolume)
 
     self._OrigBGMVolume = self._BGMVolume
     self._OrigSoundVolume = self._SoundVolume
-
-    UserData:SetField(EnumDef.LocalFields.ManPlayersInScreen, self._ManPlayersInScreen)
+    -- 保存技能自动化战斗时的信息到userdata
+    SaveSkillMap(self)
+    CAutoFightMan.Instance():SetCantRecastSkillTable(SelectForbidAutoSkill(self))
 end
 
 def.override().OnHide = function(self)
+    self._IsScriptToggle = false
     CPanelBase.OnHide(self)
     CGame.EventManager:removeHandler('NotifyClick', OnElseClick)
     CGame.EventManager:removeHandler('PlatformSDKEvent', OnPlatformSDKEvent)
 end
 
 def.override().OnDestroy = function(self)
+    self._UserSkillMap = nil
     self._PanelObjects = nil
     self._LanguageList = nil
     self._LanguageTextList = nil
     self._OriginLanguageCode = ""
-    UserData:SetField(EnumDef.LocalFields.ManPlayersInScreen, self._ManPlayersInScreen)
 end
 
 CPanelUISetting.Commit()

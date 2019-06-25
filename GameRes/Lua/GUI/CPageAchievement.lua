@@ -7,6 +7,7 @@ local CElementData = require "Data.CElementData"
 local EventType = require "PB.Template".Achievement.EventType
 local CountType = require "PB.Template".Achievement.EParmType
 local EParmType = require "PB.Template".ItemApproach.EParmType
+local EUseType = require "PB.Template".Achievement.EUseType
 
 
 def.field("table")._Parent = nil
@@ -125,38 +126,41 @@ def.method().SelectAchievementItems = function(self)
     self._ListAchivement = {}
     local all_achivements = game._AcheivementMan:GetAllAchievement()
     for _,v in pairs(all_achivements) do
-        if self._ListAchivement[v._RootID + 1] == nil then
-		    self._ListAchivement[v._RootID + 1] = 
-		    {
-			    _RootID = v._RootID,
-			    _RootName = v._RootName,
-			    _NodeList = {}
-		    }
-	    end
-		for _,k in pairs(v._NodeList) do
-            if self._ListAchivement[v._RootID + 1]._NodeList[k._NodeID] == nil then
-                self._ListAchivement[v._RootID + 1]._NodeList[k._NodeID] = {
-                    _NodeID = k._NodeID,
-					_NodeName = k._NodeName,
-					_CellList = {}
-                }
-            end
-            local cell_list = self._ListAchivement[v._RootID + 1]._NodeList[k._NodeID]._CellList
-			for _,m in pairs(k._CellList) do
-                repeat
-                    local achivement_temp = CElementData.GetTemplate("Achievement", m._Tid)
-                    if achivement_temp == nil then break end
-				    if achivement_temp.ShowHideType == EShowHideType.Hide then break end
-                    if achivement_temp.ShowHideType == EShowHideType.Show then
-                        cell_list[#cell_list + 1] = m
-                    elseif achivement_temp.ShowHideType == EShowHideType.FinishShow then
-                        if m._State._isFinish then
+        if game._AcheivementMan:IsRootTagHaveAchi(v._RootID) then
+            if self._ListAchivement[v._RootID + 1] == nil then
+		        self._ListAchivement[v._RootID + 1] = 
+		        {
+			        _RootID = v._RootID,
+			        _RootName = v._RootName,
+			        _NodeList = {}
+		        }
+	        end
+		    for _,k in pairs(v._NodeList) do
+                if self._ListAchivement[v._RootID + 1]._NodeList[k._NodeID] == nil then
+                    self._ListAchivement[v._RootID + 1]._NodeList[k._NodeID] = {
+                        _NodeID = k._NodeID,
+					    _NodeName = k._NodeName,
+					    _CellList = {}
+                    }
+                end
+                local cell_list = self._ListAchivement[v._RootID + 1]._NodeList[k._NodeID]._CellList
+			    for _,m in pairs(k._CellList) do
+                    repeat
+                        local achivement_temp = CElementData.GetTemplate("Achievement", m._Tid)
+                        if achivement_temp == nil then break end
+				        if achivement_temp.ShowHideType == EShowHideType.Hide then break end
+                        if achivement_temp.UseType ~= EUseType.EUseType_Achieve then break end
+                        if achivement_temp.ShowHideType == EShowHideType.Show then
                             cell_list[#cell_list + 1] = m
+                        elseif achivement_temp.ShowHideType == EShowHideType.FinishShow then
+                            if m._State._isFinish then
+                                cell_list[#cell_list + 1] = m
+                            end
                         end
-                    end
-                until true;
-			end
-		end
+                    until true;
+			    end
+		    end
+        end
 	end
 end
 
@@ -214,7 +218,7 @@ local function ShowNewGetPanel(self)
         self._AcheiveTree_Obj : SetActive(false)
         self._PanelEmpty: SetActive(true)
         self._PanelNewGet: SetActive(false)
-        self._PanelProgress: SetActive(true)
+        self._PanelProgress: SetActive(false)
         GUI.SetText(self._LabProgressTotal, string.format(StringTable.Get(31202), math.max(0, finishCount), totalCount))
     end
 end
@@ -350,7 +354,8 @@ def.method("userdata","number").InitAchievementShow = function(self,item, Index)
     local cellData = self._ListAchivement[self._CurType]._NodeList[self._CurNode]._CellList[nIndex]
     if cellData == nil then return end
 
-    local temData = CElementData.GetTemplate("Achievement",cellData._Tid)
+    local tid = cellData._Tid
+    local temData = CElementData.GetTemplate("Achievement",tid)
     if temData ~= nil then
     	local img_Done =  GUITools.GetChild(item, 0)
        	local get_Btn = GUITools.GetChild(item, 1)
@@ -424,31 +429,32 @@ def.method("userdata","number").InitAchievementShow = function(self,item, Index)
 		local fillFull = GUITools.GetChild(item, 8)
 		local fillImg = GUITools.GetChild(item, 9)
         local ProgressBG = GUITools.GetChild(item, 12)
-   
-        local CurCount = 1
-        local MaxCount = 1
+        local CurCount = game._AcheivementMan:GetTargetAchievementCurrent(tid)
+        local MaxCount = game._AcheivementMan:GetAchievementReachCount(tid)
+        -- local CurCount = 1
+        -- local MaxCount = 1
         local isShowProgress = true
-        if temData.EventId == EventType.FinishManual or temData.EventId == EventType.FinishAchieve then
-            local strCells = string.split(temData.ReachParm, "*")
-            if cellData._State._IsReceive or cellData._State._isFinish then
-                CurCount = #strCells
-            else
-                CurCount = #cellData._State._CurValueList               
-            end    
-            MaxCount = #strCells
+        if temData.EventId == EventType.EventType_038 or temData.EventId == EventType.EventType_039 then
+            -- local strCells = string.split(temData.ReachParm, "*")
+            -- if cellData._State._IsReceive or cellData._State._isFinish then
+            --     CurCount = #strCells
+            -- else
+            --     CurCount = #cellData._State._CurValueList               
+            -- end    
+            -- MaxCount = #strCells
             isShowProgress = false
-        else
-            if cellData._State._IsReceive or cellData._State._isFinish then
-                CurCount = temData.ReachParm
-            else
-                CurCount = cellData._State._CurValue  
-            end
+        -- else
+            -- if cellData._State._IsReceive or cellData._State._isFinish then
+            --     CurCount = temData.ReachParm
+            -- else
+            --     CurCount = cellData._State._CurValue  
+            -- end
 
-            if temData.ParmType == CountType.Contrast then
-                MaxCount = 1
-            else
-                MaxCount = temData.ReachParm
-            end
+            -- if temData.ParmType == CountType.Contrast then
+            --     MaxCount = 1
+            -- else
+            --     MaxCount = temData.ReachParm
+            -- end
         end
 
         if not IsNil(ProgressBG) then
@@ -525,9 +531,9 @@ def.method("userdata","number").InitAchievementShow = function(self,item, Index)
     end
 end
 
-def.method("table","number","=>","boolean").IsContain = function(self, list, value)
+def.method("table", "number", "number", "=>", "boolean").IsContain = function(self, list, condition, reachParm)
     for _,v in ipairs(list) do
-        if v == value then 
+        if v.Condition == condition and v.CurrParm >= reachParm then 
             return true
         end
     end
@@ -541,16 +547,16 @@ def.method("userdata","number").InitConditionShow = function(self, item, index)
     if self._ListParm == nil or #self._ListParm <= 0 then return end    
     if self._CurChoiceData == nil then return end
 
-    local curConditionID = self._ListParm[nIndex]
+    local curConditionID = self._ListParm[nIndex].Condition
+    local curReachParm = self._ListParm[nIndex].ReachParm
     local labLockName = GUITools.GetChild(item, 0)
     local labOpenName = GUITools.GetChild(item, 1)
-
     local strName = ""
     local iData = CElementData.GetTemplate("Achievement",self._CurChoiceData._Tid)
-    if iData.EventId == EventType.FinishManual then
+    if iData.EventId == EventType.EventType_038 then
         local template = CElementData.GetManualEntrieTemplate(curConditionID)
         strName = template.DisPlayName       
-    elseif iData.EventId == EventType.FinishAchieve then
+    elseif iData.EventId == EventType.EventType_039 then
         strName = game._AcheivementMan:GetAchievementName(curConditionID)
     end
     GUI.SetText(labLockName, strName)
@@ -560,7 +566,7 @@ def.method("userdata","number").InitConditionShow = function(self, item, index)
         labLockName: SetActive(false)
         labOpenName: SetActive(true)
     else
-        local isFinish = self:IsContain(self._CurChoiceData._State._CurValueList, curConditionID)
+        local isFinish = self:IsContain(self._CurChoiceData._State._CurValueList, curConditionID, curReachParm)
         labLockName: SetActive(not isFinish)
         labOpenName: SetActive(isFinish)
     end
@@ -777,21 +783,16 @@ def.method().InitConditionList = function(self)
     self._ListParm = {}
     local achievementData = CElementData.GetTemplate("Achievement",iData._Tid)
     if achievementData ~= nil then
-        if achievementData.EventId == EventType.FinishManual or achievementData.EventId == EventType.FinishAchieve then
-            local strCells = string.split(achievementData.ReachParm, "*")
-            if strCells ~= nil then
-                for i, k in ipairs(strCells) do
-                    local Id = tonumber(k)
-                    if Id ~= nil then
-                        self._ListParm[#self._ListParm + 1] = Id
-                    end
-                end
+        if string.find(achievementData.Condition, "*") then
+            local strCellsCondition = string.split(achievementData.Condition, "*")
+            local strCellsReachParm = string.split(achievementData.ReachParm, "*")
+            for i = 1, #strCellsCondition do
+                self._ListParm[#self._ListParm + 1] = {Condition = tonumber(strCellsCondition[i]), ReachParm = tonumber(strCellsReachParm[i])}
+                print(strCellsCondition[i], strCellsReachParm[i])
             end
         end
     end
-
     if #self._ListParm <= 0 then return end
-
     self._CurChoiceData = iData
     self._AcheiveTree_List: OpenTab(#self._ListParm)
 end
@@ -823,43 +824,64 @@ def.method("userdata", "string", "number").ParentInitItem = function(self, item,
         local lab_content = GUITools.GetChild(item, 3)
         local img_done = GUITools.GetChild(item, 4)
         local img_can_receive = GUITools.GetChild(item, 5)
+        local titleObj = GUITools.GetChild(item, 6)
+        if titleObj ~= nil then
+			titleObj: SetActive(false)
+		end
         if not IsNil(icon) then
             GUITools.SetIcon(icon, achievementTemp.IconPath)
         end
+        local tid = achievementData._Tid
+        local temData = CElementData.GetTemplate("Achievement",tid)
+        local reward_template = CElementData.GetRewardTemplate(temData.RewardId)
         if achievementData._State._IsReceive then
             img_can_receive:SetActive(false)
             frame_item:SetActive(false)
+            titleObj:SetActive(false)
             img_done:SetActive(true)
         else
-            img_can_receive:SetActive(false)
-            frame_item:SetActive(true)
             img_done:SetActive(false)
+            if reward_template.DesignationId ~= 0 then					
+			    local DesignationData = CElementData.GetTemplate("Designation",reward_template.DesignationId)
+			    if DesignationData ~= nil then
+				    titleObj: SetActive(true)
+                    frame_item:SetActive(false)
+                    GUITools.SetGroupImg(titleObj, DesignationData.Quality)
+				    local titleLab = titleObj:FindChild("Lab_Title")
+				    GUI.SetText(titleLab,DesignationData.Name)
+                else
+                    warn("error : reward_template.DesignationId 不存在 ID： ",reward_template.DesignationId)
+			    end
+            else
+                img_can_receive:SetActive(false)
+                frame_item:SetActive(true)
+                titleObj:SetActive(false)
+                local items = GUITools.GetRewardList(achievementTemp.RewardId, true)
 
-            local items = GUITools.GetRewardList(achievementTemp.RewardId, true)
-
-			-- local items = reward_template.ItemRelated.RewardItems
-			for i=1,5 do
-				local itemObj = frame_item: FindChild("Img_ItemBG"..i)
-				if itemObj ~= nil then
-					if i <= #items then
-						itemObj:SetActive(true)
-                        local item_data = items[i]
-                        local item_new = itemObj:FindChild("ItemIcon")
-                        if item_data.IsTokenMoney then
-                            IconTools.InitTokenMoneyIcon(item_new, items[i].Data.Id, items[i].Data.Count)
-                        else
-                            local setting = {
-                                [EItemIconTag.Number] = items[i].Data.Count,
-                            }
-                            IconTools.InitItemIconNew(item_new, items[i].Data.Id, setting, EItemLimitCheck.AllCheck)
-                        end
-					else
-						itemObj:SetActive(false)
-					end
-				end			
-			end
-
+			    -- local items = reward_template.ItemRelated.RewardItems
+			    for i=1,5 do
+				    local itemObj = frame_item: FindChild("Img_ItemBG"..i)
+				    if itemObj ~= nil then
+					    if i <= #items then
+						    itemObj:SetActive(true)
+                            local item_data = items[i]
+                            local item_new = itemObj:FindChild("ItemIcon")
+                            if item_data.IsTokenMoney then
+                                IconTools.InitTokenMoneyIcon(item_new, items[i].Data.Id, items[i].Data.Count)
+                            else
+                                local setting = {
+                                    [EItemIconTag.Number] = items[i].Data.Count,
+                                }
+                                IconTools.InitItemIconNew(item_new, items[i].Data.Id, setting, EItemLimitCheck.AllCheck)
+                            end
+					    else
+						    itemObj:SetActive(false)
+					    end
+				    end			
+			    end
+            end
         end
+        
         GUI.SetText(labName, achievementTemp.Name)
         GUI.SetText(lab_content, achievementTemp.Description)
     end

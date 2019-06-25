@@ -8,38 +8,6 @@ local IDRange = require "PB.Template".SensitiveWord.IDRange
 local tabooWords_Name = {}
 local tabooWords_Chat = {}
 
-local data_id_list = CElementData.GetAllSensitiveWord()	
-
---韩文版名字和聊天屏蔽词分开
-if _G.UserLanguageCode == "KR" then
-	for i = 1, #data_id_list do
-		if data_id_list[i] > IDRange.ChatStart then
-			local data = CElementData.GetSensitiveWordTemplate(data_id_list[i])	
-
-			if string.find(data.TextWord, "%%") == nil then
-				tabooWords_Chat[#tabooWords_Chat+1] = data.TextWord
-			end
-		else
-			local data = CElementData.GetSensitiveWordTemplate(data_id_list[i])	
-
-			if string.find(data.TextWord, "%%") == nil then
-				tabooWords_Name[#tabooWords_Name+1] = data.TextWord
-			end
-			
-		end
-	end
-else   --名字和聊天屏蔽词相同
-	for i = 1, #data_id_list do
-		local data = CElementData.GetSensitiveWordTemplate(data_id_list[i])	
-
-		if string.find(data.TextWord, "%%") == nil then
-			tabooWords_Name[#tabooWords_Name+1] = data.TextWord
-		end
-	end
-	tabooWords_Chat = tabooWords_Name
-end
-data_id_list = nil
-
 local function charsize(ch)
 	if not ch then
 		return 0
@@ -174,6 +142,58 @@ local function tochar(str,pos)
 	return strsub(str,pos,pos)
 end
 
+local special_characters_list = {"^","$","(",")","%",".","[","]","*","+","-","?"}
+local function checkspecialcharacters(str)
+	local str_ret = ""
+	for i=1,strlen(str) do
+		local char = tochar(str,i)
+		local need_escape = false
+		for _, v in ipairs(special_characters_list) do
+			if v == char then
+				need_escape = true
+				break
+			end
+		end
+		if need_escape then
+			str_ret = str_ret .. "\\" .. char
+		else
+			str_ret = str_ret .. char
+		end
+	end
+	return str_ret
+end
+
+local data_id_list = CElementData.GetAllSensitiveWord()
+
+--韩文版名字和聊天屏蔽词分开
+if _G.UserLanguageCode == "KR" then
+	for i = 1, #data_id_list do
+		if data_id_list[i] > IDRange.ChatStart then
+			local data = CElementData.GetSensitiveWordTemplate(data_id_list[i])	
+
+			if string.find(data.TextWord, "%%") == nil then
+				tabooWords_Chat[#tabooWords_Chat+1] = checkspecialcharacters(data.TextWord)
+			end
+		else
+			local data = CElementData.GetSensitiveWordTemplate(data_id_list[i])	
+
+			if string.find(data.TextWord, "%%") == nil then
+				tabooWords_Name[#tabooWords_Name+1] = checkspecialcharacters(data.TextWord)
+			end
+			
+		end
+	end
+else   --名字和聊天屏蔽词相同
+	for i = 1, #data_id_list do
+		local data = CElementData.GetSensitiveWordTemplate(data_id_list[i])	
+
+		if string.find(data.TextWord, "%%") == nil then
+			tabooWords_Name[#tabooWords_Name+1] = checkspecialcharacters(data.TextWord)
+		end
+	end
+	tabooWords_Chat = tabooWords_Name
+end
+data_id_list = nil
 
 local function filter(str, caseSensitive, tabooWords)
 	local str_ret = ""

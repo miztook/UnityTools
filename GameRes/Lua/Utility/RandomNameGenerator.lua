@@ -31,21 +31,22 @@ local generateRandomName = function(index)
 	--1:人类;4:高等精灵;3:卡斯塔尼克;2:艾琳
 	--目前各势力性别是固定的--2016年9月29日
 	local name = ""
+	local len = 0
 	local firstName = ""
 	local secondName = ""
 	local infixSymbols = ""
 	local lastName = ""
 	local loopTime = 0
-	while(GameUtil.GetStringLength(name) < MinRoleNameLength or GameUtil.GetStringLength(name) > MaxRoleNameLength) do
+	repeat
 		loopTime = loopTime + 1
 		if loopTime > 10 then
 			warn("GenerateRandomName----dead loop")
 			name = ""
-			local count = math.random(MinRoleNameLength, MaxRoleNameLength)
-			for i = 0, count do
-				name = name .. math.random(0, 9) 
-			end
-			return name
+			-- local count = math.random(MinRoleNameLength, MaxRoleNameLength)
+			-- for i = 0, count do
+			-- 	name = name .. math.random(0, 9) 
+			-- end
+			break
 		end
 		if index == 1 then
 			firstName = HumanMaleFirstNames[math.random(1, table.maxn(HumanMaleFirstNames))]
@@ -72,7 +73,8 @@ local generateRandomName = function(index)
 			lastName = IreneFemaleLastNames[math.random(1, table.maxn(IreneFemaleLastNames))]
 			name = firstName .. secondName .. infixSymbols .. lastName
 		end
-	end
+		len = GameUtil.GetUnicodeStrLength(name)
+	until(len >= MinRoleNameLength and len <= MaxRoleNameLength)
 
 	return name 
 end

@@ -7,7 +7,7 @@ local Lplus = require "Lplus"
 local CElementData = require "Data.CElementData"
 local CPanelBase = require "GUI.CPanelBase"
 local CGame = Lplus.ForwardDeclare("CGame")
-local CAutoFightMan = require("ObjHdl.CAutoFightMan")
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local CQuest = require "Quest.CQuest"
 local QuestDef = require "Quest.QuestDef"
 local EWorldType = require "PB.Template".Map.EWorldType
@@ -21,6 +21,7 @@ local CombatStateChangeEvent = require"Events.CombatStateChangeEvent"
 local CQuestAutoMan = require"Quest.CQuestAutoMan"
 local CTransDataHandler = require "Transfer.CTransDataHandler"
 local PBHelper = require "Network.PBHelper"
+local ContinueTransEvent = require"Events.ContinueTransEvent"
 
 local CPanelMap = Lplus.Extend(CPanelBase, "CPanelMap")
 local def = CPanelMap.define
@@ -48,6 +49,10 @@ def.field('userdata')._Obj_RegionGroup = nil
 def.field('userdata')._Btn_TransIcon = nil  --传送阵按钮
 def.field('userdata')._ObjMenu = nil --menu
 def.field("userdata")._ImgTransfer = nil 
+def.field("userdata")._NpcIconList = nil 
+def.field("userdata")._MonsterIconList = nil 
+def.field("userdata")._EyeSingleList = nil 
+def.field("userdata")._EyeMultiplayerList = nil 
 
 --逻辑属性
 def.field("number")._Page = 0--打开的页签，0=区域地图 1= 世界地图
@@ -100,7 +105,6 @@ def.field("boolean")._IsTabOpen = false
 
 def.field("userdata")._BeforeLocationObj = nil 
 
-
 def.field("number")._CurMapType = 0
 def.field("userdata")._CurSelectNodeObj = nil
 def.field("table")._CurSelectNodeData = nil 
@@ -112,6 +116,8 @@ def.field("userdata")._FrameTip = nil
 def.field("userdata")._BtnToggle = nil 
 def.field("userdata")._BtnReputation = nil 
 def.field("number")._CurNpcNodeIndex = 0
+
+
 
 local MapType = 
 {
@@ -128,6 +134,13 @@ local NodeType =
 	REGIONPOINT = 3,    -- 地图间的区域连接点
 	TRANSLATEBTN = 4,    -- 传送阵
 	ELSE = 5,
+}
+
+-- 神世类型
+local EyeType = 
+{
+	Single = 1,
+	Multiplayer = 2,
 }
 
 def.const("table").MapType = MapType
@@ -148,6 +161,20 @@ def.static('=>', CPanelMap).Instance = function()
 	return instance
 end
 
+local function OnContinueTransEvent(sender,event)
+	if instance ~= nil and instance:IsShow() then
+		if event._MapID == instance._CurMapID then 
+			instance: StopUpdateAutoPathing()
+    		game._HostPlayer:SetAutoPathFlag(true)
+    		instance._IsAutoPath = true
+			local V3pos = Vector3.New(event._TargetPos.x,event._TargetPos.y,event._TargetPos.z)
+     		game._HostPlayer._NavTargetPos = V3pos
+     		instance:SetAutoPathTable(V3pos,true)
+     		instance:OnlyShowAutoPathing(true)
+		end
+    end
+end
+
 def.override().OnCreate = function(self)
 	-- body
 
@@ -165,7 +192,11 @@ def.override().OnCreate = function(self)
     self._Obj_AutoPosFinal = self:GetUIObject("Img_PointLast")
     self._Obj_Paths = self:GetUIObject("PathObj")
  	self._Obj_RegionGroup = self:GetUIObject("Region")
+ 	self._EyeSingleList = self:GetUIObject("EyeSingle")
+ 	self._EyeMultiplayerList = self:GetUIObject("EyeMultiplayer")
  	self._Img_Map = self:GetUIObject("Img_Map")
+ 	self._NpcIconList = self:GetUIObject("NpcIcon")
+ 	self._MonsterIconList = self:GetUIObject("MonsterIcon")
  	if self._Img_Map ~= nil then
  		local rectMap = self._Img_Map:GetComponent(ClassType.RectTransform)
  		if rectMap ~= nil then
@@ -276,6 +307,8 @@ def.override("dynamic").OnData = function(self, data)
 		self:InitPanel("Map",nil)
 	end
 	CSoundMan.Instance():Play2DAudio(PATH.GUISound_Open_Map, 0)
+    CGame.EventManager:addHandler(ContinueTransEvent, OnContinueTransEvent)
+
 end 
 
 local ClearTable = function(self)
@@ -339,33 +372,42 @@ local ClearTable = function(self)
 		end
 	end
 
-	if Table_EyeDungeonEntranceImgObj ~= nil then
-		for i=#Table_EyeDungeonEntranceImgObj, 1, -1 do
-			local v = Table_EyeDungeonEntranceImgObj[i]
+	if Table_EyeDungeonEntranceImgObj[EyeType.Single] ~= nil then
+		for i=#Table_EyeDungeonEntranceImgObj[EyeType.Single], 1, -1 do
+			local v = Table_EyeDungeonEntranceImgObj[EyeType.Single][i]
 			if not IsNil(v) then
 				v: SetActive(false)
 			else
-				table.remove(Table_EyeDungeonEntranceImgObj,i)
+				table.remove(Table_EyeDungeonEntranceImgObj[EyeType.Single],i)
+			end
+		end
+	end
+	if Table_EyeDungeonEntranceImgObj[EyeType.Multiplayer] ~= nil then
+		for i = #Table_EyeDungeonEntranceImgObj[EyeType.Multiplayer], 1, -1 do
+			local v = Table_EyeDungeonEntranceImgObj[EyeType.Multiplayer][i]
+			if not IsNil(v) then
+				v: SetActive(false)
+			else
+				table.remove(Table_EyeDungeonEntranceImgObj[EyeType.Multiplayer],i)
 			end
 		end
 	end
 end
 
--- def.override("string", "boolean").OnToggle = function(self, id, checked)
---   if id == "Rdo_Map" and checked then
---   	    if not self._IsCheckRegionMap then
---   	    	if self._CurMapID ~= self._HostPlayerMapID then
---   	    		self._CurMapID = self._HostPlayerMapID
---   	    		self._IsInitMap = false
---   	    	end
---   	    end
+def.override("string", "boolean").OnToggle = function(self, id, checked)
+	if id == "Rdo_NPC" then
+		self._NpcIconList:SetActive(checked)
+	elseif id == "Rdo_Monster" then
+		self._MonsterIconList:SetActive(checked)
+	elseif id == "Rdo_EyeSingle" then
+		self._EyeSingleList:SetActive(checked)
+	elseif id == "Rdo_EyeMultiplayer" then 
+		self._EyeMultiplayerList:SetActive(checked)
+	end
+	local obj = self:GetUIObject(id)
+	GUITools.SetBtnExpressGray(obj, checked)
 
---   		self:InitPanel("Map") 
---   		SetPageToggle(self ,true)  	  	
---   elseif id == "Rdo_WorldMap" and checked then
---   	  SetPageToggle(self ,false) 
---   end
--- end
+end
 
 --计算真实的坐标，tomap ： true 映射到地图上 false 通过地图映射到实际世界坐标
 local GetTruePos = function(self,orginalPosX,orginalPosY,toMap)
@@ -376,8 +418,10 @@ local GetTruePos = function(self,orginalPosX,orginalPosY,toMap)
 	self._MapInfo = MapBasicConfig.GetMapBasicConfigBySceneID( self._CurMapID )
 	local SceneWidth = self._MapInfo.Width
 	local SceneHeight = self._MapInfo.Length
-
-	local offset = MapBasicConfig.GetMapOffset()[self._CurMapID]
+	local NavMeshName = self._MapInfo.NavMeshName
+    local start, stop = string.find(NavMeshName, "%.")
+    NavMeshName = string.sub(NavMeshName,1,start - 1)
+	local offset = MapBasicConfig.GetMapOffset()[NavMeshName]
 	if offset == nil then  
 		if toMap or nil then
 			posX = orginalPosX *self._MapWidth/SceneWidth
@@ -401,6 +445,8 @@ end
 
 -- 升序
 local function sortFunction(item1,item2)
+	if item2 == nil or item2.SortID == nil then return false end
+	if item1 == nil or item1.SortID == nil then return false end
 	return item1.SortID < item2.SortID
 end
 
@@ -414,6 +460,7 @@ local InitNode = function(self)
 		if (self._Table_AllNpc ~= nil) and table.nums(self._Table_AllNpc) > 0 and self._ReputationNPCData ~= nil and table.nums(self._ReputationNPCData) > 0 then
 			for i,v in pairs(self._Table_AllNpc) do
 				if v ~= nil and self._ReputationNPCData[i] ~= nil  then
+
 					for j,k in ipairs(v) do
 						if k ~= nil and (k.IsCanFind ~= nil and k.IsCanFind == 1) then
 							local QuestId = self._ReputationNPCData[i].QuestId
@@ -434,7 +481,9 @@ local InitNode = function(self)
 			if #temList > 0 then
 				table.insert(self._NodeName,StringTable.Get(12003))
 				table.sort(temList, sortFunction)
-				self._ListType[#self._ListType + 1] = temList
+				self._ListType[#self._ListType + 1] = {}
+				self._ListType[#self._ListType]._ItemList = temList
+				self._ListType[#self._ListType]._IsOpen = true
 			end	
 		end		
 	else
@@ -481,7 +530,9 @@ local InitNode = function(self)
 				if #temList > 0 then
 					table.insert(self._NodeName,StringTable.Get(12003))
 					table.sort(temList, sortFunction)
-					self._ListType[#self._ListType + 1] = temList
+					self._ListType[#self._ListType + 1] = {}
+					self._ListType[#self._ListType]._ItemList = temList
+					self._ListType[#self._ListType]._IsOpen = true
 					NpcIndex = #self._ListType
 				end			
 			end	
@@ -512,7 +563,9 @@ local InitNode = function(self)
 				if #temList > 0 then
 					table.insert(self._NodeName,StringTable.Get(12004))
 					table.sort( temList, sortFunction )
-					self._ListType[#self._ListType + 1] = temList
+					self._ListType[#self._ListType + 1] = {}
+					self._ListType[#self._ListType]._ItemList = temList
+					self._ListType[#self._ListType]._IsOpen = true
 				end
 			end	
 		end
@@ -555,7 +608,9 @@ local InitNode = function(self)
 			end
 			if #temList > 0 then
 				table.insert(self._NodeName,StringTable.Get(12036))
-				self._ListType[#self._ListType + 1] = temList
+				self._ListType[#self._ListType + 1] = {}
+				self._ListType[#self._ListType]._ItemList = temList
+				self._ListType[#self._ListType]._IsOpen = true
 			end
 		end
 	end
@@ -598,13 +653,13 @@ local InitNode = function(self)
 		GameUtil.SetScrollPositionZero(self._FrameList)
 		for i = 1,4 do 
 			if #self._ListType < i then
-				self:GetUIObject("Item"..i):SetActive(false)
-				self:GetUIObject("Frame_Title"..i):SetActive(false)
+				self:GetUIObject("NodeItem"..i):SetActive(false)
+				self:GetUIObject("Btn_Title"..i):SetActive(false)
 			else
-				local itemObj = self:GetUIObject("Item"..i)
+				local itemObj = self:GetUIObject("NodeItem"..i)
 				itemObj:SetActive(true)
-				self:GetUIObject("Frame_Title"..i):SetActive(true)
-				local Node_list = self._ListType[i]
+				self:GetUIObject("Btn_Title"..i):SetActive(true)
+				local Node_list = self._ListType[i]._ItemList
 				GUI.SetText(self:GetUIObject("Lab_Tag"..i),self._NodeName[i])
             	local current_type_count = #Node_list
            		if current_type_count > 0 then
@@ -643,7 +698,19 @@ local function IsClearSelectNode(curObj ,curData,isClear)
 			end
    		end
        	if curData._data.Describe ~= nil and curData._NodeType == NodeType.MONSTER then
-       		GUI.SetText(curObj:FindChild("Monster/Btn_Path/Lab_Describe"),string.format(StringTable.Get(colorTextId),curData._data.Describe))
+   			local strDesc = string.split(curData._data.Describe,",")
+   			local strList = {}
+    		for _,w in pairs(strDesc) do
+				table.insert(strList,w)
+			end
+   			local str = ""
+       		if not isClear then 
+       			-- 点亮
+				str = StringTable.Get(12039)..curData._data.level.." "..string.format(StringTable.Get(colorTextId),strList[2])
+       		else
+				str = StringTable.Get(12039)..curData._data.level.." "..string.format(StringTable.Get(colorTextId),strList[2])
+       		end
+   			GUI.SetText(curObj:FindChild("Monster/Btn_Path/Lab_Describe"),str)
        	end
        	if curData._data.DropItemIds ~= nil and curData._NodeType == NodeType.MONSTER then
        		local img = curObj:FindChild("Monster/Btn_Detail/Image")
@@ -728,7 +795,7 @@ def.method("string","dynamic").InitPanel = function (self, panelType,ReputationI
  			--所有群组
  			self._Table_AllMonsters = self._MapInfo.Monster			
 			if(self._Table_AllMonsters ~= nil) then
-				--warn("-*-----self._Table_AllMonsters ==", mapId, i)				
+				-- warn("-*-----self._Table_AllMonsters ==", mapId, i)				
 				for i,v in pairs(self._Table_AllMonsters) do
 					if(v ~= nil) then
 						for j,k in ipairs(v) do	
@@ -741,11 +808,11 @@ def.method("string","dynamic").InitPanel = function (self, panelType,ReputationI
 									local trueX, trueY = GetTruePos(self,k.x, k.z,true)
 									if trueX ~= nil and trueY ~= nil  then
 										self:AddBossObj(Vector3.New(trueX,trueY,0),i,nil)
-										local bossBtnBg = self._Obj_Map:FindChild("Btn_Boss"..i.."/Img_Boss")
-										if WorldBossData._Isopen and not WorldBossData._IsDeath then
-											GUITools.MakeBtnBgGray(bossBtnBg, false)
+										local bossBtnBg = self._MonsterIconList:FindChild("Btn_Boss"..i.."/Img_Boss")
+										if WorldBossData._Isopen == false or WorldBossData._IsDeath == true then
+											GameUtil.MakeImageGray(bossBtnBg, true)
 										else
-											GUITools.MakeBtnBgGray(bossBtnBg, true)
+											GameUtil.MakeImageGray(bossBtnBg, false)
 										end	
 									end
 								end
@@ -755,11 +822,11 @@ def.method("string","dynamic").InitPanel = function (self, panelType,ReputationI
 									local trueX, trueY = GetTruePos(self,k.x, k.z,true)
 									if trueX ~= nil and trueY ~= nil  then
 										self:AddBossObj(Vector3.New(trueX,trueY,0),i,k.BossIconPath)
-										local bossBtnBg = self._Obj_Map:FindChild("Btn_Boss"..i.."/Img_Boss")
+										local bossBtnBg = self._MonsterIconList:FindChild("Btn_Boss"..i.."/Img_Boss")
 										if not EliteBossData._IsDeath then
-											GUITools.MakeBtnBgGray(bossBtnBg, false)
+											GameUtil.MakeImageGray(bossBtnBg, true)
 										else
-											GUITools.MakeBtnBgGray(bossBtnBg, true)
+											GameUtil.MakeImageGray(bossBtnBg, false)
 										end	
 									end
 								end
@@ -888,7 +955,6 @@ def.method().InitMapPanelShow = function(self)
 
 					if Quest ~= nil then 
 						if Quest[3] == QuestTypeDef.Reputation and Quest[2] == QuestFuncDef.CanProvide then 
-							warn("npcid ",i)
 							if v ~= nil and v[1] ~= nil then
 								local trueX, trueY = GetTruePos(self,v[1].x, v[1].z,true)
 								if trueX ~= nil and trueY ~= nil then
@@ -1058,7 +1124,7 @@ def.method("table","dynamic","boolean").AddNpcObj = function(self,v3Pos,strIcon,
 	local AddNewNpcObj = function (objPos,iconName)
 		local obj = GameObject.Instantiate(self._Obj_Npc)
 		if(obj ~= nil) then
-			obj:SetParent(self._Obj_Map)
+			obj:SetParent(self._NpcIconList)
 			obj.localPosition = v3Pos
 			-- 暂时应用
    			obj.localScale = Vector3.one					
@@ -1162,7 +1228,7 @@ def.method("table","number","dynamic").AddBossObj = function(self,v3Pos,BossID,I
 	local AddNewBossObj = function (objPos)
 		local obj = GameObject.Instantiate(self._Obj_BOSS)
 		if(obj ~= nil) then
-			obj:SetParent(self._Obj_Map)
+			obj:SetParent(self._MonsterIconList)
 			obj.localPosition = v3Pos
    			obj.localScale = Vector3.one 						
    			obj:SetActive(true)
@@ -1199,7 +1265,7 @@ def.method("table","number").AddReputationObj = function(self,v3Pos,NpcID)
 	local AddNewReputationObj = function (objPos)
 		local obj = GameObject.Instantiate(self._BtnReputation)
 		if(obj ~= nil) then
-			obj:SetParent(self._Obj_Map)
+			obj:SetParent(self._NpcIconList)
 			obj.localPosition = v3Pos
    			obj.localScale = Vector3.one 						
    			obj:SetActive(true)
@@ -1222,43 +1288,52 @@ def.method("table","number").AddReputationObj = function(self,v3Pos,NpcID)
 	end
 end
 
-def.method("table","number","number","number").AddEyeRegionObj = function(self,v3Pos,regionID,remainCount,challengeCount)
+def.method("table","number","number","number","number","number").AddEyeRegionObj = function(self,v3Pos,regionID,dungeonId,remainCount,challengeCount,hawkeyeType)
 	local AddNewEyeRegionObj = function (objPos)
 		local obj = GameObject.Instantiate(self._Obj_EyeRegion)
 		if(obj ~= nil) then
-			obj:SetParent(self._Obj_Map)
-			obj.localPosition = v3Pos
+			if hawkeyeType == EyeType.Single then
+				obj:SetParent(self._EyeSingleList)
+			elseif hawkeyeType == EyeType.Multiplayer then
+				obj:SetParent(self._EyeMultiplayerList)
+			end
+			obj.localPosition = v3Pos 
    			obj.localScale = Vector3.one 						
    			obj:SetActive(true)
    			obj.name = "Btn_EyeEntrance"..regionID
    			local btnBG = obj:FindChild( "Img_Boss" )
+
 			if remainCount == 0 or challengeCount == 0 then
 				GUITools.MakeBtnBgGray(btnBG, true)
 			else
 				GUITools.MakeBtnBgGray(btnBG, false)
 			end	
-   			GUITools.RegisterButtonEventHandler(self._Panel,obj)		
-   			Table_EyeDungeonEntranceImgObj[#Table_EyeDungeonEntranceImgObj + 1] = obj
+			GUITools.SetGroupImg(btnBG,hawkeyeType - 1)
+   			GUITools.RegisterButtonEventHandler(self._Panel,obj)	
+   			if Table_EyeDungeonEntranceImgObj[hawkeyeType] == nil then 
+   				Table_EyeDungeonEntranceImgObj[hawkeyeType] = {}
+   			end
+   			Table_EyeDungeonEntranceImgObj[hawkeyeType][#Table_EyeDungeonEntranceImgObj[hawkeyeType] + 1] = obj
    		end
 	end
 
-	if Table_EyeDungeonEntranceImgObj == nil or #Table_EyeDungeonEntranceImgObj <= 0 then
+	if Table_EyeDungeonEntranceImgObj == nil or Table_EyeDungeonEntranceImgObj[hawkeyeType] == nil then
 		AddNewEyeRegionObj(v3Pos)
 	else
-		for _,v in ipairs(Table_EyeDungeonEntranceImgObj) do
+		for _,v in ipairs(Table_EyeDungeonEntranceImgObj[hawkeyeType]) do
 			if not v.activeSelf then
-				--local bossId = tonumber(string.sub(v.name,9,-1))
-				--if bossId == BossID then 
 				v.name = "Btn_EyeEntrance"..regionID
 				v:SetActive(true)
 				v.localPosition = v3Pos 	
 
+    			local dungeondata = CElementData.GetInstanceTemplate(dungeonId)
 	   			local btnBG = v:FindChild( "Img_Boss" )
-				if remainCount == 0 or challengeCount == 0 then
+				if remainCount == 0 or challengeCount == 0 or dungeondata.MinEnterLevel > game._HostPlayer._InfoData._Level then
 					GUITools.MakeBtnBgGray(btnBG, true)
 				else
 					GUITools.MakeBtnBgGray(btnBG, false)
 				end	
+				GUITools.SetGroupImg(btnBG,hawkeyeType - 1)
 				return 
 			end
 		end
@@ -1273,8 +1348,8 @@ def.method("table").ShowEyeRegions = function(self,protocol)
 		if v and v.regionId and v.regionId > 0 and self._Table_AllRegion[2] ~= nil and self._Table_AllRegion[2][v.regionId] ~= nil then
 			local trueX, trueY = GetTruePos(self,self._Table_AllRegion[2][v.regionId].x, self._Table_AllRegion[2][v.regionId].z,true)
 			if trueX ~= nil and trueY ~= nil then
-				self._Table_AllEyeDungeonEntrance[v.regionId] = {mapID = protocol.mapID,regionId = v.regionId,dungeonId = v.dungeonId,remainCount = v.remainCount, challengeCount = v.challengeCount}
-				self: AddEyeRegionObj(Vector3.New(trueX,trueY,0),v.regionId,v.remainCount,v.challengeCount)
+				self._Table_AllEyeDungeonEntrance[v.regionId] = {mapID = protocol.mapID,regionId = v.regionId,dungeonId = v.dungeonId,remainCount = v.remainCount, challengeCount = v.challengeCount, hawkeyeType = v.hawkeyeType}
+				self: AddEyeRegionObj(Vector3.New(trueX,trueY,0),v.regionId,v.dungeonId,v.remainCount,v.challengeCount,v.hawkeyeType)
 			end	
 		end
 	end
@@ -1355,13 +1430,13 @@ def.method().InitWorldPanel = function (self)
              	  	end
              	  	if(nameLab ~= nil) then
              	  		GameUtil.SetActiveOutline(nameLab,false)
-	  	      			nameLab:GetComponent(textType).text =  worldData.Name
+	  	      			nameLab:GetComponent(textType).text =  worldData.TextDisplayName
 	  	  			end
 	  	  		else
 	  	  			imgBg :SetActive(true)
   					imgLock:SetActive(false)
 					if(nameLab ~= nil) then
-	  	      			nameLab:GetComponent(textType).text =  worldData.Name
+	  	      			nameLab:GetComponent(textType).text =  worldData.TextDisplayName
 	  	  			end
 
 	  	  			if(levelLab ~= nil) then	  	  				
@@ -1498,7 +1573,11 @@ def.override("string").OnClick = function(self, id)
 			game._GUIMan:ShowTipText(StringTable.Get(30103), false)
 		    return
 		end
-    	
+    	--跨服判断
+		if game._HostPlayer:IsInGlobalZone() then
+	        game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+	        return
+	    end
     	if not game._GuildMan:IsHostInGuild() then
     		game._GUIMan:ShowTipText(StringTable.Get(12031), false)
     	return end
@@ -1538,6 +1617,11 @@ def.override("string").OnClick = function(self, id)
     --主城，点击传送
     local nLevel = game._HostPlayer._InfoData._Level
     if string.find(id,"Btn_City") then
+    	--跨服判断
+		if game._HostPlayer:IsInGlobalZone() then
+	        game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+	        return
+	    end
 
     	if game._HostPlayer:IsInServerCombatState() then
 			game._GUIMan:ShowTipText(StringTable.Get(139), false)
@@ -1568,7 +1652,7 @@ def.override("string").OnClick = function(self, id)
     		end
 
     		local title, strInfo, closeType = StringTable.GetMsg(16)
-    		local msg = string.format(strInfo, worldData.Name)
+    		local msg = string.format(strInfo, worldData.TextDisplayName)
     		MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback)  	
 		end
 	 --区域，点击打开区域地图
@@ -1626,7 +1710,7 @@ def.override("string").OnClick = function(self, id)
 		elseif self._CurMapType == MapType.REPUTATION then
 			self._CurNpcNodeIndex = 1
 		end
-		for i ,data in ipairs(self._ListType[self._CurNpcNodeIndex]) do 
+		for i ,data in ipairs(self._ListType[self._CurNpcNodeIndex]._ItemList) do 
 			if data._ID == NpcID then 
 				smallTypeIndex = i
 			break end
@@ -1641,6 +1725,27 @@ def.override("string").OnClick = function(self, id)
 			OkCallBack = okCallback,
 		}
 		game._GUIMan:Open("CPanelReputationIntroduction",PanelData)
+	elseif string.find(id,"Btn_Title") then 
+		local index = tonumber(string.sub(id,-1))
+		local ItemObj = self:GetUIObject("NodeItem"..index)
+		local btnTitle = self:GetUIObject("Btn_Title"..index)
+		local imgBg = btnTitle:FindChild("Img_Bg")
+		local imgArrow = btnTitle:FindChild("Img_Arrow")
+		local labTitle = btnTitle:FindChild("Lab_Tag"..index)
+		if not self._ListType[index]._IsOpen then 
+			ItemObj:SetActive(true)
+			self._ListType[index]._IsOpen = true
+			GUITools.SetGroupImg(imgBg,0)
+			GUITools.SetGroupImg(imgArrow,2)
+			GUI.SetText(labTitle,string.format(StringTable.Get(12032),self._NodeName[index]))
+		else
+			ItemObj:SetActive(false)
+			GUITools.SetGroupImg(imgBg,1)
+			GUITools.SetGroupImg(imgArrow,1)
+			self._ListType[index]._IsOpen = false
+			warn(" self._NodeName[index]) ",self._NodeName[index])
+			GUI.SetText(labTitle,string.format(StringTable.Get(12040),self._NodeName[index]))
+		end
     end  
 end
 
@@ -1648,7 +1753,7 @@ end
 def.override("userdata", "string", "number").OnInitItem = function(self, item, id, index)	
 	if string.find(id, "Item") then 
 		local bigTypeIndex = tonumber(string.sub(id, -1))
-		local current_Node_list = self._ListType[bigTypeIndex]
+		local current_Node_list = self._ListType[bigTypeIndex]._ItemList
         local cur = current_Node_list[index + 1]
         item:FindChild("Img_D"):SetActive(false)
         local MonsterObj = item:FindChild("Monster")
@@ -1661,7 +1766,14 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
         	local btnDetail = item:FindChild("Monster/Btn_Detail")
         	if cur._data.Describe ~= nil then
         		btnPath:SetActive(true)
-            	GUI.SetText(btnPath:FindChild("Lab_Describe"),string.format(StringTable.Get(12033),cur._data.Describe))
+        		local strDesc = string.split(cur._data.Describe,',')
+	   			local str = ""
+       			local strList = {}
+	    		for _,w in pairs(strDesc) do
+					table.insert(strList,w)
+    			end
+				local str = StringTable.Get(12039)..cur._data.level.." "..strList[2]
+            	GUI.SetText(btnPath:FindChild("Lab_Describe"),str)
             else
             	btnPath:SetActive(false)
             end
@@ -1775,7 +1887,7 @@ def.method("string","number","userdata").UpateSelectNode = function (self,id,ind
 	IsClearSelectNode(self._CurSelectNodeObj,self._CurSelectNodeData,isClearSlect)
     local bigTypeIndex = tonumber(string.sub(id, -1))
     local smallTypeIndex = index + 1
-    self._CurSelectNodeData = self._ListType[bigTypeIndex][index + 1]
+    self._CurSelectNodeData = self._ListType[bigTypeIndex]._ItemList[index + 1]
     self._CurSelectNodeObj = item 
 	self._CurSelectNodeObj:FindChild("Img_D"):SetActive(true)
 	isClearSlect = false
@@ -1784,7 +1896,7 @@ end
 
 def.method("number","number").UpateSelectNpcNodeByBtn = function(self,bigTypeIndex,smallTypeIndex)
 	IsClearSelectNode(self._CurSelectNodeObj,self._CurSelectNodeData,true)
-	self._CurSelectNodeData = self._ListType[bigTypeIndex][smallTypeIndex]
+	self._CurSelectNodeData = self._ListType[bigTypeIndex]._ItemList[smallTypeIndex]
     self._CurSelectNodeObj = self._NpcNodeObjs[smallTypeIndex]
 	self._CurSelectNodeObj:FindChild("Img_D"):SetActive(true)
 	IsClearSelectNode(self._CurSelectNodeObj,self._CurSelectNodeData,false)
@@ -1810,6 +1922,12 @@ def.method().ClickItemMoveToPos = function(self)
 			self:TranslateElseMap(curNodeData._data.TransID)
 		end
 	else--跨场景寻路 
+		
+		--跨服判断
+		if game._HostPlayer:IsInGlobalZone() then
+	        game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+	        return
+	    end
 		local onReach = function( ... )   
         	self:StopUpdateAutoPathing() 
         	game._HostPlayer:SetAutoPathFlag(false)
@@ -1832,6 +1950,11 @@ end
 
 -- 传送阵 传送
 def.method("number").TranslateElseMap = function(self,transID)
+	--跨服判断
+	if game._HostPlayer:IsInGlobalZone() then
+        game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+        return
+    end
 	if transID <= 0 then return end
     CQuestAutoMan.Instance():Stop()
 	CDungeonAutoMan.Instance():Stop()
@@ -2126,6 +2249,11 @@ def.override("userdata").OnPointerClick = function(self,target)
 		    end
 
 		    self._IsAutoPath = true 		
+		    --跨服判断
+			if game._HostPlayer:IsInGlobalZone() then
+		        game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+		        return
+		    end
 		    CTransManage.Instance():StartMoveByMapIDAndPos(self._CurMapID, PointerPos, onReach, false, false)
 		    local isNonstop, regionPos = CTransDataHandler.Instance():IsNonstopTrans(self._CurMapID)
 		    if isNonstop then
@@ -2161,7 +2289,6 @@ def.method("table","boolean").SetAutoPathTable = function(self,TargetPos,IsHostP
 		path_table = GameUtil.GetAllPointsInNavMesh(navmeshName, cur_pos, TargetPos, 1, 0.1)
 		if(path_table == nil) or (table.nums(path_table) <= 0) then warn(" (path_table == nil) or (table.nums(path_table) <= 0) ") return end
 	end
-	
 	local point_count = #path_table
    	for i = 1, point_count, 1 do       
         if(i == point_count) then
@@ -2246,7 +2373,6 @@ def.method().AddAutoPathObj = function(self)
 	    	end 
 		end	
 	end
-
 	if Table_Path_Obj == nil or #Table_Path_Obj <= 0 then
 		Table_Path_Obj = {}
 		AddNewAutoPathObj(1)
@@ -2281,7 +2407,11 @@ def.method().AddAutoPathObj = function(self)
 		   			v.localScale = Vector3.one
 				end
 			end
-			AddNewAutoPathObj(#Table_Path_Obj)
+			local index = 1 
+			if #Table_Path_Obj > 0 then 
+				index = #Table_Path_Obj
+			end
+			AddNewAutoPathObj(index)
 		end	
 	end
 end
@@ -2290,7 +2420,6 @@ def.method("boolean").OnlyShowAutoPathing = function(self,IsUpdatePathing)
 	
 	self:HideAllPathObj()
    	if(Table_Paths_Points == nil) or (#Table_Paths_Points <= 0) then   return end 
-   	-- warn("----OnlyShowAutoPathing-----",IsUpdatePathing)
     if not IsUpdatePathing then
    		self:AddAutoPathObj()
    	else
@@ -2351,7 +2480,7 @@ def.method().UpdateMapBossState = function(self)
 			local v = Table_BossImgObj[i]
 			if not IsNil(v) then
 				local BossID = string.sub(v.name, string.len("Btn_Boss")+1,-1)
-				local bossBtnBg = self._Obj_Map:FindChild("Btn_Boss"..BossID.."/Img_Boss")
+				local bossBtnBg = self._MonsterIconList:FindChild("Btn_Boss"..BossID.."/Img_Boss")
 				if game._CWorldBossMan:GetWorldBossByID(tonumber(BossID)) then
 					local WorldBossData = game._CWorldBossMan:GetWorldBossByID(tonumber(BossID))
 					if WorldBossData._Isopen and not WorldBossData._IsDeath then
@@ -2389,7 +2518,7 @@ def.override().OnHide = function(self)
     CPanelBase.OnHide(self)
 	ClearTable(self)
 	-- CGame.EventManager:removeHandler(CombatStateChangeEvent, OnCombatStateChangeEvent)
-
+ 	CGame.EventManager:removeHandler(ContinueTransEvent, OnContinueTransEvent)
 	self._Last_PlayerPos = nil
 	self: ClearAllPathObj()
 	self:ClosePanel()
@@ -2429,6 +2558,8 @@ def.override().OnDestroy = function (self)
 	self._Obj_World_Player_Host = nil
 	self._Img_Map = nil
 	self._Obj_Map = nil
+	self._NpcIconList = nil 
+	self._MonsterIconList = nil 
 	self._Obj_WorldMap = nil
 	self._Obj_BOSS = nil
 	self._Obj_Npc = nil
@@ -2441,6 +2572,8 @@ def.override().OnDestroy = function (self)
 	self._Obj_TeamMem = nil
 	self._Obj_Paths = nil
 	self._Obj_RegionGroup = nil
+	self._EyeSingleList = nil 
+	self._EyeMultiplayerList = nil 
 	self._Btn_TransIcon = nil
 	self._ObjMenu = nil
 	self._FrameList = nil
@@ -2452,6 +2585,8 @@ def.override().OnDestroy = function (self)
 	self._MonsterNodeObjs = {}
 	self._NpcNodeObjs = {} 
 	self._CurNpcNodeIndex = 0
+	self._ImgTransfer = nil
+	self._BtnReputation = nil
 end
 
 --请求数据

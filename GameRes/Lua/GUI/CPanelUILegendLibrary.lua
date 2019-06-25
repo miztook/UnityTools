@@ -37,6 +37,8 @@ def.override("dynamic").OnData = function(self,data)
 end
 
 def.method().InitItem = function(self)
+	local nameStr = string.format(StringTable.Get(10986), self._ItemData:GetNameText())
+	GUI.SetText(self:GetUIObject("Lab_Title") ,RichTextTools.GetQualityText(nameStr, self._ItemData:GetQuality()))
 	local legendLibrary = CElementData.GetLegendaryGroupInfoById( self._ItemData._LegendaryGroupId )
 	self._LegendaryInfoList = {}
 	for k,v in pairs(legendLibrary) do
@@ -54,10 +56,10 @@ end
 def.method("userdata", "table").SetItem = function(self, item, data)
 	local Lab_Name = item:FindChild("Lab_Name")
 	local Lab_Desc = item:FindChild("Lab_Desc")
-	local Lab_Lv = item:FindChild("Lab_Lv")
+	local Lab_Lv = item:FindChild("Lab_Name/Lab_Lv")
 	local descText = Lab_Desc:GetComponent(TextType)
 	local nameText = Lab_Name:GetComponent(TextType)
-	
+
 	GUI.SetText(Lab_Name, data.Name)
 	GUI.SetText(Lab_Desc, data.SkillDesc)
 	GUI.SetText(Lab_Lv, data.LvDesc)

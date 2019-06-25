@@ -19,10 +19,11 @@ _G.RedDotSystemType =
 	Manual = 14,				  -- 生涯
 	GuildList = 15,				  -- 工会
 	Ranking = 16 , 				  -- 排行（暂无）
-	Bag = 17,                     -- 背包
-	Mail = 18,                    -- 邮件
-	Friends = 19,                 -- 好友
-	Auction = 20, 				  -- 交易
+	Auction = 17, 				  -- 交易
+	Bag = 18,                     -- 背包
+	Mail = 19,                    -- 邮件
+	Friends = 20,                 -- 好友
+
 }
 local RedDotSystemTabel = 
 {
@@ -108,6 +109,11 @@ local RedDotSystemTabel =
 									ObjectName = "Btn_F12",
 							 		IsUnlock = true,
 								 },
+	[RedDotSystemType.Auction] = {
+									State = false,
+									ObjectName = "Btn_F14",
+									IsUnlock = true,
+								 },
 
 	[RedDotSystemType.Bag] = {
 								State = false,
@@ -125,11 +131,6 @@ local RedDotSystemTabel =
 							 		IsUnlock = true,
 								 },		
 								 
-	[RedDotSystemType.Auction] = {
-									State = false,
-									ObjectName = "Btn_F14",
-									IsUnlock = true,
-								 },
 }
 
 -- 更新系统解锁状态
@@ -163,7 +164,7 @@ local function _UpdateModuleRedDotShow(type,state)
 	local data = RedDotSystemTabel[type]
 	if not data.IsUnlock then return end
 	local img_RedPoint = nil 
-	if type <= 16 then 
+	if type <= 17 then 
 		if not CPanelSystemEntrance.Instance():IsShow() then return end
 		if type < 5 then 
 			img_RedPoint = SystemEntrancePanel:FindChild("Frame_Main/"..data.ObjectName.."/Img_Icon/Img_RedPoint")
@@ -171,19 +172,19 @@ local function _UpdateModuleRedDotShow(type,state)
 			img_RedPoint = SystemEntrancePanel:FindChild("Frame_Panel/FrameFloat/"..data.ObjectName.."/Img_bg/Img_RedPoint")
 		end
 	else
-		if not CPanelMainChat.Instance():IsShow() then return end
-		img_RedPoint = MainChatPanel:FindChild(data.ObjectName.."/Img_RedPoint")
+		if not CPanelMainChat.Instance():IsShow() then  return end
+		img_RedPoint = MainChatPanel:FindChild("Frame_Group/Frame_Social/"..data.ObjectName.."/Img_RedPoint")
 	end
 
-	if img_RedPoint == nil then return end
+	if img_RedPoint == nil then  return end
 	img_RedPoint:SetActive(state)
-	if type < 5 or type > 16 then return end
+	if type < 5 or type > 17 then return end
 	_UpdateSystemMenuButtonShow()
 end
 
 local function _UpdateSystemEntranceRedDotShow(panel)
 
-	for i = 1, 16 do
+	for i = 1, 17 do
 		local state = RedDotSystemTabel[i].State
 		if state then 
 			local img_RedPoint = panel:GetUIObject(RedDotSystemTabel[i].ObjectName):FindChild("Img_Icon/Img_RedPoint")
@@ -202,13 +203,11 @@ local function _UpdateSystemEntranceRedDotShow(panel)
 end
 
 local function _UpdateMainChatRedDotShow(panel)
-	for i = 16, 18 do
+	for i = 18, 20 do
 		local state = RedDotSystemTabel[i].State
-		if state then 
-			local img_RedPoint = panel:FindChild(RedDotSystemTabel[i].ObjectName.."/Img_RedPoint")
-			if img_RedPoint == nil then break end
-			img_RedPoint:SetActive(state)
-		end
+		local img_RedPoint = panel:FindChild(RedDotSystemTabel[i].ObjectName.."/Img_RedPoint")
+		if img_RedPoint == nil then warn("-- UI_Main_Chat Frame Change is wrong imgRedPoint is nil") return end
+		img_RedPoint:SetActive(state)
 	end
 end
 
@@ -253,6 +252,11 @@ local function _GetModuleDataToUserData(typeName)
 	return nil 
 end 
 
+--获取模块红点状态
+local function _GetModuleState(type)
+	return RedDotSystemTabel[type].State
+end
+
 -- 从本地删除对应模块数据
 local function _DeleteModuleDataToUserData(typeName)
 	local account = game._NetMan._UserName
@@ -275,7 +279,7 @@ end
 
 -- 切换账号或是切换角色时清除所有红点状态数据
 local function _ClearRedTabelState ()
-	for i = 1 , 18 do
+	for i = 1 , 20 do
 		RedDotSystemTabel[i].State = false 
 	end
 end
@@ -293,6 +297,7 @@ _G.CRedDotMan =
 	GetModuleDataToUserData = _GetModuleDataToUserData,
 	ClearRedTabelState = _ClearRedTabelState,
 	UpdateSystemUnlockState = _UpdateSystemUnlockState,
+	GetModuleState          = _GetModuleState,
 }
 
 

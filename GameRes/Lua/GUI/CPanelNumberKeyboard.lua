@@ -72,9 +72,11 @@ def.override().OnDestroy = function(self)
 	if self._EndCb ~= nil then
         local num = tonumber(self._LabelNumberContent)
         if num then
+            num = math.min(num, self._Max)
+            num = math.max(num, self._Min)
             self._EndCb(num)
         else
-            self._EndCb()
+            self._EndCb(self._Min)
         end
 		self._EndCb = nil
 	end

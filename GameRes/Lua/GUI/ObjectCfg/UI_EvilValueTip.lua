@@ -1,14 +1,18 @@
 local cfg = {
-    Img_MsgBG = 1905582026,
     Lab_Reduce2 = -1236573542,
-    Lab_Range1 = -1428772410,
-    Lab_Range2 = -1428772409,
-    Lab_Range3 = -1428772408,
     Lab_Add = 1601231535,
     Lab_Reduce1 = -1236573543,
-    Lab_RangeValue1 = -1535667061,
-    Lab_RangeValue2 = -1535667060,
-    Lab_RangeValue3 = -1535667059,
+    Frame_Bar1 = 1721451088,
+    Frame_Bar2 = 1721451089,
+    Frame_Bar3 = 1721451090,
+    Lab_EvilValue = -1478300725,
+    Img_ItemIcon = 805226344,
+    Lab_ItemNum = -204069247,
+    Lab_EngraveNeed = 1217382848,
+    Btn_OK = 2000023231,
+    Frame_All = -1745585265,
+    Img_BtnItem = 471001811,
+    Btn_Approach = -1159665045,
 }
  
 return cfg

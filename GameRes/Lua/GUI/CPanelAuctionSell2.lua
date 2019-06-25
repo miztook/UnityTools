@@ -286,8 +286,8 @@ def.method().SetStartData = function(self)
         self._InputObj1 = self:GetUIObject("Label2")
         self._InputObj2 = self:GetUIObject("Label3")
         --最小售出数量 最大售出数量，售卖的最高价与最低价
-        self._Value1 ,self._MinValue1 = self._ItemData._NormalCount,1 -- 默认数量
-        self._MaxValue1 = self._ItemData._NormalCount
+        self._Value1 ,self._MinValue1 = math.min(99, self._ItemData._NormalCount),1 -- 默认数量
+        self._MaxValue1 = math.min(99, self._ItemData._NormalCount)
         self._MinValue2 = self._ItemData.MinPrice -- 默认单价
         self._Value2 = math.ceil((self._ItemData.MinPrice + self._ItemData.MaxPrice)/2)
         self._MaxValue2 = self._ItemData.MaxPrice
@@ -300,7 +300,7 @@ def.method().SetStartData = function(self)
         self._InputObj2 = self:GetUIObject("Label1")
         self._LabItemCount = self:GetUIObject("Lab_Num")
         self._MaxValue2 = self._ItemData.MaxPrice
-        self._MaxValue1 = math.floor(self._ItemData.MaxPrice/1.1)--math.ceil(self._ItemData.MaxPrice /1.1) 
+        self._MaxValue1 = math.min(99, math.floor(self._ItemData.MaxPrice/1.1))--math.ceil(self._ItemData.MaxPrice /1.1) 
         self._MinValue1 = self._ItemData.MinPrice 
         self._Value1 = self._ItemData.MinPrice --+ (self._ItemData.MaxPrice - self._ItemData.MinPrice) % 2
         self._MinValue2 = math.min( math.ceil(1.1 * self._Value1), self._MaxValue2)
@@ -374,7 +374,6 @@ def.method("number","string",'userdata',"number","number","=>","number").PlusOrM
     local value = 0
     local id = string.sub(buttonName,5,-2)
     local index = string.sub(buttonName,-1) + 0
-    print("index ", index, type(index))
     --交易行加减按钮每次加1或是减一
     if self._IsExchange then
         if id == "Down" then

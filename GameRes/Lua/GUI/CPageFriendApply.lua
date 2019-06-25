@@ -6,6 +6,8 @@ local def = CPageFriendApply.define
 
 def.field("userdata")._LabNothing = nil 
 def.field("userdata")._ListApply = nil 
+def.field("userdata")._BtnAllAgree = nil 
+def.field("userdata")._BtnAllReject = nil 
 
 def.field("table")._Parent = nil 
 def.field("table")._ApplyDatas = nil 
@@ -23,6 +25,8 @@ def.method("table").Show = function(self, parent)
 	self._Parent = parent  
 	self._LabNothing = self._Parent:GetUIObject("Lab_NothingApply")
 	self._ListApply = self._Parent:GetUIObject("List_Apply"):GetComponent(ClassType.GNewList)
+	self._BtnAllAgree = self._Parent:GetUIObject("Btn_AllAgree")
+	self._BtnAllReject = self._Parent:GetUIObject("Btn_AllReject")
 	self:UpdatePage()
 	local data = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.Friends)
 	if data == nil then return end
@@ -36,8 +40,12 @@ def.method().UpdatePage = function(self)
 	if self._ApplyDatas == nil or #self._ApplyDatas == 0 then 
 		self._LabNothing:SetActive(true)
 		self._ListApply:SetItemCount(0)
+		self._BtnAllReject:SetActive(false)
+		self._BtnAllAgree:SetActive(false)
 		return
 	end
+	self._BtnAllReject:SetActive(true)
+	self._BtnAllAgree:SetActive(true)
 	self._LabNothing:SetActive(false)
 	self._ListApply:SetItemCount(#self._ApplyDatas)
 end
@@ -106,6 +114,8 @@ def.method().Hide = function(self)
 	self._ApplyDatas = {}
 	self._LabNothing = nil 
 	self._ListApply = nil 
+	self._BtnAllReject = nil
+	self._BtnAllAgree  = nil 
 end
 
 def.method().Destroy = function (self)

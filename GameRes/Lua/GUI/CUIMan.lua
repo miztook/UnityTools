@@ -25,6 +25,7 @@ local _KeepUIs =
     "CpanelGuide",
     "CPanelUIQuickUse",
     "CPanelMainTips",
+	"CPanelMainTipsLow",
     "CPanelUIGuildBattleMiniMap",
     "CPanelEnterMapTips",
     "CPanelUIBeginnerDungeonBoss",
@@ -34,6 +35,7 @@ local _KeepUIs =
     "CPanelPVPHead",
     "CPanelBattleMiddle",
     "CPanelBattleResult",
+	"CPanelPowerSaving",
 }
 
 -- real UI management unit
@@ -60,11 +62,14 @@ def.static("=>", CUIMan).new = function()
 end
 
 def.method().Init = function(self)
-    CPate.Setup()
     self:GetAllOriginalPos()
     self._UIManCore:Init()
 
     --GameObject.Find("UIRootCanvas/")
+end
+
+def.method().InitTopPate = function(self)
+    CPate.Setup()
 end
 
 -- 单个节点下的Pate数量限制，过多效率有问题
@@ -162,7 +167,7 @@ def.method("table").CloseAll = function(self, except)
     if not IsNil(UIHead) and UIHead:IsShow() then
         UIHead:HideProgressBoard(false, true)
     end
-
+    MsgBox.CloseAll()
     self._UIManCore:CloseAll(except)
 end
 
@@ -174,6 +179,7 @@ end
 def.method().CloseSubPanelLayer = function(self)
 	--local CExteriorMan = require "Main.CExteriorMan"
 	--CExteriorMan.Instance():Quit()
+    MsgBox.CloseAll()
     self._UIManCore:CloseByLayer(self._UIManCore._UISetting.Sorting_Layer.SubPanel)
 end
 
@@ -340,56 +346,41 @@ end
 
 ]]
 
-def.method("string", "string", "string").ShowIconAndTextTip = function(self, icon_path, prefix_msg, suffix_msg)
-    local param =
-    {
-        use_up_obj = true,
-        content = prefix_msg,
-        icon = icon_path,
-        param = suffix_msg,
-    }
-    self:Open("CPanelMainTips", param)
-end
+--def.method("string", "string", "string").ShowIconAndTextTip = function(self, icon_path, prefix_msg, suffix_msg)
+--    local param =
+--    {
+--        use_up_obj = true,
+--        content = prefix_msg,
+--        icon = icon_path,
+--        param = suffix_msg,
+--    }
+--    self:Open("CPanelMainTipsLow", param)
+--end
 
-def.method("number").ShowGetCoinTip = function(self, count)
-    local iconPath = PATH.ICON_GOLD
-    local prefixMsg = StringTable.Get(7)
-    local suffixMsg = "X " .. tostring(count)
-    self:ShowIconAndTextTip(iconPath, prefixMsg, suffixMsg)
-end
+--def.method("number").ShowGetCoinTip = function(self, count)
+--    local iconPath = PATH.ICON_GOLD
+--    local prefixMsg = StringTable.Get(7)
+--    local suffixMsg = "X " .. tostring(count)
+--    self:ShowIconAndTextTip(iconPath, prefixMsg, suffixMsg)
+--end
 
-def.method("number", "boolean").ShowGetDiamondTip = function(self, count, is_bind)
-    local iconPath = PATH.ICON_DIAMOND
-    if is_bind then iconPath = PATH.ICON_BINDIAMOND end
-    local prefixMsg = StringTable.Get(7)
-    local suffixMsg = "X " .. tostring(count)
-    self:ShowIconAndTextTip(iconPath, prefixMsg, suffixMsg)
-end
+--def.method("number", "boolean").ShowGetDiamondTip = function(self, count, is_bind)
+--    local iconPath = PATH.ICON_DIAMOND
+--    if is_bind then iconPath = PATH.ICON_BINDIAMOND end
+--    local prefixMsg = StringTable.Get(7)
+--    local suffixMsg = "X " .. tostring(count)
+--    self:ShowIconAndTextTip(iconPath, prefixMsg, suffixMsg)
+--end
 
-def.method("number").ShowGetItemTip = function(self, tid)
-    local itemTemp = CElementData.GetTemplate("Item", tid)
-    if itemTemp == nil then return end
+--def.method("number").ShowGetItemTip = function(self, tid)
+--    local itemTemp = CElementData.GetTemplate("Item", tid)
+--    if itemTemp == nil then return end
 
-    local iconPath = _G.CommonAtlasDir .. "Icon/" .. itemTemp.IconAtlasPath .. ".png"
-    local prefixMsg = StringTable.Get(7)
-    local suffixMsg = itemTemp.TextDisplayName
-    self:ShowIconAndTextTip(iconPath, prefixMsg, suffixMsg)
-end
-
---副本中的消息提示
---stg_type = EnumDef.BattleStgType
-def.method("number","string","number").PopSkillTip = function(self, stg_type, content, dur)
-	--warn("PopSkillTip "..stg_type..", "..content..", "..dur)
-
-    local panel_script = require("GUI.CPanelMainTips").Instance()
-	local PopSkillTipsType = require "PB.Template".ExecutionUnit.ExecutionUnitEvent.EventPopSkillTips.PopSkillTipsType
-	if stg_type == PopSkillTipsType.SKILL  then
-		panel_script:PopSkillTip(content, dur)
-	else
-		self:ShowAttentionTips(content, -1, dur)
-	end
-
-end
+--    local iconPath = _G.CommonAtlasDir .. "Icon/" .. itemTemp.IconAtlasPath .. ".png"
+--    local prefixMsg = StringTable.Get(7)
+--    local suffixMsg = itemTemp.TextDisplayName
+--    self:ShowIconAndTextTip(iconPath, prefixMsg, suffixMsg)
+--end
 
 -- 错误码提示字
 def.method("number", "dynamic").ShowErrorCodeMsg = function(self, errId, params)
@@ -450,6 +441,10 @@ def.method("number", "dynamic").ShowErrorCodeMsg = function(self, errId, params)
         end
         CPanelMainTips.Instance():ShowGuildBFTwerTip(isRed, message)
         CSoundMan.Instance():Play2DAudio(PATH.GUISound_GuildBFTowerDestroy, 0)
+
+    elseif curType == ESystemNotifyDisplayType.GuildDefend then
+        local CPanelMainTips = require "GUI.CPanelMainTips"
+        CPanelMainTips.Instance():ShowFrameGuildDungeonTip(message)
     else
         -- 默认为 消息框
         local title = StringTable.Get(8)
@@ -535,8 +530,22 @@ end
 
 -- 警戒提示
 def.method("string", "number","number").ShowAttentionTips = function(self, strTips, nType, nTime)
-    local CPanelMainTips = require "GUI.CPanelMainTips"
-    CPanelMainTips.Instance():ShowAttention(strTips, nType, nTime)
+    local CPanelMainTipsLow = require "GUI.CPanelMainTipsLow"
+    CPanelMainTipsLow.Instance():ShowAttention(strTips, nType, nTime)
+end
+
+--副本中的消息提示
+--stg_type = EnumDef.BattleStgType
+def.method("number","string","number").PopSkillTip = function(self, stg_type, content, dur)
+	--warn("PopSkillTip "..stg_type..", "..content..", "..dur)
+
+    local panel_script = require("GUI.CPanelMainTipsLow").Instance()
+	local PopSkillTipsType = require "PB.Template".ExecutionUnit.ExecutionUnitEvent.EventPopSkillTips.PopSkillTipsType
+	if stg_type == PopSkillTipsType.SKILL  then
+		panel_script:PopSkillTip(content, dur)
+	else
+		self:ShowAttentionTips(content, -1, dur)
+	end
 end
 
 --成就解锁提示 名称，分类。第几个
@@ -630,6 +639,9 @@ def.method("boolean", "number", "string", "dynamic").SetNormalUIMoveToHide = fun
                         bar:SetActive(false)
                     end
                 end
+                if isHide and k == "CPanelTracker" or k == "CPanelMainChat" then
+                    game._CGuideMan:IsShowGuide(false,panelClass._Panel.name)
+                end
             end
         end
     else
@@ -642,7 +654,13 @@ def.method("boolean", "number", "string", "dynamic").SetNormalUIMoveToHide = fun
                 local movePos = v.Pos
                 if v.Pos ~= nil then
                     movePos = Vector3.New(v.Pos.x, v.Pos.y, v.Pos.z)
-                    GUITools.DoLocalMove(panelClass._Panel, movePos, time, nil, nil)
+                    local function TweenComplete()
+                        if not isHide then
+                            game._CGuideMan:IsShowGuide(true,"Panel_Main_QuestN(Clone)")
+                            game._CGuideMan:IsShowGuide(true,"UI_Main_Chat(Clone)")
+                        end
+                    end
+                    GUITools.DoLocalMove(panelClass._Panel, movePos, time, nil, TweenComplete)
                 end
             end
         end
@@ -652,7 +670,7 @@ end
 -- 新版隐藏常驻UI(DOTweenAnimation)
 def.method("boolean", "function").SetMainUIMoveToHide = function (self, isHide, callback)
     if isHide == self._UIIsHideNew then
-        warn("As required, MainUI hide status has been " .. tostring(isHide), debug.traceback())
+        warn("As required, MainUI hide status has been ", isHide)
         return
     end
     self._UIIsHideNew = isHide
@@ -682,6 +700,9 @@ def.method("boolean", "function").SetMainUIMoveToHide = function (self, isHide, 
                         panelClass:OnPKFight(false)
                     end
                 end
+                if isHide and k == "CPanelTracker" or k == "CPanelMainChat" then
+                    game._CGuideMan:IsShowGuide(false,panelClass._Panel.name)
+                end
             end
         end
     end
@@ -693,7 +714,16 @@ def.method("boolean", "function").SetMainUIMoveToHide = function (self, isHide, 
         end
     else
         GameUtil.EnableBlockCanvas(true) -- 阻挡点击
-        self._OnTweenCompleteCallback = callback
+        local function TweenComplete()
+            if callback ~= nil then 
+                callback()
+            end
+            if not isHide then
+                game._CGuideMan:IsShowGuide(true,"Panel_Main_QuestN(Clone)")
+                game._CGuideMan:IsShowGuide(true,"UI_Main_Chat(Clone)")
+            end
+        end
+        self._OnTweenCompleteCallback = TweenComplete
     end
     local ShowMainUIEvent = require "Events.ShowMainUIEvent"
 	local event = ShowMainUIEvent()
@@ -762,8 +792,13 @@ def.method("number").OpenPanelByFuncId = function(self, funcId)
         self:Open("CPanelUIManual", {_type = 2})
     elseif funcId == FuncType.Guild then
         -- "工会
+        --跨服判断
+        if game._HostPlayer:IsInGlobalZone() then
+            self:ShowTipText(StringTable.Get(15556), false)
+            return
+        end
         if game._GuildMan:IsHostInGuild() then 
-            self:Open("CPanelUIGuild", _G.GuildPage.Building)
+            self:Open("CPanelUIGuild", _G.GuildPage.Info)
         else
             game._GuildMan:SendC2SGuildList()
         end
@@ -819,6 +854,8 @@ def.method("number").OpenPanelByFuncId = function(self, funcId)
         self:Open("CPanelUIWing", nil)
     elseif funcId == FuncType.Activity then
         self:Open("CPanelUIActivity", nil)
+    elseif funcId == FuncType.Power then
+        game._CPowerSavingMan:BeginSleeping()
     else
         warn("没有设置的功能界面，请检查ID:", funcId)
     end

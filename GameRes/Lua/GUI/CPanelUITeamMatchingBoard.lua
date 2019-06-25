@@ -75,6 +75,7 @@ def.override().OnCreate = function(self)
 end
 
 def.override("dynamic").OnData = function (self,data)
+    self._HelpUrlType = HelpPageUrlType.TeamMatchingBoard
     -- 初始化房间数据状态
     self._RoomDataList = self._TeamMan:GetAllTeamDungeOnRoomData()
     if #self._RoomDataList == 0 then
@@ -217,10 +218,19 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
         img_big_sign:SetActive(is_showBig)
         Img_Select:SetActive(self._RightSelectIndex == idx)
         Img_UnableClick:SetActive( not current_smallData.Open )
+        local name = current_smallData.Data.ChannelTwoName
+        local limitedLv = current_smallData.Data.DisplayLevel
+        local Lab_Lv = item:FindChild("Lab_Lv")
+        Lab_Lv:SetActive(limitedLv>0)
+        if limitedLv > 0 then
+            local str = string.format(StringTable.Get(10714), limitedLv)
+            GUI.SetText(Lab_Lv, str)
+        end
+        
         if dungenonData and dungenonData.RemainderTime <= 0 then
-            GUI.SetText(Lab_TargetName, string.format(StringTable.Get(10634), current_smallData.Data.ChannelTwoName))
+            GUI.SetText(Lab_TargetName, string.format(StringTable.Get(10634), name))
         else
-            GUI.SetText(Lab_TargetName, current_smallData.Data.ChannelTwoName)
+            GUI.SetText(Lab_TargetName, name)
         end
 
         if self._RightSelectIndex == idx then
@@ -242,7 +252,7 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
         local btn_enter = uiTemplate:GetControl(4)
         if dungeon_temp then
             GUI.SetText(lab_name, dungeon_temp.TextDisplayName)
-            lab_ai:SetActive(dungeon_temp.AssistType ~= EAssistType.NotSupport)
+            lab_ai:SetActive(dungeon_temp.IsMatchEndAddAssist)
             if is_in_team then
                 btn_cancle:SetActive(is_leader)
                 btn_enter:SetActive(is_leader)
@@ -319,6 +329,7 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
 end
 
 def.override("string").OnClick = function(self,id)
+	CPanelBase.OnClick(self,id)
     if id == "Btn_Back" then
         game._GUIMan:CloseByScript(self)
     elseif id == "Btn_CancelAll" then
@@ -373,7 +384,7 @@ def.method().OnClick_JoinMatch = function(self)
         if remainderCount > 0 then
             CPVEAutoMatch.Instance():SendC2SMatching(self._SettingData.TargetId)
         else
-            game:BuyCountGroup(remainderCount ,dungeonTemplate.CountGroupTid)
+            game._CCountGroupMan:BuyCountGroup(remainderCount ,dungeonTemplate.CountGroupTid)
         end
     end
 end

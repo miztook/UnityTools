@@ -49,11 +49,11 @@ end
 def.override().OnCreate = function(self)
 	self:OnInitObject()
 	self:OnInit()
-	self._HelpUrlType = HelpPageUrlType.Guild_Defend
 end
 
 -- 当数据
 def.override("dynamic").OnData = function(self, data)
+	self._HelpUrlType = HelpPageUrlType.Guild_Defend
 	GUI.SetText(self._Lab_Number0, string.format(StringTable.Get(8085), data.CurRound))
 	local guildDefend = CElementData.GetTemplate("GuildDefend", data.CurRound)
 	local rewardList = GUITools.GetRewardList(guildDefend.RewardId, false)

@@ -95,59 +95,6 @@ def.override("table").Init = function(self, roleInfo)
 	self:InitAnimationTable(roleInfo.CreatureInfo.Animations)
 end
 
---[[ ---------------强化格子信息   Begin---------------]]
--- def.virtual("table").InitEquipCellInfo = function(self, equipCellInfoListDB)
--- 	if equipCellInfoListDB == nil then return end
-
--- 	--客户端先行处理，没有初始化格子问题
--- 	if #equipCellInfoListDB == 0 then
--- 		equipCellInfoListDB = {}
--- 		for i=1,8 do
--- 			table.insert(equipCellInfoListDB, {InforceLevel = 0, SurmountLevel = 0})
--- 		end
--- 	end
-
--- 	for i,infoDB in ipairs(equipCellInfoListDB) do
--- 		local data = self:CreateEquipCell( infoDB )
--- 		self._EquipCellInfo[#self._EquipCellInfo + 1] = data
--- 	end
--- end
-
--- def.method("table", "=>", "table").CreateEquipCell = function(self, equipCellInfoDB)
--- 	local data = CEquipCell.new()
--- 	if equipCellInfoDB ~= nil then
--- 		data._InforceLevel = equipCellInfoDB.InforceLevel
--- 		data._SurmountLevel = equipCellInfoDB.SurmountLevel
--- 	end 
--- 	return data
--- end
-
--- def.method("=>", "table").GetEquipCellInfo = function(self)
--- 	return self._EquipCellInfo
--- end
-
--- --获取部位的强化格子信息
--- def.method("number", "=>", "table").GetEquipCellInfoBySlot = function(self, equipSlot)
--- 	local equipCellList = self:GetEquipCellInfo()
-
--- 	return equipCellList[equipSlot]
--- end
-
--- --更新格子信息
--- def.method("table").UpdateEquipCellInfo = function(self, equipCellInfoDB)
--- 	local equipCellList = self:GetEquipCellInfo()
-
--- 	if equipCellList[equipCellInfoDB.Index + 1] == nil then
--- 		local data = self:CreateEquipCell(equipCellInfoDB)
--- 		equipCellList[equipCellInfoDB.Index + 1] = data
--- 	else
--- 		local data = equipCellList[equipCellInfoDB.Index + 1]
--- 		data._InforceLevel = equipCellInfoDB.InforceLevel
--- 		data._SurmountLevel = equipCellInfoDB.SurmountLevel
--- 	end
--- end
---[[ ---------------强化格子信息   End---------------]]
-
 -- 是否在服务器战斗状态
 def.override("=>", "boolean").IsInServerCombatState = function(self)
 	return (self._IgnoreClientStateChange and self._IsInCombatState)
@@ -199,19 +146,19 @@ end
 def.method("number", "=>", "string").GetChangePoseData = function(self, ani_type)
 	local ret = ""
 	if ani_type ==  EnumDef.PostureType.StandAction then		
-		if self._ChangePoseDate[1] and self._ChangePoseDate[1] ~= "" then
+		if not IsNilOrEmptyString(self._ChangePoseDate[1]) then
 			ret = self._ChangePoseDate[1]
 		end
 	elseif ani_type ==  EnumDef.PostureType.FightStandAction then
-		if self._ChangePoseDate[2] and self._ChangePoseDate[2] ~= "" then
+		if not IsNilOrEmptyString(self._ChangePoseDate[2]) then
 			ret = self._ChangePoseDate[2]
 		end
 	elseif ani_type ==  EnumDef.PostureType.MoveAction then
-		if self._ChangePoseDate[3] and self._ChangePoseDate[3] ~= "" then
+		if not IsNilOrEmptyString(self._ChangePoseDate[3]) then
 			ret = self._ChangePoseDate[3]
 		end
 	elseif ani_type ==  EnumDef.PostureType.FightMoveAction then
-		if self._ChangePoseDate[4] and self._ChangePoseDate[4] ~= "" then
+		if not IsNilOrEmptyString(self._ChangePoseDate[4]) then
 			ret = self._ChangePoseDate[4]
 		end
 	else 
@@ -364,6 +311,7 @@ def.override("number", "boolean").Ride = function (self, tid, isPlayBornAnim)
 					self._MountModel._GameObject:SetActive(true)
 
 					self:OnLoadMount(self._MountModel)
+					self:SetWingVisiState(not horseData.IsHideWing)
 					self:UpdateMountState()  		--更新状态
 					if isPlayBornAnim then
 						self:StartMountBorn()
@@ -373,8 +321,6 @@ def.override("number", "boolean").Ride = function (self, tid, isPlayBornAnim)
 					if not self:IsOnRide() then
 						cleanup_player_mount_status(self)
 						remove_mount_born_ani_timer(self)
-					else
-						self:SetWingVisiState(not horseData.IsHideWing)
 					end
 				end				
 			end)
@@ -1140,6 +1086,8 @@ def.override("table", "function").ChangeAllPartShape = function(self, part_shape
 	updateParam._Is2ShowDress = false
 	updateParam._DressColors = {}
 	updateParam._SkinColorId = 0
+	updateParam._IsChangeHeadwear = true
+	updateParam._HeadwearAssetPath = "" -- 卸下头饰
 
 	updateParam._ArmorAssetPath = armorAssetPath
 	updateParam._WeaponAssetPathL, updateParam._WeaponAssetPathR = weaponAssetPathL, weaponAssetPathR
@@ -1212,7 +1160,6 @@ def.override("function").ResetPartShape = function(self, callback)
 			param._WeaponAssetPathL, param._WeaponAssetPathR = "", ""
 		end
 
-
 		self:UpdateOutward(param, function ()
 			self:SetCurWeaponInfo()
 			GameUtil.SetLayerRecursively(self:GetOriModel():GetGameObject(), self:GetRenderLayer())
@@ -1278,11 +1225,14 @@ end
 
 -- 设置当前武器信息
 def.method().SetCurWeaponInfo = function (self)
+	if self._Model == nil then return end
+
 	local weaponLModel = self._Model:GetAttach("WeaponL")
 	local weaponRModel = self._Model:GetAttach("WeaponR")
+	local is_in_hand = self:IsInCombatState() or self:IsDead() -- 武器是否在手中
 	self._CurWeaponInfo[1] = weaponLModel ~= nil
 	self._CurWeaponInfo[2] = weaponRModel ~= nil
-	self._CurWeaponInfo[3] = self:IsInCombatState() or self:IsDead() -- 武器是否在手中
+	self._CurWeaponInfo[3] = is_in_hand
 	if weaponLModel == nil then
 		self._CurWeaponInfo[4] = nil
 	else
@@ -1293,16 +1243,15 @@ def.method().SetCurWeaponInfo = function (self)
 	else
 		self._CurWeaponInfo[5] = weaponRModel:GetGameObject()
 	end
-	-- 设置大小
-	local scale = weapon_scale_on_back
-	if self._CurWeaponInfo[3] then
-		scale = weapon_scale_in_hand
+	-- 设置GameObject
+	-- 加载结束后武器是否在手可能不是实时的（例如加载过程中进战），必须更新武器挂点
+	local scale = is_in_hand and weapon_scale_in_hand or weapon_scale_on_back
+	local hangPointL, hangPointR = GetWeaponHangPoint(is_in_hand)
+	if weaponLModel ~= nil then
+		self._Model:ChangeAttach("WeaponL", "WeaponL", hangPointL, Vector3.zero, Quaternion.identity, scale)
 	end
-	if not IsNil(self._CurWeaponInfo[4]) then
-		self._CurWeaponInfo[4].localScale = scale
-	end
-	if not IsNil(self._CurWeaponInfo[5]) then
-		self._CurWeaponInfo[5].localScale = scale
+	if weaponRModel ~= nil then
+		self._Model:ChangeAttach("WeaponR", "WeaponR", hangPointR, Vector3.zero, Quaternion.identity, scale)
 	end
 end
 
@@ -1402,7 +1351,7 @@ def.override().UpdateWingAnimation = function (self)
 	if self._WingModel == nil then return end
 
 	local aniName = ""
-	if self:IsOnRide() then
+	if self:IsClientMounting() then
 		aniName = EnumDef.CLIP.WING_COMMON_STAND -- 翅膀通用站立动作
 	else
 		local curState = self:GetCurStateType()
@@ -1503,24 +1452,31 @@ def.method().RemoveCombatClearTimer = function (self)
 	end
 end
 
-def.method().EnterClientCombatState = function(self)
+def.method("boolean").EnterClientCombatState = function(self, ignoreLerp)
 	-- 服务器战斗状态有效，忽略客户端状态
 	if self._IgnoreClientStateChange then return end
 
 	self:CheckMountState()
 	self:RemoveCombatClearTimer()
 
-	-- 空放技能进战，武器顺切至手上
-    -- 如果当前处于非战斗状态，武器顺切至手上
-    -- 如果当前处于战斗状态，拔剑过程中，需要顺切至手上
-	if self._CombatStateChangeComp ~= nil then
-    	self._CombatStateChangeComp:ChangeState(true, true, 0, 0)
-    end
-
     local old_state = self._IsInCombatState
     self._IsInCombatState = true
 
 	if not old_state then
+		if self._CombatStateChangeComp ~= nil then
+			if ignoreLerp then
+				-- 空放技能进战，武器顺切至手上
+				-- 如果当前处于非战斗状态，武器顺切至手上
+				-- 如果当前处于战斗状态，拔剑过程中，需要顺切至手上
+				self._CombatStateChangeComp:ChangeState(true, true, 0, 0)
+			else
+				local prof = self._InfoData._Prof
+				local weapon_pos_change_time = WeaponChangeCfg[prof][4]
+				local weapon_scale_change_time = WeaponChangeCfg[prof][1]
+				self._CombatStateChangeComp:ChangeState(false, true, weapon_scale_change_time, weapon_pos_change_time)
+				CSoundMan.Instance():Play3DAudio(WeaponChangeSoundCfg[prof][2], self:GetPos(), 0)
+			end
+		end
 		self:UpdateWingAnimation()
 		if not self:IsInExterior() then
 			self:PlayCurDressFightFx(EnumDef.PlayerDressPart.Weapon)
@@ -1640,11 +1596,11 @@ def.override("boolean", "boolean", "number", "boolean", "boolean").UpdateCombatS
 	if is_client_state then
         if is_in_combat_state then 
         	-- 空放技能进战，无拔剑顺切
-        	self:EnterClientCombatState()
+        	self:EnterClientCombatState(ignoreLerp)
         else
         	if not delay then
 	        	-- 普通技能完后，播放休闲技能/通用技能，无收剑 顺切
-	        	self:LeaveClientCombatState(true)
+	        	self:LeaveClientCombatState(ignoreLerp)
 	        else
 	        	self:DelayLeaveClientCombatState()
 	        end
@@ -1673,6 +1629,7 @@ end
 -- 播放时装进战/脱战特效
 def.method(CDress).PlayDressFightFx = function(self, dressInfo)
 	if dressInfo == nil then return end
+	if dressInfo._DressSlot ~= EDressType.Weapon then return end
 
 	if self._FightFx ~= nil then
 		self._FightFx:Stop()
@@ -1687,9 +1644,6 @@ def.method(CDress).PlayDressFightFx = function(self, dressInfo)
 	end
 
 	self._FightFx = fightFx
-end
-
-def.virtual().BeginIdleState = function(self)
 end
 
 -- 进入已经死亡的状态
@@ -1904,13 +1858,14 @@ def.virtual().UpdateTopPateGuildName= function(self)
 end
 
 def.virtual().UpdateTopPateGuildConvoy = function(self)
-	if self._TopPate == nil then return end
-	self._TopPate:OnGuildConvoyChange(self._InfoData._GuildConvoyFlag)
-	if self._InfoData._GuildConvoyFlag < 2 then
-		self._TopPate:SetPKIconIsShow(self:GetPkMode() == EPkMode.EPkMode_Massacre)
-	end
+--	if self._TopPate == nil then return end
+--	self._TopPate:OnGuildConvoyChange(self._InfoData._GuildConvoyFlag)
+--	if self._InfoData._GuildConvoyFlag < 2 then
+--		self._TopPate:SetPKIconIsShow(self:GetPkMode() == EPkMode.EPkMode_Massacre)
+--	end
 end
 
+--This will update PK icon either, dont call UpdateTopPatePKIcon afterward.
 def.virtual().UpdateTopPateRescue= function(self)
 	if self._TopPate == nil then return end
 
@@ -1922,13 +1877,14 @@ def.virtual().UpdateTopPateRescue= function(self)
     self._TopPate:OnLogoChange(curLogoType)
 end
 
-def.virtual().UpdateTopPateHpLine= function(self)
-	if self._TopPate == nil then return end
+def.virtual().UpdateTopPateHpLine = function(self)
+	--if self._TopPate == nil then return end
 end
 
 def.virtual().UpdateTopPatePKIcon= function(self)
 	if self._TopPate == nil then return end
-	self._TopPate:SetPKIconIsShow( self:GetPkMode() == EPkMode.EPkMode_Massacre )
+	--self._TopPate:SetPKIconIsShow( self:GetPkMode() == EPkMode.EPkMode_Massacre )
+	self._TopPate:SetPKIconIsShow()
 end
 
 --是否敌对
@@ -1950,16 +1906,19 @@ def.override().OnPateCreate = function(self)
 	CEntity.OnPateCreate(self)
 	if self._TopPate == nil then return end
 
+	self._TopPate:MarkAsValid(true)
 	self._TopPate:SetHPLineIsShow(true,EnumDef.HPColorType.Green)
 	if self._Guild ~= nil and self:IsInGuild() then
 		self._TopPate:OnGuildNameChange(true,self._Guild)
 	end
+	self._TopPate:UpdateName(true)
+
 	self:UpdateTopPateTitleName()
 	self:UpdateTopPateGuildName()
 	self:UpdateTopPateGuildConvoy()
 	self:UpdateTopPateRescue()
 	self:UpdateTopPateHpLine()
-	self:UpdateTopPatePKIcon()
+	--self:UpdateTopPatePKIcon()
 	self:UpdatePetName()
 end
 
@@ -1967,10 +1926,11 @@ def.override().CreatePate = function (self)
 	local CPlayerTopPate = require "GUI.CPate".CPlayerTopPate
 	local pate = CPlayerTopPate.new()
 	self._TopPate = pate
-	local callback = function()
-		self:OnPateCreate()
-	end
-	pate:Create(self, callback)
+	--local callback = function()
+	--	self:OnPateCreate()
+	--end
+	pate:Init(self, nil, true)
+	self:OnPateCreate()
 end
 
 def.override("number").UpdateTopPate = function (self, updateType)
@@ -2101,7 +2061,7 @@ def.override("=>","number","number").GetBaseSpeedAndFightSpeed = function(self)
 		local monsterTid = self._TransformID
 		local monsterData = CElementData.GetMonsterTemplate(monsterTid)
 		if monsterData == nil then 
-			return
+			return 0,0
 		end
 		baseSpeed = monsterData.MoveSpeed 
 		fightSpeed = monsterData.FightMoveSpeed
@@ -2123,12 +2083,19 @@ def.override("string", "number", "boolean", "number","number").PlayMountAnimatio
     local model = self._MountModel
     if model ~= nil then
         model:PlayAnimation(aniname, fade_time, is_queued, life_time, aniSpeed)
+    else
+    	warn("PlayMountAnimation when MountModel is nil", aniname, self._ID)
     end
 end
 
 --是否是骑乘状态(表现)
 def.override("=>", "boolean").IsOnRide = function (self)
     return self._MountTid > 0
+end
+
+--客户端是否正在马上(表现)
+def.override("=>", "boolean").IsClientMounting = function (self)
+	return self._MountTid > 0 and self._MountModel ~= nil
 end
 
 --获得坐骑TID
@@ -2160,7 +2127,8 @@ def.override("number", "=>", "string", "string", "number").GetEntityFsmAnimation
     local rate = 1
     if fsm_type == FSM_STATE_TYPE.IDLE then 
 		if not self:IsMagicControled() then -- 被魔法控制下不更新站立动作
-			if self:IsInCombatState() then
+			local inCombat = self:IsInCombatState()
+			if inCombat then
 				animation = EnumDef.CLIP.BATTLE_STAND
 			else
 				animation = EnumDef.CLIP.COMMON_STAND
@@ -2168,7 +2136,7 @@ def.override("number", "=>", "string", "string", "number").GetEntityFsmAnimation
 
 			if self:GetChangePoseState() then
 				local data = nil
-				if self:IsInCombatState() then
+				if inCombat then
 					data = self:GetChangePoseData(EnumDef.PostureType.FightStandAction)
 				else
 					data = self:GetChangePoseData(EnumDef.PostureType.StandAction)
@@ -2180,8 +2148,9 @@ def.override("number", "=>", "string", "string", "number").GetEntityFsmAnimation
 			end
 		end
     elseif fsm_type == FSM_STATE_TYPE.MOVE then
-    	local baseSpeed,fightSpeed = self:GetBaseSpeedAndFightSpeed()     
-        if self:IsInCombatState() then                   
+    	local baseSpeed,fightSpeed = self:GetBaseSpeedAndFightSpeed()   
+    	local inCombat = self:IsInCombatState()  
+        if inCombat then                   
             animation, rate = self:CheckRunBattleAnimation(fightSpeed)   
         else
             animation, rate = self:CheckRunAnimation(baseSpeed,fightSpeed)            
@@ -2189,7 +2158,7 @@ def.override("number", "=>", "string", "string", "number").GetEntityFsmAnimation
 
         if self:GetChangePoseState() then  
     		local data = nil            
-            if self:IsInCombatState() then
+            if inCombat then
                 data = self:GetChangePoseData(EnumDef.PostureType.FightMoveAction)
             else
                 data = self:GetChangePoseData(EnumDef.PostureType.MoveAction)
@@ -2250,9 +2219,9 @@ def.virtual("number").SetTeamId = function(self, teamId)
 end
 
 def.override("boolean").EnableShadow = function(self, on)
+	self._IsEnableShadow = on
 	if not self._IsReady then return end
-    self._IsEnableShadow = on
-
+    
 	local realtime = GameUtil.GetShadowLevel() > 0
     if not realtime then
     	CEntity.DoEnableShadow(self, on)
@@ -2268,6 +2237,8 @@ def.override().OnResurrect = function(self)
 	self:Stand()
 	self:SetWingVisiState(true)
 
+	self:EnableShadow(self._IsEnableShadow)     --刷新
+	
 	if self._ResurrectFx ~= nil then
 		self._ResurrectFx:Stop()
 	end

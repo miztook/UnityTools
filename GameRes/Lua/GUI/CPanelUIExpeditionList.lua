@@ -40,7 +40,6 @@ def.override().OnCreate = function(self)
 	self._ListShowCell = self:GetUIObject("List_MenuType"):GetComponent(GUnlimitedType)
 	self._ObjTime = self:GetUIObject("ResetTimeObj")
 	self._LabTime = self:GetUIObject("Lab_ResetTime")
-	self._HelpUrlType = HelpPageUrlType.Expedition
 end
 
 def.override("dynamic").OnData = function(self, data)

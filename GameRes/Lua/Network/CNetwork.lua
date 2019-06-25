@@ -187,6 +187,9 @@ local function SpecialProcess(id, msg)
 			--entity:Move(dstPos, 0, nil, nil)
 			entity:SetPos(dstPos)
 			--warn(Time.frameCount, msg.EntityId, msg.MoveType)
+
+			entity:StopMovementLogic()
+        	entity:StopNaviCal()
 		end
 	end
 end
@@ -195,22 +198,31 @@ local fOnReceiveProtocolData = PBHelper.OnReceiveProtocolData
 local fParseProtocol = PBHelper.ParseProtocol
 
 local function SimpleProcess(id, buffer)
-	if not IsSpecialProtocol(id) then return false end
 
-	local msg = fParseProtocol(id, buffer)
+	--[[
+	if false then --id == 10531 and _G.IsFullScreenCGPlaying then 
+		local msg = fParseProtocol(id, buffer)
+		local entity = game._CurWorld:FindObject(msg.EntityId) 
+		if entity == nil then return true end
 
-	local entity = game._CurWorld:FindObject(msg.EntityId) 
-	if entity == nil then return true end
-
-	if id == 10531 then 
 		local curStepDestPos = Vector3.New(msg.CurrentPosition.x, msg.CurrentPosition.y, msg.CurrentPosition.z)
 		local finalDstPos = Vector3.New(msg.DstPosition.x, msg.DstPosition.y, msg.DstPosition.z)
 		entity:OnMove_Simple(curStepDestPos, nil, msg.MoveType, nil, msg.MoveSpeed, msg.IsDestPosition, finalDstPos)
 		return true
-	elseif id == 10533 then
+	else
+	]]
+	if id == 10533 then
+		local msg = fParseProtocol(id, buffer)
+		local entity = game._CurWorld:FindObject(msg.EntityId) 
+		if entity == nil then return true end
+
 		entity:UpdateFightProperty_Simple(msg.CreatureAttrs, msg.IsNotifyFightScore)
 		return true
 	elseif id == 10522 then
+		local msg = fParseProtocol(id, buffer)
+		local entity = game._CurWorld:FindObject(msg.EntityId) 
+		if entity == nil then return true end
+
 		local attacker = game._CurWorld:FindObject(msg.OriginId)
 		if not entity:IsHostPlayer() and (attacker == nil or not attacker:IsHostPlayer()) then
 			local controlledInfo = msg.ControlledInfo
@@ -248,23 +260,17 @@ def.method("number", "string", "boolean", "boolean").ProcessProtocol = function(
 	end
 end
 
+def.method("number", "table", "table", "number", "table", "number",  "number", "table", "boolean").ProcessMoveProtocol1 = function(self, entityId, curPos, curOri, moveType, moveDir, moveSpeed, interval, dstPos, isDstPos)
+	
+end
+
+def.method("number", "string", "boolean", "boolean").ProcessMoveProtocol2 = function(self, id, buffer, isSpecial, isSimple)
+	local msg = fParseProtocol(id, buffer)
+end
+
 def.method("boolean").SetProtocolPaused = function(self, isPaused)
 	self._Paused = isPaused
 	self._GameSession.IsProcessingPaused = isPaused
-end
-
-def.method("=>", "number").GetCurZoneId = function (self)
-	local zoneId = 0
-	local serverList = GameUtil.GetServerList(false)
-	if serverList ~= nil then
-		for _, info in ipairs(serverList) do
-			if info.ip == self._IP and info.port == self._Port and info.name == self._ServerName then
-				zoneId = info.zoneId
-				break
-			end
-		end
-	end
-	return zoneId
 end
 
 def.method().Close = function (self)

@@ -36,9 +36,10 @@ def.field("number")._SkillScore = 0					--技能提供的战斗力
 def.field("number")._InsteadSkillIndex = 0			--技能学习被替换的Index
 def.field("table")._Template = BlankTable			--模板数据
 def.field("table")._AptitudeMaxList = BlankTable	--资质最大值 按品阶划分
-
-
-
+def.field("table")._AptitudeMaxIncrease = BlankTable--资质星级上限提升数据
+def.field("table")._AptitudeIncrease = BlankTable	--资质每星级上限提升数据
+def.field("number")._LastTakedownIndex = 0			--上次被拆除的位置，播放特效用
+def.field("table")._AdditionRecyclingList = BlankTable  	--回收返还的东西 加成 按星级取值
 
 def.static("=>", CPetClass).new = function ()
 	local obj = CPetClass()
@@ -55,13 +56,51 @@ def.method("table").Init = function(self, petDB)
 	self._ID = petDB.petId
 	self._Tid = petDB.tId
 	self._Name = template.Name
+	self._Template = template
 
 	self._Genus = template.Genus
 	self._IconPath = template.IconPath
 	self._Quality = template.Quality
 	self._PetStroy = template.Stroy
 	self._RecyclingPetDebris = template.RecyclingPetDebris
-	self._Template = template
+	self._AdditionRecyclingList = {}
+
+	local infoList = string.split(template.StarAdditionRecyclingPetDebris, "*")
+	for i=1, #infoList do
+		table.insert(self._AdditionRecyclingList, tonumber(infoList[i]))
+	end
+
+	do
+		self._AptitudeMaxIncrease = {}
+		local str = self._Template.StarUpAptitudeMaxIncrease
+		local ids = string.split(str, "*")
+
+		for i,v in ipairs(ids) do
+			local inc = tonumber(v)
+			table.insert(self._AptitudeMaxIncrease, inc)
+		end
+	end
+
+	do
+		self._AptitudeIncrease = {}
+		local str = self._Template.StarUpAptitudeIncrease
+		local ids = string.split(str, "*")
+
+		for i,v in ipairs(ids) do
+			local inc = tonumber(v)
+			table.insert(self._AptitudeIncrease, inc)
+		end
+	end
+
+	do
+		-- 初始化资质最大值
+		self._AptitudeMaxList = {}
+
+		local infoList = string.split(self._Template.AptitudeMax, "*")
+		for i,v in ipairs(infoList) do
+			table.insert(self._AptitudeMaxList, tonumber(v))
+		end
+	end
 
 	do
 	--模型 关联怪物信息
@@ -113,8 +152,7 @@ def.method("table").UpdateAll = function(self, petDB)
 	self._FightScore = petDB.fightScore --self:CalcFightScore()
 	self._PropertyScore = petDB.fightScoreBaseProperties
 	self._SkillScore = petDB.fightScoreSkill
-	-- 初始化资质最大值
-	self:InitAptitudeMax()
+
 --[[
 	warn("【宠物】名称: ", self._Name)
 	warn("【宠物】昵称: ", self._NickName)
@@ -141,15 +179,6 @@ def.method("table").UpdateAll = function(self, petDB)
 ]]
 end
 
--- 初始化资质最大值
-def.method().InitAptitudeMax = function(self)
-	self._AptitudeMaxList = {}
-
-	local infoList = string.split(self._Template.AptitudeMax, "*")
-	for i,v in ipairs(infoList) do
-		table.insert(self._AptitudeMaxList, tonumber(v))
-	end
-end
 -- 获得资质属性最大值
 def.method("number", "=>", "number").GetAptitudeMaxByIndex = function(self, index)
 	return self._AptitudeMaxList[index] or 0
@@ -161,6 +190,7 @@ end
 --宠物技能初始化
 def.method("table").InitSkill = function(self, skillDBList)
 	--warn("宠物技能初始化")
+	self:SetLastTakedownIndex(0)
 	self._SkillList = {}
 
 	local CPetUtility = require "Pet.CPetUtility"
@@ -208,6 +238,27 @@ def.method("table", "=>", "table").GetSkillInfoByDbInfo = function(self, dbInfo)
 	end
 
 	return data
+end
+
+def.method("=>", "number").CalcTotalExp = function(self)
+	local nRet = self._Exp
+	if self._Level > 1 then
+		for i=1, self._Level - 1 do
+			local stepMax = CElementData.GetPetExp(self._Quality, i)
+			nRet = nRet + stepMax
+		end
+	end
+
+	return nRet
+end
+
+def.method("=>", "number").CalcTotalAptitude = function(self)
+	local nRet = 0
+	for i,v in ipairs(self._AptitudeList) do
+		nRet = nRet + v.Value
+	end
+
+	return nRet
 end
 
 def.method("=>", "number").CalcFightScore = function(self)
@@ -263,7 +314,7 @@ def.method("table", "=>", "table").GetPropertyInfoByPropertyDB = function(self, 
     local coefficient = CPetUtility.GetPetAptitudeIncFixCoefficientById( Aptitude.FightPropertyId )
     local val = Aptitude.Value * coefficient
     local addValue = math.clamp(val, 1, val)
-	data.Value = propertyDB.value + addValue * self:GetLevel()
+	data.Value = math.floor(propertyDB.value + addValue * (self:GetLevel()-1))
 
 	return data
 end
@@ -278,13 +329,14 @@ def.method("table").InitAptitude = function(self, aptitudeDBList)
 
 	for i, aptitudeDB in ipairs(aptitudeDBList) do
 		local aptitudeInfo = self:GetAptitudeInfoByAptitudeDB( aptitudeDB )
-
+		local inc = self._AptitudeMaxIncrease[i] * self:GetStage()
 		if aptitudeInfo ~= nil then
 			local limitInfoId = tonumber(ids[i])	
 			local propertyInfo = CElementData.GetPropertyInfoById( limitInfoId )
-
+			
+			aptitudeInfo.CanReset = aptitudeDB.isCanBeReset
 			aptitudeInfo.MinValue = propertyInfo.MinValue
-			aptitudeInfo.MaxValue = propertyInfo.MaxValue
+			aptitudeInfo.MaxValue = self:GetAptitudeMaxByIndex(i) + inc
 
 			table.insert(self._AptitudeList, aptitudeInfo)
 		end
@@ -299,13 +351,15 @@ def.method("table").InitAptitudeCache = function(self, aptitudeCacheDBList)
 
 	for i, aptitudeCacheDB in ipairs(aptitudeCacheDBList) do
 		local aptitudeCacheInfo = self:GetAptitudeInfoByAptitudeDB( aptitudeCacheDB )
+		local inc = self._AptitudeMaxIncrease[i] * self:GetStage()
 
 		if aptitudeCacheInfo ~= nil then
 			local limitInfoId = tonumber(ids[i])	
 			local propertyInfo = CElementData.GetPropertyInfoById( limitInfoId )
 
+			aptitudeCacheInfo.CanReset = aptitudeCacheDB.isCanBeReset
 			aptitudeCacheInfo.MinValue = propertyInfo.MinValue
-			aptitudeCacheInfo.MaxValue = propertyInfo.MaxValue
+			aptitudeCacheInfo.MaxValue = self:GetAptitudeMaxByIndex(i) + inc
 
 			table.insert(self._AptitudeCache, aptitudeCacheInfo)
 		end
@@ -336,8 +390,7 @@ def.method("table", "=>", "table").GetAptitudeInfoByAptitudeDB = function(self, 
 	data.FightPropertyId = propertyInfo.FightPropertyId
 	data.Name = propertyInfo.Name
 	data.Star = aptitudeDB.level
-	data.Value = tonumber(fixFloatStr(tostring(aptitudeDB.value), 1))
-
+	data.Value = aptitudeDB.value
 
 	return data
 end
@@ -373,6 +426,22 @@ def.method("=>", "number").CalcSkillFightScore = function(self)
 
 	--计算公式类 获取结果
 	result = result + CScoreCalcMan.Instance():CalcTalentSkillScore(prof, self._TalentId, self._TalentLevel)
+	for i=1, #self._SkillList do
+		local skill = self._SkillList[i]
+		if skill.ID > 0 then
+			result = result + CScoreCalcMan.Instance():CalcTalentSkillScore(prof, skill.ID, skill.Level)
+		end
+	end
+
+	return result
+end
+
+-- 计算技能提供的战斗力
+def.method("=>", "number").CalcSkillFightScoreWithoutTalent = function(self)
+	local result = 0
+	local info = {}
+	local prof = game._HostPlayer._InfoData._Prof
+
 	for i=1, #self._SkillList do
 		local skill = self._SkillList[i]
 		if skill.ID > 0 then
@@ -441,6 +510,9 @@ end
 def.method("number").UpdateFightScore = function(self, fightScore)
 	self._FightScore = fightScore
 end
+def.method("=>", "number").GetExp = function(self)
+	return self._Exp
+end
 def.method("number").UpdateExp = function(self, currExp)
 	self._Exp = currExp
 end
@@ -479,6 +551,21 @@ def.method("number", "=>", "boolean").HasLearnedSkillById = function(self, skill
 
 	return bRet
 end
+
+def.method("number", "number", "=>", "boolean").HasLearnedSkillByIdAndLevel = function(self, skillId, level)
+	local bRet = false
+	for i=1, #self._SkillList do
+		local id = self._SkillList[i].ID
+		local lv = self._SkillList[i].Level
+		if id ~= nil and id == skillId and level == lv then
+			bRet = true
+			break
+		end
+	end
+
+	return bRet
+end
+
 def.method("=>", "boolean").HasAptitudeCache = function(self)
 	return (self._AptitudeCache ~= nil and #self._AptitudeCache > 0) 
 end
@@ -515,13 +602,19 @@ end
 def.method("=>", "string").GetStory = function(self)
 	return self._PetStroy
 end
-
+def.method("=>", "number").GetLastTakedownIndex = function(self)
+	return self._LastTakedownIndex
+end
+def.method("number").SetLastTakedownIndex = function(self, index)
+	self._LastTakedownIndex = index
+end
 def.method("=>", "number").GetSkillFieldCount = function(self)
     return self._SkillList ~= nil and #self._SkillList or 0
 end
 
 def.method("=>", "number").GetRecyclingPetDebris = function(self)
-	return self._RecyclingPetDebris
+	local addition = self._AdditionRecyclingList[self:GetStage()] or 0
+	return self._RecyclingPetDebris + addition
 end
 def.method("number", "=>", "number").GetBasePropertyById = function(self, propertyId)
 	local retVal = 0

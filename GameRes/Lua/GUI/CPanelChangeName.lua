@@ -26,27 +26,6 @@ def.static('=>', CPanelChangeName).Instance = function ()
 	return instance
 end
 
-local function CheckName(self,text)
-    if IsNilOrEmptyString(text) then 
-        game._GUIMan:ShowTipText(StringTable.Get(310),false)
-        return false
-    end
-    local Length = GameUtil.GetStringLength(text)
-    -- 最短字符定为 4, 最长字符定为 14
-    if Length < GlobalDefinition.MinRoleNameLength or Length > GlobalDefinition.MaxRoleNameLength then
-        game._GUIMan:ShowTipText(StringTable.Get(311),false)
-        return false
-    end
-    local FilterMgr = require "Utility.BadWordsFilter".Filter
-    local strMsg = FilterMgr.FilterName(text)
-    if strMsg ~= text then
-        game._GUIMan:ShowTipText(StringTable.Get(30317),false)
-        return false
-    end
-    return true
-end
-
-
 def.override().OnCreate = function(self)
     self._LabDes = self:GetUIObject("Lab_Des")
     self._CostItem = self:GetUIObject("MaterialIcon")
@@ -68,7 +47,8 @@ end
 def.override('string').OnClick = function(self, id)
     if id == "Btn_Ok" then 
         if self._CostNum <= self._TotalNum then
-            if not CheckName(self,self._InputField.text) then return end
+            local NameChecker = require "Utility.NameChecker"
+            if not NameChecker.CheckRoleNameValid(self._InputField.text) then return end
             local C2SChangeNameReq = require "PB.net".C2SChangeNameReq
             local protocol = C2SChangeNameReq()
             local net = require "PB.net"

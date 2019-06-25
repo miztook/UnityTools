@@ -40,7 +40,7 @@ def.override().StartTransLogic = function(self)
     game._GUIMan:Close("CPanelMap")
     
     local CQuestAutoMan = require"Quest.CQuestAutoMan"
-    local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+    local CAutoFightMan = require "AutoFight.CAutoFightMan"
 
     CAutoFightMan.Instance():Pause(_G.PauseMask.WorldMapTrans)
     CQuestAutoMan.Instance():Pause(_G.PauseMask.WorldMapTrans)
@@ -109,6 +109,7 @@ def.override().ContinueTrans = function(self)
     
     if self._FinalMapID > 0 then
         hp: SetTransPortalState(false)
+        CTransStrategyBase.RaiseEvent(self, self._FinalMapID, self._FinalPosition)
         self._TransMan:StartMoveByMapIDAndPos(self._FinalMapID, self._FinalPosition, nil, self._TransMan:IsSearchNpc(), self._TransMan._IsIgnoreConnected)
         self._FinalMapID = -1
         return
@@ -117,6 +118,7 @@ def.override().ContinueTrans = function(self)
     if self._TransType == EnumDef.ETransType.TransToWorldMap and self._MapID ~= game._CurWorld._WorldInfo.SceneTid then
         print("self._MapID, game._CurWorld._WorldInfo.SceneTid ", self._MapID, game._CurWorld._WorldInfo.SceneTid )
         hp: SetTransPortalState(false)
+        CTransStrategyBase.RaiseEvent(self, self._MapID, self._FinalPosition)
         self._TransMan:StartMoveByMapIDAndPos(self._MapID, self._FinalPosition, nil, self._TransMan:IsSearchNpc(), self._TransMan._IsIgnoreConnected)
         return
     end
@@ -131,12 +133,13 @@ def.override().ContinueTrans = function(self)
             self:BrokenTrans()
         end
         local is_search_npc = self._TransMan:IsSearchNpc()
-        local offset = is_search_npc and _G.NAV_OFFSET or 0
+
 	    hp:HaveTransOffset(is_search_npc)
         hp:SetAutoPathFlag(true)  
         if hp:CheckAutoHorse(self._TargetPosition) then 
 		    hp:NavMountHorseLogic(self._TargetPosition)
         end
+        CTransStrategyBase.RaiseEvent(self, self._MapID, self._FinalPosition)
         game:NavigatToPos(self._FinalPosition, 0, callback, nil)
     end
 end

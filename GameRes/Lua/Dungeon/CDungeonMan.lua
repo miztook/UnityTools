@@ -10,7 +10,7 @@ local CElementData = require "Data.CElementData"
 local PBHelper = require "Network.PBHelper"
 local CGame = Lplus.ForwardDeclare("CGame")
 local CPanelTracker = require "GUI.CPanelTracker"
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
 local CQuestAutoMan = require "Quest.CQuestAutoMan"
 local CPanelMirrorArena = require"GUI.CPanelMirrorArena"
@@ -190,7 +190,8 @@ def.method("table").ChangeDungeonData = function(self,data)
 			v.StarNum = data.StarNum
 			v.RemainderTime = data.RemainderTime
 			v.IsPlayEffects = data.IsPlayEffects
-
+			v.DungeonFinishFlag = data.DungeonFinishFlag
+			
 			if not oldStatus and data.IsOpen then
 				-- 从未解锁到解锁
 				self:OnDungeonUnlock(v.DungeonTId)
@@ -304,7 +305,7 @@ def.method("number","=>","number").GetMaxRewardCount = function(self, nDungeonID
 	local dungeonTemplate = CElementData.GetTemplate("Instance", nDungeonID)
 	if dungeonTemplate == nil then return 0 end
 	
-	return game:OnCurMaxCount(dungeonTemplate.CountGroupTid)
+	return game._CCountGroupMan:OnCurMaxCount(dungeonTemplate.CountGroupTid)
 end
 
 -- 副本解锁
@@ -485,7 +486,23 @@ def.method("table").OnDungeonStart = function(self, msg)
 	CPanelTracker.Instance():AddDungeonTime(msg.resEnterStart.EndTime, 1)
 
 	-- 副本断线重连CG处理
-	CGMan.RestartCG(msg.cgDatas)
+	local restartCgId = 0
+	if #msg.cgDatas == 1 then
+		restartCgId = msg.cgDatas[1].cgId
+	elseif #msg.cgDatas > 1 then
+		warn("Dont support when #msg.cgDatas > 1")
+		restartCgId = msg.cgDatas[1].cgId
+	end
+
+	if restartCgId > 0 then
+		CGMan.PlayCG(restartCgId, nil, 1, false)
+	end
+
+	-- 新手副本的特殊处理
+	-- 新手本中断线，CG不会重新播放，通过此接口关闭Loading
+	if game:IsInBeginnerDungeon() and not _G.IsCGPlaying then
+		game._GUIMan:Close("CPanelLoading")
+	end
 end
 
 --退出副本

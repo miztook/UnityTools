@@ -74,13 +74,13 @@ local MapInfo =
 			[2] = { x = 296.40, y = 39.87, z = 38.50, name = "巴风特", level = 34,IsBoss = true },
 			[3] = { x = 240.10, y = 43.14, z = 15.50, name = "巴风特", level = 34,IsBoss = true },
 			[4] = { x = 313.80, y = 38.28, z = -17.30, name = "巴风特", level = 34,IsBoss = true },
-			[5] = { x = -190.00, y = 85.74, z = 26.20, name = "巴风特", level = 34,IsBoss = true },
-			[6] = { x = -216.00, y = 87.82, z = -30.80, name = "巴风特", level = 34,IsBoss = true },
-			[7] = { x = -153.50, y = 70.74, z = -40.70, name = "巴风特", level = 34,IsBoss = true },
 		},
 		[39203] = 
 		{
 			[1] = { x = -51.50, y = 91.96, z = 71.70, name = "巴风特", level = 36,IsBoss = true },
+			[2] = { x = -190.00, y = 85.74, z = 26.20, name = "巴风特", level = 36,IsBoss = true },
+			[3] = { x = -216.00, y = 87.82, z = -30.80, name = "巴风特", level = 36,IsBoss = true },
+			[4] = { x = -153.50, y = 70.74, z = -40.70, name = "巴风特", level = 36,IsBoss = true },
 		},
 	},
 	Npc = 
@@ -305,7 +305,7 @@ local MapInfo =
 			x = -190.00, y = 85.74, z = 26.20, Type = 1,
 			Tid = 
 			{
-				[39202] = 1,
+				[39203] = 1,
 			},
 		},
 		[160] = 
@@ -313,7 +313,7 @@ local MapInfo =
 			x = -216.00, y = 87.82, z = -30.80, Type = 1,
 			Tid = 
 			{
-				[39202] = 1,
+				[39203] = 1,
 			},
 		},
 		[161] = 
@@ -321,7 +321,7 @@ local MapInfo =
 			x = -153.50, y = 70.74, z = -40.70, Type = 1,
 			Tid = 
 			{
-				[39202] = 1,
+				[39203] = 1,
 			},
 		},
 		[79] = 

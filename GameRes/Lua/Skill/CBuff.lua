@@ -71,6 +71,8 @@ local function CreateEnduringEvent(entity, data)
     local e = nil
     if data.ChangeSkillIcon._is_present_in_parent then      
         e = require "Skill.BuffEvent.CBuffChangeSkillIcon".new(entity, data) 
+    elseif data.Transform._is_present_in_parent then
+        e = require "Skill.BuffEvent.CBuffTransform".new(entity, data)
     end
     return e
 end
@@ -184,6 +186,22 @@ end
 
 def.method("=>", "boolean").IsIconShown = function(self)
     return not self._DisableIcon
+end
+
+-- 是否是变身Buff
+def.method("=>", "boolean").IsTransform = function (self)
+    local buffTemplate = CElementData.GetTemplate("State", self._ID)
+    if buffTemplate ~= nil then
+        local execution_units = buffTemplate.ExecutionUnits
+        for _,v in ipairs(execution_units) do
+            if v.Trigger.Timeline._is_present_in_parent then
+                if v.Event.Transform._is_present_in_parent then
+                    return true
+                end
+            end
+        end
+    end
+    return false
 end
 
 def.method().OnEnd = function(self)

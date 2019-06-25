@@ -398,7 +398,12 @@ def.method().OnBtnQuitDungeon = function(self)
     elseif game._HostPlayer:InPharse() then
         title, message, closeType = StringTable.GetMsg(82)
     elseif game._HostPlayer:InDungeon() then 
-        title, message, closeType = StringTable.GetMsg(17)
+        if game._HostPlayer:IsInGlobalZone() then
+            -- 跨服副本
+            title, message, closeType = StringTable.GetMsg(131)
+        else
+            title, message, closeType = StringTable.GetMsg(17)
+        end
     end
     MsgBox.ShowMsgBox(message, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback)
 end

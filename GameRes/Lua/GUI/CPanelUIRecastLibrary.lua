@@ -60,8 +60,8 @@ end
 
 def.method("userdata", "table").SetItem = function(self, item, data)
 	local Lab_Name = item:FindChild("Lab_Name")
-	local Lab_MinValue = item:FindChild("Lab_MaxValue/Lab_MinValue")
-	local Lab_MaxValue = item:FindChild("Lab_MaxValue")
+	local Lab_MinValue = item:FindChild("Lab_MinValue")
+	local Lab_MaxValue = item:FindChild("Lab_MinValue/Lab_MaxValue")
 	local Lab_tips = item:FindChild("Lab_MaxValue/Lab_tips")
 	
 	local propertyCoefficient = self._ItemData:GetPropertyCoefficient()

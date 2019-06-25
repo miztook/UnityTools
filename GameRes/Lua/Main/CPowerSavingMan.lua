@@ -15,6 +15,7 @@ end
 -- TopCounts=30sec
 
 def.field("boolean")._IsEnabled = true
+def.field("number")._TimeCD = 0
 
 def.field("boolean")._IsSleeping = false
 def.field("boolean")._IsPlaying = false
@@ -45,6 +46,7 @@ end
 def.method().SaveToUserData = function(self)
 	-- warn("SaveToUserData: ", debug.traceback())
 	UserData:SetField(EnumDef.LocalFields.PowerSaving, self._IsEnabled)
+	UserData:SetField(EnumDef.LocalFields.PowerSavingTime, self._TimeCD)
 end
 
 def.method().LoadUserData = function(self)
@@ -55,7 +57,19 @@ def.method().LoadUserData = function(self)
 		self._IsEnabled = ev
 	end
 
+	ev = UserData:GetField(EnumDef.LocalFields.PowerSavingTime)
+	if ev == nil or type(ev) ~= "number" then
+		self._IsEnabled = false
+	else
+		self:SetSleepingTime(ev)
+	end
+
 	-- warn("***LoadUserData: "..tostring(ev == nil or type(isClickGroundMove) ~= "boolean"))
+end
+
+def.method("number").SetSleepingTime = function(self, cd)
+	self._TimeCD = cd
+	GameUtil.SetSleepingCD(self._TimeCD)
 end
 
 def.method().StartPlaying = function(self)
@@ -73,39 +87,47 @@ def.method().StopPlaying = function(self)
 end
 
 def.method().BeginSleeping = function(self)
-	self._IsSleeping = true
-	self._IsInCD = false
-	--warn("PowerSaving BeginSleeping")
+	if not self._IsSleeping then
+		self._IsSleeping = true
+		self._IsInCD = false
+		--warn("PowerSaving BeginSleeping")
 
-	-- mute sound
---	self._CurBgm = CSoundMan.Instance():GetBGMSysVolume()
---	self._CurSfx = CSoundMan.Instance():GetEffectSysVolume()
---	CSoundMan.Instance():SetBGMSysVolume(0)
---	CSoundMan.Instance():SetEffectSysVolume(0)
-	CSoundMan.Instance():SetSoundBGMVolume(0, true)
-    CSoundMan.Instance():SetSoundEffectVolume(0)
-    CSoundMan.Instance():SetSoundCutSceneVolume(0)
+		-- mute sound
+--	--	self._CurBgm = CSoundMan.Instance():GetBGMSysVolume()
+--	--	self._CurSfx = CSoundMan.Instance():GetEffectSysVolume()
+--	--	CSoundMan.Instance():SetBGMSysVolume(0)
+--	--	CSoundMan.Instance():SetEffectSysVolume(0)
+--		CSoundMan.Instance():SetSoundBGMVolume(0, true)
+--		CSoundMan.Instance():SetSoundEffectVolume(0)
+--		CSoundMan.Instance():SetSoundCutSceneVolume(0)
+--		CSoundMan.Instance():SetSoundUIVolume(0)
+		CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.PS, true)
 
-	GameUtil.EnterSleeping()
+		self._IsInCD = false
+		GameUtil.EnterSleeping()
 
-	game._GUIMan:Open("CPanelPowerSaving", nil)
+		game._GUIMan:Open("CPanelPowerSaving", nil)
+	end
 end
 
 def.method().StopSleeping = function(self)
 	-- un mute sound
 --	CSoundMan.Instance():SetBGMSysVolume(self._CurBgm)
 --	CSoundMan.Instance():SetEffectSysVolume(self._CurSfx)
+	if self._IsSleeping then
+		self._IsSleeping = false
 
-	self._IsSleeping = false
+--		CSoundMan.Instance():SetSoundBGMVolume(1, true)
+--		CSoundMan.Instance():SetSoundEffectVolume(1)
+--		CSoundMan.Instance():SetSoundCutSceneVolume(1)
+--		CSoundMan.Instance():SetSoundUIVolume(1)
+		CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.PS, false)
 
-	CSoundMan.Instance():SetSoundBGMVolume(1, true)
-    CSoundMan.Instance():SetSoundEffectVolume(1)
-    CSoundMan.Instance():SetSoundCutSceneVolume(1)
+		GameUtil.LeaveSleeping()
 
-	GameUtil.LeaveSleeping()
-
-	self:UpdateCDState()
-	self:ShowRewards()
+		self:UpdateCDState()
+		self:ShowRewards()
+	end
 end
 
 def.method("=>", "boolean").IsSleeping = function(self)

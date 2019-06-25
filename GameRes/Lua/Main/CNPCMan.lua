@@ -46,6 +46,7 @@ def.override("number", "number", "=>", CEntity).Remove = function (self, id, lea
     self._EnemyNpcList[id] = nil
 	self._FriendNpcList[id] = nil
 	self._ActiveNpcList[id] = nil
+	--warn(id, "CNPCMan Remove")
     return CEntityMan.Remove(self, id, leaveType)
 end
 
@@ -76,7 +77,7 @@ end
 
 def.method("table", "number", "=>", CNonPlayerCreature).CreateMonster = function (self, info, enterType)
 	local id = info.CreatureInfo.MovableInfo.EntityInfo.EntityId
-	--print("CreateMonster", id, debug.traceback())
+	--warn(id, "CreateMonster", debug.traceback())
 	if self:Get(id) ~= nil then
 		--warn("There is another monster with the same id, id = ", id)
 		return self:Get(id)
@@ -339,7 +340,7 @@ def.override("boolean").Release = function (self, is_2_release_root)
 	CEntityMan.Release(self, is_2_release_root)
 
 	if is_2_release_root then
-		Object.DestroyImmediate(self._NPCsRoot)
+		Object.Destroy(self._NPCsRoot)
 		self._NPCsRoot = nil
 	end
 end

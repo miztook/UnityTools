@@ -10,56 +10,16 @@ def.field("table")._ItemData = nil
 def.field("boolean")._CallWithFuncs = false
 def.field("table")._ValidComponents = nil
 def.field("number")._PopFrom = 0
-def.field("boolean")._IsShowDropButton = false
-def.field("boolean")._IsHaveMoreButton = false
-def.field("userdata")._DropButton = nil
+def.field("userdata")._Lay_Button = nil 
+def.field("boolean")._IsShowButton = false
+def.field("userdata")._Scroll1 = nil 
+def.field("userdata")._Scroll2 = nil 
+def.field("boolean")._IsShowCompare = false
 
 local function SetButton(self,layButton)
     local count = #self._ValidComponents
-    local totalNumber = 6
-    local btnSpecial = layButton:FindChild("Btn_More")
-    local DropButton = layButton:FindChild("Drop_Button")
-    self._IsHaveMoreButton = false
-    local BtnItem1 = layButton:FindChild("Btn_Item1")
-    local BtnOne = layButton:FindChild("Btn_One")
-    BtnOne:SetActive(false)
-    if count == 1 then 
-        BtnOne:SetActive(true)
-        BtnItem1:SetActive(false)
-        GUI.SetText(BtnOne:FindChild("Lab_ButtonName"),self._ValidComponents[1]:GetName())
-        self._DropButton:SetActive(false)
-        btnSpecial:SetActive(false)
-        return
-    elseif count == 2 then 
-        BtnItem1:SetActive(true)
-        GUI.SetText(BtnItem1:FindChild("Lab_ButtonName"),self._ValidComponents[1]:GetName())
-        self._DropButton:SetActive(false)
-        btnSpecial:SetActive(true)
-        GUI.SetText(btnSpecial:FindChild("Lab_ButtonName"),self._ValidComponents[2]:GetName())
-        return
-    end
-
-    self._IsHaveMoreButton = true
-    btnSpecial:SetActive(true)
-    for i = 1 ,totalNumber do 
-        if i > count then
-        	local btn = DropButton:FindChild("Btn_Item"..i) 
-        	if btn ~= nil then 
-            	btn:SetActive(false)
-            end
-        else
-        	local item = nil 
-        	if i == 1 then 
-        		item = BtnItem1
-        	else
-                item =  DropButton:FindChild("Btn_Item"..i)
-            end
-            if item ~= nil then 
-	            item:SetActive(true)
-	            GUI.SetText(item:FindChild("Lab_ButtonName"),self._ValidComponents[i]:GetName())
-	        end
-        end
-    end
+    local listBtn = layButton:FindChild("List_Buttons"):GetComponent(ClassType.GNewList)
+    listBtn:SetItemCount(count)
 end 
 
 def.method("userdata").InitButtons = function(self,BtnsObj)
@@ -83,6 +43,17 @@ def.method("userdata").InitButtons = function(self,BtnsObj)
         SetButton(self,BtnsObj)
     end
 end 
+
+def.method("userdata","userdata").InitButtonPosition = function (self,mask,buttonObj)
+    if not self._IsShowButton then return end
+    local maskRect = mask:GetComponent(ClassType.RectTransform)
+    local buttonRect = buttonObj:GetComponent(ClassType.RectTransform)
+    local buttonSizeDelta = buttonRect.sizeDelta
+    buttonSizeDelta.y = maskRect.sizeDelta.y
+    buttonRect.sizeDelta = buttonSizeDelta
+    buttonObj.localPosition.y = mask.localPosition.y
+    -- body
+end
 
 def.method( "number","dynamic","userdata").ShowTime = function (self, time,isExpireTime,LabObj)
     local day = math.floor(time / 86400)
@@ -116,6 +87,61 @@ def.method( "number","dynamic","userdata").ShowTime = function (self, time,isExp
     end
 end
 
+def.override('userdata', 'string', 'number').OnInitItem = function(self, item, id, index)
+    if id == "List_Buttons" then
+        local uiTemplate = item:GetComponent(ClassType.UITemplate)
+        local btnName = uiTemplate:GetControl(0)
+        GUI.SetText(btnName,self._ValidComponents[index + 1]:GetName())
+    end
+end
+
+def.override("userdata", "string", "string", "number").OnSelectItemButton = function(self, button_obj, id, id_btn, index)
+    if id ==  "List_Buttons" and id_btn == "Btn_Item" then
+        local component = self._ValidComponents[index + 1]
+        component:Do()
+        CItemTipMan.CloseCurrentTips()  
+    end
+end
+
+def.method("boolean").IsShowButton = function (self,isShow)
+    if self._Lay_Button ~= nil and self._IsShowButton then
+        self._Lay_Button:SetActive(isShow)
+    end
+end
+
+-- 当有对比tip时设置两个tip居中
+def.method("boolean").IsSetCompareTipCenter = function (self,isCenter)
+    if not self._IsShowCompare then return end
+    if isCenter then
+        -- 两个tip居中
+        local scrollRect1 = self._Scroll1:GetComponent(ClassType.RectTransform)
+        local scrollRect2 = self._Scroll2:GetComponent(ClassType.RectTransform)
+        local offsety = 0
+        if scrollRect1.sizeDelta.y <= scrollRect2.sizeDelta.y then 
+            offsety = (scrollRect2.sizeDelta.y - scrollRect1.sizeDelta.y)/2
+            self._Scroll1.localPosition = Vector2.New(scrollRect1.sizeDelta.x/2,offsety)
+            self._Scroll2.localPosition = Vector2.New(-scrollRect2.sizeDelta.x/2,0)
+        elseif scrollRect1.sizeDelta.y > scrollRect2.sizeDelta.y then 
+            offsety = (scrollRect1.sizeDelta.y - scrollRect2.sizeDelta.y)/2
+            self._Scroll1.localPosition = Vector2.New(scrollRect1.sizeDelta.x/2,0)
+            self._Scroll2.localPosition = Vector2.New(-scrollRect2.sizeDelta.x/2,offsety)
+        end
+    else
+        --出现获取途径面板时移动具有对比tip的tip面板
+        local scrollRect1 = self._Scroll1:GetComponent(ClassType.RectTransform)
+        local scrollRect2 = self._Scroll2:GetComponent(ClassType.RectTransform)
+        local offsety = 0
+        if scrollRect1.sizeDelta.y <= scrollRect2.sizeDelta.y then 
+            offsety = (scrollRect2.sizeDelta.y - scrollRect1.sizeDelta.y)/2
+            self._Scroll1.localPosition = Vector2.New(0,offsety)
+            self._Scroll2.localPosition = Vector2.New(-scrollRect2.sizeDelta.x,0)
+        elseif scrollRect1.sizeDelta.y > scrollRect2.sizeDelta.y then 
+            offsety = (scrollRect1.sizeDelta.y - scrollRect2.sizeDelta.y)/2
+            self._Scroll1.localPosition = Vector2.New(0,0)
+            self._Scroll2.localPosition = Vector2.New(-scrollRect2.sizeDelta.x,offsety)
+        end
+    end
+end
 
 def.override().OnHide = function(self)
     
@@ -123,9 +149,14 @@ def.override().OnHide = function(self)
 	if self._ItemData ~= nil then
 		self._ItemData._IsNewGot = false
 	end
+    self._IsShowCompare = false
+    self._IsShowButton = false
     game._GUIMan:Close("CPanelItemApproach")    
 	local event = CloseTipsEvent()
     CGame.EventManager:raiseEvent(nil, event)
+    self._Lay_Button = nil 
+    self._Scroll1 = nil 
+    self._Scroll2 = nil 
 end
 
 CPanelHintBase.Commit()

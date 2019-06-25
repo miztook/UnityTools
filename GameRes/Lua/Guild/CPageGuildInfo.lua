@@ -13,8 +13,6 @@ def.field("userdata")._FrameRoot = nil
 
 -- 公会事件信息
 def.field("table")._Event_Data = BlankTable
--- 上次选中的Image
-def.field("userdata")._Last_Selected = nil
 
 def.field("table")._Guild_Icon_Image = BlankTable
 def.field("userdata")._Info_Guild_Name = nil
@@ -28,7 +26,6 @@ def.field("userdata")._Info_Guild_Member_Con = nil
 def.field("userdata")._Frame_Guild_Announce = nil
 def.field("userdata")._Info_Guild_Announce = nil
 def.field("userdata")._Btn_Set_Guild_Announce = nil
-def.field("userdata")._Btn_Guild_Dismiss = nil
 def.field("userdata")._Btn_Info_Guild_Name = nil
 
 def.field("userdata")._Frame_Guild_Event = nil
@@ -41,7 +38,6 @@ def.field("userdata")._Tab_Guild_Announce_Tab_U = nil
 def.field("userdata")._Tab_Guild_Announce_Tab_D = nil
 
 
-def.field("userdata")._Online_Member_List = nil
 def.field("userdata")._Guild_Event_List = nil
 
 local ParseGuildEventData = function(data)
@@ -49,6 +45,8 @@ local ParseGuildEventData = function(data)
     local function CheckFunc(item)
         if item.RecordType == RecordType.RecordType_Contribute then
             return item.DonateId ~= nil and item.DonateId > 0
+        elseif item.RecordType == RecordType.RecordType_WorldBossKilled then
+        	return item.WorldBossId ~= nil and item.WorldBossId > 0
         end
         return true
     end
@@ -65,6 +63,7 @@ local ParseGuildEventData = function(data)
         item.MemberType = v.MemberType
         item.Contribute = v.Contribute
         item.DonateId = v.DonateId
+        item.WorldBossId = v.WorldBossId
         if CheckFunc(item) then
             event_data[#event_data + 1] = item
         end
@@ -82,6 +81,7 @@ end
 -- 展示时调用
 def.method().Show = function(self)
     game._GuildMan:SendC2SGuildMembersInfo(game._GuildMan:GetHostPlayerGuildID())
+	game._GuildMan:SendC2SGuildRecord(0)
 	self._FrameRoot:SetActive(true)
 	self:InitUIObject()
 	self:Update()
@@ -107,7 +107,6 @@ def.method().InitUIObject = function(self)
 	self._Frame_Guild_Announce = parent:GetUIObject("Frame_Guild_Announce")
 	self._Info_Guild_Announce = parent:GetUIObject("Info_Guild_Announce")
 	self._Btn_Set_Guild_Announce = parent:GetUIObject("Btn_Set_Guild_Announce")
-	self._Btn_Guild_Dismiss = parent:GetUIObject("Btn_Guild_Dismiss")
     self._Btn_Info_Guild_Name = parent:GetUIObject("Btn_Info_Guild_Name")
 
 	self._Frame_Guild_Event = parent:GetUIObject("Frame_Guild_Event")
@@ -121,8 +120,7 @@ def.method().InitUIObject = function(self)
 	self._Tab_Guild_Announce_Tab_U = parent:GetUIObject("Img_U0")
 	self._Tab_Guild_Announce_Tab_D = parent:GetUIObject("Img_D0")
 
-    self._Guild_Event_List = parent:GetUIObject("Guild_Event_List"):GetComponent(ClassType.GNewListLoop)
-	self._Online_Member_List = parent:GetUIObject("Info_Right_List"):GetComponent(ClassType.GNewList)
+    self._Guild_Event_List = parent:GetUIObject("Guild_Event_List"):GetComponent(ClassType.GNewLayoutTable)
 end
 
 def.method().Update = function(self)
@@ -137,22 +135,18 @@ def.method().Update = function(self)
 	else
 		GUI.SetText(self._Info_Guild_Rank_Con, tostring(guild._LivenessRank))
 	end
-	GUI.SetText(self._Info_Guild_Activity_Con, tostring(guild._GuildLiveness))
+	GUI.SetText(self._Info_Guild_Activity_Con, GUITools.FormatNumber(guild._GuildLiveness))
 	local guildTemp = CElementData.GetTemplate("GuildLevel", guild._GuildModuleID)
 	GUI.SetText(self._Info_Guild_Member_Con, guild._MemberNum .. "/" .. guildTemp.MemberNumber)
 	self._Info_Guild_Announce:GetComponent(ClassType.InputField).text = guild._Announce
 
 	local member = game._GuildMan:GetHostGuildMemberInfo()
 	if member ~= nil then
-		self._Btn_Guild_Dismiss:SetActive(0 ~= bit.band(member._Permission, PermissionMask.Dismiss))
 		self._Info_Guild_Announce:GetComponent(ClassType.InputField).enabled = 0 ~= bit.band(member._Permission, PermissionMask.SetAnnounce)
 		self._Info_Guild_Announce:FindChild("Placeholder"):SetActive(0 ~= bit.band(member._Permission, PermissionMask.SetAnnounce))
 		self._Btn_Set_Guild_Announce:SetActive(0 ~= bit.band(member._Permission, PermissionMask.SetAnnounce))
 		self._Btn_Info_Guild_Name:SetActive(0 ~= bit.band(member._Permission, PermissionMask.SetDisplayInfo))
 	end
-
-	local guild = game._HostPlayer._Guild
-	self._Online_Member_List:SetItemCount(#guild._OnlineMemberID)
 end
 
 def.method().UpdatePageRedPoint = function(self)
@@ -160,18 +154,16 @@ end
 
 -- 当点击
 def.method("string").OnClick = function(self, id)
-	if id == "Btn_Guild_Dismiss" then
-		self:OnBtnGuildDismiss()
-	elseif id == "Tab_Guild_Announce" then
+	if id == "Tab_Guild_Announce" then
 		print("Tab_Guild_Announce")
 		self:OnTabGuildAnnounce()
-	elseif id == "Tab_Guild_Event" then
-		print("Tab_Guild_Event")
-		self:OnTabGuildEvent()
+	-- elseif id == "Tab_Guild_Event" then
+	-- 	print("Tab_Guild_Event")
+	-- 	self:OnTabGuildEvent()
 	elseif id == "Btn_Info_Guild_Name" then
 		self:OnBtnInfoGuildName()
-	elseif id == "Btn_Guild_Quit" then
-		self:OnBtnGuildQuit()
+	elseif id == "Btn_Guild_Back" then
+		self:OnBtnGuildBack()
 	end
 end
 
@@ -212,49 +204,9 @@ end
 
 -- 初始化列表
 def.method("userdata", "string", "number").OnInitItem = function(self, item, id, index)
-    if id == "Info_Right_List" then
-    	self:OnInitMemberItem(item, index)
-    elseif id == "Guild_Event_List" then
+    if id == "Guild_Event_List" then
     	self:OnInitEventItem(item, index)
     end
-end
-
--- 选中列表
-def.method("userdata", "string", "number").OnSelectItem = function(self, item, id, index)
-	if id == "Info_Right_List" then
-		if not IsNil(self._Last_Selected) then
-			self._Last_Selected:SetActive(false)
-		end
-		local guild = game._HostPlayer._Guild
-		local member = guild._MemberList[guild._OnlineMemberID[index + 1]]
-		if member._RoleID ~= game._HostPlayer._ID then
-			local uiTemplate = item:GetComponent(ClassType.UITemplate)
-			uiTemplate:GetControl(9):SetActive(true)
-			self._Last_Selected = uiTemplate:GetControl(9)
-
-			local EOtherRoleInfoType = require "PB.data".EOtherRoleInfoType
-            game:CheckOtherPlayerInfo(member._RoleID, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.Guild)
-		end
-	end
-end
-
--- 设置在线成员信息
-def.method("userdata", "number").OnInitMemberItem = function(self, item, index)
-    local uiTemplate = item:GetComponent(ClassType.UITemplate)
-    local guild = game._HostPlayer._Guild
-    local memberID = guild._OnlineMemberID[index + 1]
-    local baseContent = ""
-    if memberID == game._HostPlayer._ID then
-    	baseContent = "<color=#E7BF30>%s</color>"
-    else
-    	baseContent = "<color=white>%s</color>"
-    end
-    local member = guild._MemberList[memberID]
-    GUI.SetText(uiTemplate:GetControl(2), StringTable.Get(10300 + member._ProfessionID - 1))
-    GUI.SetText(uiTemplate:GetControl(3), string.format(baseContent, member._RoleName))
-    GUI.SetText(uiTemplate:GetControl(4), member:GetMemberTypeName())
-    GUI.SetText(uiTemplate:GetControl(6), string.format(baseContent, tostring(member._RoleLevel)))
-    GUI.SetText(uiTemplate:GetControl(8), string.format(baseContent, tostring(member._BattlePower)))
 end
 
 -- 设置公会事件信息
@@ -270,24 +222,25 @@ def.method("userdata", "number").OnInitEventItem = function(self, item, index)
     if logoutTime == clientTime then
     	logoutTime = StringTable.Get(1008)
     elseif logoutTime > 86400 then
-    	logoutTime = math.round(logoutTime / 86400) .. StringTable.Get(1003) .. StringTable.Get(1006)
+    	logoutTime = math.round(logoutTime / 86400) .. StringTable.Get(1003)
     elseif logoutTime > 3600 then
-    	logoutTime = math.round(logoutTime / 3600) .. StringTable.Get(1002) .. StringTable.Get(1006)
+    	logoutTime = math.round(logoutTime / 3600) .. StringTable.Get(1002)
     elseif logoutTime > 60 then
-    	logoutTime = math.round(logoutTime / 60) .. StringTable.Get(1001) .. StringTable.Get(1006)
+    	logoutTime = math.round(logoutTime / 60) .. StringTable.Get(1001)
     else
-    	logoutTime = "1" .. StringTable.Get(1001) .. StringTable.Get(1006)
+    	logoutTime = "1" .. StringTable.Get(1001)
     end
-    logoutTime = RichTextTools.GetEventTimeRichText(logoutTime, false)
+    logoutTime = string.format(StringTable.Get(1009), logoutTime)
     GUI.SetText(labTime, logoutTime)
+
     local operatorName = data.OperaterName
     if operatorName == nil then
     	operatorName = ""
     elseif operatorName ~= "" then
 		if operatorName == hp._InfoData._Name then
-			operatorName = RichTextTools.GetHostPlayerNameRichText(false)
+			operatorName = string.format(StringTable.Get(8129),operatorName)
 		else
-			operatorName = RichTextTools.GetElsePlayerNameRichText(operatorName, false)
+			operatorName = string.format(StringTable.Get(8128),operatorName)
 		end
 	end
 	local targetName = data.TargetName
@@ -295,9 +248,9 @@ def.method("userdata", "number").OnInitEventItem = function(self, item, index)
 		targetName = ""
 	elseif targetName ~= "" then
 		if targetName == hp._InfoData._Name then
-			targetName = RichTextTools.GetHostPlayerNameRichText(false)
+			targetName = string.format(StringTable.Get(8129),targetName)
 		else
-			targetName = RichTextTools.GetElsePlayerNameRichText(targetName, false)		
+			targetName = string.format(StringTable.Get(8128),targetName)		
 		end
 	end
 	if data.RecordType == RecordType.RecordType_GuildLevelUp then
@@ -351,13 +304,17 @@ def.method("userdata", "number").OnInitEventItem = function(self, item, index)
 			return
 		end
 		local money = CElementData.GetTemplate("Money", donate.CostType)
-		GUI.SetText(labEvent, string.format(StringTable.Get(8065), operatorName, donate.CostNum, money.TextDisplayName))		
+		GUI.SetText(labEvent, string.format(StringTable.Get(8065), operatorName, GUITools.FormatNumber(donate.CostNum), money.TextDisplayName))		
+	elseif data.RecordType == RecordType.RecordType_BuffOpen then 
+		GUI.SetText(labEvent, string.format(StringTable.Get(8132)))
+	elseif data.RecordType == RecordType.RecordType_WorldBossKilled then 
+		local bossData = game._CWorldBossMan:GetWorldBossByID(data.WorldBossId)
+		GUI.SetText(labEvent, string.format(StringTable.Get(8133),bossData._Data.Name))	
+	elseif data.RecordType == RecordType.RecordType_GuildActionPutaway then 
+		local ItemTemp = CElementData.GetItemTemplate(data.ItemId)
+        local name = RichTextTools.GetQualityText(ItemTemp.TextDisplayName, ItemTemp.InitQuality)
+		GUI.SetText(labEvent, string.format(StringTable.Get(8134),name))
 	end
-end
-
--- 解散公会
-def.method().OnBtnGuildDismiss = function(self)
-	game._GuildMan:QuitGuild()
 end
 
 -- 查看公会公告
@@ -375,16 +332,6 @@ def.method().OnTabGuildAnnounce = function(self)
 
 	self._Frame_Guild_Announce:SetActive(true)
 	self._Frame_Guild_Event:SetActive(false)
-end
-
--- 查看公会事件
-def.method().OnTabGuildEvent = function(self)
-	game._GuildMan:SendC2SGuildRecord(0)
-end
-
--- 退出公会
-def.method().OnBtnGuildQuit = function(self)
-	game._GuildMan:QuitGuild()
 end
 
 -- 修改公会名字
@@ -410,6 +357,11 @@ def.method().OnBtnInfoGuildName = function(self)
 	game._GUIMan:Open("CPanelUIRename", data)
 end
 
+-- 回到公会基地
+def.method().OnBtnGuildBack = function(self)
+	game._GuildMan:EnterGuildMap()
+end
+
 -- 展示公会事件
 def.method("table").ShowGuildEvent = function(self, data)
 	-- 根据时间排序
@@ -419,16 +371,6 @@ def.method("table").ShowGuildEvent = function(self, data)
 	table.sort(data, SortFun)
 	self._Event_Data = ParseGuildEventData(data)
 
-
-
-	self._Tab_Guild_Event_Tab_U:SetActive(true)
-	self._Tab_Guild_Even_Tab_D:SetActive(false)
-	self._Tab_Guild_Announce_Tab_U:SetActive(false)
-	self._Tab_Guild_Announce_Tab_D:SetActive(true)
-
-
-	self._Frame_Guild_Announce:SetActive(false)
-	self._Frame_Guild_Event:SetActive(true)
     self._Guild_Event_List:SetItemCount(#self._Event_Data)
 end
 
@@ -443,7 +385,6 @@ def.method().Destroy = function(self)
 	self._FrameRoot = nil
 
 	self._Event_Data = nil
-	self._Last_Selected = nil
 
 	self._Guild_Icon_Image = nil
 	self._Info_Guild_Name = nil

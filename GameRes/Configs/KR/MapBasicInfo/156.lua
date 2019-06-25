@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 3,
 	Remarks = "雪峰堡战役相位",
-	TextDisplayName = "눈의 성 전투",
+	TextDisplayName = "눈의 성 전투2",
 	Length = 800,
 	Width = 800,
 	NavMeshName = "World03Part2.navmesh",
@@ -106,7 +106,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[219] = { x = -232.35, y = 124.30, z = 12.05, name = "눈의 성", worldId = 0, PkMode = 0 },
+			[219] = { x = -232.35, y = 124.30, z = 12.05, name = "눈의 성", worldId = 0, IsCanFind = 1, PkMode = 0 },
 			[435] = { x = -320.62, y = 113.42, z = 48.29, name = "1-0", worldId = 0, PkMode = 0 },
 			[330] = { x = -315.89, y = 105.83, z = 27.51, name = "1-1", worldId = 0, PkMode = 0 },
 			[331] = { x = -301.51, y = 97.92, z = -20.94, name = "1-2", worldId = 0, PkMode = 0 },

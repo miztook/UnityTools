@@ -91,7 +91,7 @@ PBHelper.AddHandler("S2CScriptDataSync", OnS2CScriptDataSync)
 --执行某事件结果
 local function OnS2CScriptExec(sender,msg)
 	-- 事件结果    
-    -- warn("msg.ErrorCode == ", msg.ErrorCode)
+    warn("msg.ErrorCode == ", msg.ErrorCode)
     if msg.ErrorCode == 0 then
         game._CWelfareMan:OnWelfareEventType(msg.ScriptId)
     else

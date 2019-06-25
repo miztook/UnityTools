@@ -22,10 +22,10 @@ local MapInfo =
 		},
 		[39301] = 
 		{
-			[1] = { x = -112.70, y = 23.65, z = -154.50, name = "巴风特", level = 43,IsBoss = true },
-			[2] = { x = -18.90, y = 20.96, z = -183.80, name = "巴风特", level = 43,IsBoss = true },
-			[3] = { x = -155.40, y = 32.39, z = -246.60, name = "巴风特", level = 43,IsBoss = true },
-			[4] = { x = -165.20, y = 20.76, z = -194.40, name = "巴风特", level = 43,IsBoss = true },
+			[1] = { x = -112.70, y = 23.65, z = -154.50, name = "巴风特", level = 42,IsBoss = true },
+			[2] = { x = -18.90, y = 20.96, z = -183.80, name = "巴风特", level = 42,IsBoss = true },
+			[3] = { x = -155.40, y = 32.39, z = -246.60, name = "巴风特", level = 42,IsBoss = true },
+			[4] = { x = -165.20, y = 20.76, z = -210.00, name = "巴风特", level = 42,IsBoss = true },
 		},
 	},
 	Npc = 
@@ -35,14 +35,14 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[475] = { x = 25.17, y = 66.64, z = 155.70, name = "神之多人-1", worldId = 0, PkMode = 0 },
-			[476] = { x = 22.65, y = 115.49, z = 153.32, name = "神之多人-2", worldId = 0, PkMode = 0 },
-			[477] = { x = 24.23, y = 123.89, z = 156.55, name = "神之多人-3", worldId = 0, PkMode = 0 },
-			[478] = { x = 12.69, y = 65.99, z = 164.87, name = "神之多人-4", worldId = 0, PkMode = 0 },
-			[479] = { x = -91.70, y = 24.34, z = -206.10, name = "神之多人-5", worldId = 0, PkMode = 0 },
-			[480] = { x = -91.70, y = 19.36, z = -206.10, name = "神之多人-6", worldId = 0, PkMode = 0 },
-			[481] = { x = -91.70, y = 19.03, z = -206.10, name = "神之多人-7", worldId = 0, PkMode = 0 },
-			[482] = { x = -95.43, y = 19.68, z = -203.77, name = "神之多人-8", worldId = 0, PkMode = 0 },
+			[475] = { x = 33.59, y = 66.64, z = 150.65, name = "神之多人-1", worldId = 0, PkMode = 0 },
+			[476] = { x = 32.92, y = 115.49, z = 152.49, name = "神之多人-2", worldId = 0, PkMode = 0 },
+			[477] = { x = 32.85, y = 123.89, z = 152.42, name = "神之多人-3", worldId = 0, PkMode = 0 },
+			[478] = { x = 29.01, y = 65.99, z = 153.78, name = "神之多人-4", worldId = 0, PkMode = 0 },
+			[479] = { x = -121.15, y = 24.34, z = -175.54, name = "神之多人-5", worldId = 0, PkMode = 0 },
+			[480] = { x = -119.75, y = 19.36, z = -172.54, name = "神之多人-6", worldId = 0, PkMode = 0 },
+			[481] = { x = -125.96, y = 19.03, z = -172.54, name = "神之多人-7", worldId = 0, PkMode = 0 },
+			[482] = { x = -127.19, y = 19.68, z = -170.11, name = "神之多人-8", worldId = 0, PkMode = 0 },
 		},
 	},
 	Mine = 
@@ -108,7 +108,7 @@ local MapInfo =
 		},
 		[170] = 
 		{
-			x = -165.20, y = 20.76, z = -194.40, Type = 1,
+			x = -165.20, y = 20.76, z = -210.00, Type = 1,
 			Tid = 
 			{
 				[39301] = 1,

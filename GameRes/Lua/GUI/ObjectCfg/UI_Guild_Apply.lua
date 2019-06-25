@@ -32,6 +32,8 @@ local cfg = {
     Img_Bg4 = -713111085,
     Img_Lock3 = 1904536748,
     Lab3 = 2360422,
+    Frame_Content = -1168404633,
+    Lab_Nothing = -190934309,
 }
  
 return cfg

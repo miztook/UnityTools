@@ -78,7 +78,7 @@ def.method("number").Remove = function(self, state)
 
 				-- 变身后重置主模型
 				if self._Host:IsModelChanged() then
-					GameUtil.AddObjectEffect(self._Host:GetOriModel():GetGameObject(), 10, 0)
+					GameUtil.AddObjectEffect(self._Host:GetOriModel():GetGameObject(), 10, false)
 				end
 
 				if v.param and v.param.ani then				

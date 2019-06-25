@@ -4,6 +4,7 @@ local GainNewItemEvent = require "Events.GainNewItemEvent"
 local NotifyFunctionEvent = require "Events.NotifyFunctionEvent"
 local ApplicationQuitEvent = require "Events.ApplicationQuitEvent"
 local CMallUtility = require "Mall.CMallUtility"
+local CQuest = require "Quest.CQuest"
 local CGame = Lplus.ForwardDeclare("CGame")
 local EPlatformType = require "PB.data".EPlatformType
 local EFormatType = require "PB.Template".Store.EFormatType
@@ -22,10 +23,13 @@ end
 def.field("number")._RefreshTime = 0                    -- 定义页签刷新的时间戳
 def.field("table")._MallRoleInfo = nil                  -- 角色商城数据(对应net.proto的RoleStoreDB里面的StoreDatas)
 def.field("table")._TabDatasFromServer = BlankTable     -- 从server请求的页签数据(或者是CMallMan里面的缓存数据)
+def.field("table")._BannerDatas = BlankTable            -- 从server请求的banner数据
 def.field("boolean")._IsMallRoleInfoInited = false      -- 商城角色数据是否已经初始化了
 def.field("number")._TotalUnlockTid = 80                -- 召唤解锁id
 def.field("number")._ElfUnlockTid = 10                  -- 精灵献礼解锁ID
 def.field("number")._PetExtractUnlockTid = 75           -- 宠物解锁ID
+def.field("boolean")._IsSingle = true                   -- 是否是单抽（用于再来一次）
+def.field("boolean")._IsFirstLoad = true                -- 是否是第一次加载抽奖结果界面。
 
 def.method("=>", "table").GetTagsDataFromServer = function(self)
     return self._TabDatasFromServer
@@ -81,6 +85,7 @@ local OnApplicationQuit = function(sender, event)
 end
 
 def.method().Init = function(self)
+    self._IsFirstLoad = true
     CGame.EventManager:addHandler(GainNewItemEvent, OnGainNewItemEvent)
     CGame.EventManager:addHandler(NotifyFunctionEvent, OnSystemUnlockEvent)
     CGame.EventManager:addHandler(ApplicationQuitEvent, OnApplicationQuit)
@@ -249,29 +254,32 @@ def.method("table", "=>", "table").ParseMsg = function(self, data)
     pageData.RateQueryURL = data.RateQueryURL
     pageData.Goods = {}
     for i,v in ipairs(data.Goods) do
-        pageData.Goods[i] = {}
-        pageData.Goods[i].Id = v.Id
-        pageData.Goods[i].Name = v.Name
-        pageData.Goods[i].GoodsType = v.GoodsType
-        pageData.Goods[i].CostType = v.CostType
-        pageData.Goods[i].Stock = v.Stock
-        pageData.Goods[i].DiscountType = v.DiscountType
-        pageData.Goods[i].ItemId = v.ItemId
-        pageData.Goods[i].ItemCount = v.ItemCount
-        pageData.Goods[i].GainMoneyId = v.GainMoneyId
-        pageData.Goods[i].GainMoneyCount = v.GainMoneyCount
-        pageData.Goods[i].GiftItemId = v.GiftItemId
-        pageData.Goods[i].GiftItemCount = v.GiftItemCount
-        pageData.Goods[i].GiftMoneyId = v.GiftMoneyId
-        pageData.Goods[i].GiftMoneyCount = v.GiftMoneyCount
-        pageData.Goods[i].CostMoneyId = v.CostMoneyId
-        pageData.Goods[i].CostMoneyCount = v.CostMoneyCount
-        pageData.Goods[i].IOS_ProductId = v.IOS_ProductId
-        pageData.Goods[i].CashCount = v.CashCount
-        pageData.Goods[i].IconPath = v.IconPath
-        pageData.Goods[i].LimitType = v.LimitType
-        pageData.Goods[i].LabelType = v.LabelType
-        pageData.Goods[i].NextRefreshTime = v.NextRefreshTime
+        if self:CheckGoodsAllRight(v.Id) then
+            pageData.Goods[#pageData.Goods + 1] = {}
+            local idx = #pageData.Goods
+            pageData.Goods[idx].Id = v.Id
+            pageData.Goods[idx].Name = v.Name
+            pageData.Goods[idx].GoodsType = v.GoodsType
+            pageData.Goods[idx].CostType = v.CostType
+            pageData.Goods[idx].Stock = v.Stock
+            pageData.Goods[idx].DiscountType = v.DiscountType
+            pageData.Goods[idx].ItemId = v.ItemId
+            pageData.Goods[idx].ItemCount = v.ItemCount
+            pageData.Goods[idx].GainMoneyId = v.GainMoneyId
+            pageData.Goods[idx].GainMoneyCount = v.GainMoneyCount
+            pageData.Goods[idx].GiftItemId = v.GiftItemId
+            pageData.Goods[idx].GiftItemCount = v.GiftItemCount
+            pageData.Goods[idx].GiftMoneyId = v.GiftMoneyId
+            pageData.Goods[idx].GiftMoneyCount = v.GiftMoneyCount
+            pageData.Goods[idx].CostMoneyId = v.CostMoneyId
+            pageData.Goods[idx].CostMoneyCount = v.CostMoneyCount
+            pageData.Goods[idx].IOS_ProductId = v.IOS_ProductId
+            pageData.Goods[idx].CashCount = v.CashCount
+            pageData.Goods[idx].IconPath = v.IconPath
+            pageData.Goods[idx].LimitType = v.LimitType
+            pageData.Goods[idx].LabelType = v.LabelType
+            pageData.Goods[idx].NextRefreshTime = v.NextRefreshTime
+        end
     end
     pageData.RecommendInfo1 = {}
     pageData.RecommendInfo1.Infos = {}
@@ -311,29 +319,32 @@ end
 def.method("table", "table").UpdateGoods = function(self, pageData, data)
     pageData.Goods = {}
     for i,v in ipairs(data.Goods) do
-        pageData.Goods[i] = {}
-        pageData.Goods[i].Id = v.Id
-        pageData.Goods[i].Name = v.Name
-        pageData.Goods[i].GoodsType = v.GoodsType
-        pageData.Goods[i].CostType = v.CostType
-        pageData.Goods[i].Stock = v.Stock
-        pageData.Goods[i].DiscountType = v.DiscountType
-        pageData.Goods[i].ItemId = v.ItemId
-        pageData.Goods[i].ItemCount = v.ItemCount
-        pageData.Goods[i].GainMoneyId = v.GainMoneyId
-        pageData.Goods[i].GainMoneyCount = v.GainMoneyCount
-        pageData.Goods[i].GiftItemId = v.GiftItemId
-        pageData.Goods[i].GiftItemCount = v.GiftItemCount
-        pageData.Goods[i].GiftMoneyId = v.GiftMoneyId
-        pageData.Goods[i].GiftMoneyCount = v.GiftMoneyCount
-        pageData.Goods[i].CostMoneyId = v.CostMoneyId
-        pageData.Goods[i].CostMoneyCount = v.CostMoneyCount
-        pageData.Goods[i].IOS_ProductId = v.IOS_ProductId
-        pageData.Goods[i].CashCount = v.CashCount
-        pageData.Goods[i].IconPath = v.IconPath
-        pageData.Goods[i].LimitType = v.LimitType
-        pageData.Goods[i].LabelType = v.LabelType
-        pageData.Goods[i].NextRefreshTime = v.NextRefreshTime
+        if self:CheckGoodsAllRight(v.Id) then
+            local item = {}
+            item.Id = v.Id
+            item.Name = v.Name
+            item.GoodsType = v.GoodsType
+            item.CostType = v.CostType
+            item.Stock = v.Stock
+            item.DiscountType = v.DiscountType
+            item.ItemId = v.ItemId
+            item.ItemCount = v.ItemCount
+            item.GainMoneyId = v.GainMoneyId
+            item.GainMoneyCount = v.GainMoneyCount
+            item.GiftItemId = v.GiftItemId
+            item.GiftItemCount = v.GiftItemCount
+            item.GiftMoneyId = v.GiftMoneyId
+            item.GiftMoneyCount = v.GiftMoneyCount
+            item.CostMoneyId = v.CostMoneyId
+            item.CostMoneyCount = v.CostMoneyCount
+            item.IOS_ProductId = v.IOS_ProductId
+            item.CashCount = v.CashCount
+            item.IconPath = v.IconPath
+            item.LimitType = v.LimitType
+            item.LabelType = v.LabelType
+            item.NextRefreshTime = v.NextRefreshTime
+            table.insert(pageData.Goods, item)
+        end
     end
 end
 
@@ -408,7 +419,7 @@ def.method("table", "=>", "table").ParseTagsData = function(self, msg)
     local data = {}
     data.StoreTagFounds = {}
     for _,v in ipairs(msg.StoreTagFounds) do
-        if self:BigTagLockCheck(v.TagId) then
+        if self:BigTagLockCheck(v.TagId) and self:SpecialHideTagCheck(v.TagId) and v.Stores ~= nil and (#v.Stores > 0) then
             data.StoreTagFounds[#data.StoreTagFounds + 1] = {}
             local store_fund = data.StoreTagFounds[#data.StoreTagFounds]
             store_fund.TagId = v.TagId
@@ -417,7 +428,7 @@ def.method("table", "=>", "table").ParseTagsData = function(self, msg)
             store_fund.LabelType = v.LabelType
             store_fund.Stores = {}
             for _1,v1 in ipairs(v.Stores) do
-                if self:ModuleLockCheck(v1.FormatType) and self:ShowEndTimeCheck(v1.ShowEndTime) then
+                if self:ModuleLockCheck(v1.FormatType) and self:SpecialHideStoreCheck(v1.StoreId) and self:ShowEndTimeCheck(v1.ShowEndTime) then
                     store_fund.Stores[#store_fund.Stores + 1] = {}
                     local small_fund = store_fund.Stores[#store_fund.Stores]
                     small_fund.StoreId = v1.StoreId
@@ -439,6 +450,47 @@ def.method("table", "=>", "table").ParseTagsData = function(self, msg)
     table.sort(data.StoreTagFounds, sort_func)
     data.RefundStatementURL = msg.RefundStatementURL
     return data
+end
+
+def.method().LoadBannerTempData = function(self)
+    self._BannerDatas = {}
+    local all_banners = GameUtil.GetAllTid("Banner")
+    if all_banners == nil then return end
+
+    for i,v in ipairs(all_banners) do
+        local banner_temp = CElementData.GetTemplate("Banner", v)
+        if banner_temp then
+            local item = {}
+            item.BannerTid = v
+            item.OpenFlag = banner_temp.IsOpen
+            self._BannerDatas[#self._BannerDatas + 1] = item
+        end
+    end
+end
+
+def.method("=>", "table").GetAllOpenedBanner = function(self)
+    local opened_table = {}
+    for i,v in ipairs(self._BannerDatas) do
+        if v.OpenFlag then
+            opened_table[#opened_table + 1] = v
+        end
+    end
+    return opened_table
+end
+
+def.method("table").ParseBannerInfoData = function(self, msg)
+    if msg.BannerDatas == nil then return end
+    for k,w in ipairs(self._BannerDatas) do
+        for i,v in ipairs(msg.BannerDatas) do
+            if v.BannerTid == w.BannerTid then
+                if v.OpenFlag ~= nil then
+                    w.OpenFlag = v.OpenFlag
+                else
+                    w.OpenFlag = false
+                end
+            end
+        end
+    end
 end
 
 -- 购买了新的基金
@@ -484,6 +536,22 @@ def.method("number", "=>", "boolean").BigTagLockCheck = function(self, tagID)
     return true
 end
 
+-- 大页签是否韩服隐藏（1.9.0）
+def.method("number", "=>", "boolean").SpecialHideTagCheck = function(self, tagID)
+    if game._IsHideMallPages and (tagID == 2 or tagID == 7) then
+        return false
+    end
+    return true
+end
+
+-- 小页签是否韩服隐藏（1.9.0）
+def.method("number", "=>", "boolean").SpecialHideStoreCheck = function(self, storeID)
+    if game._IsHideMallPages and storeID == 14 then
+        return false
+    end
+    return true
+end
+
 -- 小页签是否解锁
 def.method("number", "=>", "boolean").ModuleLockCheck = function(self, formatType)
     if formatType == EFormatType.NewPlayerBagTemp then
@@ -499,6 +567,31 @@ def.method("number", "=>", "boolean").ModuleLockCheck = function(self, formatTyp
         return game._CFunctionMan:IsUnlockByFunTid(self._ElfUnlockTid)
     elseif formatType == EFormatType.PetDropRuleTemp then
         return game._CFunctionMan:IsUnlockByFunTid(self._PetExtractUnlockTid)
+    end
+    return true
+end
+
+def.method("number", "=>", "boolean").CheckGoodsAllRight = function(self, goodsID)
+    local goods_temp = CElementData.GetTemplate("Goods", goodsID)
+    if goods_temp == nil then
+        warn("error !!! 商品模板数据为空 ，ID： ", goodsID)
+        return false
+    end
+    if goods_temp.GoodsType == EGoodsType.Item then
+        local item_temp = CElementData.GetItemTemplate(goods_temp.ItemId)
+        if item_temp == nil then
+            warn("error !!! 商品的物品TID错误， 商品ID：", goodsID)
+            return false
+        end
+        local host_level = game._HostPlayer._InfoData._Level
+        if host_level < goods_temp.ShowLimitLevelMin then
+            return false
+        end
+        if item_temp.QuestId ~= nil and item_temp.QuestId > 0 then
+            if not CQuest.Instance():IsQuestCompleted(item_temp.QuestId) then
+                return false
+            end
+        end
     end
     return true
 end
@@ -523,6 +616,11 @@ def.method("number", "=>", "boolean").IsStoreUnlock = function(self, storeID)
         end
     end
     return false
+end
+
+-- 获得是单抽还是十连抽
+def.method("=>","boolean").GetIsSingle = function(self)
+    return self._IsSingle
 end
 
 -- 点击了退款声明Label
@@ -622,6 +720,42 @@ def.method("number", "number").MonthlyCardGetReward = function(self, tid, storeI
     SendProtocol(protocol)
 end
 
+-- 精灵献礼抽取协议
+def.method("number").ElfExtract = function(self, count)
+    self._IsSingle = (count == 1)
+    local C2SSprintGiftReq = require "PB.net".C2SSprintGiftReq
+    local protocol = C2SSprintGiftReq()
+    protocol.Count = count
+    local PBHelper = require "Network.PBHelper"
+    PBHelper.Send(protocol)
+    local cb = function(asset)
+    end
+    GameUtil.PreLoadUIFX(PATH.UIFX_MallLottery_Get)
+    if self._IsFirstLoad then
+        local cb = function(asset)
+            self._IsFirstLoad = false
+        end
+        GameUtil.AsyncLoad(_G.InterfacesDir .. PATH.UI_MallLottery, cb)
+    end
+end
+
+-- 宠物抽奖
+def.method("number").PetExtract = function(self, count)
+    self._IsSingle = (count == 1)
+    local C2SPetDropRuleReq = require "PB.net".C2SPetDropRuleReq
+    local protocol = C2SPetDropRuleReq()
+    protocol.Count = count
+    local PBHelper = require "Network.PBHelper"
+    PBHelper.Send(protocol)
+    GameUtil.PreLoadUIFX(PATH.UIFX_MallLottery_Get)
+    if self._IsFirstLoad then
+        local cb = function(asset)
+            self._IsFirstLoad = false
+        end
+        GameUtil.AsyncLoad(_G.InterfacesDir .. PATH.UI_MallLottery, cb)
+    end
+end
+
 --======================S2C======================
 
 --处理页签数据
@@ -688,6 +822,9 @@ def.method("table").HandleRefreshReply = function(self, datas)
     if datas.ResCode == 0 then
         if datas.RefreshCount ~= nil then
             self:SetStoreRefreshCountByID(datas.StoreId, datas.RefreshCount)
+            for i,v in ipairs(datas.Goods) do
+                self:SetItemHasBuyCountByID(datas.StoreId, v.Id, 0)
+            end
             local CPanelMall = require "GUI.CPanelMall"
             if not CPanelMall.Instance():IsShow() then return end
             CPanelMall.Instance():RefreshPanel(datas)
@@ -764,6 +901,7 @@ def.method("table").HandleMonthlyCardGetRewardReply = function(self, msg)
         local CPanelMall = require "GUI.CPanelMall"
         if CPanelMall.Instance():IsShow() then
             CPanelMall.Instance():RefreshPanel(nil)
+            CPanelMall.Instance():HandleReceiveRewardSuccess(msg.StoreTid)
         end
     else
         game._GUIMan:ShowErrorTipText(msg.ResCode)
@@ -784,11 +922,32 @@ def.method("table").HandleQuickStoreBuyReq = function(self, msg)
     end
 end
 
+def.method("table").HandleBannerInfoData = function(self, msg)
+    self:LoadBannerTempData()
+    self:ParseBannerInfoData(msg)
+end
+
+def.method("table").HandleBannerUpdate = function(self, msg)
+    if self._BannerDatas ~= nil then
+        for i,v in ipairs(self._BannerDatas) do
+            if v.BannerTid == msg.BannerTid then
+                v.OpenFlag = msg.OpenFlag
+            end
+        end
+    end
+    local BannerInfoUpdate = require "Events.BannerInfoUpdate"
+    local event = BannerInfoUpdate()
+    event._BannerID = msg.BannerTid
+    event._IsOpen = msg.OpenFlag
+    CGame.EventManager:raiseEvent(nil, event)
+end
+
 def.method().Clear = function(self)
     self._RefreshTime = 0
     self._IsMallRoleInfoInited = false
     self._MallRoleInfo = nil
 	self._TabDatasFromServer = nil
+    self._BannerDatas = nil
 end
 
 def.method().Release = function(self)
@@ -796,6 +955,8 @@ def.method().Release = function(self)
     self._IsMallRoleInfoInited = false
     self._MallRoleInfo = nil
     self._TabDatasFromServer = nil
+    self._BannerDatas = nil
+    self._IsFirstLoad = true
     CGame.EventManager:removeHandler(GainNewItemEvent, OnGainNewItemEvent)
     CGame.EventManager:removeHandler(NotifyFunctionEvent, OnSystemUnlockEvent)
     CGame.EventManager:removeHandler(ApplicationQuitEvent, OnApplicationQuit)

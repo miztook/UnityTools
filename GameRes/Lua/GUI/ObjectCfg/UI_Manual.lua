@@ -73,6 +73,22 @@ local cfg = {
     TabListContent = 489120582,
     Lab_Total = 1203106258,
     Btn_ReceiveAll = 1628089793,
+    OverviewPanel = 1319231467,
+    List_OverviewMenu = 1608831097,
+    ManualProgressPanel = -885715567,
+    Lab_Total1 = -1358411617,
+    Prs_Cur1 = -830690561,
+    View_Charm = 429330877,
+    Frame_Attri = 1825022726,
+    Btn_Activation = -834883815,
+    Frame_AttriContent = 1612830355,
+    element_Attri1 = 1771791708,
+    element_Attri2 = 1771791709,
+    element_Attri3 = 1771791710,
+    element_Attri4 = 1771791711,
+    Lab_ArrTip = -1899667028,
+    Lab_ActivationTip = 979619891,
+    Lab_NoAttr = -1531687292,
 }
  
 return cfg

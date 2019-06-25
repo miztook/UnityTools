@@ -79,7 +79,7 @@ local function CheckIsInPharse(self, mapID, cb, syncServer)
                 self:SyncHostPlayerDestMapInfo(true, mapID)
             end
         else
-            local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+            local CAutoFightMan = require "AutoFight.CAutoFightMan"
             local CQuestAutoMan = require "Quest.CQuestAutoMan"
             local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
             CAutoFightMan.Instance():Start()
@@ -142,7 +142,7 @@ local function ShowCantTransMsgBox()
     
     -- 在任务自动战斗中，如果点击另外未曾到达地图的任务，弹出无法直达的提示
     -- 此时需要暂停自动战斗，因为Tick逻辑会一直弹出该MsgBox
-    local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+    local CAutoFightMan = require "AutoFight.CAutoFightMan"
     local CQuestAutoMan = require "Quest.CQuestAutoMan"
     local function cb()
         CAutoFightMan.Instance():Restart(_G.PauseMask.UIShown)
@@ -150,7 +150,7 @@ local function ShowCantTransMsgBox()
 
     CAutoFightMan.Instance():Pause(_G.PauseMask.UIShown)
     CQuestAutoMan.Instance():Stop()
-    local title = template.Name
+    local title = template.Title
     MsgBox.ShowSystemMsgBox(ServerMessageMap.TransPosNotUnlock, message, title, MsgBoxType.MBBT_OK, cb)
 end
 
@@ -281,7 +281,7 @@ local function TransToMapPortalByMapID(self, nMapID, pos, callback)
             message = template.TextContent
         end
         
-        local title = template.Name
+        local title = template.Title
         MsgBox.ShowSystemMsgBox(ServerMessageMap.TransPosNotUnlock, message, title, MsgBoxType.MBBT_OK, nil)
     else
         self._TransMapID = nMapID
@@ -567,7 +567,7 @@ end
 -- <bIgnorConnect>当地图联通时，次参数决定传送过去与否</bIgnorConnect>
 --------------------------------------------------------------------------
 def.method("number","table","function","boolean","boolean").StartMoveByMapIDAndPos = function(self, mapID, targetPos, functionName, bSearchEntity, bIgnorConnect)
-    --print("要寻路的地方是 mapID, targetPos, bSearchEntity, bIgnorConnect, " , mapID, targetPos, bSearchEntity, bIgnorConnect,debug.traceback())
+    print("要寻路的地方是 mapID, targetPos, bSearchEntity, bIgnorConnect, " , mapID, targetPos, bSearchEntity, bIgnorConnect,debug.traceback())
     if mapID == nil or mapID <= 0 then
         warn("<color=#ff0000>注意!寻路地图非法是 NIL</color>")
         return 
@@ -669,8 +669,7 @@ end
 --跨图完成继续寻路
 def.method().ContinueTrans = function(self)
     local host = game._HostPlayer
-    if not host:GetTransPortalState() then return end
-    
+    if host == nil then return end
     host:SetTransPortalState(false)
     game._GUIMan:SetNormalUIMoveToHide(false, 0, "", nil)
     GameUtil.SetCamToDefault(true, false, false, true) -- 重置相机水平方向
@@ -690,6 +689,10 @@ def.method("=>", "boolean").IsSearchNpc = function(self)
     return self._IsSearchNpc
 end
 
+def.method("=>", "boolean").IsIgnoreConnected = function(self)
+    return self._IsIgnoreConnected
+end
+
 -- 设置是否是手动开启的任务自动化，仅对一次寻路请求有效
 def.method("boolean").EnableManualModeOnce = function(self, isManual)
     self._IsInManualMode = isManual
@@ -704,30 +707,53 @@ end
 --不连通的情况下，非要给他传过去！！！！！
 def.method("number", "table", "=>", "table").GetForceTransDestPos = function(self, nMapID, targetPos)
 	local tableRegionData = MapBasicConfig.GetAllPortalRegion(nMapID)
-
 	if tableRegionData == nil then
 		game._HostPlayer:StopNaviCal()  
 		warn("地图区域数据错误！检查mapbasicinfo,MapID: ",nMapID)
 		return nil
 	end
-
 	local navmeshName = MapBasicConfig.GetNavmeshName(nMapID)
 	if(navmeshName == nil) then return nil end
 
 	local hostX, hostY, hostZ = game._HostPlayer:GetPosXYZ()
+    local path_table = {}
+    local InPath = function(key)
+        for i,v in ipairs(path_table) do
+            if v == key then
+                return true
+            end
+        end
+        return false
+    end
 
-	--判断所有的传送点，是否和目标点连通，然后传送到目标点
-	for k, v in pairs(tableRegionData) do
-		if v ~= nil then
-			if GameUtil.CanNavigateToXYZ(navmeshName, v.xA, v.yA, v.zA, targetPos.x, targetPos.y, targetPos.z, _G.NAV_STEP) and
-			   GameUtil.CanNavigateToXYZ(navmeshName, v.x, v.y, v.z, hostX, hostY, hostZ, _G.NAV_STEP) then
-				local regionPos = Vector3.New(v.x, v.y, v.z)
-				return regionPos
-			end
-		end	
-	end
+    -- 如果所到地方需要穿过好多navmesh， 递归地去寻找目标点，最终找到一个通路。
+    local function RecursionFindTargetPos(fromX, fromY, fromZ, toX, toY, toZ)
+        if GameUtil.CanNavigateToXYZ(navmeshName, fromX, fromY, fromZ, toX, toY, toZ, _G.NAV_STEP) then
+            return Vector3.New(toX, toY, toZ)
+        end
+        for k, v in pairs(tableRegionData) do
+		    if v ~= nil and (not InPath(k)) then
+			    if GameUtil.CanNavigateToXYZ(navmeshName, v.xA, v.yA, v.zA, toX, toY, toZ, _G.NAV_STEP) then
+                    path_table[#path_table + 1] = k
+                    return RecursionFindTargetPos(fromX, fromY, fromZ, v.x, v.y, v.z)
+                end
+		    end	
+	    end
+    end
 
-    return nil
+    local next_pos = RecursionFindTargetPos(hostX, hostY, hostZ, targetPos.x, targetPos.y, targetPos.z)
+
+--	--判断所有的传送点，是否和目标点连通，然后传送到目标点
+--	for k, v in pairs(tableRegionData) do
+--		if v ~= nil then
+--			if GameUtil.CanNavigateToXYZ(navmeshName, v.xA, v.yA, v.zA, targetPos.x, targetPos.y, targetPos.z, _G.NAV_STEP) and
+--			   GameUtil.CanNavigateToXYZ(navmeshName, v.x, v.y, v.z, hostX, hostY, hostZ, _G.NAV_STEP) then
+--				local regionPos = Vector3.New(v.x, v.y, v.z)
+--				return regionPos
+--			end
+--		end	
+--	end
+    return next_pos
 end
 
 -- 策划需求：寻路的目的地不是客户端要进入的地图 就不让进入相位

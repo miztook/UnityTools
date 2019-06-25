@@ -26,6 +26,10 @@ local CBuff = require "Skill.CBuff"
 local NotifyQuestDataChangeEvent = require "Events.NotifyQuestDataChangeEvent"
 local OBJ_TYPE = require "Main.CSharpEnum".OBJ_TYPE
 local CFxObject = require "Fx.CFxObject"
+local ENTITY_MOVE_TYPE = require "PB.net".ENTITY_MOVE_TYPE
+local CFSMObjMove = require "FSM.ObjectFSM.CFSMObjMove"
+local BEHAVIOR = require "Main.CSharpEnum".BEHAVIOR
+local GfxPosition_Type =  require "PB.Template".ExecutionUnit.ExecutionUnitEvent.EventJudgement.JudgementHitGfxPosition
   
 local CEntity = Lplus.Class("CEntity")
 local def = CEntity.define
@@ -381,9 +385,6 @@ def.virtual("number").AddMagicControl = function (self, state)
         -- 打断技能
         self:InterruptSkill(false)
         self:Stand()
-        if self:IsHostPlayer() then
-            self:SendBaseStateChangeEvent(true)
-        end
     end
 
     self._MagicControlinfo:Add(state)
@@ -399,10 +400,7 @@ def.virtual("number").RemoveMagicControl = function (self, state)
 
     -- 受控状态结束，转到Stand状态
     if not self:IsMagicControled() and not self:IsDead() and not self:IsPhysicalControled() then
-        self:Stand() 
-        if self:IsHostPlayer() then
-            self:SendBaseStateChangeEvent(false)
-        end
+        self:Stand()
     end
 end
 
@@ -429,8 +427,12 @@ def.virtual().OnLeavePhysicalControled = function(self)
         -- 处于正常状态 -> Stand
         -- 受伤动画只有在 stand 和 move中才会播放，所以不用考虑
 
+    local isMoving, _ = self:GetNormalMovingInfo()
+
     -- 受控状态结束，转到Stand状态
-    if not self:IsMagicControled() and not self:IsDead() then
+    if isMoving or self._SkillHdl:IsCastingSkill() or self:IsDead() then
+        -- do nothing
+    elseif not self:IsMagicControled() then
         self:Stand() 
     elseif self:IsMagicControled() then
         self:RefreshMagicControl()
@@ -662,6 +664,11 @@ def.virtual("=>", "boolean").IsOnRide = function (self)
     return false
 end
 
+--客户端是否正在马上(表现)
+def.virtual("=>", "boolean").IsClientMounting = function (self)
+    return false
+end
+
 --获得坐骑TID
 def.virtual("=>", "number").GetMountTid = function (self)
     return 0
@@ -883,9 +890,6 @@ end
 
 def.virtual("table", "number", "number", "function", "function").NormalMove = function (self, pos, speed, offset, successcb, failcb )
     self._StopMovePos = nil
-
-    if not self:CanMove() then return end
-    local CFSMObjMove = require "FSM.ObjectFSM.CFSMObjMove"
     local move = CFSMObjMove.new(self, pos, speed, successcb, failcb)
     self:ChangeState(move)
 end
@@ -894,11 +898,12 @@ end
 def.virtual().StopMovementLogic = function(self)
     --warn("StopMovementLogic", debug.traceback())
     if not self._IsReady or self._IsReleased then return end
-    local BEHAVIOR = require "Main.CSharpEnum".BEHAVIOR
-    GameUtil.RemoveBehavior(self:GetGameObject(), BEHAVIOR.MOVE)  
-    GameUtil.RemoveBehavior(self:GetGameObject(), BEHAVIOR.FOLLOW)  
-    GameUtil.RemoveBehavior(self:GetGameObject(), BEHAVIOR.JOYSTICK)
-    GameUtil.RemoveBehavior(self:GetGameObject(), BEHAVIOR.DASH)
+    
+    local go = self:GetGameObject()
+    GameUtil.RemoveBehavior(go, BEHAVIOR.MOVE)  
+    GameUtil.RemoveBehavior(go, BEHAVIOR.FOLLOW)  
+    GameUtil.RemoveBehavior(go, BEHAVIOR.JOYSTICK)
+    GameUtil.RemoveBehavior(go, BEHAVIOR.DASH)
     
     if self._FSM and self._FSM._CurState and self._FSM._CurState._Type == FSM_STATE_TYPE.MOVE then        
         self._FSM._CurState._TargetPos = nil
@@ -908,7 +913,6 @@ end
 def.virtual(CEntity, "number", "number", "function", "function").FollowTarget = function (self, target, maxdis, mindis, successcb, failcb)
     if not self:CanMove() then return end
     local speed =  self:GetMoveSpeed()
-    local CFSMObjMove = require "FSM.ObjectFSM.CFSMObjMove"
     local move = CFSMObjMove.new(self, target, speed, successcb, failcb)
     move._FollowParams = {MaxDis = maxdis, MinDis = mindis}
     self:ChangeState(move)
@@ -1057,11 +1061,11 @@ end
 -- 5)只要是切换到run或是run_Battle 就需要计算动画播放速率
 def.virtual("string","=>","string","boolean").GetAnimationName = function (self,nowAniname)
     local isReplace = false
-    if self._AnimationReplaceTable == nil then return nowAniname,isReplace end
-    for k,v in ipairs(self._AnimationReplaceTable) do 
-        if v.OldAniname == nowAniname then 
+    if self._AnimationReplaceTable ~= nil then 
+        local newAniName = self._AnimationReplaceTable[nowAniname]
+        if newAniName then
             isReplace = true
-            return v.NewAniname,isReplace
+            return newAniName,isReplace
         end
     end
     return nowAniname,isReplace
@@ -1097,9 +1101,7 @@ def.method("table").SaveReplaceAnimations = function (self, animationTable)
     end
     self._AnimationReplaceTable = {}
     for i,v in ipairs(animationTable) do
-        self._AnimationReplaceTable[#self._AnimationReplaceTable + 1] = {}
-        self._AnimationReplaceTable[#self._AnimationReplaceTable].NewAniname = v.ReplaceAnimation
-        self._AnimationReplaceTable[#self._AnimationReplaceTable].OldAniname = v.OriginalAnimation
+        self._AnimationReplaceTable[v.OriginalAnimation] = v.ReplaceAnimation
 
         --warn("==>", v.OriginalAnimation, "->", v.ReplaceAnimation)
     end
@@ -1221,6 +1223,7 @@ def.virtual(CFSMStateBase, "=>", "boolean").ChangeState = function(self, state)
 
     if self._FSM ~= nil then
         self:SyncPosWhenStateChange(self._FSM:GetCurrentState(), state)
+
         self._FSM:ChangeState(state)
     end
 
@@ -1266,7 +1269,7 @@ def.virtual().OnClick = function (self)
 end
 
 def.virtual("=>", "boolean", "table").GetNormalMovingInfo = function(self)
-
+    return false, nil
 end
 
 def.virtual("number", "table").OnPhysicsTriggerEvent = function (self, attacker_id, hitpos)
@@ -1303,7 +1306,6 @@ def.virtual(CEntity, "number", "dynamic", "boolean").OnBeHitted = function (self
             end
         elseif not actor.FollowWithHook then
             local attPos = nil
-            local GfxPosition_Type =  require "PB.Template".ExecutionUnit.ExecutionUnitEvent.EventJudgement.JudgementHitGfxPosition
             if hitPos == GfxPosition_Type.Foot then
                 attPos = self:GetPos()
             elseif hook ~= nil then
@@ -1468,8 +1470,6 @@ def.virtual().CreatePate = function (self)
 end
 
 def.virtual().OnPateCreate = function (self)
-	if self._TopPate == nil then return end
-	self._TopPate:MarkAsValid(true)
 end
 
 -- 更新头顶字
@@ -1567,14 +1567,24 @@ def.virtual("boolean", "number", "number", "number", 'table').UpdateState = func
         
         if indexState > 0 then
             local buff = self._BuffStates[indexState]  --删除特效
+            table.remove(self._BuffStates, indexState)
             if buff ~= nil then
                 buff:OnEnd()
                 buff:Release()
             end
-            table.remove(self._BuffStates, indexState)
 
             if buff:IsIconShown() then
                 SendBuffChangeEvent(self, false, buff._ID)
+            end
+
+            if buff:IsTransform() then
+                -- 变身Buff结束后检查是否还有别的变身Buff并开启 By 范导
+                for _, v in ipairs(self._BuffStates) do
+                    if v:IsTransform() then
+                        v:UpdateEnduringEvent()
+                        break
+                    end
+                end
             end
         end
     end
@@ -1738,13 +1748,6 @@ def.method().SendPropChangeEvent = function(self)
     local NotifyPropEvent = require "Events.NotifyPropEvent"
     local event = NotifyPropEvent()
     event.ObjID = self._ID
-    CGame.EventManager:raiseEvent(nil, event)
-end
-
-def.method("boolean").SendBaseStateChangeEvent = function(self, isEnter)
-    local BaseStateChangeEvent = require "Events.BaseStateChangeEvent"
-    local event = BaseStateChangeEvent()
-    event.IsEnterState = isEnter
     CGame.EventManager:raiseEvent(nil, event)
 end
 
@@ -2045,8 +2048,8 @@ def.virtual("number", "number", "number", "number").StartCooldown = function(sel
 end
 
 def.virtual("boolean").EnableShadow = function(self, on)
-    if not self._IsReady then return end
     self._IsEnableShadow = on
+    if not self._IsReady then return end
 
     self:DoEnableShadow(on)    
 end
@@ -2282,7 +2285,6 @@ def.virtual("table", "table", "number", "table", "number", "boolean", "table").O
     self:SetMoveSpeed(speed)
     self._MoveType = movetype
     
-    local ENTITY_MOVE_TYPE = require "PB.net".ENTITY_MOVE_TYPE
     if movetype == ENTITY_MOVE_TYPE.ForceSync then
         self:SetPos(curStepPos)
         self:SetDir(facedir)
@@ -2318,12 +2320,24 @@ def.virtual("table", "table", "number", "table", "number", "boolean", "table").O
     if movetype == ENTITY_MOVE_TYPE.ForceSync then
         self:SetPos(curStepPos)
         self:SetDir(facedir)
+
+        self:StopMovementLogic()
+        self:StopNaviCal()
     elseif movetype == ENTITY_MOVE_TYPE.Walking or movetype == ENTITY_MOVE_TYPE.Running then
-        self:SetPos(finalDstPos)
+        self:SetPos(finalDstPos) 
+
+        self:StopMovementLogic()
+        self:StopNaviCal()
     elseif movetype == ENTITY_MOVE_TYPE.SkillMove then
         self:SetPos(curStepPos)
+
+        self:StopMovementLogic()
+        self:StopNaviCal()
     elseif movetype == ENTITY_MOVE_TYPE.TeamFollowing then
         self:SetPos(curStepPos)
+
+        self:StopMovementLogic()
+        self:StopNaviCal()
     else
     end
 end 
@@ -2516,12 +2530,9 @@ def.method("table").SaveEntityHeadInstructionData = function(self,data)
     self._HeadInstructionTable.HeadInstructionOffSet = data.HeadInstructionOffSet
     self._HeadInstructionTable.IsHeadInstructionShow = data.IsHeadInstructionShow
     self._HeadInstructionTable.Scale = data.Scale
-    if self._HeadEffectObject ~= nil then 
-        self:DestroyHeadEffectObject()
-    end
-    if not self._HeadInstructionTable.IsHeadInstructionShow then 
-        self:DestroyHeadEffectObject()
-    else
+
+    self:DestroyHeadEffectObject()
+    if self._HeadInstructionTable.IsHeadInstructionShow then 
         self:PlayEntityHeadEffect()
     end
 end
@@ -2543,6 +2554,9 @@ def.method().PlayEntityHeadEffect = function (self)
         self._HeadInstructionTable.Scale = -1
     end
     self._HeadEffectObject = CFxMan.Instance():PlayAsChild(effectPath,self._GameObject,curPos,Quaternion.identity,-1,false, tonumber(self._HeadInstructionTable.Scale), EnumDef.CFxPriority.Always)
+end
+
+def.virtual().BeginIdleState = function(self)
 end
 
 def.virtual().ReleaseBuffStates = function(self)
@@ -2634,6 +2648,10 @@ def.virtual().Release = function (self)
     self._UserSkillMap = nil
     self._OnNotifyQuestDataChangeEvent = nil
 
+    self._AnimationReplaceTable = nil
+    self:DestroyHeadEffectObject()
+    self._HeadInstructionTable = nil 
+
     local ecm = self._Model
     if ecm ~= nil then        
         ecm:Destroy()
@@ -2647,17 +2665,15 @@ def.virtual().Release = function (self)
     end
     self._OnTransformerLoadedCallbacks = nil
 
-    if not IsNil(self._GameObject) then
+    if self._GameObject ~= nil then
         GameUtil.RecycleEntityBaseRes(self._GameObject)
+    elseif self._IsReady then
+        warn("CEntity must have a GameObject", self._ID)
     end
     self._GameObject = nil
 
     self._IsReady = false
     self._IsReleased = true
-    
-    self._AnimationReplaceTable = nil
-    self:DestroyHeadEffectObject()
-    self._HeadInstructionTable = nil 
 end
 
 CEntity.Commit()

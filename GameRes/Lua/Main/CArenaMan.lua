@@ -18,7 +18,7 @@ local CElementData = require "Data.CElementData"
 local CPanelMirrorArena = require "GUI.CPanelMirrorArena"
 local CPanelDungeonEnd = require "GUI.CPanelDungeonEnd"
 local CQuestAutoMan = require "Quest.CQuestAutoMan"
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local EJJC1x1State = require "PB.net".S2CJJC1x1State.EJJC1x1State
 local CCalendarMan = require "Main.CCalendarMan"
 local CPVPAutoMatch = require "ObjHdl.CPVPAutoMatch"
@@ -90,57 +90,58 @@ local function UpdateData(self,data)
 end
 
 -- 恢复匹配
-local function RestoreStateMatching(self,msg)
-	if msg.MatchRestore.DungeonType == EDungeonType.Type_Arena then 
+local function RestoreStateMatching(self,data)
+	
+	if data.DungeonType == EDungeonType.Type_Arena then 
 		self._IsMatching3V3 = true
 		local time = nil
 
-		if msg.MatchRestore.LeftTime == 0 then 
+		if data.LeftTime == 0 then 
 			game._DungeonMan:MatchingTime3V3Man(0)
-			time = msg.MatchRestore.StartTime
+			time = data.StartTime
 		else
 			game._HostPlayer: Set3v3RoomID(0) 
 			game._GUIMan:Close("CPanelMate")
 			self._IsMatching3V3 = true
 			local max =  CSpecialIdMan.Get("Arena3V3MateTime")
-			game._DungeonMan:MatchingTime3V3Man(max - msg.MatchRestore.LeftTime)
-			time = GameUtil.GetServerTime()/1000 - (max - msg.MatchRestore.LeftTime)
+			game._DungeonMan:MatchingTime3V3Man(max - data.LeftTime)
+			time = GameUtil.GetServerTime()/1000 - (max - data.LeftTime)
 		end
 		CPanelMirrorArena.Instance():BackToMatching3V3(time)
-	elseif msg.MatchRestore.DungeonType == EDungeonType.Type_Eliminate then
+	elseif data.DungeonType == EDungeonType.Type_Eliminate then
 		self._IsMatchingBattle = true
 		local time = nil
-		if msg.MatchRestore.LeftTime == 0 then 
+		if data.LeftTime == 0 then 
 			game._DungeonMan:MatchingTimeBattleMan(0)
-			time = msg.MatchRestore.StartTime
+			time = data.StartTime
 			
 		else
 			game._HostPlayer:SetEliminateRoomID(0)  
 			game._GUIMan:Close("CPanelMate")
 			local max =  CSpecialIdMan.Get("EliminateMateTime")
-			game._DungeonMan:MatchingTime3V3Man(max - msg.MatchRestore.LeftTime)
-			time = GameUtil.GetServerTime()/1000 - (max - msg.MatchRestore.LeftTime)
+			game._DungeonMan:MatchingTime3V3Man(max - data.LeftTime)
+			time = GameUtil.GetServerTime()/1000 - (max - data.LeftTime)
 		end
 		CPanelMirrorArena.Instance():BackToMatchingBattle(time)
 	end
 end
 
 -- 恢复 已经进入匹配确认界面
-local function RestoreStateMatched(self,msg)
+local function RestoreStateMatched(self,data)
 	local panelData = nil 
 
 	local isConfirmed = false
-	if msg.MatchRestore.MatchState == EMatchState.EMatchState_Confirm then 
+	if data.MatchState == EMatchState.EMatchState_Confirm then 
 		isConfirmed = true
 	end
 
-	if msg.MatchRestore.DungeonType == EDungeonType.Type_Arena then 
+	if data.DungeonType == EDungeonType.Type_Arena then 
 		local info = 
 		{
-			RedList = msg.MatchRestore.RedList,
-			BlackList = msg.MatchRestore.BlackList,
-			DeadLine = msg.MatchRestore.DeadLine,
-			RoomId = msg.MatchRestore.RoomId,
+			RedList = data.RedList,
+			BlackList = data.BlackList,
+			DeadLine = data.DeadLine,
+			RoomId = data.RoomId,
 			IsConfirmed = isConfirmed,
 		}
 		panelData = 
@@ -148,15 +149,15 @@ local function RestoreStateMatched(self,msg)
 			CurArenaType = EnumDef.OpenArenaType.Open3V3,
 			Info = info,
 		}
-		game._HostPlayer:Set3v3RoomID(msg.MatchRestore.RoomId)
-	elseif msg.MatchRestore.DungeonType == EDungeonType.Type_Eliminate then
+		game._HostPlayer:Set3v3RoomID(data.RoomId)
+	elseif data.DungeonType == EDungeonType.Type_Eliminate then
 		game._DungeonMan:MatchingTimeBattleMan(0)
 		self._IsMatchingBattle = true
 		local info = 
 		{
-			ConfirmCount = msg.MatchRestore.ConfirmCount,
-			RoleCount = msg.MatchRestore.RoleCount,
-			RoomId = msg.MatchRestore.RoomId,
+			ConfirmCount = data.ConfirmCount,
+			RoleCount = data.RoleCount,
+			RoomId = data.RoomId,
 			IsConfirmed = isConfirmed,
 		}
 		panelData = 
@@ -164,17 +165,17 @@ local function RestoreStateMatched(self,msg)
 			CurArenaType = EnumDef.OpenArenaType.OpenBattle,
 			Info = info,
 		}
-		game._HostPlayer: SetEliminateRoomID(msg.MatchRestore.RoomId)
+		game._HostPlayer: SetEliminateRoomID(data.RoomId)
 	end
 
 	game._GUIMan:Open("CPanelMate",panelData)			
 end
 
 -- 恢复 惩罚
-local function RestoreStatePunish(self,msg)
-	if msg.MatchRestore.DungeonType == EDungeonType.Type_Arena then
-		game._DungeonMan:BanMatchingTime3V3Man(msg.BanMatchTime)
-		game._DungeonMan:BanMatchingTime3V3Man(msg.MatchRestore.punishTime)
+local function RestoreStatePunish(self,data)
+	if data.DungeonType == EDungeonType.Type_Arena then
+		game._DungeonMan:BanMatchingTime3V3Man(data.BanMatchTime)
+		game._DungeonMan:BanMatchingTime3V3Man(data.punishTime)
 		self._IsBanMatching3V3 = true
 	end 
 end
@@ -223,6 +224,10 @@ def.method("table").OpenPanel = function (self,data)
 	elseif self._CurOpenArenaType == EnumDef.OpenArenaType.Open3V3 then 
 		game._GUIMan:Open("CPanelMirrorArena",self._3V3HostData)
 	elseif self._CurOpenArenaType == EnumDef.OpenArenaType.Open1V1 then 
+		if CPanelMirrorArena.Instance():IsShow() then 
+			CPanelMirrorArena.Instance():Update1V1RoleInfo()
+			return
+		end
 		game._GUIMan:Open("CPanelMirrorArena",self._1V1HostData)
 	end
 end
@@ -251,7 +256,7 @@ end
 
 --1v1匹配状态
 def.method("table").OnS2C1V1State = function(self,msg)
-	if not CPanelArenaOneMatching.Instance():IsShow() then 
+	if not CPanelArenaOneMatching.Instance():IsShow() then 	
 		game._GUIMan:Open("CPanelArenaOneMatching",nil)
 	end
 	if CPanelDungeonEnd.Instance():IsShow() then 
@@ -608,8 +613,8 @@ def.method("table").OnS2CEliminateBackToMatching = function(self,msg)
 	game._GUIMan:Close("CPanelMate")
 	self._IsMatchingBattle = true
 	local max =  CSpecialIdMan.Get("EliminateMatchingTime")
-	game._DungeonMan:MatchingTimeBattleMan(max - msg.leftTime)
-	local time = GameUtil.GetServerTime()/1000 - (max - msg.leftTime)
+	game._DungeonMan:MatchingTimeBattleMan(max - msg.LeftTime)
+	local time = GameUtil.GetServerTime()/1000 - (max - msg.LeftTime)
     CPanelMirrorArena.Instance():BackToMatchingBattle(time)
 	
 	CQuestAutoMan.Instance():Stop()
@@ -741,12 +746,21 @@ end
 
 --自己断线重连 回到匹配界面
 def.method("table").OnS2CMatchRestoreData = function(self,msg)
-	if msg.MatchRestore.MatchState == EMatchState.EMatchState_Matching then 
-		RestoreStateMatching(self,msg)
-	elseif msg.MatchRestore.MatchState == EMatchState.EMatchState_Matched or msg.MatchRestore.MatchState == EMatchState.EMatchState_Confirm then 
-		RestoreStateMatched(self,msg)
-	elseif msg.MatchRestore.MatchState == EMatchState.EMatchState_Punish then 
-		RestoreStatePunish(self,msg)
+	local  data = nil
+	for _,v in pairs( msg.MutilMatchRestore) do 
+		if v.DungeonType == EDungeonType.Type_Arena then 
+			data = v
+		elseif v.DungeonType == EDungeonType.Type_Eliminate then 
+			data = v
+		end
+	end
+	if data == nil then return end 
+	if data.MatchState == EMatchState.EMatchState_Matching then 
+		RestoreStateMatching(self,data)
+	elseif data.MatchState == EMatchState.EMatchState_Matched or data.MatchState == EMatchState.EMatchState_Confirm then 
+		RestoreStateMatched(self,data)
+	elseif data.MatchState == EMatchState.EMatchState_Punish then 
+		RestoreStatePunish(self,data)
 	end   
 end
 

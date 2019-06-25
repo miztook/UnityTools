@@ -88,6 +88,7 @@ local  C2S_PROTOC_TYPE_HOTTIME         = net.C2S_PROTOC_TYPE_HOTTIME
 local  C2S_PROTOC_TYPE_ONLINEREWARD    = net.C2S_PROTOC_TYPE_ONLINEREWARD
 local  C2S_PROTOC_TYPE_ELITEBOSS       = net.C2S_PROTOC_TYPE_ELITEBOSS
 local  C2S_PROTOC_TYPE_MATCH           = net.C2S_PROTOC_TYPE_MATCH
+local  C2S_PROTOC_TYPE_FESTIVAL 	   = net.C2S_PROTOC_TYPE_FESTIVAL
 
 local S2C_PROTOC_TYPE = net.S2C_PROTOC_TYPE
 local S2C_PROTOC_TYPE_ACHIEVE = net.S2C_PROTOC_TYPE_ACHIEVE
@@ -137,6 +138,7 @@ local S2C_PROTOC_TYPE_HOTTIME = net.S2C_PROTOC_TYPE_HOTTIME
 local S2C_PROTOC_TYPE_ONLINEREWARD = net.S2C_PROTOC_TYPE_ONLINEREWARD
 local S2C_PROTOC_TYPE_ELITEBOSS = net.S2C_PROTOC_TYPE_ELITEBOSS
 local S2C_PROTOC_TYPE_MATCH = net.S2C_PROTOC_TYPE_MATCH
+local S2C_PROTOC_TYPE_FESTIVAL = net.S2C_PROTOC_TYPE_FESTIVAL
 
 
 for MsgName, MsgType in pairs(net) do
@@ -214,7 +216,9 @@ for MsgName, MsgType in pairs(net) do
 				 theType == C2S_PROTOC_TYPE_ONLINEREWARD or
 
 				 theType == C2S_PROTOC_TYPE_ELITEBOSS or
-				 theType == C2S_PROTOC_TYPE_MATCH then
+				 theType == C2S_PROTOC_TYPE_MATCH or
+				 
+				 theType == C2S_PROTOC_TYPE_FESTIVAL then
 
 				local MsgID = _G.C2ID[MsgName] --or field.default_value
 				if not MsgID then 
@@ -269,7 +273,8 @@ for MsgName, MsgType in pairs(net) do
 					theType == S2C_PROTOC_TYPE_HOTTIME or
 					theType == S2C_PROTOC_TYPE_ONLINEREWARD or
 					theType == S2C_PROTOC_TYPE_ELITEBOSS or
-					theType == S2C_PROTOC_TYPE_MATCH then 
+					theType == S2C_PROTOC_TYPE_MATCH or
+					theType == S2C_PROTOC_TYPE_FESTIVAL then 
 
 				local MsgID = _G.S2ID[MsgName] --or field.default_value
 				if not MsgID then 

@@ -5,6 +5,7 @@ local CGame = Lplus.ForwardDeclare("CGame")
 local CElementData = require "Data.CElementData"
 local PBHelper = require "Network.PBHelper"
 local CPanelRoleInfo = Lplus.ForwardDeclare("CPanelRoleInfo")
+local EntityEvilNumChangeEvent = require "Events.EntityEvilNumChangeEvent"
 local CPageProperty = Lplus.Class("CPageProperty")
 local def = CPageProperty.define
 
@@ -24,15 +25,21 @@ def.static("=>", CPageProperty).Instance = function()
 	return instance
 end
 
+local OnEntityEvilNumChangeEvent = function (sender, event)
+    if instance ~= nil then
+    end
+end
 
 def.method("table", "userdata").Show = function(self, linkInfo, root)
-	self._Panel = root              --该分解的root 节点
-    self._PanelObject = linkInfo    --存储引用的table在上层传递进来
-    self._PanelObject._FrameDetailInfo:SetActive(false)
-    self._PanelObject._FrameBaseInfo:SetActive(true)
-    local doTweenPlayer = self._Panel:GetComponent(ClassType.DOTweenPlayer)
-	doTweenPlayer:Restart("BaseInfoAppear")
-    self._IsBaseProperty = true
+        self._Panel = root              --该分解的root 节点
+        self._PanelObject = linkInfo    --存储引用的table在上层传递进来
+        self._PanelObject._FrameDetailInfo:SetActive(false)
+        --GameUtil.SetCanvasGroupAlpha(self._PanelObject._FrameDetailInfo,0)
+        self._PanelObject._FrameBaseInfo:SetActive(true)
+        GameUtil.SetCanvasGroupAlpha(self._PanelObject._FrameBaseInfo,1)
+        --local doTweenPlayer = self._Panel:GetComponent(ClassType.DOTweenPlayer)
+	--doTweenPlayer:Restart("BaseInfoAppear")
+        self._IsBaseProperty = true
 	self._BtnList1 = {}
 	self._BtnList2 = {}
 	self:UpdatePageProperty()
@@ -47,15 +54,11 @@ def.method().UpdatePageProperty = function(self)
 	self._PanelObject._ImgUpArrow:SetActive(true)
 	self._PanelObject._ImgDownArrow:SetActive(false)
 	GUI.SetText(self._PanelObject._LabLevel,string.format(StringTable.Get(21508), info_data._Level))
+	GUI.SetText(self._PanelObject._LabEvilValue,tostring(game._HostPlayer:GetEvilValue()))
 	local professionTemplate = CElementData.GetProfessionTemplate(info_data._Prof)
 	GUI.SetText(self._PanelObject._LabJob,professionTemplate.Name )
-	-- 工会名称
-	if not game._GuildMan:IsHostInGuild() then 
-		GUI.SetText(self._PanelObject._LabGuild,StringTable.Get(21501))
-	else
-		GUI.SetText(self._PanelObject._LabGuild,game._HostPlayer._Guild._GuildName) 
-	end 
-
+	
+	self:UpdateGuildInfo()
 	-- -- 更新称号
 	-- self:UpdateHostPlayerTitle()
 	self:UpdateExp()
@@ -64,6 +67,14 @@ def.method().UpdatePageProperty = function(self)
 	self:UpdateBaseProperty()
 end
 
+def.method().UpdateGuildInfo = function(self)
+	-- 工会名称
+	if not game._GuildMan:IsHostInGuild() then 
+		GUI.SetText(self._PanelObject._LabGuild,StringTable.Get(21501))
+	else
+		GUI.SetText(self._PanelObject._LabGuild,game._HostPlayer._Guild._GuildName) 
+	end 
+end
 
 def.method().UpdateCustomHead = function(self)
 	--设置头像
@@ -75,8 +86,13 @@ def.method().UpdateExp = function(self)
 	local info_data = game._HostPlayer._InfoData
 	local levelUpExpTemplate = CElementData.GetLevelUpExpTemplate(info_data._Level)
 	local value = info_data._Exp / levelUpExpTemplate.Exp
-	GUI.SetText(self._PanelObject._LabBldExp, string.format(StringTable.Get(21518), GUITools.FormatMoney(info_data._Exp),GUITools.FormatMoney(levelUpExpTemplate.Exp)))
+	GUI.SetText(self._PanelObject._LabBldExp, string.format(StringTable.Get(21518), info_data._Exp,levelUpExpTemplate.Exp))
 	self._PanelObject._BldExp.value = value
+end
+
+def.method().UpdateEvil = function (self)
+	GUI.SetText(self._PanelObject._LabEvilValue,tostring(game._HostPlayer:GetEvilValue()))
+	-- body
 end
 
 -- --改变称号
@@ -123,7 +139,7 @@ def.method().UpdateOtherProperty = function(self) ----subList2
 	do
 		nameList = 
 		{
-			"010","080","030","032","096",
+			"010","080","030","032","096","050",
 		}
 		self:SetPropertyData(self._PanelObject._ImgLittleBG1, nameList,false)
 	end
@@ -132,7 +148,7 @@ def.method().UpdateOtherProperty = function(self) ----subList2
 	do
 		nameList = 
 		{
-			"069","011","034","070","075",
+			"069","011","034","070","075","051",
 		}
 		self:SetPropertyData(self._PanelObject._ImgLittleBG2, nameList,false)
 	end
@@ -225,7 +241,7 @@ def.method("userdata", "table","boolean").SetPropertyData = function(self, obj, 
 						strTotal = string.format(StringTable.Get(10981), strTotal)
 					end
 				elseif string.find(data.ValueFormat, "d") then
-					valueTotal = math.ceil(valueTotal)--fixFloat(valueTotal, 0)
+					valueTotal = fixFloat(valueTotal, 0)
 					strTotal = GUITools.FormatNumber(valueTotal)
 				end
 			end
@@ -318,25 +334,39 @@ def.method("string").Click = function (self,id)
 		-- TODO()
 		game._GUIMan:Open("CPanelSetHead", nil)
 	elseif id == "Btn_Guild"then 
-		if game._GuildMan:IsHostInGuild() then 
-			game._GuildMan:RequestAllGuildInfo()
-		else 
-			game._GUIMan: ShowTipText(StringTable.Get(21502),false)
-		end	
+			--跨服判断
+        if game._HostPlayer:IsInGlobalZone() then
+            game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+            return
+        end
+		    if not game._CFunctionMan:IsUnlockByFunID(EnumDef.EGuideTriggerFunTag.Guild) then
+				game._CGuideMan:OnShowTipByFunUnlockConditions(1, EnumDef.EGuideTriggerFunTag.Guild)
+			else
+				if not game._GuildMan:IsHostInGuild() then 
+					game._GUIMan:ShowTipText(StringTable.Get(21502),false)
+					game._GuildMan:RequestAllGuildInfo()
+				else
+					game._GUIMan:Open("CPanelUIGuild", _G.GuildPage.Info)
+				end
+			end
 	elseif id == "Btn_Detail" then 
 		local doTweenPlayer = self._Panel:GetComponent(ClassType.DOTweenPlayer)
 		GameUtil.PlayUISfx(PATH.UIFx_PropertyChangeBg,self._Panel,self._Panel,-1)
 		if not self._IsBaseProperty then 
 
 			self._IsBaseProperty = true
+			doTweenPlayer:Stop("BaseInfoDisappear")
+                        doTweenPlayer:Stop("DetailAppear")
 			doTweenPlayer:Restart("DetailDisappear")
 			self._PanelObject._FrameBaseInfo:SetActive(true)
 			doTweenPlayer:Restart("BaseInfoAppear")
 			self._PanelObject._ImgUpArrow:SetActive(true)
 			self._PanelObject._ImgDownArrow:SetActive(false)
 		else
-			doTweenPlayer:Restart("BaseInfoDisappear")
 			self._IsBaseProperty = false
+			doTweenPlayer:Stop("DetailDisappear")
+                        doTweenPlayer:Stop("BaseInfoAppear")
+			doTweenPlayer:Restart("BaseInfoDisappear")
 			self._PanelObject._FrameDetailInfo:SetActive(true)
 			doTweenPlayer:Restart("DetailAppear")
 			self:UpdateOtherProperty()

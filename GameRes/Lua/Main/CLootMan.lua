@@ -146,7 +146,7 @@ def.override("boolean").Release = function (self, is_2_release_root)
 		CGame.EventManager:removeHandler(PackageChangeEvent, self._OnPackageChange)
 		self._OnPackageChange = nil
 
-		Object.DestroyImmediate(self._LootObjectsRoot)
+		Object.Destroy(self._LootObjectsRoot)
 		self._LootObjectsRoot = nil
 	end
 end

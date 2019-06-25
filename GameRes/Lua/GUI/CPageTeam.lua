@@ -70,13 +70,12 @@ local function OnTeamInfoChange(sender, event)
         instance:OnNewRoleComeIn( data )
 	elseif event._Type == TeamInfoChangeType.DeadState then
 		instance:UpdateDeadState( data )
-	elseif event._Type == TeamInfoChangeType.FightScore then
-	elseif event._Type == TeamInfoChangeType.Bounty then
 	elseif event._Type == TeamInfoChangeType.TARGETCHANGE then
         instance:UpdateAll()
-	elseif event._Type == TeamInfoChangeType.MATCHSTATECHANGE then
     elseif event._Type == TeamInfoChangeType.TeamMode then
         instance:UpdateAll()
+	elseif event._Type == TeamInfoChangeType.TeamMemberName then
+		instance:UpdateMemberName( data )
 	else
 		-- warn("error, unknown TeamInfoChangeType! please check:", event._Type)
 	end
@@ -254,6 +253,26 @@ def.method("table").UpdateFollowState = function(self, data)
 	local item = self._TeamMemberItemList[data.roleId]
 	local lab_follow = item:FindChild("Lab_Name/Lab_Follow")
 	lab_follow:SetActive(data.isFollow)
+end
+
+def.method("table").UpdateMemberName = function(self, data)
+	if self._TeamMemberItemList[data.roleId] == nil then return end
+
+	local item = self._TeamMemberItemList[data.roleId]
+	local Lab_Name = item:FindChild("Lab_Name")
+	local memberInfo = self._TeamMan:GetMemberInfoById(data.roleId)
+
+	local team_mode = self._TeamMan:GetTeamMode()
+    if team_mode == TeamMode.Corps then
+        local str = memberInfo._Name
+        local len = GUITools.UTFstrlen(str)
+        if len > 3 then
+            str = GUITools.SubUTF8String(memberInfo._Name, 1, 3).."..."
+        end
+        GUI.SetText(lab_name, str)
+    else
+	    GUI.SetText(lab_name, memberInfo._Name)
+    end
 end
 
 -- 更新是否在视野范围之内

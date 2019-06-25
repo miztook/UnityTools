@@ -45,7 +45,7 @@ local MapInfo =
 		},
 		[14244] = 
 		{
-			[1] = { x = -68.70, y = 78.13, z = -101.10, name = "핏빛 폭군", level = 57, SortID = 15, DropItemIds = " ",IsBoss = true },
+			[1] = { x = -68.70, y = 78.13, z = -101.10, name = "피의 폭군", level = 57, SortID = 15, DropItemIds = " ",IsBoss = true },
 		},
 	},
 	Npc = 

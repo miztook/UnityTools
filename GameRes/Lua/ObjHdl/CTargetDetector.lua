@@ -5,7 +5,7 @@ local CElementData = require "Data.CElementData"
 local OBJ_TYPE = require "Main.CSharpEnum".OBJ_TYPE
 local EMonsterQuality = require "PB.Template".Monster.EMonsterQuality
 local SkillCollision = require "SkillCollision"
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 
 local DistanceH_XZ = Vector3.DistanceH_XZ
 local SqrDistanceH_XZ = Vector3.SqrDistanceH_XZ
@@ -429,12 +429,44 @@ do
 		local target_radius = 0.5
 		local max_distance_weight = 1000
 
+		--特殊处理新手本的boss
+		local bossId = 0
+		if game:IsInBeginnerDungeon() then
+			for id, entity in pairs(obj_map) do
+				if entity:GetObjectType() == OBJ_TYPE.MONSTER  and entity:GetMonsterQuality() == EMonsterQuality.BEHEMOTH and entity:IsVisibleInCamera() then
+					bossId = id
+
+					local targetPosX, targetPosZ = entity:GetPosXZ()
+					local max_dis = game._TargetMissDistanceSqr
+					-- 世界boss
+					if self:IsCurTargetWorldBoss(entity) then
+						if world_boss_radius_sqr <= 0 then
+							local lo_radius = tonumber(CElementData.GetSpecialIdTemplate(WORLD_BOSS_RADIUS).Value)
+							world_boss_radius_sqr = lo_radius * lo_radius
+						end
+						max_dis = world_boss_radius_sqr
+					end
+
+					local host = game._HostPlayer
+					local hostPosX, hostPosZ = host:GetPosXZ()
+					local d = DistanceH_XZ(hostPosX, hostPosZ, targetPosX, targetPosZ)
+					if d * d < max_dis then
+						local weight = base_weight + max_distance_weight - d
+						pool:Add(id, weight)
+					end
+
+					break
+				end
+			end
+		end
+
 		--搜索圆形视野区域
 		local circle = nil
 		base_weight = 0
 		for id, entity in pairs(obj_map) do
 			--warn("huangxin", entity:IsVisibleInCamera())
-			if entity:IsVisibleInCamera() then 
+			if id ~= bossId and entity:IsVisibleInCamera() then 
+				--世界boss特殊处理
 				if circle == nil then circle = SkillCollision.CreateShapeXYZ(2, change_target_view_radius, 0, 0, hostPosX, hostPosY, hostPosZ, hostDirX, hostDirY, hostDirZ) end
 
 				local posX, posY, posZ = entity:GetPosXYZ()
@@ -450,7 +482,7 @@ do
 		local rect = nil
 		base_weight = 1000
 		for id, entity in pairs(obj_map) do
-			if entity:IsVisibleInCamera() then
+			if id ~= bossId and entity:IsVisibleInCamera() then
 				if rect == nil then rect = SkillCollision.CreateShapeXYZ(0, change_target_view_width, change_target_view_length, 0, hostPosX, hostPosY, hostPosZ, hostDirX, hostDirY, hostDirZ) end
 
 				local posX, posY, posZ = entity:GetPosXYZ()
@@ -484,6 +516,7 @@ do
 
 	def.method().ChangeTarget = function(self)
 		local new_pool = self:GetNearbyValidTargets()
+		warn("0000000", table.count(new_pool._Map))
 		local calc_pool = CObjectWeightPool()
 		for _, v in ipairs(old_pool._List) do
 			local entity_id = v[1]
@@ -506,9 +539,11 @@ do
 		if #old_pool._List == 0 then return end
 
 		local target_id = GetOne(old_pool)
+		warn("111111111", target_id, table.count(old_pool._Map))
 		local host_player = game._HostPlayer
 		if host_player._CurTarget ~= nil and target_id == host_player._CurTarget._ID and host_player._IsTargetLocked and #old_pool._List ~= 1 then
 			target_id = GetOne(old_pool)
+			warn("2222222", target_id, table.count(old_pool._Map))
 		end
 
 		local target = game._CurWorld:FindObject(target_id)

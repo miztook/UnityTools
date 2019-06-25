@@ -13,6 +13,7 @@ def.field('number')._CurTargetId = 0
 def.field('number')._TimerId = 0
 def.field('number')._ManualSkillId = 0
 def.field('table')._TargetTidList = BlankTable  -- 优先目标列表
+def.field('table')._ForbidSkillId = BlankTable  -- 禁止释放的技能ID
 def.field("boolean")._Paused = false
 
 local dist_sqr = 1.5 * 1.5
@@ -26,6 +27,17 @@ def.method().Init = function(self)
     else
         warn(msg)
     end    
+    self._ForbidSkillId = {}
+    local userSkillMap = game._HostPlayer._MainSkillIDList
+    local UserData = require "Data.UserData".Instance()
+    for k, v in ipairs(userSkillMap) do
+        local skill_is_forbid = UserData:GetField("UserSkillAuto"..v)
+        if skill_is_forbid ~= nil then
+            if skill_is_forbid == true then
+                self._ForbidSkillId[#self._ForbidSkillId + 1] = v
+            end
+        end
+    end
 end
 
 def.virtual("number").Start = function(self, param)    
@@ -133,7 +145,7 @@ local function EnemyFilter(v)
     return true
 end
 
-def.method("boolean", "function", "function", "=>", CEntity, "table").GetTargetAndPos = function(self, detect_player, disfunc, filterfunc)
+def.method("boolean", "function", "function", "=>", CEntity).FindTarget = function(self, detect_player, disfunc, filterfunc)
     local elseplayer_manager = game._CurWorld._PlayerMan
     local npc_manager = game._CurWorld._NPCMan
     local dis_limit = self:GetEnemyDetectRadius()
@@ -149,9 +161,7 @@ def.method("boolean", "function", "function", "=>", CEntity, "table").GetTargetA
     local hostX, hostZ = host_player:GetPosXZ()
     local dis_mon = 100000
     local filter_monster = npc_manager:GetByFilter("Enemy", monster_function)
-    local target_pos
     if filter_monster then
-        target_pos = self:GetTargetAttPos(filter_monster)
         target = filter_monster
         local monster_x, monster_z = filter_monster:GetPosXZ()
         dis_mon = SqrDistanceH(hostX, hostZ, monster_x, monster_z)
@@ -171,29 +181,16 @@ def.method("boolean", "function", "function", "=>", CEntity, "table").GetTargetA
                 local player_x, player_z = filter_player:GetPosXZ()
                 local dis_player = SqrDistanceH(hostX, hostZ, player_x, player_z) 
                 if dis_player < dis_mon then
-                    target_pos = self:GetTargetAttPos(filter_player)
                     target = filter_player
                 end
             -- 距离优先
             else
-                target_pos = self:GetTargetAttPos(filter_player)
                 target = filter_player
             end
         end
     end
 
-    return target, target_pos
-end
-
--- 获取攻击点
-def.method(CEntity,"=>", "table").GetTargetAttPos = function(self, target)
-    local host_player = game._HostPlayer
-    local curPos = host_player:GetPos()
-    local tarpos = target:GetPos()  
-    local width = target:GetRadius() + host_player:GetRadius()   
-    local dir = tarpos - curPos
-    dir.y = 0
-    return (tarpos - dir:Normalize() * width)
+    return target
 end
 
 local function GetTargetDistance(self)
@@ -210,21 +207,19 @@ local function GetTargetDistance(self)
     return ret
 end
 
-local function MoveTo(self, pos)
+local function MoveTo(self, target)
     local host_player = game._HostPlayer
     -- 瑞龙需求 不给提示
     if not host_player:CanMove() then
         return
     end
 
-    local hostPosX, hostPosZ = host_player:GetPosXZ()
-    if SqrDistanceH(hostPosX, hostPosZ, pos.x, pos.z) <= dist_sqr then
-        return
-    end
+    local pos = target:GetPos()
+    local offset = host_player:GetRadius() + target:GetRadius() + 1
     local OnReach = function()    
         host_player:StopNaviCal() 
     end
-    host_player:Move(pos, 0, OnReach, OnReach) 
+    host_player:Move(pos, offset, OnReach, OnReach) 
 end
 
 local function GetRuneEleType(hp, skillId)
@@ -255,13 +250,22 @@ local function HasAttackPowerIncreaseBuff(hp)
     return (hp:HasState(31) or hp:HasState(205) or hp:HasState(206) or hp:HasState(207))
 end
 
+local IsForbidSkill = function(self, skillId)
+    local is_forbid = false
+    for i,v in ipairs(self._ForbidSkillId) do
+        if v == skillId then
+            is_forbid = true
+        end
+    end
+    return is_forbid
+end
 
 -- 获取可用技能
-local function GetProperSkillID(self, target, targetPos)
+local function GetProperSkillID(self, target)
     local host_player = game._HostPlayer
     local host_skill = host_player._SkillHdl   
 
-    if self._ManualSkillId ~= 0 and host_skill:CanCastSkillNow(self._ManualSkillId, target, targetPos) then
+    if self._ManualSkillId ~= 0 and host_skill:CanCastSkillNow(self._ManualSkillId, target) then
         return self._ManualSkillId
     end
 
@@ -274,7 +278,7 @@ local function GetProperSkillID(self, target, targetPos)
             for i,v in ipairs(skill_cast_indexs) do
                 if v > 0 then
                     local skillid = changed_skills_list[v]
-                    if skillid ~= nil and skillid > 0 and host_skill:CanCastSkillNow(skillid, target, targetPos) then
+                    if skillid ~= nil and skillid > 0 and host_skill:CanCastSkillNow(skillid, target) then
                         return skillid
                     end
                 end
@@ -290,48 +294,50 @@ local function GetProperSkillID(self, target, targetPos)
     local config_skills = config[hpProf]
     for i = 1, #config_skills do
         local skillId = config_skills[i]
-        if hpProf == EnumDef.Profession.Aileen then 
-            local hpPercent = host_player._InfoData._CurrentHp / host_player._InfoData._MaxHp
-            if hpPercent > 0.8 then
-                -- 10号技能装备雷系纹章 或者 无攻击力加成Buff 可释放44
-                if skillId == 44 then
-                    local eleType = GetRuneEleType(host_player, 10)
-                    if (eleType == EElementType.Lightning_EElementType) or (not HasAttackPowerIncreaseBuff(host_player)) then
-                        if host_skill:CanCastSkillNow(44, target, targetPos) then
-                            return 44
+        if not IsForbidSkill(self,skillId) then
+            if hpProf == EnumDef.Profession.Aileen then 
+                local hpPercent = host_player._InfoData._CurrentHp / host_player._InfoData._MaxHp
+                if hpPercent > 0.8 then
+                    -- 10号技能装备雷系纹章 或者 无攻击力加成Buff 可释放44
+                    if skillId == 44 then
+                        local eleType = GetRuneEleType(host_player, 10)
+                        if (eleType == EElementType.Lightning_EElementType) or (not HasAttackPowerIncreaseBuff(host_player)) then
+                            if host_skill:CanCastSkillNow(44, target) then
+                                return 44
+                            end
+                        end
+                    end
+                    -- 45号技能装备雷系纹章 或者 暗系纹章 可释放45
+                    if skillId == 45 then
+                        local eleType = GetRuneEleType(host_player, 45)
+                        if eleType == EElementType.Lightning_EElementType or eleType == EElementType.Dark_EElementType then
+                            if host_skill:CanCastSkillNow(45, target) then
+                                return 45
+                            end
                         end
                     end
                 end
-                -- 45号技能装备雷系纹章 或者 暗系纹章 可释放45
-                if skillId == 45 then
-                    local eleType = GetRuneEleType(host_player, 45)
-                    if eleType == EElementType.Lightning_EElementType or eleType == EElementType.Dark_EElementType then
-                        if host_skill:CanCastSkillNow(45, target, targetPos) then
-                            return 45
-                        end
-                    end
-                end
-            end
 
-            if (hpPercent > 0.8 and skillId ~= 44 and skillId ~= 45) or hpPercent <= 0.8 then
-                if host_skill:CanCastSkillNow(skillId, target, targetPos) then
+                if (hpPercent > 0.8 and skillId ~= 44 and skillId ~= 45) or hpPercent <= 0.8 then
+                    if host_skill:CanCastSkillNow(skillId, target) then
+                        return skillId
+                    end
+                end
+            elseif hpProf == EnumDef.Profession.Archer then
+                if host_skill:CanCastSkillNow(skillId, target) then
+                    -- 应要求写死 后跳技能检测与目标距离  
+                    if config_skills[i] == 50 then
+                        if self:HasTarget() and (GetTargetDistance(self) < self._AutoFightConfig.JumpDistance) then
+                            return config_skills[i] 
+                        end                       
+                    else
+                        return config_skills[i]
+                    end
+                end
+            else
+                if host_skill:CanCastSkillNow(skillId, target) then
                     return skillId
                 end
-            end
-        elseif hpProf == EnumDef.Profession.Archer then
-            if host_skill:CanCastSkillNow(skillId, target, targetPos) then
-                -- 应要求写死 后跳技能检测与目标距离  
-                if config_skills[i] == 50 then
-                    if self:HasTarget() and (GetTargetDistance(self) < self._AutoFightConfig.JumpDistance) then
-                        return config_skills[i] 
-                    end                       
-                else
-                    return config_skills[i]
-                end
-            end
-        else
-            if host_skill:CanCastSkillNow(skillId, target, targetPos) then
-                return skillId
             end
         end
     end
@@ -369,7 +375,7 @@ local function IsMovingSkill(self, skillId)
 end
 
 -- 释放主角技能
-def.method("table", CEntity).ExecHostSkill = function(self, target_pos, target)
+def.method(CEntity).ExecHostSkill = function(self, target)
     -- 目标不对
     if target == nil then return end
 
@@ -388,14 +394,14 @@ def.method("table", CEntity).ExecHostSkill = function(self, target_pos, target)
         if IsMovingSkill(self, curSkillId) then
             local curSkillTemp = GetSkillTempData(curSkillId)
             if curSkillTemp.MaxRange > 0 and dis > curSkillTemp.MaxRange then 
-                MoveTo(self, target_pos)
+                MoveTo(self, target)
             end
             -- 如果边放技能 边向目标移动，后面的逻辑应该就不用再走了
             return
         end
     end
 
-    local skill_id = GetProperSkillID(self, target, target_pos) 
+    local skill_id = GetProperSkillID(self, target) 
     if skill_id <= 0 then return end
 
     local skill_template = GetSkillTempData(skill_id)
@@ -408,6 +414,9 @@ def.method("table", CEntity).ExecHostSkill = function(self, target_pos, target)
         end
     end
 
+    -- 以下移动逻辑不能交由技能来执行，会卡住遗迹2平台；
+    -- 因为技能释放中，如果有目标，移动会通过FollowTarget来进行，出现不按照预定路线进行的情况
+    -- 修复方式：修改FollowTarget实现，采用Move类似方式实现  -- added by Jerry
     --技能最大距离检测
     if skill_template.MaxRange < 0 then
         --do nothing
@@ -416,7 +425,7 @@ def.method("table", CEntity).ExecHostSkill = function(self, target_pos, target)
         self._ManualSkillId = 0        
     elseif skill_template.MaxRange > 0 then        
         if dis > skill_template.MaxRange then   
-            MoveTo(self, target_pos)
+            MoveTo(self, target)
         else
             hpSkill:CastSkill(skill_id, false)
             self._ManualSkillId = 0
@@ -435,6 +444,13 @@ def.method("=>","boolean").HasTarget = function(self)
         end
     end
     return false
+end
+
+def.method("table").SetForbidSkillList = function(self, forbidTable)
+    self._ForbidSkillId = {}
+    for i,v in ipairs(forbidTable) do
+        self._ForbidSkillId[#self._ForbidSkillId + 1] = v
+    end
 end
 
 def.virtual().Stop = function(self)

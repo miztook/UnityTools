@@ -13,7 +13,7 @@ local ENpcSaleServiceType = require "PB.data".ENpcSaleServiceType
 local CGame = Lplus.ForwardDeclare("CGame")
 local CQuest = Lplus.ForwardDeclare("CQuest")
 local CQuestAutoMan = require"Quest.CQuestAutoMan"                  
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local CDungeonAutoMan = require"Dungeon.CDungeonAutoMan"
 local CPanelMap = require "GUI.CPanelMap"
 
@@ -115,7 +115,7 @@ local function OnQuestEvents(sender, event)
         if instance._CurFrameType-1 == QuestDef.QuestType.Main or instance._CurFrameType-1 == QuestDef.QuestType.Branch then
             instance:ShowMainAndBreachFrame(true)
         elseif instance._CurFrameType == 4 then
-            instance:ShowReputationFrame()
+            instance:ShowReputationFrame(true)
         else
             instance:ShowOtherFrame()
         end
@@ -200,7 +200,6 @@ def.override().OnCreate = function(self)
     -- CGame.EventManager:addHandler('QuestReceiveEvent', QuestDataChange)
     -- CGame.EventManager:addHandler('QuestCompleteEvent', QuestDataChange)
     -- CGame.EventManager:addHandler('QuestObjectiveCounterEvent', QuestDataChange)
-    self._HelpUrlType = HelpPageUrlType.Strong
 end
 
 -- -- 页签内是否有红点显示
@@ -226,7 +225,7 @@ def.method("number","boolean").ShowRedPoint = function (self,CurType,IsInit)
     if CurType == 1 then
         isShow = CQuest.Instance():IsShowMainQuestRedPoint()
     elseif CurType == 4 then
-        local Map = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.Quest)
+--[[        local Map = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.Quest)
         if Map ~= nil then
             local redDotStatusMap = Map[CurType]
 
@@ -240,52 +239,11 @@ def.method("number","boolean").ShowRedPoint = function (self,CurType,IsInit)
                     end
                 end
             end
-        end
+        end--]]
+--[[        local ReputationQuestList = CQuest.Instance():GetCurReputationQuestList()
+        isShow = (#ReputationQuestList > 0) --]]
     elseif CurType == 2 then
-        --新的支线任务
-        local NewQuestIsShow = false
-        --未领取支线奖励
-        local RewardQuestIsShow = false
-        -- local Map = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.Quest)
-        -- if Map ~= nil then
-        --     local redDotStatusMap = Map[CurType]
-
-        --     if redDotStatusMap ~= nil and redDotStatusMap[1] ~= nil then
-        --         for k,v in pairs(redDotStatusMap[1]) do
-        --             if v == true then
-        --                 NewQuestIsShow = true
-        --                 break
-        --             end
-        --         end
-        --     end
-
-            local ChaptersTemplate_id_list = GameUtil.GetAllTid("QuestChapter")
-            for i = 1, #ChaptersTemplate_id_list do 
-                local ChapterTemplate = CElementData.GetTemplate("QuestChapter", i)
-                if ChapterTemplate.QuestType == QuestDef.QuestType.Branch then
-                    RewardQuestIsShow = CQuest.Instance():IsGiveRewardByQuestChapter( i )
-                    if RewardQuestIsShow then
-                        break
-                    end
-                end
-            end
-        --end
-
-        isShow = NewQuestIsShow or RewardQuestIsShow
-        -- if Map ~= nil then
-        --     local redDotStatusMap = Map[CurType]
-        --     if not IsInit and isShow and redDotStatusMap ~= nil and redDotStatusMap[1] ~= nil and NewQuestIsShow and not RewardQuestIsShow then
-        --         for k,v in pairs(redDotStatusMap[1]) do
-        --             redDotStatusMap[1][k] = nil
-        --         end
-        --         CRedDotMan.SaveModuleDataToUserData(RedDotSystemType.Quest, Map)
-        --         CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Quest,CQuest.Instance():IsShowQuestRedPoint())
-        --         NewQuestIsShow = false
-        --     end
-        -- end
-        -- isShow = NewQuestIsShow or RewardQuestIsShow
-        
-        print("CurType=2",NewQuestIsShow,RewardQuestIsShow)
+        isShow = CQuest.Instance():IsShowBranchQuestRedPoint()
     elseif CurType == 3 then
         isShow = CQuest.Instance():IsShowRepeatQuestRedPoint()
     end
@@ -308,6 +266,7 @@ def.method().ShowRepeatRedPoint = function (self)
 end
 
 def.override("dynamic").OnData = function(self,data)
+    self._HelpUrlType = HelpPageUrlType.QuestList
     CPanelBase.OnData(self,data)
     --GameUtil.LayoutTopTabs(self._FrameTopTabs)
     local uiData = nil
@@ -316,8 +275,12 @@ def.override("dynamic").OnData = function(self,data)
     end
 
     self._CurFrameType = 1
+    self._CurrentSelectTabIndex = 0
     if data ~= nil then
         self._CurFrameType = data.OpenIndex
+        if data.OpenIndex2 ~= nil then
+            self._CurrentSelectTabIndex = data.OpenIndex2
+        end
     end
     if not IsNil(self._ToggleTable[self._CurFrameType]) then
         self._ToggleTable[self._CurFrameType].isOn = true
@@ -349,7 +312,7 @@ def.method().ShowFrame = function(self)
     if self._CurFrameType-1 == QuestDef.QuestType.Main or self._CurFrameType-1 == QuestDef.QuestType.Branch then
         self:ShowMainAndBreachFrame(false)
     elseif self._CurFrameType == 4 then
-        self:ShowReputationFrame()
+        self:ShowReputationFrame(false)
     else
         self:ShowOtherFrame()
     end
@@ -575,40 +538,11 @@ def.method('boolean').ShowMainAndBreachFrame = function(self,isReset)
         if Img_RedPoint ~= nil then
             --判断有无小类型红点
             local isShow = false
-            -- local Map = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.Quest)
-            -- if Map ~= nil then
-            --     local redDotStatusMap = Map[self._CurFrameType]
-                -- if self._CurFrameType - 1 == QuestDef.QuestType.Main then
-                --     redDotStatusMap = Map[self._CurFrameType]
-                -- elseif self._CurFrameType - 1 == QuestDef.QuestType.Branch then
-                --     if Map[self._CurFrameType] == nil then
-                --         redDotStatusMap = nil
-                --     else
-                --         redDotStatusMap = Map[self._CurFrameType][2]
-                --     end
-                -- end
-            --     if redDotStatusMap ~= nil then
-            --         for k,v in pairs(redDotStatusMap) do
-            --             if v ~= nil and v == true then
-            --                 isShow = true
-            --                 break
-            --             end
-            --         end
-            --     end
-            -- end
+
             if self._CurFrameType - 1 == QuestDef.QuestType.Main then
                 isShow = CQuest.Instance():IsShowMainQuestRedPoint()
             elseif self._CurFrameType - 1 == QuestDef.QuestType.Branch then
-                local ChaptersTemplate_id_list = GameUtil.GetAllTid("QuestChapter")
-                for i = 1, #ChaptersTemplate_id_list do 
-                    local ChapterTemplate = CElementData.GetTemplate("QuestChapter", i)
-                    if ChapterTemplate.QuestType == QuestDef.QuestType.Branch then
-                        isShow = CQuest.Instance():IsGiveRewardByQuestChapter( i )
-                        if isShow then
-                            break
-                        end
-                    end
-                end
+                isShow = CQuest.Instance():IsShowBranchQuestRedPoint()
             end
             Img_RedPoint:SetActive(isShow)
         end
@@ -641,7 +575,7 @@ def.method().ShowOtherFrame = function(self)
 
 end
 
-def.method().ShowReputationFrame = function(self)
+def.method("boolean").ShowReputationFrame = function(self,isReset)
     self._List_QuestParent:SetActive(false)
     self._Drop_QuestChapter:SetActive(false)
     self._Frame_ElementsContainer:SetActive(false)
@@ -655,7 +589,9 @@ def.method().ShowReputationFrame = function(self)
 
     if count > 0 then
         self._List_ElementsReputation:SetItemCount(count)
-        self._List_ElementsReputation:SelectItem(0,0)
+        if isReset then
+        end
+        self._List_ElementsReputation:SelectItem(self._CurrentSelectTabIndex,0)
         self._Frame_ElementReputation:SetActive(true)
         self._Frame_NoQuest:SetActive(false)
     else
@@ -677,17 +613,20 @@ def.override('string').OnClick = function(self, id)
         CQuest.Instance():DoGiveUpQuest(self._CurrentSelectQuestID)
         game._GUIMan:Close("CPanelUIQuestList")
     elseif id == "Btn_Go" then
+        local CPageQuest = require "GUI.CPageQuest"
+        CPageQuest.Instance():ListItemsNoSelect()
+
         local questModel = CQuest.Instance():FetchQuestModel(self._CurrentSelectQuestID)
-        if game._CFunctionMan:IsUnlockByFunID(EnumDef.EGuideTriggerFunTag.AutoFight) then
+        if not CPageQuest.Instance():IsSelectByID( self._CurrentSelectQuestID ) then
+            questModel:DoShortcut()
+        elseif game._CFunctionMan:IsUnlockByFunID(EnumDef.EGuideTriggerFunTag.AutoFight) then
             CQuestAutoMan.Instance():Start(questModel)    
 
             CAutoFightMan.Instance():Start() 
             CAutoFightMan.Instance():SetMode(EnumDef.AutoFightType.QuestFight, self._CurrentSelectQuestID, false)
         else
-            local CPageQuest = require "GUI.CPageQuest"
             CPageQuest.Instance():SetSelectByID(questModel.Id, false)
         end
-        --questModel:DoShortcut()
         game._GUIMan:Close("CPanelUIQuestList")
     elseif id == "Btn_GoReputationNpc" then
             local panelData = 
@@ -1044,6 +983,7 @@ def.method("table").UpdateChapterRewardInfo = function(self,Groups)
     --print_r(self._Current_SelectChapterReward)
     for i = 1,4 do 
         local itemObj = self:GetUIObject("Frame_Gift_0"..i)
+        local btn = itemObj:FindChild("Btn_Item"..i)
         local strpath = "Btn_Item"..i.."/Img_Item"..i
         local Img_Item = itemObj:FindChild(strpath)
         local Lab_GiftPoint = itemObj:FindChild("Lab_GiftPoint"..i)
@@ -1054,17 +994,17 @@ def.method("table").UpdateChapterRewardInfo = function(self,Groups)
 
             local data = self._Current_SelectChapterReward[i]
             if data._State == 1 then
-                GameUtil.StopUISfx(PATH.UIFX_BaoXiangLingQu, Img_Item)
+                GameUtil.StopUISfx(PATH.UIFX_BaoXiangLingQu, btn)
                 GUITools.SetGroupImg(Img_Item, 0)
                 --GameUtil.MakeImageGray(Img_Item, false)
             --如果可以领奖
             elseif data._State == 2 then
-                GameUtil.PlayUISfx(PATH.UIFX_BaoXiangLingQu, Img_Item, Img_Item, -1)
+                GameUtil.PlayUISfx(PATH.UIFX_BaoXiangLingQu, btn, btn, -1)
                 GUITools.SetGroupImg(Img_Item, 0)
                 --GameUtil.MakeImageGray(Img_Item, false)
             --如果已经领奖
             elseif data._State == 3 then
-                GameUtil.StopUISfx(PATH.UIFX_BaoXiangLingQu, Img_Item)
+                GameUtil.StopUISfx(PATH.UIFX_BaoXiangLingQu, btn)
                 GUITools.SetGroupImg(Img_Item, 1)
                 --GameUtil.MakeImageGray(Img_Item, true)
             end
@@ -1085,11 +1025,14 @@ def.method('number').OnDataRecieveChange = function (self,QuestGroupId)
         end
         
         local itemObj = self:GetUIObject("Frame_Gift_0"..index)
-        local strpath = "Btn_Item"..index.."/Img_Item"..index
-        local Img_Item = itemObj:FindChild(strpath)
-        GUITools.SetGroupImg(Img_Item, 1)
-        --GameUtil.MakeImageGray(Img_Item, true)
-        GameUtil.StopUISfx(PATH.UIFX_BaoXiangLingQu, Img_Item)
+        if not IsNil(itemObj) then
+            local btn = itemObj:FindChild("Btn_Item"..index)
+            local strpath = "Btn_Item"..index.."/Img_Item"..index
+            local Img_Item = itemObj:FindChild(strpath)
+            GUITools.SetGroupImg(Img_Item, 1)
+            --GameUtil.MakeImageGray(Img_Item, true)
+            GameUtil.StopUISfx(PATH.UIFX_BaoXiangLingQu, btn)
+        end
 
         --如果有一个未领 则显示红点
         local isShow = false
@@ -1405,6 +1348,14 @@ def.override("userdata", "userdata", "number", "number").OnTabListInitItem = fun
         --         end
         --     end
             Img_RedPoint:SetActive(isShow)
+        end
+
+        --如果声望任务在进行中
+        local questmodel = CQuest.Instance():GetQuestModelByReputationID(id)
+        local Img_Finish = item:FindChild("Img_Finish")
+        local isShow = not ( questmodel ~= nil or CQuest.Instance():HaveReputationQuest(id) )
+        if Img_Finish ~= nil then
+        Img_Finish:SetActive( isShow )
         end
     end
 end
@@ -1967,6 +1918,7 @@ def.override("string", "boolean").OnToggle = function(self,id, checked)
         local rdoIndex = tonumber(string.sub(id, string.len("Rdo_")+1,-1))
         if rdoIndex == nil or rdoIndex == self._CurFrameType then return end
         self._CurFrameType = rdoIndex
+        self._CurrentSelectTabIndex = 0
         self:ShowFrame()
     else
         --self._CurPageClass:ParentToggle(id, checked)
@@ -1987,7 +1939,24 @@ def.method().SetQuestChaptersDropGroup = function (self)
         if Groups ~= nil and #Groups == 2 then 
             str =  "<color=#FBF4B8>" .. Groups[1] .."</color>" .. "  " .. Groups[2]
         else
-            str = template.TextDisplayName
+            -- 如果可以接取 则显示任务名称 否则显示 章节名称
+            if CQuest.Instance():QuestChapterIsRecieve( v.ChapterTid ) then
+                local questID = CQuest.Instance():GetChapterFristQuest( v.ChapterTid )
+                local QuestTemplate = CElementData.GetQuestTemplate(questID)
+                str = QuestTemplate.TextDisplayName
+            else
+                str = template.TextDisplayName
+            end
+        end
+
+        if self._CurFrameType-1 == QuestDef.QuestType.Branch then
+            if CQuest.Instance():QuestChapterIsAllFinish( v.ChapterTid ) then
+                str = str.."  "..StringTable.Get(595)
+            elseif CQuest.Instance():QuestChapterIsRecieve( v.ChapterTid ) then
+                str = str.."  "..StringTable.Get(593)
+            else
+                str = str.."  "..StringTable.Get(594)
+            end
         end
 
         if groupStr == nil then
@@ -2001,32 +1970,15 @@ def.method().SetQuestChaptersDropGroup = function (self)
     
     local drop_template = self:GetUIObject("Drop_Template_QuestChapter")
     local RectTransform = drop_template:GetComponent(ClassType.RectTransform)
-    if RectTransform.rect.height > 450 then
-        RectTransform.sizeDelta = Vector2.New(RectTransform.rect.width,450)
+    if RectTransform.rect.height > 430 then
+        RectTransform.sizeDelta = Vector2.New(RectTransform.rect.width,430)
     end
 
     local groupStr2 = nil
     for i,v in ipairs(current_type_chapters) do
         local isShow = false
-        -- local Map = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.Quest)
-        -- if Map ~= nil then
-        --     local redDotStatusMap = Map[self._CurFrameType]
-        --     if self._CurFrameType - 1 == QuestDef.QuestType.Main then
-        --         redDotStatusMap = Map[self._CurFrameType]
-        --     elseif self._CurFrameType - 1 == QuestDef.QuestType.Branch then
-        --         if Map[self._CurFrameType] == nil then
-        --             redDotStatusMap = nil
-        --         else
-        --             redDotStatusMap = Map[self._CurFrameType][2]
-        --         end
-                
-        --     end
-
-        --     if redDotStatusMap ~= nil and redDotStatusMap[v.ChapterTid] ~= nil and redDotStatusMap[v.ChapterTid] == true then
-        --         isShow = true
-        --     end
-        -- end
-        isShow = CQuest.Instance():IsGiveRewardByQuestChapter( v.ChapterTid )
+        --626 红点修改
+        isShow = CQuest.Instance():IsGiveRewardByQuestChapter( v.ChapterTid ) --or CQuest.Instance():QuestChapterIsRecieve( v.ChapterTid )
 
         if groupStr2 == nil then
             if isShow then

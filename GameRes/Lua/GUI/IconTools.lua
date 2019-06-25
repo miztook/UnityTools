@@ -26,6 +26,8 @@
 			[EItemIconTag.Probability] = false,
 			[EItemIconTag.Legend] = "陨石术",
 			[EItemIconTag.Time] = false,
+			[EItemIconTag.Grade] = 1,
+			[EItemIconTag.Activated] = false,
 		},
 		EItemLimitCheck.AllCheck)
 	2、初始化货币图标并设置数量
@@ -85,6 +87,8 @@ local ENUM_ITEM_ICON_TAG =
 	Probability = 12, 		-- 概率获得 				boolean
 	Legend 		= 13, 		-- 传奇属性 				string
 	Time 		= 14, 		-- 限时 					boolean
+	Grade 		= 15, 		-- 评分 					number
+	Activated 	= 16, 		-- 已激活 					boolean
 }
 
 -- 物品限制检查类型枚举
@@ -197,6 +201,10 @@ local function _CheckItemIconParam(tag, param)
 		destType = "string"
 	elseif tag == ENUM_ITEM_ICON_TAG.Time then
 		destType = "boolean"
+	elseif tag == ENUM_ITEM_ICON_TAG.Grade then
+		destType = "number"
+	elseif tag == ENUM_ITEM_ICON_TAG.Activated then
+		destType = "boolean"
 	else
 		warn("Unknown ItemIcon tag:", tag, debug.traceback())
 		return false
@@ -253,6 +261,12 @@ local function _GetItemIconTagIndex(tag)
 	elseif tag == ENUM_ITEM_ICON_TAG.Time then
 		index = 23
 		root_index = 23
+	elseif tag == ENUM_ITEM_ICON_TAG.Grade then
+		index = 25
+		root_index = 24
+	elseif tag == ENUM_ITEM_ICON_TAG.Activated then
+		index = 26
+		root_index = 26
 	end
 	if index < 0 or root_index < 0 then
 		warn("GetItemIconTagIndex failed, Unknown ItemIcon tag:", tag, debug.traceback())
@@ -412,21 +426,17 @@ local function _SetItemIconTagGameObject(tagObj, rootObj, tag, param)
 		local bShow = param > 1 -- 数量大于1才显示
 		GUITools.SetUIActive(tagObj, bShow)
 		if bShow then
-			GUI.SetText(tagObj, tostring(param))
+			GUI.SetText(tagObj, GUITools.FormatNumber(param))
 		end
 	elseif tag == ENUM_ITEM_ICON_TAG.StrengthLv then
 		local bShow = param > 0
-		if tagObj.activeSelf ~= bShow then
-			tagObj:SetActive(bShow)
-		end
+		tagObj:SetActive(bShow)
 		if bShow then
 			GUI.SetText(tagObj, "+" .. param)
 		end
 	elseif tag == ENUM_ITEM_ICON_TAG.Refine then
 		local bShow = param > 0
-		if rootObj.activeSelf ~= bShow then
-			rootObj:SetActive(bShow)
-		end
+		rootObj:SetActive(bShow)
 		if bShow then
 			GUI.SetText(tagObj, tostring(param))
 		end
@@ -435,15 +445,15 @@ local function _SetItemIconTagGameObject(tagObj, rootObj, tag, param)
 	elseif tag == ENUM_ITEM_ICON_TAG.Equip then
 		_SetUpBoolean(tagObj, param)
 	elseif tag == ENUM_ITEM_ICON_TAG.ArrowUp then
-		_SetUpBoolean(tagObj, param)
+		tagObj:SetActive(param)
 	elseif tag == ENUM_ITEM_ICON_TAG.CanUse then
 		-- 特殊处理
 		local alpha = param and 1 or 0.5
 		GameUtil.SetCanvasGroupAlpha(tagObj, alpha)
 	elseif tag == ENUM_ITEM_ICON_TAG.Enchant then
-		_SetUpBoolean(tagObj, param)
+		tagObj:SetActive(param)
 	elseif tag == ENUM_ITEM_ICON_TAG.ArrowDown then
-		_SetUpBoolean(tagObj, param)
+		tagObj:SetActive(param)
 	elseif tag == ENUM_ITEM_ICON_TAG.EquipLv then
 		GUITools.SetUIActive(tagObj, param > 0)
 		if param > 0 then
@@ -458,6 +468,14 @@ local function _SetItemIconTagGameObject(tagObj, rootObj, tag, param)
 			GUI.SetText(tagObj, param)
 		end
 	elseif tag == ENUM_ITEM_ICON_TAG.Time then
+		_SetUpBoolean(tagObj, param)
+	elseif tag == ENUM_ITEM_ICON_TAG.Grade then
+		local bShow = param >= 0
+		rootObj:SetActive(bShow)
+		if bShow then
+			GUITools.SetGroupImg(tagObj, param)
+		end
+	elseif tag == ENUM_ITEM_ICON_TAG.Activated then
 		_SetUpBoolean(tagObj, param)
 	end
 end
@@ -476,7 +494,7 @@ local function _SetMaterialNum(obj, itemId, needNum)
 
 	local lab_need = uiTemplate:GetControl(4)
 	if not IsNil(lab_need) then
-		local packageNumStr = tostring(packageNum)
+		local packageNumStr = GUITools.FormatNumber(packageNum)
 		if not isMaterialEnough then
 			packageNumStr = RichTextTools.GetUnavailableColorText(packageNumStr)
 		else
@@ -484,7 +502,7 @@ local function _SetMaterialNum(obj, itemId, needNum)
 		end
 		local numStr = packageNumStr
 		if needNum >= 1 then
-			numStr = packageNumStr .. "/" .. needNum
+			numStr = packageNumStr .. "/" .. GUITools.FormatNumber(needNum)
 		end
 		GUI.SetText(lab_need, numStr)
 	end
@@ -496,7 +514,8 @@ local function _SetMaterialNum(obj, itemId, needNum)
 
 	local img_add = uiTemplate:GetControl(5)
 	if not IsNil(img_add) then
-	 	GUITools.SetUIActive(img_add, not isMaterialEnough)
+	 	-- GUITools.SetUIActive(img_add, not isMaterialEnough)
+	 	GUITools.SetUIActive(img_add, false)
 	end
 
 	-- local img_quality_bg = uiTemplate:GetControl(1)
@@ -658,10 +677,13 @@ local function initItemIconNew(obj, itemId, setting, limitType)
 		if temp[tag] == nil and tag ~= ENUM_ITEM_ICON_TAG.CanUse then
 			local _, rootObj = _GetItemIconTagGameObject(uiTemplate, tag, true)
 			if not IsNil(rootObj) then
-				if tag == ENUM_ITEM_ICON_TAG.StrengthLv or tag == ENUM_ITEM_ICON_TAG.Refine then
-					if rootObj.activeSelf then
-						rootObj:SetActive(false)
-					end
+				if tag == ENUM_ITEM_ICON_TAG.StrengthLv or
+				   tag == ENUM_ITEM_ICON_TAG.Refine or
+				   tag == ENUM_ITEM_ICON_TAG.ArrowUp or
+				   tag == ENUM_ITEM_ICON_TAG.ArrowDown or
+				   tag == ENUM_ITEM_ICON_TAG.Enchant or
+				   tag == ENUM_ITEM_ICON_TAG.Grade then
+					rootObj:SetActive(false)
 				else
 					GUITools.SetUIActive(rootObj, false)
 				end
@@ -714,10 +736,13 @@ local function initTokenMoneyIcon(obj, moenyId, num)
 			tag ~= ENUM_ITEM_ICON_TAG.CanUse then
 			local _, rootObj = _GetItemIconTagGameObject(uiTemplate, tag, true)
 			if not IsNil(rootObj) then
-				if tag == ENUM_ITEM_ICON_TAG.StrengthLv or tag == ENUM_ITEM_ICON_TAG.Refine then
-					if rootObj.activeSelf then
-						rootObj:SetActive(false)
-					end
+				if tag == ENUM_ITEM_ICON_TAG.StrengthLv or
+				   tag == ENUM_ITEM_ICON_TAG.Refine or
+				   tag == ENUM_ITEM_ICON_TAG.ArrowUp or
+				   tag == ENUM_ITEM_ICON_TAG.ArrowDown or
+				   tag == ENUM_ITEM_ICON_TAG.Enchant or
+				   tag == ENUM_ITEM_ICON_TAG.Grade then
+					rootObj:SetActive(false)
 				else
 					GUITools.SetUIActive(rootObj, false)
 				end

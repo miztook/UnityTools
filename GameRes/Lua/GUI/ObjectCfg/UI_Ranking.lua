@@ -38,6 +38,7 @@ local cfg = {
     Lab_MainData2 = -956703971,
     Frame_Member8 = -1171053620,
     List_GuildList8 = 1383793000,
+    EmptyPanel = 919910615,
 }
  
 return cfg

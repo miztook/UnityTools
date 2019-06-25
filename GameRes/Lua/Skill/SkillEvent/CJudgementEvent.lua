@@ -15,7 +15,7 @@ def.field("number")._Interval = 0
 
 def.static("table", "table", "=>", CJudgementEvent).new = function(event, params)
 	local ETriggerJudgementType = ExecutionUnit.ExecutionUnitTrigger.TriggerJudgement.ETriggerJudgementType
-	if event.Judgement.JudgementType ~= ETriggerJudgementType.Damage then 
+	if event.Judgement.TheJudgementType ~= ETriggerJudgementType.Damage then 
 		return nil 
 	end
 
@@ -144,6 +144,7 @@ def.method("number", "number", "number", "number").AddJudgementInfo = function(s
 end
 
 def.override().OnEvent = function(self)
+	--warn("CJudgementEvent OnEvent")
 	local caster = self._Params.BelongedCreature
 	local event = self._Event
 	local battle_man = require "LocalServer.CBattleServer".Instance()

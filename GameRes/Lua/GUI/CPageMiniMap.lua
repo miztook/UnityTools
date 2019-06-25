@@ -331,13 +331,15 @@ def.method().CheckSceneChanged = function (self)
 	self._AllNpcMap = self._CurSceneTemplate.Npc
 
 	self._MapOffset = {}
+    local start, _ = string.find(self._CurSceneTemplate.NavMeshName, "%.")
+    local navMeshName = string.sub(self._CurSceneTemplate.NavMeshName, 1, start - 1)
 	local offset = MapBasicConfig.GetMapOffset() or {}
-	if offset[sceneId] ~= nil then
+	if offset[navMeshName] ~= nil then
 		-- 读出来是大地图的参数，重新校正
-		self._MapOffset.A1 = offset[sceneId].A1
-		self._MapOffset.A2 = offset[sceneId].A2
-		self._MapOffset.width = offset[sceneId].width
-		self._MapOffset.height = offset[sceneId].height
+		self._MapOffset.A1 = offset[navMeshName].A1
+		self._MapOffset.A2 = offset[navMeshName].A2
+		self._MapOffset.width = offset[navMeshName].width
+		self._MapOffset.height = offset[navMeshName].height
 	end
 
 	-- 当前步骤--设置地图
@@ -633,8 +635,10 @@ def.method().UpdateHawkEyePointing = function (self)
 	local hawkEyePosTable = game._HostPlayer._TableHawkEyeTargetPos
 	local bShowMapHawkEye = false -- 是否显示小地图范围内的鹰眼
 	local allHawkEyes = {} -- 当前的鹰眼指示
+	local isHideAll = false
 	if hawkEyePosTable ~= nil and next(hawkEyePosTable) ~= nil then
 		for regionId, v in pairs(hawkEyePosTable) do
+			-- print("regionId:", regionId, " status:", v.status, " type:", v.type, " pos:", v.pos)
 			--[[
 			v.status 鹰眼状态 0:关闭 1:处于触发范围 2:处于更亮点范围 3:处于进入点范围
 			v.pos 鹰眼进入点位置
@@ -658,7 +662,7 @@ def.method().UpdateHawkEyePointing = function (self)
 
 					local map = self._M_HawkEyeMap[regionId]
 					if map == nil then
-						AddImageMarkHawkEye(self, regionId, v.type)
+						AddImageMarkHawkEye(self, regionId, v.hawkeyeType)
 						map = self._M_HawkEyeMap[regionId]
 					end
 
@@ -673,20 +677,25 @@ def.method().UpdateHawkEyePointing = function (self)
 				end
 			elseif v.status == 2 then
 				-- 只会有一个神视处于小地图范围内
-				GUITools.SetGroupImg(self._Img_HawkEye, v.type-1)
+				GUITools.SetGroupImg(self._Img_HawkEye, v.hawkeyeType-1)
 				local anchoredX, anchoredY = GetAnchoredXY(self, v.pos.x, v.pos.z)
 				self._TmpVector3.x = anchoredX
 				self._TmpVector3.y = anchoredY
 				self._TmpVector3.z = 0
 				self._Rect_HawkEye.anchoredPosition3D = self._TmpVector3
 				bShowMapHawkEye = true
+			elseif v.status == 3 then
+				-- 只要有一个点可以进入，隐藏小地图所有鹰眼相关图标
+				isHideAll = true
+				bShowMapHawkEye = false
+				break
 			end
 		end
 	end
 
 	-- 回收多余的图标
 	for regionId, map in pairs(self._M_HawkEyeMap) do
-		if allHawkEyes[regionId] == nil then
+		if isHideAll or allHawkEyes[regionId] == nil then
 			self:RecyclingPoint(map.Obj, "HawkEye")
 			self._M_HawkEyeMap[regionId] = nil
 		end
@@ -722,7 +731,7 @@ def.method().UpdateGuildConvoyPos = function (self)
 end
 
 -- 检查点的边界情况
-def.method("table", "=>", "boolean", "table").CheckPosBorder = function (self, targetPos)
+def.method("table").CheckPosBorder = function (self, targetPos)
 	if targetPos == nil then return end
 	local anchoredX, anchoredY = GetAnchoredXY(self, targetPos.x, targetPos.z)
 	-- print("anchoredX:", anchoredX, "anchoredY:", anchoredY)
@@ -808,7 +817,7 @@ def.method("table", "=>", "boolean", "table").CheckPosBorder = function (self, t
 		self._TmpVector3.y = anchoredY
 		self._TmpVector3.z = 0
 	end
-	return isTargetPosOnMap, self._TmpVector3
+	-- return isTargetPosOnMap, self._TmpVector3
 end
 
 def.method("table" ,"=>", "string").GetShowName = function(self, map)

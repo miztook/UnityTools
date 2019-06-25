@@ -127,7 +127,7 @@ end
 def.override("boolean").Release = function (self, is_2_release_root)
 	CEntityMan.Release(self, is_2_release_root)
 	if is_2_release_root then
-		Object.DestroyImmediate(self._MineObjectsRoot)
+		Object.Destroy(self._MineObjectsRoot)
 		self._MineObjectsRoot = nil
 	end
 end

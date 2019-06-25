@@ -839,6 +839,13 @@ def.override().OnDestroy = function (self)
             end
         end
     end
+    if self._MineInfos ~= nil then
+        for i,v in pairs(self._MineInfos) do
+            if v.ProcessTimer and v.ProcessTimer > 0 then
+                _G.RemoveGlobalTimer(v.ProcessTimer)
+            end
+        end
+    end
     self._BuildingExploreTimers = nil
 	self._Btn_LeaveDungeon = nil
 	self._Frame_Time = nil

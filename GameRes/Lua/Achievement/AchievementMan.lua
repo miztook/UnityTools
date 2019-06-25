@@ -11,6 +11,7 @@ local PBHelper = require "Network.PBHelper"
 local CGame = Lplus.ForwardDeclare("CGame")
 local EParmType = require "PB.Template".ItemApproach.EParmType
 local EUseType = require "PB.Template".Achievement.EUseType
+local EventType = require "PB.Template".Achievement.EventType
 local CPanelUIManual = require "GUI.CPanelUIManual"
 local CPanelUIActivity = require "GUI.CPanelUIActivity"
 local CPanelRoleInfo = require "GUI.CPanelRoleInfo"
@@ -19,6 +20,7 @@ local CPanelRoleInfo = require "GUI.CPanelRoleInfo"
 def.field("table")._Table_Achievements = BlankTable
 def.field("boolean")._IsShowRed = false
 def.field("boolean")._HasGotAchieveDatas = false
+def.field("table")._AchievementsTIDtoValue = BlankTable
 
 def.field("table")._AdvancedGuideInfo            = BlankTable           -- 成就引导、业绩信息
 
@@ -36,6 +38,7 @@ end
 --加载所有副本数据
 def.method().LoadAllAchievementData = function(self)
 	self._Table_Achievements = {}
+	self._AchievementsTIDtoValue = {}
 	local allAchievement = GameUtil.GetAllTid("Achievement")
 	
 	for _,v in ipairs(allAchievement) do
@@ -63,22 +66,28 @@ def.method().LoadAllAchievementData = function(self)
 					}	
 				end
 				local cell_list = self._Table_Achievements[ntype]._NodeList[achievementData.TypeID2]._CellList
-                cell_list[#cell_list + 1] = {
+				
+				local cell = {
                     _Tid = v,                           -- 模板ID
                     _MarkId = achievementData.MarkId,   -- 排序ID
 					_FinishTime = 0,                    -- 完成时间
 					_SortId = achievementData.SortId,	-- 业绩系统排序
+                    _UseType = achievementData.UseType, -- 用途
+                    _ShowType = achievementData.ShowHideType,   -- 显示类型
 					_DisPlayName = achievementData.DisPlayName,	-- 业绩系统显示名称
 					_RewardId = achievementData.RewardId, 	-- 奖励ID
 					_ReachParm = achievementData.ReachParm,
+					_ParmType = achievementData.ParmType,	-- 参数类型
+					_Condition = achievementData.Condition,
 					_State =                            -- 成就状态
-					{ 
-						_CurValue = 0,          -- 当前计数器
+					{
 						_CurValueList = {},     -- 数组计数器
 						_isFinish = false,      -- 是否完成
 						_IsReceive = false,     -- 是否已领取
 					}
-                }
+				}
+				cell_list[#cell_list + 1] = cell
+				self._AchievementsTIDtoValue[v] = cell
 			else
 				warn("成就数据错误ID："..v)
 			end	
@@ -130,6 +139,22 @@ def.method("number","=>","string").GetAchievementName = function(self, nID)
 	return achievementData.Name
 end
 
+def.method("number", "=>", "boolean").IsRootTagHaveAchi = function(self, rID)
+    if self._Table_Achievements == nil then return false end
+    for i,v in pairs(self._Table_Achievements) do
+        if v._RootID == rID then
+            for _,v1 in ipairs(v._NodeList) do
+                for _,v2 in ipairs(v1._CellList) do
+                    if v2._UseType == EUseType.EUseType_Achieve then
+                        return true
+                    end
+                end
+            end
+        end
+    end
+    return false
+end
+
 def.method().SortAchieveTable = function(self)
 	local function AchieveSort(item1, item2)
 		if item1 == nil or item2 == nil then return false end
@@ -172,10 +197,12 @@ def.method("=>","number","number").GetAchievementCountValue = function(self)
 			for _,k in pairs(v._NodeList) do
 				if k._CellList ~= nil then
 					for _,m in ipairs(k._CellList) do
-						totalValue = totalValue + 1
-						if m._State._isFinish then
-							finishCount = finishCount + 1 
-						end
+                        if m._UseType == EUseType.EUseType_Achieve and m._ShowType ~= 2 then
+						    totalValue = totalValue + 1
+						    if m._State._isFinish then
+							    finishCount = finishCount + 1 
+						    end
+                        end
 					end	
 				end	
 			end
@@ -236,6 +263,13 @@ def.method("number","number").DrumpToRightPanel = function(self, proceedToId,Ite
         return
     end
     -- TODO 判断功能是否解锁
+    if drump_temp.FunID > 0 and (not game._CFunctionMan:IsUnlockByFunTid(drump_temp.FunID)) then
+        local fun_temp = CElementData.GetTemplate("Fun", drump_temp.FunID)
+        if fun_temp ~= nil then
+            game._CGuideMan:OnShowTipByFunUnlockConditions(0, drump_temp.FunID)
+            return
+        end
+    end
 
     local panelName = drump_temp.ClickValue1
     local param = drump_temp.ClickValue2
@@ -267,7 +301,6 @@ def.method("number","number").DrumpToRightPanel = function(self, proceedToId,Ite
     elseif panelName == "GuildPanel" then
         game._GuildMan:RequestAllGuildInfo()
     elseif panelName == "GuildDonate" then
-        game._GUIMan:Open("CPanelUIGuild", _G.GuildPage.Bonus)
         game._GuildMan:OpenGuildDonate()
     elseif panelName == "GuildPray" then
         game._GuildMan:OpenGuildPray()
@@ -328,17 +361,18 @@ def.method("number","number").DrumpToRightPanel = function(self, proceedToId,Ite
         if pageType == nil then warn("宠物页签跳转参数错误") return end
         local data = nil
         if pageType == 1 then
-            data = {UIPetPageState = EnumDef.UIPetPageState.PageCultivate}
+            data = {UIPetPageState = EnumDef.UIPetPageState.PagePetInfo}
         elseif pageType == 2 then
-            data = {UIPetPageState = EnumDef.UIPetPageState.PageAdvance}
+            data = {UIPetPageState = EnumDef.UIPetPageState.PageCultivate}
         elseif pageType == 3 then
-            data = {UIPetPageState = EnumDef.UIPetPageState.PageRecast}
+            data = {UIPetPageState = EnumDef.UIPetPageState.PageFuse}
         elseif pageType == 4 then
-            data = {UIPetPageState = EnumDef.UIPetPageState.PageSkill}
+            data = {UIPetPageState = EnumDef.UIPetPageState.PageAdvance}
+        elseif pageType == 5 then 
+        	data = {UIPetPageState = EnumDef.UIPetPageState.PageSkill}
         end
         game._GUIMan:Open("CPanelUIPetProcess", data)
     elseif panelName == "CPanelNpcShop" then
-        local ENpcSaleServiceType = require "PB.data".ENpcSaleServiceType
         local values = string.split(param, '*') 
     	local vlaueList = {}
     	if values ~= nil then 
@@ -370,6 +404,7 @@ def.method("number","number").DrumpToRightPanel = function(self, proceedToId,Ite
 						OpenType = 1,
 						ShopId = tonumber(vlaueList[1]),
 						SubShopId = tonumber(vlaueList[2]),
+						RepID = tonumber(vlaueList[2]),
 						ItemId = ItemId,
 					}
 			else
@@ -378,6 +413,7 @@ def.method("number","number").DrumpToRightPanel = function(self, proceedToId,Ite
 						OpenType = 1,
 						ShopId = tonumber(vlaueList[1]),
 						SubShopId = tonumber(vlaueList[2]),
+						RepID = tonumber(vlaueList[2]),
 					}
 			end
 		end
@@ -451,7 +487,21 @@ def.method("number","number").DrumpToRightPanel = function(self, proceedToId,Ite
 			game._GUIMan:Open("CPanelUIManual", nil)
 		end
 	elseif panelName == "CPanelUIQuestList" then
-		game._GUIMan:Open("CPanelUIQuestList",{OpenIndex = tonumber(param)})
+		local params = string.split(param,"*")
+    	local panelData = {}
+    	if #params == 1 then 
+	    	panelData = 
+	    	{
+	    		OpenIndex = tonumber(params[1])
+	   		 }
+	   	elseif #params == 2 then 
+	   		panelData = 
+	   		{
+	   			OpenIndex = tonumber(params[1]),
+	   			OpenIndex2 = tonumber(params[2]),
+	   		}
+	   	end
+		game._GUIMan:Open("CPanelUIQuestList",panelData)
 	elseif panelName == "CPanelUIDungeon" then
 		if param == nil then warn("冒险日历参数错误，必须填一个日历id") end
         local playID = tonumber(param)
@@ -464,10 +514,20 @@ def.method("number","number").DrumpToRightPanel = function(self, proceedToId,Ite
     elseif panelName == "CPanelUIGuildSmithy" then 
     	game._GuildMan:OpenGuildSmithy()
     elseif panelName == "CPanelStrong" then
-    	local panelData = 
-    	{
-    		PageType = tonumber(param)
-   		 }
+    	local params = string.split(param,"*")
+    	local panelData = {}
+    	if #params == 1 then 
+	    	panelData = 
+	    	{
+	    		PageType = tonumber(params[1])
+	   		 }
+	   	elseif #params == 2 then 
+	   		panelData = 
+	   		{
+	   			PageType = tonumber(params[1]),
+	   			SelectId = tonumber(params[2]),
+	   		}
+	   	end
    		game._GUIMan:Open("CPanelStrong",panelData)
     elseif panelName == "CPanelAuction" then
         local param = tonumber(param)
@@ -487,8 +547,8 @@ end
 --------------------------S2C-----------------------------
 
 --改变成就数据
-def.method("table").ChangeAchievementState = function(self, data)
-	if data == nil then return end
+def.method("table", "=>", "number").ChangeAchievementState = function(self, data)
+	if data == nil then return 0 end
 
 	for _,v in pairs(self._Table_Achievements) do
 		if v._NodeList ~= nil then
@@ -497,14 +557,76 @@ def.method("table").ChangeAchievementState = function(self, data)
 					if m._Tid == data.TId then
 						m._State._isFinish = data.IsFinish
 						m._State._IsReceive = data.IsReceive
-						m._State._CurValue = data.CurrParm
-						m._State._CurValueList = data.CurrParmList
-                        m._FinishTime = data.FinishTime or 0
+						local CurrParmList = data.CurrParmList
+						m._State._CurValueList = CurrParmList
+						m._FinishTime = data.FinishTime or 0
+						return self:GetAchievementCurrent(CurrParmList, m._ParmType)
 					end
 				end
 			end
 		end
 	end
+	return 0
+end
+
+-- 当前完成个数为数组，在计算进度时使用最少完成的个数或者为各个子成就完成数之和
+def.method("number", "=>", "number").GetTargetAchievementCurrent = function(self, tid)
+	local achData = self._AchievementsTIDtoValue[tid]
+	return self:GetAchievementCurrent(achData._State._CurValueList, achData._ParmType)
+end
+
+def.method("table", "number", "=>", "number").GetAchievementCurrent = function(self, currParmList, parmType)
+	if nil == currParmList then return 0 end
+
+	local current = 0
+	if parmType == EParmType.CountShare then
+		for k, v in ipairs(currParmList) do
+			current = current + v.CurrParm
+		end
+	else
+		for k, v in ipairs(currParmList) do
+			local currParm = v.CurrParm
+			if current < currParm then
+				current = currParm
+			end
+		end
+	end
+	return current
+end
+
+def.method("number", "=>", "number").GetAchievementReachCount = function(self, tid)
+    local achievementData = CElementData.GetTemplate("Achievement",tid)
+    if achievementData == nil then
+        warn("error !!! 成就模板数据为空 ， ID：", tid)
+        return 0
+    end
+    -- 特殊需求，完成指定章节和完成指定副本ID，达成参数填的是章节ID或副本ID，直接返回1
+    if achievementData.EventId == EventType.EventType_000 
+            or achievementData.EventId == EventType.EventType_001
+            or achievementData.EventId == EventType.EventType_036
+            or achievementData.EventId == EventType.EventType_037 then
+        return 1
+    end
+	local achData = self._AchievementsTIDtoValue[tid]
+	local reachList = string.split(achData._ReachParm, "*")
+	return tonumber(reachList[1])
+end
+
+def.method("number").FinishAchievementeData = function(self, tid)
+	local achData = self._AchievementsTIDtoValue[tid]
+	local parmType = achData._ParmType
+	local reachList = string.split(achData._ReachParm, "*")
+	local conditionList = string.split(achData._Condition, "*")
+	local reachCondition = {}
+	local len = #reachList
+	if parmType == EParmType.CountShare then
+		table.insert(reachCondition, {CurrParm = tonumber(reachList[1]), Condition = tonumber(conditionList[1])})
+	else
+		for i = 1, len do
+			table.insert(reachCondition, {CurrParm = tonumber(reachList[i]), Condition = tonumber(conditionList[i])})
+		end
+	end
+	achData._State._CurValueList = reachCondition
 end
 
 --完成奖励
@@ -514,7 +636,7 @@ def.method("number", "number").FinishAchievement = function(self, nTID, time)
 			for _,m in ipairs(k._CellList) do
 				if m._Tid == nTID then
 					m._State._isFinish = true
-					m._State._CurValue = m._ReachParm
+					self:FinishAchievementeData(nTID)
                     m._FinishTime = time
                     if self:IsAchievementUnlock() then
 					    local strName = self:GetAchievementName(nTID)
@@ -579,7 +701,7 @@ def.method().UpdateAdvancedGuideInfo = function(self)
                     if m._SortId and m._SortId > 0 then
 						local state = m._State
                         self._AdvancedGuideInfo[#self._AdvancedGuideInfo + 1] = 
-                            {SortId = m._SortId, isFinish = state._isFinish, IsReceive = state._IsReceive, DisPlayName = m._DisPlayName, RewardId = m._RewardId, CurValue = state._CurValue, ReachParm = m._ReachParm, Tid = m._Tid}
+                            {SortId = m._SortId, isFinish = state._isFinish, IsReceive = state._IsReceive, DisPlayName = m._DisPlayName, RewardId = m._RewardId, ReachParm = m._ReachParm, Tid = m._Tid}
                     end
 				end
 			end

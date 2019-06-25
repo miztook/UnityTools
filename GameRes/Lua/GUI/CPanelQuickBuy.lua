@@ -9,11 +9,24 @@ local def = CPanelQuickBuy.define
 local instance = nil
 local uid = 0
 
+--[[ 需要设置为如下结构
+    {
+        {ID = 1, Count = 2, IsMoney = true},
+        {ID = 1, Count = 2, IsMoney = true},
+    }
+]]
+def.field("table")._TargetRewardTable = BlankTable
+--[[ 需要消耗的货币类型及数量信息
+    {
+        {MoneyID = 1, Count = 2},
+        {MoneyID = 1, Count = 2},
+    }
+]]
+def.field("table")._CostMoneyInfoTable = nil
+def.field("table")._CostMoneyIDs = nil
+
 def.field("table")._PanelObjects = BlankTable
-def.field("number")._NeedMoneyID = 0
-def.field("number")._NeedCount = 0
 def.field("boolean")._ShouldClose = false
-def.field("boolean")._IsMoney = true
 def.field("function")._CallBack = nil
 
 def.static('=>', CPanelQuickBuy).Instance = function ()
@@ -22,7 +35,6 @@ def.static('=>', CPanelQuickBuy).Instance = function ()
         instance._PrefabPath = PATH.UI_QuickBuy
         instance._PanelCloseType = EnumDef.PanelCloseType.None
         instance._DestroyOnHide = true
-
         instance:SetupSortingParam()
 	end
 	return instance
@@ -36,76 +48,104 @@ def.override().OnCreate = function(self)
     self._PanelObjects._Frame_CommonBtns = self:GetUIObject("Frame_CommonBtns")
 end
 
--- data = {moneyID = 1, count = 2, callback = nil}
+-- 如果不够的话才会去兑换
+local HandleRewardTable = function(rewardTable)
+    local new_table = {}
+    for i,v in ipairs(rewardTable) do
+        if v.IsMoney then
+            local have_count = game._HostPlayer:GetMoneyCountByType(v.ID)
+            if have_count < v.Count then
+                local item = {}
+                item.ID = v.ID
+                item.Count = v.Count - have_count
+                item.IsMoney = v.IsMoney
+                new_table[#new_table + 1] = item
+            end
+        else
+            local have_count = game._HostPlayer._Package._NormalPack:GetItemCount(v.ID)
+            if have_count < v.Count then
+                local item = {}
+                item.ID = v.ID
+                item.Count = v.Count - have_count
+                item.IsMoney = v.IsMoney
+                new_table[#new_table + 1] = item
+            end
+        end
+    end
+    return new_table
+end
+-- data = {targetRewardTable = { {ID = 1, Count = 2, IsMoney = true}, 
+                               --{ID = 1, Count = 2, IsMoney = true},
+                               -- }, callback = nil }
 def.override("dynamic").OnData = function(self, data)
     if data == nil then warn("请传入快速购买参数") return end
     uid = uid + 1
-    self._NeedMoneyID = data.moneyID or 0
-    self._NeedCount = data.count
+    self._TargetRewardTable = HandleRewardTable(data.targetRewardTable)
+    self._CostMoneyIDs = CMallUtility.GetCostMoneyIDs(self._TargetRewardTable)
+    self._CostMoneyInfoTable = {}
     self._CallBack = data.callback
-    self._IsMoney = data.isMoney
     self:UpdatePanel()
 end
 
-def.method("number", "=>", "table").GetCostMoneyList = function(self, quickID)
-    local quick_temp = CElementData.GetTemplate("QuickStore", quickID)
-    if quick_temp == nil then return end
-    local ids = {}
-    if quick_temp.CostMoneyId1 > 0 then
-        ids[#ids + 1] = quick_temp.CostMoneyId1
-    end
-    if quick_temp.CostMoneyId2 > 0 then
-        ids[#ids + 1] = quick_temp.CostMoneyId2
-    end
-    if quick_temp.CostMoneyId3 > 0 then
-        ids[#ids + 1] = quick_temp.CostMoneyId3
-    end
-    return ids
-end
-
-def.method("number", "=>", "string").GetTipString = function(self, quickID)
-    local quick_temp = CElementData.GetTemplate("QuickStore", quickID)
-    if quick_temp == nil then return "" end
+def.method("=>", "string").GetFirstLineTipString = function(self)
     local str = ""
-    local count = 0
-    if quick_temp.GainId > 0 then
-        if quick_temp.ItemType == 0 then
-            local money_temp = CElementData.GetTemplate("Money", quick_temp.GainId)
-            str = str..money_temp.TextDisplayName.."->"
-            count = count + 1
+    for i,v in ipairs(self._TargetRewardTable) do
+        if v.IsMoney then
+            local need_money_temp = CElementData.GetMoneyTemplate(v.ID)
+            if v.Count > 0 then
+                str =  str .. "【" .. need_money_temp.TextDisplayName .. "】"
+            end
         else
-            str = str..RichTextTools.GetItemNameRichText(quick_temp.GainId, 1, false).."->"
-            count = count + 1
+            local need_item_temp = CElementData.GetItemTemplate(v.ID)
+            if v.Count > 0 then
+                str = str .. "【" .. RichTextTools.GetItemNameRichText(v.ID, 1, false) .. "】"
+            end
         end
     end
-    if quick_temp.CostMoneyId1 > 0 then
-        local money_temp = CElementData.GetTemplate("Money", quick_temp.CostMoneyId1)
-        str = str..money_temp.TextDisplayName.."->"
-        count = count + 1
+    return string.format(StringTable.Get(31034), str)
+end
+
+def.method("=>", "string").GetSecondLineTipString = function(self)
+    local str = ""
+    for i,v in ipairs(self._TargetRewardTable) do
+        if v.IsMoney then
+            local need_money_temp = CElementData.GetMoneyTemplate(v.ID)
+            if need_money_temp ~= nil then
+                str = str .. need_money_temp.TextDisplayName .. ","
+            end
+        else
+            str = str .. RichTextTools.GetItemNameRichText(v.ID, 1, false) .. ","
+        end
     end
-    if quick_temp.CostMoneyId2 > 0 then
-        local money_temp = CElementData.GetTemplate("Money", quick_temp.CostMoneyId2)
-        str = str..money_temp.TextDisplayName.."->"
-        count = count + 1
+    if str ~= "" then
+        str = string.sub(str, 1, #str - 1)
     end
-    if quick_temp.CostMoneyId3 > 0 then
-        local money_temp = CElementData.GetTemplate("Money", quick_temp.CostMoneyId3)
-        str = str..money_temp.TextDisplayName.."->"
-        count = count + 1
+
+    for i,v in ipairs(self._CostMoneyIDs) do
+        local need_money_temp = CElementData.GetMoneyTemplate(v)
+        if need_money_temp ~= nil then
+            str = str .. "->" .. need_money_temp.TextDisplayName
+        end
     end
-    if count > 0 then
-        str = string.sub(str, 1, #str - 2)
-    end
+    
     str = string.format(StringTable.Get(31067), str)
     return str
 end
 
+def.method("number", "=>", "number").GetMoneyChangeCount = function(self, moneyID)
+    for i,v in ipairs(self._CostMoneyInfoTable) do
+        if v.MoneyID == moneyID then
+            return v.Count
+        end
+    end
+    return 0
+end
+
+
 def.method().UpdatePanel = function(self)
---    if CMallUtility.CanBuyWhenNotEnough(self._NeedMoneyID, true, self._NeedCount) then
     self._PanelObjects._Frame_NotEnough:SetActive(false)
     self._PanelObjects._Frame_Enough:SetActive(true)
-    local quick_buy_temp = CMallUtility.GetQuickBuyTemp(self._NeedMoneyID, self._IsMoney)
-    if quick_buy_temp == nil then
+    if not CMallUtility.IsAllQuickBuyHaveTemp(self._TargetRewardTable) then
         warn("没有找到对应的兑换Id")
         self._PanelObjects._Frame_NotEnough:SetActive(true)
         self._PanelObjects._Frame_Enough:SetActive(false)
@@ -123,111 +163,41 @@ def.method().UpdatePanel = function(self)
         return
     end
     local uiTemplate = self._PanelObjects._Frame_Enough:GetComponent(ClassType.UITemplate)
-    local have_res_count = 0
-    if self._IsMoney then
-        have_res_count = game._HostPlayer:GetMoneyCountByType(quick_buy_temp.GainId)
-    else
-        have_res_count = game._HostPlayer._Package._NormalPack:GetItemCount(quick_buy_temp.GainId)
-    end
---    local have_money0 = game._HostPlayer:GetMoneyCountByType(quick_buy_temp.GainId)
-    local real_need_count = math.ceil((self._NeedCount - have_res_count)/quick_buy_temp.GainCount) * quick_buy_temp.CostMoneyCount
-    print("real_need_count ", real_need_count)
-    local quick_cost_ids = self:GetCostMoneyList(quick_buy_temp.Id)
-    local lab_cost1 = uiTemplate:GetControl(0)
-    local lab_cost2 = uiTemplate:GetControl(1)
-    local lab_cost3 = uiTemplate:GetControl(2)
-    local lab_tip1 = uiTemplate:GetControl(3)
-    local lab_tip2 = uiTemplate:GetControl(4)
-    GUI.SetText(lab_cost1, "")
-    GUI.SetText(lab_cost2, "")
-    GUI.SetText(lab_cost3, "")
-    if self._IsMoney then
-        local need_money_temp = CElementData.GetMoneyTemplate(self._NeedMoneyID)
-        GUI.SetText(lab_tip1, string.format(StringTable.Get(31034), need_money_temp.TextDisplayName))
-    else
-        GUI.SetText(lab_tip1, string.format(StringTable.Get(31034), RichTextTools.GetItemNameRichText(self._NeedMoneyID, 1, false)))
-    end
---    if #quick_cost_ids <= 1 then
---        lab_tip2:SetActive(false)
---    else
---        lab_tip2:SetActive(true)
---    end
-    GUI.SetText(lab_tip2, self:GetTipString(quick_buy_temp.Id))
-    if CMallUtility.CanBuyWhenNotEnough(self._NeedMoneyID, self._IsMoney, self._NeedCount) then
-        for i=1,3 do
-            local tab_cost = uiTemplate:GetControl(4+i)
-            if i <= #quick_cost_ids then
-                tab_cost:SetActive(true)
-                local lab_tip = tab_cost:FindChild("Lab_Tip")
-                local img_money = tab_cost:FindChild("Img_Money"..i)
-                local lab_cost = tab_cost:FindChild("Lab_Cost"..i)
-                local money_temp = CElementData.GetMoneyTemplate(quick_cost_ids[i])
-                if money_temp == nil then warn("error !!!配的货币ID不存在") return end
-                GUI.SetText(lab_tip, string.format(StringTable.Get(31037), money_temp.TextDisplayName))
-                GUITools.SetTokenMoneyIcon(img_money, quick_cost_ids[i])
-                local have_count = game._HostPlayer:GetMoneyCountByType(quick_cost_ids[i])
-                if have_count >= real_need_count then
-                    GUI.SetText(uiTemplate:GetControl(i - 1), real_need_count.."")
-                    real_need_count = 0
-                else
-                    GUI.SetText(uiTemplate:GetControl(i - 1), (have_count).."")
-                    real_need_count = real_need_count - have_count
-                end
-            else
-                tab_cost:SetActive(false)
-            end
-        end
+    local lab_tip1 = uiTemplate:GetControl(0)
+    local lab_tip2 = uiTemplate:GetControl(1)
+    local list_cost = uiTemplate:GetControl(2):GetComponent(ClassType.GNewList)
+    GUI.SetText(lab_tip1, self:GetFirstLineTipString())
+    GUI.SetText(lab_tip2, self:GetSecondLineTipString())
+
+    if CMallUtility.CanBuyWhenNotEnough(self._TargetRewardTable) then
+        self._CostMoneyInfoTable = CMallUtility.GetQuickBuyNeedCostMoneyTable(self._TargetRewardTable)
         self._ShouldClose = false
         local callback = self._CallBack
         self._CallBack = function(val)
             if val then
                 local C2SQuickStoreBuyReq = require "PB.net".C2SQuickStoreBuyReq
+                local QuickStoreStruct = require "PB.net".QuickStoreStruct
                 local protocol = C2SQuickStoreBuyReq()
-                local tid = CMallUtility.GetQuickBuyTid(self._NeedMoneyID, self._IsMoney)
-                local have_count = 0
-                if self._IsMoney then
-                    have_count = game._HostPlayer:GetMoneyCountByType(self._NeedMoneyID)
-                else
-                    have_count = game._HostPlayer._Package._NormalPack:GetItemCount(self._NeedMoneyID)
+                for i,v in ipairs(self._TargetRewardTable) do
+                    local tid = CMallUtility.GetQuickBuyTid(v.ID, v.IsMoney)
+                    if tid > 0 then
+                        local lead_temp = CElementData.GetTemplate("QuickStore", tid)
+                        if lead_temp ~= nil then
+                            local item = QuickStoreStruct()
+                            item.Tid = tid
+                            item.Count = math.ceil(v.Count/lead_temp.GainCount)
+                            table.insert(protocol.Datas, item)
+                        end
+                    end
                 end
-                if tid > 0 then
-                    protocol.Tid = tid
-                    protocol.Count = math.ceil((self._NeedCount - have_count)/quick_buy_temp.GainCount)
-                    protocol.Param = uid
-                    SendProtocol(protocol)
-                    self._CallBack = callback
-                end
+                protocol.Param = uid
+                self._CallBack = callback
+                SendProtocol(protocol)
             end
         end
     else
-        for i=1,3 do
-            local tab_cost = uiTemplate:GetControl(4+i)
-            if i <= #quick_cost_ids then
-                tab_cost:SetActive(true)
-                local lab_tip = tab_cost:FindChild("Lab_Tip")
-                local img_money = tab_cost:FindChild("Img_Money"..i)
-                local lab_cost = tab_cost:FindChild("Lab_Cost"..i)
-                local money_temp = CElementData.GetMoneyTemplate(quick_cost_ids[i])
-                if money_temp == nil then warn("error !!!配的货币ID不存在") return end
-                GUI.SetText(lab_tip, string.format(StringTable.Get(31037), money_temp.TextDisplayName))
-                GUITools.SetTokenMoneyIcon(img_money, quick_cost_ids[i])
-                local have_count = game._HostPlayer:GetMoneyCountByType(quick_cost_ids[i])
-                if have_count >= real_need_count then
-                    GUI.SetText(uiTemplate:GetControl(i - 1), real_need_count.."")
-                    real_need_count = 0
-                else
-                    if i == #quick_cost_ids then
-                        GUI.SetText(uiTemplate:GetControl(i - 1), (real_need_count).."")
-                        real_need_count = 0
-                    else
-                        GUI.SetText(uiTemplate:GetControl(i - 1), (have_count).."")
-                        real_need_count = real_need_count - have_count
-                    end
-                end
-            else
-                tab_cost:SetActive(false)
-            end
-        end
+        self._CostMoneyInfoTable = CMallUtility.GetQuickBuyNeedCostMoneyTable(self._TargetRewardTable)
+        self._ShouldClose = false
         self._CallBack = function(val)
             if val then
                 self._PanelObjects._Frame_NotEnough:SetActive(true)
@@ -245,7 +215,10 @@ def.method().UpdatePanel = function(self)
                 end
             end
         end
+        
     end
+    print("#self._CostMoneyIDs ", #self._CostMoneyIDs)
+    list_cost:SetItemCount(#self._CostMoneyIDs)
 end
 
 def.override('string').OnClick = function(self, id)
@@ -265,6 +238,21 @@ def.override('string').OnClick = function(self, id)
 end
 
 def.override('userdata', 'string', 'number').OnInitItem = function(self, item, id, index)
+    local index = index + 1
+    if id == "List_Cost" then
+        local uiTemplate = item:GetComponent(ClassType.UITemplate)
+        local lab_tip = uiTemplate:GetControl(0)
+        local img_money = uiTemplate:GetControl(1)
+        local lab_cost = uiTemplate:GetControl(2)
+        local money_id = self._CostMoneyIDs[index]
+        local num = self:GetMoneyChangeCount(money_id)
+        local money_temp = CElementData.GetMoneyTemplate(money_id)
+        if money_temp ~= nil then
+            GUI.SetText(lab_tip, string.format(StringTable.Get(31077), money_temp.TextDisplayName))
+        end
+        GUITools.SetTokenMoneyIcon(img_money, money_id)
+        GUI.SetText(lab_cost, GUITools.FormatNumber(num, true))
+    end
 end
 
 -- 处理快速购买之后的回调
@@ -292,8 +280,9 @@ end
 def.override().OnDestroy = function(self)
     self._CallBack = nil
     self._PanelObjects = nil
-    self._NeedMoneyID = 0
-    self._NeedCount = 0
+    self._TargetRewardTable = nil
+    self._CostMoneyInfoTable = nil
+    self._CostMoneyIDs = nil
 end
 CPanelQuickBuy.Commit()
 return CPanelQuickBuy

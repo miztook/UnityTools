@@ -31,6 +31,10 @@ local MapInfo =
 	},
 	Region = 
 	{
+		[1] = 
+		{
+			[131] = { x = 169.08, y = 27.69, z = -197.19, xA = 183.17, yA = 20.90, zA = -180.27, name = "进入传送区域", worldId = 127, PkMode = 0 },
+		},
 		[2] = 
 		{
 			[85] = { x = 172.31, y = 43.92, z = -144.51, name = "", worldId = 0, PkMode = 0 },
@@ -70,6 +74,7 @@ local MapInfo =
 	TargetPoint = 
 	{
 		[1] = { posx = 181.68, posy = 20.85, posz = -181.26, rotx = 0.00, roty = 0.00, rotz = 0.00 },
+		[2] = { posx = 183.17, posy = 20.90, posz = -180.27, rotx = 0.00, roty = 55.86, rotz = 0.00 },
 	},
 
 }

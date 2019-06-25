@@ -3,11 +3,15 @@ local CPanelBase = require "GUI.CPanelBase"
 local UserData = require "Data.UserData".Instance()
 local CPanelLoginIns = require "GUI.CPanelLogin".Instance()
 local CElementData = require "Data.CElementData"
+local CLoginMan = require "Main.CLoginMan"
 local CGame = Lplus.ForwardDeclare("CGame")
 
 local CPanelServerSelect = Lplus.Extend(CPanelBase, "CPanelServerSelect")
 local def = CPanelServerSelect.define
 
+def.field("userdata")._Frame_ServerList = nil
+def.field("userdata")._Frame_ServerListRight = nil
+def.field("userdata")._Lab_WaitTips = nil
 def.field("userdata")._View_Role = nil
 def.field("userdata")._View_Server = nil
 def.field("userdata")._List_Role = nil
@@ -53,6 +57,9 @@ end
 def.override().OnCreate = function(self)
 	if IsNil(self._Panel) then return end
 
+	self._Frame_ServerList = self:GetUIObject("Frame_ServerList")
+	self._Frame_ServerListRight = self:GetUIObject("Frame_ServerListRight")
+	self._Lab_WaitTips = self:GetUIObject("Lab_WaitTips")
 	self._View_Role = self:GetUIObject("View_Role")
 	self._View_Server = self:GetUIObject("View_Server")
 	local newList = ClassType.GNewList
@@ -81,43 +88,60 @@ def.override("dynamic").OnData = function(self, data)
 		self._Account = data.account
 		self._Password = data.password
 	end
-	self:InitData()
-	self:SetMenu()
+	self:RequestData()
 	-- self:SetQuickEnterInfo(self._Account)
 end
 
 -- 从中心服获取数据
-def.method().InitData = function (self)
+def.method().RequestData = function (self)
+	self:EnableWaitTips(true)
 	self._ServerList = {}
-	self._AccountRoleList = {}
+	local isServerListComplete, isAccountRoleListComplete = false, false
+	local function CheckData()
+		if isServerListComplete and isAccountRoleListComplete and self:IsShow() then
+			self._ServerList = CLoginMan.GetServerList()
+			-- 设置已有角色列表
+			self._AccountRoleList = {}
+			if not IsNilOrEmptyString(self._Account) then
+				-- 非空账号才去取角色列表数据，否则默认列表为空
+				local roleList = CLoginMan.GetAccountRoleList(self._Account)
+				if roleList ~= nil then
+					-- 检查已有角色里是否在现有的服务器列表里
+					for _, info in ipairs(roleList) do
+						local index = self:GetServerIndexByZoneId(info.zoneId)
+						if self._ServerList[index] ~= nil then
+							table.insert(self._AccountRoleList, info)
+						end
+					end
+				end
+			end
+			self:InitData()
+			self:EnableWaitTips(false)
+			self:SetMenu()
+		end
+	end
+	CLoginMan.RequestServerList(function ()
+		isServerListComplete = true
+		CheckData()
+	end)
+	if IsNilOrEmptyString(self._Account) then
+		isAccountRoleListComplete = true
+		CheckData()
+	else
+		CLoginMan.RequestAccountRoleList(self._Account, function ()
+			isAccountRoleListComplete = true
+			CheckData()
+		end)
+	end
+end
+
+def.method().InitData = function (self)
 	self._RecommendedList = {}
 	self._ZoneRoleIndexMap = {}
 	self._OrderZoneId = 0
-	-- 平台SDK打点
-	local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
-	CPlatformSDKMan.Instance():SetBreakPoint(PlatformSDKDef.PointState.Game_Get_Server_List)
-	-- 设置所有服务器列表，初始化优先级最高
-	local serverList = GameUtil.GetServerList(true)
-	if serverList == nil then
-		error("InitData falied, server list got nil")
-		return
-	end
-	self._ServerList = serverList
 	--刷新Login服务器列表
 	if CPanelLoginIns:IsShow() then
-		CPanelLoginIns:RefreshServerList(serverList)
-	end
-	-- 设置已有角色列表
-	local CLoginMan = require "Main.CLoginMan"
-	local roleList = CLoginMan.GetAccountRoleList(self._Account, true)
-	if roleList ~= nil then
-		-- 检查已有角色里是否在现有的服务器列表里
-		for _, info in ipairs(roleList) do
-			local index = self:GetServerIndexByZoneId(info.zoneId)
-			if self._ServerList[index] ~= nil then
-				table.insert(self._AccountRoleList, info)
-			end
-		end
+		CPanelLoginIns:RefreshServerList(self._ServerList)
 	end
 	-- 设置推荐服务器列表
 	do
@@ -147,7 +171,7 @@ def.method().InitData = function (self)
 		-- 推荐
 		local num = 4 -- 从所有服务器列表找前面4个
 		local count = 0
-		for index, info in ipairs(serverList) do
+		for index, info in ipairs(self._ServerList) do
 			if info.zoneId ~= self._OrderZoneId and info.zoneId ~= recentZoneId then
 				table.insert(recommended_list, info)
 				count = count + 1
@@ -158,6 +182,12 @@ def.method().InitData = function (self)
 		end
 		self._RecommendedList = recommended_list
 	end
+end
+
+def.method("boolean").EnableWaitTips = function (self, enable)
+	self._Frame_ServerList:SetActive(not enable)
+	self._Frame_ServerListRight:SetActive(not enable)
+	GUITools.SetUIActive(self._Lab_WaitTips, enable)
 end
 
 def.method().SetMenu = function (self)
@@ -488,7 +518,6 @@ def.method().OnBtnQuickEnter = function (self)
 		local serverIndex = self:GetServerIndexByZoneId(roleInfo.ZoneId)
 		local serverInfo = self._ServerList[serverIndex]
 		if serverInfo ~= nil then
-			local CLoginMan = require "Main.CLoginMan"
 			CLoginMan.Instance():SetQuickEnterRoleId(roleInfo.RoleId)
 			CLoginMan.Instance():ConnectToServer(serverInfo.ip, serverInfo.port, serverInfo.name, self._Account, self._Password)
 		end
@@ -512,6 +541,17 @@ def.override().OnDestroy = function(self)
 	self._QuickEnterRoleInfos = {}
 	self._AccountRoleList = {}
 	self._ServerState2UIInfo = {}
+
+	self._Frame_ServerList = nil
+	self._Frame_ServerListRight = nil
+	self._Lab_WaitTips = nil
+	self._View_Role = nil
+	self._View_Server = nil
+	self._List_Role = nil
+	self._List_Server = nil
+	self._List_Menu = nil
+	self._Frame_QuickEnter = nil
+	self._List_QuickEnter = nil
 end
 
 CPanelServerSelect.Commit()

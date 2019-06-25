@@ -49,11 +49,12 @@ end
 -- 更新按钮
 def.method().UpdateUI = function(self)
     if self._Btn == nil then
-        warn("error!!! 公用按钮组件预设为空或者参数为空！")
+        warn("error!!! 公用按钮组件预设为空或者参数为空！",  debug.traceback())
         return
     end
     if IsNil(self._Btn) then
         warn("error!!! 有界面的CCommonBtn对象没有销毁！(没有调用CCommonBtn的Destroy())", debug.traceback())
+        self:Destroy()
         return
     end
     local uiTemplate = self._Btn:GetComponent(ClassType.UITemplate)

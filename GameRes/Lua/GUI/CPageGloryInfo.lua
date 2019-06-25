@@ -220,7 +220,8 @@ def.method("number").OnInitGloryDesc = function(self, index)
     local Btn_Gift = GUITools.GetChild(self._Frame_BuyGift , 3)
 
     GUI.SetText(Lab_GloryName, string.format(StringTable.Get(19487), self._GloryGiftInfo[index].Name))
-    GUI.SetText(Lab_GloryDsec, string.format(StringTable.Get(19488), self._GloryGiftInfo[index].Name))
+    -- GUI.SetText(Lab_GloryDsec, string.format(StringTable.Get(19488), self._GloryGiftInfo[index].Name))
+    Lab_GloryDsec:SetActive(false)
     GUI.SetText(self._Lab_UnlockReward, string.format(StringTable.Get(19486), ("<color=#ffffff>" .. self._GloryGiftInfo[index].Name .. "</color>")))
 
     -- 购买礼包需要货币显示颜色
@@ -241,16 +242,16 @@ def.method("number").OnInitGloryDesc = function(self, index)
         Btn_Gift:SetActive(true)
         GUITools.SetTokenMoneyIcon(Img_MoneyIcon, MoneyID)
         if game._CWelfareMan:GetGloryLevel() >= index then
-            Lab_GloryDsec:SetActive(false)
+            -- Lab_GloryDsec:SetActive(false)
             GUITools.SetBtnGray(Btn_Gift, false)
         else
-            Lab_GloryDsec:SetActive(true)
+            -- Lab_GloryDsec:SetActive(true)
             GUITools.SetBtnGray(Btn_Gift, true)
         end
     else
         Lab_GiftBuied:SetActive(true)
         Btn_Gift:SetActive(false)
-        Lab_GloryDsec:SetActive(false)
+        -- Lab_GloryDsec:SetActive(false)
     end
 
     self:UpdateBarProgress(self._CurGlory)

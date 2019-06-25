@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GameCustomConfig>
-	 <DoNotReleaseBundles>
-
-	 </DoNotReleaseBundles>
-	 
-	 <PreLoadBundles>
-		<bundle name="animations"/>
+	 <PreloadBundles>
 		<bundle name="commonatlas"/>
-		<bundle name="commonres" />
-	 </PreLoadBundles>
+		<bundle name="commonres"/>
+		<bundle name="shader"/>
+		<bundle name="animations" />
+	 </PreloadBundles>
 	 
 	 <NavMeshAreaCost>
 		<area name = "default" ground="4" grass="0.8" road="0.05" mindistance="5" />
@@ -27,6 +24,10 @@
 		<area name = "Dungn06_EmpireRelic" ground="8" grass="0.8" road="0.05" mindistance="5" />
 	 </NavMeshAreaCost>
 	 
+	 <PingInverval value="3" />
+	 <MaxProcessProtocol value="60" />
+	 <MaxProcessSpecialProtocol value="30" />
+	 
 	 <ShaderWarmUp value="1" />
 	 <UseSound value="1" />
 	 <PowerSavingCount value="300" />
@@ -34,17 +35,8 @@
 	 <UISfxPrefabCacheLifeTime value="20" />
 	 <GImageModelRTNum value="2" />
 	 <GImageModelCameraNum value="5" />
-	 <GImageModelRTPoolTime value="180" />
 	 <GImageModelCameraPoolTime value="180" />
 	 
-	<CustomPicUploadUrl value="http://10.35.49.145:11001/portrait?guid={0}" />
-	<CustomPicDownloadUrl value="http://10.35.49.145:11001/portrait?guid={0}&amp;md5={1}" /> 
-	<GCloud_AppID value="1795143106" />
-	<GCloud_AppKey value="bd68d4aee813b9cba867ce4683b94d2e" />
-	<LGVC_ServerAddr value="http://lgvc-provisioning-test.line-apps.com" />
-	<LGVC_AppName value = "tera" />
-	<LGVC_UserKey value = "1234" />
-	<PingInverval value="3" />
 	<Authorization value = "LantuAK t7wopefmjbfans041lic3czv2ifd2d4q" />
 	
 </GameCustomConfig>

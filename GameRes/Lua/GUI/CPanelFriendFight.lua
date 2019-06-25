@@ -197,6 +197,7 @@ end
 local function UpdateTeamPanel(self,index,IsShow,IsLocked)
 
     local FrameMember = self:GetUIObject("FrameMember"..index)
+    if FrameMember == nil then warn("index  ",index ) return end
     local uiTemplate = FrameMember:GetComponent(ClassType.UITemplate)
     local memberData = self._CurTeamList[index]
     local FrameExist = uiTemplate:GetControl(5)
@@ -228,6 +229,7 @@ local function UpdateTeamPanel(self,index,IsShow,IsLocked)
     local labLevel = uiTemplate:GetControl(3)
     local imgAI = uiTemplate:GetControl(4)
     local BtnExit = uiTemplate:GetControl(7) 
+    local Img_JobSign = uiTemplate:GetControl(9) 
     imgNone:SetActive(false)
     FrameExist:SetActive(true)
     imgAI:SetActive(true)
@@ -237,8 +239,10 @@ local function UpdateTeamPanel(self,index,IsShow,IsLocked)
         BtnExit:SetActive(false)
     end
     GUI.SetText(labName,memberData.Name)
+    local professionTemplate = CElementData.GetProfessionTemplate(memberData.Profession)
+    GUITools.SetProfSymbolIcon(Img_JobSign, professionTemplate.SymbolAtlasPath)
     GUI.SetText(labLevel,string.format(StringTable.Get(21508),memberData.Lv))
-    GUI.SetText(labJob,tostring(StringTable.Get(10300 + memberData.Profession - 1)))
+    -- GUI.SetText(labJob,tostring(StringTable.Get(10300 + memberData.Profession - 1)))
     if not IsNil(memberData.ModelImgRender) then
         memberData.ModelImgRender:Destroy()
     end
@@ -347,16 +351,20 @@ def.override("string").OnClick = function(self,id)
             C2SStartFight(self)
             game._GUIMan:CloseByScript(self)
         elseif cost > 0 and cost <= self._HaveItemCount then 
-            local title, msg, closeType = StringTable.GetMsg(93)
-            local  name = "<color=#" .. EnumDef.Quality2ColorHexStr[self._CostItemTemplate.InitQuality] ..">" .. self._CostItemTemplate.TextDisplayName .."</color>"
-            msg = string.format(msg,name,cost)
+            local setting =
+            {
+                [MsgBoxAddParam.CostItemID] = self._CostTid,
+                [MsgBoxAddParam.CostItemCount] = cost,
+            }
             local  function callback(value)
                 if value then 
                     C2SStartFight(self)
                     game._GUIMan:CloseByScript(self)
                 end
             end
-            MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL,callback)
+            local title,msg,closeType = StringTable.GetMsg(135)
+            MsgBox.ShowMsgBox(msg,title,closeType, MsgBoxType.MBBT_OKCANCEL, callback, nil, nil, MsgBoxPriority.Normal, setting)
+            
         elseif cost > 0 and cost > self._HaveItemCount then
             game._GUIMan:ShowTipText(StringTable.Get(23007),false)
         end
@@ -381,7 +389,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         local imgHead = uiTemplate:GetControl(0)
         local imgD = uiTemplate:GetControl(1)
         local labName = uiTemplate:GetControl(2)
-        local labJob = uiTemplate:GetControl(3)
+        -- local imgJob = uiTemplate:GetControl(3)
         local labLevel = uiTemplate:GetControl(4)
         local labAmicabilty = uiTemplate:GetControl(5)
         local imgAI = uiTemplate:GetControl(6)
@@ -390,6 +398,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         local labFreeTip = uiTemplate:GetControl(11)
         local imgIcon = uiTemplate:GetControl(9)
         local labCount = uiTemplate:GetControl(10)
+        local labJob = uiTemplate:GetControl(12)
         imgD:SetActive(false)
         imgAI:SetActive(false)
         for _,v in ipairs(self._CurSelectData) do
@@ -401,7 +410,9 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         end
         GUI.SetText(labName,friendData.Name)
         GUI.SetText(labLevel,string.format(StringTable.Get(21508),friendData.Lv))
-        GUI.SetText(labJob,tostring(StringTable.Get(10300 + friendData.Profession - 1)))
+        local professionTemplate = CElementData.GetProfessionTemplate(friendData.Profession)
+        GUI.SetText(labJob,professionTemplate.Name )
+        -- GUITools.SetProfSymbolIcon(imgJob, professionTemplate.SymbolAtlasPath)
         GUI.SetText(labAmicabilty,tostring(friendData.Amicability))
         game:SetEntityCustomImg(imgHead,friendData.ID,friendData.CustomImgSet,friendData.Gender,friendData.Profession)
           
@@ -561,6 +572,15 @@ def.method("table").S2CGetOtherRoleInfo = function(self,data)
         end
     end
     if FriendData == nil then warn("RoleId is wrong") return end
+    --检测一下当前roleId 是否还在选中列表中
+    local isSelected = false
+    for _,v in ipairs(self._CurFriendList) do
+        if v.ID == data.RoleId then 
+            isSelected = true 
+            break
+        end
+    end
+    if not isSelected then return end
     AddMirrorInfo(self,FriendData)
     UpdateTeamPanel(self,#self._CurTeamList,true,false)
     if #self._CurTeamList < self._DungeonLimitNum - 1 then

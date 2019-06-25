@@ -116,8 +116,8 @@ local function OnNotifyRuneEvent(sender, event)
 	if instance ~= nil then
 		if event.Type == "Config" then
 			if instance._SelectedTab == ETabType.Rune then
-				instance._RunePage:OnChangeRuneConfig()
 	 			instance._RunePage:Update()
+				instance._RunePage:OnChangeRuneConfig()
 	 		end
 		end
 	end
@@ -315,7 +315,7 @@ def.method().OnTabSkill = function(self)
 
 	self._SelectedTab = ETabType.Skill
 	self:ClearTabObj(ETabType.Skill)
-
+	self._HelpUrlType = HelpPageUrlType.SkillInfo
 	self._InfoPage:Show()
 end
 
@@ -333,6 +333,7 @@ def.method("number").OnTabRune = function(self,tid)
 	self._SelectedTab = ETabType.Rune
 	self:ClearTabObj(ETabType.Rune)
 
+	self._HelpUrlType = HelpPageUrlType.Rune
 	self._RunePage:Show(tid)
 end
 
@@ -348,6 +349,7 @@ def.method().OnTabMastery = function(self)
 	self._SelectedTab = ETabType.Mastery
 	self:ClearTabObj(ETabType.Mastery)
 
+	self._HelpUrlType = HelpPageUrlType.Mastery
 	self._MasteryPage:Show()
 end
 
@@ -361,6 +363,7 @@ def.method().OnTabSoul = function(self)
 	self._SelectedTab = ETabType.Soul
 	self:ClearTabObj(ETabType.Soul)
 
+	self._HelpUrlType = HelpPageUrlType.Soul
 	self._SoulPage:Show(nil)
 end
 

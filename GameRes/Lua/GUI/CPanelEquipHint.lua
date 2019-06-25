@@ -7,6 +7,7 @@ local CGame = Lplus.ForwardDeclare("CGame")
 local PBHelper = require "Network.PBHelper"
 local CElementData = require "Data.CElementData"
 local DynamicText = require "Utility.DynamicText"
+local EItemBindMode = require "PB.Template".Item.ItemBindMode
 local CPageBag = require "GUI.CPageBag"
 local EItemOptLockType = require "PB.data".EItemOptLockType
 local ItemComponents = require "Package.ItemComponents"
@@ -16,11 +17,8 @@ local CPanelEquipHint = Lplus.Extend(CPanelHintBase, 'CPanelEquipHint')
 
 local def = CPanelEquipHint.define
 
-def.field("userdata")._Lay_Button = nil 
 def.field("userdata")._FrameContent1 = nil 
 def.field('userdata')._FrameContent2 = nil 
-def.field("userdata")._Scroll1 = nil           -- 设置滚动框和遮罩大小
-def.field("userdata")._Scroll2 = nil 
 def.field("userdata")._Mask1 = nil 
 def.field("userdata")._Mask2 = nil
 
@@ -40,7 +38,6 @@ def.field("userdata")._Frame_RefineAttri1 = nil
 def.field("userdata")._Frame_RefineAttri2 = nil 
 def.field("userdata")._Frame_Basic2 = nil 
 def.field("userdata")._Frame_Basic1 = nil 
-def.field("userdata")._Frame_ButtonHeight = nil 
 def.field("userdata")._RdoLock1 = nil
 def.field("userdata")._RdoLock2 = nil
 def.field("userdata")._ImgArrow = nil
@@ -54,11 +51,12 @@ def.field("number")._CellSlot = 0
 def.field("number")._BattleValue = 0
 def.field("number")._MaxTipHeight = 563
 def.field("number")._ItemCoolDownTimer1 = 0
+def.field("number")._ItemExpiredTime1 = 0 
 def.field("number")._EnchantExpiredTimer1 = 0 
 def.field("number")._ItemCoolDownTimer2 = 0
+def.field("number")._ItemExpiredTime2 = 0 
 def.field("number")._EnchantExpiredTimer2 = 0
 def.field("table")._CompareData = nil 
-def.field("boolean")._IsShowCompare = false
 def.field("table")._LockItemData = nil
 
 local instance = nil
@@ -121,7 +119,6 @@ def.override().OnCreate = function(self)
     self._Frame_BaseAttribute1 = self:GetUIObject("Frame_BaseAttri1")
     self._Frame_Other1 = self:GetUIObject('Frame_Other1')
     self._Frame_Tips1 = self:GetUIObject('Frame_Tips1')
-    self._Frame_ButtonHeight = self:GetUIObject("Frame_ButtonHeight")
     self._Frame_EnchantAttri1 = self:GetUIObject("Frame_EnchantAttri1")
     self._Frame_RefineAttri1 = self:GetUIObject("Frame_RefineAttri1")
     self._RdoLock1 = self:GetUIObject("Rdo_Lock1")
@@ -133,7 +130,6 @@ def.override().OnCreate = function(self)
     self._Scroll2 = self:GetUIObject("Scroll2")
     self._Mask1 = self:GetUIObject("Mask1")
     self._Mask2 = self:GetUIObject("Mask2")
-    self._DropButton = self:GetUIObject("Drop_Button")
 end
 
 def.override("dynamic").OnData = function(self, data)
@@ -154,31 +150,14 @@ def.override("dynamic").OnData = function(self, data)
     end
     
     self._IsShowCompare = false
-    self._IsShowDropButton = false
     self:InitPanel()
 end
 
 def.override("string").OnClick = function(self,id)
     CPanelBase.OnClick(self,id)
     local component = nil 
-    if id == "Btn_More" then
-        if not self._IsHaveMoreButton then 
-            component = self._ValidComponents[2]
-            -- if component:IsUseComponent() then
-            --     CItemTipMan.CreatUseSfx()
-            -- end
-            component:Do()
-            CItemTipMan.CloseCurrentTips()      
-        else
-            if not self._IsShowDropButton then 
-                self._DropButton:SetActive(true)
-                self._IsShowDropButton = true
-            else
-                self._DropButton:SetActive(false)
-                self._IsShowDropButton = false
-            end
-        end
-    elseif string.find(id,"Rdo_Lock") then 
+   
+    if string.find(id,"Rdo_Lock") then 
         local i = tonumber(string.sub(id,-1))
         if i == 1 then 
             self._CurSelectRdo = self._RdoLock1
@@ -202,34 +181,15 @@ def.override("string").OnClick = function(self,id)
         else
             itemData = self._CompareData
         end
-        local parentObj = nil 
-        if self._PopFrom ~= TipsPopFrom.Equip_Process and self._PopFrom ~= TipsPopFrom.CHAT_PANEL and self._PopFrom ~= TipsPopFrom.WithoutButton and self._PopFrom ~= TipsPopFrom.OTHER_PANEL then 
-            parentObj = self._Scroll1
-        else
-            parentObj = self._Mask1
-        end
         local PanelData = 
         {
             ApproachIDs = itemData._Template.ApproachID,
-            ParentObj = parentObj,
+            ParentObj = self._Mask1,
             IsFromTip = true,
             TipPanel = self,
             ItemId  = itemData._Tid,
         }
         game._GUIMan:Open("CPanelItemApproach",PanelData) 
-    elseif id == "Btn_One" then 
-        local component = self._ValidComponents[1]
-        component:Do()
-        CItemTipMan.CloseCurrentTips()      
-    else
-        local index = string.sub(id,9)
-        local component = self._ValidComponents[tonumber(index)]
-        -- if component:IsUseComponent() then
-        --     CItemTipMan.CreatUseSfx()
-        -- end
-        component:Do()
-        CItemTipMan.CloseCurrentTips()      
-
     end
 end
 
@@ -242,7 +202,6 @@ def.method().InitPanel = function(self)
         printLog("pop")
     end
 
-    self._DropButton:SetActive(false)
     self._ImgArrow:SetActive(false)
     if self._PopFrom == TipsPopFrom.BACK_PACK_PANEL or self._PopFrom == TipsPopFrom.OTHER_PALYER then
         self:InitCompareTip()
@@ -267,6 +226,7 @@ def.method().InitPanel = function(self)
         self:InitTips()
         if self._PopFrom ~= TipsPopFrom.Equip_Process and self._PopFrom ~= TipsPopFrom.CHAT_PANEL and self._PopFrom ~= TipsPopFrom.WithoutButton then 
             self._Lay_Button:SetActive(true)
+            self._IsShowButton = true
             self:InitButtons(self._Lay_Button)
         else
             -- 聊天界面不显示锁
@@ -274,39 +234,19 @@ def.method().InitPanel = function(self)
                 self._RdoLock1 :SetActive(false)
             end
             self._RdoLock1 :SetActive(true)
+            self._IsShowButton = false
             self._Lay_Button:SetActive(false)
         end
     end
-    
-    self._Frame_ButtonHeight:SetActive(false)
-    local height = GameUtil.GetTipLayoutHeight(self._FrameContent1)
-    if height > self._MaxTipHeight then 
-        self._Frame_ButtonHeight:SetActive(true)
-    end
     self:InitMaskHeight(self._FrameContent1, self._Scroll1, self._Mask1, self._FrameBottom1,self._Frame_Tips1,self:GetUIObject("Lab_EquipTips1"),101, 56)
-    -- tip 底部有没有按钮
-    local offsety = 0
-    if self._PopFrom ~= TipsPopFrom.OTHER_PANEL and self._PopFrom ~= TipsPopFrom.Equip_Process and self._PopFrom ~= TipsPopFrom.CHAT_PANEL and self._PopFrom ~= TipsPopFrom.WithoutButton then 
-        offsety = 0
-    else
-        offsety = -30
-    end
-    self._Scroll1.localPosition = Vector2.New(0,offsety)
+    -- 设置按钮位置
+    self:InitButtonPosition(self._Mask1, self._Lay_Button)
+    self._Scroll1.localPosition = Vector2.New(0,0)
+
+    -- 设置tip上下居中左右居中
     if self._IsShowCompare then 
         self:InitMaskHeight(self._FrameContent2, self._Scroll2, self._Mask2,self._FrameBottom2,self._Frame_Tips2, self:GetUIObject("Lab_EquipTips2"),101, 0)
-        -- 设置两个tip上下居中左右居中
-        local scrollRect1 = self._Scroll1:GetComponent(ClassType.RectTransform)
-        local scrollRect2 = self._Scroll2:GetComponent(ClassType.RectTransform)
-        local offsety = 0
-        if scrollRect1.sizeDelta.y < scrollRect2.sizeDelta.y then 
-            offsety = (scrollRect2.sizeDelta.y - scrollRect1.sizeDelta.y)/2
-            self._Scroll1.localPosition = Vector2.New(157,offsety)
-            self._Scroll2.localPosition = Vector2.New(-157,0)
-        elseif scrollRect1.sizeDelta.y > scrollRect2.sizeDelta.y then 
-            offsety = (scrollRect1.sizeDelta.y - scrollRect2.sizeDelta.y)/2
-            self._Scroll1.localPosition = Vector2.New(157,0)
-            self._Scroll2.localPosition = Vector2.New(-157,offsety)
-        end
+        self:IsSetCompareTipCenter(true)
     end  
 end
 
@@ -338,6 +278,8 @@ def.method().InitVirtualEquip = function(self)
             end
         end
     end     
+    local ImgEnchant = self:GetUIObject("Img_Tag_Enchant1")
+    ImgEnchant:SetActive(false)
     local labTip = self._Frame_Attribute1:FindChild("Lab_Tip")
     if count > 1 then 
         GUI.SetText(labTip,string.format(StringTable.Get(10681),1,count))
@@ -434,13 +376,35 @@ def.method("boolean").InitBaseInfo = function(self,isCompare)
             end
         end
     end
+    local labBindMode = self:GetUIObject("Lab_BindType")
+    labBindMode:SetActive(false)
+    -- 策划需求暂时隐藏
+    -- if labBindMode ~= nil then
+    --     if self._PopFrom == TipsPopFrom.OTHER_PANEL then 
+    --         if itemElement.BindMode == EItemBindMode.OnGain then 
+    --             labBindMode:SetActive(true)
+    --             GUI.SetText(labBindMode,StringTable.Get(10718))
+    --         elseif itemElement.BindMode == EItemBindMode.OnUse then 
+    --             labBindMode:SetActive(true)
+    --             GUI.SetText(labBindMode,StringTable.Get(10718))
+    --         elseif itemElement.BindMode == EItemBindMode.Never then 
+    --             labBindMode:SetActive(false)
+    --         end
+    --     else
+    --         labBindMode:SetActive(false)
+    --     end
+    -- end
     local uiItem = self:GetUIObject("Item"..i)
     local img_item_icon = uiItem:FindChild("Img_ItemIcon")
     GUITools.SetItemIcon(img_item_icon, itemElement.IconAtlasPath)
     local img_Time = uiItem:FindChild("Img_Time")
-    img_Time:SetActive(self._ItemData._SellCoolDownExpired ~= 0 )
     local img_bind = uiItem:FindChild("Img_Lock")
     img_bind:SetActive(itemData:IsBind())
+    if not itemData:IsBind() then 
+        img_Time:SetActive(self._ItemData._SellCoolDownExpired > 0)
+    else
+        img_Time:SetActive(false)
+    end
     -- GUITools.SetItem(uiItem, itemElement, 0, 0, itemData:IsBind())
     GUITools.SetGroupImg(self:GetUIObject("Img_Quality"..i), itemElement.InitQuality)
     local levelstr = string.format(StringTable.Get(10714),itemElement.MinLevelLimit)
@@ -453,7 +417,11 @@ def.method("boolean").InitBaseInfo = function(self,isCompare)
     local frameBattle = self:GetUIObject("Frame_Battle")
     if self._PopFrom ~= TipsPopFrom.OTHER_PANEL then 
         frameBattle:SetActive(true)
-        GUI.SetText(self:GetUIObject("Lab_BattleValues"..i),GUITools.FormatMoney(itemData:GetFightScore()))
+        local fight_score = itemData:GetFightScore()
+        if fight_score <= 0 then
+            frameBattle:SetActive(false)
+        end
+        GUI.SetText(self:GetUIObject("Lab_BattleValues"..i), GUITools.FormatMoney(itemData:GetFightScore()))
     else
         frameBattle:SetActive(false)
     end
@@ -510,7 +478,7 @@ def.method().InitQualityAndLevel = function(self)
 end
 
 def.method("userdata","table").ShowQulityAndLevel = function(self,parentObj,itemData)
-    local labQuality  = parentObj:FindChild("Lab_Quality")
+    local labQuality  = parentObj:FindChild("Lab_Tip/Lab_Quality")
     local labLv = parentObj:FindChild("Lab_Lv")
     local color = RichTextTools.GetQualityText(StringTable.Get(10000 + itemData._Quality), itemData._Quality)
     GUI.SetText(labQuality,color)
@@ -766,10 +734,13 @@ def.method().InitEnchantAttribute = function(self)
 end
 
 def.method("userdata","table","number").ShowEnchantAttri = function (self,frameObj,itemData,index)
-    if itemData._EnchantAttr == nil or itemData._EnchantAttr.index == 0   then
+    local ImgEnchant = self:GetUIObject("Img_Tag_Enchant"..index)
+    if itemData._EnchantAttr == nil or itemData._EnchantAttr.index == 0 then
         frameObj:SetActive(false)
+        ImgEnchant:SetActive(false)
         return
     end
+    ImgEnchant:SetActive(true)
     frameObj:SetActive(true)
     local fightElement = CElementData.GetPropertyInfoById(itemData._EnchantAttr.index)
     local name = fightElement.Name   
@@ -799,22 +770,21 @@ end
 -- 时间金币面板
 def.method().InitTips = function(self)
     if self._IsShowCompare then 
-        self:GetTipsValues(self._Frame_Tips2,self._CompareData,2)
+        self._ItemCoolDownTimer2,self._ItemExpiredTime2 = self:GetTipsValues(self._Frame_Tips2,self._CompareData,2)
     end
-    self:GetTipsValues(self._Frame_Tips1,self._ItemData,1)
+    self._ItemCoolDownTimer1,self._ItemExpiredTime1 = self:GetTipsValues(self._Frame_Tips1,self._ItemData,1)
     
 end
 
-def.method('userdata','table',"number").GetTipsValues = function (self,parentObj,itemData,index)
+def.method('userdata','table',"number","=>","number","number").GetTipsValues = function (self,parentObj,itemData,index)
     local itemTemp = itemData._Template
-    if itemTemp == nil then return end
+    if itemTemp == nil then return 0,0 end
     parentObj:SetActive(true)
     local btnGet = self:GetUIObject("Btn_GetType"..index)
     btnGet:SetActive(true)
     if itemData._Template.ApproachID == "" then 
         btnGet:SetActive(false)
     end
-    local frameDate = self:GetUIObject("Frame_Date"..index)
     local labDecompose = self:GetUIObject("Lab_DecomposeTips"..index)
     local frameSell = self:GetUIObject("Frame_Sell"..index)
     frameSell:SetActive(false)
@@ -827,56 +797,67 @@ def.method('userdata','table',"number").GetTipsValues = function (self,parentObj
     if not itemData:CanDecompose() then 
         labDecompose:SetActive(false)
     end
-
     GUI.SetText(self:GetUIObject("Lab_EquipTips"..index),itemTemp.TextDescription)
-    -- 到期日期和可交易时间
-    local time = 0
-    local IsExpireTime = false
-    if itemData._SellCoolDownExpired > 0 then 
-        time = itemData._SellCoolDownExpired - GameUtil.GetServerTime()/1000 
-        IsExpireTime = false
-    elseif itemData._ExpireData > 0 then 
-        time = itemData._ExpireData 
-        IsExpireTime = true
-    end
-    local lab_TimeTip = frameDate:FindChild("Lab_TimeTips"..index)
-    if time > 0 then 
-        if not IsExpireTime and itemData._IsBind then
-            GUI.SetText(lab_TimeTip,StringTable.Get(10683))
-        else
-            local timerId = 0
-            local callBack = function()
-                if not IsExpireTime then 
-                    time = itemData._SellCoolDownExpired - GameUtil.GetServerTime()/1000 
-                else
-                    time = itemData._ExpireData 
-                end
-                if time > 0 then
-                    self:ShowTime(time,IsExpireTime,lab_TimeTip)
-                else
-                    if not IsExpireTime then
-                        GUI.SetText(lab_TimeTip,StringTable.Get(10684))
+    -- 交易
+    local frameTransaction = self:GetUIObject("Frame_Transaction"..index)
+    frameTransaction:SetActive(true)
+    local lab_CoolTime = frameTransaction:FindChild("Lab_CoolTime")
+    local ImgTransaction = frameTransaction:FindChild("Img_Transaction")
+    local timerId1, timerId2 = 0,0
+    if itemData:IsBind() then 
+        ImgTransaction:SetActive(false)
+        GUI.SetText(lab_CoolTime,StringTable.Get(10683))
+    else
+        if game._CAuctionUtil:GetMarketItemIDByItemID(itemData._Tid) > 0 then 
+            if itemData._SellCoolDownExpired > 0 then
+                ImgTransaction:SetActive(true)
+                local callBack1 = function()
+                    local time = itemData._SellCoolDownExpired - GameUtil.GetServerTime()/1000 
+                    if time > 0 then
+                        self:ShowTime(time,false,lab_CoolTime)
+                    else
+                        ImgTransaction:SetActive(false)
+                        GUI.SetText(lab_CoolTime,StringTable.Get(10684))
+                        _G.RemoveGlobalTimer(timerId1)
+                        timerId1 = 0
                     end
-                    _G.RemoveGlobalTimer(timerId)
-                    timerId = 0	
                 end
-            end
-            timerId = _G.AddGlobalTimer(1, false, callBack)	
-            if index == 1 then 
-                self._ItemCoolDownTimer1 = timerId 
+                timerId1 =  _G.AddGlobalTimer(1, false, callBack1) 
             else
-                self._ItemCoolDownTimer2 = timerId
+                ImgTransaction:SetActive(false)
+                GUI.SetText(lab_CoolTime,StringTable.Get(10684))
+            end
+        else
+            -- 可以交易
+            ImgTransaction:SetActive(false)
+            GUI.SetText(lab_CoolTime,StringTable.Get(10683))
+        end               
+    end
+
+    -- 到期时间
+    local labExpiredTime = self:GetUIObject("Lab_ExpireTime"..index)
+    if itemData._ExpireData <= 0 then 
+        labExpiredTime:SetActive(false)
+    else
+        local callBack2 = function()
+            local time = itemData._ExpireData - GameUtil.GetServerTime()/1000
+            if time > 0 then
+                self:ShowTime(time,true,labExpiredTime)
+            else
+                labExpiredTime:SetActive(false)
+                _G.RemoveGlobalTimer(timerId2)
+                timerId2 = 0
             end
         end
-    else 
-        frameDate:SetActive(false)
+        timerId2 = _G.AddGlobalTimer(1, false, callBack2) 
     end
-    
+    return timerId1,timerId2
 end
 
 def.method().InitCompareTip = function (self)
     local itemSet = game._HostPlayer._Package._EquipPack._ItemSet
     if not itemSet then return end
+
     for i,v in ipairs( itemSet ) do
         --print("v._Tid ====",v._Tid)
         local item = CElementData.GetItemTemplate(v._Tid)
@@ -915,6 +896,14 @@ def.method().Hide = function(self)
         _G.RemoveGlobalTimer(self._ItemCoolDownTimer2)
         self._ItemCoolDownTimer2 = 0 
     end
+    if self._ItemExpiredTime1 ~= 0 then
+        _G.RemoveGlobalTimer(self._ItemExpiredTime1)
+        self._ItemExpiredTime1 = 0 
+    end
+    if self._ItemExpiredTime2 ~= 0 then
+        _G.RemoveGlobalTimer(self._ItemExpiredTime2)
+        self._ItemExpiredTime2 = 0 
+    end
     if self._EnchantExpiredTimer1 ~= 0 then 
         _G.RemoveGlobalTimer(self._EnchantExpiredTimer1)
         self._EnchantExpiredTimer1 = 0 
@@ -936,6 +925,14 @@ def.override().OnDestroy = function(self)
         _G.RemoveGlobalTimer(self._ItemCoolDownTimer2)
         self._ItemCoolDownTimer2 = 0 
     end
+    if self._ItemExpiredTime1 ~= 0 then
+        _G.RemoveGlobalTimer(self._ItemExpiredTime1)
+        self._ItemExpiredTime1 = 0 
+    end
+    if self._ItemExpiredTime2 ~= 0 then
+        _G.RemoveGlobalTimer(self._ItemExpiredTime2)
+        self._ItemExpiredTime2 = 0 
+    end
     if self._EnchantExpiredTimer1 ~= 0 then 
         _G.RemoveGlobalTimer(self._EnchantExpiredTimer1)
         self._EnchantExpiredTimer1 = 0 
@@ -947,33 +944,31 @@ def.override().OnDestroy = function(self)
     game._GUIMan:Close("CPanelItemApproach")
     instance = nil 
 
-    self._Lay_Button = nil
-    self._FrameContent1 = nil
-    self._FrameContent2 = nil
-    self._Scroll1 = nil
-    self._Scroll2 = nil
-    self._Mask1 = nil
-    self._Mask2 = nil
-    self._Frame_Attribute1 = nil
-    self._Frame_Attribute2 = nil
-    self._Frame_Other1 = nil
-    self._Frame_Other2 = nil
-    self._Frame_Tips1 = nil
-    self._Frame_Tips2 = nil
-    self._Frame_BaseAttribute1 = nil
-    self._Frame_BaseAttribute2 = nil
-    self._Frame_EnchantAttri1 = nil
-    self._Frame_EnchantAttri2 = nil
-    self._Frame_RefineAttri1 = nil
-    self._Frame_RefineAttri2 = nil
-    self._Frame_Basic2 = nil
-    self._Frame_Basic1 = nil
-    self._Frame_ButtonHeight = nil
-    self._RdoLock1 = nil
-    self._RdoLock2 = nil
-    self._ImgArrow = nil
-    self._DropButton = nil
-    self._CurSelectRdo = nil
+    -- self._Lay_Button = nil
+    -- self._FrameContent1 = nil
+    -- self._FrameContent2 = nil
+    -- self._Scroll1 = nil
+    -- self._Scroll2 = nil
+    -- self._Mask1 = nil
+    -- self._Mask2 = nil
+    -- self._Frame_Attribute1 = nil
+    -- self._Frame_Attribute2 = nil
+    -- self._Frame_Other1 = nil
+    -- self._Frame_Other2 = nil
+    -- self._Frame_Tips1 = nil
+    -- self._Frame_Tips2 = nil
+    -- self._Frame_BaseAttribute1 = nil
+    -- self._Frame_BaseAttribute2 = nil
+    -- self._Frame_EnchantAttri1 = nil
+    -- self._Frame_EnchantAttri2 = nil
+    -- self._Frame_RefineAttri1 = nil
+    -- self._Frame_RefineAttri2 = nil
+    -- self._Frame_Basic2 = nil
+    -- self._Frame_Basic1 = nil
+    -- self._RdoLock1 = nil
+    -- self._RdoLock2 = nil
+    -- self._ImgArrow = nil
+    -- self._CurSelectRdo = nil
 end
 
 CPanelEquipHint.Commit()

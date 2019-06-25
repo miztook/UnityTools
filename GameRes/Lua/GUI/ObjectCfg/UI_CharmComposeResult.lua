@@ -19,6 +19,7 @@ local cfg = {
     Lab_LevelInfo = 1958228448,
     Lab_LevelBase = 1958007811,
     Lab_LevelUp = 2044493901,
+    Lab_Count = 1187407773,
 }
  
 return cfg

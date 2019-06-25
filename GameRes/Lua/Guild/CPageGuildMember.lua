@@ -1,6 +1,7 @@
 local Lplus = require "Lplus"
 local PBHelper = require "Network.PBHelper"
 local CElementData = require "Data.CElementData"
+local CPanelBagSort = Lplus.ForwardDeclare("CPanelBagSort")
 local CPageGuildMember = Lplus.Class("CPageGuildMember")
 local def = CPageGuildMember.define
 local bit = require "bit"
@@ -13,6 +14,9 @@ def.field("userdata")._Lab_Guild_Member_Num = nil
 def.field("userdata")._Guild_Member_List = nil
 def.field("userdata")._Btn_Guild_Quit = nil
 def.field("userdata")._Btn_Guild_Apply = nil
+def.field("userdata")._Btn_Guild_Dismiss = nil
+def.field("userdata")._LabOnlineNum = nil
+
 
 def.static("table", "userdata", "=>", CPageGuildMember).new = function(parent, frame)
 	local obj = CPageGuildMember()
@@ -37,16 +41,23 @@ def.method().InitUIObject = function(self)
 	self._Guild_Member_List = parent:GetUIObject("Guild_Member_List"):GetComponent(ClassType.GNewList)
     self._Btn_Guild_Quit = parent:GetUIObject("Btn_Guild_Quit")
     self._Btn_Guild_Apply = parent:GetUIObject("Btn_Guild_Apply")
+    self._Btn_Guild_Dismiss = parent:GetUIObject("Btn_Guild_Dismiss")
+    self._LabOnlineNum = parent:GetUIObject("Lab_Guild_OnLinemNum")
 end
 
+
 def.method().Update = function(self)
+-- warn(" debug.traceback -------- ",debug.traceback())
 	local guild = game._HostPlayer._Guild
 	local guildLevel = CElementData.GetTemplate("GuildLevel", guild._GuildModuleID)
 
-	local memberNum = "<color=#5CBE37>" .. guild._MemberNum .. "</color>"
-
-	GUI.SetText(self._Lab_Guild_Member_Num, "[" .. memberNum .. "/" .. guildLevel.MemberNumber .. "]")
-
+    local member = game._GuildMan:GetHostGuildMemberInfo()
+    if member ~= nil then
+        self._Btn_Guild_Dismiss:SetActive(0 ~= bit.band(member._Permission, PermissionMask.Dismiss))
+    end
+	GUI.SetText(self._Lab_Guild_Member_Num,  guild._MemberNum .. "/" .. guildLevel.MemberNumber)
+    GUI.SetText(self._LabOnlineNum,tostring(#guild._OnlineMemberID))
+    game._GuildMan:UpdateMemberIdBySort()
 	self._Guild_Member_List:SetItemCount(#guild._MemberID)
 
 	local member = game._GuildMan:GetHostGuildMemberInfo()  
@@ -63,6 +74,12 @@ end
 def.method("string").OnClick = function(self, id)
 	if id == "Btn_Guild_Apply" then
 		self:OnBtnGuildApply()
+    elseif id == "Btn_Sort" then 
+        game._GUIMan:Open("CPanelBagSort",CPanelBagSort.PanelType.GuildSort)
+    elseif id == "Btn_Guild_Dismiss" then
+        self:OnBtnGuildDismiss()
+    elseif id == "Btn_Guild_Quit" then
+        self:OnBtnGuildQuit()
 	end
 end
 
@@ -84,8 +101,8 @@ def.method("userdata", "string", "number").OnInitItem = function(self, item, id,
         GUI.SetText(uiTemplate:GetControl(5), StringTable.Get(10300 + member._ProfessionID - 1))
     	GUI.SetText(uiTemplate:GetControl(6), member:GetMemberTypeName())
     	GUI.SetText(uiTemplate:GetControl(8), string.format(baseContent, tostring(member._RoleLevel)))
-    	GUI.SetText(uiTemplate:GetControl(10), string.format(baseContent, tostring(member._BattlePower)))
-    	GUI.SetText(uiTemplate:GetControl(12), string.format(baseContent, tostring(member._Liveness)))
+    	GUI.SetText(uiTemplate:GetControl(10), string.format(baseContent, GUITools.FormatNumber(member._BattlePower)))
+    	GUI.SetText(uiTemplate:GetControl(12), string.format(baseContent, GUITools.FormatNumber(member._Liveness)))
     	local clientTime = GameUtil.GetServerTime() / 1000
     	local logoutTime = clientTime - member._LogoutTime
     	if logoutTime == clientTime then
@@ -139,6 +156,16 @@ def.method().OnBtnGuildApply = function(self)
 	PBHelper.Send(protocol)
 end
 
+-- 解散公会
+def.method().OnBtnGuildDismiss = function(self)
+    game._GuildMan:QuitGuild()
+end
+
+-- 退出公会
+def.method().OnBtnGuildQuit = function(self)
+    game._GuildMan:QuitGuild()
+end
+
 -- 隐藏时调用
 def.method().Hide = function(self)
 	self._FrameRoot:SetActive(false)
@@ -154,6 +181,8 @@ def.method().Destroy = function(self)
     self._Guild_Member_List = nil
     self._Btn_Guild_Quit = nil
     self._Btn_Guild_Apply = nil
+    self._Btn_Guild_Dismiss = nil 
+    self._LabOnlineNum = nil
 end
 
 CPageGuildMember.Commit()

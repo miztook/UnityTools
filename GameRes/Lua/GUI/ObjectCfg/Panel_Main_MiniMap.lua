@@ -63,6 +63,7 @@ local cfg = {
     Img_HawkEye = 966382760,
     Img_DamageBG = 1217253680,
     Img_DamageBigBG = 796614746,
+    Frame_Main = 1721778571,
 }
  
 return cfg

@@ -42,7 +42,8 @@ def.field("number")._EffectTimerId = 0
 def.field("number")._CurSortType = 0
 def.field("boolean")._IsDescending = false       -- 是否为降序
 def.field("table")._ItemObjList = nil 
-def.field("table")._DecomposeItemObjList = nil 
+def.field("table")._DecomposeItemObjList = BlankTable 
+def.field("table")._ConsumableTypes = BlankTable        -- 消耗品类型组
 
 -- 分解
 def.field("boolean")._IsOpenDecompose = false
@@ -57,17 +58,6 @@ def.field("boolean")._IsDecomposeTimer = false
 def.field("number")._TimerID = 0
 def.field("boolean")._IsShowDecomposeFx = false
 def.field("table")._BagCouponData = nil
-
-local RdoType = 
-{
-	Weapon = 1,
-	Armor = 2,
-	Accessory = 3,
-	Charm = 4,
-	Rune = 5,
-	Else = 6,
-
-}
 
 local instance = nil
 def.static("=>", CPageBag).Instance = function()
@@ -114,16 +104,25 @@ def.method("table").UpdateBagItem = function(self, event)
 end
 -------------------------------------事件监听end----------------------------------------------
 
+local function IsConsumableType(self,itemType)
+	for _,typeValue in ipairs(self._ConsumableTypes) do 
+		if typeValue == itemType then 
+			return true
+		end
+	end
+	return false
+end
+
 local function InitCurRdoType(self,itemId)
 	if itemId == 0 then 
 		self._CurTabRefreshFunc = self.OnInitWeapon
-		self._CurRdoType = RdoType.Weapon
+		self._CurRdoType = EnumDef.EBagItemType.Weapon
 	return end
 	local temp = CElementData.GetItemTemplate(itemId)
 	if temp.ItemType == EItemType.Equipment then 
 		if temp.Slot == EEquipmentSlot.Weapon then 
 			self._CurTabRefreshFunc = self.OnInitWeapon
-			self._CurRdoType = RdoType.Weapon
+			self._CurRdoType = EnumDef.EBagItemType.Weapon
 			return 
 		elseif temp.Slot == EEquipmentSlot.Helmet  or 
 			   temp.Slot == EEquipmentSlot.Armor or 
@@ -131,24 +130,24 @@ local function InitCurRdoType(self,itemId)
 			   temp.Slot == EEquipmentSlot.Boots or
 			   temp.Slot == EEquipmentSlot.Bracers then
 			self._CurTabRefreshFunc = self.OnInitArmor
-			self._CurRdoType = RdoType.Armor
+			self._CurRdoType = EnumDef.EBagItemType.Armor
 			return
 		else
 			self._CurTabRefreshFunc = self.OnInitAccessory
-			self._CurRdoType = RdoType.Accessory
+			self._CurRdoType = EnumDef.EBagItemType.Accessory
 			return
 		end
 	elseif temp.ItemType == EItemType.Charm then
 		self._CurTabRefreshFunc = self.OnInitCharm
-		self._CurRdoType = RdoType.Charm
+		self._CurRdoType = EnumDef.EBagItemType.Charm
 		return 
-	elseif temp.ItemType == EItemType.Rune then
-		self._CurTabRefreshFunc = self.OnInitRune
-		self._CurRdoType = RdoType.Rune
+	elseif IsConsumableType(self, temp.ItemType) then 
+		self._CurTabRefreshFunc = self.OnInitConsumables
+		self._CurRdoType = EnumDef.EBagItemType.Consumables
 		return
 	else
 		self._CurTabRefreshFunc = self.OnInitElse
-		self._CurRdoType = RdoType.Else
+		self._CurRdoType = EnumDef.EBagItemType.Else
 		return
 	end  
 end
@@ -163,7 +162,10 @@ local function InitDataAndPanel(self,IsOpenUIFromNpc,IsOpenDecompose,itemId)
 	--初始化数据
 	self._IsOpenStorage = IsOpenUIFromNpc 
 	self._IsOpenDecompose = IsOpenDecompose
-	
+	local types = string.split(CSpecialIdMan.Get("ConsumableTypesId"),"*")
+	for _,v in ipairs(types) do
+		table.insert(self._ConsumableTypes,tonumber(v))
+	end
 	self._CurrentSelectedItem = nil
 	self._IsShowDecomposeFx = false
 	self._IsDescending = game._CDecomposeAndSortMan._IsDescending
@@ -193,16 +195,16 @@ end
 local function GetSortValue(item1,item2)
 	local value1 = 0 
 	local value2 = 0 
-	if instance._CurSortType == CPanelBagSort.SortType.Quality then 
+	if instance._CurSortType == CPanelBagSort.BagSortType.Quality then 
 		value1 = item1._Quality
 		value2 = item2._Quality
-	elseif instance._CurSortType == CPanelBagSort.SortType.InitLevel then 
+	elseif instance._CurSortType == CPanelBagSort.BagSortType.InitLevel then 
 		value1 = item1._Template.InitLevel
 		value2 = item2._Template.InitLevel
-	elseif instance._CurSortType == CPanelBagSort.SortType.CreateTimestamp then 
+	elseif instance._CurSortType == CPanelBagSort.BagSortType.CreateTimestamp then 
 		value1 = item1._CreateTimestamp
 		value2 = item2._CreateTimestamp
-	elseif instance._CurSortType == CPanelBagSort.SortType.MinLevelLimit then 
+	elseif instance._CurSortType == CPanelBagSort.BagSortType.MinLevelLimit then 
 		value1 = item1._Template.MinLevelLimit
 		value2 = item2._Template.MinLevelLimit
 	end
@@ -298,10 +300,36 @@ local function CreateDecomposeFx(self)
 	end
 end
 
+-- 红点规则是否有宝箱
+local function UpdateRdoRed(self)
+	if self._IsOpenDecompose then return end
+	local isShowRed = false
+    for i,item in ipairs(game._HostPlayer._Package._NormalPack._ItemSet) do 
+        if item._ItemType == EItemType.TreasureBox then 
+            isShowRed = true
+            break 
+        end  
+    end
+	local img_RedPoint = self._PanelObject._FrameSideTabs:FindChild("Rdo_5/Img_RedPoint")
+	if img_RedPoint then 
+		img_RedPoint:SetActive(isShowRed)
+		self._PanelObject._RdoImgRedBag:SetActive(isShowRed)
+	end
+end
+
+-- 分解隐藏红点
+local function HideRed(self)
+	local img_RedPoint = self._PanelObject._FrameSideTabs:FindChild("Rdo_5/Img_RedPoint")
+	if img_RedPoint then 
+		img_RedPoint:SetActive(false)
+	end
+end
+
 local function UpdateBagItems(self)
 	local itemData = self:SetNormalPackNewStateFromUserData()
 	self._ItemSet = {}
 	self._ItemSet = self:GetItemSets(itemData)
+	UpdateRdoRed(self)
 	for i,v in ipairs(self._ItemSet) do 
 		GUI.SetText(self._PanelObject._FrameSideTabs:FindChild("Rdo_"..i.."/Label_"..i),string.format(StringTable.Get(21516),#v))
 	end
@@ -327,6 +355,7 @@ end
 def.method("dynamic","dynamic").UpdateBag = function(self,bagType,decomposedSlots)
 	if self._Panel == nil then return end
 	self:UpdateUnlockCell()
+
 	if bagType ~= nil and bagType == net.BAGTYPE.STORAGEPACK then
 		if self._IsOpenStorage then 
 			self:UpdateStorage()
@@ -348,7 +377,7 @@ def.method("dynamic","dynamic").UpdateBag = function(self,bagType,decomposedSlot
 				self._DecomposeItemObjList = {}
                 self._PanelObject._DecomposeListView:SetItemCount(#self._ChooseDecomItems)
 			end
-			self._EffectTimerId = _G.AddGlobalTimer(0.6,true,cb)
+			self._EffectTimerId = _G.AddGlobalTimer(1.3,true,cb)
 		else
 			self._IsShowDecomposeFx = true
 			CreateDecomposeFx(self)
@@ -525,16 +554,18 @@ def.method("userdata","string", "number","table").OnInitNormalItem = function(se
 			[EFrameIconTag.RedPoint] = false,
 			[EFrameIconTag.Select] = false,
 			[EFrameIconTag.Remove] = false,
+
 		}
 		IconTools.SetFrameIconTags(frame_item_icon, frame_setting)
 		-- self:OnInitBlankCell(item)
 	else
+		local isShowRed = itemData._ItemType == EItemType.TreasureBox
 		local frame_setting =
 		{
 			[EFrameIconTag.Empty] = false,
 			[EFrameIconTag.ItemIcon] = true,
 			[EFrameIconTag.Check] = false,
-			[EFrameIconTag.RedPoint] = false,
+			[EFrameIconTag.RedPoint] = isShowRed,
 			[EFrameIconTag.Select] = false,
 			[EFrameIconTag.Remove] = false,
 		}
@@ -550,7 +581,8 @@ def.method("userdata","string", "number","table").OnInitNormalItem = function(se
 					[EItemIconTag.Number] = number,
 					[EItemIconTag.New] = itemData._IsNewGot,
 					[EItemIconTag.ArrowUp] = false,
-					[EItemIconTag.Time] = itemData._SellCoolDownExpired ~= 0
+					[EItemIconTag.Time] = itemData._SellCoolDownExpired ~= 0,
+					[EItemIconTag.Grade] = -1,
 		        }
 		IconTools.InitItemIconNew(frame_item_icon, itemData._Tid, icon_setting, EItemLimitCheck.AllCheck)
 		-- IconTools.SetLimit(item, itemData._Tid, EItemLimitCheck.AllCheck)
@@ -638,6 +670,7 @@ def.method("userdata","string","number",'table').OnInitEquip = function(self, it
 					[EItemIconTag.ArrowUp] = bShowArrowUp,
 					[EItemIconTag.Enchant] = itemData._EnchantAttr ~= nil and itemData._EnchantAttr.index ~= 0,
 					[EItemIconTag.Time] = itemData._SellCoolDownExpired ~= 0,
+					[EItemIconTag.Grade] = itemData._BaseAttrs.Star,
 		        }
 	IconTools.InitItemIconNew(frame_item_icon, itemData._Tid, icon_setting, EItemLimitCheck.AllCheck)
 	-- IconTools.SetLimit(item, itemData._Tid, EItemLimitCheck.AllCheck)
@@ -654,7 +687,7 @@ def.method("userdata","string","number",'table').OnInitArmor = function(self, it
 	self:OnInitEquip(item,id,index,itemSetData)
 end
 
--- 初始化"视频"标签页下的物品显示
+-- 初始化"饰品"标签页下的物品显示
 def.method("userdata","string","number",'table').OnInitAccessory = function(self, item, id,index,itemSetData)
 	self:OnInitEquip(item,id,index,itemSetData)
 end
@@ -666,6 +699,11 @@ end
 
 -- 初始化“纹章”标签页下的物品显示
 def.method("userdata","string", "number",'table').OnInitRune = function(self, item,id,index,itemSetData)
+	self:OnInitNormalItem(item,id,index,itemSetData)
+end
+
+-- 初始化“消耗品”标签页下的物品显示
+def.method("userdata","string", "number",'table').OnInitConsumables = function(self, item,id,index,itemSetData)
 	self:OnInitNormalItem(item,id,index,itemSetData)
 end
 
@@ -892,13 +930,17 @@ local function UpdateDecomposeBag(self)
     	-- 本身的分解id
     	local decomposeId = itemData._Template.DecomposeId
     	local decomposeTemp = CElementData.GetItemMachiningTemplate(decomposeId)
+    	local count = itemData._NormalCount
+    	if itemData._DecomposeNum > 0 then 
+    		count = itemData._DecomposeNum
+    	end
     	if decomposeTemp ~= nil then 
     		local items = decomposeTemp.DestItemData.DestItems
     		for i,v in ipairs(items) do 
     			if v.DestType == EDestType.Item then 
-    				PileItem(self,v,itemData._NormalCount,v.Probability,false)
+    				PileItem(self,v,count,v.Probability,false)
     			elseif v.DestType == EDestType.Money then
-    				PileItem(self,v,itemData._NormalCount,v.Probability,true)
+    				PileItem(self,v,count,v.Probability,true)
     			end
     		end
     	end
@@ -927,18 +969,18 @@ local function FilterPart(self,itemData)
 	if #self._CurSelectParts == 0 then return end
 	for i,v in ipairs(self._CurSelectParts) do
 		if v == CPanelDecomposeFilter.FilterPart.Weapon then 
-			if itemData:IsEquip() and itemData:GetCategory() == EnumDef.ItemCategory.Weapon  then 
+			if itemData:IsEquip() and itemData:GetCategory() == EnumDef.ItemCategory.Weapon and itemData._InforceLevel == 0 then 
 				table.insert(self._ChooseDecomItems,itemData)
 				break
 			end
 		elseif v == CPanelDecomposeFilter.FilterPart.Armor then 
-			if itemData:IsEquip() and itemData:GetCategory() == EnumDef.ItemCategory.Armor then 
+			if itemData:IsEquip() and itemData:GetCategory() == EnumDef.ItemCategory.Armor and itemData._InforceLevel == 0 then 
 				table.insert(self._ChooseDecomItems,itemData)
 				break
 			end
 		elseif v == CPanelDecomposeFilter.FilterPart.Accessory then 
 		
-			if itemData:IsEquip() and itemData:GetCategory() == EnumDef.ItemCategory.Jewelry then 
+			if itemData:IsEquip() and itemData:GetCategory() == EnumDef.ItemCategory.Jewelry and itemData._InforceLevel == 0 then 
 				table.insert(self._ChooseDecomItems,itemData)
 				break
 			end
@@ -947,8 +989,13 @@ local function FilterPart(self,itemData)
 				table.insert(self._ChooseDecomItems,itemData)
 				break
 			end
+		elseif v == CPanelDecomposeFilter.FilterPart.Consumables then 
+			if IsConsumableType(self,itemData._ItemType) then 
+				table.insert(self._ChooseDecomItems,itemData)
+				break
+			end
 		elseif v == CPanelDecomposeFilter.FilterPart.Else then 
-			if not itemData:IsEquip() and not itemData:IsCharm() then 
+			if not itemData:IsEquip() and not IsConsumableType(self,itemData._ItemType) and not itemData:IsCharm() then  
 				table.insert(self._ChooseDecomItems,itemData)
 				break
 			end
@@ -960,8 +1007,11 @@ local function FilterQuality(self,itemData)
 	if #self._CurSelectQualitys == 0 then return end
 	for i,v in ipairs(self._CurSelectQualitys) do
 		if itemData._Quality == v - 1 then 
-			table.insert(self._ChooseDecomItems,itemData)
-			break
+			if not itemData:IsEquip() or (itemData:IsEquip() and itemData._InforceLevel == 0) then 
+				table.insert(self._ChooseDecomItems,itemData)
+
+				break
+			end
 		end
 	end
 end
@@ -972,7 +1022,9 @@ local function FilterDecomposeItems(self,itemList)
 
 	if self._IsSelectAll then 
 		for i,v in ipairs(itemList) do
-			table.insert(self._ChooseDecomItems,v)
+			if not v:IsEquip() or (v:IsEquip() and v._InforceLevel == 0) then
+				table.insert(self._ChooseDecomItems,v)
+			end
 		end
 		return
 	end
@@ -999,8 +1051,10 @@ local function FilterDecomposeItems(self,itemList)
 	for i,data in ipairs(self._ChooseDecomItems) do 
 		for j,filterQuality in ipairs(self._CurSelectQualitys) do 
 			if data._Quality == filterQuality - 1 then 
-				table.insert(items,data)
-				break
+				if not data:IsEquip() or (data:IsEquip() and data._InforceLevel == 0) then
+					table.insert(items,data)
+					break
+				end
 			end
 		end
 	end
@@ -1010,7 +1064,7 @@ end
 local function GetCanDecomposeItems(self)
 
 	local itemList = {}
-	if game._HostPlayer == nil then return itemList end
+	if game._HostPlayer == nil or game._HostPlayer._Package._NormalPack._ItemSet == nil or table.nums(game._HostPlayer._Package._NormalPack._ItemSet) == 0 then return itemList end
 	for i,v in ipairs(game._HostPlayer._Package._NormalPack._ItemSet)do
 		if v:CanDecompose() then 
 			table.insert(itemList,v)
@@ -1021,6 +1075,7 @@ end
 
 -- 打开分解界面
 def.method().OpenDecomposePanel = function(self)
+	HideRed(self)
 	self:RemoveDecomposeTimer()
 	self._IsOpenDecompose = true
 	self._IsOpenStorage = false
@@ -1101,7 +1156,7 @@ def.method("number","number","userdata").AddOrDeletChooseItemSets = function (se
     	end
         local text = RichTextTools.GetQualityText(itemData._Name,itemData._Quality)
         text = string.format(StringTable.Get(21517),text)
-    	BuyOrSellItemMan.ShowCommonOperate(TradingType.DECOMPOSE,StringTable.Get(21515), text, 1, itemData._NormalCount,0, EResourceType.ResourceTypeBindDiamond , nil, okback, nil)
+    	BuyOrSellItemMan.ShowCommonOperate(TradingType.DECOMPOSE,StringTable.Get(21515), text, 1, itemData._NormalCount,0, EResourceType.ResourceTypeBindDiamond , itemData._Tid, okback, nil)
    	end
 end
 
@@ -1255,42 +1310,42 @@ def.method("string", "boolean").OnTogglePageBag = function(self, id, checked)
 		if self._CurTabRefreshFunc ~= self.OnInitWeapon then
 			self._PanelObject._ItemListView:GetComponent(ClassType.GNewListLoop):ScrollToStep(0)
 			self._CurTabRefreshFunc = self.OnInitWeapon
-			self._CurRdoType = RdoType.Weapon
+			self._CurRdoType = EnumDef.EBagItemType.Weapon
 			self:UpdatePage()
 		end
 	elseif string.find(id, "Rdo_2") and checked then
 		if self._CurTabRefreshFunc ~= self.OnInitArmor then
 			self._PanelObject._ItemListView:GetComponent(ClassType.GNewListLoop):ScrollToStep(0)
 			self._CurTabRefreshFunc = self.OnInitArmor
-			self._CurRdoType = RdoType.Armor
+			self._CurRdoType = EnumDef.EBagItemType.Armor
 			self:UpdatePage()
 		end
 	elseif string.find(id, "Rdo_3") and checked then
 		if self._CurTabRefreshFunc ~= self.OnInitAccessory then
 			self._PanelObject._ItemListView:GetComponent(ClassType.GNewListLoop):ScrollToStep(0)
 			self._CurTabRefreshFunc = self.OnInitAccessory
-			self._CurRdoType = RdoType.Accessory
+			self._CurRdoType = EnumDef.EBagItemType.Accessory
 			self:UpdatePage()
 		end
 	elseif string.find(id,"Rdo_4") and checked then
 		if self._CurTabRefreshFunc ~= self.OnInitCharm then
 			self._PanelObject._ItemListView:GetComponent(ClassType.GNewListLoop):ScrollToStep(0)
 			self._CurTabRefreshFunc = self.OnInitCharm
-			self._CurRdoType = RdoType.Charm
+			self._CurRdoType = EnumDef.EBagItemType.Charm
 			self:UpdatePage()
 		end
 	elseif string.find(id,"Rdo_5") and checked then
-		if self._CurTabRefreshFunc ~= self.OnInitRune then
+		if self._CurTabRefreshFunc ~= self.OnInitConsumables then
 			self._PanelObject._ItemListView:GetComponent(ClassType.GNewListLoop):ScrollToStep(0)
-			self._CurTabRefreshFunc = self.OnInitRune
-			self._CurRdoType = RdoType.Rune
+			self._CurTabRefreshFunc = self.OnInitConsumables
+			self._CurRdoType = EnumDef.EBagItemType.Consumables
 			self:UpdatePage()
 		end
 	elseif  string.find(id,"Rdo_6") and checked then 
 		if self._CurTabRefreshFunc ~= self.OnInitElse then
 			self._PanelObject._ItemListView:GetComponent(ClassType.GNewListLoop):ScrollToStep(0)
 			self._CurTabRefreshFunc = self.OnInitElse
-			self._CurRdoType = RdoType.Else
+			self._CurRdoType = EnumDef.EBagItemType.Else
 			self:UpdatePage()
 		end
 	elseif string.find(id,"Rdo_Storage") and checked then
@@ -1300,7 +1355,7 @@ def.method("string", "boolean").OnTogglePageBag = function(self, id, checked)
 	end
 end
 
--- 按钮点击事件(能从仓库转到分解，不能从分解到仓库)
+-- 按钮点击事件(能从仓库转到分解，不能从分解到仓库)++++++++++++++++++++++++++++++
 def.method("string").Click = function(self,id)
 	if string.find(id, "Btn_Storage") then
 		local vipId = tonumber(CElementData.GetSpecialIdTemplate(651).Value)
@@ -1382,8 +1437,6 @@ def.method("string").Click = function(self,id)
 	 --        end
 		-- 	local maxValue = GlobalDefinition.MaxPackbackItemNum - self:GetUnlockCellNum()
 		-- 	BuyOrSellItemMan.ShowCommonOperate(TradingType.BagBuyCell,StringTable.Get(11115), StringTable.Get(305), 1, maxValue,0, EResourceType.ResourceTypeBindDiamond , nil, okback, failback)
-		
-
 	elseif id == "Btn_DecomposeOperation" then 
 		local isHaveUncommon = false
 		local UncommonItems = {}
@@ -1392,20 +1445,20 @@ def.method("string").Click = function(self,id)
 			if item._Quality > 2 then 
 				table.insert(UncommonItems,item)
 				isHaveUncommon = true
+			elseif item:IsEquip() and item._InforceLevel > 0 then 
+				table.insert(UncommonItems,item)
+				isHaveUncommon = true
 			else
 				table.insert(chooseDcomposeItems,item)
 			end
 		end
 		if isHaveUncommon then 
 			local function callback(value)
-				if not value then 
-					self:C2SDecomposeItemsOperation(chooseDcomposeItems)
-				else
-					for k,j in ipairs(UncommonItems) do 
-						table.insert(chooseDcomposeItems,j)
-					end
-					self:C2SDecomposeItemsOperation(chooseDcomposeItems)
+				if not value then return end
+				for k,j in ipairs(UncommonItems) do 
+					table.insert(chooseDcomposeItems,j)
 				end
+				self:C2SDecomposeItemsOperation(chooseDcomposeItems)
 			end
 			local title, msg, closeType = StringTable.GetMsg(12)
 			MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback)
@@ -1413,7 +1466,7 @@ def.method("string").Click = function(self,id)
 			self:C2SDecomposeItemsOperation(chooseDcomposeItems)
 		end
 	elseif id == "Btn_Sort" then 
-		game._GUIMan:Open("CPanelBagSort",nil)
+		game._GUIMan:Open("CPanelBagSort",CPanelBagSort.PanelType.BagSort)
 	elseif id == "Btn_Filter" then 
 		self:RemoveDecomposeTimer()
 		game._GUIMan:Open("CPanelDecomposeFilter",nil)
@@ -1426,13 +1479,18 @@ def.method("string").Click = function(self,id)
 				PBHelper.Send(protocol)
 			end
 		end
-		-- 固定为蓝钻
-		if sum > game._HostPlayer:GetMoneyCountByType( 2 ) then 
-            MsgBox.ShowQuickBuyBox(3, sum, callback)
+		
+		local moneyId = CSpecialIdMan.Get("StorageMoneyType")
+		if sum > game._HostPlayer:GetMoneyCountByType( moneyId ) then 
+			local value = sum - game._HostPlayer:GetMoneyCountByType( moneyId )
+            MsgBox.ShowQuickBuyBox(moneyId, value, callback)
         return end	
 		local title, msg, closeType = StringTable.GetMsg(1)
-		local strInfo = string.format(msg, sum)
-	    MsgBox.ShowMsgBox(strInfo, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback) 		
+        local setting = {
+            [MsgBoxAddParam.CostMoneyID] = moneyId,
+            [MsgBoxAddParam.CostMoneyCount] = sum,
+        }
+	    MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback, nil, nil, MsgBoxPriority.Normal, setting) 		
 	elseif id =="Btn_Back" then
 		self._PanelObject._FrameButtons:SetActive(true)
 		self._Parent._HelpUrlType = HelpPageUrlType.Bag
@@ -1449,6 +1507,7 @@ def.method("string").Click = function(self,id)
 			self._PanelObject._FrameBagBottom:SetActive(true)
 			GUI.SetText(self._PanelObject._LabTitle,StringTable.Get(21512))
 		elseif self._IsOpenDecompose then 
+			UpdateRdoRed(self)
 			GUI.SetText(self._PanelObject._LabTitle,StringTable.Get(21512))
 			self._PanelObject._FrameTopTabs:SetActive(true)
 			self._IsOpenDecompose = false
@@ -1640,67 +1699,67 @@ end
 --得到分类后的物品集合
 def.method("table",'=>',"table").GetItemSets = function(self,tempitemSets)
 	local itemSets = {}
-	itemSets[RdoType.Weapon] = {}
-	itemSets[RdoType.Armor] = {}
-	itemSets[RdoType.Accessory] = {}
-	itemSets[RdoType.Charm] = {}
-	itemSets[RdoType.Rune] = {}
-	itemSets[RdoType.Else] = {}
+	itemSets[EnumDef.EBagItemType.Weapon] = {}
+	itemSets[EnumDef.EBagItemType.Armor] = {}
+	itemSets[EnumDef.EBagItemType.Accessory] = {}
+	itemSets[EnumDef.EBagItemType.Charm] = {}
+	itemSets[EnumDef.EBagItemType.Consumables] = {}
+	itemSets[EnumDef.EBagItemType.Else] = {}
 
 	for i,item in ipairs(tempitemSets) do
 		if item._Tid ~= 0 then
 			if item:IsEquip() and item:GetCategory() == EnumDef.ItemCategory.Weapon then
 				if self._IsOpenDecompose  then 
 					if item:CanDecompose() and not item._IsLock then 
-						table.insert(itemSets[RdoType.Weapon], item)
+						table.insert(itemSets[EnumDef.EBagItemType.Weapon], item)
 					end
 				else
-					table.insert(itemSets[RdoType.Weapon], item)
+					table.insert(itemSets[EnumDef.EBagItemType.Weapon], item)
 				end
 			end 
 			if item:IsEquip() and item:GetCategory() == EnumDef.ItemCategory.Armor then
 				if self._IsOpenDecompose then 
 					if item:CanDecompose() and not item._IsLock then 
-						table.insert(itemSets[RdoType.Armor], item)
+						table.insert(itemSets[EnumDef.EBagItemType.Armor], item)
 					end
 				else
-					table.insert(itemSets[RdoType.Armor], item)
+					table.insert(itemSets[EnumDef.EBagItemType.Armor], item)
 				end
 			end 
 			if item:IsEquip() and item:GetCategory() == EnumDef.ItemCategory.Jewelry then
 				if self._IsOpenDecompose then 
 					if item:CanDecompose() and not item._IsLock then 
-						table.insert(itemSets[RdoType.Accessory], item)
+						table.insert(itemSets[EnumDef.EBagItemType.Accessory], item)
 					end
 				else
-					table.insert(itemSets[RdoType.Accessory], item)
+					table.insert(itemSets[EnumDef.EBagItemType.Accessory], item)
 				end
 			end
 			if item:IsCharm() then
 				if self._IsOpenDecompose then 
 					if item:CanDecompose() then 
-						table.insert(itemSets[RdoType.Charm], item)
+						table.insert(itemSets[EnumDef.EBagItemType.Charm], item)
 					end
 				else
-					table.insert(itemSets[RdoType.Charm], item)
+					table.insert(itemSets[EnumDef.EBagItemType.Charm], item)
 				end
 			end 
-			if item:IsRune() then
+			if IsConsumableType(self,item._ItemType) then 
 				if self._IsOpenDecompose then 
 					if item:CanDecompose() then 
-						table.insert(itemSets[RdoType.Rune], item)
+						table.insert(itemSets[EnumDef.EBagItemType.Consumables], item)
 					end
 				else
-					table.insert(itemSets[RdoType.Rune], item)
+					table.insert(itemSets[EnumDef.EBagItemType.Consumables], item)
 				end
 			end
-			if not item:IsEquip() and not item:IsRune() and not item:IsCharm() then
+			if not item:IsEquip() and not IsConsumableType(self,item._ItemType) and not item:IsCharm() then
 				if self._IsOpenDecompose then 
 					if item:CanDecompose() then 
-						table.insert(itemSets[RdoType.Else], item)
+						table.insert(itemSets[EnumDef.EBagItemType.Else], item)
 					end
 				else
-					table.insert(itemSets[RdoType.Else], item)
+					table.insert(itemSets[EnumDef.EBagItemType.Else], item)
 				end
 			end  
 		end
@@ -1772,6 +1831,7 @@ def.method().Hide = function(self)
 	self._ItemObjList = {}
 	self._DecomposeItemObjList = {}
 	self._BagCouponData = nil 
+	self._ConsumableTypes = {}
 	if self._IsDecomposeTimer then 
 		self:AddDecomposeTimer()
 	end

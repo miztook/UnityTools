@@ -4,7 +4,7 @@
 local Lplus = require "Lplus"
 local CPageDailyTask = Lplus.Class("CPageDailyTask")
 local def = CPageDailyTask.define
-
+local CCommonBtn = require "GUI.CCommonBtn"
 local CElementData = require "Data.CElementData"
 local EBoxType = require "PB.Template".DailyTaskBox.EBoxType
 
@@ -16,7 +16,6 @@ def.field("userdata")._Frame_QuestComplete = nil
 def.field('userdata')._Frame_QuestList = nil
 def.field("userdata")._Lab_DailyTaskLuck = nil        -- 今日运势
 def.field("userdata")._Lab_DailyTaskLuckDesc = nil      -- 今日运势描述
-def.field("userdata")._Lab_RefTaskLuckNeedMoney = nil      -- 刷新运势需要钱数
 def.field("userdata")._Lab_DayQuestCount = nil      -- 每日完成任务总数
 def.field("userdata")._Lab_WeekQuestCount = nil      -- 每周完成任务总数
 def.field("userdata")._Img_DayQuestIcon = nil      -- 每日完成任务图标
@@ -54,12 +53,25 @@ def.field("table")._LuckRefCostList = BlankTable        -- 运势刷新消耗
 def.field("table")._QuestRefCostList = BlankTable       -- 任务刷新消耗
 def.field("boolean")._IsNoProvide = false               -- 是否没有可接受任务
 
+def.field(CCommonBtn)._Btn_RefTaskLuck = nil
+def.field(CCommonBtn)._Btn_Ref = nil    
+
 def.static("table", "=>", CPageDailyTask).new = function(parent)
     local instance = CPageDailyTask()
     instance._Parent = parent
     instance:Init()
     return instance
 end
+
+
+local DailyQuestLuckSfx = 
+{
+    [1] = PATH.UIFX_DAILYTASK_Yunshijia,
+    [2] = PATH.UIFX_DAILYTASK_Yunshihao,
+    [3] = PATH.UIFX_DAILYTASK_Yunshiyiban,
+    [4] = PATH.UIFX_DAILYTASK_Yunshicha,
+    [5] = PATH.UIFX_DAILYTASK_Yunshijicha,
+}
 
 def.method().Init = function(self)
     self._Frame_Quest = self._Parent._PageRoot:FindChild("PageDailyTask/Frame_Quest")
@@ -79,10 +91,12 @@ def.method().Init = function(self)
     self._ProBar_Quest = self._Frame_Bottom:FindChild("Frame_QuestLiveness/Pro_QuestLiveness"):GetComponent(ClassType.Scrollbar)
     self._Btn_Refresh = self._Frame_Bottom:FindChild("Btn_Refresh")
     self._Btn_RefreshDailyTaskLuck = self._Frame_Quest:FindChild("Frame_Left/Btn_RefreshDailyTaskLuck")
-    self._Lab_FreeRefresh = self._Frame_Bottom:FindChild("Btn_Refresh/Img_BtnBg/Lab_FreeRefresh")
-    self._Lab_FreeRefreshDailyTaskLuck = self._Frame_Quest:FindChild("Frame_Left/Btn_RefreshDailyTaskLuck/Img_BtnBg/Lab_FreeRefreshDailyTaskLuck")
-    self._Lab_RefTaskLuckNeedMoney = self._Frame_Quest:FindChild("Frame_Left/Btn_RefreshDailyTaskLuck/Img_BtnBg/Img_NeedMoneyBg/Lab_RefreshTaskLuckNeedMoney")    
-    self._Lab_RefNeedMoney = self._Frame_Bottom:FindChild("Btn_Refresh/Img_BtnBg/Img_NeedMoneyBg/Lab_RefreshNeedMoney")
+    self._Lab_FreeRefresh = self._Btn_Refresh:FindChild("Img_Bg/Lab_FreeRefresh")
+    self._Lab_FreeRefreshDailyTaskLuck = self._Btn_RefreshDailyTaskLuck:FindChild("Img_Bg/Lab_FreeRefreshDailyTaskLuck")
+    self._Lab_RefNeedMoney = self._Frame_Bottom:FindChild("Btn_Refresh/Img_Bg/Img_NeedMoneyBg/Lab_RefreshNeedMoney")
+
+    self._Btn_Ref = CCommonBtn.new(self._Btn_Refresh, nil)
+    self._Btn_RefTaskLuck = CCommonBtn.new(self._Btn_RefreshDailyTaskLuck, nil)
 
     for i=1, self._MaxDayChestNum do
         table.insert(self._BtnTable_DayChest, self._Frame_Bottom:FindChild("Frame_QuestLiveness/Frame_Quest_0".. i .."/Btn_Quest_Item_0" .. i))
@@ -100,8 +114,8 @@ def.method().Init = function(self)
     for index, cost in ipairs(costStrList) do
         self._QuestRefCostList[index] = tonumber(cost)
     end
-    -- 每日任务
-    game._CCalendarMan:SendC2SDailyTask()
+     -- 每日任务  
+     game._CCalendarMan:SendC2SDailyTask()
 end
 
 def.method("=>", "boolean").ShowRedPoint = function(self)
@@ -110,6 +124,13 @@ end
 
 --------------------------------------------------------------------------------
 def.method().Show = function(self)
+    -- 每次打开界面都请求一次数据
+    game._CCalendarMan:SendC2SDailyTask()
+    self._CurTaskLuckTid = game._CCalendarMan:GetLuckId()
+    local curTaskLuckData = CElementData.GetTemplate("TaskLuck", self._CurTaskLuckTid)
+    -- GetDailyQuestLuckColorText
+    if curTaskLuckData == nil then return end
+    GameUtil.StopUISfx(DailyQuestLuckSfx[curTaskLuckData.Id], self._Lab_DailyTaskLuck)
     self:UpdateQuestList()
     self:UpdateLuckShow()
     self:UpdateChestState()
@@ -117,6 +138,13 @@ end
 
 def.method("string").OnClick = function(self, id)
     if id == "Btn_RefreshDailyTaskLuck" then       -- 更换运势
+
+        self._CurTaskLuckTid = game._CCalendarMan:GetLuckId()
+        local curTaskLuckData = CElementData.GetTemplate("TaskLuck", self._CurTaskLuckTid)
+        -- GetDailyQuestLuckColorText
+        if curTaskLuckData == nil then return end
+        GameUtil.StopUISfx(DailyQuestLuckSfx[curTaskLuckData.Id], self._Lab_DailyTaskLuck)
+
         local limit = {
             [EQuickBuyLimit.LuckRefMaxCount] = self._MaxLuckRefnum,
         }
@@ -130,12 +158,16 @@ def.method("string").OnClick = function(self, id)
 
         local have_count = game._HostPlayer:GetMoneyCountByType(self._LuckRefMoneyId)
         if have_count >= needMoney and needMoney ~= 0 then
-            local title, str, closeType = StringTable.GetMsg(102)
-            local msg = string.format(str, needMoney)
-            MsgBox.ShowMsgBox(msg, title, closeType, bit.bor(MsgBoxType.MBBT_OKCANCEL, MsgBoxType.MBT_NOTSHOW), function(ret)
+            local title, msg, closeType = StringTable.GetMsg(102)
+            local setting = {
+                [MsgBoxAddParam.NotShowTag] = "CPageDailyTask_1",
+                [MsgBoxAddParam.CostMoneyID] = 3,
+                [MsgBoxAddParam.CostMoneyCount] = needMoney,
+            }
+            MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, function(ret)
                 if not ret then return end
                 game._CCalendarMan:SendC2SDailyTaskLuckRef()
-            end, nil, nil, MsgBoxPriority.Normal, nil, "CPageDailyTask_1")
+            end, nil, nil, MsgBoxPriority.Normal, setting)
         else
             -- 快速货币兑换弹窗
             MsgBox.ShowQuickBuyBox(self._LuckRefMoneyId, needMoney, function(ret)
@@ -153,10 +185,10 @@ def.method("string").OnClick = function(self, id)
             else
                 needMoney = tonumber(cost)
             end
-
             MsgBox.ShowQuickBuyBox(self._QuestRefMoneyId, needMoney, function(ret)
                 if not ret then return end
                 game._CCalendarMan:SendC2SDailyTaskRef()
+                CSoundMan.Instance():Play2DAudio(PATH.GUISound_DailyTaskRefresh, 0)
             end)
         end
     elseif id == "Btn_DayGoalReward" then
@@ -173,6 +205,7 @@ def.method("string").OnClick = function(self, id)
         local taskInfo = self:GetTaskInfoByIndex(index)
         if taskInfo == nil then return end
         game._CCalendarMan:SendC2SDailyTaskFinish(taskInfo.TaskId, false)
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_DailyTaskReward, 0)
     elseif string.find(id, "Btn_QuickFinish") then
         local index = tonumber(string.sub(id, -1))
         local taskInfo = self:GetTaskInfoByIndex(index)
@@ -183,6 +216,7 @@ def.method("string").OnClick = function(self, id)
         MsgBox.ShowQuickBuyBox(self._QuestRefMoneyId, template.FinishCost, function(ret)
             if not ret then return end
             game._CCalendarMan:SendC2SDailyTaskFinish(taskInfo.TaskId, true)
+            CSoundMan.Instance():Play2DAudio(PATH.GUISound_DailyTaskRefresh, 0)
         end)
     elseif string.find(id, "Btn_GetQuest") then
         local index = tonumber(string.sub(id, -1))
@@ -190,6 +224,7 @@ def.method("string").OnClick = function(self, id)
         if taskInfo == nil then return end
 
         game._CCalendarMan:SendC2SDailyTaskProvide(taskInfo.TaskId)
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_DailyTaskReward, 0)
     end
 end
 
@@ -259,7 +294,7 @@ def.method("userdata", "number").OnInitQuestInfo = function(self, item, index)
                 -- 已到时间, 显示“0分钟”
                 timeStr = string.format(minuteStr, 0)
             else
-                GUI.SetText(Lab_QuickFinishNeedMoney, tostring(dailyTaskTemplate.FinishCost))
+                GUI.SetText(Lab_QuickFinishNeedMoney, GUITools.FormatMoney(dailyTaskTemplate.FinishCost))
                 if leftTime / 60 <= 1 then
                     -- 剩余时间小于1分钟，显示“不足1分钟”
                     timeStr = StringTable.Get(31802) .. string.format(minuteStr, 1)
@@ -331,7 +366,7 @@ def.method('userdata', 'string', 'number').OnSelectItem = function(self, item, i
     end
 end
 
-def.method().Hide = function(self)
+def.method().Hide = function(self)    
 end
 
 def.method().Destroy = function (self)
@@ -341,7 +376,6 @@ def.method().Destroy = function (self)
     self._Frame_QuestList = nil
     self._Lab_DailyTaskLuck = nil
     self._Lab_DailyTaskLuckDesc = nil
-    self._Lab_RefTaskLuckNeedMoney = nil
     self._Lab_DayQuestCount = nil
     self._Lab_WeekQuestCount = nil
     self._Img_DayQuestIcon = nil
@@ -359,6 +393,14 @@ def.method().Destroy = function (self)
     self._Frame_Bottom = nil
     self._Img_DayQuestIconOpen = nil
     self._Img_WeekQuestIconOpen = nil
+    if self._Btn_RefTaskLuck ~= nil then
+        self._Btn_RefTaskLuck:Destroy()
+        self._Btn_RefTaskLuck = nil
+    end
+    if self._Btn_Ref ~= nil then
+        self._Btn_Ref:Destroy()
+        self._Btn_Ref = nil
+    end
 end
 
 -- 接收服务器推送事件
@@ -371,7 +413,9 @@ end
 -- @param data 自定义数据
 def.method("number").DailyTaskEventFormServer = function(self, eventType)
     if eventType == 0 then
-        self:Show()
+        self:UpdateQuestList()
+        self:UpdateLuckShow()
+        self:UpdateChestState()
     elseif eventType == 1 then
         self:UpdateQuestList()
     elseif eventType == 2 then
@@ -381,6 +425,12 @@ def.method("number").DailyTaskEventFormServer = function(self, eventType)
         self:UpdateQuestList()
     elseif eventType == 4 then
         self:UpdateLuckShow()
+        self._CurTaskLuckTid = game._CCalendarMan:GetLuckId()
+        local curTaskLuckData = CElementData.GetTemplate("TaskLuck", self._CurTaskLuckTid)
+        -- GetDailyQuestLuckColorText
+        if curTaskLuckData == nil then return end
+        GameUtil.PlayUISfx(DailyQuestLuckSfx[curTaskLuckData.Id], self._Lab_DailyTaskLuck, self._Lab_DailyTaskLuck, -1)
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_DailyTaskLuck, 0)
     elseif eventType == 5 then
         self:UpdateChestState()
     end
@@ -419,32 +469,24 @@ def.method().UpdateQuestList = function(self)
     local IsHaveFreeCount, cost = self:GetCurQuestRefCost()
     if IsHaveFreeCount then
         self._Lab_FreeRefresh:SetActive(true)
-        self._Btn_Refresh:FindChild("Img_BtnBg/Lab_Refresh"):SetActive(false)
-        self._Btn_Refresh:FindChild("Img_BtnBg/Img_NeedMoneyBg"):SetActive(false)
+        self._Btn_Refresh:FindChild("Img_Bg/Node_Content"):SetActive(false)
         GUI.SetText(self._Lab_FreeRefresh, cost)
     else
         self._Lab_FreeRefresh:SetActive(false)
-        self._Btn_Refresh:FindChild("Img_BtnBg/Lab_Refresh"):SetActive(true)
-        self._Btn_Refresh:FindChild("Img_BtnBg/Img_NeedMoneyBg"):SetActive(true)
-        GUI.SetText(self._Lab_RefNeedMoney, cost)
+        self._Btn_Refresh:FindChild("Img_Bg/Node_Content"):SetActive(true)
+        -- GUI.SetText(self._Lab_RefNeedMoney, GUITools.FormatMoney(tonumber(cost)))
+
+        local setting = {
+            [EnumDef.CommonBtnParam.MoneyID] = 1,
+            [EnumDef.CommonBtnParam.MoneyCost] = cost
+        }
+        self._Btn_Ref:ResetSetting(setting)
     end
 
     self:UpdateRefreshLuckLab()
-
-    GameUtil.MakeImageGray(self._Btn_Refresh:FindChild("Img_BtnBg"), IsAllProvide)
-    GameUtil.SetButtonInteractable(self._Btn_Refresh, not IsAllProvide)
-    -- GameUtil.MakeImageGray(self._Btn_RefreshDailyTaskLuck:FindChild("Img_BtnBg"), IsAllProvide)  
-    -- GameUtil.SetButtonInteractable(self._Btn_RefreshDailyTaskLuck, not IsAllProvide)    
+    self._Btn_Ref:MakeGray(IsAllProvide)
+    GameUtil.SetButtonInteractable(self._Btn_Refresh, not IsAllProvide)   
 end
-
-local DailyQuestLuckSfx = 
-{
-    [1] = PATH.UIFX_DAILYTASK_Yunshijia,
-    [2] = PATH.UIFX_DAILYTASK_Yunshihao,
-    [3] = PATH.UIFX_DAILYTASK_Yunshiyiban,
-    [4] = PATH.UIFX_DAILYTASK_Yunshicha,
-    [5] = PATH.UIFX_DAILYTASK_Yunshijicha,
-}
 
 -- 更新运势相关
 def.method().UpdateLuckShow = function(self)
@@ -453,8 +495,6 @@ def.method().UpdateLuckShow = function(self)
     -- GetDailyQuestLuckColorText
     if curTaskLuckData == nil then return end
     GUI.SetText(self._Lab_DailyTaskLuck, RichTextTools.GetDailyQuestLuckColorText(curTaskLuckData.Name, curTaskLuckData.Id))
-    GameUtil.PlayUISfx(DailyQuestLuckSfx[curTaskLuckData.Id], self._Lab_DailyTaskLuck, self._Lab_DailyTaskLuck, -1)
-
     GUI.SetText(self._Lab_DailyTaskLuckDesc, curTaskLuckData.Description)
     self:UpdateRefreshLuckLab()
 end
@@ -464,14 +504,16 @@ def.method().UpdateRefreshLuckLab = function(self)
     local IsHaveLuckFreeCount, Luckcost = self:GetCurLuckRefCost()
     if IsHaveLuckFreeCount then
         self._Lab_FreeRefreshDailyTaskLuck:SetActive(true)
-        self._Btn_RefreshDailyTaskLuck:FindChild("Img_BtnBg/Lab_RefreshDailyTaskLuck"):SetActive(false)
-        self._Btn_RefreshDailyTaskLuck:FindChild("Img_BtnBg/Img_NeedMoneyBg"):SetActive(false)
-        GUI.SetText(self._Lab_FreeRefreshDailyTaskLuck, Luckcost)
+        self._Btn_RefreshDailyTaskLuck:FindChild("Img_Bg/Node_Content"):SetActive(false)
+        GUI.SetText(self._Lab_FreeRefreshDailyTaskLuck, Luckcost)        
     else
         self._Lab_FreeRefreshDailyTaskLuck:SetActive(false)
-        self._Btn_RefreshDailyTaskLuck:FindChild("Img_BtnBg/Lab_RefreshDailyTaskLuck"):SetActive(true)
-        self._Btn_RefreshDailyTaskLuck:FindChild("Img_BtnBg/Img_NeedMoneyBg"):SetActive(true)
-        GUI.SetText(self._Lab_RefTaskLuckNeedMoney, Luckcost)
+        self._Btn_RefreshDailyTaskLuck:FindChild("Img_Bg/Node_Content"):SetActive(true)
+        local setting = {
+            [EnumDef.CommonBtnParam.MoneyID] = 3,
+            [EnumDef.CommonBtnParam.MoneyCost] = Luckcost
+        }
+        self._Btn_RefTaskLuck:ResetSetting(setting)
     end
 end
 
@@ -487,10 +529,10 @@ def.method().UpdateChestState = function(self)
     end
 
     if self._DayReachCount >= 12 then   
-        GameUtil.MakeImageGray(self._Btn_RefreshDailyTaskLuck:FindChild("Img_BtnBg"), true) 
+        self._Btn_RefTaskLuck:MakeGray(true)
         GameUtil.SetButtonInteractable(self._Btn_RefreshDailyTaskLuck, false)
-    else  
-        GameUtil.MakeImageGray(self._Btn_RefreshDailyTaskLuck:FindChild("Img_BtnBg"), false)  
+    else   
+        self._Btn_RefTaskLuck:MakeGray(false)
         GameUtil.SetButtonInteractable(self._Btn_RefreshDailyTaskLuck, true)
     end
     -- 每天宝箱
@@ -506,8 +548,6 @@ def.method().UpdateChestState = function(self)
             local bgImg_chest = self._OpenImgTable_DayChest[i]
             if template ~= nil and not IsNil(btn_chest) and not IsNil(img_chest) then
                 local hasDraw = drawBoxMap[template.Id] == true -- 是否已领取
-                -- GameUtil.SetButtonInteractable(btn_chest, not hasDraw)
-                -- GameUtil.MakeImageGray(img_chest, hasDraw)
                 img_chest:SetActive(not hasDraw)
                 bgImg_chest:SetActive(hasDraw)
                 local canGet = game._CCalendarMan:CanGetChestReward(1, i) -- 是否领取
@@ -547,10 +587,11 @@ def.method().UpdateChestState = function(self)
                     self._Img_DayQuestIconOpen:SetActive(false)
                 end
             end
+            local Btn_DayGoalReward = self._Frame_Bottom:FindChild("Frame_WeekGoal/Btn_DayGoalReward")
             if canGet and not hasDraw then
-                GameUtil.PlayUISfx(PATH.UIFX_DAILYTASK_LingQu, self._Img_DayQuestIcon, self._Img_DayQuestIcon, -1)
+                GameUtil.PlayUISfx(PATH.UIFX_DAILYTASK_LingQu, Btn_DayGoalReward, Btn_DayGoalReward, -1)
             else                
-                GameUtil.StopUISfx(PATH.UIFX_DAILYTASK_LingQu, self._Img_DayQuestIcon)
+                GameUtil.StopUISfx(PATH.UIFX_DAILYTASK_LingQu, Btn_DayGoalReward)
             end
         end
 
@@ -573,11 +614,11 @@ def.method().UpdateChestState = function(self)
                     self._Img_WeekQuestIconOpen:SetActive(false)
                 end
             end
-
+            local Btn_WeekGoalReward = self._Frame_Bottom:FindChild("Frame_WeekGoal/Btn_WeekGoalReward")
             if canGet and not hasDraw then
-                GameUtil.PlayUISfx(PATH.UIFX_DAILYTASK_LingQu, self._Img_WeekQuestIcon, self._Img_WeekQuestIcon, -1)
+                GameUtil.PlayUISfx(PATH.UIFX_DAILYTASK_LingQu, Btn_WeekGoalReward, Btn_WeekGoalReward, -1)
             else
-                GameUtil.StopUISfx(PATH.UIFX_DAILYTASK_LingQu, self._Img_WeekQuestIcon)
+                GameUtil.StopUISfx(PATH.UIFX_DAILYTASK_LingQu, Btn_WeekGoalReward)
             end
         end
     end

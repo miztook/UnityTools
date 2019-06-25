@@ -1,10 +1,11 @@
 local Lplus = require "Lplus"
 local CQuest = require "Quest.CQuest"
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local CTeamMan = require "Team.CTeamMan"
 local CGame = Lplus.ForwardDeclare("CGame")
 local CElementData = require "Data.CElementData"
 local EWorldType = require "PB.Template".Map.EWorldType
+local QuestDef = require "Quest.QuestDef"
 local bit = require "bit"
 local DistanceH = Vector3.DistanceH
 
@@ -149,10 +150,16 @@ local function IsCurObjectiveForbided(quest_model)
             if obj:GetTemplate().ArriveLevel._is_present_in_parent then
                 return true
             elseif obj:GetTemplate().EnterDungeon._is_present_in_parent then
+                if quest_model.QuestStatus == QuestDef.Status.NotRecieved then
+                    return false
+                end
                 -- 任务目标是到达相位副本，可以自动化；其余不可
                 local pathID = obj:GetTemplate().EnterDungeon.PathID
                 return pathID ~= nil and pathID == 0
             elseif obj:GetTemplate().FinishDungeon._is_present_in_parent then
+                if quest_model.QuestStatus == QuestDef.Status.NotRecieved then
+                    return false
+                end
                 local pathID = obj:GetTemplate().FinishDungeon.PathID
                 return pathID ~= nil and pathID == 0
             elseif obj:GetTemplate().Guide._is_present_in_parent then

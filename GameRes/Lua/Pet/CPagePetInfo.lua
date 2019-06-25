@@ -2,6 +2,7 @@
 
 local CElementData = require "Data.CElementData"
 local DynamicText = require "Utility.DynamicText"
+local CPetUtility = require "Pet.CPetUtility"
 
 local Lplus = require "Lplus"
 local CGame = Lplus.ForwardDeclare("CGame")
@@ -40,7 +41,6 @@ def.method("dynamic").Show = function(self, data)
 end
 
 def.method().InitPanel = function(self)
-    local CPetUtility = require "Pet.CPetUtility"
     local MaxAptitudeCount = CPetUtility.GetMaxAptitudeCount()   --资质最大个数
     local MaxPropertyCount = CPetUtility.GetMaxPropertyCount()   --属性最大个数
     local MaxSkillCount = CPetUtility.GetMaxSkillCount()         --技能最大个数
@@ -59,6 +59,7 @@ def.method().InitPanel = function(self)
         local sld = aptitude.Root:FindChild('Sld_Aptitude')
         aptitude.Sld = sld:GetComponent(ClassType.Slider)
         aptitude.Lab_Value = sld:FindChild('Lab_Value')
+        aptitude.Img_CanReset = aptitude.Root:FindChild("Img_CanReset")
 
         table.insert(self._PanelObject.AptitudeList, aptitude)
     end
@@ -110,9 +111,9 @@ def.method().UpdatePanel = function(self)
         --资质
         local root = self._PanelObject.AptitudeList
         for i=1, #self._PetData._AptitudeList do
-            local aptitudeMax = self._PetData:GetAptitudeMaxByIndex(i)
-            
             local aptitudeInfo = self._PetData._AptitudeList[i]
+            local aptitudeMax = aptitudeInfo.MaxValue
+
             local UIInfo = root[i]
             GUI.SetText(UIInfo.Lab_Aptitude, aptitudeInfo.Name)
 
@@ -120,6 +121,7 @@ def.method().UpdatePanel = function(self)
             local strMax = aptitudeMax --math.ceil(aptitudeInfo.MaxValue)
             GUI.SetText(UIInfo.Lab_Value, string.format(StringTable.Get(19070), strVal, strMax))
             UIInfo.Sld.value = math.clamp(aptitudeInfo.Value/aptitudeMax, 0, 1)
+            UIInfo.Img_CanReset:SetActive( aptitudeInfo.CanReset ) 
         end
     end
 
@@ -153,7 +155,6 @@ def.method().UpdatePanel = function(self)
     do
         --warn("UpdatePanel 技能")
         --技能
-        local CPetUtility = require "Pet.CPetUtility"
         local MaxSkillCount = CPetUtility.GetMaxSkillCount()         --技能最大个数
 
         local root = self._PanelObject.SkillList
@@ -173,7 +174,22 @@ def.method().UpdatePanel = function(self)
                 GUITools.SetIcon(UIInfo.Img_ItemIcon, skillInfo.IconPath)
                 local TalentData = CElementData.GetTemplate("Talent", skillInfo.ID)
                 if TalentData then
-                    GUI.SetText(UIInfo.Lab_SkilName, RichTextTools.GetQualityText(skillInfo.Name, TalentData.InitQuality))
+                    local lv = skillInfo.Level
+                    local BackItemList = {}
+                    local ids = string.split(TalentData.ItemTIds, "*")
+                    for i,v in ipairs(ids) do
+                        local tid = tonumber(v)
+                        table.insert(BackItemList, tid)
+                    end
+                    if BackItemList[lv] == nil then
+                        warn("Error:Data is Null, SKill BackItemList SkillID, Lv = ", skillInfo.ID, lv)
+                        return
+                    end
+                    local itemTemp = CElementData.GetTemplate("Item", BackItemList[lv])
+                    local strName = RichTextTools.GetQualityText(skillInfo.Name, itemTemp.InitQuality)
+                    GUI.SetText(UIInfo.Lab_SkilName, string.format(StringTable.Get(19092), strName, lv))
+                    -- local strLv = ExchangeNum2Chinese(skillInfo.Level)
+                    -- GUI.SetText(UIInfo.Lab_SkilName, string.format(StringTable.Get(19089), strLv, strName))
                     GUITools.SetGroupImg(UIInfo.Img_Quality, TalentData.InitQuality)
                 end
             end
@@ -192,6 +208,27 @@ def.method().UpdatePanel = function(self)
 
 end
 
+def.method("string").OnClick = function(self, id)
+    if id == "Btn_ResetAptitude" then
+        game._GUIMan:Open("CPanelUIPetAptitudeReset", self._PetData)
+    elseif string.find(id, "Frame_PetInfo_Aptitude") then
+        -- 暂时注释，后期修改显示方案
+        -- local index = tonumber(string.sub(id, -1))
+        -- self:ShowPropertyTip(index)
+    elseif string.find(id, "Frame_Attribute_Skill") then
+        --技能tips
+        local index = tonumber(string.sub(id,-1))
+        self:ShowSkillTips(index)
+    end
+end
+
+def.method("string").OnPointerLongPress = function(self, id)
+    -- if string.find(id, "Frame_Attribute_Skill") > 0 then
+    --     local index = tonumber( string.sub(id, -1) )
+    --     self:ShowSkillTips(index)
+    -- end
+end
+
 def.method("number").ShowSkillTips = function(self, index)
     if self._PetData._SkillList[index] ~= nil then
         if self._PetData._SkillList[index].ID > 0 then
@@ -204,20 +241,66 @@ def.method("number").ShowSkillTips = function(self, index)
             }
 
             CItemTipMan.ShowPetSkillTips(panelData)
-        else
-            SendFlashMsg(StringTable.Get(19052))
         end
-    else
-        SendFlashMsg( string.format(StringTable.Get(19051),CElementData.GetSpecialIdTemplate(624).Value * (index - 1)) )
     end
 end
 
-def.method("string").OnClick = function(self, id)
-    if string.find(id, "Frame_Attribute_Skill") then
-        --技能tips
-        local index = tonumber(string.sub(id,-1))
-        self:ShowSkillTips(index)
+def.method("number").ShowPropertyTip = function(self, index)
+    local fightPropertyId = self._PetData._AptitudeList[index].FightPropertyId
+    local fix_id = CPetUtility.ExchangeToPropertyTipsID(fightPropertyId)
+    local data = CElementData.GetTemplate("FightPropertyConfig", fix_id)
+
+    if data == nil or data.DetailDesc == "" then return end
+
+    local cnt = 0
+    local replaceIdStr = data.ReplaceIdStr
+    local strIds = {}
+
+    if replaceIdStr ~= nil and replaceIdStr ~= "" then
+        strIds = string.split(replaceIdStr, "*")
+        cnt = #strIds
     end
+
+    local exchangeIndex1 = index
+    local exchangeIndex2 = 0
+    local strDesc = ""
+
+    if cnt == 1 then
+        exchangeIndex1 = tonumber(strIds[1])
+    elseif cnt == 2 then
+        exchangeIndex1 = tonumber(strIds[1])
+        exchangeIndex2 = tonumber(strIds[2])
+    end
+
+    local value = self._PetData._AptitudeList[index].Value
+    if value == nil then return end
+
+    if exchangeIndex2 == 0 then
+        local ModuleProfDiffConfig = require "Data.ModuleProfDiffConfig" 
+        local config = ModuleProfDiffConfig.GetModuleInfo("FightProperty")
+        if config ~= nil and config.DESC ~= nil and config.DESC[index] ~= nil then
+            strDesc = config.DESC[index][game._HostPlayer._InfoData._Prof]
+        else
+            local exchangeData = CElementData.GetTemplate("FightPropertyConfig", exchangeIndex1)
+            if string.sub(exchangeData.ValueFormat, -1) == "%" then
+                value = value * 100
+            end
+            
+            strDesc = string.format(data.DetailDesc, value)
+        end     
+    else
+        local value1 = value*100
+        local value2 = self._PetData._AptitudeList[index].Value * 100
+        strDesc = string.format(data.DetailDesc, value1, value2)
+    end
+
+    local param = 
+    {
+        Obj = self._Parent:GetUIObject("Frame_PetInfo_Aptitude"..index),
+        Value = strDesc,
+        AlignType = EnumDef.AlignType.Top,
+    }
+    game._GUIMan:Open("CPanelRoleInfoTips", param)
 end
 
 def.method().Hide = function(self)

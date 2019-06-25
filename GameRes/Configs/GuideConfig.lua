@@ -106,6 +106,9 @@
 --  CPanelStrong = 10
 --  CPanelUIExterior = 11
 --	CPanelUIEquipProcess = 12,
+--  CPanelUIAutoKill = 13,
+--    CPanelUIDungeon = 14,
+-- CPanelUIGuildSmithy = 15,
 -- }
 local GuideCfg = 
 {
@@ -187,26 +190,6 @@ local GuideCfg =
 	    			NextStepTriggerParam = -1,
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				[4] = 
-				{
-					--指引对话--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "",
-					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
-					--是否强制
-					IsClickLimit = true,
-					--是否黑屏
-					IsShowBlackBG = true,
-				    -- 是否有高亮区域
-				    IsHighLight = true,
-	    			--触发标准--------------------------------
-	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 9,
-	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = -1,
-					IsSkip = 1,  -- 1右上  2右下
-				}
 			}
 		},
 		[2] = 
@@ -284,7 +267,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "Img_bg/Img_Icon",
+	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[4] = 
@@ -381,8 +364,8 @@ local GuideCfg =
 					--打开任务界面引导--------------------------------
 				    --高亮按钮名称
 					ShowHighLightButtonName = "item-0",
-					ShowHighLightButtonPath = "UI_Map(Clone)/Frame_Map/Frame_L/Frame_List/Mask2D/Viewport/Item1/",
-					RegisterUI = "Item1",
+					ShowHighLightButtonPath = "UI_Map(Clone)/Frame_Map/Frame_L/Frame_List/Mask2D/Viewport/NodeItem1/",
+					RegisterUI = "NodeItem1",
 					RegisterUIPath = "UI_Map(Clone)/Frame_Map/Frame_L/Frame_List/Mask2D/Viewport/",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "CPanelMap",
@@ -514,7 +497,7 @@ local GuideCfg =
 				{
 					--打开公会界面引导--------------------------------
 				    --高亮按钮名称
-					ShowHighLightButtonName = "Tab_Guild_Bonus",
+					ShowHighLightButtonName = "Tab_Guild_Member",
 					ShowHighLightButtonPath = "UI_Guild(Clone)/TabGroup/",
 					RegisterUI = "",
 					RegisterUIPath = "",
@@ -556,29 +539,9 @@ local GuideCfg =
 				},
 				[5] = 
 				{
-					--指引对话--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "",
-					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
-					--是否强制
-					IsClickLimit = true,
-					--是否黑屏
-					IsShowBlackBG = true,
-					--是否高亮
-					IsHighLight = true,
-	    			--触发标准--------------------------------
-	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 9,
-	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = -1,
-					IsSkip = 1,  -- 1右上  2右下
-				},
-				[6] = 
-				{
 					--打开公会界面引导--------------------------------
 				    --高亮按钮名称
-					ShowHighLightButtonName = "Tab_Guild_Info",
+					ShowHighLightButtonName = "Tab_Guild_Bonus",
 					ShowHighLightButtonPath = "UI_Guild(Clone)/TabGroup/",
 					RegisterUI = "",
 					RegisterUIPath = "",
@@ -596,6 +559,26 @@ local GuideCfg =
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
 	    			AutoShowElement = "",
+					IsSkip = 1,  -- 1右上  2右下
+				},				
+				[6] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+					--是否高亮
+					IsHighLight = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[7] = 
@@ -622,7 +605,7 @@ local GuideCfg =
 				{
 					--打开公会界面引导--------------------------------
 				    --高亮按钮名称
-					ShowHighLightButtonName = "Tab_Guild_Member",
+					ShowHighLightButtonName = "Tab_Guild_Building",
 					ShowHighLightButtonPath = "UI_Guild(Clone)/TabGroup/",
 					RegisterUI = "",
 					RegisterUIPath = "",
@@ -662,7 +645,26 @@ local GuideCfg =
 	    			NextStepTriggerParam = -1,
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				
+				[10] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+					--是否高亮
+					IsHighLight = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+				},
 			}
 		},
 		[5] = 
@@ -670,7 +672,7 @@ local GuideCfg =
 		{ 
 			Id = 5,
 			TriggerBehaviour = 13,
-			TriggerParam = 0.50,
+			TriggerParam = 0.80,
 			TriggerParamSymbol = false,
 			--步骤
 			Steps = 
@@ -759,7 +761,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "Img_bg/Img_Icon",
+	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[3] = 
@@ -906,6 +908,26 @@ local GuideCfg =
 	    			NextStepTriggerParam = -1,
 					IsSkip = 1,  -- 1右上  2右下
 				},
+				[5] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+					 -- 是否有高亮区域
+					IsHighLight = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+				},
 			}
 		},
 		[8] = 
@@ -974,6 +996,66 @@ local GuideCfg =
 			{
 				--对话指引
 				[1] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+				    -- 是否有高亮区域
+				    IsHighLight = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				[2] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+				    -- 是否有高亮区域
+				    IsHighLight = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				[3] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+				    -- 是否有高亮区域
+				    IsHighLight = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				[4] = 
 				{
 					--指引对话--------------------------------
 				    --高亮按钮名称
@@ -1072,7 +1154,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "Img_bg/Img_Icon",
+	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[4] = 
@@ -1121,28 +1203,30 @@ local GuideCfg =
 	    			NextStepTriggerParam = -1,
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				--对话指引
 				[6] = 
 				{
-					--指引对话--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "",
+					--选择知识分类-----------------------------
+					ShowHighLightButtonName = "item-2",
+					ShowHighLightButtonPath = "UI_Manual(Clone)/Frame_Center/FrameGroup/Frame_2/Frame_L/List_Manual/Viewport/Content/",
+
+					--列表相关
+					RegisterUI = "List_Manual",
+					RegisterUIPath = "UI_Manual(Clone)/Frame_Center/FrameGroup/Frame_2/Frame_L/",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIManual",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-				    -- 是否有高亮区域
-				    IsHighLight = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 9,
+	    			NextStepTriggerBehaviour = 8,
 	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = -1,
+	    			NextStepTriggerParam = 2,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
-			    --对话指引
 				[7] = 
 				{
 					--指引对话--------------------------------
@@ -1163,7 +1247,47 @@ local GuideCfg =
 	    			NextStepTriggerParam = -1,
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				
+			    --对话指引
+				[8] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+				    -- 是否有高亮区域
+				    IsHighLight = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				[9] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+				    -- 是否有高亮区域
+				    IsHighLight = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+				},
 			}
 		},
 		[11] = 
@@ -1277,7 +1401,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "Img_bg/Img_Icon",
+	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[4] = 
@@ -2265,7 +2389,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "Img_bg/Img_Icon",
+	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[4] = 
@@ -2397,8 +2521,29 @@ local GuideCfg =
 
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
 	    			AutoShowElement = "",
+					IsSkip = 2,  -- 1右上  2右下
 				},
 				[3] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+					--是否高亮
+					IsHighLight = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				[4] = 
 				{
 					--指引对话--------------------------------
 				    --高亮按钮名称
@@ -2423,8 +2568,9 @@ local GuideCfg =
 
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
 	    			AutoShowElement = "",
+					IsSkip = 1,  -- 1右上  2右下
 				},
-				[4] = 
+				[5] = 
 				{
 					--指引对话--------------------------------
 				    --高亮按钮名称
@@ -2444,7 +2590,7 @@ local GuideCfg =
 	    			NextStepTriggerParam = -1,
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				[5] = 
+				[6] = 
 				{
 					--指引对话--------------------------------
 				    --高亮按钮名称
@@ -2468,8 +2614,9 @@ local GuideCfg =
 
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
 	    			AutoShowElement = "",
+					IsSkip = 1,  -- 1右上  2右下
 				},
-				[6] = 
+				[7] = 
 				{
 					--指引对话--------------------------------
 				    --高亮按钮名称
@@ -2483,6 +2630,8 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
+					--是否高亮
+					IsHighLight = true,
 					--是否界面有动画延迟
 					--IsAnimationDelay = true,
 	    			--触发标准--------------------------------
@@ -2496,7 +2645,8 @@ local GuideCfg =
 	    			NextStepTriggerParam = -1,
 
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "",
+	    			--AutoShowElement = "",
+					IsSkip = 1,  -- 1右上  2右下
 				},
 			}
 		},
@@ -2506,6 +2656,7 @@ local GuideCfg =
 			Id = 22,
 			TriggerBehaviour = 23,
 			TriggerParam = 7,
+			OpenPagePath = "UI_MirrorArena(Clone)/Frame_All/Frame_Center/Frame_Right/Frame_1V1",
 			--步骤
 			Steps = 
 			{
@@ -2549,14 +2700,14 @@ local GuideCfg =
 					IsShowBlackBG = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 6,
+	    			NextStepTriggerBehaviour = 9,
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
-				    NextStepTriggerBehaviour2 = 9,
+				    NextStepTriggerBehaviour2 = 6,
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam2 = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "",
+
 					IsSkip = 1,  -- 1右上  2右下
 				},
 			}
@@ -2568,6 +2719,7 @@ local GuideCfg =
 			TriggerBehaviour = 25,
 			TriggerParam = 0.9,
 			TriggerParamSymbol = true,
+			IsCloseAll = false,
 			--步骤
 			Steps = 
 			{
@@ -2576,7 +2728,7 @@ local GuideCfg =
 					--竞技商店按钮引导--------------------------------
 				    --高亮按钮名称
 					ShowHighLightButtonName = "Btn_Bag",
-					ShowHighLightButtonPath = "UI_Main_Chat(Clone)/",
+					ShowHighLightButtonPath = "UI_Main_Chat(Clone)/Frame_Group/Frame_Social/",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 					RegisterUI = "",
 					RegisterUIPath = "",
@@ -2756,6 +2908,206 @@ local GuideCfg =
 				},
 			}
 		},
+		[26] = 
+		--教学第26步 PK提示
+		{ 
+			Id = 26,
+			TriggerBehaviour = 12,--7,
+			TriggerParam = 1400111,
+			--LimitMapID = 1208,
+			--步骤
+			Steps = 
+			{
+				[1] = 
+				{
+								    --高亮按钮名称
+					ShowHighLightButtonName = "Btn_PKSet",
+					ShowHighLightButtonPath = "UI_Head(Clone)/Frame_Main/Frame_HostHead/Img_HeadBoard/",
+					RegisterUI = "",
+					RegisterUIPath = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelUIHead",
+
+					--是否强制
+					IsClickLimit = false,
+					--是否黑屏
+					IsShowBlackBG = false,
+				    -- 是否有高亮区域
+				    IsHighLight = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+					NextStepTriggerBehaviour = 6,
+					NextStepTriggerParam = -1,
+	    			AutoShowElement = "",
+				}
+			}
+		},
+		[27] = 
+		--教学第27步 挂机提示
+		{ 
+			Id = 27,
+			TriggerBehaviour = 23,--7,
+			TriggerParam = 13,
+			--LimitMapID = 1208,
+			--步骤
+			Steps = 
+			{
+				--对话指引
+				[1] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				
+			}
+		},
+		[28] = 
+		--教学第27步 风暴试炼提示
+		{ 
+			Id = 28,
+			TriggerBehaviour = 23,--7,
+			TriggerParam = 14,
+			OpenPagePath = "UI_Dungeon(Clone)/Frame_ContentBG/Frame_Tower",
+			--LimitMapID = 1208,
+			--步骤
+			Steps = 
+			{
+				--对话指引
+				[1] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				--对话指引
+				[2] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+					--是否高亮
+					IsHighLight = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				
+			}
+		},
+		[29] = 
+		--教学第29步 铁匠铺
+		{ 
+			Id = 29,
+			TriggerBehaviour = 23,--7,
+			TriggerParam = 15,
+			--LimitMapID = 1208,
+			--步骤
+			Steps = 
+			{
+				--对话指引
+				[1] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+					--是否高亮
+					IsHighLight = true,
+	    			--触发标准------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				[2] = 
+				{
+					--点击装备图标引导--------------------------------
+				    --高亮按钮名
+					ShowHighLightButtonName = "item-0",
+					ShowHighLightButtonPath = "UI_Guild_Smithy(Clone)/Frame_Content/Frame_Right/View_Right/Viewport/List_Right/",
+					RegisterUI = "List_Right",
+					RegisterUIPath = "UI_Guild_Smithy(Clone)/Frame_Content/Frame_Right/View_Right/Viewport/",
+					--RegisterUI = "UI_EquipProcess(Clone)/Frame_Center/Frame_Package/View_Package/RectMask/List_Item",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelUIGuildSmithy",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+					--IsAnimationDelay = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 8,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = 0,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				[3] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+					--是否高亮
+					IsHighLight = true,
+	    			--触发标准------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+				},
+			}
+		},
 		[30] = 
 		--教学第8步 发射弩箭
 		{
@@ -2791,13 +3143,73 @@ local GuideCfg =
 				},
 			}
 		},
+		[31] = 
+		--加工教学
+		{
+			Id = 31,
+			TriggerBehaviour = 23,
+			TriggerParam = 12,
+			LimitLevel = 32,
+			LimitFinishQuestID = 188,
+			--步骤
+			Steps = 
+			{
+				[1] = 
+				{
+					--点击重铸页签--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "Rdo_Recast",
+					ShowHighLightButtonPath = "UI_EquipProcess(Clone)/Frame_TopTabs/",
+					RegisterUI = "",
+					RegisterUIPath = "",
+					--RegisterUI = "UI_EquipProcess(Clone)/Frame_Center/Frame_Package/View_Package/RectMask/List_Item",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelUIEquipProcess",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+					IsAutoEffectDelay = true,
+					--MinShowTime = 1,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				[2] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+					--是否高亮
+					IsHighLight = true,
+	    			--触发标准------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+				},
+			}
+		},
 		[32] = 
 		--支线教学
 		{
 			Id = 32,
-			TriggerBehaviour = 26,
-			TriggerParam = 12,
-			LimitFinishQuestID = 130,
+			TriggerBehaviour = 24,
+			TriggerParam = 119,
+			IsCloseAll = false,
+			--LimitFinishQuestID = 130,
 			--步骤
 			Steps = 
 			{
@@ -2806,9 +3218,10 @@ local GuideCfg =
 					--任务UE引导--------------------------------
 				    --高亮按钮名称
 					ShowHighLightButtonName = "item-1",
-					ShowHighLightButtonPath = "Panel_Main_QuestN(Clone)/Frame_Main/Frame_Lists/List_Quest/Content/",
+					ShowHighLightButtonPath = "Panel_Main_QuestN(Clone)/Frame_Main/Frame_Lists/List_Quest/Viewport/Content/",
 					RegisterUI = "List_Quest",
 					RegisterUIPath = "Panel_Main_QuestN(Clone)/Frame_Main/Frame_Lists/",
+					OpenPagePath = "Panel_Main_QuestN(Clone)/Frame_Main/Frame_Lists/List_Quest",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "CPanelTracker",
 					--是否强制
@@ -2826,7 +3239,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam2 = 225,--]]
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			--AutoShowElement = "Content/item-0",
+	    			AutoShowElement = "",
 				}
 			}
 		},
@@ -2868,6 +3281,343 @@ local GuideCfg =
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
 	    			--AutoShowElement = "",
 				}
+			}
+		},
+		[34] = 
+		--教学第13步 连招引导（重剑士）
+		{
+			Id = 34,
+			TriggerBehaviour = 18,
+			TriggerParam = 34,
+
+			--步骤
+			Steps = 
+			{
+				[1] = 
+				{
+				    --高亮按钮名称
+					ShowHighLightButtonName = "Img_SkillIcon",
+					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional4/Img_Bg/",
+					RegisterUI = "Btn_SkillConventional4",
+					RegisterUIPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelSkillSlot",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+                 --    --是否有动画延迟
+	                -- IsAnimationDelay = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+					NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+					NextStepTriggerParam = -1,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+				},
+				[2] = 
+				{
+				    --高亮按钮名称
+					ShowHighLightButtonName = "Img_SkillIcon",
+					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional3/Img_Bg/",
+					RegisterUI = "Btn_SkillConventional3",
+					RegisterUIPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelSkillSlot",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+                 --    --是否有动画延迟
+	                -- IsAnimationDelay = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+					NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+					NextStepTriggerParam = -1,
+					--一定时间后自动进行下一步
+	    			AutoShowNextStepTime = 4,
+					--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+				},
+			}
+		},
+		[35] = 
+		--教学第13步 连招引导（祭司）
+		{
+			Id = 35,
+			TriggerBehaviour = 18,
+			TriggerParam = 35,
+
+			--步骤
+			Steps = 
+			{
+				[1] = 
+				{
+				    --高亮按钮名称
+					ShowHighLightButtonName = "Img_SkillIcon",
+					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional4/Img_Bg/",
+					RegisterUI = "Btn_SkillConventional4",
+					RegisterUIPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelSkillSlot",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+                 --    --是否有动画延迟
+	                -- IsAnimationDelay = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+					NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+					NextStepTriggerParam = -1,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+				},
+				[2] = 
+				{
+				    --高亮按钮名称
+					ShowHighLightButtonName = "Img_SkillIcon",
+					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional3/Img_Bg/",
+					RegisterUI = "Btn_SkillConventional3",
+					RegisterUIPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelSkillSlot",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+                 --    --是否有动画延迟
+	                -- IsAnimationDelay = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+					NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+					NextStepTriggerParam = -1,
+					--一定时间后自动进行下一步
+	    			AutoShowNextStepTime = 4,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+				},
+			}
+		},
+		[36] = 
+		--教学第13步 连招引导（剑斗士）
+		{
+			Id = 36,
+			TriggerBehaviour = 18,
+			TriggerParam = 36,
+
+			--步骤
+			Steps = 
+			{
+				[1] = 
+				{
+				    --高亮按钮名称
+					ShowHighLightButtonName = "Img_SkillIcon",
+					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional2/Img_Bg/",
+					RegisterUI = "Btn_SkillConventional2",
+					RegisterUIPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelSkillSlot",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+                 --    --是否有动画延迟
+	                -- IsAnimationDelay = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+					NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+					NextStepTriggerParam = -1,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+				},
+				[2] = 
+				{
+				    --高亮按钮名称
+					ShowHighLightButtonName = "Img_SkillIcon",
+					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional2/Img_Bg/",
+					RegisterUI = "Btn_SkillConventional2",
+					RegisterUIPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelSkillSlot",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+                 --    --是否有动画延迟
+	                -- IsAnimationDelay = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+					NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+					NextStepTriggerParam = -1,
+					--一定时间后自动进行下一步
+	    			AutoShowNextStepTime = 4,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+				},
+			}
+		},
+		[37] = 
+		--教学第13步 连招引导（弓箭手）
+		{
+			Id = 37,
+			TriggerBehaviour = 18,
+			TriggerParam = 37,
+
+			--步骤
+			Steps = 
+			{
+				[1] = 
+				{
+				    --高亮按钮名称
+					ShowHighLightButtonName = "Img_SkillIcon",
+					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional1/Img_Bg/",
+					RegisterUI = "Btn_SkillConventional1",
+					RegisterUIPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelSkillSlot",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+                 --    --是否有动画延迟
+	                -- IsAnimationDelay = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+					NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+					NextStepTriggerParam = -1,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+				},
+				[2] = 
+				{
+				    --高亮按钮名称
+					ShowHighLightButtonName = "Img_SkillIcon",
+					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional1/Img_Bg/",
+					RegisterUI = "Btn_SkillConventional1",
+					RegisterUIPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelSkillSlot",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+                 --    --是否有动画延迟
+	                -- IsAnimationDelay = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+					NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+					NextStepTriggerParam = -1,
+					--一定时间后自动进行下一步
+	    			AutoShowNextStepTime = 4,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+				},
+			}
+		},
+		[38] = 
+		--教学第13步 连招引导（枪骑士）
+		{
+			Id = 38,
+			TriggerBehaviour = 18,
+			TriggerParam = 38,
+
+			--步骤
+			Steps = 
+			{
+				[1] = 
+				{
+				    --高亮按钮名称
+					ShowHighLightButtonName = "Img_SkillIcon",
+					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional4/Img_Bg/",
+					RegisterUI = "Btn_SkillConventional4",
+					RegisterUIPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelSkillSlot",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+                 --    --是否有动画延迟
+	                -- IsAnimationDelay = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+					NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+					NextStepTriggerParam = -1,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+				},
+				[2] = 
+				{
+				    --高亮按钮名称
+					ShowHighLightButtonName = "Img_SkillIcon",
+					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional2/Img_Bg/",
+					RegisterUI = "Btn_SkillConventional2",
+					RegisterUIPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelSkillSlot",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+                 --    --是否有动画延迟
+	                -- IsAnimationDelay = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+					NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+					NextStepTriggerParam = -1,
+					--一定时间后自动进行下一步
+	    			AutoShowNextStepTime = 4,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+				},
+			}
+		},
+		[39] = 
+		--封印巨兽
+		{
+			Id = 39,
+			TriggerBehaviour = 2,
+			TriggerParam = 31014,
+			--IsTriggerDelay = true,
+			--步骤
+			Steps = 
+			{
+				[1] = 
+				{
+					--快捷使用引导--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "Btn_Use",
+					ShowHighLightButtonPath = "UI_QuickUse(Clone)/Frame_Tween/Frame_QuickUse/",
+					RegisterUI = "",
+					RegisterUIPath = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelUIQuickUse",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+		    		--是否是记录点
+					IsSave = false,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+					IsSkip = 1,  -- 1右上  2右下	
+				},
 			}
 		},
 		[101] = 
@@ -2947,8 +3697,8 @@ local GuideCfg =
 		--教学第3步 使用技能引导
 		{
 			Id = 103,
-			TriggerBehaviour = 18,
-			TriggerParam = 3,
+			TriggerBehaviour = 24,
+			TriggerParam = 102,
 			--步骤
 			Steps = 
 			{
@@ -3190,19 +3940,19 @@ local GuideCfg =
 				[1] = 
 				{
 								    --高亮按钮名称
-					ShowHighLightButtonName = "Btn_Item",
-					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/",
+					ShowHighLightButtonName = "Img_Pozhan",
+					ShowHighLightButtonPath = "UI_Head(Clone)/Frame_HeadGroup/Frame_MonsterHead/Frame_EliteHead/Img_HeadBG/",
 					RegisterUI = "",
 					RegisterUIPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "CPanelSkillSlot",
+	    			ShowUIPanelName = "CPanelUIHead",
 
 					--是否强制
 					IsClickLimit = false,
 					--是否黑屏
 					IsShowBlackBG = false,
-					
-					IsHighLight = true,
+				    -- 是否有高亮区域
+				    IsHighLight = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 					NextStepTriggerBehaviour = 18,
@@ -3216,7 +3966,7 @@ local GuideCfg =
 			}
 		},
 		[110] = 
-		--教学第11步 锁定敌人引导
+		--教学第11步 大招引导
 		{
 			Id = 110,
 			TriggerBehaviour = 18,
@@ -3228,10 +3978,10 @@ local GuideCfg =
 				[1] = 
 				{
 								    --高亮按钮名称
-					ShowHighLightButtonName = "Btn_ChangeTarget",
-					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/",
-					RegisterUI = "",
-					RegisterUIPath = "",
+					ShowHighLightButtonName = "Img_SkillIcon",
+					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillUnique/Img_Bg/",
+					RegisterUI = "Btn_SkillUnique",
+					RegisterUIPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "CPanelSkillSlot",
 
@@ -3247,7 +3997,7 @@ local GuideCfg =
 
 				    NextStepTriggerBehaviour2 = 11,
 	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam2 = 40029,
+	    			NextStepTriggerParam2 = 40000,
 	    			AutoShowElement = "",
 				},
 			}
@@ -3257,7 +4007,7 @@ local GuideCfg =
 		{
 			Id = 111,
 			TriggerBehaviour = 7,
-			TriggerParam = 94,
+			TriggerParam = 390,
 			--步骤
 			Steps = 
 			{
@@ -3266,10 +4016,10 @@ local GuideCfg =
 					--任务UE引导--------------------------------
 				    --高亮按钮名称
 					ShowHighLightButtonName = "item-0",
-					ShowHighLightButtonPath = "Panel_Main_QuestN(Clone)/Frame_Main/Frame_Lists/List_Quest/Content/",
+					ShowHighLightButtonPath = "Panel_Main_QuestN(Clone)/Frame_Main/Frame_Lists/List_Quest/Viewport/Content/",
 					RegisterUI = "List_Quest",
 					RegisterUIPath = "Panel_Main_QuestN(Clone)/Frame_Main/Frame_Lists/",
-
+					OpenPagePath = "Panel_Main_QuestN(Clone)/Frame_Main/Frame_Lists/List_Quest",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "CPanelTracker",
 					--是否强制
@@ -3296,7 +4046,7 @@ local GuideCfg =
 		{
 			Id = 112,
 			TriggerBehaviour = 2,
-			TriggerParam = 504,
+			TriggerParam = 61,
 			--步骤
 			Steps = 
 			{
@@ -3375,10 +4125,11 @@ local GuideCfg =
 				{
 					--装备穿戴--------------------------------
 				    --高亮按钮名称
-					ShowHighLightButtonName = "Btn_Item1",
-					ShowHighLightButtonPath = "UI_EquipHint(Clone)/Scroll/Lay_Button/",
-					RegisterUI = "",
-					RegisterUIPath = "",
+					ShowHighLightButtonName = "Btn_Item",
+					ShowHighLightButtonPath = "UI_EquipHint(Clone)/Scroll/Lay_Button/List_Buttons/item-0/",
+					RegisterUI = "List_Buttons",
+					RegisterUIPath = "UI_EquipHint(Clone)/Scroll/Lay_Button/",
+
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "CPanelEquipHint",
 					--是否强制
@@ -3389,9 +4140,9 @@ local GuideCfg =
 					IsSave = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 6,
+	    			NextStepTriggerBehaviour = 8,
 	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = -1,	
+	    			NextStepTriggerParam = 0,	
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
@@ -3436,9 +4187,10 @@ local GuideCfg =
 					--任务UE引导--------------------------------
 				    --高亮按钮名称
 					ShowHighLightButtonName = "item-0",
-					ShowHighLightButtonPath = "Panel_Main_QuestN(Clone)/Frame_Main/Frame_Lists/List_Quest/Content/",
+					ShowHighLightButtonPath = "Panel_Main_QuestN(Clone)/Frame_Main/Frame_Lists/List_Quest/Viewport/Content/",
 					RegisterUI = "List_Quest",
 					RegisterUIPath = "Panel_Main_QuestN(Clone)/Frame_Main/Frame_Lists/",
+					OpenPagePath = "Panel_Main_QuestN(Clone)/Frame_Main/Frame_Lists/List_Quest",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "CPanelTracker",
 					--是否强制
@@ -3558,7 +4310,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "Img_bg/Img_Icon",
+	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[5] = 
@@ -3615,8 +4367,8 @@ local GuideCfg =
 		--自動戰鬥引导
 		{
 			Id = 115,
-			TriggerBehaviour = 18,
-			TriggerParam = 11,
+			TriggerBehaviour = 12,
+			TriggerParam = 64,
 			--步骤
 			Steps = 
 			{
@@ -3629,7 +4381,8 @@ local GuideCfg =
 					RegisterUIPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "CPanelSkillSlot",
-
+					--缩放效果
+					EffectScale = 1.5,
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -3643,7 +4396,7 @@ local GuideCfg =
 				    NextStepTriggerBehaviour2 = 11,
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam2 = -1,
-	    			AutoShowElement = "",
+	    			AutoShowElement = "Img_Bg",
 				},
 			}
 		},
@@ -3745,7 +4498,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "Img_bg/Img_Icon",
+	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[5] = 
@@ -3823,17 +4576,17 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "",
+	    			AutoShowElement = "Img_Back",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[8] = 
 				{
 					--坐骑UE引导--------------------------------
 				    --高亮按钮名称
-					ShowHighLightButtonName = "Btn_Ride",
-					ShowHighLightButtonPath = "Panel_Main_Move(Clone)/Panel_Main_Move/Joystick/Img_BG/Img_Pole/",
-					RegisterUI = "",
-					RegisterUIPath = "",
+					ShowHighLightButtonName = "Img_Pole",
+					ShowHighLightButtonPath = "Panel_Main_Move(Clone)/Panel_Main_Move/Joystick/Img_BG/",
+					RegisterUI = "Btn_Ride",
+					RegisterUIPath = "Panel_Main_Move(Clone)/Panel_Main_Move/Joystick/Img_BG/Img_Pole/",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "CPanelRocker", 
 					--是否强制
@@ -3958,7 +4711,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "Img_bg/Img_Icon",
+	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[5] = 
@@ -4347,7 +5100,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "Img_bg/Img_Icon",
+	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[6] = 
@@ -4427,7 +5180,7 @@ local GuideCfg =
 					--点击强化按钮引导--------------------------------
 				    --高亮按钮名称
 					ShowHighLightButtonName = "Btn_Fortify",
-					ShowHighLightButtonPath = "UI_EquipProcess(Clone)/Frame_Center/Frame_Fortify/Frame_B/",
+					ShowHighLightButtonPath = "UI_EquipProcess(Clone)/Frame_Center_Ignore_IPX/Frame_Fortify/Frame_B/",
 					RegisterUI = "",
 					RegisterUIPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
@@ -4546,7 +5299,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "Img_bg/Img_Icon",
+	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[5] = 
@@ -4756,6 +5509,8 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
+					--是否高亮
+					IsHighLight = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 9,
@@ -4785,7 +5540,32 @@ local GuideCfg =
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
-				},
+				},				
+				[7] = 
+				{
+				    --高亮按钮名称
+					ShowHighLightButtonName = "Item0",
+					ShowHighLightButtonPath = "UI_MallLottery(Clone)/Frame_Center/List_Item/",
+					--列表相关
+					--ScrollRectUIName = "UI_Calendar(Clone)/Frame_Activity/Img_ActivityBG/List_Activity",
+					RegisterUI = "",
+					RegisterUIPath = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelMallLottery",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+					IsAnimationDelay = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+					IsSkip = 1,  -- 1右上  2右下
+				},	
 			}
 		},
 		[122] = 
@@ -4887,7 +5667,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "Img_bg/Img_Icon",
+	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[5] = 
@@ -5112,6 +5892,7 @@ local GuideCfg =
 	    			NextStepTriggerBehaviour = 6,
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
+					AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				-- [5] = 
@@ -5140,7 +5921,7 @@ local GuideCfg =
 		--查看淬火引导
 		{
 			Id = 124,
-			TriggerBehaviour = 12,
+			TriggerBehaviour = 2,
 			TriggerParam = 188,
 			--IsTriggerDelay = true,
 			--步骤
@@ -5235,7 +6016,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "Img_bg/Img_Icon",
+	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[5] = 
@@ -5266,28 +6047,28 @@ local GuideCfg =
 				},
 				[6] = 
 				{
-					--指引对话--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "",
-					ShowHighLightButtonPath = "",
-					RegisterUI = "",
-					RegisterUIPath = "",
+					--点击装备图标引导--------------------------------
+				    --高亮按钮名
+					ShowHighLightButtonName = "item-0",
+					ShowHighLightButtonPath = "UI_EquipProcess(Clone)/Frame_Center/Frame_R/Frame_Package /View_Package/RectMask/List_Item/",
+					RegisterUI = "List_Item",
+					RegisterUIPath = "UI_EquipProcess(Clone)/Frame_Center/Frame_R/Frame_Package /View_Package/RectMask/",
+					--RegisterUI = "UI_EquipProcess(Clone)/Frame_Center/Frame_Package/View_Package/RectMask/List_Item",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIEquipProcess",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-				    -- 是否有高亮区域
-				    IsHighLight = true,
-					--MinShowTime = 1,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 9,
+	    			NextStepTriggerBehaviour = 8,
 	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = -1,
+	    			NextStepTriggerParam = 0,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
-	    		},
+				},
 				[7] = 
 				{
 					--指引对话--------------------------------
@@ -5302,6 +6083,8 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
+				    -- 是否有高亮区域
+				    IsHighLight = true,
 					--MinShowTime = 1,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
@@ -5324,7 +6107,7 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-				    -- 是否有高亮区域
+					-- 是否有高亮区域
 				    IsHighLight = true,
 					--MinShowTime = 1,
 	    			--触发标准--------------------------------
@@ -5342,7 +6125,7 @@ local GuideCfg =
 		{
 			Id = 125,
 			TriggerBehaviour = 2,
-			TriggerParam = 1056,
+			TriggerParam = 1042,
 
 			--步骤
 			Steps = 
@@ -5488,12 +6271,12 @@ local GuideCfg =
 				[7] = 
 				{
 				    --高亮按钮名称
-					ShowHighLightButtonName = "item-0",
-					ShowHighLightButtonPath = "UI_MallLottery(Clone)/Frame_Center/Frame_List/List_Items/",
+					ShowHighLightButtonName = "Item0",
+					ShowHighLightButtonPath = "UI_MallLottery(Clone)/Frame_Center/List_Item/",
 					--列表相关
 					--ScrollRectUIName = "UI_Calendar(Clone)/Frame_Activity/Img_ActivityBG/List_Activity",
-					RegisterUI = "List_Items",
-					RegisterUIPath = "UI_MallLottery(Clone)/Frame_Center/Frame_List/",
+					RegisterUI = "",
+					RegisterUIPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "CPanelMallLottery",
 					--是否强制
@@ -5503,14 +6286,38 @@ local GuideCfg =
 					IsAnimationDelay = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 8,
+	    			NextStepTriggerBehaviour = 6,
 	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = 0,
+	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},	
 				[8] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					ShowHighLightButtonPath = "",
+					RegisterUI = "",
+					RegisterUIPath = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+					-- 是否有高亮区域
+				    IsHighLight = true,
+					--MinShowTime = 1,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+	    		},
+				[9] = 
 				{
 					--点击返回按钮引导--------------------------------
 				    --高亮按钮名称
@@ -5611,7 +6418,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "Img_bg/Img_Icon",
+	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[4] = 
@@ -5640,26 +6447,26 @@ local GuideCfg =
 				},
 				[5] = 
 				{
-					--打开宠物培养引导--------------------------------
+					--指引对话--------------------------------
 				    --高亮按钮名称
-					ShowHighLightButtonName = "Rdo_Cultivate",
-					ShowHighLightButtonPath = "UI_PetProcess(Clone)/Frame_TopTabs/",
+					ShowHighLightButtonName = "",
+					ShowHighLightButtonPath = "",
 					RegisterUI = "",
 					RegisterUIPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "CPanelUIPetProcess",
+	    			ShowUIPanelName = "",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-
+				    -- 是否有高亮区域
+				    IsHighLight = true,
+					--MinShowTime = 1,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 6,
+	    			NextStepTriggerBehaviour = 9,
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
-	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[6] = 
@@ -5676,7 +6483,7 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-					-- 是否有高亮区域
+				    -- 是否有高亮区域
 				    IsHighLight = true,
 					--MinShowTime = 1,
 	    			--触发标准--------------------------------
@@ -5690,7 +6497,7 @@ local GuideCfg =
 				{
 					--打开宠物培养引导--------------------------------
 				    --高亮按钮名称
-					ShowHighLightButtonName = "Rdo_Advance",
+					ShowHighLightButtonName = "Rdo_Cultivate",
 					ShowHighLightButtonPath = "UI_PetProcess(Clone)/Frame_TopTabs/",
 					RegisterUI = "",
 					RegisterUIPath = "",
@@ -5715,6 +6522,7 @@ local GuideCfg =
 					--指引对话--------------------------------
 				    --高亮按钮名称
 					ShowHighLightButtonName = "",
+					ShowHighLightButtonPath = "",
 					RegisterUI = "",
 					RegisterUIPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
@@ -5723,7 +6531,7 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-				    -- 是否有高亮区域
+					-- 是否有高亮区域
 				    IsHighLight = true,
 					--MinShowTime = 1,
 	    			--触发标准--------------------------------
@@ -5735,9 +6543,9 @@ local GuideCfg =
 				},
 				[9] = 
 				{
-					--打开宠物重置引导--------------------------------
+					--打开宠物培养引导--------------------------------
 				    --高亮按钮名称
-					ShowHighLightButtonName = "Rdo_Recast",
+					ShowHighLightButtonName = "Rdo_Fuse",
 					ShowHighLightButtonPath = "UI_PetProcess(Clone)/Frame_TopTabs/",
 					RegisterUI = "",
 					RegisterUIPath = "",
@@ -5758,6 +6566,77 @@ local GuideCfg =
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[10] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					RegisterUI = "",
+					RegisterUIPath = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+				    -- 是否有高亮区域
+				    IsHighLight = true,
+					--MinShowTime = 1,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				[11] = 
+				{
+					--打开宠物重置引导--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "Rdo_Advance",
+					ShowHighLightButtonPath = "UI_PetProcess(Clone)/Frame_TopTabs/",
+					RegisterUI = "",
+					RegisterUIPath = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelUIPetProcess",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				[12] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					ShowHighLightButtonPath = "",
+					RegisterUI = "",
+					RegisterUIPath = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+				    -- 是否有高亮区域
+				    IsHighLight = true,
+					--MinShowTime = 1,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				[13] = 
 				{
 					--指引对话--------------------------------
 				    --高亮按钮名称
@@ -5882,7 +6761,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "Img_bg/Img_Icon",
+	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[5] = 
@@ -5899,6 +6778,8 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
+					--是否高亮
+					IsHighLight = true,
 					--MinShowTime = 1,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
@@ -5908,28 +6789,6 @@ local GuideCfg =
 					IsSkip = 1,  -- 1右上  2右下
 	    		},
 				[6] = 
-				{
-					--指引对话--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "",
-					ShowHighLightButtonPath = "",
-					RegisterUI = "",
-					RegisterUIPath = "",
-					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
-					--是否强制
-					IsClickLimit = true,
-					--是否黑屏
-					IsShowBlackBG = true,
-					--MinShowTime = 1,
-	    			--触发标准--------------------------------
-	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 9,
-	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = -1,
-					IsSkip = 1,  -- 1右上  2右下
-	    		},
-				[7] = 
 				{
 					--选择神符引导--------------------------------
 				    --高亮按钮名称
@@ -5953,7 +6812,7 @@ local GuideCfg =
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				[8] = 
+				[7] = 
 				{
 					--选择专精引导--------------------------------
 				    --高亮按钮名称
@@ -5977,14 +6836,14 @@ local GuideCfg =
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				[9] = 
+				[8] = 
 				{
 					--镶嵌引导--------------------------------
 				    --高亮按钮名称
-					ShowHighLightButtonName = "Btn_Item1",
-					ShowHighLightButtonPath = "UI_CharmItemHint(Clone)/Scroll/Lay_Button/",
-					RegisterUI = "",
-					RegisterUIPath = "",
+					ShowHighLightButtonName = "Btn_Item",
+					ShowHighLightButtonPath = "UI_CharmItemHint(Clone)/Scroll/Lay_Button/List_Buttons/item-0/",
+					RegisterUI = "List_Buttons",
+					RegisterUIPath = "UI_CharmItemHint(Clone)/Scroll/Lay_Button/",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "CPanelCharmItemHint",
 					--是否强制
@@ -5994,14 +6853,14 @@ local GuideCfg =
 					IsSave = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 6,
+	    			NextStepTriggerBehaviour = 8,
 	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = -1,
+	    			NextStepTriggerParam = 0,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
---[[				[10] = 
+				[9] = 
 				{
 					--点击吞噬引导--------------------------------
 				    --高亮按钮名称
@@ -6025,6 +6884,28 @@ local GuideCfg =
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
+				[10] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					ShowHighLightButtonPath = "",
+					RegisterUI = "",
+					RegisterUIPath = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+					--MinShowTime = 1,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+	    		},
 				[11] = 
 				{
 					--指引对话--------------------------------
@@ -6046,8 +6927,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 					IsSkip = 1,  -- 1右上  2右下
-	    		}--]]
-				
+	    		},
 			}
 		},
         [128] = 
@@ -6078,25 +6958,6 @@ local GuideCfg =
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = -1,
-	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = -1,
-					IsSkip = 1,  -- 1右上  2右下
-				},
-				[1] = 
-				{
-					--指引对话--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "",
-					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
-					--是否强制
-					IsClickLimit = true,
-					--是否黑屏
-					IsShowBlackBG = true,
-
-	    			--触发标准--------------------------------
-	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 9,
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 					IsSkip = 1,  -- 1右上  2右下
@@ -6454,7 +7315,8 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-
+				    -- 是否有高亮区域
+				    IsHighLight = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 9,
@@ -6473,7 +7335,8 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-
+				    -- 是否有高亮区域
+				    IsHighLight = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 9,
@@ -6492,7 +7355,8 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-
+					--是否高亮
+					IsHighLight = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 9,
@@ -6527,7 +7391,7 @@ local GuideCfg =
 		{
 			Id = 132,
 			TriggerBehaviour = 2,
-			TriggerParam = 2012,
+			TriggerParam = 2236,
 			--步骤
 			Steps = 
 			{
@@ -6561,7 +7425,8 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-
+				    -- 是否有高亮区域
+				    IsHighLight = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 9,
@@ -6583,6 +7448,8 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
+					-- 是否有高亮区域
+				    IsHighLight = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 6,
@@ -6612,7 +7479,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "Img_bg/Img_Icon",
+	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[5] = 
@@ -6635,6 +7502,8 @@ local GuideCfg =
 	    			NextStepTriggerBehaviour = 6,
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
+					--是否自适应触发延迟
+					IsAutoEffectDelay = true,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
@@ -6650,7 +7519,8 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-
+				    -- 是否有高亮区域
+				    IsHighLight = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 9,
@@ -6659,6 +7529,122 @@ local GuideCfg =
 					IsSkip = 1,  -- 1右上  2右下
 				},
 				[7] = 
+				{
+					--指引对话--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+					--是否高亮
+					IsHighLight = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 9,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				[8] = 
+				{
+					--打开宠物技能选择界面--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "Btn_AddSkillBook",
+					ShowHighLightButtonPath = "UI_PetProcess(Clone)/Frame_Group/Frame_Skill/Group_SkillBook/SelectItemGroup/",
+					RegisterUI = "",
+					RegisterUIPath = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelUIPetProcess",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				[9] = 
+				{
+					--点技能书--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "item-0",
+					ShowHighLightButtonPath = "UI_ItemList(Clone)/Frame_Content/Frame_Item/RectMask/List_Item/",
+					RegisterUI = "List_Item",
+					RegisterUIPath = "UI_ItemList(Clone)/Frame_Content/Frame_Item/RectMask/",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelItemList",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 8,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = 0,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				[10] = 
+				{
+					--点技能书--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "Btn_Ok",
+					ShowHighLightButtonPath = "UI_ItemList(Clone)/Frame_Content/Frame_Left/",
+					RegisterUI = "",
+					RegisterUIPath = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelItemList",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				[11] = 
+				{
+					--点学习技能书--------------------------------
+				    --高亮按钮名称
+					ShowHighLightButtonName = "Btn_SkillLearn",
+					ShowHighLightButtonPath = "UI_PetProcess(Clone)/Frame_Group/Frame_Skill/Group_SkillBook/",
+					RegisterUI = "",
+					RegisterUIPath = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelUIPetProcess",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				[12] = 
 				{
 					--指引对话--------------------------------
 				    --高亮按钮名称
@@ -6725,6 +7711,8 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
+				    -- 是否有高亮区域
+				    IsHighLight = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 9,
@@ -6849,6 +7837,8 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
+					-- 是否有高亮区域
+				    IsHighLight = true,
 					IsAnimationDelay = true,
 					IsHighLight = true,
 	    			--触发标准--------------------------------
@@ -6872,6 +7862,7 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
+					--是否高亮
 					IsHighLight = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
@@ -7015,7 +8006,7 @@ local GuideCfg =
 				{
 					--参加狩猎按钮引导--------------------------------
 				    --高亮按钮名称
-	    			ShowHighLightButtonName = "item-3",
+	    			ShowHighLightButtonName = "item-4",
 					ShowHighLightButtonPath = "UI_Calendar(Clone)/Frame_Center/Frame_TimesActivity/Img_TimesActivityBG/List_Activity/List_TimesActivityMenu/",
 
 					--列表相关
@@ -7032,7 +8023,7 @@ local GuideCfg =
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 8,
 	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = 3,
+	    			NextStepTriggerParam = 4,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下

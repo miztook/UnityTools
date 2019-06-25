@@ -53,7 +53,6 @@ end
 --接受两个参数的AB
 --[[
 	20300
-	MsgBox 42
 	MsgBox 78
 ]]
 def.static("string", "dynamic", "dynamic", "=>", "string").Format_AB_BA = function (str, A, B)

@@ -28,6 +28,8 @@ local function OnEntityDisappear( sender,msg )
 				man:Remove(v, leaveType)
 				FireEvent(v)
 			end
+
+			-- 监听事件 不要直接加在这里  -- added by Jerry
 			if CPanelPVPHead.Instance():IsShow() then 
 				CPanelPVPHead.Instance():Update3V3MemberOffline(v)
 			end

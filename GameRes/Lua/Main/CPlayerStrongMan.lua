@@ -13,6 +13,9 @@ local CCharmMan = require "Charm.CCharmMan"
 local CDressMan = require "Dress.CDressMan"
 local CPanelStrong = require "GUI.CPanelStrong"
 local CScoreCalcMan = require "Data.CScoreCalcMan"
+local EFightPropertiesType = require "PB.data".EFightPropertiesType
+local CPetUtility = require "Pet.CPetUtility"
+local CSkillUtil = require "Skill.CSkillUtil"
 
 def.field("table")._TableAllStrongData = nil --我要变强数据。将表格做整合
 def.field("number")._ScoreC = 0
@@ -20,6 +23,10 @@ def.field("number")._ScoreB = 0
 def.field("number")._ScoreA = 0
 def.field("number")._ScoreS = 0
 def.field("boolean")._IsNeedPlayerStrong = false --是否需要提示我要变强
+
+
+def.field("number")._DesignationFightScore = 0 	--称号战力
+def.field("number")._ManualFightScore = 0 		--玩物志战力
 
 def.static("=>", CPlayerStrongMan).new = function()
     local obj = CPlayerStrongMan()
@@ -81,15 +88,14 @@ def.method("number","=>","number").GetCellFightScore = function(self,Id)
 				local equipedFight = CScoreCalcMan.Instance():CalcEquipFightScore(game._HostPlayer._InfoData._Prof, v, false)
 				equipLevel = equipLevel + equipedFight[EnumDef.EquipFightScoreType.Base] + equipedFight[EnumDef.EquipFightScoreType.Refine]
 			end
-		end	
+		end
 		
 		return equipLevel
 	elseif Id == 2 then--装备强化
 		local equipInforce = 0
 		for i,v in ipairs(game._HostPlayer._Package._EquipPack._ItemSet) do			
 			if v ~= nil and v._Tid ~= 0 then 
-				local equipedFight = CScoreCalcMan.Instance():CalcEquipFightScore(game._HostPlayer._InfoData._Prof, v, false)
-				equipInforce = equipInforce + equipedFight[EnumDef.EquipFightScoreType.Inforce]
+				equipInforce = equipInforce + v:GetInforceLevel()
 			end
 		end	
 		-- local equipedFight = CScoreCalcMan.Instance():CalcEquipFightScore(game._HostPlayer._InfoData._Prof, game._HostPlayer._Package._EquipPack._ItemSet, false)
@@ -110,9 +116,10 @@ def.method("number","=>","number").GetCellFightScore = function(self,Id)
 	elseif Id == 5 then--技能文章
 		return CScoreCalcMan.Instance():CalcSkillRuneScore()
 	elseif Id == 6 then--部位精通
-		return CScoreCalcMan.Instance():GetSkillMasteryScore()	
-	elseif Id == 7 then--出战和助战宠物等级
-		return CScoreCalcMan.Instance():GetWholePetPropertyFightScore()
+		return CSkillUtil.GetMasteryLevel()	
+	elseif Id == 7 then--宠物等级：当前出战及助战宠物的平均等级
+		local info = CPetUtility.GetAvgInfo()
+		return info.AvgLevel
 	elseif Id == 8 then--出战宠物技能加成
 		return CScoreCalcMan.Instance():GetFightPetSkillFightScore()
 	elseif Id == 9 then--铭符等级
@@ -127,6 +134,16 @@ def.method("number","=>","number").GetCellFightScore = function(self,Id)
 		return game._HostPlayer._Guild:GetGuildSkillScore()
 	elseif Id == 14 then--实装评分
 		return CDressMan.Instance():GetCurCharmScore()
+	elseif Id == 15 then 
+		return self:GetFightScoreByPropertiesType(EFightPropertiesType.Manuals)
+	elseif Id == 16 then--宠物吞噬
+		local info = CPetUtility.GetAvgInfo()
+		return info.AvgAptitude
+	elseif Id == 17 then--宠物升星
+		local info = CPetUtility.GetAvgInfo()
+		return info.AvgStar
+	elseif Id == 18 then 
+		return self:GetFightScoreByPropertiesType(EFightPropertiesType.Design)
 	else
 		return 0
 	end
@@ -232,9 +249,33 @@ def.method().CheckShowPlayerStrong = function(self)
 	end
 end
 
+local EFightPropertiesType = require "PB.data".EFightPropertiesType
+	
+
+	
+--战力更新
+def.method("table").ChangeFightScore = function(self, msg)
+	if msg.FightScoreType == EFightPropertiesType.Design then
+		self._DesignationFightScore = msg.Value
+	elseif msg.FightScoreType == EFightPropertiesType.Manuals then
+		self._ManualFightScore = msg.Value
+	end
+end
+
+-- 根据类型获得战力
+def.method("number","=>","number").GetFightScoreByPropertiesType = function(self, PropertiesType)
+	if PropertiesType == EFightPropertiesType.Design then
+		return self._DesignationFightScore
+	elseif PropertiesType == EFightPropertiesType.Manuals then
+		return self._ManualFightScore
+	end
+end
+
 def.method().Release = function(self)
 	self._TableAllStrongData = nil
 	self._IsNeedPlayerStrong = false
+	self._DesignationFightScore = 0
+	self._ManualFightScore = 0
 end
 
 CPlayerStrongMan.Commit()

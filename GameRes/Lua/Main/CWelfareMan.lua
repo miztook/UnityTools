@@ -12,7 +12,7 @@ local def = CWelfareMan.define
 def.field("number")._UpdateInterval = 0
 def.field("number")._CurrentDay = 0
 def.field("number")._CurrentTotalDay = 0
-def.field("number")._CurrentMonth = 0
+-- def.field("number")._CurrentMonth = 0
 def.field("string")._CurrentTempId = ""
 def.field("number")._OnlineTime = 0         -- 在线时间
 def.field("number")._TimeId = 0  
@@ -21,15 +21,19 @@ def.field("boolean")._IsOpenSign = false
 def.field("boolean")._IsOpenSpecialSign = false
 def.field("boolean")._IsOpenGlory = false
 def.field("boolean")._IsOnlineReward = true
+def.field("boolean")._IsOpenGloryRedPoint = false
+def.field("number")._CurrentSignedDays = 0              --已签总天数
+def.field("number")._CurFestivalId = 0                     -- 当前材料兑换活动id
 
 def.field("table")._WelfareTypeTable = BlankTable
 def.field("table")._SignInfoTable = BlankTable
 def.field("table")._SignDaysTable = BlankTable
-def.field("table")._SignRewardDaysTable = BlankTable
 def.field("table")._GloryGiftsTable = BlankTable
 def.field("table")._SpecialSignInfoTable = BlankTable
 def.field("table")._GloryGiftBuyInfoList = BlankTable
 def.field("table")._OnlineRewardDataTable = BlankTable
+
+def.field("table")._FestivalInfoList = BlankTable
 
 local GLORY_UNLOCKED_BY_TID = 110  -- 冒险生涯教学功能Tid
 def.static("=>", CWelfareMan).new = function()
@@ -51,11 +55,9 @@ def.method("table", "boolean").OnWelfareInfo = function(self, data, IsOpenActivi
         self._IsOpenSign = true
         self._SignInfoTable = {}
         self._SignDaysTable = {}
-        self._SignRewardDaysTable = {}
         local SignContentData = {} 
         -- SignContentDatap["Reward_"..i]
         if data.Key == 3 then
-
             SignContentData = CElementData.GetTemplate("Sign", tonumber(data.Param))   
 
             local  month_type = SignContentData["RewardType"]
@@ -78,18 +80,11 @@ def.method("table", "boolean").OnWelfareInfo = function(self, data, IsOpenActivi
 
         end
 
-        local RewardDayCount = 4   -- 固定4个累计宝箱
-        for v = 1, RewardDayCount do
-            self._SignRewardDaysTable[#self._SignRewardDaysTable + 1] = SignContentData["RewardDay"..(v * 7)]
-        end
-
         if SignContentData ~= nil then
             self._SignInfoTable[#self._SignInfoTable + 1] =    --SignContentData
             {
                 _ScriptID = data.ScriptId,
                 _Data = SignContentData, --模板数据
-                _Signed = "",            --已签到的
-                _IsTotleReward = "",     --已领取过某次累计奖励
             }
         else
             warn("Sign data ERROR ID："..ScriptConfig.TemplateId)
@@ -117,60 +112,47 @@ def.method("table").OnWelfareDatas = function(self, datas)
     if datas == nil then return end   
     local ScriptConfig = CElementData.GetTemplate("ScriptConfig", datas.ScriptId)
     if ScriptConfig == nil then return end
-  
+    local WelfareType = EnumDef.WelfareType._Sign
     -- warn("WelfareDatas ScriptConfig.ConfigType  == ", ScriptConfig.ConfigType , "self._CurrentTempId == ", datas.ScriptId, #datas.Datas) 
     if ScriptConfig.ConfigType == EScriptConfigType.SignNormal then
         -- 固定写死的，Param1为TempID  Param2为CurDay
-        if datas.Param1 ~= nil then 
-            self._CurrentTempId = datas.Param1
-            local SignContentData = CElementData.GetTemplate("Sign", tonumber(datas.Param1)) 
-            if SignContentData == nil then return end
-            local  month_type = SignContentData["RewardType"]
-            local  totalDay = 0
-            if month_type == 0 then
-                totalDay = 28
-            elseif month_type == 1 then
-                totalDay = 29
-            elseif month_type == 2 then
-                totalDay = 30
-            elseif month_type == 3 then
-                totalDay = 31
-            end
+        for _,v in pairs(datas.Datas) do
+            if v.Key == EScriptKeyType.SIGN_TID_KEY then
+                self._CurrentTempId = v.Param
+                local SignContentData = CElementData.GetTemplate("Sign", tonumber(v.Param)) 
+                if SignContentData == nil then return end
+                local  month_type = SignContentData["RewardType"]
+                local  totalDay = 0
+                if month_type == 0 then
+                    totalDay = 28
+                elseif month_type == 1 then
+                    totalDay = 29
+                elseif month_type == 2 then
+                    totalDay = 30
+                elseif month_type == 3 then
+                    totalDay = 31
+                end
+                self._CurrentTotalDay = totalDay
+                self._SignDaysTable = {}
+                for i = 1, totalDay do
+                    self._SignDaysTable[#self._SignDaysTable + 1] = SignContentData["Reward_"..i]
+                end
 
-            self._CurrentTotalDay = totalDay
-            self._SignDaysTable = {}
-            for i = 1, totalDay do
-                self._SignDaysTable[#self._SignDaysTable + 1] = SignContentData["Reward_"..i]
-            end
+            elseif v.Key == EScriptKeyType.SIGN_DAY_KEY then
+                self._CurrentDay = tonumber(v.Param)
+            -- elseif v.Key == EScriptKeyType.SIGN_TIME_KEY then
 
-            self._SignRewardDaysTable = {}
-            local RewardDayCount = 4   -- 固定4个累计宝箱
-            for v = 1, RewardDayCount do
-                self._SignRewardDaysTable[#self._SignRewardDaysTable + 1] = SignContentData["RewardDay"..(v * 7)]
-            end
-
-        end
-        if datas.Param1 ~= nil then 
-            self._CurrentDay = tonumber(datas.Param2)
-        end
-        for _,v in pairs(self._SignInfoTable) do
-            for _,k in pairs(datas.Datas) do
-                --if v._Data.Id == k.ScriptId then
-                    if k.Key == EScriptKeyType.SIGN_KEY then
-                        v._Signed = k.Param
-                    elseif k.Key == EScriptKeyType.SIGN_TOTLE_KEY then
-                        v._IsTotleReward = k.Param
-                    end
-                --end
+            elseif v.Key == EScriptKeyType.SIGN_SIGNED_DAY_KEY then
+                self._CurrentSignedDays = tonumber(v.Param)
             end
         end
+
 
         --当前月份信息
-        if datas.Param3 ~= nil then
-            self._CurrentMonth = tonumber(datas.Param3)
-        end
-
-
+        -- if datas.Param3 ~= nil then
+        --     self._CurrentMonth = tonumber(datas.Param3)
+        -- end
+        WelfareType = EnumDef.WelfareType._Sign
 
     elseif ScriptConfig.ConfigType == EScriptConfigType.SignSpecial then
         for _,v in pairs(self._SpecialSignInfoTable) do            
@@ -191,12 +173,14 @@ def.method("table").OnWelfareDatas = function(self, datas)
                 end
             end
         end
+        WelfareType = EnumDef.WelfareType._SpecialSign
     end
     local CPanelUIWelfare = require "GUI.CPanelUIWelfare".Instance()
     if CPanelUIWelfare:IsShow() then
-        CPanelUIWelfare: RefrashWelfare()	
+        CPanelUIWelfare:RefrashWelfare(WelfareType)
         -- CPanelUIWelfare: RefrashWelfareType()	
     end
+    self:WelfareRedPointState()
     -- CPanelSystemEntrance:UpdateWelfareRedPointStatus()    
 end
 
@@ -205,18 +189,19 @@ def.method("table").OnGloryCurrentInfo = function(self, datas)
     self._CurrentGloryLevel = 0  
     if datas ~= nil then
         self._CurrentGloryLevel = datas.curLevel
+        if datas.isLevelUp then
+            self._IsOpenGloryRedPoint = false
+        end
     end
 
     self._GloryGiftBuyInfoList = {}
     self._GloryGiftBuyInfoList = datas.GloryGiftBuyInfoList
 
-    if game._CFunctionMan:IsUnlockByFunTid(GLORY_UNLOCKED_BY_TID) then
-        self._IsOpenGlory = true
-    end 
     local CPanelUIWelfare = require "GUI.CPanelUIWelfare".Instance()
     if CPanelUIWelfare:IsShow() then
-        CPanelUIWelfare: RefrashWelfare()
+        CPanelUIWelfare: RefrashWelfare(EnumDef.WelfareType._GloryVIP)
     end
+    self:WelfareRedPointState()
     -- CPanelSystemEntrance:UpdateWelfareRedPointStatus()	
 end
 
@@ -264,11 +249,11 @@ def.method("table").OnOnlineRewardInfo = function(self, datas)
             end
 		end
     end
-    
+    self:WelfareRedPointState()
     local CPanelUIWelfare = require "GUI.CPanelUIWelfare".Instance()
     if CPanelUIWelfare:IsShow() then
-        CPanelUIWelfare: RefrashWelfare()	
-        -- CPanelUIWelfare: RefrashWelfareType()	
+        CPanelUIWelfare: RefrashWelfare(EnumDef.WelfareType._OnLineReward)	
+        CPanelUIWelfare: RefrashWelfareType()	
     end
 end
 
@@ -285,23 +270,68 @@ def.method("table").OnOnlineRewardDrawReward = function(self, OnlineRewardIds)
     local CPanelUIWelfare = require "GUI.CPanelUIWelfare".Instance()
 
     if CPanelUIWelfare:IsShow() then
-        CPanelUIWelfare:RefrashWelfare()
+        CPanelUIWelfare:RefrashWelfare(EnumDef.WelfareType._OnLineReward)
+    end
+    self:WelfareRedPointState()
+end
+
+-- 获取回应的材料兑换数据
+def.method("table").OnFestivalInfo = function(self, datas)  
+    self._FestivalInfoList = {}
+    -- self._IsFestival = true
+
+    for _,k in pairs(datas) do
+        if k ~= nil and k.FestivalId ~= nil then
+            self._CurFestivalId = k.FestivalId
+            local template = CElementData.GetTemplate("FestivalActivity", k.FestivalId)
+            self._FestivalInfoList[#self._FestivalInfoList + 1] =
+            {
+                _Data = template,				--模板数据
+                _FestivalRewardDatas = k.FestivalRewardDatas,
+            }	
+        end
+    end    
+    -- self:WelfareRedPointState()
+    -- local CPanelUIWelfare = require "GUI.CPanelUIWelfare".Instance()
+    -- if CPanelUIWelfare:IsShow() then
+    --     CPanelUIWelfare: RefrashWelfare(EnumDef.WelfareType._Festival)	
+    --     CPanelUIWelfare: RefrashWelfareType()	
+    -- end
+end
+
+def.method("table").OnFestivalExchange = function(self, datas)
+    self._CurFestivalId = datas.FestivalId
+    local MaterialList = self._FestivalInfoList[datas.FestivalId]
+    if MaterialList ~= nil then
+        for _,v in pairs(MaterialList._FestivalRewardDatas) do
+            if v.RewardId == datas.FestivalRewardDatas.RewardId then		
+                v.RemainCount = datas.FestivalRewardDatas.RemainCount
+           end
+        end
+    end
+    
+
+    self:WelfareRedPointState()
+    local CPanelUIWelfare = require "GUI.CPanelUIWelfare".Instance()
+    if CPanelUIWelfare:IsShow() then
+        CPanelUIWelfare: RefrashWelfare(EnumDef.WelfareType._Festival)	
+        CPanelUIWelfare: RefrashWelfareType()	
     end
 end
 
-
 def.method().AddTimer = function (self)
     local TimeZone = tonumber(os.date("%z", 0))/100
-    self._TimeId = _G.AddGlobalTimer(1, false, function()
+    self._TimeId = _G.AddGlobalTimer(10, false, function()
         self._OnlineTime = self._OnlineTime + 1  
         for _,v in pairs(self._OnlineRewardDataTable) do
             if self._OnlineTime > (v._Data.NeedMinute * 60) then
                 v._IsGet = true
                 local CPanelUIWelfare = require "GUI.CPanelUIWelfare".Instance()
                 if CPanelUIWelfare:IsShow() then
-                    CPanelUIWelfare: RefrashWelfare()	
+                    CPanelUIWelfare: RefrashWelfare(EnumDef.WelfareType._OnLineReward)	
                     -- CPanelUIWelfare: RefrashWelfareType()	
                 end
+                self:WelfareRedPointState()
             end
         end      
     end)
@@ -384,12 +414,23 @@ def.method().OnC2SOnlineRewardViewInfo = function(self)
 end
 
 --请求领取单个在线奖励奖励。
-def.method("number").OnC2SOnlineRewardDrawReward= function(self, OnlineRewardId)
+def.method("number").OnC2SOnlineRewardDrawReward = function(self, OnlineRewardId)
 	local C2SOnlineRewardDrawReward = require "PB.net".C2SOnlineRewardDrawReward
     local protocol = C2SOnlineRewardDrawReward()
     protocol.OnlineRewardId = OnlineRewardId
 	PBHelper.Send(protocol)
 end
+
+--请求材料兑换。  活动id，兑换奖励id
+def.method("number", "number").OnC2SFestivalExchange = function(self, FestivalId, RewardId)
+	local C2SFestivalExchange = require "PB.net".C2SFestivalExchange
+    local protocol = C2SFestivalExchange()
+    protocol.RoleId = game._HostPlayer._ID
+    protocol.FestivalId = FestivalId
+    protocol.RewardId = RewardId
+    PBHelper.Send(protocol)
+end
+
 ---------------------------------------------------------------------------------
 -----------------------------------client--------------------------------
 ---------------------------------------------------------------------------------
@@ -398,6 +439,10 @@ end
 def.method("=>","table").GetAllWelfareTypes = function(self)
     self._WelfareTypeTable = {}
     -- warn("!!!!!!!!!!!!!!>>>", self._IsOpenSign, self:GetGloryLevel(), self._IsOpenGlory, self._IsOpenSpecialSign)
+    if game._CFunctionMan:IsUnlockByFunTid(GLORY_UNLOCKED_BY_TID) then
+        self._IsOpenGlory = true
+    end 
+
     if self._IsOpenSign then
         self._WelfareTypeTable[#self._WelfareTypeTable + 1] = EnumDef.WelfareType._Sign
     end
@@ -406,6 +451,8 @@ def.method("=>","table").GetAllWelfareTypes = function(self)
         self._WelfareTypeTable[#self._WelfareTypeTable + 1] = EnumDef.WelfareType._GloryVIP
     end
 
+    self._WelfareTypeTable[#self._WelfareTypeTable + 1] = EnumDef.WelfareType._Festival
+
     if self._IsOpenSpecialSign then
         self._WelfareTypeTable[#self._WelfareTypeTable + 1] = EnumDef.WelfareType._SpecialSign
     end
@@ -413,7 +460,7 @@ def.method("=>","table").GetAllWelfareTypes = function(self)
     if self._IsOnlineReward then
         self._WelfareTypeTable[#self._WelfareTypeTable + 1] = EnumDef.WelfareType._OnLineReward
     end
-    -- print_r(self._WelfareTypeTable)
+    
 	return self._WelfareTypeTable
 end
 
@@ -433,10 +480,6 @@ def.method("=>","table").GetAllSignDays = function(self)
 	return self._SignDaysTable
 end
 
-def.method("=>", "table").GetRewardDays = function(self)
-    return self._SignRewardDaysTable
-end
-
 def.method("=>", "number").GetCurrentDay = function(self)
     return self._CurrentDay
 end
@@ -445,8 +488,8 @@ def.method("=>", "number").GetCurrentTotalDay = function(self)
     return self._CurrentTotalDay
 end
 
-def.method("=>", "number").GetCurrentMonth = function(self)
-    return self._CurrentMonth
+def.method("=>", "number").GetCurrentSignedDays = function(self)
+    return self._CurrentSignedDays
 end
 
 --获取特殊签到是否开启
@@ -570,43 +613,36 @@ def.method("number", "=>", "table").GetDataByGloryLevel = function(self, gloryLe
 end
 
 def.method("=>", "boolean").GetSignRedPointState = function(self)
-    local Signeds = {}
-    local TotleRewards = {}
+    -- local Signeds = {}
+    -- local TotleRewards = {}
     local IsShowRedPoint = false
-    local curSigned = false
-    local totleSigneds = false
-    -- warn("lidaming -------------> self:GetAllSignInfo()._Signed ==", self:GetAllSignInfo()._Signed, self._CurrentDay)
-    string.gsub(self:GetAllSignInfo()._Signed, '[^*]+', function(w) table.insert(Signeds, w) end )
-    string.gsub(self:GetAllSignInfo()._IsTotleReward, '[^*]+', function(w) table.insert(TotleRewards, w) end )
-    -- warn("lidaming ---------------->#Signeds ==", #Signeds, #TotleRewards)
-    if #Signeds == 0 then
-        IsShowRedPoint = true
-    else
-        for _,k in pairs(Signeds) do
-            if tonumber(k) == self._CurrentDay then
-                curSigned = true
-            end
-        end
-    end
-    for i,v in pairs(self:GetRewardDays()) do
-        if (i == 1 and #Signeds >= 7)
-        or (i == 2 and #Signeds >= 14) 
-        or (i == 3 and #Signeds >= 21) 
-        or (i == 4 and #Signeds >= 28) then  
-            totleSigneds = true
-            for _,k in pairs(TotleRewards) do
-                if tonumber(k) == i then
-                    totleSigneds = false                                    
-                end                        
-            end
-        end
-    end                   
 
-    if curSigned == false or totleSigneds == true then
-        IsShowRedPoint = true
-    else
+    if self._CurrentDay == self._CurrentSignedDays then
         IsShowRedPoint = false
+    else
+        IsShowRedPoint = true
     end
+    -- local curSigned = false
+    -- local totleSigneds = false
+    -- -- warn("lidaming -------------> self:GetAllSignInfo()._Signed ==", self:GetAllSignInfo()._Signed, self._CurrentDay)
+    -- string.gsub(self:GetAllSignInfo()._Signed, '[^*]+', function(w) table.insert(Signeds, w) end )
+    -- string.gsub(self:GetAllSignInfo()._IsTotleReward, '[^*]+', function(w) table.insert(TotleRewards, w) end )
+    -- -- warn("lidaming ---------------->#Signeds ==", #Signeds, #TotleRewards)
+    -- if #Signeds == 0 then
+    --     IsShowRedPoint = true
+    -- else
+    --     for _,k in pairs(Signeds) do
+    --         if tonumber(k) == self._CurrentDay then
+    --             curSigned = true
+    --         end
+    --     end
+    -- end                 
+
+    -- if curSigned == false or totleSigneds == true then
+    --     IsShowRedPoint = true
+    -- else
+    --     IsShowRedPoint = false
+    -- end
     return IsShowRedPoint
 end
 
@@ -629,21 +665,24 @@ end
 
 -- 荣耀之路暂时没有升级提示。
 def.method("=>", "boolean").GetGloryRedPointState = function(self)
-    return false
+    return self._IsOpenGloryRedPoint
 end
 
--- 福利toggle红点状态
-def.method("=>", "boolean").GetWelfareRedPointState = function(self)
+-- 福利主界面红点提示
+def.method().WelfareRedPointState = function(self)
     local welfareRedPoint = false
-    -- warn("lidaming ---->", self:GetSpecialSignRedPointState())
-    if self:GetSignRedPointState() or self:GetSpecialSignRedPointState() or self:IsShowOnlineRewardRedPoint() then
+    -- warn("lidaming ---->", self:GetSignRedPointState(), self:GetSpecialSignRedPointState(), self:IsShowOnlineRewardRedPoint(), self:GetGloryRedPointState())
+    if self:GetSignRedPointState() or self:GetSpecialSignRedPointState() or self:IsShowOnlineRewardRedPoint() or self:GetGloryRedPointState() then
         welfareRedPoint = true
     else
         -- 目前没有荣耀之路的红点判断
         welfareRedPoint = false
     end
-    -- warn("lidaming welfareRedPoint ==", welfareRedPoint)
-    return welfareRedPoint
+    -- warn("lidaming welfareRedPoint Main CRedDotMan.UpdateModuleRedDotShow==", welfareRedPoint)
+    -- return welfareRedPoint
+    if game._CFunctionMan:IsUnlockByFunID(EnumDef.EGuideTriggerFunTag.Bonus) then
+        CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Welfare, welfareRedPoint)
+    end
 end
 
 def.method("=>", "table").GetSpecialSignInfo = function(self)
@@ -662,14 +701,25 @@ end
 -- 是否显示在线奖励红点
 def.method("=>", "boolean").IsShowOnlineRewardRedPoint = function(self)	
     -- 检查是否有可领取奖励
-	for i, v in ipairs(self._OnlineRewardDataTable) do
-		if v._IsGet and not v._IsDraw then
+    for i, v in ipairs(self._OnlineRewardDataTable) do
+        if v._IsGet and not v._IsDraw then            
             return true
         end
 	end
 	return false
 end
 
+---------------------------------------------------------------
+---------------------材料兑换-------------------------------
+
+
+
+def.method("=>", "table").GetFestivalInfos = function(self)
+    return self._FestivalInfoList
+end
+
+
+-----------------------------------------------------
 
 -- 切换账号 或是 切换角色 恢复默认数据
 def.method().Release = function (self)
@@ -685,13 +735,14 @@ def.method().Release = function (self)
     self._WelfareTypeTable = {}
     self._SignInfoTable = {}
     self._SignDaysTable = {}
-    self._SignRewardDaysTable = {}
     self._GloryGiftsTable = {}
     self._SpecialSignInfoTable = {}
     self._GloryGiftBuyInfoList = {}
     self:RemoveTimer()
     self._OnlineTime = 0 
     self._OnlineRewardDataTable = {}
+    self._IsOpenGloryRedPoint = false
+    self._FestivalInfoList = {}
 end
 
 CWelfareMan.Commit()

@@ -6,7 +6,7 @@ local MapInfo =
 	Length = 800,
 	Width = 800,
 	NavMeshName = "World03Part2.navmesh",
-	BackgroundMusic = "",
+	BackgroundMusic = "BGM_Map_3/Map_3/Map_3_phase",
 	BattleMusic = "",
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-2.png",
@@ -184,7 +184,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[219] = { x = -238.52, y = 100.50, z = 28.13, name = "雪峰堡", worldId = 0, PkMode = 1 },
+			[219] = { x = -238.52, y = 100.50, z = 28.13, name = "雪峰堡", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[436] = { x = -320.82, y = 110.00, z = 52.88, name = "刷新山路怪物", worldId = 0, PkMode = 1 },
 			[435] = { x = -314.46, y = 105.00, z = 8.54, name = "逃离雪峰堡", worldId = 0, PkMode = 1 },
 			[330] = { x = -286.44, y = 100.00, z = -35.08, name = "刷新峡谷和平原怪物", worldId = 0, PkMode = 1 },

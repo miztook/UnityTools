@@ -90,23 +90,24 @@ def.method().GetActivityReward = function(self)
     self._Pro_Liveness.size = game._CCalendarMan:GetCurActivityValue() / self._MaxLiveness  
     
     for i,v in pairs(self._ActivityValue) do
+        local Btn_Item = self._Frame_Liveness:FindChild("Frame_Gift_0"..i.."/Btn_Item_0"..i)
         local Img_Item = self._Frame_Liveness:FindChild("Frame_Gift_0"..i.."/Btn_Item_0"..i.."/Img_Item_0" .. i)
         local Img_ItemOpen = self._Frame_Liveness:FindChild("Frame_Gift_0"..i.."/Btn_Item_0"..i.."/Img_Item_0" .. i .."open")
         if v == 0 then
             -- GameUtil.MakeImageGray(Img_Item, false)
             Img_ItemOpen:SetActive(false)
             Img_Item:SetActive(true)
-            GameUtil.StopUISfx(PATH.UIFX_CALENDAR_LingQu, Img_Item)
+            GameUtil.StopUISfx(PATH.UIFX_CALENDAR_LingQu, Btn_Item)
         elseif v == 1 then
             -- 可领取播放宝箱特效。     
             Img_ItemOpen:SetActive(false)  
             Img_Item:SetActive(true)
-            GameUtil.PlayUISfx(PATH.UIFX_CALENDAR_LingQu, Img_Item, Img_Item, -1)
+            GameUtil.PlayUISfx(PATH.UIFX_CALENDAR_LingQu, Btn_Item, Btn_Item, -1)
         elseif v == 2 then
             -- GameUtil.MakeImageGray(Img_Item, true)
             Img_ItemOpen:SetActive(true)
             Img_Item:SetActive(false)
-            GameUtil.StopUISfx(PATH.UIFX_CALENDAR_LingQu, Img_Item)
+            GameUtil.StopUISfx(PATH.UIFX_CALENDAR_LingQu, Btn_Item)
         end        
     end
 end

@@ -9,6 +9,7 @@ local CInventory = require "Package.CInventory"
 
 local function OnRoleEquipInfo(sender, protocol)
 	local hp = game._HostPlayer
+	if hp == nil then return end
 	local equipPack = hp._Package._EquipPack
 	local items = protocol.RoleEquipData.Items
 	local packageType = IVTRTYPE_ENUM.IVTRTYPE_EQUIPPACK

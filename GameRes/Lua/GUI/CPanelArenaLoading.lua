@@ -37,6 +37,7 @@ def.static("=>", CPanelArenaLoading).Instance = function()
         instance._PrefabPath = PATH.UI_3v3_Loading
         instance._PanelCloseType = EnumDef.PanelCloseType.None
         instance._DestroyOnHide = true
+		instance._ForbidESC = true
         instance:SetupSortingParam()
     end
     return instance

@@ -27,7 +27,7 @@ require "Main.EntryPoint"
 require "GUI.BuyOrSellItemMan"
 require "GUI.ItemListMan"
 
-require "CG.CGMan"
+require "Main.CGMan"
 require "GUI.CItemTipMan"
 require "GUI.MsgBox"
 require "GUI.OperationTip"

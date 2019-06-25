@@ -6,33 +6,81 @@ local CCharmMan = require "Charm.CCharmMan"
 local Data = require "PB.data"
 local CIvtrItem = require "Package.CIvtrItems".CIvtrItem
 local CCommonBtn = require "GUI.CCommonBtn"
+local CCommonNumInput = require "GUI.CCommonNumInput"
 
 local CCharmPageCompose = Lplus.Extend(CCharmPageBase, "CCharmPageCompose")
 local def = CCharmPageCompose.define
 
+local GFXKey = "CCharmPageCompose"
 local ComposeType = {
     NomalCompose = 1,       -- 普通的点选合成
     FieldCompose = 2,       -- 合成槽位上的神符
     Max          = 3,       -- 站位
 }
 
+-- 插入到self._CharmShowItems 结构是{{Tid = 1, Count = 2}...}  Tid是物品ID
+local insert_show_table = function(self, charm)
+    local tid = charm._Tid
+    local finded = false
+    for i,v in ipairs(self._CharmShowItems) do
+        if v.Tid == tid then
+            v.Count = v.Count + charm:GetCount()
+            finded = true
+        end
+    end
+    if not finded then
+        local item = {}
+        item.Tid = tid
+        item.Count = charm:GetCount()
+        item.Level = charm._CharmItemTemplate.Level
+        item.CharmSize = charm._CharmItemTemplate.CharmSize
+        item.CharmColor = charm._CharmItemTemplate.CharmColor
+        item.CharmID = charm._CharmItemTemplate.Id
+        self._CharmShowItems[#self._CharmShowItems + 1] = item
+    end
+end
+
+-- 获得self._CharmShowItems 里面Tid为tid的item
+local get_show_item = function(self, tid)
+    for i,v in ipairs(self._CharmShowItems) do
+        if v.Tid == tid then
+            return v
+        end
+    end
+    return nil
+end
+
+-- 根据神符ID判断可以合成的神符数量（仅通过材料去判断）
+local getCanComposeCountByMat = function(charmID)
+    local count = 9999999
+    local charm_temp = CElementData.GetTemplate("CharmItem", charmID)
+    if charm_temp == nil then return count end
+    if charm_temp.UpgradeTargetId > 0 then
+        local up_temp = CElementData.GetTemplate("CharmUpgrade", charm_temp.UpgradeTargetId)
+        if up_temp == nil then return count end
+        if up_temp.CostItemTId > 0 then
+            local have_count = game._HostPlayer._Package._NormalPack:GetItemCount(up_temp.CostItemTId)
+            count = math.floor(have_count/up_temp.CostItemCount)
+        end
+    end
+    return count
+end
+
 def.field("table")._CharmShowItems = BlankTable     -- 当前神符槽位可以选择的神符
 def.field("table")._CharmAttrItems = BlankTable     -- 在_CharmShowItems之上过滤当前选择的属性drop的神符
 def.field("table")._CharmAttrTable = nil            -- 所有背包神符属性，用来设置drop
-def.field("table")._MainCharmItemID = nil           -- 放置的主神符ID
-def.field("table")._MatItemID1 = nil                -- 放置的材料神符1ID
-def.field("table")._MatItemID2 = nil                -- 放置的材料神符2ID
-def.field("number")._SelectedIndex = 1              -- 当前选择的神符槽位（默认主神符槽位）
+def.field("number")._MainCharmItemID = 0            -- 放置的主神符ID
+def.field("number")._CurComposeNum = 0              -- 当前选择合成的数量
 def.field("number")._CurrentAttrID = -1             -- 当前dropdown的属性id
-def.field("boolean")._IsSelecting = false           -- 当前这个槽位有没有被选中
 def.field("boolean")._IsScriptDropdown = false      -- 代码正在操作dropdown
 def.field("boolean")._IsScriptToggle = false        -- 代码正在操作Toggle
-def.field("boolean")._NeedShowSkipFX = false     -- 需要播放合成特效
+def.field("boolean")._NeedShowSkipFX = false        -- 需要播放合成特效
 def.field("number")._ComposeType = 1                -- 当前合成类型（普通合成/合成槽位上的神符）
 def.field("number")._FieldID = 0                    -- 合成类型是槽位合成的时候的槽位ID
-def.field("number")._MatCostID = 0                  -- 合成需要的材料ID
 def.field("number")._ComposeFxTimer = 0             -- 特效timer
 def.field(CCommonBtn)._Btn_Compose = nil            -- 合成按钮对象
+def.field(CCommonNumInput)._InputComposeNum = nil   -- 合成选择数量控件对象
+def.field("table")._UIFXShowItems = nil             -- 播放合成动画的时候应该显示的东西
 
 def.static("=>", CCharmPageCompose).new = function()
     local obj = CCharmPageCompose()
@@ -42,48 +90,59 @@ end
 def.override().OnCreate = function(self)
     if self._PanelCharm == nil then return end
     self._GameObject = self._PanelCharm:GetUIObject("Frame_Compose")
-    self._PanelObject._Img_BGFXPoint = self._GameObject:FindChild("Tab_ComposeInfo/Img_BG_01/Img_BG")
+    self._PanelObject._Img_BGFXPoint = self._PanelCharm:GetUIObject("Img_BG_01")
     self._PanelObject._Tab_HaveCharm = self._PanelCharm:GetUIObject("Tab_HaveCharm")
     self._PanelObject._Tab_HaveNoCharm = self._PanelCharm:GetUIObject("Tab_HaveNoCharm")
-    self._PanelObject._Tab_Fields = self._PanelCharm:GetUIObject("Tab_Fields")
+    self._PanelObject._Tab_ComposeItem = self._PanelCharm:GetUIObject("Tab_ComposeItem")
     self._PanelObject._Rdo_MainMaterial = self._PanelCharm:GetUIObject("Rdo_MainMaterial")
-    self._PanelObject._Rdo_LeftMaterial = self._PanelCharm:GetUIObject("Rdo_LeftMaterial")
-    self._PanelObject._Rdo_RightMaterial = self._PanelCharm:GetUIObject("Rdo_RightMaterial")
-    self._PanelObject._Lab_ComposeSuccessRate = self._PanelCharm:GetUIObject("Lab_ComposeSuccessRate")
     self._PanelObject._Tab_Info = self._PanelCharm:GetUIObject("Tab_Info")
     self._PanelObject._Lab_NoCharm = self._PanelCharm:GetUIObject("Lab_NoCharm")
     self._PanelObject._Tab_AttrInfo1 = self._PanelCharm:GetUIObject("Tab_AttrInfo1")
     self._PanelObject._Tab_AttrInfo2 = self._PanelCharm:GetUIObject("Tab_AttrInfo2")
-    self._PanelObject._Tab_CostInfo = self._PanelCharm:GetUIObject("Tab_CostInfo")
     self._PanelObject._Tab_ComposeLevelInfo = self._PanelCharm:GetUIObject("Tab_ComposeLevelInfo")
     self._PanelObject._Btn_PutOnAll = self._PanelCharm:GetUIObject("Btn_PutOnAll")
     self._PanelObject._Btn_ShowDetail = self._PanelCharm:GetUIObject("Btn_ShowDetail")
     self._PanelObject._Frame_DropDown = self._PanelCharm:GetUIObject("Drop_Group_Ride")
     self._PanelObject._Btn_Compose = self._PanelCharm:GetUIObject("Btn_Compose")
     self._PanelObject._List_CharmList = self._PanelCharm:GetUIObject("List_CharmList")
-    self._PanelObject._Tab_FieldsGroup = self._PanelCharm:GetUIObject("Tab_Fields")
     self._PanelObject._Rdo_ShowGfx = self._PanelCharm:GetUIObject("Toggle_ShowGfx")
     self._PanelObject._Img_Mask_BG = self._PanelCharm:GetUIObject("Img_MaskBG")
     self._PanelObject._Img_Mask_BG:SetActive(false)
+    self:InitComposeUIFXGOs()
     self._Btn_Compose = CCommonBtn.new(self._PanelObject._Btn_Compose, nil)
+    local countChangeCB = function(count)
+        self._CurComposeNum = count
+        self:RefreshPageUI()
+    end
+    self._InputComposeNum = CCommonNumInput.new(self._PanelCharm:GetUIObject("Frame_NumInput"), countChangeCB, 1, 99)
 end
 
 -- data = { itemID = 111, Slot = 111, ComposeType = 1 }
 def.override("dynamic").OnData = function(self, data)
     CCharmPageBase.OnData(self, data)
     if data ~= nil then
-        self._MainCharmItemID = {_Tid = data.itemID, _Slot = data.Slot}
-        self._SelectedIndex = 1
+        self._MainCharmItemID = data.itemID
         self._ComposeType = data.ComposeType or ComposeType.NomalCompose
+    else
+        self._MainCharmItemID = 0
+        self._CurComposeNum = 0
     end
     self._NeedShowSkipFX = CCharmMan.Instance():GetCharmComposeSkipGfx()
     self._PanelObject._Rdo_ShowGfx:GetComponent(ClassType.Toggle).isOn = self._NeedShowSkipFX
     self._CurrentAttrID = -1
-    self._IsScriptDropdown = false
+    self._IsScriptDropdown = true
     self:SetShowCharmItems()
     self:SelectCharmsByAttrID(self._CurrentAttrID)
     self:GetAttrTableByShowCharmItems()
     self:SetDropDownInfo()
+    if self._MainCharmItemID > 0 then
+        local item_value = get_show_item(self, self._MainCharmItemID)
+        if item_value ~= nil then
+            self._CurComposeNum = math.max(1, math.min(getCanComposeCountByMat(item_value.Tid), math.floor(item_value.Count/3)))
+        else
+            self._CurComposeNum = 1
+        end
+    end
     self._IsScriptDropdown = false
 end
 
@@ -93,97 +152,91 @@ def.override("dynamic").ShowPage = function(self, data)
     if data ~= nil then
         self._ComposeType = data.ComposeType
         self._FieldID = data.fieldID or 0
-        if self._ComposeType == ComposeType.FieldCompose then
-            self:ReplaceMainField(data.itemID, nil)
-        elseif self._ComposeType == ComposeType.NomalCompose then
-            self:ReplaceMainField(data.itemID, data.Slot)
-        end
-        self._SelectedIndex = 2
+        self._MainCharmItemID = data.itemID or 0
+    else
+        self._MainCharmItemID = 0
+        self._CurComposeNum = 0
     end
     self._CurrentAttrID = -1
-    self._IsScriptDropdown = false
-    GUI.SetGroupToggleOn(self._PanelObject._Tab_FieldsGroup, self._SelectedIndex)
+    self._IsScriptDropdown = true
     self:SetShowCharmItems()
     self:SelectCharmsByAttrID(self._CurrentAttrID)
     self:GetAttrTableByShowCharmItems()
     self:SetDropDownInfo()
+    if self._MainCharmItemID > 0 then
+        local item_value = get_show_item(self, self._MainCharmItemID)
+        if item_value ~= nil then
+            self._CurComposeNum = math.max(1, math.min(getCanComposeCountByMat(item_value.Tid), math.floor(item_value.Count/3)))
+        else
+            self._CurComposeNum = 1
+        end
+    end
+    self._IsScriptDropdown = false
     self:RefreshPageUI()
 end
 
-def.override().ShowUIFX = function(self)
-    if self._PanelObject._Img_BGFXPoint == nil then return end
-    GameUtil.PlayUISfx(PATH.UIFX_CharmComposeBGFX, self._PanelObject._Img_BGFXPoint, self._PanelObject._Img_BGFXPoint, -1)
+def.method().ResetComposeUIFXGOActive = function(self)
+    self._UIFXShowItems["Item_New_Charm"]:SetActive(true)
+    self._UIFXShowItems["Item_New_Charm_Fly"]:SetActive(false)
+    self._UIFXShowItems["BlurTex"]:SetActive(false)
 end
 
-def.override().HideUIFX = function(self)
-    GameUtil.StopUISfx(PATH.UIFX_CharmComposeBGFX, self._PanelObject._Img_BGFXPoint)
+def.method().InitComposeUIFXGOs = function(self)
+    self._UIFXShowItems = {}
+    self._UIFXShowItems["Item_New_Charm"] = self._PanelCharm:GetUIObject("Item_New_Charm")
+    self._UIFXShowItems["Item_New_Charm_Fly"] = self._PanelCharm:GetUIObject("Item_New_Charm_Fly")
+    self._UIFXShowItems["BlurTex"] = self._PanelCharm:GetUIObject("BlurTex")
+    self._UIFXShowItems["Tab_ComposeItem"] = self._PanelObject._Tab_ComposeItem
+    self._UIFXShowItems["Tab_NewCharm"] = self._PanelCharm:GetUIObject("Tab_NewCharm")
+    self:ResetComposeUIFXGOActive()
 end
 
-def.method("number").OnToggleByScript = function(self, index)
-    if index > 3 then return end
-    self._IsScriptToggle = true
-    if index == 1 then
-        self:OnToggle("Rdo_MainMaterial", true)
-    elseif index == 2 then
-        self:OnToggle("Rdo_LeftMaterial", true)
-    elseif index == 3 then
-        self:OnToggle("Rdo_RightMaterial", true)
+-- 播放特效，是否需要材料，回调函数
+def.method("boolean", "function").PlayComposeUIFX = function(self, needMat, cb)
+    if needMat then
+        self._PanelCharm:AddEvt_PlayFx(GFXKey, 0, PATH.UIFX_CharmComposeFlyShort, self._UIFXShowItems["Tab_ComposeItem"], self._UIFXShowItems["Tab_ComposeItem"], 2, 5)
+        self._PanelCharm:AddEvt_PlayFx(GFXKey, 0.3, PATH.UIFX_CharmComposeFlyLang, self._UIFXShowItems["Tab_ComposeItem"], self._UIFXShowItems["Tab_ComposeItem"], 2, 5)
+    else
+        self._PanelCharm:AddEvt_PlayFx(GFXKey, 0, PATH.UIFX_CharmComposeFlyMiddle, self._UIFXShowItems["Tab_ComposeItem"], self._UIFXShowItems["Tab_ComposeItem"], 2, 5)
     end
-    GUI.SetGroupToggleOn(self._PanelObject._Tab_FieldsGroup, index)
+    local delay_add = needMat and 0.3 or 0
+    self._PanelCharm:AddEvt_SetActive(GFXKey, 0.3 + delay_add, self._UIFXShowItems["Item_New_Charm"], false)
+    self._PanelCharm:AddEvt_SetActive(GFXKey, 0.3 + delay_add, self._UIFXShowItems["Item_New_Charm_Fly"], true)
+    self._PanelCharm:AddEvt_PlayDotween(GFXKey, 0.3 + delay_add, self._UIFXShowItems["Tab_ComposeItem"]:GetComponent(ClassType.DOTweenPlayer), "1")
+    self._PanelCharm:AddEvt_SetActive(GFXKey, 0.3 + delay_add, self._UIFXShowItems["BlurTex"], true)
+    self._PanelCharm:AddEvt_PlayDotween(GFXKey, 0.3 + delay_add, self._UIFXShowItems["BlurTex"]:GetComponent(ClassType.DOTweenPlayer), "2")
+    self._PanelCharm:AddEvt_PlayFx(GFXKey, 0.6 + delay_add, PATH.UIFX_CharmComposeFlash, self._PanelCharm._Panel, self._PanelCharm._Panel, 1, 13)
+    if self._ComposeFxTimer ~= 0 then
+        _G.RemoveGlobalTimer(self._ComposeFxTimer)
+        self._ComposeFxTimer = 0
+    end
+    local callback = function()
+        if cb ~= nil then
+            cb()
+        end
+    end
+    self._ComposeFxTimer = _G.AddGlobalTimer(0.6 + delay_add, true, callback)
 end
 
 --根据属性ID对Items进行过滤
 def.method("number").SelectCharmsByAttrID = function(self, attrID)
     self._CharmAttrItems = {}
-    local mainTag = false
-    local matTag1 = false
-    local matTag2 = false
+    
     if attrID <= 0 then 
         for _,v in ipairs(self._CharmShowItems) do
             repeat
-                local item = {}
-                item.Count = v:GetCount()
-                item.Slot = v._Slot
-                if self._MainCharmItemID ~= nil and v._Tid == self._MainCharmItemID._Tid and v._Slot == self._MainCharmItemID._Slot and mainTag == false then
-                    item.Count = item.Count - 1
-                    mainTag = true
-                    if item.Count <= 0 then break end
-                end
-                if self._MatItemID1 ~= nil and v._Tid == self._MatItemID1._Tid and v._Slot == self._MatItemID1._Slot and matTag1 == false then
-                    item.Count = item.Count - 1
-                    matTag1 = true
-                    if item.Count <= 0 then break end
-                end
-                if self._MatItemID2 ~= nil and v._Tid == self._MatItemID2._Tid and self._MatItemID2._Slot and matTag2 == false then
-                    item.Count = item.Count - 1
-                    matTag2 = true
-                    if item.Count <= 0 then break end
-                end
-                item.CharmItem = v
-                self._CharmAttrItems[#self._CharmAttrItems + 1] = item
+                if v.Tid == self._MainCharmItemID then break end
+                self._CharmAttrItems[#self._CharmAttrItems + 1] = v
             until true;
         end
     else
         for _,v in ipairs(self._CharmShowItems) do
             repeat
-                if v._CharmItemTemplate.PropID1 == self._CurrentAttrID or v._CharmItemTemplate.PropID2 == self._CurrentAttrID then
-                    local item = {}
-                    item.Count = v:GetCount()
-                    item.Slot = v._Slot
-                    if self._MainCharmItemID ~= nil and v._Tid == self._MainCharmItemID._Tid and v._Slot == self._MainCharmItemID._Slot then
-                        item.Count = item.Count - 1
-                        if item.Count <= 0 then break end
-                    end
-                    if self._MatItemID1 ~= nil and v._Tid == self._MatItemID1._Tid and v._Slot == self._MatItemID1._Slot then
-                        item.Count = item.Count - 1
-                        if item.Count <= 0 then break end
-                    end
-                    if self._MatItemID2 ~= nil and v._Tid == self._MatItemID2._Tid and v._Slot == self._MatItemID2._Slot then
-                        item.Count = item.Count - 1
-                        if item.Count <= 0 then break end
-                    end
-                    item.CharmItem = v
-                    self._CharmAttrItems[#self._CharmAttrItems + 1] = item
+                local charm_temp = CElementData.GetCharmItemTemplate(v.Tid)
+                if charm_temp == nil then break end
+                if charm_temp.PropID1 == self._CurrentAttrID or charm_temp.PropID2 == self._CurrentAttrID then
+                    if v.Tid == self._MainCharmItemID then break end
+                    self._CharmAttrItems[#self._CharmAttrItems + 1] = v
                 end
             until true;
         end
@@ -191,102 +244,21 @@ def.method("number").SelectCharmsByAttrID = function(self, attrID)
     self:SortAttrCharmItems()
 end
 
--- 添加到属性过滤table中，根据dropdown来过滤的。
-def.method("number", "dynamic").AddToAttrItemsTable = function(self, itemID, slot)
-    for i,v in ipairs(self._CharmAttrItems) do
-        if v.CharmItem._Tid == itemID and v.Slot == slot then
-            v.Count = v.Count + 1
-            return
-        end
-    end
-    local item = {}
-    item.Count = 1
-    item.Slot = slot
-    if slot ~= nil then
-        item.CharmItem = game._HostPlayer._Package._NormalPack:GetItemBySlot(slot)
-    else
-        item.CharmItem = CIvtrItem.CreateVirtualItem(itemID)
-    end
-    self._CharmAttrItems[#self._CharmAttrItems + 1] = item
-    self:SortAttrCharmItems()
-end
-
--- 从属性Items Table中删除。
-def.method("number", "number").MinusAttrItemsTable = function(self, itemID, slot)
-    if itemID <= 0 then return end
-    for i=#self._CharmAttrItems, 1, -1 do
-        local v = self._CharmAttrItems[i]
-        if v.CharmItem._Tid == itemID and v.Slot == slot then
-            v.Count = v.Count - 1
-            if v.Count <= 0 then
-                table.remove(self._CharmAttrItems, i)
-            end
-            return
-        end
-    end
-end
-
--- 清除材料神符槽位的内容
-def.method().ClearMat1AndMat2 = function(self)
-    if self._MatItemID1 ~= nil then
-        self:AddToAttrItemsTable(self._MatItemID1._Tid, self._MatItemID1._Slot)
-    end
-    if self._MatItemID2 ~= nil then
-        self:AddToAttrItemsTable(self._MatItemID2._Tid, self._MatItemID2._Slot)
-    end
-    self._MatItemID1 = nil
-    self._MatItemID2 = nil
-end
-
--- 替换主神符合成槽位的物品
-def.method("number", "dynamic").ReplaceMainField = function(self, itemID, slot)
-    if self._MainCharmItemID ~= nil then
-        if self._ComposeType == ComposeType.NomalCompose then
-            self:AddToAttrItemsTable(self._MainCharmItemID._Tid, self._MainCharmItemID._Slot)
-        end
-        self._MainCharmItemID = nil
-    end
-    if self._ComposeType == ComposeType.NomalCompose then
-        self:MinusAttrItemsTable(itemID, slot)
-    end
-
-    self._MainCharmItemID = {_Tid = itemID, _Slot = slot}
-end
-
--- 替换副材料神符槽位1 的物品
-def.method("number", "number").ReplaceField1 = function(self, itemID, slot)
-    if self._MatItemID1 ~= nil then
-        self:AddToAttrItemsTable(self._MatItemID1._Tid, self._MatItemID1._Slot)
-        self._MatItemID1 = nil
-    end
-    self:MinusAttrItemsTable(itemID, slot)
-    self._MatItemID1 = {_Tid = itemID, _Slot = slot}
-end
-
--- 替换副材料神符槽位2 的物品
-def.method("number", "number").ReplaceField2 = function(self, itemID, slot)
-    if self._MatItemID2 ~= nil then
-        self:AddToAttrItemsTable(self._MatItemID2._Tid, self._MatItemID2._Slot)
-        self._MatItemID2 = nil
-    end
-    self:MinusAttrItemsTable(itemID, slot)
-    self._MatItemID2 = {_Tid = itemID, _Slot = slot}
-end
 
 --针对选择好的神符进行排序，优先级是（神符大小，神符颜色，神符等级，属性ID）
 def.method().SortAttrCharmItems = function(self)
     local func = function(item1, item2)
-        if item1.CharmItem._CharmItemTemplate.Level ~= item2.CharmItem._CharmItemTemplate.Level then
-            return item1.CharmItem._CharmItemTemplate.Level > item2.CharmItem._CharmItemTemplate.Level
+        if item1.Level ~= item2.Level then
+            return item1.Level > item2.Level
         else
-            if item1.CharmItem._CharmItemTemplate.CharmSize ~= item2.CharmItem._CharmItemTemplate.CharmSize then
-                return item1.CharmItem._CharmItemTemplate.CharmSize > item2.CharmItem._CharmItemTemplate.CharmSize
+            if item1.CharmSize ~= item2.CharmSize then
+                return item1.CharmSize < item2.CharmSize
             else
-                if item1.CharmItem._CharmItemTemplate.CharmColor ~= item2.CharmItem._CharmItemTemplate.CharmColor then
-                    return item1.CharmItem._CharmItemTemplate.CharmColor < item2.CharmItem._CharmItemTemplate.CharmColor
+                if item1.CharmColor ~= item2.CharmColor then
+                    return item1.CharmColor < item2.CharmColor
                 else
-                    if item1.CharmItem._CharmItemTemplate.Id ~= item2.CharmItem._CharmItemTemplate.Id then
-                        return item1.CharmItem._CharmItemTemplate.Id > item2.CharmItem._CharmItemTemplate.Id
+                    if item1.CharmID ~= item2.CharmID then
+                        return item1.CharmID > item2.CharmID
                     end
                 end
             end
@@ -299,26 +271,12 @@ end
 --根据当前选择的合成位置，过滤右边显示的神符
 def.method().SetShowCharmItems = function(self)
     self:GetAllCharmItems()
-    if self._SelectedIndex == 1 then
-        self._CharmShowItems = {}
-        for _,v in ipairs(self._CharmItems) do
-            local charm_temp = CElementData.GetTemplate("CharmItem", v._Tid)
-            if charm_temp.Level < self._PanelCharm._CharmMaxLevel then
-                self._CharmShowItems[#self._CharmShowItems + 1] = v
-            end
-        end
-    else
-        if self._MainCharmItemID ~= nil then
-            self._CharmShowItems = {}
-            local select_charm_temp = CElementData.GetTemplate("CharmItem", self._MainCharmItemID._Tid)
-            if select_charm_temp == nil then warn(" error CCharmPageCompose SetShowChgarmItems()  找不到神符ID", self._MainCharmItemID._Tid) end
-            for _,v in ipairs(self._CharmItems) do
-                local charmTemp = CElementData.GetTemplate("CharmItem", v._Tid)
-                if select_charm_temp.Level == charmTemp.Level and select_charm_temp.CharmSize == charmTemp.CharmSize
-                            and charmTemp.Level < self._PanelCharm._CharmMaxLevel and select_charm_temp.CharmColor == charmTemp.CharmColor then
-                    self._CharmShowItems[#self._CharmShowItems + 1] = v
-                end
-            end
+
+    self._CharmShowItems = {}
+    for _,v in ipairs(self._CharmItems) do
+        local charm_temp = CElementData.GetTemplate("CharmItem", v._Tid)
+        if charm_temp.Level < self._PanelCharm._CharmMaxLevel then
+            insert_show_table(self, v)
         end
     end
 end
@@ -328,7 +286,7 @@ def.method().GetAttrTableByShowCharmItems = function(self)
     local charm_attr = {}
     self._CharmAttrTable = {}
     for _,v in ipairs(self._CharmShowItems) do
-        local template = v._CharmItemTemplate
+        local template = CElementData.GetTemplate("CharmItem", v.Tid)
         if template then
             if template.PropID1 ~= nil and template.PropID1 > 0 then
                 charm_attr[template.PropID1] = true
@@ -367,72 +325,80 @@ end
 
 -- 更新槽位UI
 def.method().UpdateFieldsUI = function(self)
-    if self._MainCharmItemID ~= nil then
-        local item_icon = self._PanelObject._Rdo_MainMaterial:FindChild("Img_Icon")
-        local btn_take_off = self._PanelObject._Rdo_MainMaterial:FindChild("Btn_TakeOff1")
-        local field_bg = self._PanelObject._Rdo_MainMaterial:FindChild("Img_Quality")
-        local img_icon_bg = self._PanelObject._Rdo_MainMaterial:FindChild("Img_QualityBG")
-        self._PanelObject._Rdo_MainMaterial:FindChild("Img_Plus"):SetActive(false)
+    local uiTemplate = self._PanelObject._Tab_ComposeItem:GetComponent(ClassType.UITemplate)
+    local main_item_icon = uiTemplate:GetControl(0)
+    local img_plus = uiTemplate:GetControl(1)
+    local material_item = uiTemplate:GetControl(2)
+    local img_arrow = uiTemplate:GetControl(3)
+    local item_new_icon = uiTemplate:GetControl(5)
+    local lab_compose_num = uiTemplate:GetControl(6)
+    local fly_item_icon = uiTemplate:GetControl(7)
+    -- 主槽位的
+    local item_icon = GUITools.GetChild(main_item_icon, 3)
+    local btn_take_off = GUITools.GetChild(main_item_icon, 7)
+    local field_bg = GUITools.GetChild(main_item_icon, 4)
+    local img_icon_bg = GUITools.GetChild(main_item_icon, 1)
+    local img_select = GUITools.GetChild(main_item_icon, 6)
+    local lab_need = GUITools.GetChild(main_item_icon, 5)
+
+
+    img_plus:SetActive(false)
+    material_item:SetActive(false)
+    item_icon:SetActive(false)
+    btn_take_off:SetActive(false)
+    item_new_icon:SetActive(false)
+    lab_compose_num:SetActive(false)
+    lab_need:SetActive(false)
+    img_select:SetActive(true)
+    if self._MainCharmItemID > 0 then
         item_icon:SetActive(true)
-        local itemTemp = CElementData.GetItemTemplate(self._MainCharmItemID._Tid)
+        btn_take_off:SetActive(true)
+        lab_need:SetActive(true)
+        img_select:SetActive(false)
+        local inlayTemp = CElementData.GetTemplate("CharmItem", self._MainCharmItemID)
+        local targetTemp = CElementData.GetTemplate("CharmItem", inlayTemp.TargetCharmId)
+        local composeTemp = CElementData.GetTemplate("CharmUpgrade", inlayTemp.UpgradeTargetId)
+        local itemTemp = CElementData.GetItemTemplate(self._MainCharmItemID)
+        local have_value = get_show_item(self,self._MainCharmItemID)
+        local have_count = 0
+        if have_value ~= nil then
+            have_count = (self._ComposeType == ComposeType.FieldCompose) and (have_value.Count + 1) or have_value.Count
+        else
+            have_count = (self._ComposeType == ComposeType.FieldCompose) and 1 or 0
+        end
         GUITools.SetItemIcon(item_icon, itemTemp.IconAtlasPath)
         GUITools.SetGroupImg(field_bg, itemTemp.InitQuality)
         GUITools.SetGroupImg(img_icon_bg, itemTemp.InitQuality)
-        btn_take_off:SetActive(true)
+        if have_count >= self._CurComposeNum * 3 then
+            GUI.SetText(lab_need, string.format(StringTable.Get(8104), have_count, self._CurComposeNum * 3))
+        else
+            GUI.SetText(lab_need, string.format(StringTable.Get(8114), have_count, self._CurComposeNum * 3))
+        end
+
+        if composeTemp.CostItemTId > 0 and composeTemp.CostItemCount > 0 then
+            img_plus:SetActive(true)
+            material_item:SetActive(true)
+            IconTools.InitMaterialIconNew(material_item, composeTemp.CostItemTId, composeTemp.CostItemCount * self._CurComposeNum)
+        end
+        if inlayTemp.TargetCharmId > 0 then
+            item_new_icon:SetActive(true)
+            lab_compose_num:SetActive(true)
+            IconTools.InitItemIconNew(item_new_icon, inlayTemp.TargetCharmId, nil)
+            IconTools.InitItemIconNew(fly_item_icon, inlayTemp.TargetCharmId, nil)
+            GUI.SetText(lab_compose_num, string.format(StringTable.Get(19364), self._CurComposeNum))
+        end
     else
-        self._PanelObject._Rdo_MainMaterial:FindChild("Img_Icon"):SetActive(false)
-        self._PanelObject._Rdo_MainMaterial:FindChild("Img_Plus"):SetActive(true)
-        self._PanelObject._Rdo_MainMaterial:FindChild("Btn_TakeOff1"):SetActive(false)
-        GUITools.SetGroupImg(self._PanelObject._Rdo_MainMaterial:FindChild("Img_QualityBG"), 0)
-        GUITools.SetGroupImg(self._PanelObject._Rdo_MainMaterial:FindChild("Img_Quality"), 0)
-    end
-    if self._MatItemID1 ~= nil then
-        local item_icon = self._PanelObject._Rdo_LeftMaterial:FindChild("Img_Icon")
-        local btn_take_off = self._PanelObject._Rdo_LeftMaterial:FindChild("Btn_TakeOff2")
-        local field_bg = self._PanelObject._Rdo_LeftMaterial:FindChild("Img_Quality")
-        local img_icon_bg = self._PanelObject._Rdo_LeftMaterial:FindChild("Img_QualityBG")
-        self._PanelObject._Rdo_LeftMaterial:FindChild("Img_Plus"):SetActive(false)
-        item_icon:SetActive(true)
-        local itemTemp = CElementData.GetItemTemplate(self._MatItemID1._Tid)
-        GUITools.SetItemIcon(item_icon, itemTemp.IconAtlasPath)
-        GUITools.SetGroupImg(field_bg, itemTemp.InitQuality)
-        GUITools.SetGroupImg(img_icon_bg, itemTemp.InitQuality)
-        btn_take_off:SetActive(true)
-    else
-        self._PanelObject._Rdo_LeftMaterial:FindChild("Img_Icon"):SetActive(false)
-        self._PanelObject._Rdo_LeftMaterial:FindChild("Img_Plus"):SetActive(true)
-        self._PanelObject._Rdo_LeftMaterial:FindChild("Btn_TakeOff2"):SetActive(false)
-        GUITools.SetGroupImg(self._PanelObject._Rdo_LeftMaterial:FindChild("Img_QualityBG"), 0)
-        GUITools.SetGroupImg(self._PanelObject._Rdo_LeftMaterial:FindChild("Img_Quality"), 0)
-    end
-    if self._MatItemID2 ~= nil then
-        local item_icon = self._PanelObject._Rdo_RightMaterial:FindChild("Img_Icon")
-        local btn_take_off = self._PanelObject._Rdo_RightMaterial:FindChild("Btn_TakeOff3")
-        local field_bg = self._PanelObject._Rdo_RightMaterial:FindChild("Img_Quality")
-        local img_icon_bg = self._PanelObject._Rdo_RightMaterial:FindChild("Img_QualityBG")
-        self._PanelObject._Rdo_RightMaterial:FindChild("Img_Plus"):SetActive(false)
-        item_icon:SetActive(true)
-        local itemTemp = CElementData.GetItemTemplate(self._MatItemID2._Tid)
-        GUITools.SetItemIcon(item_icon, itemTemp.IconAtlasPath)
-        GUITools.SetGroupImg(field_bg, itemTemp.InitQuality)
-        GUITools.SetGroupImg(img_icon_bg, itemTemp.InitQuality)
-        btn_take_off:SetActive(true)
-    else
-        self._PanelObject._Rdo_RightMaterial:FindChild("Img_Icon"):SetActive(false)
-        self._PanelObject._Rdo_RightMaterial:FindChild("Img_Plus"):SetActive(true)
-        self._PanelObject._Rdo_RightMaterial:FindChild("Btn_TakeOff3"):SetActive(false)
-        GUITools.SetGroupImg(self._PanelObject._Rdo_RightMaterial:FindChild("Img_QualityBG"), 0)
-        GUITools.SetGroupImg(self._PanelObject._Rdo_RightMaterial:FindChild("Img_Quality"), 0)
+        GUITools.SetGroupImg(field_bg, 0)
+        GUITools.SetGroupImg(img_icon_bg, 0)
     end
 end
 
 -- 更新合成信息UI
 def.method().UpdateComposeInfoUI1 = function(self)
-    if self._MainCharmItemID ~= nil then
-        self._PanelObject._Lab_ComposeSuccessRate:SetActive(true)
+    if self._MainCharmItemID > 0 then
         self._PanelObject._Tab_Info:SetActive(true)
         self._PanelObject._Lab_NoCharm:SetActive(false)
-        local inlayTemp = CElementData.GetTemplate("CharmItem", self._MainCharmItemID._Tid)
+        local inlayTemp = CElementData.GetTemplate("CharmItem", self._MainCharmItemID)
         local targetTemp = CElementData.GetTemplate("CharmItem", inlayTemp.TargetCharmId)
         local composeTemp = CElementData.GetTemplate("CharmUpgrade", inlayTemp.UpgradeTargetId)
         if inlayTemp ~= nil then
@@ -495,62 +461,62 @@ def.method().UpdateComposeInfoUI1 = function(self)
             self._PanelObject._Tab_AttrInfo2:FindChild("Lab_NewValue2"):SetActive(false)
             self._PanelObject._Tab_ComposeLevelInfo:FindChild("Lab_NewLevel"):SetActive(false)
         end
-
-        if composeTemp ~= nil then
-            GUI.SetText(self._PanelObject._Lab_ComposeSuccessRate:FindChild("Lab_SuccessRateValue"), 
-                            string.format(StringTable.Get(10961), math.ceil(composeTemp.Rate/100)))
-        else
-            self._PanelObject._Lab_ComposeSuccessRate:SetActive(false)
-        end
     else
-        self._PanelObject._Lab_ComposeSuccessRate:SetActive(false)
         self._PanelObject._Tab_Info:SetActive(false)
         self._PanelObject._Lab_NoCharm:SetActive(true)
     end
 end
 
--- 更新合成消耗提示和按钮显示
+-- 更新选择数量和合成按钮
 def.method().UpdateComposeInfoUI2 = function(self)
-    if self._MainCharmItemID ~= nil then
-        local inlayTemp = CElementData.GetTemplate("CharmItem", self._MainCharmItemID._Tid)
+    if self._MainCharmItemID > 0 then
+        local inlayTemp = CElementData.GetTemplate("CharmItem", self._MainCharmItemID)
         local targetTemp = CElementData.GetTemplate("CharmItem", inlayTemp.TargetCharmId)
         local composeTemp = CElementData.GetTemplate("CharmUpgrade", inlayTemp.UpgradeTargetId)
-        if composeTemp.CostItemTId > 0 and composeTemp.CostItemCount > 0 then
---            local have_item_count = game._HostPlayer._Package._NormalPack:GetItemCount(composeTemp.CostItemTId)
---            local img_cost_item = self._PanelObject._Tab_CostInfo:FindChild("Img_CostItem")
---            local lab_count = self._PanelObject._Tab_CostInfo:FindChild("Lab_CountInfo")
---            local item_temp = CElementData.GetItemTemplate(composeTemp.CostItemTId)
---            GUITools.SetItemIcon(img_cost_item, item_temp.IconAtlasPath)
---            if have_item_count >= composeTemp.CostItemCount then
---                GUI.SetText(lab_count, string.format(StringTable.Get(31050), have_item_count, composeTemp.CostItemCount))
+        local item_value = get_show_item(self, self._MainCharmItemID)
+        local input_max = 0
+        if item_value ~= nil then
+            local have_count = (self._ComposeType == ComposeType.FieldCompose) and (item_value.Count + 1) or item_value.Count
 
---            else
---                GUI.SetText(lab_count, string.format(StringTable.Get(26004), have_item_count, composeTemp.CostItemCount))
---            end
-            local mat_icon = self._PanelObject._Tab_CostInfo:FindChild("MaterialIcon")
-            IconTools.InitMaterialIconNew(mat_icon, composeTemp.CostItemTId, composeTemp.CostItemCount)
-            self._MatCostID = composeTemp.CostItemTId
-            self._PanelObject._Tab_CostInfo:SetActive(true)
+            input_max = math.max(1, math.min(getCanComposeCountByMat(item_value.Tid), math.floor(have_count/3)))
+            self._Btn_Compose:MakeGray(false)
+            self._Btn_Compose:SetInteractable(true)
+            self._InputComposeNum:ResetMinAndMaxCount(1, input_max)
+            self._InputComposeNum:SetCountWithOutCb(self._CurComposeNum)
+
+            if have_count < self._CurComposeNum * 3 then
+                self._Btn_Compose:MakeGray(true)
+            end
+            if composeTemp.CostItemTId > 0 then
+                local mat_count = game._HostPlayer._Package._NormalPack:GetItemCount(composeTemp.CostItemTId)
+                if mat_count < composeTemp.CostItemCount * self._CurComposeNum then
+                    self._Btn_Compose:MakeGray(true)
+                end
+            end
         else
-            self._PanelObject._Tab_CostInfo:SetActive(false)
+            self._Btn_Compose:MakeGray(true)
+            self._Btn_Compose:SetInteractable(false)
+            self._InputComposeNum:ResetMinAndMaxCount(1, 1)
+            self._InputComposeNum:SetCountWithOutCb(self._CurComposeNum)
         end
+
         local setting = {
-            [EnumDef.CommonBtnParam.BtnTip] = StringTable.Get(11117),
+            [EnumDef.CommonBtnParam.BtnTip] = StringTable.Get(11106),
             [EnumDef.CommonBtnParam.MoneyID] = composeTemp.CostMoneyId,
-            [EnumDef.CommonBtnParam.MoneyCost] = composeTemp.CostMoneyCount   
+            [EnumDef.CommonBtnParam.MoneyCost] = composeTemp.CostMoneyCount * self._CurComposeNum,  
         }
         self._Btn_Compose:ResetSetting(setting)
-
-        self._PanelObject._Btn_Compose:SetActive(true)
-        if self._MatItemID1 == nil or self._MatItemID2 == nil then
-            self._Btn_Compose:SetInteractable(false)
-            self._Btn_Compose:MakeGray(true)
-        else
-            self._Btn_Compose:SetInteractable(true)
-            self._Btn_Compose:MakeGray(false)
-        end
     else
-        self._PanelObject._Btn_Compose:SetActive(false)
+        local setting = {
+            [EnumDef.CommonBtnParam.BtnTip] = StringTable.Get(11106),
+            [EnumDef.CommonBtnParam.MoneyID] = 1,
+            [EnumDef.CommonBtnParam.MoneyCost] = 0 
+        }
+        self._Btn_Compose:ResetSetting(setting)
+        self._Btn_Compose:MakeGray(true)
+        self._Btn_Compose:SetInteractable(false)
+        self._InputComposeNum:ResetMinAndMaxCount(1, 1)
+        self._InputComposeNum:SetCountWithOutCb(self._CurComposeNum)
     end
 end
 
@@ -561,128 +527,128 @@ def.override().RefreshPageUI = function(self)
     self:UpdateFieldsUI()
     self:UpdateComposeInfoUI1()
     self:UpdateComposeInfoUI2()
-    if self._IsSelecting then
+    if self._CharmAttrItems == nil or #self._CharmAttrItems <= 0 then
+        self._PanelObject._Tab_HaveCharm:SetActive(false)
+        self._PanelObject._Tab_HaveNoCharm:SetActive(true)
+    else
         self._PanelObject._Tab_HaveCharm:SetActive(true)
         self._PanelObject._Tab_HaveNoCharm:SetActive(false)
         self._PanelObject._List_CharmList:GetComponent(ClassType.GNewList):SetItemCount(#self._CharmAttrItems)
         self._PanelCharm:UpdateSideTabs({#self._CharmAttrItems})
-    else
-        if self._CharmAttrItems == nil or #self._CharmAttrItems <= 0 then
-            self._PanelObject._Tab_HaveCharm:SetActive(false)
-            self._PanelObject._Tab_HaveNoCharm:SetActive(true)
-        else
-            self._PanelObject._Tab_HaveCharm:SetActive(true)
-            self._PanelObject._Tab_HaveNoCharm:SetActive(false)
-            self._PanelObject._List_CharmList:GetComponent(ClassType.GNewList):SetItemCount(#self._CharmAttrItems)
-            self._PanelCharm:UpdateSideTabs({#self._CharmAttrItems})
-        end
     end
 end
 
 -- 处理槽位的操作，主要是根据事件播放特效的
 def.override("table").HandleOption = function(self, event)
     if event._Option == "Compose" then
-        self._MainCharmItemID = nil
-        self._MatItemID1 = nil
-        self._MatItemID2 = nil
+        self:ResetComposeUIFXGOActive()
+        local charm_item = CElementData.GetCharmItemTemplate(event._CharmID)
+        if charm_item == nil or charm_item.Level >= self._PanelCharm._CharmMaxLevel then
+            return
+        end
+        self._MainCharmItemID = event._CharmID
+        self:GetAllCharmItems()
         self:SetShowCharmItems()
         self:SelectCharmsByAttrID(self._CurrentAttrID)
         self:GetAttrTableByShowCharmItems()
         self:SetDropDownInfo()
-    elseif event._Option == "GainNewItem" then
-        local itemDataInfo = event._ItemUpdateInfo
-        if itemDataInfo.UpdateItem.Index < 0 or itemDataInfo.Src ~= Data.ENUM_ITEM_SRC.CHARM_COMPOSE then
+        if self._MainCharmItemID > 0 then
+            local item_value = get_show_item(self, self._MainCharmItemID)
+            local have_count = 0
+            if item_value ~= nil then
+                if self._ComposeType == ComposeType.FieldCompose then
+                    have_count = item_value.Count + 1
+                else
+                    have_count = item_value.Count
+                end
+            end
+            self._CurComposeNum = item_value and math.max(1, math.min(getCanComposeCountByMat(item_value.Tid), math.floor(have_count/3))) or 0
+        end
+    elseif event._Option == "FieldCompose" then
+        self:ResetComposeUIFXGOActive()
+        local charm_item = CElementData.GetCharmItemTemplate(event._CharmID)
+        if charm_item == nil or charm_item.Level >= self._PanelCharm._CharmMaxLevel then
             return
         end
-        --暂时注释掉合成之后自动把新合成的神符放到主材料位置。
---        local new_charm_temp = CElementData.GetTemplate("CharmItem", event._CharmID) 
---        if new_charm_temp ~= nil then
---            if new_charm_temp.Level >= self._PanelCharm._CharmMaxLevel then
---                self._MainCharmItemID = nil
---                self:OnToggleByScript(1)
---            else
---                self._MainCharmItemID = {_Tid = event._CharmID, _Slot = itemDataInfo.UpdateItem.Index}
---                self:OnToggleByScript(2)
---            end
---        else
---            self._MainCharmItemID = nil
---            self:OnToggleByScript(1)
---        end
-        self._MainCharmItemID = nil
-        self:OnToggleByScript(1)
-    elseif event._Option == "FieldCompose" then
-        self._ComposeType = ComposeType.NomalCompose
+        self._MainCharmItemID = event._CharmID
+        self:GetAllCharmItems()
+        self:SetShowCharmItems()
+        self:SelectCharmsByAttrID(self._CurrentAttrID)
+        self:GetAttrTableByShowCharmItems()
+        self:SetDropDownInfo()
+        if self._MainCharmItemID > 0 then
+            local item_value = get_show_item(self, self._MainCharmItemID)
+            local have_count = 0
+            if item_value ~= nil then
+                if self._ComposeType == ComposeType.FieldCompose then
+                    have_count = item_value.Count + 1
+                else
+                    have_count = item_value.Count
+                end
+            end
+            self._CurComposeNum = item_value and math.max(1, math.min(getCanComposeCountByMat(item_value.Tid), math.floor(have_count/3))) or 0
+        end
     end
 end
 
-
 def.override('string').OnClick = function(self, id)
-    if id == "Btn_Compose" then
-        if self._MainCharmItemID == nil then
+    if self._InputComposeNum:OnClick(id) then
+        return
+    elseif id == "Btn_Compose" then
+        if self._MainCharmItemID == 0 then
             game._GUIMan:ShowTipText(StringTable.Get(19351), true)
         else
-            if self._MatItemID1 == nil or self._MatItemID2 == nil then
-                game._GUIMan:ShowTipText(StringTable.Get(19352), true)
-            else
-                local inlayCharm = CElementData.GetTemplate("CharmItem", self._MainCharmItemID._Tid)
-                local composeTemp = CElementData.GetTemplate("CharmUpgrade", inlayCharm.UpgradeTargetId)
-                local compose = function()
-                    local callback = function()
-                        local np = game._HostPlayer._Package._NormalPack
-                        local mat_index1 = self._MatItemID1._Slot
-                        local mat_index2 = self._MatItemID2._Slot
-                        local mat_table = {mat_index1, mat_index2}
-                        self._PanelObject._Img_Mask_BG:SetActive(false)
-                        if self._ComposeType == ComposeType.FieldCompose then
-                            CCharmMan.Instance():FieldCompose( self._FieldID, mat_table)
-                            self._MainCharmItemID = nil
-                            self._MatItemID1 = nil
-                            self._MatItemID2 = nil
-                            self:OnToggleByScript(1)
-                        else
-                            local main_index = self._MainCharmItemID._Slot
-                            print("main_index ", main_index, mat_table.mat_index1, mat_table.mat_index2)
-                            CCharmMan.Instance():Compose(main_index, mat_table)
-                            self._MainCharmItemID = nil
-                            self._MatItemID1 = nil
-                            self._MatItemID2 = nil
-                            self:OnToggleByScript(1)
-                        end
-                    end
-                    if self._NeedShowSkipFX then
-                        callback()
+            local item_value = get_show_item(self, self._MainCharmItemID)
+            local have_count = 0
+            if item_value then
+                have_count = self._ComposeType == ComposeType.FieldCompose and item_value.Count + 1 or item_value.Count
+                if have_count < self._CurComposeNum * 3 then
+                    game._GUIMan:ShowTipText(StringTable.Get(19317), true)
+                    return
+                end
+            end
+            local inlayCharm = CElementData.GetTemplate("CharmItem", self._MainCharmItemID)
+            local composeTemp = CElementData.GetTemplate("CharmUpgrade", inlayCharm.UpgradeTargetId)
+            local compose = function()
+                local callback = function()
+                    self._PanelObject._Img_Mask_BG:SetActive(false)
+                    if self._ComposeType == ComposeType.FieldCompose then
+                        CCharmMan.Instance():FieldCompose( self._FieldID, self._MainCharmItemID, self._CurComposeNum)
+                        self._MainCharmItemID = 0
+                        self._CurComposeNum = 0
                     else
-                        GameUtil.PlayUISfx(PATH.UIFx_DecompseBg, self._PanelObject._Rdo_MainMaterial, self._PanelObject._Rdo_MainMaterial, 2)
-                        GameUtil.PlayUISfx(PATH.UIFx_DecompseBg, self._PanelObject._Rdo_LeftMaterial, self._PanelObject._Rdo_LeftMaterial, 2)
-                        GameUtil.PlayUISfx(PATH.UIFx_DecompseBg, self._PanelObject._Rdo_RightMaterial, self._PanelObject._Rdo_RightMaterial, 2)
-                        if self._ComposeFxTimer ~= 0 then
-                            _G.RemoveGlobalTimer(self._ComposeFxTimer)
-                            self._ComposeFxTimer = 0
-                        end
-                        self._ComposeFxTimer = _G.AddGlobalTimer(0.2, true, callback)
-                        self._PanelObject._Img_Mask_BG:SetActive(true)
+                        CCharmMan.Instance():Compose(self._MainCharmItemID, self._CurComposeNum)
+                        self._MainCharmItemID = 0
+                        self._CurComposeNum = 0
                     end
+                    self:RefreshPageUI()
                 end
-
-                if composeTemp ~= nil then
-                    local callback = function(val)
-                        if val then
-                            compose()
-                        end
-                    end
-                    local limit = {
-                        [EQuickBuyLimit.MatID] = composeTemp.CostItemTId,
-                        [EQuickBuyLimit.MatNeedCount] = composeTemp.CostItemCount,
-                    }
-                    MsgBox.ShowQuickBuyBox(composeTemp.CostMoneyId, composeTemp.CostMoneyCount, callback, limit)
+                if self._NeedShowSkipFX then
+                    callback()
                 else
-                    warn("error !!! 合成数据错误, Tid: ", inlayCharm.UpgradeTargetId)
+                    self:PlayComposeUIFX(composeTemp.CostItemTId > 0 and composeTemp.CostItemCount > 0, callback)
+                    self._PanelObject._Img_Mask_BG:SetActive(true)
                 end
+            end
+
+            if composeTemp ~= nil then
+                local callback = function(val)
+                    if val then
+                        compose()
+                    end
+                end
+                local limit = {
+                    [EQuickBuyLimit.MatID] = composeTemp.CostItemTId,
+                    [EQuickBuyLimit.MatNeedCount] = composeTemp.CostItemCount * self._CurComposeNum,
+                }
+                MsgBox.ShowQuickBuyBox(composeTemp.CostMoneyId, composeTemp.CostMoneyCount * self._CurComposeNum, callback, limit)
+            else
+                warn("error !!! 合成数据错误, Tid: ", inlayCharm.UpgradeTargetId)
             end
         end
     elseif id == "Btn_ItemPlus" then
         if self._MainCharmItemID == nil then return end
-        local inlayCharm = CElementData.GetTemplate("CharmItem", self._MainCharmItemID._Tid)
+        local inlayCharm = CElementData.GetTemplate("CharmItem", self._MainCharmItemID)
         local composeTemp = CElementData.GetTemplate("CharmUpgrade", inlayCharm.UpgradeTargetId)
         local item_temp = CElementData.GetItemTemplate(composeTemp.CostItemTId)
         local PanelData = 
@@ -694,30 +660,36 @@ def.override('string').OnClick = function(self, id)
         }
         game._GUIMan:Open("CPanelItemApproach",PanelData)
     elseif id == "Btn_TakeOff1" then
-        if self._ComposeType == ComposeType.NomalCompose then
-            self:AddToAttrItemsTable(self._MainCharmItemID._Tid, self._MainCharmItemID._Slot)
+        local item_value = get_show_item(self, self._MainCharmItemID)
+        if item_value ~= nil then
+            table.insert(self._CharmAttrItems, item_value)
         end
-        self:ClearMat1AndMat2()
-        self._MainCharmItemID = nil
-        self:OnToggleByScript(1)
+        self:SortAttrCharmItems()
+        self._MainCharmItemID = 0
+        self._CurComposeNum = 0
         self._ComposeType = ComposeType.NomalCompose
         self:RefreshPageUI()
-    elseif id == "Btn_TakeOff2" then
-        self:AddToAttrItemsTable(self._MatItemID1._Tid, self._MatItemID1._Slot)
-        self._MatItemID1 = nil
-        self:OnToggleByScript(2)
-        self:RefreshPageUI()
-    elseif id == "Btn_TakeOff3" then
-        self:AddToAttrItemsTable(self._MatItemID2._Tid, self._MatItemID2._Slot)
-        self._MatItemID2 = nil
-        self:OnToggleByScript(3)
-        self:RefreshPageUI()
     elseif id == "MaterialIcon" then
-        if self._MatCostID > 0 then
-             CItemTipMan.ShowItemTips(self._MatCostID, 
+        if self._MainCharmItemID > 0 then
+            local inlayTemp = CElementData.GetTemplate("CharmItem", self._MainCharmItemID)
+            local composeTemp = CElementData.GetTemplate("CharmUpgrade", inlayTemp.UpgradeTargetId)
+            if composeTemp.CostItemTId > 0 and composeTemp.CostItemCount > 0 then
+                CItemTipMan.ShowItemTips(composeTemp.CostItemTId, 
                              TipsPopFrom.OTHER_PANEL, 
                              nil, 
                              TipPosition.FIX_POSITION)
+            end
+        end
+    elseif id == "Item_New_Charm" then
+        if self._MainCharmItemID > 0 then
+            local inlayTemp = CElementData.GetTemplate("CharmItem", self._MainCharmItemID)
+            
+            if inlayTemp ~= nil and inlayTemp.TargetCharmId > 0 then
+                CItemTipMan.ShowItemTips(inlayTemp.TargetCharmId, 
+                             TipsPopFrom.OTHER_PANEL, 
+                             nil, 
+                             TipPosition.FIX_POSITION)
+            end
         end
     end
 end
@@ -726,15 +698,11 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
     local index = index + 1
     if id == "List_CharmList" then
         local charm_item = self._CharmAttrItems[index]
-        if charm_item == nil or charm_item.CharmItem == nil then return end
-        local is_dress = (self._MainCharmItemID ~= nil and charm_item.CharmItem._Tid == self._MainCharmItemID._Tid) or (self._MatItemID1 ~= nil and charm_item.CharmItem._Tid == self._MatItemID1._Tid)
-                             or (self._MatItemID2 ~= nil and charm_item.CharmItem._Tid == self._MatItemID2._Tid)
         local setting = {
             [EItemIconTag.Number] = charm_item.Count,
-            [EItemIconTag.Bind] = charm_item.CharmItem:IsBind(),
-            [EItemIconTag.Equip] = false --is_dress
+            [EItemIconTag.CanUse] = true
         }
-        IconTools.InitItemIconNew(GUITools.GetChild(item, 0), charm_item.CharmItem._Tid, setting)
+        IconTools.InitItemIconNew(GUITools.GetChild(item, 0), charm_item.Tid, setting)
     end
 end
 
@@ -742,49 +710,19 @@ def.override('userdata', 'string', 'number').OnSelectItem = function(self, item,
     local index = index + 1
     if id == "List_CharmList" then
         local charm_item = self._CharmAttrItems[index]
-        local charm_temp = CElementData.GetTemplate("CharmItem", charm_item.CharmItem._Tid)
+        local charm_temp = CElementData.GetTemplate("CharmItem", charm_item.Tid)
         if charm_temp.Level >= self._PanelCharm._CharmMaxLevel then
             game._GUIMan:ShowTipText(StringTable.Get(19354), false)
             return
         end
-        if self._MainCharmItemID == nil then
-            self._MainCharmItemID = {_Tid = charm_item.CharmItem._Tid, _Slot = charm_item.CharmItem._Slot}
-            charm_item.Count = charm_item.Count - 1
-            if charm_item.Count <= 0 then
-                table.remove(self._CharmAttrItems, index)
-                self:OnToggleByScript(2)
-                self:RefreshPageUI()
-                return
-            end
-            local uiTemplate = item:GetComponent(ClassType.UITemplate)
-            local item_icon = uiTemplate:GetControl(0)
-            local setting =
-            {
-                [EItemIconTag.Number] = charm_item.Count,
-                [EItemIconTag.Bind] = charm_item.CharmItem:IsBind(),
-                [EItemIconTag.Equip] = true,
-            }
-            IconTools.InitItemIconNew(item_icon, charm_item.CharmItem._Tid)
-            self:OnToggleByScript(2)
-        else
-            --if self._MainCharmItemID == charm_item.CharmItem._Tid then return end
-            if self._SelectedIndex == 1 then
-                if self._MainCharmItemID ~= nil and self._MainCharmItemID._Tid == charm_item.CharmItem._Tid then return end
-                if self._ComposeType == ComposeType.NomalCompose then
-                    self:ReplaceMainField(charm_item.CharmItem._Tid, charm_item.Slot)
-                end
-                self:ClearMat1AndMat2()
-                self._ComposeType = ComposeType.NomalCompose
-                self:OnToggleByScript(2)
-            elseif self._SelectedIndex == 2 then
-                if self._MatItemID1 ~= nil and self._MatItemID1._Tid == charm_item.CharmItem._Tid then return end
-                self:ReplaceField1(charm_item.CharmItem._Tid, charm_item.Slot)
-                self:OnToggleByScript(3)
-            elseif self._SelectedIndex == 3 then
-                if self._MatItemID2 ~= nil and self._MatItemID2._Tid == charm_item.CharmItem._Tid then return end
-                self:ReplaceField2(charm_item.CharmItem._Tid, charm_item.Slot)
-            end
+        table.remove(self._CharmAttrItems, index)
+        if self._MainCharmItemID > 0 and self._ComposeType == ComposeType.NomalCompose then
+            table.insert(self._CharmAttrItems, get_show_item(self, self._MainCharmItemID))
+            self:SortAttrCharmItems()
         end
+        self._ComposeType = ComposeType.NomalCompose
+        self._MainCharmItemID = charm_item.Tid
+        self._CurComposeNum = math.max(1, math.min(getCanComposeCountByMat(charm_item.Tid), math.floor(charm_item.Count/3)))
         CSoundMan.Instance():Play2DAudio(PATH.GUISound_Choose_Press, 0)
         self:RefreshPageUI()
     end
@@ -800,73 +738,32 @@ def.override("string", "number").OnDropDown = function(self, id, index)
     end
     if index + 1 > #self._CharmAttrTable then return end
     self._CurrentAttrID = self._CharmAttrTable[index + 1]
-    self._IsSelecting = true
     self:SelectCharmsByAttrID(self._CurrentAttrID)
-    if self._CharmAttrItems == nil or #self._CharmAttrItems == 0 then
-        self._PanelObject._Tab_HaveNoCharm:SetActive(true)
-        self._PanelObject._Tab_HaveCharm:SetActive(false)
-    else
-        self._PanelObject._Tab_HaveNoCharm:SetActive(false)
-        self._PanelObject._Tab_HaveCharm:SetActive(true)
-        self._PanelObject._List_CharmList:GetComponent(ClassType.GNewList):SetItemCount(#self._CharmAttrItems)
-        self._PanelCharm:UpdateSideTabs({#self._CharmAttrItems})
-    end
+    self:RefreshPageUI()
 end
 
 def.override("string", "boolean").OnToggle = function(self,id, checked)
-    local new_index = 1
-    if id == "Rdo_MainMaterial" then
-        new_index = 1
-        if self._MainCharmItemID ~= nil and not self._IsScriptToggle then
-            CItemTipMan.ShowItemTips(self._MainCharmItemID._Tid, 
-                             TipsPopFrom.OTHER_PANEL, 
-                             self._PanelObject._Rdo_MainMaterial, 
-                             TipPosition.FIX_POSITION)
-        end
-        --if new_index == self._SelectedIndex then self._MainCharmItemID = nil end
-    elseif id == "Rdo_LeftMaterial" then
-        new_index = 2
-        if self._MatItemID1 ~= nil and not self._IsScriptToggle then
-            CItemTipMan.ShowItemTips(self._MatItemID1._Tid, 
-                                 TipsPopFrom.OTHER_PANEL, 
-                                 self._PanelObject._Rdo_LeftMaterial, 
-                                 TipPosition.FIX_POSITION)
-        end
-        --if new_index == self._SelectedIndex then self._MatItemID1 = nil end
-    elseif id == "Rdo_RightMaterial" then
-        new_index = 3
-        if self._MatItemID2 ~= nil and not self._IsScriptToggle then
-            CItemTipMan.ShowItemTips(self._MatItemID2._Tid,
-                                 TipsPopFrom.OTHER_PANEL,
-                                 self._PanelObject._Rdo_RightMaterial,
-                                 TipPosition.FIX_POSITION)
-        end
-        --if new_index == self._SelectedIndex then self._MatItemID2 = nil end
-    elseif id == "Toggle_ShowGfx" then
+    if id == "Toggle_ShowGfx" then
         self._NeedShowSkipFX = checked
         CCharmMan.Instance():SetCharmComposeSkipGfx(checked)
         return
+    elseif id == "Rdo_MainMaterial" then
+        if self._MainCharmItemID > 0 then
+             CItemTipMan.ShowItemTips(self._MainCharmItemID, 
+                             TipsPopFrom.OTHER_PANEL, 
+                             self._PanelObject._Rdo_MainMaterial,
+                             TipPosition.FIX_POSITION)
+        end
     end
-    self._SelectedIndex = new_index
-    self._CurrentAttrID = -1
-    self._IsScriptToggle = false
-    self:SetShowCharmItems()
-    self:SelectCharmsByAttrID(self._CurrentAttrID)
-    self:GetAttrTableByShowCharmItems()
-    self:SetDropDownInfo()
     self:RefreshPageUI()
 end
 
 def.override().OnHide = function(self)
-    self._MainCharmItemID = nil
-    self:ClearMat1AndMat2()
-    self._SelectedIndex = 1
+    self._MainCharmItemID = 0
     self._CurrentAttrID = -1
-    self._IsSelecting = false
     self._IsScriptToggle = false
-    self._ComposeType = 1
+    self._ComposeType = ComposeType.NomalCompose
     self._FieldID = 0
-    self._MatCostID = 0
 end
 
 def.override().OnDestory = function(self)
@@ -874,9 +771,14 @@ def.override().OnDestory = function(self)
         self._Btn_Compose:Destroy()
         self._Btn_Compose = nil
     end
+    if self._InputComposeNum ~= nil then
+        self._InputComposeNum:Destroy()
+        self._InputComposeNum = nil
+    end
     self._CharmShowItems = nil
     self._CharmAttrItems = nil
     self._CharmAttrTable = nil
+    self._UIFXShowItems = nil
     if self._ComposeFxTimer ~= 0 then
         _G.RemoveGlobalTimer(self._ComposeFxTimer)
         self._ComposeFxTimer = 0

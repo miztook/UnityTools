@@ -6,7 +6,7 @@ local CPanelUIManual = require "GUI.CPanelUIManual"
 
 --初始化万物志异闻录数据
 local function OnS2CManualDataSync(sender, protocol)
-	game._CManualMan:OnS2CManualData( protocol.Datas.Mas )
+	game._CManualMan:OnS2CManualData( protocol.Datas )
     if CPanelUIManual.Instance():IsShow() then 
         CPanelUIManual.Instance()._CurPageClass:ShowData()
     end
@@ -37,4 +37,11 @@ local function OnS2CManualIsEyesShow(sender, protocol)
 	game._CManualMan:OnS2CManualIsEyesShow( protocol.Datas )
 end
 PBHelper.AddHandler("S2CManualIsEyesShow", OnS2CManualIsEyesShow)
+
+--万物志询问是否解锁
+local function OnS2CManualTotalDraw(sender, protocol)
+	game._CManualMan:OnS2CManualTotalDraw( protocol.TotalRewardId )
+end
+PBHelper.AddHandler("S2CManualTotalDraw", OnS2CManualTotalDraw)
+
 

@@ -39,7 +39,7 @@ def.method().InitGfxGroup = function(self)
 
     root.DoTweenPlayer = self._Parent._Panel:GetComponent(ClassType.DOTweenPlayer)
     root.TweenGroupId = 102
-    root.DoTweenTimeDelay = 1.5 + 0.5
+    root.DoTweenTimeDelay = 1.5 + 0.7
     root.TweenObjectHook = self._Parent:GetUIObject("SelectTargetItem")
     root.Frame_Remove = root.TweenObjectHook:FindChild("Frame_Remove")
 
@@ -72,6 +72,23 @@ def.method().PlayGfx = function(self)
         self:StopGfx()
     end
 
+    local function callback1()
+        if self._PanelObject == nil or self._PanelObject.HideGroup == nil then
+            return
+        end
+        
+        local HideGroup = self._PanelObject.HideGroup
+        HideGroup.Img_Next:SetActive( false ) 
+        HideGroup.SelectInheritOrignItemGroup:SetActive( false ) 
+        HideGroup.SelectInheritTargetItemGroup:SetActive( false ) 
+        root.BlurTex:SetActive( true ) 
+        root.DoTweenPlayer:Restart(2002)
+        
+        if root.TimerId1 > 0 then
+            _G.RemoveGlobalTimer(root.TimerId1)
+        end
+    end
+
     -- _G.AddGlobalTimer(0.05, true, function()
     root.TweenObjectHook:SetActive(true)
     root.DoTweenPlayer:Restart(root.TweenGroupId)
@@ -84,6 +101,7 @@ def.method().PlayGfx = function(self)
     GameUtil.SetButtonInteractable(self._PanelObject.SelectOrignItem, false)
     GameUtil.SetButtonInteractable(self._PanelObject.SelectTargetItem, false)
     root.TimerId = _G.AddGlobalTimer(root.DoTweenTimeDelay, true, callback)
+    root.TimerId1 = _G.AddGlobalTimer(0.8, true, callback1)
     -- end)
 end
 -- 关闭特效
@@ -109,6 +127,11 @@ def.method().ResetGfxGroup = function(self)
     self._PanelObject.CommonBtn_Inherit:SetInteractable(true)
     GameUtil.SetButtonInteractable(self._PanelObject.SelectOrignItem, true)
     GameUtil.SetButtonInteractable(self._PanelObject.SelectTargetItem, true)
+
+    local HideGroup = self._PanelObject.HideGroup
+    HideGroup.Img_Next:SetActive( true ) 
+    HideGroup.SelectInheritOrignItemGroup:SetActive( true ) 
+    HideGroup.SelectInheritTargetItemGroup:SetActive( true ) 
 end
 def.method().EnableBgGfx = function(self)
     if self._GfxBgIsShow then return end
@@ -140,7 +163,8 @@ def.method().Init = function(self)
     {
         Group_Property = {},
         SuccessRateInfo = {},
-        AttributeInfo = {}
+        AttributeInfo = {},
+        HideGroup = {},
     }
 
     local root = self._PanelObject
@@ -156,6 +180,7 @@ def.method().Init = function(self)
     root.Lab_None_Selection = self._Parent:GetUIObject("Lab_None_Selection")
     root.Lab_Reason = self._Parent:GetUIObject('Lab_Reason')
     root.Lab_ShowTips = self._Parent:GetUIObject("Lab_ShowTips")
+    root.Lab_InheritTip = self._Parent:GetUIObject("Lab_InheritTip")
 
     local setting = {
         [EnumDef.CommonBtnParam.BtnTip] = StringTable.Get(31353),
@@ -179,6 +204,16 @@ def.method().Init = function(self)
             Old = self._Parent:GetUIObject('Lab_InheritedPropertyOldValue'),
             New = self._Parent:GetUIObject('Lab_InheritedPropertyNewValue'),
         }
+    end
+
+    do
+        -- 显示特效隐藏的组件
+        local HideGroup = root.HideGroup
+        HideGroup.Root = self._Parent:GetUIObject("Frame_Inherit")
+        HideGroup.Img_IconGroup = HideGroup.Root:FindChild("Img_IconGroup")
+        HideGroup.Img_Next = HideGroup.Img_IconGroup:FindChild("Img_Next")
+        HideGroup.SelectInheritOrignItemGroup = self._Parent:GetUIObject("SelectInheritOrignItemGroup")
+        HideGroup.SelectInheritTargetItemGroup = self._Parent:GetUIObject("SelectInheritTargetItemGroup")
     end
 
     root.Lab_Reason:SetActive( false )
@@ -223,7 +258,7 @@ def.method().UpdateSelectItem = function(self)
     local bHasTarget = self._TargetItemData ~= nil
     local bCanInherit = (bShow and bHasTarget and self._ItemData.ItemData:CanInherit())
     local bShowReason = (bShow and not bCanInherit)
-
+    root.Lab_InheritTip:SetActive( bShow )
     root.Lab_None_Selection:SetActive( not bCanInherit )
     if not bCanInherit then
         GUI.SetText(root.Lab_None_Selection, StringTable.Get(bShow and 10971 or 10970))
@@ -351,15 +386,15 @@ def.method().UpdateButtonState = function(self)
             [EnumDef.CommonBtnParam.MoneyCost] = moneyNeed   
         }
         root.CommonBtn_Inherit:ResetSetting(setting)
-        root.CommonBtn_Inherit:MakeGray( moneyHave < moneyNeed )
+        -- root.CommonBtn_Inherit:MakeGray( moneyHave < moneyNeed )
     else
         local setting = {
             [EnumDef.CommonBtnParam.MoneyCost] = 0   
         }
         root.CommonBtn_Inherit:ResetSetting(setting)
-        root.CommonBtn_Inherit:MakeGray( true )
+        -- root.CommonBtn_Inherit:MakeGray( true )
     end
-
+    root.CommonBtn_Inherit:MakeGray(not bActive)
 end
 
 def.method("=>", "table").CalcMoneyNeed = function(self)
@@ -428,9 +463,32 @@ def.method("userdata", "number", "table").OnInitItem = function(self, item, inde
                 [EItemIconTag.Equip] = (itemData.PackageType == BAGTYPE.ROLE_EQUIP),
             }
             IconTools.InitItemIconNew(ItemIconNew, itemData.ItemData._Tid, setting)
-            Img_UnableClick:SetActive(self._ItemData == itemData or
-                                      itemData.ItemData._EquipSlot ~= self._ItemData.ItemData._EquipSlot or
-                                      (self._ItemData ~= nil and self._TargetItemData ~= nil))
+            local bIsOrign = self._ItemData == itemData
+            local bIsTarget = self._TargetItemData == itemData
+            local bUnableClick = false
+
+            if bIsOrign or bIsTarget then
+                -- 已装备 不置灰
+                bUnableClick = false
+            else
+                warn("itemData.ItemData:GetInforceLevel() <= self._ItemData.ItemData:GetInforceLevel()",
+                 itemData.ItemData:GetInforceLevel(),
+                 self._ItemData.ItemData:GetInforceLevel())
+
+
+                if self._ItemData ~= nil and self._TargetItemData ~= nil then
+                    -- 已全部装备
+                    bUnableClick = true
+                elseif itemData.ItemData._EquipSlot ~= self._ItemData.ItemData._EquipSlot then
+                    -- 不是同部位
+                    bUnableClick = true
+                elseif itemData.ItemData:GetInforceLevel() >= self._ItemData.ItemData:GetInforceLevel() then
+                    -- 低级不允许
+                    bUnableClick = true
+                end
+            end
+
+            Img_UnableClick:SetActive( bUnableClick )
         end
     else
         local setting = {
@@ -538,6 +596,15 @@ def.method("string").OnClick = function(self, id)
             local root = self._PanelObject
             CItemTipMan.ShowPackbackEquipTip(self._TargetItemData.ItemData, TipsPopFrom.Equip_Process,TipPosition.FIX_POSITION,root.SelectItem)
         end
+    elseif id == "Btn_Inherit_Desc" then
+        game._GUIMan:Close("CPanelUICommonNotice")
+        local data = 
+        {
+            Title = StringTable.Get(34203),
+            Name = StringTable.Get(34200),
+            Desc = StringTable.Get(34204),
+        }
+        game._GUIMan:Open("CPanelUICommonNotice", data)
     end
 end
 
@@ -554,6 +621,7 @@ end
 
 def.method().Hide = function(self)
     self:DisableBgGfx()
+    self:StopGfx()
     self._TargetItemData = nil
 
     if self._OnMoneyChanged ~= nil then

@@ -12,6 +12,7 @@ def.field("userdata")._GameObject = nil         --实例化出来的Page GameObj
 def.field("boolean")._IsShowing = false         --是否正在显示
 def.field("boolean")._IsWebView = false         --是否以webView的形式显示
 def.field("boolean")._IsHideTabList = false     --是否隐藏左侧的TabList
+def.field("boolean")._HasBGVideo = false        --是否有BGVideo
 def.field("boolean")._NeedPlayDotween = false   --是否需要播放dotween动画（当刷新的时候）
 
 def.virtual().OnCreate = function(self)
@@ -80,6 +81,9 @@ end
 def.virtual("table").OnBuySuccess = function(self, datas)
 end
 
+def.virtual("number").OnReceiveRewardSuccess = function(self, storeID)
+end
+
 def.virtual("table", "table").OnGainItem = function(self, sender, event)
 end
 
@@ -92,12 +96,19 @@ def.virtual("=>", "string").GetMallPageTemplatePath = function(self)
 end
 
 def.virtual("table", "=>", "table").ParseMsg = function(self, data)
+    return {}
 end
 
 def.virtual("number", "function").PlayDotween = function(self, ttl, callback)
 end
 
+def.virtual().PlayVideoBG = function(self)
+end
+
 def.virtual('string').OnClick = function(self, id)
+end
+
+def.virtual("string", "boolean").OnToggle = function(self, id, checked)
 end
 
 def.virtual('userdata', 'string', 'number').OnInitItem = function(self, item, id, index)

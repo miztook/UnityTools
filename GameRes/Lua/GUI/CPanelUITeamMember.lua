@@ -102,16 +102,11 @@ local function OnTeamInfoChange(sender, event)
 		instance:UpdateFightScore( data )
 	elseif event._Type == TeamInfoChangeType.InvitateStatus then
 		instance:UpdateInvitingTag()
-	elseif event._Type == TeamInfoChangeType.DeadState then
-	elseif event._Type == TeamInfoChangeType.Hp then
-	elseif event._Type == TeamInfoChangeType.MapInfo then
 	elseif event._Type == TeamInfoChangeType.FollowState then
         instance:UpdateLeaderBtn()
-	elseif event._Type == TeamInfoChangeType.Bounty then
 	elseif event._Type == TeamInfoChangeType.TARGETCHANGE then
         instance:UpdateTopInfo()
         instance:UpdateLeaderBtn()
-	elseif event._Type == TeamInfoChangeType.MATCHSTATECHANGE then
     elseif event._Type == TeamInfoChangeType.NewRoleComeIn then
         instance:UpdateTopInfo()
     elseif event._Type == TeamInfoChangeType.TeamMode then
@@ -121,6 +116,8 @@ local function OnTeamInfoChange(sender, event)
         instance:UpdateLeaderBtn()
 	    instance:UpdateMatchingTag()
         instance:UpdateTopInfo()
+	elseif event._Type == TeamInfoChangeType.TeamMemberName then
+
 	else
 		-- warn("error, unknown TeamInfoChangeType! please check: ", event._Type)
 	end
@@ -175,7 +172,7 @@ def.method().UpdateTopInfo = function(self)
         -- print("team_count", team_count)
         if team_count <= 1 then
             GUI.SetText(lab_buff, StringTable.Get(22601))
-            GUI.SetText(lab_exp_add, StringTable.Get(22601))
+            -- GUI.SetText(lab_exp_add, StringTable.Get(22601))
         else
         	-- 组队buff在人数大于5时未处理，6-10按照5来处理 （范导定的规则）
         	if team_count > 5 then team_count = 5 end
@@ -189,15 +186,19 @@ def.method().UpdateTopInfo = function(self)
             local friend_buff_string = StringTable.Get(22601)
             if team_state_temp ~= nil and team_state_temp.ExecutionUnits ~= nil and #team_state_temp.ExecutionUnits ~= 0 then
                 local unit = team_state_temp.ExecutionUnits[1]
+                local unit1 = team_state_temp.ExecutionUnits[2]
+
                 if unit.Trigger.Timeline._is_present_in_parent ~= nil then
                     local property = unit.Event.AddAttachedProperty
+                    local property1 = unit1.Event.AddAttachedProperty
                     local attach_temp = CElementData.GetAttachedPropertyTemplate(property.Id)
                     local value = tonumber(property.Value) * 100
-                    team_buff_string = string.format(StringTable.Get(22031), team_count, attach_temp.TextDisplayName, value)
+                    local value1 = tonumber(property1.Value) * 100
+                    team_buff_string = string.format(StringTable.Get(22080), value, value1)
                 end
             end
             GUI.SetText(lab_buff, team_buff_string)
-            GUI.SetText(lab_exp_add, friend_buff_string)
+            -- GUI.SetText(lab_exp_add, friend_buff_string)
         end
         if self._IsShowBuffInfo then
             self:ShowBuffInfoPanel(true)
@@ -368,18 +369,18 @@ def.method("table").UpdateOnLineState = function(self, data)
 	local lab_chanel = HideGrouproot:FindChild("Lab_Chanel")
 	local pLable_Name = HideGrouproot:FindChild("Lab_Name")
 	local Img_OffLine = HideGrouproot:FindChild("Img_OffLine")
-    local Img_OfflineState = HideGrouproot:FindChild("Img_OfflineGroup/Img_OfflineState")
+    -- local Img_OfflineState = HideGrouproot:FindChild("Img_OfflineGroup/Img_OfflineState")
 
 	local memberInfo = self._TeamMan:GetMemberInfoById(data.roleId)
 
 	Img_OffLine:SetActive(not memberInfo._IsOnLine)
 	GUI.SetText(pLable_Name, memberInfo._Name)
-    Img_OfflineState:SetActive(memberInfo._IsOnLine)
+    -- Img_OfflineState:SetActive(memberInfo._IsOnLine)
 
 	if memberInfo._IsOnLine then
-    	local isSameLine = game._CurWorld._WorldInfo.CurMapLineId == memberInfo._LineId
-    	local color = isSameLine and Color.New(0,1,0) or Color.New(1,0,0)
-    	GameUtil.SetImageColor(Img_OfflineState, color)
+    	-- local isSameLine = game._CurWorld._WorldInfo.CurMapLineId == memberInfo._LineId
+    	-- local color = isSameLine and Color.New(0,1,0) or Color.New(1,0,0)
+    	-- GameUtil.SetImageColor(Img_OfflineState, color)
     	local worldTemp = CElementData.GetTemplate("Map", memberInfo._MapTid)
     	if memberInfo._LineId ~= 0 then
         	GUI.SetText(lab_chanel, string.format(StringTable.Get(12028),worldTemp.TextDisplayName, memberInfo._LineId))
@@ -406,7 +407,19 @@ def.method("table").UpdateFightScore = function(self, data)
 
 	local item = self._PanelObject.TeamMemberItemList[data.roleId]
 	local Lab_BattleValues = item:FindChild("HideGroup/Lab_BattleValues")
-	GUI.SetText(Lab_BattleValues, string.format(StringTable.Get(10690), GUITools.FormatNumber(data.fightScore)))
+	GUI.SetText(Lab_BattleValues, GUITools.FormatNumber(data.fightScore))
+end
+
+--更新队员名称
+def.method("table").UpdateMemberName = function(self, data)
+	if self._PanelObject.TeamMemberItemList[data.roleId] == nil then return end
+	
+	local memberInfo = self._TeamMan:GetMemberInfoById(data.roleId)
+	local item = self._PanelObject.TeamMemberItemList[data.roleId]
+	local pLable_Name = HideGrouproot:FindChild("Lab_Name")
+	GUI.SetText(pLable_Name, RichTextTools.GetOnlineColorHexText(memberInfo._Name, memberInfo._IsOnLine))
+
+	GUI.SetText(Lab_BattleValues, GUITools.FormatNumber(data.fightScore))
 end
 
 --设置单个UI信息
@@ -446,16 +459,16 @@ def.method("userdata", "table").SetItemInfo = function(self, item, memberInfo)
 
     local isOnLine = memberInfo._IsOnLine
     local lab_chanel = HideGrouproot:FindChild("Lab_Chanel")
-    local Img_OfflineState = HideGrouproot:FindChild("Img_OfflineGroup/Img_OfflineState")
+    -- local Img_OfflineState = HideGrouproot:FindChild("Img_OfflineGroup/Img_OfflineState")
     local Img_OffLine = HideGrouproot:FindChild("Img_OffLine")
     local worldTemp = CElementData.GetTemplate("Map", memberInfo._MapTid)
 
-    Img_OfflineState:SetActive(isOnLine)
+    -- Img_OfflineState:SetActive(isOnLine)
     Img_OffLine:SetActive(not isOnLine)
     if isOnLine then
-    	local isSameLine = game._CurWorld._WorldInfo.CurMapLineId == memberInfo._LineId
-    	local color = isSameLine and Color.New(0,1,0) or Color.New(1,0,0)
-    	GameUtil.SetImageColor(Img_OfflineState, color)
+    	-- local isSameLine = game._CurWorld._WorldInfo.CurMapLineId == memberInfo._LineId
+    	-- local color = isSameLine and Color.New(0,1,0) or Color.New(1,0,0)
+    	-- GameUtil.SetImageColor(Img_OfflineState, color)
     	if memberInfo._LineId ~= 0 then
         	GUI.SetText(lab_chanel, string.format(StringTable.Get(12028),worldTemp.TextDisplayName, memberInfo._LineId))
         else
@@ -485,11 +498,14 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         local team_buff_string = StringTable.Get(22601)
         if team_state_temp ~= nil and team_state_temp.ExecutionUnits ~= nil and #team_state_temp.ExecutionUnits ~= 0 then
             local unit = team_state_temp.ExecutionUnits[1]
+            local unit1 = team_state_temp.ExecutionUnits[2]
             if unit.Trigger.Timeline._is_present_in_parent ~= nil then
                 local property = unit.Event.AddAttachedProperty
+                local property1 = unit1.Event.AddAttachedProperty
                 local attach_temp = CElementData.GetAttachedPropertyTemplate(property.Id)
                 local value = tonumber(property.Value) * 100
-                team_buff_string = string.format(StringTable.Get(22031), index + 1, attach_temp.TextDisplayName, value)
+                local value2 = tonumber(property1.Value) * 100
+                team_buff_string = string.format(StringTable.Get(22031), index + 1, value, value2)
             end
         end
         if index == member_count - 1 then
@@ -620,18 +636,26 @@ def.override("string").OnClick = function(self,id)
             end
         end
 	elseif id == "Btn_ApplyList" then
-        if CPVEAutoMatch.Instance():IsMatching() then
-            SendFlashMsg(StringTable.Get(22066), false)
-        else
-            game._GUIMan:Open("CPanelUITeamInvite", 4)
-        end
+		if game._HostPlayer:IsInGlobalZone() then
+			SendFlashMsg(StringTable.Get(15556), false)
+		else
+	        if CPVEAutoMatch.Instance():IsMatching() then
+	            SendFlashMsg(StringTable.Get(22066), false)
+	        else
+	            game._GUIMan:Open("CPanelUITeamInvite", 4)
+	        end
+	    end
 	elseif id == "Btn_AddMemeber" then --邀请
 --		if game._HostPlayer:InDungeon() and not game._GuildMan:IsGuildBattleScene() then
 --			SendFlashMsg(StringTable.Get(22408), false)
 --		else
 --			game._GUIMan:Open("CPanelUITeamInvite",nil)
 --		end
-        game._GUIMan:Open("CPanelUITeamInvite",nil)
+		if game._HostPlayer:IsInGlobalZone() then
+			SendFlashMsg(StringTable.Get(15556), false)
+		else
+        	game._GUIMan:Open("CPanelUITeamInvite",nil)
+        end
 	elseif id == "Btn_Begin" then
         if game._HostPlayer:InDungeon() or game._HostPlayer:InImmediate() then
             SendFlashMsg(StringTable.Get(22048), false)
@@ -643,28 +667,39 @@ def.override("string").OnClick = function(self,id)
             	CTeamMan.Instance():C2SStartParepare(self._TeamMan._Team._Setting.TargetId)
             else
 	        	local dungeonTemplate = CElementData.GetTemplate("Instance", dungeonTid)
-				game:BuyCountGroup(remainderCount ,dungeonTemplate.CountGroupTid)
+				game._CCountGroupMan:BuyCountGroup(remainderCount ,dungeonTemplate.CountGroupTid)
 			end
         end
 	elseif id == "Btn_Setting" then
-		-- self:ShowSendLinkButtonGroup(false)
-        if CPVEAutoMatch.Instance():IsMatching() then
-            SendFlashMsg(StringTable.Get(22066), false)
-        else
-            if self._TeamMan:IsTeamLeader() then
-			    game._GUIMan:Open("CPanelUITeamSetting", self._TeamMan._Team._Setting)
-		    else
-			    SendFlashMsg(StringTable.Get(213), false)
-		    end
-        end
+		if game._HostPlayer:IsInGlobalZone() then
+			SendFlashMsg(StringTable.Get(15556), false)
+		else
+	        if CPVEAutoMatch.Instance():IsMatching() then
+	            SendFlashMsg(StringTable.Get(22066), false)
+	        else
+	            if self._TeamMan:IsTeamLeader() then
+				    game._GUIMan:Open("CPanelUITeamSetting", self._TeamMan._Team._Setting)
+			    else
+				    SendFlashMsg(StringTable.Get(213), false)
+			    end
+	        end
+	    end
 	elseif id == "Btn_Send" then
-        if CPVEAutoMatch.Instance():IsMatching() then
-            SendFlashMsg(StringTable.Get(22066), false)
-        else
-    		self:ShowSendLinkButtonGroup(not self._IsShowSendLinkButton)
-        end
+		if game._HostPlayer:IsInGlobalZone() then
+			SendFlashMsg(StringTable.Get(15556), false)
+		else
+	        if CPVEAutoMatch.Instance():IsMatching() then
+	            SendFlashMsg(StringTable.Get(22066), false)
+	        else
+	    		self:ShowSendLinkButtonGroup(not self._IsShowSendLinkButton)
+	        end
+	    end
 	elseif id == "Btn_AutoMatch" then
-		self:OnBtnAutoMatch()
+		if game._HostPlayer:IsInGlobalZone() then
+			SendFlashMsg(StringTable.Get(15556), false)
+		else
+			self:OnBtnAutoMatch()
+		end
 	elseif string.find(id, "Img_Role_") then
 		local index = tonumber(string.sub(id, -1))
 		self:OnClickTeamMember(index)
@@ -672,7 +707,7 @@ def.override("string").OnClick = function(self,id)
 		self:SendLinkMsg(ChatChannel.ChatChannelGuild)
 		-- self:ShowSendLinkButtonGroup(false)
 	elseif id == "Btn_SendWorld" then
-		self:SendLinkMsg(ChatChannel.ChatChannelWorld)
+		self:SendLinkMsg(ChatChannel.ChatChannelRecruit)
 		-- self:ShowSendLinkButtonGroup(false)
     elseif id == "Btn_BuffInfo" then
         self:ShowBuffInfoPanel(true)
@@ -707,9 +742,11 @@ def.method("number").SendLinkMsg = function(self, channelType)
 		linkInfo.TargetId = targetId
 		linkInfo.Level = lv
 		linkInfo.CombatPower = combatPower
+		linkInfo.TeamName = CTeamMan.Instance():GetTeamName()
+		
 	    require "Chat.ChatManager".Instance():ChatOtherSend(linkInfo)
 
-	    if channelType == ChatChannel.ChatChannelWorld then
+	    if channelType == ChatChannel.ChatChannelRecruit then
 	    	self:MarkCanSendWorldChatTime()
 	    end
 	else
@@ -765,6 +802,8 @@ def.method().MarkCanSendWorldChatTime = function(self)
 end
 
 def.method("boolean").ShowBuffInfoPanel = function(self, bShow)
+	if self._PanelObject == nil then return end
+	
     self._PanelObject.Frame_BuffInfo:SetActive(bShow)
     self._IsShowBuffInfo = bShow
     if bShow then
@@ -827,6 +866,8 @@ end
 
 def.method("number").OnClickTeamMember = function(self, index)
 	local memberCount = #self._TeamMemberList
+	if index == 0 then index = 10 end
+
 	--队长，或多出队员总数的情况忽略
 	if index > memberCount then return end
 
@@ -897,7 +938,6 @@ def.method().UpdateLeaderBtn = function (self)
     if not bIsLeader then
         local lab_follow = info.Btn_Follow:FindChild("Img_Bg/Lab_Follow")
         local is_following = self._TeamMan:IsFollowing()
-        print("is_following ", is_following)
         GUI.SetText(lab_follow, is_following and StringTable.Get(231) or StringTable.Get(22009))
     end
 	info.SendLinkGroup:SetActive(false)

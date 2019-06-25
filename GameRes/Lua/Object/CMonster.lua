@@ -18,7 +18,7 @@ local def = CMonster.define
 
 def.field("number")._DissolveDeathTimer = 0
 def.field("number")._ProgressCountMax = 1
-def.field("boolean")._IsInitialHideTopPate = true		--force hide top pate after being born
+def.field("boolean")._IsHideTopPate = true		--force hide top pate after being born
 
 def.static("=>", CMonster).new = function ()
 	local obj = CMonster()
@@ -59,8 +59,17 @@ def.override("=>","string").GetEntityColorName = function(self)
 end
 
 def.override().OnPateCreate = function(self)
-	CNonPlayerCreature.OnPateCreate(self)
+	--CNonPlayerCreature.OnPateCreate(self)
+	CEntity.OnPateCreate(self)
 	if self._TopPate == nil then return end
+
+	self._TopPate:UpdateName(true)
+	local titleStr = self:GetTitle()
+	if titleStr ~= "" then
+		self._TopPate:OnTitleNameChange(true, titleStr)
+	end
+
+	self._IsHideTopPate = true
 
 	local percent = 0
 	if self._InfoData._MaxStamina > 0 then
@@ -68,10 +77,8 @@ def.override().OnPateCreate = function(self)
 		self._TopPate:OnStaChange(percent)
 	end
 
-	self._IsInitialHideTopPate=true
-	self._TopPate:MarkAsValid(false)
-
 	self:OnQuestStatusChange()
+	self._IsHideTopPate = false
 end
 
 def.override("table").SetDir = function (self, dir)
@@ -114,7 +121,9 @@ def.override("boolean").OnBattleTopChange = function(self, isShow)
 	--warn("OnBattleTopChange "..tostring(isShow))
 
 	if self._TopPate~=nil then
-		if isShow then
+		isShow = isShow and self:IsVisible()
+
+		if isShow and (not self._IsHideTopPate) then
 			self._TopPate:MarkAsValid(true)
 		end
 
@@ -122,6 +131,8 @@ def.override("boolean").OnBattleTopChange = function(self, isShow)
 
 		if isShow then
 			if self._TopPate == nil then return end
+
+			--[[
 			if self._MonsterTemplate.MonsterQuality == EnumDef.MonsterQuality.BEHEMOTH or
 			   self._MonsterTemplate.MonsterQuality == EnumDef.MonsterQuality.LEADER then
 				isShow = true
@@ -131,6 +142,7 @@ def.override("boolean").OnBattleTopChange = function(self, isShow)
 			if CQuest.Instance():IsMyKillTarget(self:GetTemplateId()) then 
 				isShow = true
 			end
+			]]
 
 			if isShow then
 				self._TopPate:SetHPLineIsShow(true,EnumDef.HPColorType.Red)
@@ -193,18 +205,14 @@ def.method("number").OnDissolved = function(self, duration)
 
 	-- 应需求写死
 	CVisualEffectMan.DissolveDie(self, duration, param.r, param.g, param.b) 
-	-- 隐藏掉model
-	local function DissolvedCallback(self)
-		if self == nil then return end
-		self._DissolveDeathTimer = 0
-		local model = self:GetCurModel()
-		if model and model._GameObject then
-			model._GameObject:SetActive(false)
-		end		
-	end
-
+	
 	self._DissolveDeathTimer = self:AddTimer(duration, true, function()
-        	DissolvedCallback(self)
+        	if self:IsReleased() then return end
+			self._DissolveDeathTimer = 0
+			local model = self:GetCurModel()
+			if model and model._GameObject then
+				model._GameObject:SetActive(false)
+			end
     	end)	
 end
 
@@ -365,9 +373,11 @@ def.override("number", "number", "number", "boolean").OnDie = function (self, ki
 	-- 延迟3 + ANIMATION 时间 做溶解销毁
 	self:DissolveSelf(3)
 	-- 怪物NPC死亡后 头部信息消失，
-    if self._TopPate ~= nil then 
-        self._TopPate:SetVisible(false)
-    end
+	if self._TopPate ~= nil then
+		self._TopPate:SetVisible(false)
+		self._IsHideTopPate = true
+		self._TopPate:MarkAsValid(false)
+	end
 
 	local go = self:GetGameObject()
 	if not IsNil(go) then
@@ -396,10 +406,9 @@ def.override().OnQuestStatusChange = function (self)
 
 		if self._CurLogoType ~= curLogoType then
 	    		self._TopPate:OnLogoChange(curLogoType)
-	    		self:OnBattleTopChange(not self._IsInitialHideTopPate)
+	    		self:OnBattleTopChange(true)
 		end
 	end
-	self._IsInitialHideTopPate = false
 end
 
 def.override("boolean", "number", "number", "number", "table").UpdateState = function(self, add, state_id, duration, originId, info)
@@ -489,7 +498,7 @@ def.override("=>", "string").GetRelationWithHost = function(self)  -- 仇恨列�
 	local CTeamMan = require "Team.CTeamMan"
 	local hostPlayerID = game._HostPlayer._ID
 	local TeamList = CTeamMan.Instance():GetMemberList()
-	if self._InfoData._CreaterId > 0 then
+	if self._InfoData ~= nil and self._InfoData._CreaterId > 0 then
 		if((TeamList ~= nil) and (table.nums(TeamList) > 0)) then
 			for i,teamMemeber in pairs(TeamList) do 
 				if teamMemeber ~= nil then
@@ -512,9 +521,8 @@ def.override("=>", "string").GetRelationWithHost = function(self)  -- 仇恨列�
     return relation
 end
 
-
--- 
-def.override().Release = function (self)	
+def.override().Release = function (self)
+	--warn("CMonster Release " .. self._ID)	
 	if self._DissolveDeathTimer ~= 0 then
 		self:RemoveTimer(self._DissolveDeathTimer)
 		self._DissolveDeathTimer = 0		

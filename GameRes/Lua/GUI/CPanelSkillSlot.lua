@@ -5,7 +5,7 @@ local CElementData = require "Data.CElementData"
 local CElementSkill = require "Data.CElementSkill"
 local SkillEnergyType = require "PB.Template".Skill.SkillEnergyType
 local SkillCategory = require "PB.Template".Skill.SkillCategory
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local CQuestAutoMan = require "Quest.CQuestAutoMan"
 local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
 local CHUDShortcutComp = require "GUI.Component.CHUDShortcutComp"
@@ -92,7 +92,7 @@ local function OnNotifyFunctionEvent(sender, event)
 			end
 		elseif event.FunID == NEW_ROLE_UNLOCKED then
 			instance:UpdateTiroState(true)	
-			instance:UpdateSkillLockState()
+			instance:UpdateSkillLockState(0)
 		elseif event.FunID == SkillFuncId or event.FunID == RuneFuncId or event.FunID == MasteryFuncId then  -- 讨厌的魔数！！！！
 		    local CSkillUtil = require "Skill.CSkillUtil"
 		    CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Skill, CSkillUtil.IsSkillRuneMasteryCanLvUp()) 
@@ -105,18 +105,21 @@ local function OnPackageChange(sender, event)
 end
 
 local function OnGainNewSkill(sender, event)
-	 if instance._TransformSkillsEnable then
+	local id = event.SkillId
+	 if instance._TransformSkillsEnable and id ~= -1 then
 		return
 	end
 
-	instance:UpdateSkillLockState()
+	instance:UpdateSkillLockState(id)
 
 	local hp = game._HostPlayer
-	local lct = hp:GetSkillLearnConditionTemp(event.SkillId)
-	if lct ~= nil then
-		local curSkillSlotInfo = instance._SkillSlotInfo[lct.MainUIPos]
-		if curSkillSlotInfo ~= nil then
-			GameUtil.PlayUISfx(PATH.UIFX_SkillNewGot, curSkillSlotInfo.GameObject, instance._Panel, 3)
+	if id ~= -1 then
+		local lct = hp:GetSkillLearnConditionTemp(event.SkillId)
+		if lct ~= nil then
+			local curSkillSlotInfo = instance._SkillSlotInfo[lct.MainUIPos]
+			if curSkillSlotInfo ~= nil then
+				GameUtil.PlayUISfx(PATH.UIFX_SkillNewGot, curSkillSlotInfo.GameObject, instance._Panel, 3)
+			end
 		end
 	end
 end
@@ -192,14 +195,14 @@ def.override('dynamic').OnData = function(self, data)
 	self:BuildSkillSlotInfo()
 	local isUnlock = game._CFunctionMan:IsUnlockByFunTid(NEW_ROLE_UNLOCKED)
 	self:UpdateTiroState(isUnlock)
-	self:UpdateSkillLockState()
+	self:UpdateSkillLockState(0)
 	self:UpdateTransformSkill()
 	self:UpdateSkillCDInfo()
 	self:UpdateSkillEnableState()  -- 释放条件不满足，置灰
 	self:UpdateCriticalAttckAvailableGfx()
-
 	self._DrugUseComp:UpdateCDInfo()
 	self._DrugUseComp:Update()
+	self._DrugUseComp:UpdateDrugForbiddenState()
 	self:UpdateAutoFightState()
 
 	do
@@ -283,36 +286,44 @@ def.method().BuildSkillSlotInfo = function(self)
 	end
 end
 
-def.method().UpdateSkillLockState = function(self)
+def.method("number").UpdateSkillLockState = function(self, curSkillId)
 	local hp = game._HostPlayer
+	
+	local updateAll = (curSkillId <= 0)
+	if updateAll then
+		self._ComboSkillInfo = {}
+		for i, v in pairs(self._SkillSlotInfo) do
+			v.ActiveComboSkill = nil
+			hp:UpdateValidSkillInfo(i, 0)
+		end
+	end
+
 	local skills = hp._UserSkillMap
 	for k,v in ipairs(skills) do
 		local skillId = v.SkillId
-		local lct = hp:GetSkillLearnConditionTemp(skillId)
-		if lct ~= nil then
-			if lct.ComboStateId <= 0 and lct.ComboSkillId == 0 then -- 非连击技能
-				local slotInfo = self._SkillSlotInfo[lct.MainUIPos]
-				if slotInfo ~= nil then
-					slotInfo.SkillTemplate = v.Skill
-					local imgLock = slotInfo.UIObjects.ImgLock
-					if imgLock ~= nil then
-						imgLock:SetActive(false)
+		if skillId == curSkillId or updateAll then   -- curSkillId <= 0 全刷一遍
+			local lct = hp:GetSkillLearnConditionTemp(skillId)
+			if lct ~= nil then
+				if lct.ComboStateId <= 0 and lct.ComboSkillId == 0 then -- 非连击技能
+					local slotInfo = self._SkillSlotInfo[lct.MainUIPos]
+					if slotInfo ~= nil then
+						slotInfo.SkillTemplate = v.Skill
+						local imgLock = slotInfo.UIObjects.ImgLock
+						if imgLock ~= nil then
+							imgLock:SetActive(false)
+						end
+						local labLockLevel = slotInfo.UIObjects.LabLockLevel
+						if labLockLevel ~= nil then
+							labLockLevel:SetActive(false)
+						end
+						change_button_icon(slotInfo, slotInfo.SkillTemplate.IconName)
+						hp:UpdateValidSkillInfo(lct.MainUIPos, v.Skill.Id)				
 					end
-					local labLockLevel = slotInfo.UIObjects.LabLockLevel
-					if labLockLevel ~= nil then
-						labLockLevel:SetActive(false)
+				else  -- 连击技能
+					
+					if self._ComboSkillInfo[skillId] == nil then
+						self._ComboSkillInfo[skillId] = {Pos = lct.MainUIPos, PreStateID = lct.ComboStateId, PreSkillID = lct.ComboSkillId, Duration = lct.ComboDuration, SkillTemplate = v.Skill, IsOn = false}								
 					end
-
-					change_button_icon(slotInfo, slotInfo.SkillTemplate.IconName)
-					hp:UpdateValidSkillInfo(lct.MainUIPos, v.Skill.Id)				
-				end
-			else  -- 连击技能
-				if self._ComboSkillInfo == nil then
-					self._ComboSkillInfo = {}
-				end
-
-				if self._ComboSkillInfo[skillId] == nil then
-					self._ComboSkillInfo[skillId] = {Pos = lct.MainUIPos, PreStateID = lct.ComboStateId, PreSkillID = lct.ComboSkillId, Duration = lct.ComboDuration, SkillTemplate = v.Skill, IsOn = false}								
 				end
 			end
 		end
@@ -324,12 +335,20 @@ def.method("boolean").UpdateTiroState = function(self, isUnlock)
 	if not self:IsShow() then return end
 
 	for i = 2, CriticalAttckIdx do
-		if self._SkillSlotInfo[i] and self._SkillSlotInfo[i].UIObjects then
-			local slot_obj = self._SkillSlotInfo[i].UIObjects
+		local skillSlotInfo = self._SkillSlotInfo[i]
+		if skillSlotInfo and skillSlotInfo.UIObjects then
+			skillSlotInfo.SkillTemplate = nil
+			local slot_obj = skillSlotInfo.UIObjects
 			local pos = isUnlock and Vector3.New(0, 9, 0) or Vector3.zero			
 			slot_obj.ImgLock.localPosition = pos
 			slot_obj.ImgLock:SetActive(true)
 			slot_obj.LabLockLevel:SetActive(isUnlock)
+			slot_obj.ImgSkillIcon:SetActive(false)
+			slot_obj.ImgCoolDown:SetActive(false)
+			slot_obj.LabCDTime:SetActive(false)
+			slot_obj.BlackCoolDown:SetActive(false)
+			GameUtil.StopUISfx(PATH.UIFX_CriticalAttckAvailable, skillSlotInfo.GameObject)
+			GameUtil.StopUISfx(PATH.UIFX_ConnectedSkillAttck, skillSlotInfo.GameObject)
 		end
 	end	
 end
@@ -445,14 +464,13 @@ def.method().UpdateSkillCDInfo = function(self)
 						local elapsed, max = CDHdl:GetCurInfo(cdid)
 						local function cb()
 							-- 暂时屏蔽跳跃
-							if i ~= JumpSkillIdx then							
+							if i ~= JumpSkillIdx and not self._TransformSkillsEnable then						
 								GameUtil.PlayUISfx(PATH.UIFX_SkillCoolDown, v.GameObject, self._Panel, 2)
 								if black then black:SetActive(false) end										
 							else
 								GUI.SetAlpha(v.UIObjects.ImgSkillIcon, 255)							
-							end							
+							end						
 						end
-
 						GameUtil.AddCooldownComponent(cd_image, elapsed, max, cd_time, cb, false)
 						if i == JumpSkillIdx then
 							GameUtil.AddCooldownComponent(charge_img, elapsed, max, cd_time, nil, false)
@@ -513,6 +531,7 @@ local function ClearComboSkill(self, comboSkillInfo)
 	if curInfo == nil or curInfo.SkillTemplate == nil then 
 		return 
 	end
+	GameUtil.StopUISfx(PATH.UIFX_ConnectedSkillAttck, curInfo.GameObject)
 
 	local hp = game._HostPlayer
 	-- 变身技能中 不再清qte技能icon
@@ -615,7 +634,6 @@ def.method().UpdateTransformSkill = function(self)
 	local hp = game._HostPlayer
 	local idList = hp:GetTransformSkills()
 	local changed = (idList ~= nil and #idList > 0)
-
 	if not changed and not self._TransformSkillsEnable then return end
 
 	local isUnlock = game._CFunctionMan:IsUnlockByFunTid(BTN_JUMP_UNLOCKED)
@@ -639,7 +657,8 @@ def.method().UpdateTransformSkill = function(self)
 			else
 				GUITools.SetUIActive(curInfo.GameObject, false)
 			end	 
-		end		
+		end	
+		self:UpdateSkillCDInfo()
 	else  -- 状态结束，清除连击技能
 		for i, v in pairs(self._SkillSlotInfo) do
 			if v.SkillTemplate ~= nil then
@@ -648,7 +667,7 @@ def.method().UpdateTransformSkill = function(self)
 			end
 			GUITools.SetUIActive(v.GameObject, true)
 		end
-	 	self:UpdateSkillLockState()
+	 	self:UpdateSkillLockState(0)
 	 	self:UpdateSkillCDInfo()
 	 	TriggerAllPreStateComboSkill(self)
 	end
@@ -670,9 +689,7 @@ def.method("number").OnSkillPerformed = function(self, skillId)
 	local combos = self._ComboSkillInfo
 	for k,v in pairs(combos) do
 		if v.IsOn and (skillId == v.SkillTemplate.Id or clear_qte_state) and v.PreSkillID ~= 0 then
-			ClearComboSkill(self, v)
-			local curInfo = self._SkillSlotInfo[v.Pos]
-			GameUtil.StopUISfx(PATH.UIFX_ConnectedSkillAttck, curInfo.GameObject)			
+			ClearComboSkill(self, v)			
 		end
 	end
 end
@@ -853,7 +870,6 @@ local function CastSkill(self, index)
 		hp._SkillHdl:Roll(pos)
 		return
 	end
-
 	hp._SkillHdl:CastSkill(skillTemp.Id, false)
 end
 

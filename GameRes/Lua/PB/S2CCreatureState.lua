@@ -1,6 +1,8 @@
 local PBHelper = require "Network.PBHelper"
 
 local function OnS2CCreatureState(sender, protocol)
+	if game._IsLoggingOut then return end
+
 	local object = game._CurWorld:FindObject(protocol.EntityId) 
 	if object == nil then return end
 

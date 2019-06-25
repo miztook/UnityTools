@@ -102,15 +102,17 @@ def.override().CreatePate = function (self)
 	local pate = CItemTopPate.new()
 	self._TopPate = pate
 
-	local callback = function()
-		self:OnPateCreate()
-	end
+--	local callback = function()
+--		self:OnPateCreate()
+--	end
 
-	pate:Create(self, callback)
+	pate:Init(self, nil, false)
+	self:OnPateCreate()
 end
 
 def.override().OnPateCreate = function (self)
 	CEntity.OnPateCreate(self)
+	self._TopPate:MarkAsValid(true)
 	self:OnQuestStatusChange()
 end
 

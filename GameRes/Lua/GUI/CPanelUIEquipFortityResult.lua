@@ -49,8 +49,8 @@ end
 -- 播放背景特效
 def.method().PlayGfxBg = function(self)
     local root = self._GfxObjectGroup
-    self:AddEvt_PlayFx(gfxGroupName, self._ShowGfx and 1.8 or 0, root.GfxBg1, root.GfxBgHook1, root.GfxBgHook1, -1, -1)
-    self:AddEvt_PlayFx(gfxGroupName, self._ShowGfx and 1.8 or 0, root.GfxBg2, root.GfxBgHook2, root.GfxBgHook2, -1, 1)
+    self:AddEvt_PlayFx(gfxGroupName, self._ShowGfx and 1.8 or 0, root.GfxBg1, root.GfxBgHook1, root.GfxBgHook1, -1, self._Succees and 2 or -1)
+    self:AddEvt_PlayFx(gfxGroupName, self._ShowGfx and 1.8 or 0, root.GfxBg2, root.GfxBgHook2, root.GfxBgHook2, -1, self._Succees and 2 or -1)
 end
 -- 关闭背景特效
 def.method().StopGfxBg = function(self)
@@ -247,14 +247,17 @@ def.method().UpdateUI = function(self)
         curVal = baseVal + math.max(fixedIncVal, curLv)
     end
 
-    GUI.SetText(AttributeInfo.New, GUITools.FormatNumber(nextVal))
+    local processStatus = curLv == newLv and EnumDef.EquipProcessStatus.None or
+                          ((curLv < newLv) and EnumDef.EquipProcessStatus.Success or EnumDef.EquipProcessStatus.Failed)
+
+    GUI.SetText(AttributeInfo.New, RichTextTools.GetEquipProcessColorText(GUITools.FormatNumber(nextVal), processStatus))
     GUI.SetText(AttributeInfo.Old, GUITools.FormatNumber(curVal))
 
     local AttrChangeInfo = self._PanelObject.AttrChangeInfo
-    GUI.SetText(AttrChangeInfo.New, string.format(StringTable.Get(10973), newLv))
+    GUI.SetText(AttrChangeInfo.New, RichTextTools.GetEquipProcessColorText(string.format(StringTable.Get(10973), newLv), processStatus))
     GUI.SetText(AttrChangeInfo.Old, string.format(StringTable.Get(10973), curLv))
 
-    local bActive = self._Restitution and curLv > newLv
+    local bActive = self._Restitution~=nil and curLv > newLv
     -- 返还逻辑
     root.Lab_Restitution:SetActive( bActive )
     if bActive then

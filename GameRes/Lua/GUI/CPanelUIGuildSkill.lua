@@ -81,11 +81,11 @@ def.override().OnCreate = function(self)
 	self:OnInitUIObject()
 	self:OnInit()
 	CGame.EventManager:addHandler(NotifyGuildEvent, OnNotifyGuildEvent)
-	self._HelpUrlType = HelpPageUrlType.Guild_Skill
 end
 
 -- 当数据
 def.override("dynamic").OnData = function(self, data)
+	self._HelpUrlType = HelpPageUrlType.Guild_Skill
 end
 
 -- 当摧毁
@@ -101,6 +101,7 @@ end
 -- Button点击
 def.override("string").OnClick = function(self, id)
 	CPanelBase.OnClick(self,id)
+	if self._Frame_Money:OnClick(id) then return end
 	if id == "Btn_Back" then
 		game._GUIMan:CloseByScript(self)
     elseif id == "Btn_Exit" then

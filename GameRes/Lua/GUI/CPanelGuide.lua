@@ -97,9 +97,9 @@ def.method().ShowStep = function(self)
 		
 		local maskTransform = self._SmallStepList[self._CurSmallStep]:FindChild("BlackMaskTransform")
 		if self._CurBigStepConfig.Steps[self._CurSmallStep].IsHighLight ~= nil and self._CurBigStepConfig.Steps[self._CurSmallStep].IsHighLight then
-			GameUtil.SetMaskTrs(true,self._BlackBG,maskTransform)
+			GameUtil.SetMaskTrs(true,self._BlackBG,maskTransform,false)
 		else
-			GameUtil.SetMaskTrs(false,self._BlackBG,maskTransform)
+			GameUtil.SetMaskTrs(false,self._BlackBG,maskTransform,false)
 		end
 
 		local effect = self._SmallStepList[self._CurSmallStep]:FindChild("Effect")

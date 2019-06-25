@@ -1,14 +1,17 @@
 local cfg = {
     Lab_ElementName = -153902155,
+    View_Dimension = -787266484,
+    View = 2666181,
+    Content = -1678783399,
     Lab_ElementNameLeft = 1483003228,
-    Img_ElementIcon = 674478809,
     Lab_ElementDes = 964857256,
-    Img_Back = -631611357,
     Btn_Back = -2123386582,
-    Btn_Next = -2123024586,
-    Img_Next = -631249361,
-    Btn_Last = -2123088167,
-    Img_Last = -631312942,
+    Img_Back = -631611357,
+    Frame_Lock = 1721762045,
+    Lab_ElementNameLock = 1483012736,
+    Lab_ElementNameLeftLock = 1160183975,
+    Lab_ElementDesLock = 1960293107,
+    Frame_UnLock = 1306976950,
 }
  
 return cfg

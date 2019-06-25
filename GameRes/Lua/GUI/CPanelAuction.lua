@@ -6,6 +6,7 @@ local CElementData = require "Data.CElementData"
 local ItemLockEvent = require "Events.ItemLockEvent"
 local EItemType = require "PB.Template".Item.EItemType
 local EResourceType = require "PB.data".EResourceType
+local ServerMessageBase = require "PB.data".ServerMessageBase
 local Gender = require "PB.data".Gender
 local CPanelAuction = Lplus.Extend(CPanelBase, 'CPanelAuction')
 local CFrameCurrency = require "GUI.CFrameCurrency"
@@ -65,7 +66,8 @@ def.field("number")._TotalPrice = 0
 def.field("number")._NowFirstItemID = -1             --第一层item的ID
 def.field("number")._UpdatePriceTimeID = -1          --刷新的Timer id
 -------------------------------------------------
-def.field("table")._TimerID = BlankTable
+def.field("table")._TimerID = BlankTable            -- 售卖和公会拍卖商使用的timer
+def.field("table")._ItemShowTimerID = BlankTable    -- 交易所售卖中的物品时间显示的timer
 def.static('=>', CPanelAuction).Instance = function ()
 	if not instance then
         instance = CPanelAuction()
@@ -110,6 +112,7 @@ def.override().OnCreate = function(self)
     self._PanelObject._Rdo_ShowCanUse = self:GetUIObject("Rdo_ShowCanUse")
     self._PanelObject._Img_ExchangeNoItems = self:GetUIObject("Img_ExchangeNoItems")
     self._PanelObject._ARdo_3 = self._PanelObject._Rdo_TagGroup:FindChild("ARdo_3")
+    self._PanelObject._Btn_GoToFirst = self:GetUIObject("Btn_GoToFirst")
     self._Btn_Buy = CCommonBtn.new(self:GetUIObject("Btn_Buy"), nil)
     self._Btn_Refresh = CCommonBtn.new(self:GetUIObject("Btn_Rush"), nil)
     local countChangeCb = function(count)
@@ -117,13 +120,22 @@ def.override().OnCreate = function(self)
         self:UpdateBuyPanel()
     end
     self._Num_Input = CCommonNumInput.new(self:GetUIObject("Frame_NumInput"), countChangeCb, 1, 1)
-    self._HelpUrlType = HelpPageUrlType.Auction
     CGame.EventManager:addHandler(ItemLockEvent, OnItemLockEvent)
 end
 
 def.override("dynamic").OnData = function(self, data)
+    self._HelpUrlType = HelpPageUrlType.Auction
+    if game._CFunctionMan:IsForbidFun(45) then
+        MsgBox.ShowSystemMsgBox(ServerMessageBase.TradeDisenable, nil, nil, MsgBoxType.MBBT_OK)
+        game._GUIMan:CloseByScript(self)
+        return
+    end
+    if game._HostPlayer:IsInGlobalZone() then
+        game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+        game._GUIMan:CloseByScript(self)
+        return
+    end
     self:InitEnumValues()
-    game._CAuctionUtil:GetAllItemInfo()
     self._JustOpenTab = true
     self._CurrentUpToggle = self._UpToggleType.BUY                                  
     self:SetCurrentPageIndex(data)
@@ -286,7 +298,7 @@ def.override('string').OnClick = function(self, id)
             if val then
                 if self:BuyGoodCount(self._BuyItemData.ItemID, self._BuyItemNumber) then
                     if game._HostPlayer:HasEnoughSpace(self._BuyItemData.ItemID,self._BuyItemData.Item.IsBind, self._BuyItemNumber) then
-                        game._CAuctionUtil:SendC2SMarketItemBuy(self._CurrentRightToggle,self._BuyItemData.ItemID,self._BuyItemData.Price,self._BuyItemNumber)
+                        game._CAuctionUtil:SendC2SMarketItemBuy(self._CurrentRightToggle,self._BuyItemData.ItemPos,self._BuyItemNumber)
                     else
                         game._GUIMan:ShowTipText(StringTable.Get(22308), true)
                     end
@@ -300,6 +312,9 @@ def.override('string').OnClick = function(self, id)
         self:RushItemList()
     elseif id == 'Btn_Sell' then
         self:BToggleChange(self._UpToggleType.SELL)
+    elseif id == "Btn_GoToFirst" then
+        self:UpdataBuyListItemDataFirst(self._FromServerData,-1)
+        game._CAuctionUtil:SendC2SMarketCellList(self._CurrentRightToggle,self._CurrentSelectBigTabId)
     elseif id == 'Btn_Back' then
         if self._CurrentUpToggle == self._UpToggleType.BUY then
             game._GUIMan:CloseByScript(self)
@@ -323,7 +338,7 @@ def.override('string').OnClick = function(self, id)
         if self._CurrentRightToggle == self._RightToggleType.TREASURE then
             local key = string.sub(id,-1) + 0
             self._ClientData = self:SortAscending(self._ClientData ,key)
-            local itemGuidObj = self:GetUIObject("List_Item_Guid3"):GetComponent(ClassType.GNewListLoop)
+            local itemGuidObj = self:GetUIObject("List_Item_Guid3"):GetComponent(ClassType.GNewList)
             itemGuidObj:SetItemCount(#self._ClientData)
         end
     elseif id == "Btn_Close" then
@@ -531,6 +546,7 @@ def.method ("table").UpdataSellListItemData = function (self,data)
         labNothingSell:SetActive(false)
     end 
     self:RemoveGlobalTimer()
+    self:RemoveAllItemShowTimer()
     if self._SellItemCount == 0 then
         itemGuidObj:SetItemCount(0)
     else
@@ -630,6 +646,7 @@ def.method("table","number").UpdataBuyListItemDataFirst = function (self,data,re
         self._ClientData = data
     end
     self._PanelObject._Frame_DropDown:SetActive(false)
+    self._PanelObject._Btn_GoToFirst:SetActive(false)
     local itemGuidObj = nil
     if self._CurrentRightToggle == self._RightToggleType.EXCHANGE or self._CurrentRightToggle == self._RightToggleType.TREASURE then      
         self._PanelObject._Frame_Right:SetActive(true)
@@ -678,6 +695,7 @@ def.method("table","number").UpdataBuyListItemDataFirst = function (self,data,re
         self._ClientData = self:SortAscending(self._ClientData,4)
         --self:AddTickUpdateTimer()
     end
+    self:RemoveAllItemShowTimer()
     if #self._ClientData <=0 then
         itemGuidObj:SetActive(false)
         self._PanelObject._Img_ExchangeNoItems:SetActive(true)
@@ -695,8 +713,11 @@ def.method("table").UpdataBuyListItemDataSecond = function(self,data)
         self._PanelObject._ViewItem0:SetActive(false)
         self._PanelObject._ViewItem:SetActive(false)
         self._PanelObject._ViewItem1:SetActive(true)
+        self._PanelObject._Btn_GoToFirst:SetActive(true)
         itemListGuid = self:GetUIObject("List_Item_Guid2"):GetComponent(ClassType.GNewListLoop)
         self:ResetBuyDataAndPanel()
+        self:RemoveAllItemShowTimer()
+        self._ClientData = self:SortForExchange(data)
         itemListGuid :SetItemCount(#self._ClientData)
         if #self._ClientData > 0 then
             local item = itemListGuid:GetItem(0)
@@ -709,7 +730,7 @@ def.method("table").UpdataBuyListItemDataSecond = function(self,data)
         self._PanelObject._ViewItem1:SetActive(false)
         self._PanelObject._Frame_DropDown:SetActive(true)
         self._ClientData = self:SortAscending(self._ClientData ,self._CurrentSortType)
-        itemListGuid = self:GetUIObject("List_Item_Guid3"):GetComponent(ClassType.GNewListLoop)
+        itemListGuid = self:GetUIObject("List_Item_Guid3"):GetComponent(ClassType.GNewList)
         itemListGuid :SetItemCount(#self._ClientData)
     end  
 end
@@ -780,16 +801,21 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
         end
         local item_temp = CElementData.GetItemTemplate(item_data.ItemID)
         if self._ClientData[index + 1].Item ~= nil and item_temp.ItemType == EItemType.Equipment then
-            CItemTipMan.ShowChatItemTips(item_data.Item, TipsPopFrom.CHAT_PANEL)
+            local itemData = CIvtrItem.CreateVirtualItem(item_data.Item)
+            if itemData:IsEquip() then 
+				itemData:ShowTipWithFuncBtns(TipsPopFrom.OTHER_PALYER,TipPosition.DEFAULT_POSITION,button_obj,button_obj)
+			else
+				itemData:ShowTipWithFuncBtns(TipsPopFrom.OTHER_PALYER,TipPosition.DEFAULT_POSITION,button_obj,button_obj)
+			end
         else
             CItemTipMan.ShowItemTips(item_data.ItemID, TipsPopFrom.OTHER_PANEL, alinObj, TipPosition.FIX_POSITION)
         end
     --物品下架
     elseif id_btn == "Btn_Down" then
         local callback = function (value)
-            if value then 
-                if game._HostPlayer:HasEnoughSpace(self._ClientData[index + 1].ItemID,self._ClientData[index + 1].Item.IsBind, 1) then
---	                game._GUIMan:ShowTipText(StringTable.Get(20404), true)
+            if value then
+                local itemDate = self._ClientData[index + 1]
+                if itemDate ~= nil and game._HostPlayer:HasEnoughSpace(itemDate.ItemID, itemDate.Item.IsBind, 1) then
                     game._CAuctionUtil:SendC2SMarketItemTakeOut(self._CurrentRightToggle,self._ClientData[index + 1].ItemPos)
                 else
                     game._GUIMan:ShowTipText(StringTable.Get(20436), true)
@@ -815,17 +841,23 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
 end
 
 def.method('userdata','number').OnInitExchangeOrTreasureItemFirst = function (self,item,index)
-    local uiTemplate = item:GetComponent(ClassType.UITemplate) 
+    local uiTemplate = item:GetComponent(ClassType.UITemplate)
     local number = uiTemplate:GetControl(0)
     local lab_Level = uiTemplate:GetControl(1)
     local lab_Name = uiTemplate:GetControl(2)
     local item_icon = uiTemplate:GetControl(3)
-    if self._IsShowCanUse and self._CurrentRightToggle == self._RightToggleType.EXCHANGE then
-        IconTools.InitItemIconNew(item_icon, self._ClientData[index + 1].ItemID, nil, EItemLimitCheck.AllCheck)
-    else 
-        IconTools.InitItemIconNew(item_icon, self._ClientData[index + 1].ItemID, nil, EItemLimitCheck.AllCheck)
-    end 
+    IconTools.InitItemIconNew(item_icon, self._ClientData[index + 1].ItemID, nil, EItemLimitCheck.AllCheck)
     local itemTemp = CElementData.GetItemTemplate(self._ClientData[index + 1].ItemID)
+--    local market_item_temp = CElementData.GetTemplate("MarketItem", self._ClientData[index + 1].ProductId)
+--    if market_item_temp ~= nil and market_item_temp.MaxCellNum > 0 then
+--        if market_item_temp.MaxCellNum < self._ClientData[index + 1].ItemNum then
+--            GUI.SetText(number,GUITools.FormatNumber(market_item_temp.MaxCellNum, false))
+--        else
+--            GUI.SetText(number,tostring(self._ClientData[index + 1].ItemNum))
+--        end
+--    else
+--        GUI.SetText(number,tostring(self._ClientData[index + 1].ItemNum))
+--    end
     GUI.SetText(number,tostring(self._ClientData[index + 1].ItemNum))
     if self._CurrentRightToggle == self._RightToggleType.EXCHANGE then
         GUI.SetText(lab_Name, RichTextTools.GetItemNameRichText(self._ClientData[index + 1].ItemID, 1, false))
@@ -842,22 +874,33 @@ end
 
 def.method('userdata','number').OnInitExchangeItemSecond = function (self,item,index)
     local uiTemplate = item:GetComponent(ClassType.UITemplate)
+    local lab_time = uiTemplate:GetControl(0)
     local labPriceNumber = uiTemplate:GetControl(1)
     local item_icon = uiTemplate:GetControl(4)
     local lab_item_name = uiTemplate:GetControl(5)
     local lab_level = uiTemplate:GetControl(6)
+    local lab_number = uiTemplate:GetControl(7)
     local item_temp = CElementData.GetItemTemplate(self._ClientData[index + 1].ItemID)
     IconTools.InitItemIconNew(item_icon, self._ClientData[index + 1].ItemID, nil, EItemLimitCheck.AllCheck)
     GUI.SetText(labPriceNumber, GUITools.FormatMoney(self._ClientData[index + 1].Price))
     GUI.SetText(lab_level, string.format(StringTable.Get(10657), item_temp.InitLevel))
+    GUI.SetText(lab_number, tostring(self._ClientData[index + 1].ItemNum))
     lab_level:SetActive(item_temp.InitLevel > 0)
-    local number = uiTemplate:GetControl(0)
+--    local number = uiTemplate:GetControl(0)
     GUITools.SetTokenMoneyIcon(uiTemplate:GetControl(2), self._TemplateData.MoneyType)
-    GUI.SetText(number,tostring(self._ClientData[index + 1].ItemNum))
+--    GUI.SetText(number,tostring(self._ClientData[index + 1].ItemNum))
     --local itemTemp = CElementData.GetItemTemplate(self._ClientData[index + 1].ItemID)
     if lab_item_name ~= nil then
         GUI.SetText(lab_item_name, RichTextTools.GetItemNameRichText(self._ClientData[index + 1].ItemID, 1, false))
     end
+    local start_time = self._ClientData[index + 1].PutawayTime
+    local specialId = self._ItemDurationSpecialId[self._ClientData[index + 1].Duration] 
+    local duration = tonumber(CElementData.GetSpecialIdTemplate(specialId).Value) *3600
+    local callback = function()
+        local time = duration - (GameUtil.GetServerTime() / 1000  - start_time)
+        GUI.SetText(lab_time, GUITools.FormatTimeFromSecondsToZero(true, time))
+    end
+    self._ItemShowTimerID[index] = _G.AddGlobalTimer(1, false, callback)
 end
 
 def.method('userdata','number').OnInitTreasureSecondOrAuctionFirst = function (self,item,index)
@@ -886,14 +929,14 @@ def.method('userdata','number').OnInitTreasureSecondOrAuctionFirst = function (s
         GUI.SetText(lab_Lv,tostring(itemData.MinLevelLimit))
     end
     --设置数量
-    if self._ClientData[index + 1].Item.Count > 0 then
+    if self._ClientData[index + 1].Item ~= nil and self._ClientData[index + 1].Item.Count > 0 then
         lab_Count:SetActive(true)
         GUI.SetText(lab_Count,tostring(self._ClientData[index + 1].Item.Count))
     else
         lab_Count:SetActive(false)
     end
     --设置一口价
-    if self._ClientData[index + 1].FixedPrice == 0 then
+    if self._ClientData[index + 1].FixedPrice == 0 or self._ClientData[index + 1].FixedPrice == nil then
         button_obj2:SetActive(false)
     else 
         button_obj2 :SetActive(true)
@@ -904,7 +947,7 @@ def.method('userdata','number').OnInitTreasureSecondOrAuctionFirst = function (s
     if self._ClientData[index+1].OwnerId == game._HostPlayer._ID then
         GameUtil.SetButtonInteractable(button_obj1, false)
         GUITools.SetBtnGray(button_obj1, true)
-        GUI.SetText(basePrice,GUITools.FormatMoney(self._ClientData[index + 1].StartPrice))
+        GUI.SetText(basePrice,GUITools.FormatMoney(self._ClientData[index + 1].StartPrice or self._ClientData[index + 1].Price))
         GUITools.SetGroupImg(button_obj1:FindChild("Image"), 1)
     else
         if self._ClientData[index + 1].Bidder == game._HostPlayer._ID then 
@@ -913,7 +956,7 @@ def.method('userdata','number').OnInitTreasureSecondOrAuctionFirst = function (s
             GUITools.SetGroupImg(button_obj1:FindChild("Image"), 1)
             GUI.SetText(basePrice,StringTable.Get(20425)..self._ClientData[index + 1].StartPrice)
         else 
-            GUI.SetText(basePrice,GUITools.FormatMoney(self._ClientData[index + 1].StartPrice))
+            GUI.SetText(basePrice,GUITools.FormatMoney(self._ClientData[index + 1].StartPrice or self._ClientData[index + 1].Price))
             GameUtil.SetButtonInteractable(button_obj1, true)
             GUITools.SetBtnGray(button_obj1, false)
             GUITools.SetGroupImg(button_obj1:FindChild("Image"), 0)
@@ -923,9 +966,19 @@ def.method('userdata','number').OnInitTreasureSecondOrAuctionFirst = function (s
     if self._ClientData[index + 1].Duration ~= nil and self._ClientData[index + 1].Duration > 0 then
         local time = 0
         if not self._IsOnClickSortButton  then
-            local specialId = self._ItemDurationSpecialId[self._ClientData[index + 1].Duration] 
-            local duration = tonumber(CElementData.GetSpecialIdTemplate(specialId).Value) *3600
-            time = duration - (GameUtil.GetServerTime() / 1000  - self._ClientData[index + 1].PutawayTime)
+            if self._CurrentRightToggle == self._RightToggleType.GUILDAUCTION then
+                local specialId = 242
+                local duration = tonumber(CElementData.GetSpecialIdTemplate(specialId).Value)
+                if duration then
+                    time = duration - (GameUtil.GetServerTime() / 1000  - self._ClientData[index + 1].PutawayTime)
+                else
+                    time = 0
+                end
+            else
+                local specialId = self._ItemDurationSpecialId[self._ClientData[index + 1].Duration] 
+                local duration = tonumber(CElementData.GetSpecialIdTemplate(specialId).Value) *3600
+                time = duration - (GameUtil.GetServerTime() / 1000  - self._ClientData[index + 1].PutawayTime)
+            end
         else
             time = self._ClientData[index + 1].RemainTime
         end
@@ -1071,7 +1124,8 @@ def.override("string", "number").OnDropDown = function(self, id, index)
     end
     self._CurrentSortType = index + 1
     self._ClientData = self:SortAscending(self._ClientData ,self._CurrentSortType)
-    local itemGuidObj = self:GetUIObject("List_Item_Guid3"):GetComponent(ClassType.GNewListLoop)
+    self:RemoveAllItemShowTimer()
+    local itemGuidObj = self:GetUIObject("List_Item_Guid3"):GetComponent(ClassType.GNewList)
     itemGuidObj:SetItemCount(#self._ClientData)
 end
 
@@ -1164,7 +1218,8 @@ def.method('userdata','number','number').OnClickTabListDeep2 = function(self,lis
             self._IsSuccessBuy = false
         elseif not self._JustOpenTab then
             if self._CurrentRightToggle ~= self._RightToggleType.GUILDAUCTION then
-                game._CAuctionUtil:GetSmallTabListData(self._CurrentRightToggle,self._CurrentSelectSmallTabId,-1)
+                --game._CAuctionUtil:GetSmallTabListData(self._CurrentRightToggle,self._CurrentSelectSmallTabId,-1)
+                game._CAuctionUtil:SendC2SMarketCellList(self._CurrentRightToggle,self._CurrentSelectBigTabId)
             else
                 game._CAuctionUtil:GetGuildSmallTabListData(self._CurrentRightToggle,self._CurrentSelectSmallTabId,-1)
             end
@@ -1219,6 +1274,53 @@ def.override("userdata", "userdata", "number", "number").OnTabListInitItem = fun
             GUI.SetText(item:FindChild("Lab_Text"),smallTabName)      
         end
     end
+end
+
+-- 针对交易所页签的商品特殊排序规则加的函数
+def.method("table", "=>", "table").SortForExchange = function(self, items)
+    local sort_func = function(item1, item2)
+        if item1.StartPrice ~= item2.StartPrice then
+            return item1.StartPrice < item2.StartPrice
+        else
+            if item1.RemainTime ~= item2.RemainTime then
+                return item1.RemainTime < item2.RemainTime
+            else
+                return false
+            end
+        end
+        return false
+    end
+    local itemDatas = {}
+    for i,v in ipairs(items) do
+        local itemData = CElementData.GetItemTemplate(v.ItemID)
+        itemDatas[i] = {}
+        itemDatas[i].InitQuality = itemData.InitQuality
+        itemDatas[i].InitLevel = itemData.InitLevel
+        itemDatas[i].Price = v.Price
+        itemDatas[i].StartPrice = v.StartPrice
+        itemDatas[i].FixedPrice = v.FixedPrice
+        itemDatas[i].PutawayTime = v.PutawayTime
+        itemDatas[i].ItemID = v.ItemID
+        itemDatas[i].ItemPos = v.ItemPos
+        itemDatas[i].Bidder = v.Bidder
+        itemDatas[i].OwnerId = v.OwnerId
+        itemDatas[i].Item = v.Item
+        itemDatas[i].ShareHolder = v.ShareHolder
+        itemDatas[i].ItemNum = v.ItemNum
+        --拍卖行的持续时间有待改善
+        if v.Duration and v.Duration > 0 then
+            local specialId = self._ItemDurationSpecialId[v.Duration] 
+            local duration = tonumber(CElementData.GetSpecialIdTemplate(specialId).Value) *3600
+            local remainTime = duration - (GameUtil.GetServerTime() / 1000  - v.PutawayTime)
+            itemDatas[i].RemainTime = remainTime
+            itemDatas[i].Duration = v.Duration
+        else
+            itemDatas[i].RemainTime = 0
+            itemDatas[i].Duration = 0
+        end
+    end
+    table.sort(itemDatas,sort_func)
+    return itemDatas
 end
 
 def.method("table","number","=>","table").SortAscending = function (self,items,key)
@@ -1278,8 +1380,16 @@ def.method("table","number","=>","table").SortAscending = function (self,items,k
     end
     items = itemDatas
     propertyName = ps[key]
-    table.sort(items, function(item1, item2) return item1.ItemPos > item2.ItemPos end)
-    table.sort(items,sort_func)
+    local sort_pos = function(item1, item2)
+        if item1.ItemPos ~= item2.ItemPos then
+            return item1.ItemPos > item2.ItemPos
+        else
+            return false
+        end
+        return false
+    end
+    table.sort(items, sort_pos)
+    table.sort(items, sort_func)
     return items
 end
 
@@ -1335,6 +1445,15 @@ def.method().RemoveGlobalTimer = function(self)
         _G.RemoveGlobalTimer(v)
         v = 0
     end
+    self._TimerID = {}
+end
+
+def.method().RemoveAllItemShowTimer = function(self)
+    for i,v in pairs(self._ItemShowTimerID) do
+        _G.RemoveGlobalTimer(v)
+        v = 0
+    end
+    self._ItemShowTimerID = {}
 end
 
 --添加可竞拍界面的竞拍价实时刷新的Timer
@@ -1363,6 +1482,7 @@ end
 def.override().OnHide = function(self)
     CPanelBase.OnHide(self)
     self:RemoveGlobalTimer()
+    self:RemoveAllItemShowTimer()
     self:RemoveTickUpdateTimer()
     self._CurrentSelectItemIndex = 0
     self._SellItemCount = 0

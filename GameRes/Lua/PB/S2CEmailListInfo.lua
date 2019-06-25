@@ -67,6 +67,7 @@ PBHelper.AddHandler("S2CEmailDrawReward", OnS2CEmailDrawReward)
 
 --批量领取邮件奖励
 local function OnS2CEmailBatchDrawReward(sender, msg)
+	--[[ 不判断协议是否处理成功
 	if msg.ResCode == 0 then
 		if #msg.EmailID == 0 then return end 
 		CEmailMan.Instance():GetEmailIDToBatchDrawReward(msg.EmailID)	
@@ -74,7 +75,13 @@ local function OnS2CEmailBatchDrawReward(sender, msg)
 		-- OnEmailResCode(msg.ResCode)
 		game._GUIMan:ShowErrorCodeMsg(msg.ResCode, nil)
 		return
-	end			
+	end	
+	]]	
+	if msg.ResCode ~= 0 then
+		game._GUIMan:ShowErrorCodeMsg(msg.ResCode, nil)
+	end
+	if #msg.EmailID == 0 then return end 
+	CEmailMan.Instance():GetEmailIDToBatchDrawReward(msg.EmailID)	
 end
 PBHelper.AddHandler("S2CEmailBatchDrawReward", OnS2CEmailBatchDrawReward)
 

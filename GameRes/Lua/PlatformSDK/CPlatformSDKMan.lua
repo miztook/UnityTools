@@ -110,9 +110,9 @@ def.method("number","string","string","string","boolean").LoginCallback = functi
 			game._GUIMan:Open("CPanelLogin", { IsOnGameStart = true })
 		end
 	elseif eLoginState == SDKDef.LoginState.HasAssociate then
-		TODO("在其他地方登录")
+		-- TODO("在其他地方登录")
 	elseif eLoginState == SDKDef.LoginState.TimeOut then
-		TODO("登录超时")
+		-- TODO("登录超时")
 	end
 end
 
@@ -124,6 +124,7 @@ def.method("boolean").LogoutCallback = function(self,bSuccess)
 	if bSuccess then
 		self:Clear()
 		game:LogoutAccount()
+		game:ReturnLoginStage()
 	end
 end
 
@@ -156,6 +157,7 @@ end
 
 -- 重新开始登录流程
 def.method().RestartLoginFlow = function(self)
+	PlatformSDK.CheckLoginStatus() -- 同步SDK登录状态和C#缓存登录状态
 	game._GUIMan:Open("CPanelLogin", { IsOnGameStart = false })
 end
 
@@ -277,6 +279,7 @@ def.method().Unregister = function(self)
 			-- 返回登录界面
 			self:Clear()
 			game:LogoutAccount()
+			game:ReturnLoginStage()
 		end
 	end
 	PlatformSDK.Unregister(callback)
@@ -433,6 +436,14 @@ def.method().ShowCoupon = function(self)
 			SendProtocol(protocol)
 		end
 	end)
+end
+
+-- 获取Admin配置key-value
+def.method("string", "=>", "string").GetCustomData = function(self, key)
+	if not IsNilOrEmptyString(key) then
+		return PlatformSDK.GetCustomData(key)
+	end
+	return ""
 end
 
 def.method("string", "number", "boolean").UpdateGoogleAchieveData = function(self, id, curValue, isFinish)

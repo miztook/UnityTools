@@ -410,7 +410,7 @@ def.method('string').Click = function(self, id)
             MenuComponents.AddFriendComponent.new(self._TargetEntiy._ID),
             MenuComponents.InviteMemberComponent.new(self._TargetEntiy._ID, myTeamId, self._TargetEntiy._TeamId),
             MenuComponents.ApplyInTeamComponent.new(self._TargetEntiy._ID, myTeamId, self._TargetEntiy._TeamId),
-            --MenuComponents.AddBlackListComponent.new(self._TargetEntiy._ID),
+            MenuComponents.AddBlackListComponent.new(self._TargetEntiy._ID),
         }
         MenuList.Show(comps, info._HeadIcon, EnumDef.AlignType.Bottom)
     end

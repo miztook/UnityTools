@@ -98,6 +98,9 @@ local cfg = {
     Lab_DecomposeTitle = -1613322215,
     Img_DecomposeMoney = -2121220725,
     Lab_DecomposeMoney = -1619614079,
+    Btn_ChangePose = -713165212,
+    Img_ChangePose = 1193133725,
+    Btn_ChangeRideAnim = -671637636,
 }
  
 return cfg

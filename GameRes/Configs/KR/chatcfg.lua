@@ -15,7 +15,7 @@ data.Channel[0] =
 {
 	channel = 0,    --当前频道
 	channelname = "[현재]",
-	mainbtnname = "현재",
+	mainbtnname = "NPC",
 	channelcolor = "FFFFFF",
 	rolenamecolor = "00FF00", 	-- 角色名称颜色：暂时没用，用的prefab上默认颜色。
 	textcolor = "FFFFFF",		-- 文本颜色：暂时没用，用的prefab上默认颜色。
@@ -26,7 +26,7 @@ data.Channel[1] =
 {
 	channel = 1,    --世界频道
 	channelname = "[월드]",
-	mainbtnname = "월드",
+	mainbtnname = "세계",
 	channelcolor = "14C8C2",
 	rolenamecolor = "FFD700", 
 	textcolor = "14C8C2",
@@ -86,6 +86,17 @@ data.Channel[6] =
 	rolenamecolor = "66CDAA", 
 	textcolor = "A876F0",
     cooltime = 0,
+}
+
+data.Channel[7] = 
+{
+	channel = 7,     --招募频道
+	channelname = "[모집]",
+	mainbtnname = "모집",
+	channelcolor = "F25D80",
+	rolenamecolor = "66CDAA", 
+	textcolor = "F25D80",
+    cooltime = 7,
 }
 
 return data

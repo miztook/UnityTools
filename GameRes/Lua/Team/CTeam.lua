@@ -20,7 +20,7 @@ def.field("boolean")._IsBountyMode = false  --是否是赏金模式
 --def.field("boolean")._IsAutoMatch = false    --是否支持自动匹配
 def.field("number")._TeamMode = 0       -- 队伍类型，是普通队伍还是团队（data中的 enum TeamMode ）
 def.field("table")._Setting = nil
-
+def.field("boolean")._IsFirstInit = true
 
 def.static("=>", CTeam).new = function ()
 	local obj = CTeam()
@@ -59,6 +59,7 @@ def.method().Reset = function (self)
 	self._IsBountyMode = false  --是否是赏金模式
 --	self._IsAutoMatch = false    --是否支持自动匹配
 	self._Setting = nil
+	self._IsFirstInit = true
 end
 
 CTeam.Commit()

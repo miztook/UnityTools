@@ -11,14 +11,20 @@ local def = CPanelCommonConltivate.define
 def.field("table")._PanelObject = BlankTable    -- 存储界面节点的集合
 def.field("userdata")._LabTitle = nil 
 def.field("userdata")._Frame_Advance = nil 
-def.field("userdata")._Frame_Recast = nil 
+def.field("userdata")._Frame_Recast = nil
+def.field("userdata")._Frame_Fuse = nil
+def.field("userdata")._Lab_ReturnInfo = nil
+
 def.field("number")._CounterTimer = 0 
 def.field("number")._CounterNum = 0
 def.field("number")._CounterMax = 5
+def.field("number")._CurOpenType = 0
+def.field("table")._RecycleList = BlankTable
 
 local OpenType = {
                    PetAdvanceResult = 1,
                    PetRecastResult = 2,
+                   PetFuseResult = 3,
                 }
 def.const("table").OpenType = OpenType
 
@@ -112,6 +118,8 @@ def.override().OnCreate = function(self)
     self._LabTitle = self:GetUIObject("Lab_Text")
     self._Frame_Advance = self:GetUIObject("Frame_Advance") 
     self._Frame_Recast = self:GetUIObject("Frame_Recast") 
+    self._Frame_Fuse = self:GetUIObject("Frame_Fuse")
+    self._Lab_ReturnInfo = self:GetUIObject("Lab_ReturnInfo")
 
     self._PanelObject = 
     {
@@ -130,10 +138,43 @@ end
 local function SetClickType()
     instance._PanelCloseType = EnumDef.PanelCloseType.ClickAnyWhere
 end
-local function BtnActice()
+local function BtnActive()
     instance._PanelObject.Btn_OK:SetActive(true)
 end
 def.override("dynamic").OnData = function(self,data)
+    self._CurOpenType = data.Type
+    local bReturnInfoActive = self._CurOpenType == OpenType.PetAdvanceResult or 
+                              self._CurOpenType == OpenType.PetFuseResult
+
+    if bReturnInfoActive then
+        local totalExp = data.Exp or 0
+        self._RecycleList = CPetUtility.CalcRecycleMedicineList( totalExp )
+
+        local function addPadding(a,b)
+            return string.format("%s & %s", a, b)
+        end
+        local bHasValue = next(self._RecycleList) ~= nil
+        self._Lab_ReturnInfo:SetActive( bHasValue )
+
+        if bHasValue then
+            local resultStr = ""
+            for i,v in ipairs(self._RecycleList) do
+                local name = RichTextTools.GetQualityText(v.Template.TextDisplayName, v.Template.InitQuality)
+                local s = string.format(StringTable.Get(19096), name, v.Count)
+                if i == 1 then
+                    resultStr = s
+                else
+                    resultStr = addPadding(resultStr, s)
+                end
+            end
+            local fmtIndex = self._CurOpenType == OpenType.PetAdvanceResult and 19095 or 19094
+            resultStr = string.format(StringTable.Get(19097), StringTable.Get(fmtIndex), resultStr)
+            GUI.SetText(self._Lab_ReturnInfo, resultStr)
+        end
+    else
+        self._Lab_ReturnInfo:SetActive(false)
+    end
+
     local MaxAptitudeCount = CPetUtility.GetMaxAptitudeCount()   --资质最大个数
     -- 星级
     do
@@ -153,19 +194,27 @@ def.override("dynamic").OnData = function(self,data)
     for i=1, 5 do
         if i <= MaxAptitudeCount then 
             local aptitude = {}
-            if data.Type == OpenType.PetAdvanceResult then 
+            if self._CurOpenType == OpenType.PetAdvanceResult then 
                 aptitude.Root = self._Frame_Advance:FindChild('Frame_PetValue'..i)
-            elseif data.Type == OpenType.PetRecastResult then 
+                aptitude.Img_Arrow = aptitude.Root:FindChild('Img_Arrow')
+                aptitude.Img_Equal = aptitude.Root:FindChild('Img_Equal')
+                aptitude.Lab_Range = aptitude.Root:FindChild('Lab_Range')
+            elseif self._CurOpenType == OpenType.PetFuseResult then
+                aptitude.Root = self._Frame_Fuse:FindChild('Frame_PetValue'..i)
+                aptitude.Img_Arrow = aptitude.Root:FindChild('Img_Arrow')
+                aptitude.Img_Equal = aptitude.Root:FindChild('Img_Equal')
+                aptitude.Lab_Range = aptitude.Root:FindChild('Lab_Range')
+                aptitude.Lab_Max = aptitude.Root:FindChild("Lab_Max")
+            elseif self._CurOpenType == OpenType.PetRecastResult then 
                 aptitude.Root = self._Frame_Recast:FindChild('Frame_PetValue'..i)
                 aptitude.Img_New = aptitude.Root:FindChild('Img_New')
+                aptitude.Lab_NewAptitude = aptitude.Root:FindChild('Lab_NewAptitude')
             end
             
             aptitude.Lab_Aptitude = aptitude.Root:FindChild('Lab_Aptitude')
             aptitude.Lab_OldValue = aptitude.Root:FindChild('Lab_OldValue')
             aptitude.Lab_NewValue = aptitude.Root:FindChild('Lab_NewValue')
-            aptitude.Img_Arrow = aptitude.Root:FindChild('Img_Arrow')
-            aptitude.Img_Equal = aptitude.Root:FindChild('Img_Equal')
-            aptitude.Lab_Range = aptitude.Root:FindChild('Lab_Range')            
+         
             table.insert(self._PanelObject.Aptitude, aptitude)
         else
             local obj = self:GetUIObject('Frame_PetValue'..i)
@@ -184,14 +233,22 @@ def.override("dynamic").OnData = function(self,data)
         root.Img_Equal = self:GetUIObject("Img_TalentEqual")
         root.Lab_Add = self:GetUIObject("Lab_TalentChange")
         root.Lab_Des = self:GetUIObject("Lab_TalentDesc")
+        root.Img_Talent = self:GetUIObject("Img_Talent")
     end
 
-    if data.Type == OpenType.PetAdvanceResult then 
+    if self._CurOpenType == OpenType.PetAdvanceResult then 
         self._Frame_Advance:SetActive(true)
         self._Frame_Recast:SetActive(false)
+        self._Frame_Fuse:SetActive(false)
         GUI.SetText(self._LabTitle,StringTable.Get(19079))
         self:ShowPetAdvanceResult(data.NewData,data.OldData)
-    elseif data.Type == OpenType.PetRecastResult then 
+    elseif self._CurOpenType == OpenType.PetFuseResult then
+        self._Frame_Advance:SetActive(false)
+        self._Frame_Recast:SetActive(false)
+        self._Frame_Fuse:SetActive(true)
+        GUI.SetText(self._LabTitle,StringTable.Get(19093))
+        self:ShowPetFuseResult(data.NewData,data.OldData)
+    elseif self._CurOpenType == OpenType.PetRecastResult then 
         self._Frame_Advance:SetActive(false)
         self._Frame_Recast:SetActive(true)
         GUI.SetText(self._LabTitle,StringTable.Get(19160))
@@ -202,7 +259,7 @@ def.override("dynamic").OnData = function(self,data)
     self:AddEvt_LuaCB(gfxGroupName, self._CounterMax, SetClickType)
     -- self:StartCounter()
     self._PanelObject.Btn_OK:SetActive(false)
-    self:AddEvt_LuaCB(gfxGroupName, 0.65, BtnActice)
+    self:AddEvt_LuaCB(gfxGroupName, 0.65, BtnActive)
 end
 
 local function CounterTick(self)
@@ -251,6 +308,8 @@ local function InitTalent(self,NewPetData,OldPetData)
     end
     GUI.SetText(root.Lab_TalentName, string.format(StringTable.Get(10663), talentTemplate.Name, NewPetData.specialTalentSkillLevel))
     GUI.SetText(root.Lab_Des, DynamicText.ParseSkillDescText(NewPetData.specialTalentSkillId, NewPetData.specialTalentSkillLevel, true))
+    GUITools.SetIcon(root.Img_Talent, talentTemplate.Icon)
+
     if NewPetData.specialTalentSkillLevel == OldPetData.specialTalentSkillLevel then 
         root.Talent_Change:SetActive(true)
         root.Img_Equal:SetActive(true)
@@ -280,39 +339,48 @@ local function InitAptitude(self,NewPetData,OldPetData)
         local NewAptitudeInfo = NewPetData.aptitudes[i]
         local OldAptitudeInfo = OldPetData.aptitudes[i]
         local UIInfo = root[i]
-        local propertyInfo = CElementData.GetPropertyInfoById( NewAptitudeInfo.id )
-        if propertyInfo == nil then return nil end
+        local propertyInfo = CElementData.GetPropertyInfoById( OldAptitudeInfo.id )
         GUI.SetText(UIInfo.Lab_Aptitude, propertyInfo.Name)
-        if UIInfo.Img_New ~= nil then 
-            UIInfo.Img_New:SetActive(false)
-        end  
+
         if UIInfo.Lab_Range ~= nil then
             local limitInfoId = tonumber(ids[i])    
             local propertyInfo = CElementData.GetPropertyInfoById( limitInfoId )
             GUI.SetText(UIInfo.Lab_Range, string.format(StringTable.Get(19084),propertyInfo.MinValue, propertyInfo.MaxValue))
         end       
-        if NewAptitudeInfo.value > OldAptitudeInfo.value then 
-            UIInfo.Img_Arrow:SetActive(true)
-            UIInfo.Img_Equal:SetActive(false)
-            GUITools.SetGroupImg(UIInfo.Img_Arrow,1)
+
+        GUI.SetText(UIInfo.Lab_OldValue,  tostring(OldAptitudeInfo.value))
+        if UIInfo.Lab_Max ~= nil then
+            UIInfo.Lab_Max:SetActive(NewAptitudeInfo.value == NewAptitudeInfo.maxValue)
+        end
+
+        if NewAptitudeInfo.value > OldAptitudeInfo.value then
+            if self._CurOpenType ~= OpenType.PetRecastResult then
+                UIInfo.Img_Arrow:SetActive(true)
+                UIInfo.Img_Equal:SetActive(false)
+                GUITools.SetGroupImg(UIInfo.Img_Arrow,1)
+            end
             GUI.SetText(UIInfo.Lab_NewValue,  string.format(StringTable.Get(19080),NewAptitudeInfo.value))
         elseif NewAptitudeInfo.value < OldAptitudeInfo.value then
-            UIInfo.Img_Arrow:SetActive(true)
-            UIInfo.Img_Equal:SetActive(false)
-            GUITools.SetGroupImg(UIInfo.Img_Arrow,0)
+            if self._CurOpenType ~= OpenType.PetRecastResult then
+                UIInfo.Img_Arrow:SetActive(true)
+                UIInfo.Img_Equal:SetActive(false)
+                GUITools.SetGroupImg(UIInfo.Img_Arrow,0)
+            end
             GUI.SetText(UIInfo.Lab_NewValue,  string.format(StringTable.Get(19081),NewAptitudeInfo.value))
         elseif NewAptitudeInfo.value == OldAptitudeInfo.value then
-            UIInfo.Img_Arrow:SetActive(false)
-            UIInfo.Img_Equal:SetActive(true)
+            if self._CurOpenType ~= OpenType.PetRecastResult then
+                UIInfo.Img_Arrow:SetActive(false)
+                UIInfo.Img_Equal:SetActive(true)
+            end
             GUI.SetText(UIInfo.Lab_NewValue,  tostring(NewAptitudeInfo.value))
         end
-        GUI.SetText(UIInfo.Lab_OldValue,  tostring(OldAptitudeInfo.value))
-        if NewAptitudeInfo.value == NewAptitudeInfo.maxValue then 
-            GUI.SetText(UIInfo.Lab_NewValue,  StringTable.Get(19077))
+        if UIInfo.Img_New ~= nil then 
+            UIInfo.Img_New:SetActive(NewAptitudeInfo.id ~= OldAptitudeInfo.id)
         end
-        if OldAptitudeInfo.value == OldAptitudeInfo.maxValue then 
-            GUI.SetText(UIInfo.Lab_OldValue,  StringTable.Get(19077))
-        end 
+        if self._CurOpenType == OpenType.PetRecastResult then
+            local newPropertyInfo = CElementData.GetPropertyInfoById( NewAptitudeInfo.id )
+            GUI.SetText(UIInfo.Lab_NewAptitude, newPropertyInfo.Name)
+        end
     end
 end
 
@@ -421,6 +489,13 @@ def.method("table","table").ShowPetAdvanceResult = function(self,NewPetData,OldP
     InitBaseInfo(self,NewPetData,OldPetData)
     InitAptitude(self,NewPetData,OldPetData)
     InitTalent(self,NewPetData,OldPetData)
+end
+
+def.method("table","table").ShowPetFuseResult = function(self,NewPetData,OldPetData)
+    InitBaseInfo(self,NewPetData,OldPetData)
+    InitAptitude(self,NewPetData,OldPetData)
+    local root = self._PanelObject.Talent
+    root.Root:SetActive(false)
 end
 
 def.method("table","table").ShowPetRecastResult = function(self,NewPetData,OldPetData)

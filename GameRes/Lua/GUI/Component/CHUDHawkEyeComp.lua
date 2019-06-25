@@ -80,20 +80,25 @@ def.method("table").HawkEyeOpen = function (self, params)
         end
 
         if self._EyeBtnState ~= params.status then
-            GameUtil.StopUISfx(PATH.UIFX_EYEHAW_kaiqi_01, self._ChkEye)
-	        GameUtil.StopUISfx(PATH.UIFX_EYEHAW_kaiqi_02, self._ChkEye)
-	        GameUtil.StopUISfx(PATH.UIFX_EYEHAW_kaiqi_03, self._ChkEye)
+            GameUtil.StopUISfx(PATH.UIFX_EYEHAW_kaiqi_blue, self._ChkEye)
+	        GameUtil.StopUISfx(PATH.UIFX_EYEHAW_kaiqi_red, self._ChkEye)
 	    end
 
         if params.status == 1 then
-        	GUI.SetAlpha(self._ChkEye,125)
-        	GameUtil.PlayUISfx(PATH.UIFX_EYEHAW_kaiqi_01, self._ChkEye, self._ChkEye, -1, 20 , -1)
+            self._ChkEye:SetActive(false)
+--[[        	GUI.SetAlpha(self._ChkEye,125)
+        	GameUtil.PlayUISfx(PATH.UIFX_EYEHAW_kaiqi_01, self._ChkEye, self._ChkEye, -1, 20 , -1)--]]
         elseif params.status == 2 then
-        	GUI.SetAlpha(self._ChkEye,200)
-        	GameUtil.PlayUISfx(PATH.UIFX_EYEHAW_kaiqi_02, self._ChkEye, self._ChkEye, -1, 20 , -1)
+            self._ChkEye:SetActive(false)
+--[[        	GUI.SetAlpha(self._ChkEye,200)
+        	GameUtil.PlayUISfx(PATH.UIFX_EYEHAW_kaiqi_02, self._ChkEye, self._ChkEye, -1, 20 , -1)--]]
         else
           	GUI.SetAlpha(self._ChkEye,255)
-          	GameUtil.PlayUISfx(PATH.UIFX_EYEHAW_kaiqi_03, self._ChkEye, self._ChkEye, -1, 20 , -1)
+            if params.hawkeyeType == 0 or params.hawkeyeType == 1 then
+                GameUtil.PlayUISfx(PATH.UIFX_EYEHAW_kaiqi_blue, self._ChkEye, self._ChkEye, -1, 20 , -1)
+            elseif params.hawkeyeType == 2 then
+                GameUtil.PlayUISfx(PATH.UIFX_EYEHAW_kaiqi_red, self._ChkEye, self._ChkEye, -1, 20 , -1)
+            end
         end
 
         
@@ -115,9 +120,8 @@ end
 
 def.method().HawkEyeClose = function (self)
 	self._ChkEye:SetActive(false)
-    GameUtil.StopUISfx(PATH.UIFX_EYEHAW_kaiqi_01, self._ChkEye)
-    GameUtil.StopUISfx(PATH.UIFX_EYEHAW_kaiqi_02, self._ChkEye)
-    GameUtil.StopUISfx(PATH.UIFX_EYEHAW_kaiqi_03, self._ChkEye)
+    GameUtil.StopUISfx(PATH.UIFX_EYEHAW_kaiqi_blue, self._ChkEye)
+    GameUtil.StopUISfx(PATH.UIFX_EYEHAW_kaiqi_red, self._ChkEye)
     game._CGuideMan:HaweyeGuide(false,0)
     self._CurHawkEyeState = HawkEyeState.Close
 end

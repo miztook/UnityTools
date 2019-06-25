@@ -64,6 +64,7 @@ local UIFxEventType =
     IdleTimeTooLang = 4,    --没有做任务的时间太长了
     Finish = 5,             --可完成状态
     Fail = 6,              --任务失败
+    Recrive = 7,
 }
 
 local SortIndex = 

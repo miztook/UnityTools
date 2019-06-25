@@ -102,6 +102,7 @@ local function OnPackageChangeEvent(sender, event)
 end
 
 def.override("dynamic").OnData = function (self, data)
+	self._HelpUrlType = HelpPageUrlType.Wing
 	local openType = WingPageType.Develop -- 默认打开升级页面
 	local uiData = nil
 	if data ~= nil then
@@ -152,6 +153,7 @@ def.method("number", "dynamic").ShowFrame = function (self, openType, uiData)
 end
 
 def.override("string").OnClick = function (self, id)
+    CPanelBase.OnClick(self,id)
 	if self._Frame_Money:OnClick(id) then return end
 
 	if string.find(id, "Btn_Back") then

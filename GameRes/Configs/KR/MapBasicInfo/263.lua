@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 2,
 	Remarks = "远征·堤图斯试炼者·普通",
-	TextDisplayName = "티투스 시련자 - 보통",
+	TextDisplayName = "티투스 신전 - 보통",
 	Length = 512,
 	Width = 512,
 	NavMeshName = "Dungn06_EmpireRelic.navmesh",

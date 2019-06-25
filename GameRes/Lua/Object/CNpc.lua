@@ -134,14 +134,13 @@ end
 -- npc模板中的替换动画数据 覆盖所关联的monster数据(服务器覆盖模板)
 def.override("string","=>","string","boolean").GetAnimationName = function (self,Aniname)
     local isReplace = false
-	if self._AnimationReplaceTable ~= nil then 
-        for i,v in ipairs(self._AnimationReplaceTable) do
-            if v.OldAniname == Aniname then 
-            	isReplace = true
-            	return v.NewAniname ,isReplace
-            end
-        end
-    end
+    if self._AnimationReplaceTable ~= nil then 
+	    local newAniName = self._AnimationReplaceTable[Aniname]
+    	if newAniName then
+        	isReplace = true
+        	return newAniName,isReplace
+    	end
+	end
 	if self._NpcTemplate ~= nil then 
 		if self._NpcTemplate.new1 ~= nil and self._NpcTemplate.new1 ~= "" and self._NpcTemplate.old1 ~= nil and self._NpcTemplate.old1 ~= ""  then 
 			if Aniname == self._NpcTemplate.old1 then 
@@ -202,7 +201,7 @@ end
 
 local function RemoveIconModel(self)
 	if not IsNil(self._IconModel) then
-		Object.DestroyImmediate(self._IconModel)
+		Object.Destroy(self._IconModel)
 		self._IconModel = nil
 		self._CurOverheadModelPath = ""
 	end
@@ -321,7 +320,7 @@ def.override().OnClick = function (self)
 	CDungeonAutoMan.Instance():Stop()
 	local CQuestAutoMan = require"Quest.CQuestAutoMan"
 	CQuestAutoMan.Instance():Stop()
-	local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+	local CAutoFightMan = require "AutoFight.CAutoFightMan"
 	CAutoFightMan.Instance():Pause(_G.PauseMask.ManualControl)
 
 	local function sucessCb()

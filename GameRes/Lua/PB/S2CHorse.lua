@@ -27,7 +27,9 @@ end
 
 --查看坐骑列表
 local function OnS2CHorseViewList(sender, msg)
-	game._HostPlayer:InitHorseList(msg.Horses)
+	if game._HostPlayer ~= nil then
+		game._HostPlayer:InitHorseList(msg.Horses)
+	end
 	UpdateHorseBtn()
 end
 PBHelper.AddHandler("S2CHorseViewList", OnS2CHorseViewList)

@@ -50,7 +50,7 @@ local MapInfo =
 		},
 		[4228] = 
 		{
-			[1] = { x = 238.16, y = 22.42, z = -230.73, name = "플리앙", SortID = 11, FunctionName = " " },
+			[1] = { x = 238.16, y = 22.42, z = -230.73, name = "푸불리", SortID = 11, FunctionName = " " },
 		},
 	},
 	Region = 

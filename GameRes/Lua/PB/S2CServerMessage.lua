@@ -28,7 +28,7 @@ local function OnServerMessage(sender, protocol)
 	if protocol.MessageId == ServerMessageQuest.QuestPredecessorQuestNotFinished then
 	  	local CQuestAutoMan = require"Quest.CQuestAutoMan"
 	   	CQuestAutoMan.Instance():Stop()
-	   	local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+	   	local CAutoFightMan = require "AutoFight.CAutoFightMan"
 	   	CAutoFightMan.Instance():SetMode(EnumDef.AutoFightType.WorldFight, 0, true)
 	elseif protocol.MessageId == ServerMessageBase.OnAnotherDeviceLogin then
 		game._AnotherDeviceLogined = true
@@ -73,6 +73,9 @@ local function OnS2CSystemAnnounce(sender, protocol)
 		game._GUIMan:OpenSpecialTopTips(msg)
 	elseif protocol.AnnounceType == EAnnounceType.AnnounceType_EquipInforce then
 		local msg = string.format(StringTable.Get(22811), protocol.OperatorName, RichTextTools.GetItemNameRichText(protocol.Param1, 1, false), protocol.Param2)
+		game._GUIMan:OpenSpecialTopTips(msg)
+	elseif protocol.AnnounceType == EAnnounceType.AnnounceType_FinishDungeon then
+		local msg = string.format(StringTable.Get(22812), protocol.OperatorName, CElementData.GetTemplate("Instance", protocol.Param1).TextDisplayName)
 		game._GUIMan:OpenSpecialTopTips(msg)
 	end
 end

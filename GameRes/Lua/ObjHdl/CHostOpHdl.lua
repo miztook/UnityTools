@@ -10,7 +10,7 @@ local CQuestAutoMan = require"Quest.CQuestAutoMan"
 local EServerShowType = require "PB.data".EServerShowType
 local EServerUseType = require "PB.data".EServerUseType
 local SqrDistanceH = Vector3.SqrDistanceH_XZ
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local CQuestAutoMan = require "Quest.CQuestAutoMan"
 local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
 

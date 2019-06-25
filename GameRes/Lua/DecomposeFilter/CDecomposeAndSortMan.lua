@@ -15,7 +15,7 @@ def.field("boolean")._IsSelectAllQualitys = false
 def.field("boolean")._IsGetUserData = true
 
 -- 排序
-def.field("boolean")._IsDescending = false
+def.field("boolean")._IsDescending = true
 def.field("number")._CurSortType = 0
 
 

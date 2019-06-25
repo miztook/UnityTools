@@ -17,10 +17,14 @@ def.field("table")._Table_HotTimeInfo = BlankTable
 def.field("table")._TimerID = BlankTable
 
 local function sort_func(value1,value2)
-    if value1._Data.HotTimeType == nil or value2._Data.HotTimeType == nil then
+    if value1._Data.HotTimeType == nil or 
+    value2._Data.HotTimeType == nil then
         return false
     end
-    return value1._Data.HotTimeType < value2._Data.HotTimeType
+    if value1._Data.HotTimeType < value2._Data.HotTimeType then
+        return true
+    end
+    return false
 end
 
 local instance = nil
@@ -219,9 +223,11 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
 
         local idx = index + 1
         local HotTimeDate = self._Table_HotTimeInfo[idx]
+        
         if HotTimeDate._Data.Name ~= nil then
             GUI.SetText(Lab_BuffName, HotTimeDate._Data.Name)
         end
+        warn("init --->>>", HotTimeDate._Data.HotTimeType, HotTimeDate._Data.Name)
         local BuffDesc = nil
         local normalPack = game._HostPlayer._Package._NormalPack
         if HotTimeDate._Data.HotTimeType ~= nil then
@@ -444,9 +450,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                     GameUtil.StopUISfx(PATH.UIFX_HOTTIME_Lan, Img_BuffIconBG)
                 end
                 BuffDesc = string.format(HotTimeDate._Data.Content, (Percent.."%"))
-            end
-        elseif HotTimeDate._Data.HTType ~= nil then
-            if HotTimeDate._Data.HTType == EHotTimeType.EAdminGold then
+            elseif HotTimeDate._Data.HotTimeType == EHotTimeType.EAdminGold then
                 GUITools.SetItemIcon(Img_BuffIcon, PATH.ICON_ITEN_TOKEN_1)
                 
                 Btn_BuyBuff:SetActive(false)
@@ -469,7 +473,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                     BuffDesc = StringTable.Get(19469)  
                     GameUtil.StopUISfx(PATH.UIFX_HOTTIME_Huang, Img_BuffIconBG)    
                 end
-            elseif HotTimeDate._Data.HTType == EHotTimeType.EAdminExp then
+            elseif HotTimeDate._Data.HotTimeType == EHotTimeType.EAdminExp then
                 GUITools.SetItemIcon(Img_BuffIcon, PATH.ICON_ITEN_TOKEN_4)
                 Btn_BuyBuff:SetActive(false)
                 Btn_UseBuff:SetActive(false)
@@ -502,11 +506,16 @@ end
 def.override("userdata", "string", "string", "number").OnSelectItemButton = function(self, item, id, id_btn, index)
     if id_btn == "Btn_BuyItem" then
         -- TODO()
-        local ShopType = tonumber(CElementData.GetSpecialIdTemplate(901).Value)     -- 红钻商店的特殊ID = 901
-        game._GUIMan:Open("CPanelMall", ShopType)
+        if game._CFunctionMan:IsUnlockByFunID(EnumDef.EGuideTriggerFunTag.Mall) then
+            local ShopType = tonumber(CElementData.GetSpecialIdTemplate(901).Value)     -- 红钻商店的特殊ID = 901
+            -- game._GUIMan:Open("CPanelMall", ShopType)
 
-        game._GUIMan:Open("CPanelMall", 11)
-        game._GUIMan:CloseByScript(self)
+            -- game._GUIMan:Open("CPanelMall", 11)
+            game._GUIMan:Open("CPanelMall", 33)
+            game._GUIMan:CloseByScript(self)
+        else
+            game._CGuideMan:OnShowTipByFunUnlockConditions(1, EnumDef.EGuideTriggerFunTag.Mall)
+        end
     elseif id_btn == "Btn_UseItem" then
         -- 使用物品
         local HotTimeDate = self._Table_HotTimeInfo[index + 1]

@@ -29,15 +29,14 @@ def.field("userdata")._EliminateRankList = nil
 def.field("userdata")._Lab_Title = nil 
 def.field("userdata")._Img_DamageBG = nil
 def.field("userdata")._Img_DamageBigBG = nil
-
 -- 数据
 def.field("number")._DamageShowType = -1
 def.field("number")._ViewShowType = 0
 def.field("number")._BossMaxHP = 0 -- Boss最大血量
 def.field("number")._CurTitleType = -1
+def.field("number")._DungeonShowDamgeMaxNum = 0 -- 副本伤害统计显示数量上限
 
 local SHOW_DAMAGE_MAX_NUM = 5               -- 显示伤害统计的最大个数
-local SHOW_DAMAGE_DUNGEON_MAX_NUM = 10      -- 显示 副本伤害统计的最大个数
 -- 界面展示类型
 local EViewShowType =
 {
@@ -159,14 +158,22 @@ def.method().ReadyToShow = function (self)
         GUITools.SetUIActive(self._Frame_Rank, false)
         if self._DamageShowType == EDamageStatisticsOpt.EDamageStatisticsOpt_dungeonRealTime then
             -- 副本
+            local bIsBigTeam = CTeamMan.Instance():IsBigTeam()
+            self._Img_DamageBG:SetActive(not bIsBigTeam)
+            self._Img_DamageBigBG:SetActive(bIsBigTeam)
             GUITools.SetUIActive(self._Frame_Dungeon, true)
             GUITools.SetUIActive(self._Frame_WorldBoss, false)
+            self._DungeonShowDamgeMaxNum = bIsBigTeam and 10 or 5 -- 团队的伤害统计显示10条，普通队伍的显示5条
         elseif self._DamageShowType == EDamageStatisticsOpt.EDamageStatisticsOpt_boss then
             -- 世界Boss
+            self._Img_DamageBG:SetActive(true)
+            self._Img_DamageBigBG:SetActive(false)
             GUITools.SetUIActive(self._Frame_Dungeon, false)
             GUITools.SetUIActive(self._Frame_WorldBoss, true)
         end
-    elseif self._ViewShowType == EViewShowType.Rank then 
+    elseif self._ViewShowType == EViewShowType.Rank then
+        self._Img_DamageBG:SetActive(true)
+        self._Img_DamageBigBG:SetActive(false)
         GUI.SetText(self._Lab_Title,StringTable.Get(21201))
         GUITools.SetUIActive(self._Frame_Dungeon, false)
         GUITools.SetUIActive(self._Frame_WorldBoss, false)
@@ -208,32 +215,39 @@ end
 def.method("table").HandleDungeonDamageData = function (self, data)
     local ui_data =
     {
-        RoleId = 0,         -- 角色Id
-        RoleName = "",      -- 角色名称（协议只会推一次）
-        TotalDamage = 0,    -- 队伍总伤害
-        RoleDamage = 0,     -- 角色伤害
+        RoleId = 0,             -- 角色Id
+        RoleName = "Unknown",   -- 角色名称（协议只会推一次）
+        TotalDamage = 0,        -- 队伍总伤害
+        RoleDamage = 0,         -- 角色伤害
     }
-    local bossEntityId = 0
     for _, v in ipairs(data) do
         if v.key == EStatistic.EStatistic_roleId then
             ui_data.RoleId = v.value
         elseif v.key == EStatistic.EStatistic_roleName then
-            ui_data.RoleName = v.strValue
+            if v.originParam ~= nil and v.originParam < 0 then
+                -- 镜头名字，从模板获取
+                local textTid = tonumber(v.strValue)
+                if textTid ~= nil then
+                    local template = CElementData.GetTemplate("Text", textTid)
+                    if template ~= nil and not IsNilOrEmptyString(template.TextContent) then
+                        ui_data.RoleName = template.TextContent
+                    end
+                end
+            else
+                if not IsNilOrEmptyString(v.strValue) then
+                    ui_data.RoleName = v.strValue
+                end
+            end
         elseif v.key == EStatistic.EStatistic_damage then
             ui_data.RoleDamage = v.value
         elseif v.key == EStatistic.EStatistic_damage_total then
             ui_data.TotalDamage = v.value
-        elseif v.key == EStatistic.EStatistic_BossId then
-            bossEntityId = v.value
+        elseif v.key == EStatistic.EStatistic_BossHp then
+            self._BossMaxHP = v.value
         end
     end
-    -- warn("bossEntityId:", bossEntityId, "hp:", self._BossMaxHP)
-    if bossEntityId > 0 and self._BossMaxHP == 0 then
-        local entity = game._CurWorld:FindObject(bossEntityId)
-        if entity ~= nil then
-            self._BossMaxHP = entity._InfoData._MaxHp
-        end
-    end
+    -- warn("Boss HP:", self._BossMaxHP)
+    -- warn("RoleId:"..ui_data.RoleId, " RoleName:"..ui_data.RoleName, " RoleDamage:"..ui_data.RoleDamage, " TotalDamage:"..ui_data.TotalDamage)
 
     self:RefreshDungeonDamageStatistics(ui_data)
 end
@@ -284,17 +298,11 @@ end
 
 -- 显示
 def.method("boolean").ShowDungeonDamageInfo = function (self, isReorder)
-
-    local bIsBigTeam = CTeamMan.Instance():IsBigTeam()
-
-    self._Img_DamageBG:SetActive(not bIsBigTeam)
-    self._Img_DamageBigBG:SetActive(bIsBigTeam)
-
     self:ReadyToShow()
     local hp_id = game._HostPlayer._ID
     local count = 1
     for i, data in ipairs(self._DamageDataList) do
-        if i > SHOW_DAMAGE_DUNGEON_MAX_NUM then break end
+        if i > self._DungeonShowDamgeMaxNum then break end
         
         local item = self._DungeonObjList[i]
         if item == nil then
@@ -348,17 +356,13 @@ def.method("boolean").ShowDungeonDamageInfo = function (self, isReorder)
         end
 
         count = i
-        if item._Item.activeSelf == false then
-            item._Item:SetActive(true)
-        end
+        item._Item:SetActive(true)
     end
 
     -- 隐藏多余的
     for i = count + 1, #self._DungeonObjList do
         local item = self._DungeonObjList[i]._Item
-        if item.activeSelf == true then
-            item:SetActive(false)
-        end
+        item:SetActive(false)
     end
 end
 ------------------------------副本实时伤害统计 end-----------------------------
@@ -372,7 +376,6 @@ def.method("table").HandleWorldBossDamageData = function (self, data)
         GuildName = "",     -- 公会名称
         TotalDamage = 0,    -- 总伤害
     }
-    local bossEntityId = 0
     for i, v in ipairs(data) do
         if v.key == EStatistic.EStatistic_guildId then
             ui_data.GuildId = v.value
@@ -382,16 +385,8 @@ def.method("table").HandleWorldBossDamageData = function (self, data)
             ui_data.TotalDamage = v.value
         elseif v.key == EStatistic.EStatistic_damage_rank then
             ui_data.Rank = v.value
-        elseif v.key == EStatistic.EStatistic_BossId then
-            bossEntityId = v.value
-        end
-    end
-
-    -- print("bossId:", bossEntityId)
-    if bossEntityId > 0 and self._BossMaxHP == 0 then
-        local entity = game._CurWorld:FindObject(bossEntityId)
-        if entity ~= nil then
-            self._BossMaxHP = entity._InfoData._MaxHp
+        elseif v.key == EStatistic.EStatistic_BossHp then
+            self._BossMaxHP = v.value
         end
     end
 

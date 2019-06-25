@@ -146,6 +146,10 @@ def.override('string').OnClick = function(self, id)
         if self._PageData.RefreshCount < self._RefreshMaxCount then
             local callback = function(var)
                 if var then
+                    if self._PageData == nil then
+                        warn("error !!! : CMallPageMysteryShop 的 self._PageData为空！")
+                        return
+                    end
                     local store_temp = CElementData.GetTemplate("Store", self._PageData.StoreId)
                     local callback1 = function(var1)
                         if var1 then
@@ -224,6 +228,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
             local lab_level_need = uiTemplate:GetControl(16)
             local lab_btn_time = uiTemplate:GetControl(17)
             local lab_cash_cost = uiTemplate:GetControl(18)
+            local lab_refresh_tip = uiTemplate:GetControl(19)
             lab_level_need:SetActive(false)
             lab_remain_time:SetActive(false)
             do  -- 物品图标和名字
@@ -271,26 +276,26 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                     lab_cash_cost:SetActive(true)
                     img_money_icon:SetActive(false)
                     if good_item.CashCount > 0 then
-                        GUI.SetText(lab_cash_cost, string.format(StringTable.Get(31000), good_item.CashCount))
+                        GUI.SetText(lab_cash_cost, string.format(StringTable.Get(31000), GUITools.FormatNumber(good_item.CashCount, false)))
                     else
                         GUI.SetText(lab_cash_cost, StringTable.Get(31029))
                     end
                 end
                 if good_temp.LimitType == ELimitType.NoLimit then
                     frame_has_buy:SetActive(false)
-                    lab_btn_time:SetActive(false)
+                    lab_refresh_tip:SetActive(false)
                     lab_remain_count:SetActive(false)
                     lab_remain_tip:SetActive(false)
                 else
                     lab_remain_count:SetActive(true)
                     lab_remain_tip:SetActive(true)
-                    lab_btn_time:SetActive(false)
+                    lab_refresh_tip:SetActive(false)
                     GUI.SetText(lab_remain_count, tostring(math.max(0, (good_item.Stock - hasBuyCount))))
                     if good_temp.LimitType == ELimitType.Cycle then
                         frame_cost_diamond:SetActive(true)
                         frame_has_buy:SetActive(false)
                         if hasBuyCount >= good_item.Stock then
-                            lab_btn_time:SetActive(true)
+                            lab_refresh_tip:SetActive(true)
                             lab_cost:SetActive(false)
                             lab_cash_cost:SetActive(false)
                             GUI.SetText(lab_remain_count, "")
@@ -299,7 +304,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                                 local time_str = CMallUtility.GetRemainStringByEndTime(good_item.NextRefreshTime or 0)
                                 GUI.SetText(lab_btn_time, time_str)
                                 if GameUtil.GetServerTime() > (good_item.NextRefreshTime or 0) then
-                                    lab_btn_time:SetActive(false)
+                                    lab_refresh_tip:SetActive(false)
                                     if good_item.CostType == ECostType.Currency then
                                         lab_cost:SetActive(true)
                                         lab_cash_cost:SetActive(false)
@@ -317,7 +322,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                             end
                             self._GoodTimers[good_item.Id] = _G.AddGlobalTimer(1, false, callback)
                         else
-                            lab_btn_time:SetActive(false)
+                            lab_refresh_tip:SetActive(false)
                             if good_temp.StockCycle == 24 then
                                 GUI.SetText(lab_remain_tip, StringTable.Get(31057))
                             elseif good_temp.StockCycle == 168 then
@@ -404,6 +409,8 @@ def.override('userdata', 'string', 'number').OnSelectItem = function(self, item,
     else
         warn("CMallPageMysteryShop self._PageData 数据为空")
     end
+
+	CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
 end
 
 def.override("userdata", "string", "string", "number").OnSelectItemButton = function(self, button_obj, id, id_btn, index)
@@ -412,6 +419,20 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
     if id_btn == "ItemIconNew" then
         local item = self._PageData.Goods[index]
         CItemTipMan.ShowItemTips(item.ItemId, TipsPopFrom.OTHER_PANEL, button_obj, TipPosition.FIX_POSITION)
+    elseif id_btn == "Btn_Buy" then
+        if index > self._ItemShowCount then return end
+        if self._PageData ~= nil then
+            local good_item = self._PageData.Goods[index]
+            local good_temp = CElementData.GetTemplate("Goods", good_item.Id)
+            if good_temp == nil then
+                warn("error !! OnSelectItem 商品模板数据为空，商品id：", good_item.Id)
+                return
+            end
+            local data = {storeID = self._PageData.StoreId, goodData = good_item}
+            game._GUIMan:Open("CPanelMallCommonBuy", data)
+        else
+            warn("CMallPageMysteryShop self._PageData 数据为空")
+        end
     end
 end
 

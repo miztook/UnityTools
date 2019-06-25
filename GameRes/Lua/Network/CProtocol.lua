@@ -4,6 +4,7 @@ local CProtocol = Lplus.Class("CProtocol")
 local def = CProtocol.define
 
 def.virtual("=>", "number").GetType = function (self)
+	return 0
 end
 
 def.virtual("userdata").Marshal = function (self, os)

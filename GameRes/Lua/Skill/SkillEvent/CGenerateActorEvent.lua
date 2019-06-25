@@ -2,6 +2,7 @@ local Lplus = require "Lplus"
 local Template = require "PB.Template"
 local CSkillEventBase = require "Skill.SkillEvent.CSkillEventBase"
 local CFxObject = require "Fx.CFxObject"
+local CSkillActorMan = require "Skill.CSkillActorMan"
 
 local CGenerateActorEvent = Lplus.Extend(CSkillEventBase, "CGenerateActorEvent")
 local def = CGenerateActorEvent.define
@@ -38,7 +39,6 @@ def.override().OnEvent = function(self)
 	param.GenerateCount = self._Event.GenerateCount
 	param.GenerateAngle = self._Event.GenerateAngle
 	
-	local CSkillActorMan = require "Skill.CSkillActorMan"
 	CSkillActorMan.Instance():GenerateClientActor(actor_template, param)
 end
 

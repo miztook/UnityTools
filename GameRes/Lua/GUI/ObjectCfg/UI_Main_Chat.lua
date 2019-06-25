@@ -92,6 +92,8 @@ local cfg = {
     Img_Recharge = -1178149917,
     Img_Data = -631551258,
     Img_WIFI = -631009743,
+    Frame_Social = 1251321535,
+    Frame_Exp = -1745581045,
 }
  
 return cfg

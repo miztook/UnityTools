@@ -28,7 +28,7 @@ local MapInfo =
 		},
 		[14308] = 
 		{
-			[1] = { x = 95.28, y = 58.14, z = -42.67, name = "사망한 남작", level = 59, SortID = 7, DropItemIds = " " },
+			[1] = { x = 95.28, y = 58.14, z = -42.67, name = "남작 사망", level = 59, SortID = 7, DropItemIds = " " },
 		},
 		[14299] = 
 		{
@@ -92,11 +92,11 @@ local MapInfo =
 		},
 		[4046] = 
 		{
-			[1] = { x = 258.80, y = 70.64, z = -16.60, name = "카이아의 검 수비병", SortID = 25, FunctionName = " " },
-			[2] = { x = 226.10, y = 61.73, z = 35.90, name = "카이아의 검 수비병", SortID = 37, FunctionName = " " },
-			[3] = { x = 192.00, y = 61.65, z = 37.10, name = "카이아의 검 수비병", SortID = 38, FunctionName = " " },
-			[4] = { x = 257.00, y = 61.65, z = 34.90, name = "카이아의 검 수비병", SortID = 39, FunctionName = " " },
-			[5] = { x = 261.20, y = 70.64, z = -41.20, name = "카이아의 검 수비병", SortID = 40, FunctionName = " " },
+			[1] = { x = 258.80, y = 70.64, z = -16.60, name = "카이아의 검 호위병", SortID = 25, FunctionName = " " },
+			[2] = { x = 226.10, y = 61.73, z = 35.90, name = "카이아의 검 호위병", SortID = 37, FunctionName = " " },
+			[3] = { x = 192.00, y = 61.65, z = 37.10, name = "카이아의 검 호위병", SortID = 38, FunctionName = " " },
+			[4] = { x = 257.00, y = 61.65, z = 34.90, name = "카이아의 검 호위병", SortID = 39, FunctionName = " " },
+			[5] = { x = 261.20, y = 70.64, z = -41.20, name = "카이아의 검 호위병", SortID = 40, FunctionName = " " },
 		},
 		[4248] = 
 		{

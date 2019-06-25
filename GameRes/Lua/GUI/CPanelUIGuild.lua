@@ -83,6 +83,7 @@ def.override().OnCreate = function(self)
     self._PageGuildInfo = CPageGuildInfo.new(self, self:GetUIObject("Frame_Guild_Info"))
     self._PageGuildMember = CPageGuildMember.new(self, self:GetUIObject("Frame_Guild_Member"))
     self._PageGuildSet = CPageGuildSet.new(self, self:GetUIObject("Frame_Guild_Set"))
+    
     self._Img_RedPoints[GuildPage.Info] = self:GetUIObject("Tab_Guild_Info"):FindChild("Img_RedPoint")
     self._Img_RedPoints[GuildPage.Member] = self:GetUIObject("Tab_Guild_Member"):FindChild("Img_RedPoint")
     self._Img_RedPoints[GuildPage.Bonus] = self:GetUIObject("Tab_Guild_Bonus"):FindChild("Img_RedPoint")
@@ -98,11 +99,11 @@ def.override().OnCreate = function(self)
     game._GuildMan:SendC2SGuildBaseInfo(game._GuildMan:GetHostPlayerGuildID(), "")
 	-- 红点数据请求
 	--game._GuildMan:SendC2SGuildRedPoint()
-	self._HelpUrlType = HelpPageUrlType.Guild_Main
 end
 
 -- 当数据
 def.override("dynamic").OnData = function(self, data)
+	self._HelpUrlType = HelpPageUrlType.Guild_Main
     local self_member = game._GuildMan:GetHostGuildMemberInfo()
     local have_set_per = true
     if self_member ~= nil then
@@ -196,6 +197,7 @@ end
 -- 当点击
 def.override("string").OnClick = function(self, id)
 	CPanelBase.OnClick(self,id)
+	if self._Frame_Money:OnClick(id) then return end
 	if id == "Btn_Back" then
 		game._GUIMan:CloseByScript(self)
     elseif id == 'Btn_Exit' then
@@ -203,17 +205,6 @@ def.override("string").OnClick = function(self, id)
     elseif id == "Btn_Question" then
     	TODO(StringTable.Get(19))
 	else
---		if self._CurPageIndex == _G.GuildPage.Info then
---			self._PageGuildInfo:OnClick(id)
---		elseif self._CurPageIndex == _G.GuildPage.Member then
---			self._PageGuildMember:OnClick(id)
---		elseif self._CurPageIndex == _G.GuildPage.Bonus then
---			self._PageGuildBonus:OnClick(id)
---		elseif self._CurPageIndex == _G.GuildPage.Building then
---			self._PageGuildBuilding:OnClick(id)
---		elseif self._CurPageIndex == _G.GuildPage.Setting then
---			self._PageGuildSet:OnClick(id)
---		end
         if self._CurPage ~= nil then
             self._CurPage:OnClick(id)
         end
@@ -236,19 +227,21 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
 		self._PageGuildSet:OnInitItem(item, id, index)
 		elseif id == "Group_List_3" then
 		self._PageGuildSet:OnInitItem(item, id, index)
+	elseif id == "List_GuildBonus" then 
+		self._PageGuildBonus:InitItem(item,id,index)
 	end
 end
 
 -- 选中列表
 def.override("userdata", "string", "number").OnSelectItem = function(self, item, id, index)
-	if self._CurPageIndex == _G.GuildPage.Info then
-		self._PageGuildInfo:OnSelectItem(item, id, index)
-	elseif self._CurPageIndex == _G.GuildPage.Member then
+	if self._CurPageIndex == _G.GuildPage.Member then
 		self._PageGuildMember:OnSelectItem(item, id, index)
 	elseif self._CurPageIndex == _G.GuildPage.Building then
 		self._PageGuildBuilding:OnSelectItem(item, id, index)
 	elseif self._CurPageIndex == _G.GuildPage.Setting then
 		self._PageGuildSet:OnSelectItem(item, id, index)
+	elseif self._CurPageIndex == _G.GuildPage.Bonus then
+		self._PageGuildBonus:SelectItem(item, id, index)
 	end
 end
 
@@ -345,7 +338,6 @@ end
 
 -- 公会建筑信息刷新
 def.method().UpdatePageGuildBuilding = function(self)
-    print("更新建筑信息")
 	if self._CurPageIndex == _G.GuildPage.Building then
 		self._PageGuildBuilding:UpdateBuildingList()
 	end
@@ -394,9 +386,19 @@ def.method().UpdateRedPoint = function(self)
 			warn("OnShowRedPoint new type")
 		end
 	end
+	-- 锻造建筑红点
+	if game._GuildMan: IsSmithyHasRedPoint() then 
+		self:ShowPageRedPoint(GuildPage.Building, true)
+	end
+
     if self._CurPage ~= nil and self._CurPage.UpdatePageRedPoint ~= nil then
         self._CurPage:UpdatePageRedPoint()
     end
+end
+
+--排序刷新成员列表
+def.method().UpdateMemberSort = function (self)
+	self._PageGuildMember:Update()
 end
 
 def.override().OnHide = function(self)

@@ -1,8 +1,6 @@
 local cfg = {
     Lab_Title = 1202927846,
-    Img_SetHeadBg = 1614315403,
     Img_CharacterBg = -45652334,
-    Img_HeadBg = -1212720511,
     Img_Head = -631428836,
     Btn_Set = 1871182783,
     Lab_Set0 = -1900892224,

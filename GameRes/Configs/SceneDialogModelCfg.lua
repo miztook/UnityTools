@@ -919,6 +919,16 @@ local IMDialogParam =
             [1] = {Size=0.5,RotY=150,PosX=-0.2,PosY=-1.425},
             [2] = {Size=0.5,RotY=190,PosX=0.05,PosY=-1.425},
         },
+        ["Assets/Outputs/Characters/Monsters/Fangzhouxunchazhe/fangzhouxunchazhe.prefab"] = 
+        { 
+            [1] = {Size=1.25,RotY=155,PosX=-0.15,PosY=-2},
+            [2] = {Size=1.25,RotY=195,PosX=0.15,PosY=-2},
+        },
+        ["Assets/Outputs/Characters/Monsters/Fangzhouxunchazhe2/fangzhouxunchazhe2.prefab"] = 
+        { 
+            [1] = {Size=1.25,RotY=155,PosX=-0.15,PosY=-2},
+            [2] = {Size=1.25,RotY=195,PosX=0.15,PosY=-2},
+        },
     }
 
 function IMDialogParam.GetRawConfig(self, key1, key2)

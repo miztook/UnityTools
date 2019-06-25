@@ -43,12 +43,14 @@ end
 def.virtual().OnDestroy = function (self) 
 end
 
+--[[
 def.method("string", "function").AddEventHandler = function (self, eventName, func)
 	if self._EventHandlers == nil then self._EventHandlers = {} end
 	if eventName == nil or eventName == "" or func == nil or self._EventHandlers[eventName] ~= nil then return end
 	self._EventHandlers[eventName] = func
 	CGame.EventManager:addHandler(eventName, func)
 end
+]]
 
 CPageBase.Commit()
 return CPageBase

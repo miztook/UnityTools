@@ -1,4 +1,5 @@
 local Lplus = require "Lplus"
+local CGame = Lplus.ForwardDeclare("CGame")
 local CTransStrategyBase = Lplus.Class("CTransStrategyBase")
 local def = CTransStrategyBase.define
 
@@ -24,6 +25,15 @@ end
 
 def.virtual().ContinueTrans = function(self)
     if self._IsTransOver then return end
+end
+
+def.virtual("number", "table").RaiseEvent = function(self, mapID, pos)
+    local pos = Vector3.New(pos.x, pos.y, pos.z)
+    local ContinueTransEvent = require "Events.ContinueTransEvent"
+    local event = ContinueTransEvent()
+    event._MapID = mapID
+    event._TargetPos = pos
+    CGame.EventManager:raiseEvent(nil, event)
 end
 
 def.virtual().Release = function(self)

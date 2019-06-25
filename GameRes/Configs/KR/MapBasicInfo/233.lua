@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 2,
 	Remarks = "远征·伊斯莲试炼者·普通",
-	TextDisplayName = "이스렌 시련자 - 보통",
+	TextDisplayName = "이스렌 수련자 - 보통",
 	Length = 256,
 	Width = 256,
 	NavMeshName = "Dungn03_QXGJ01.navmesh",

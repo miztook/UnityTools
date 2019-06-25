@@ -46,22 +46,20 @@ local function OnDeleteRoleRe(sender, protocol)
 			end
 
 			if #role_list <= 0 then
-				game._GUIMan:Close("CPanelCreateRole")
-				game._GUIMan:Close("CPanelSelectRole")
-				game:EnterRoleCreateStage()
+				game._RoleSceneMan:EnterRoleCreateStage()
 			else
-				game._GUIMan:Close("CPanelLoading")
-				game._GUIMan:Close("CPanelLogin")
-				game._GUIMan:Close("CPanelCreateRole")
+				-- game._GUIMan:Close("CPanelLoading")
+				-- game._GUIMan:Close("CPanelLogin")
+				-- game._GUIMan:Close("CPanelCreateRole")
 
-				game._GUIMan:CloseCircle()
+				-- game._GUIMan:CloseCircle()
 
 				local CPanelSelectRole = require"GUI.CPanelSelectRole"
 				if CPanelSelectRole and CPanelSelectRole.Instance():IsShow() then
 					CPanelSelectRole.Instance():RoleDeleteFromServer(i, protocol.RoleVaild)
 				end
 			end
-			return
+			break
 		end
 	end
 end
@@ -80,7 +78,8 @@ local function OnS2CRoleRecoverRes(sender, protocol)
 			if CPanelSelectRole.Instance():IsShow() then
 				CPanelSelectRole.Instance():FreshReCoverRoleShow(i)
 			end
-		return end
+			break 
+		end
 	end	
 end
 

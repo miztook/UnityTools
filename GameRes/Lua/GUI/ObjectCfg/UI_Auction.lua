@@ -47,6 +47,7 @@ local cfg = {
     Frame_SideTabs = -1076362169,
     Lab_Title = 1202927846,
     Img_ExchangeNoItems = -612479456,
+    Btn_GoToFirst = -496311158,
 }
  
 return cfg

@@ -32,6 +32,7 @@ local _KeepUIs =
 	"CpanelGuide",
 	"CPanelUIQuickUse",
 	"CPanelMainTips",
+	"CPanelMainTipsLow",
 	"CPanelEnterMapTips",
 	"CPanelUIBeginnerDungeonBoss",
 	"CPanelDungeonNpcTalk",
@@ -53,6 +54,9 @@ local _OpenPlayUIs =
 	"CPanelStrong",
 	"CPanelUIExterior",
 	"CPanelUIEquipProcess",
+	"CPanelUIAutoKill",
+	"CPanelUIDungeon",
+	"CPanelUIGuildSmithy",
 }
 
 def.field("table")._KeepUIs = BlankTable
@@ -124,34 +128,36 @@ def.static("=>", "table").GetGuideTrigger = function()
 end
 
 def.static("table").UpdateGuideSortingLayerOrder = function(guide_script)
-    local layer = guide_script._Layer
-    local order = -1
+	if guide_script ~= nil then
+	    local layer = guide_script._Layer
+	    local order = -1
 
-    -- 层级赋值
-    if not guide_script._CurBigStepConfig.Steps[guide_script._CurSmallStep].IsClickLimit then
-        ----local layer = game._GUIMan:CalculateTopLayerCurrent(self)
-        -- local layer = game._GUIMan:CalculateTopLayerCurrent(self)
+	    -- 层级赋值
+	    if not guide_script._CurBigStepConfig.Steps[guide_script._CurSmallStep].IsClickLimit then
+	        ----local layer = game._GUIMan:CalculateTopLayerCurrent(self)
+	        -- local layer = game._GUIMan:CalculateTopLayerCurrent(self)
 
-        local panelName = guide_script._CurBigStepConfig.Steps[guide_script._CurSmallStep].ShowUIPanelName
-        if panelName ~= nil and panelName ~= "" then
-            -- --print(panelName)
-            local panel_script = require("GUI." .. panelName).Instance()
-            if panel_script ~= nil and panel_script:IsShow() then
-                layer = panel_script._Layer
-                order = panel_script:GetSortingOrderBase() + GUIDE_ORDER_OFFSET
-                -- --print("重新赋值")
-            end
-        end
-    end
+	        local panelName = guide_script._CurBigStepConfig.Steps[guide_script._CurSmallStep].ShowUIPanelName
+	        if panelName ~= nil and panelName ~= "" then
+	            -- --print(panelName)
+	            local panel_script = require("GUI." .. panelName).Instance()
+	            if panel_script ~= nil and panel_script:IsShow() then
+	                layer = panel_script._Layer
+	                order = panel_script:GetSortingOrderBase() + GUIDE_ORDER_OFFSET
+	                -- --print("重新赋值")
+	            end
+	        end
+	    end
 
-    local sl_id=GameUtil.Num2SortingLayerID(layer)
-    --guide_script:SetSortingLayer(sl_id)
+	    local sl_id=GameUtil.Num2SortingLayerID(layer)
+	    --guide_script:SetSortingLayer(sl_id)
 
-    if (order > 0) then
-        guide_script:SetSortingLayerOrder(sl_id, order)
-    else
-        guide_script:SetSortingLayerOrder(sl_id, guide_script:GetSortingOrderBase())
-    end
+	    if (order > 0) then
+	        guide_script:SetSortingLayerOrder(sl_id, order)
+	    else
+	        guide_script:SetSortingLayerOrder(sl_id, guide_script:GetSortingOrderBase())
+	    end
+	end
 end
 
 --加载所有教学数据
@@ -368,12 +374,12 @@ local function ButtonNormal()
 
 	local GraphicRaycaster = instance._CurButton:GetComponent(ClassType.GraphicRaycaster)
 	if GraphicRaycaster ~= nil then
-	    GameObject.DestroyImmediate( GraphicRaycaster )
+	    GameObject.Destroy( GraphicRaycaster )
     end
 
 	local Canvas = instance._CurButton:GetComponent(ClassType.Canvas)
 	if Canvas ~= nil then
-		GameObject.DestroyImmediate( Canvas )
+		GameObject.Destroy( Canvas )
 	end
 
 	if instance._Panel_script ~= nil then
@@ -470,11 +476,9 @@ local function GuideShow( self,id,step )
 			self._IsNextStepTimeLimit = false
 		end
 
-
-
 		--如果需要播放CG 
 		if SmallStepConfig.IsShowGuideCG ~= nil and SmallStepConfig.IsShowGuideCG then
-			CGMan.PlayById(SmallStepConfig.NextStepTriggerParam, nil, 1)
+			CGMan.PlayCG(SmallStepConfig.NextStepTriggerParam, nil, 1, false)
 			--print("cgman=====================================",SmallStepConfig.NextStepTriggerParam)
 			--播放CG 没有限制
 			self._IsNextStepTimeLimit = false
@@ -607,7 +611,7 @@ local function GuideStart( self,id,behaviourID,param )
 	if BigStepConfig.IsSave ~= nil and BigStepConfig.IsSave then
 		self:SendC2SGuideProgress( self._OpenedGuideID )
 	end
-	local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+	local CAutoFightMan = require "AutoFight.CAutoFightMan"
 	local CQuestAutoMan = require "Quest.CQuestAutoMan"
 	local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
 	CQuestAutoMan.Instance():Stop()
@@ -675,9 +679,10 @@ def.method().JumpCurGuide = function(self)
 	if self._GuideTriggerDataTable == nil then return end
 
 	for k,v in pairs(self._GuideTriggerDataTable) do
-		if v.isTrigger and not v._IsFinish and v.Guide ~= nil then
+		if v.isTrigger and v.Guide ~= nil and not v.Guide._IsFinish then
 			v.Guide:GuideFinish(v.Guide._ID)
 			self._CurPanelTrigger = nil
+			self:GuideTrigger(EnumDef.EGuideBehaviourID.FinishGuide,v.Guide._ID)
 		end
 	end
 end
@@ -787,12 +792,13 @@ def.method("number","number").GuideTrigger = function(self,behaviourID,param)
 						self._GuideTriggerDataTable[id].isTrigger = true
 						self:SendC2SGuideTrigger( id )
 						print("GuideStart",id)
-						local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+						local CAutoFightMan = require "AutoFight.CAutoFightMan"
 						local CQuestAutoMan = require "Quest.CQuestAutoMan"
 						local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
 						CQuestAutoMan.Instance():Stop()
 						CDungeonAutoMan.Instance():Stop()
 						CAutoFightMan.Instance():Stop()
+						break
 					end
 				end
 
@@ -808,6 +814,7 @@ def.method("number","number").GuideTrigger = function(self,behaviourID,param)
 							self:GuideTrigger(EnumDef.EGuideBehaviourID.FinishGuide,id)
 						end
 						print("GuideNextStep",id)
+						break
 					end
 				end
 			end
@@ -1100,9 +1107,8 @@ end
 
 --新手副本教学特殊处理
 def.method("boolean","string").IsShowGuide = function(self,b,panelName)
-	--print("111111111111111111111111111DungeonGuide",b,panelName,self._CurGuideID,self._CurGuideStep)
+	--print("111111111111111111111111111DungeonGuide",b,panelName,self._CurGuideTrigger._ID,self._CurGuideTrigger._Step,debug.traceback())
     if (self._CurGuideID == 4 or self._CurGuideID == 6) and self._CurGuideStep == 1 then
-    	--if IsNil(self._CurPanel) then return end
     	if b then
     		--print("11111111111")
     		if IsNil(self._CurPanel) then
@@ -1120,21 +1126,54 @@ def.method("boolean","string").IsShowGuide = function(self,b,panelName)
     		end
     	end
 	end
-    if (self._CurGuideTrigger ~= nil and (self._CurGuideTrigger._ID == 104 or self._CurGuideTrigger._ID == 106)) and self._CurGuideTrigger._Step == 1 then
-    	if b then
-    		if IsNil(self._CurPanelTrigger) then
-    			self._CurGuideTrigger:GuideShow( self._CurGuideTrigger._ID,self._CurGuideTrigger._Step )
-    		else
-    			self._CurPanelTrigger:ShowCurSmallStep()
-    		end
-    	else
 
-			if IsNil(self._CurPanelTrigger) then
+	if panelName == "Panel_Main_QuestN(Clone)" then
+	    if (self._CurGuideTrigger ~= nil and (self._CurGuideTrigger._ID == 104 or self._CurGuideTrigger._ID == 106 or self._CurGuideTrigger._ID == 111 or self._CurGuideTrigger._ID == 32 or self._CurGuideTrigger._ID == 113 )) and self._CurGuideTrigger._Step == 1 then
+	    	local CGuideMan = require "Guide.CGuideMan"
+	        local guideConfig = CGuideMan.GetGuideTrigger()
+	        local BigStepConfig = guideConfig[self._CurGuideTrigger._ID]
+	        local SmallStepConfig = BigStepConfig.Steps[self._CurGuideTrigger._Step]
 
-    		else
-    			self._CurPanelTrigger:HideCurSmallStep()
-    		end
-    	end
+	        local frame = GameObject.Find( SmallStepConfig.OpenPagePath )
+	    	if b and (SmallStepConfig.OpenPagePath == nil or (frame ~= nil and frame.activeSelf and frame.localPosition.x ~= 10000) )  then
+	    		if IsNil(self._CurPanelTrigger) then
+	    			self._CurGuideTrigger:GuideShow( self._CurGuideTrigger._ID,self._CurGuideTrigger._Step )
+	    		else
+	    			self._CurPanelTrigger:ShowCurSmallStep()
+	    		end
+	    	else
+
+				if IsNil(self._CurPanelTrigger) then
+
+	    		else
+	    			self._CurPanelTrigger:HideCurSmallStep()
+	    		end
+	    	end
+		end
+	elseif panelName == "UI_Main_Chat(Clone)" then
+	    if self._CurGuideTrigger ~= nil and self._CurGuideTrigger._ID == 23 and self._CurGuideTrigger._Step == 1 then
+	    	local CGuideMan = require "Guide.CGuideMan"
+	        local guideConfig = CGuideMan.GetGuideTrigger()
+	        local BigStepConfig = guideConfig[self._CurGuideTrigger._ID]
+	        local SmallStepConfig = BigStepConfig.Steps[self._CurGuideTrigger._Step]
+
+	    	local frame = GameObject.Find( SmallStepConfig.OpenPagePath )
+	    	if b and (SmallStepConfig.OpenPagePath == nil or (frame ~= nil and frame.activeSelf and frame.localPosition.x ~= 10000) )  then
+	    		if IsNil(self._CurPanelTrigger) then
+	    			self._CurGuideTrigger:GuideShow( self._CurGuideTrigger._ID,self._CurGuideTrigger._Step )
+	    		else
+	    			self._CurPanelTrigger:ShowCurSmallStep()
+	    			self._CurPanelTrigger:EffectAutoPos(self._CurGuideTrigger._CurButton)
+	    		end
+	    	else
+
+				if IsNil(self._CurPanelTrigger) then
+
+	    		else
+	    			self._CurPanelTrigger:HideCurSmallStep()
+	    		end
+	    	end
+		end
 	end
 end
 
@@ -1192,7 +1231,7 @@ def.method("boolean","number").HaweyeGuide = function(self,b,state)
     if self._CurGuideTrigger ~= nil then
 	    if (self._CurGuideTrigger._ID == 16 or self._CurGuideTrigger._ID == 21) and self._CurGuideTrigger._Step == 1 then
 			if b and state == 1 then
-				local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+				local CAutoFightMan = require "AutoFight.CAutoFightMan"
 				local CQuestAutoMan = require "Quest.CQuestAutoMan"
 				local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
 				CQuestAutoMan.Instance():Stop()
@@ -1442,7 +1481,7 @@ def.method("string", "boolean").OnToggle = function(self, id, checked)
 end
 
 def.method("userdata", "string", "number").OnSelectItem = function(self, item, id, index)
-print("OnSelectItem========",id)
+
     local CPanelGuide = require "GUI.CPanelGuide"
     local panel = CPanelGuide.Instance()
     if panel ~= nil and panel:IsShow() then
@@ -1578,7 +1617,10 @@ def.method("table").ChangeGuideData = function(self, data)
 			self._GuideTriggerDataTable[v] = {}
 		end
 		self._GuideTriggerDataTable[v].isTrigger = true
-		
+
+		if self._GuideTriggerDataTable[v].Guide ~= nil then
+			self._GuideTriggerDataTable[v].Guide._IsFinish = true
+		end
 	end		
 	if self._CurGuideID == 0 then
 		self._IsNextStepTimeLimit = false

@@ -53,7 +53,7 @@ def.override('string').OnClick = function(self, id)
         if id == "Btn_Buy" then
             local callback = function(val)
                 if val then
-                    game._CAuctionUtil:SendC2SMarketItemBuy(CPanelAuction.Instance()._CurrentRightToggle,self._ItemData.ItemID,self._UnitPrice,self._BuyItemNumber)
+                    game._CAuctionUtil:SendC2SMarketItemBuy(CPanelAuction.Instance()._CurrentRightToggle,self._ItemData.ItemPos,self._BuyItemNumber)
                 end
             end
             MsgBox.ShowQuickBuyBox(money_id, self._TotalPrice, callback)
@@ -135,7 +135,7 @@ def.method().UpdataBuyUIShow = function (self)
         if size == nil or itemData.InitLevel <= 0 then
             colorname = RichTextTools.GetItemNameRichText(self._ItemData.ItemID, 1, false)
         else
-            local strLv = string.format(StringTable.Get(19073), itemData.InitLevel)
+            local strLv = string.format(StringTable.Get(10657), itemData.InitLevel)
             strLv = GUITools.FormatRichTextSize(size-2, strLv)
             colorname = RichTextTools.GetItemNameRichText(self._ItemData.ItemID, 1, false)..strLv
         end

@@ -16,15 +16,18 @@ local CPath = Lplus.Class("CPath")
 local def = CPath.define
 
 def.field("table")._AllPathPoints = BlankTable
+
+def.field("userdata")._TargetObj = nil 
+def.field("userdata")._TargetObjFxComps = nil 
 def.field("table")._AllPathArrowObjs = BlankTable 
-def.field("table")._MapInfo = BlankTable
+
+def.field("table")._MapInfo = BlankTable  -- 没用
 def.field("userdata")._ParentObj = nil 
 def.field("table")._TargetPos = BlankTable 
-def.field("number")._ShowPathTimeID = 0
-def.field("number")._UpdateDirTimeID = 0
-def.field("number")._RhythmTimeID = 0
-def.field("number")._MaxPointNumber = 20
-def.field("userdata")._TargetObj = nil 
+def.field("number")._ShowPathTimeID = 0   -- 没用
+def.field("number")._UpdateDirTimeID = 0  -- 没用
+def.field("number")._RhythmTimeID = 0     -- 没用
+def.field("number")._MaxPointNumber = 20  
 def.field("number")._QuestId = 0
 def.field("number")._TotalDistance = 0
 def.field("number")._Spacing = 3                 -- 箭头之间的间隔
@@ -57,24 +60,29 @@ local function ControlPathBySkillMoving(self)
 	end
 end
 
+local function InstantiateObject(self,i,pos)
+ 	if self._AllPathPoints == nil or (#self._AllPathPoints < i+1) then return end
+ 	
+ 	local obj = Object.Instantiate(_G.PathArrowTemplate)
+	local dir = Vector3.New(self._AllPathPoints[i+1].x - self._AllPathPoints[i].x,0,self._AllPathPoints[i+1].z - self._AllPathPoints[i].z)
+	if obj ~= nil then
+		GameUtil.SetLayerRecursively(obj, EnumDef.RenderLayer.Fx)
+		obj:SetActive(true)
+		pos.y = pos.y
+		obj.localPosition = pos
+		obj.forward = dir
+		obj:SetParent(self._ParentObj)
+		self._AllPathArrowObjs[#self._AllPathArrowObjs + 1] = obj	
+	end 
+	self._AsyncLoadObjNum = self._AsyncLoadObjNum + 1
+end
+
 local function AddNewArrowPathObj(self,index) 
 	local point_count = #self._AllPathPoints - 1
 	for i = index, point_count, 1 do
     	local pos = self._AllPathPoints[i]
         pos.y = GameUtil.GetMapHeight(self._AllPathPoints[i])
-        local obj = GameUtil.RequestUncachedFx(PATH.Gfx_PathArrow, false)
-	   	obj.name = "PathArrow" .. tostring(i)
-	   	local dir = Vector3.New(self._AllPathPoints[i+1].x - self._AllPathPoints[i].x,0,self._AllPathPoints[i+1].z - self._AllPathPoints[i].z)
-		GameUtil.SetLayerRecursively(obj, EnumDef.RenderLayer.Fx)
-		obj:SetActive(true)
-		obj.localScale = Vector3.one 						
-		pos.y = pos.y
-		obj.localPosition = pos
-		obj.forward = dir
-		obj:SetParent(self._ParentObj)
-		self._AllPathArrowObjs[#self._AllPathArrowObjs + 1] = obj
-
-		self._AsyncLoadObjNum = self._AsyncLoadObjNum + 1
+		InstantiateObject(self,i,pos)
 	end	
 end
 
@@ -83,39 +91,6 @@ def.method().Init = function(self)
 		self._ParentObj = GameObject.New("PathFx")
 	end
 end
-
--- 创建目标位置特效 
-def.method().CreatTargetFx = function (self)
-	if self._TargetObj == nil then
-		self._TargetObj = GameUtil.RequestUncachedFx(PATH.Gfx_PathTarget)
-		self._TargetObj.name = "PathTarget"
-		self._TargetObj:SetParent(self._ParentObj)
-		self._TargetObj:SetActive(false)
-	end
-end
-
---包括相位或副本目标位置
-def.method("=>","table").GetTargetPositionInDungeonAndOther = function (self)
-	local dungeonGoal = game._DungeonMan: GetDungeonGoal()
-	if dungeonGoal == nil then 
-		warn("dungeonGoal is nil")
-		return nil 
-	end
-	local entityType = ""
-	if dungeonGoal.GoalType == DungeonGoalType.EDUNGEONGOAL_KILLMONSTER then 
-		entityType = "Monster"
-	elseif dungeonGoal.GoalType == DungeonGoalType.EDUNGEONGOAL_GATHER then 
-		entityType = "Mine"
-	elseif dungeonGoal.GoalType == DungeonGoalType.EDUNGEONGOAL_ENTERREGION then
-		entityType = "Region"
-	elseif dungeonGoal.GoalType == DungeonGoalType.EDUNGEONGOAL_TALK then
-		entityType = "Npc"
-	elseif dungeonGoal.GoalType == DungeonGoalType.EDUNGEONGOAL_LOGICGROUP_ALLDEAD then
-		entityType = "Monster"
-	end
-	return MapBasicConfig.GetSpecificEntityInfo(game._CurWorld._WorldInfo.SceneTid,entityType,dungeonGoal.TemplateId)
-	-- body
-end 
 
 -- 创建箭头 显示距离目标点位置(依据副本目标是否为空来判断走哪种寻路 计时副本和相位有可能提供目标为空走的大世界寻路)
 def.method("table").ShowPath = function (self,TargetPos)
@@ -228,8 +203,8 @@ def.method("number").SetAutoPathArrowObj = function(self,destroyNum)
 		for i = 1 , destroyNum do
 			local obj = self._AllPathArrowObjs[1]
 			obj:SetActive(false)
-			table.remove(self._AllPathArrowObjs,1)
-			table.insert(self._AllPathArrowObjs,obj)
+			table.remove(self._AllPathArrowObjs, 1)
+			table.insert(self._AllPathArrowObjs, obj)
 		end
 	end
    	if #self._AllPathPoints <= 1 then return end 
@@ -239,7 +214,7 @@ end
 -- 路径最多显示 self._MaxPonitNumber(激活并刷新隐藏掉的Arrow Path Object 符合策划大世界中路径不可闪的需求)
 def.method().AddAutoPathObj = function(self)
 	if #self._AllPathArrowObjs ~= 0 and self._AsyncLoadObjNum ~= 0 then 
-		for i,v in ipairs(self._AllPathArrowObjs) do
+		for i, v in ipairs(self._AllPathArrowObjs) do
 			if not v.activeSelf then
     			if #self._AllPathPoints == 0 then  return end
 				if i <= #self._AllPathPoints - 1 then
@@ -248,19 +223,19 @@ def.method().AddAutoPathObj = function(self)
     				local dir = nil 
 					v.localPosition = pos
 					v:SetActive(true)
+
 					if self._AllPathPoints[i + 1] ~= nil then
-						dir = Vector3.New(self._AllPathPoints[i+1].x - self._AllPathPoints[i].x,0,self._AllPathPoints[i+1].z - self._AllPathPoints[i].z)
+						local dir = Vector3.New(self._AllPathPoints[i+1].x - self._AllPathPoints[i].x,0,self._AllPathPoints[i+1].z - self._AllPathPoints[i].z)
 						v.forward = dir
-			   			v.localScale = Vector3.one
 			   		end
 		   		end 
 			end
 		end
 		if #self._AllPathArrowObjs < #self._AllPathPoints - 1 and self._AsyncLoadObjNum < #self._AllPathPoints - 1 then
-			AddNewArrowPathObj(self,#self._AllPathArrowObjs + 1)
+			AddNewArrowPathObj(self, #self._AllPathArrowObjs + 1)
 		end
 	elseif #self._AllPathArrowObjs == 0 and self._AsyncLoadObjNum == 0 then
-		AddNewArrowPathObj(self,#self._AllPathArrowObjs + 1)
+		AddNewArrowPathObj(self, #self._AllPathArrowObjs + 1)
 	end	
 end
 
@@ -274,8 +249,8 @@ def.method().UpdateDistancePanelInWorld = function (self)
 	end
 	local callback = function () 
 		if self._ParentObj == nil then return end
-
 		if self._TargetPos == nil then return end
+		
 		ControlPathBySkillMoving(self)
 		if not game._HostPlayer:IsSkillMoving() then 
 			PassDistance = GameUtil.GetCurrentCompleteDistance()
@@ -304,9 +279,10 @@ def.method().SkillPause = function (self)
 		self._PanelDistance:Clear()
 	end
 	if self._TargetObj == nil then return end
-	self._TargetObj:SetActive(false)
+	self._TargetObjFxComps:Stop()
+
 	self._AllPathPoints = {}
-	if #self._AllPathArrowObjs == 0 then return end
+	if self._AllPathArrowObjs == nil or #self._AllPathArrowObjs == 0 then return end
 	for i,v in ipairs(self._AllPathArrowObjs) do
 		if v.activeSelf then 
 			v:SetActive(false)
@@ -405,29 +381,28 @@ def.method().ShowPathInDungeon = function(self)
 	local oldTime = self._Spacing / game._HostPlayer:GetMoveSpeed()
 	local starTime = 0
 	local callback = function () 
-		if self._ParentObj == nil then return end
-		starTime = starTime + 0.5
-		if not CheckDungeonMonsterType(self) then 
-			-- warn("有头目")
-			self:Hide()
-			return
-		end
-		local distance, isShowPath = CheckDistanceInDungeon(self)
-		local newTime = self._Spacing / game._HostPlayer:GetMoveSpeed()
-		if isShowPath then
-			-- 变速
-			if newTime ~= oldTime or  starTime >= oldTime then 
-				GetPathPoint(self)
-				self:UpdatePathInDungeon()
-				self:ShowTargetFx()
-				starTime = 0
-				oldTime = newTime
+			if self._ParentObj == nil then return end
+			starTime = starTime + 0.5
+			if not CheckDungeonMonsterType(self) then 
+				self:Hide()
+				return
 			end
-			self:UpdateDistancePanelInDungeon(distance)
-		else
-			self:Hide()
+			local distance, isShowPath = CheckDistanceInDungeon(self)
+			local newTime = self._Spacing / game._HostPlayer:GetMoveSpeed()
+			if isShowPath then
+				-- 变速
+				if newTime ~= oldTime or  starTime >= oldTime then 
+					GetPathPoint(self)
+					self:UpdatePathInDungeon()
+					self:ShowTargetFx()
+					starTime = 0
+					oldTime = newTime
+				end
+				self:UpdateDistancePanelInDungeon(distance)
+			else
+				self:Hide()
+			end
 		end
-	end
 	self._ArrowTimerID = _G.AddGlobalTimer(0.5, false, callback)  
 end
 
@@ -469,7 +444,6 @@ def.method().UpdateArrowPathPosition = function (self)
 				if self._AllPathPoints[i + 1] == nil then return end
 				dir = Vector3.New(self._AllPathPoints[i+1].x - self._AllPathPoints[i].x,0,self._AllPathPoints[i+1].z - self._AllPathPoints[i].z)
 				v.forward = dir
-	   			v.localScale = Vector3.one
 	   		elseif i >= #self._AllPathPoints then
                 v:SetActive(false)
 	   		end 
@@ -487,7 +461,6 @@ def.method().UpdateArrowPathPosition = function (self)
 			if self._AllPathPoints[i + 1] == nil then return end
 			dir = Vector3.New(self._AllPathPoints[i+1].x - self._AllPathPoints[i].x,0,self._AllPathPoints[i+1].z - self._AllPathPoints[i].z)
 			v.forward = dir
-   			v.localScale = Vector3.one
 		end
 		AddNewArrowPathObj(self,#self._AllPathArrowObjs + 1)
 	end
@@ -507,13 +480,19 @@ end
 ---------------------------------- 副本自动寻路End ------------------------------
 
 def.method().ShowTargetFx = function(self)
-	self:CreatTargetFx()
+	if self._TargetObj == nil then
+		self._TargetObj = GameUtil.RequestUncachedFx(PATH.Gfx_PathTarget)
+		self._TargetObj.name = "PathTarget"
+		self._TargetObj:SetParent(self._ParentObj)
+		self._TargetObjFxComps = self._TargetObj:GetComponent(ClassType.CFxOne)
+	end
+
 	if #self._AllPathPoints <= self._MaxPointNumber and self._TargetPos ~= nil then 
-		self._TargetObj:SetActive(true)
 		local posY = GameUtil.GetMapHeight(self._TargetPos)
 		self._TargetObj.localPosition = Vector3.New (self._TargetPos.x,posY,self._TargetPos.z)
+		self._TargetObjFxComps:Play(-1)
 	else
-		self._TargetObj:SetActive(false)
+		self._TargetObjFxComps:Stop()
 	end
 end
 
@@ -541,7 +520,7 @@ def.method().HideTargetFxAndDistance = function (self)
 		self._PanelDistance:Clear()
 	end
 	if self._TargetObj == nil then return end
-	self._TargetObj:SetActive(false)
+	self._TargetObjFxComps:Stop()
 end
 
 def.method("=>", "table").GetCurTargetPos = function (self)
@@ -585,16 +564,9 @@ def.method().CleanPathAndData = function (self)
 	end
 	self._IsSkillMoving = false
 	self._AllPathPoints = {}
-	-- self._AsyncLoadObjNum = 0
-	-- self._AllPathArrowObjs = {}  
 	self._IsDungeonPath = false
-
-	-- if self._ParentObj ~= nil then
-	-- 	warn("pppppp999999999999999999999999999999")
-	-- 	Object.DestroyImmediate(self._ParentObj)
-	-- 	self._ParentObj = nil
-	-- end
 	self._TargetObj = nil
+	self._TargetObjFxComps = nil
 end
 
 CPath.Commit()

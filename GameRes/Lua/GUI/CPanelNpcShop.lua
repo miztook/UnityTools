@@ -18,7 +18,7 @@ local CFrameCurrency = require "GUI.CFrameCurrency"
 local CPanelNpcShop = Lplus.Extend(CPanelBase, "CPanelNpcShop")
 local DynamicText = require "Utility.DynamicText"
 local CQuestAutoMan = require"Quest.CQuestAutoMan"
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local CCommonBtn = require "GUI.CCommonBtn"
 local CCommonNumInput = require "GUI.CCommonNumInput"
 local CMallUtility = require "Mall.CMallUtility"
@@ -73,7 +73,6 @@ def.static("=>", CPanelNpcShop).Instance = function()
 		instance = CPanelNpcShop()
 		instance._PrefabPath = PATH.UI_NPCShop
 		instance._PanelCloseType = EnumDef.PanelCloseType.None
-        
 		instance._DestroyOnHide = true
         instance:SetupSortingParam()
 	end
@@ -123,6 +122,7 @@ end
     --IsAuto        --自动购买（自动任务触发）
 -- }
 def.override("dynamic").OnData = function(self, data)
+	self._HelpUrlType = HelpPageUrlType.NPCShop
     self._CurItemIndex = 0
     self._CurNumber = 1
     if data.OpenType then
@@ -166,6 +166,14 @@ def.method().UpdateMoneyFrame = function(self)
         self._Frame_Money:Init(EnumDef.MoneyStyleType.FearlessShop)
     elseif self._CurrentBigShopID == 9 then
         self._Frame_Money:Init(EnumDef.MoneyStyleType.ReputationShop)
+    elseif self._CurrentBigShopID == 23 then
+        if self._CurrentSubShopID == 1 then
+            self._Frame_Money:Init(EnumDef.MoneyStyleType.SmallCharmShop)
+        elseif self._CurrentSubShopID == 2 then
+            self._Frame_Money:Init(EnumDef.MoneyStyleType.BigCharmShop)
+        else
+            self._Frame_Money:Init(EnumDef.MoneyStyleType.None)
+        end
     else
         self._Frame_Money:Init(EnumDef.MoneyStyleType.None)
     end
@@ -282,7 +290,7 @@ def.method("table").FilterAndChoseShopByData = function(self, data)
     	self._ShowShop = self._ShopData 
         local find = false
         for i,v in ipairs(self._ShowShop) do
-            if data.ShopId ~= nil and v.ShopId == data.ShopId then
+            if data.ShopId ~= nil and v.ShopId == data.ShopId and data.ShopId ~= 9 then
                 self._CurBigShopIndex = i
                 self._CurrentBigShopID = data.ShopId
                 for i1, v1 in ipairs(v.NpcSaleSubs) do
@@ -293,9 +301,11 @@ def.method("table").FilterAndChoseShopByData = function(self, data)
                 end
                 find = true
             end
-            if data.ShopId == 9--[[ENpcSaleServiceType.NpcSale_Repatation]] then
+            if data.ShopId ~= nil and data.ShopId == 9--[[ENpcSaleServiceType.NpcSale_Repatation]] then
                 for i1, v1 in ipairs(v.NpcSaleSubs) do
+                    if find then break end
                     for i2, v2 in ipairs(v1.NpcSaleItems) do
+                        if find then break end
                         if v2.ReputationType == data.RepID then
                             self._CurBigShopIndex = i
                             self._CurrentBigShopID = v.ShopId
@@ -477,23 +487,65 @@ def.method().UpdateBuyInfoPanel = function (self)
         self._Btn_Buy:ResetSetting(setting)
         self._Num_Input:ResetMinAndMaxCount(1, self._MaxNumber)
         if not interactable then
-            self._Btn_Buy:SetInteractable(false)
+--            self._Btn_Buy:SetInteractable(false)
             self._Btn_Buy:MakeGray(true)
             self._Num_Input:SetCountWithOutCb(self._CurNumber)
-            self._Num_Input:SetInteractable(false)
+--            self._Num_Input:SetInteractable(false)
         end
     end    
+end
+
+def.method().OnClickBtnBuy = function(self)
+    local index = self._CurItemIndex
+    if index < 0 then
+        return
+    end
+    -- 判断条件是否满足
+    if self._CurrentItemsData[index + 1].IsLevel then 
+   		if game._HostPlayer._InfoData._Level < self._CurrentItemsData[index + 1].Level then
+            game._GUIMan:ShowTipText(StringTable.Get(22314), true)
+            return
+		end	
+    end
+    if self._CurrentItemsData[index + 1].IsStage then
+   		if game._HostPlayer._InfoData._Arena3V3Stage < self._CurrentItemsData[index + 1].StageLevel then 
+            game._GUIMan:ShowTipText(StringTable.Get(22315), true)
+            return
+   		end 	
+    end
+    if self._CurrentItemsData[index + 1].IsReputation then
+    	local is_locked = true
+    	for i,v in pairs(self._HostPlayerReputations) do 
+   			if i == self._CurrentItemsData[index + 1].ReputationType then
+   				if v.Level >= self._CurrentItemsData[index + 1] .ReputationLevel then 
+   					is_locked = false
+   				end
+   			end
+   		end
+   		if is_locked then 
+            game._GUIMan:ShowTipText(StringTable.Get(22316), true)
+            return
+		end
+    end
+    -- 判断剩余数量 0置灰无效按钮
+    if self._CurrentItemsData[index + 1].LimitType == ENpcSaleLimitType.DayRefresh or self._CurrentItemsData[index + 1].LimitType == ENpcSaleLimitType.Forever then
+	    if self._CurrentItemsData[index + 1].LimitCount <= 0 then
+            game._GUIMan:ShowTipText(StringTable.Get(22317), true)
+            return
+	    end
+	end
+    local callback = function(val)
+        if val then
+            self:SendC2SNpcSaleBuyReq()
+        end
+    end
+    MsgBox.ShowQuickBuyBox(self._CostMoneyID, self._TotalPrice, callback)
 end
 
 def.override("string").OnClick = function(self, id)
 	CPanelBase.OnClick(self,id)
     if self._Btn_Buy:OnClick(id) then
-        local callback = function(val)
-            if val then
-                self:SendC2SNpcSaleBuyReq()
-            end
-        end
-        MsgBox.ShowQuickBuyBox(self._CostMoneyID, self._TotalPrice, callback)
+        self:OnClickBtnBuy()
     elseif self._Num_Input:OnClick(id) then
         return
 	elseif self._Frame_Money ~= nil and self._Frame_Money:OnClick(id) then
@@ -622,7 +674,7 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
         -- 折扣信息
         if self._CurrentItemsData[index + 1].DiscountType > 0 then
             imgDisCount:SetActive(true)
-            local discount_str = string.format(StringTable.Get(31005),self._CurrentItemsData[index + 1].DiscountType)
+            local discount_str = tostring(self._CurrentItemsData[index + 1].DiscountType * 10)
             GUI.SetText(labDiscount, discount_str)        
         else
             imgDisCount:SetActive(false)
@@ -646,7 +698,7 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
        		    GUI.SetText(labMaxNumber,string.format(StringTable.Get(22301), remain_count))
        	    end
         end
-        GUI.SetText(labPrice,tostring(self._CurrentItemsData[index + 1].CostMoneyNum))
+        GUI.SetText(labPrice, GUITools.FormatNumber(self._CurrentItemsData[index + 1].CostMoneyNum, false))
         --显示限制条件
         if self._CurrentItemsData[index + 1].IsLevel then 
        		if game._HostPlayer._InfoData._Level < self._CurrentItemsData[index + 1].Level then
@@ -930,7 +982,7 @@ end
 --通过DetailsID 获得已经购买该物品的数量
 ----------------------------------------------------------------------
 def.method("number", "=>", "number").GetBuyCountByDetialID = function(self, detialId)
-    if self._CurrentSubShopBuyInfo == nil then return end
+    if self._CurrentSubShopBuyInfo == nil then return 0 end
     for _,v in ipairs(self._CurrentSubShopBuyInfo.NpcSaleInfos) do
         if v.DetailId == detialId then
             return v.Count

@@ -26,3 +26,10 @@ local function OnS2CGuideUpdate(sender, msg)
 	end
 end
 PBHelper.AddHandler("S2CGuideUpdate", OnS2CGuideUpdate)
+
+local function OnS2CFunctionForbid(sender, msg)
+    if msg.FunctionId > 0 then
+        game._CFunctionMan:ChangeForbidData(msg.FunctionId, msg.IsForbid)
+    end
+end
+PBHelper.AddHandler("S2CFunctionForbid", OnS2CFunctionForbid)

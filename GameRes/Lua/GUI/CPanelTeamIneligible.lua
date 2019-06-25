@@ -49,6 +49,10 @@ def.override("dynamic").OnData = function(self, data)
                 map.Reason = StringTable.Get(22076)
             elseif err == EMatchTeamErrorCode.EMatchInMassacre then
                 map.Reason = StringTable.Get(22077)
+            elseif err == EMatchTeamErrorCode.EMatchUnLock then
+                map.Reason = StringTable.Get(22084)
+            elseif err == EMatchTeamErrorCode.EMatchEnterNumberLimit then
+                map.Reason = StringTable.Get(22085)
             end
 
             table.insert(self._ListData, map)

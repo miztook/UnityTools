@@ -10,6 +10,7 @@ local CElementData = require "Data.CElementData"
 local CQuestModel = require "Quest.CQuestModel"
 local CQuestObjectiveModel = require"Quest.CQuestObjectiveModel"
 local CTransManage = require "Main.CTransManage"
+local EntityEnterEvent = require "Events.EntityEnterEvent"
 
 local CPageQuest = Lplus.Class("CPageQuest")
 local def = CPageQuest.define
@@ -38,7 +39,7 @@ def.field('number')._SpecialDungeonGoalTimeId = 0
 def.field("boolean")._OnlyTrunOnGfxWhenItemSel = false
 
 local instance = nil
-
+local isShowFristRecieveQuest = -1  --是否已经显示头部可接
 local function GetInProcessQuest(id)
 	return CQuest.Instance():GetInProgressQuestModel(id)
 end
@@ -107,112 +108,25 @@ local function GetQuestIndex(id)
 end
 
 local function UpdateList()
-	--为0 的时候也要刷新
+	--为0 的时候也要刷新 
 	local count = #instance._QuestCurrent
 	--如果有特殊副本目标特殊处理
 	if instance._SpecialDungeonGoal ~= nil then
 		count = count + 1
 	end
 	instance._OnlyTrunOnGfxWhenItemSel = false
+
+	if IsNil(instance._List) then return end
 	instance._List:SetItemCount(count)
-end
-
---------------------------------------------------------------
-------------------------任务列表基础操作-----------------------
---------------------------------------------------------------
-local function OnQuestData(data)
-	local source = data
-	instance._QuestCurrent = {}
-	local hasMainQuest = false
-	for k, v in pairs(source.CurrentQuests) do
-		if v and v.Id and v.Id > 0 then
-			
-			local current = GetInProcessQuest(v.Id)
-			if current and current:GetTemplate()~=nil and not current:GetTemplate().IsSubQuest and not (current:GetTemplate().Type == QuestDef.QuestType.Hang) then
-				if current:GetTemplate().Type == QuestDef.QuestType.Main then
-					hasMainQuest = true
-				end
-				table.insert(instance._QuestCurrent, v.Id)
-			end
-		end
-	end
-	
-	local next_quest_id = 0
-	local finished = source.FinishedQuests
-	for i = #finished, 1, - 1 do
-		local finishedQuestTmp = CElementData.GetQuestTemplate(finished[i].Id)
-		if finishedQuestTmp ~= nil then
-			next_quest_id = finishedQuestTmp.DeliverRelated.NextQuestId
-			if next_quest_id > 0 then
-				local isShowNextQuest = false
-				--如果 是主线 没有进行中的主线任务 （主线任务 只显示一个未接的）
-				if not hasMainQuest and finishedQuestTmp.Type == QuestDef.QuestType.Main then
-					isShowNextQuest = true
-					hasMainQuest = true
-				end
-
-				--如果 是分支 完成列表中没有 并且 也没在正进行中列表
-				if finishedQuestTmp.Type == QuestDef.QuestType.Branch or finishedQuestTmp.Type == QuestDef.QuestType.Reputation then
---[[					local isHasCurrent = false
-					for i,v in ipairs(instance._QuestCurrent) do
-						if v == next_quest_id then
-							isHasCurrent = true
-						end
-					end
-
-					if not CQuest.Instance():IsQuestCompleted(next_quest_id) and not isHasCurrent then
-						isShowNextQuest = true
-					end--]]
-
-					local result = CQuest.Instance():CanRecieveQuest( next_quest_id )
-					local index = table.indexof(instance._QuestCurrent, next_quest_id )
-					if result and not index then
-						isShowNextQuest = true
-					end
-				end
-
-				if isShowNextQuest then
-					table.insert(instance._QuestCurrent, #instance._QuestCurrent + 1, next_quest_id)
-				end
-			end
-
-			--添加可以接的新支线
-			local subQuests = string.split(finishedQuestTmp.DeliverRelated.NextSubQuestIds, "*")
-			local result = false
-			if subQuests ~= nil and subQuests[1] ~= "" then
-				for i,v in ipairs(subQuests) do
-					result = CQuest.Instance():CanRecieveQuest(tonumber(v))
-					local index = table.indexof(instance._QuestCurrent, tonumber(v))
-					if result and not index then
-						table.insert(instance._QuestCurrent, #instance._QuestCurrent + 1, tonumber(v))
-					end
-				end
-			end
-		end
-	end
-
-	--sort
-	if #instance._QuestCurrent > 1 then
-		local SortFunc = function(left, right)
-			local tl = CElementData.GetQuestTemplate(left) --left:GetTemplate()
-			local tr = CElementData.GetQuestTemplate(right) --right:GetTemplate()
-			local ml = CQuest.Instance():FetchQuestModel(left)
-			local mr = CQuest.Instance():FetchQuestModel(right)
-			if tl.Type ~= tr.Type then	-- 主线任务 > 支线任务 > 日常任务> 悬赏 > 职业
-				--return tl.Type < tr.Type
-				return QuestDef.SortIndex[tl.Type+1] < QuestDef.SortIndex[tr.Type+1] 
-			end
-			if ml.QuestStatus ~= mr.QuestStatus then
-				 return ml.QuestStatus ~= QuestDef.Status.NotRecieved and mr.QuestStatus == QuestDef.Status.NotRecieved
-			end
-			return tl.Id < tr.Id
-		end
-		table.sort(instance._QuestCurrent, SortFunc)
-	end
 end
 
 --添加单个任务
 local function QuestAdd(questId)
+--[[	local onelimit = table.indexof(instance._QuestCurrent, questId )
+	if onelimit then
+		print("onelimit=====",questId,debug.traceback())
+		return
+	end--]]
 	local index = GetInsertIndex(questId)
 	table.insert(instance._QuestCurrent, index, questId)
 	--如果界面还没显示，只更新数据
@@ -223,7 +137,7 @@ local function QuestAdd(questId)
 		end
 		--instance._Queue:Push(CListAddOpera.new({}, instance._List, index - 1))
 		instance._List:AddItem(index - 1)
-		--print("AddItem",index - 1)
+		--print("AddItem",index - 1,questId,debug.traceback())
 	end
 end
 
@@ -259,6 +173,218 @@ local function QuestUpdate(quest_id)
 	end
 end
 
+--支线可接任务规则限制
+local function IsInitialQuestMapTid(questId)
+	--判断 不是头部任务（为0不是头部任务 不受限，不为0 则找是不是所属地图） 
+	local nextQuestTmp = CElementData.GetQuestTemplate( questId )
+	local IsInitialQuestMapTid = false
+	local sceneTid = game._CurWorld._WorldInfo.SceneTid
+	--限制原则 不为0，不等于所属地图
+	if nextQuestTmp.InitialQuestMapTid ~= 0 and nextQuestTmp.InitialQuestMapTid == sceneTid and nextQuestTmp.Type == QuestDef.QuestType.Branch then
+		IsInitialQuestMapTid = true
+	end
+	--print("IsInitialQuestMapTid======",questId,nextQuestTmp.InitialQuestMapTid,sceneTid,IsInitialQuestMapTid,isShowFristRecieveQuest)
+	return IsInitialQuestMapTid
+end
+
+--支线是否是头部可接任务
+local function isFristRecieveQuest(questId)
+	--local template = CElementData.GetQuestTemplate(questId)
+	local isFristRecieveQuest = CQuest.Instance():IsFristQuest( questId )
+	return isFristRecieveQuest
+end
+
+--更新头部头部可接任务
+local function UpdateFristRecieveQuest( NextQuestId )
+	isShowFristRecieveQuest = NextQuestId
+
+	local removeIDS = {}
+	for i = 1, #instance._QuestCurrent do
+		local questId = instance._QuestCurrent[i]
+		local questmodel = CQuest.Instance():FetchQuestModel(questId)
+		if questmodel.QuestStatus == QuestDef.Status.NotRecieved and questmodel:GetTemplate().Type == QuestDef.QuestType.Branch then
+			removeIDS[#removeIDS+1] = questId
+		end
+
+		--不是未接状态 并且 是支线任务 并且 是所属地图
+		if questmodel.QuestStatus ~= QuestDef.Status.NotRecieved and questmodel:GetTemplate().Type == QuestDef.QuestType.Branch and questmodel:GetTemplate().InitialQuestMapTid == game._CurWorld._WorldInfo.SceneTid then
+			isShowFristRecieveQuest = questId
+		end
+	end
+
+	for i,v in ipairs(removeIDS) do
+		QuestRemove( v )
+	end
+
+	--print("isShowFristRecieveQuest====",isShowFristRecieveQuest)
+	local RecieveBranchQuestIDS = {}
+	for k,v in pairs( CQuest.Instance()._CompletedMap ) do
+		local finishedQuestTmp = CElementData.GetQuestTemplate( k )
+		if finishedQuestTmp ~= nil then
+
+			local result = CQuest.Instance():CanRecieveQuest( finishedQuestTmp.DeliverRelated.NextQuestId )
+			local index = table.indexof(instance._QuestCurrent, finishedQuestTmp.DeliverRelated.NextQuestId )
+			if result and not index then
+				RecieveBranchQuestIDS[#RecieveBranchQuestIDS+1] = tonumber(finishedQuestTmp.DeliverRelated.NextQuestId)
+			end
+
+			--添加可以接的新支线
+			local subQuests = string.split(finishedQuestTmp.DeliverRelated.NextSubQuestIds, "*")
+			result = false
+			if subQuests ~= nil and subQuests[1] ~= "" then
+				for i1,v1 in ipairs(subQuests) do
+					result = CQuest.Instance():CanRecieveQuest(tonumber(v1))
+					index = table.indexof(instance._QuestCurrent, tonumber(v1))
+					if result and not index and CQuest.Instance():GetQuestType( tonumber(v1) ) == QuestDef.QuestType.Branch then
+						RecieveBranchQuestIDS[#RecieveBranchQuestIDS+1] = tonumber(v1)
+					end
+				end
+			end
+		end
+	end
+	--print_r( RecieveBranchQuestIDS )
+	local function SortFunc(left, right)
+		if left == nil or right == nil or left == right then
+			return false
+		end
+
+		local isFirstLeft = isFristRecieveQuest( left )
+		local isFirstRight = isFristRecieveQuest( right )
+		if not isFirstLeft and isFirstRight then
+			return true 
+		elseif isFirstLeft and not isFirstRight then
+			return false
+		end
+
+		local tl = CElementData.GetQuestTemplate(left) --left:GetTemplate()
+		local tr = CElementData.GetQuestTemplate(right) --right:GetTemplate()
+		local chapter1 = CQuest.Instance():GetQuestChapter(tl.Id)
+		local chapter2 = CQuest.Instance():GetQuestChapter(tr.Id)
+
+		if chapter1 == chapter2 then
+			return left < right
+		else
+			return chapter1 < chapter2
+		end
+	end
+
+	if #RecieveBranchQuestIDS > 1 then
+		table.sort(RecieveBranchQuestIDS, SortFunc)
+	end
+
+	--print_r( RecieveBranchQuestIDS )
+	local addIDS = {}
+	for i,v in ipairs( RecieveBranchQuestIDS ) do
+		local vTemp = CElementData.GetQuestTemplate( v )
+		--如果是非头部的可接状态（半截可接 不受任何限制）
+		if not isFristRecieveQuest( v ) then
+			--QuestAdd( v )
+			--local onelimit = table.indexof(addIDS, v )
+			--if not onelimit then
+				addIDS[#addIDS+1] = v
+			--end
+			--本地图才做记录
+			if vTemp.InitialQuestMapTid == game._CurWorld._WorldInfo.SceneTid then
+				isShowFristRecieveQuest = v
+			end
+		end
+		--如果是头部 受本地图限制的 以及不重复限制
+		local isShowFristTemp = CElementData.GetQuestTemplate( isShowFristRecieveQuest )
+
+		if isFristRecieveQuest( v ) and IsInitialQuestMapTid( v ) and (isShowFristTemp == nil or isShowFristTemp.InitialQuestMapTid ~= vTemp.InitialQuestMapTid) then
+			--QuestAdd( v )
+			--local onelimit = table.indexof(addIDS, v )
+			--if not onelimit then
+				addIDS[#addIDS+1] = v
+				isShowFristRecieveQuest = v
+			--end
+		end
+	end
+
+	for i,v in ipairs(addIDS) do
+		QuestAdd( v )
+	end
+end
+
+--------------------------------------------------------------
+------------------------任务列表基础操作-----------------------
+--------------------------------------------------------------
+local function OnQuestData(data)
+	local source = data
+	instance._QuestCurrent = {}
+	local hasMainQuest = false
+	for k, v in pairs(source.CurrentQuests) do
+		if v and v.Id and v.Id > 0 then
+			
+			local current = GetInProcessQuest(v.Id)
+			if current and current:GetTemplate()~=nil and not current:GetTemplate().IsSubQuest and not (current:GetTemplate().Type == QuestDef.QuestType.Hang) then
+				if current:GetTemplate().Type == QuestDef.QuestType.Main then
+					hasMainQuest = true
+				end
+				table.insert(instance._QuestCurrent, v.Id)
+			end
+		end
+	end
+	
+	local next_quest_id = 0
+	local finished = source.FinishedQuests
+	isShowFristRecieveQuest = -1
+	for i = #finished, 1, - 1 do
+		local finishedQuestTmp = CElementData.GetQuestTemplate(finished[i].Id)
+		if finishedQuestTmp ~= nil then
+			next_quest_id = finishedQuestTmp.DeliverRelated.NextQuestId
+			if next_quest_id > 0 then
+				local isShowNextQuest = false
+				--如果 是主线 没有进行中的主线任务 （主线任务 只显示一个未接的）
+				if not hasMainQuest and finishedQuestTmp.Type == QuestDef.QuestType.Main then
+					isShowNextQuest = true
+					hasMainQuest = true
+				end
+
+				--如果 是分支 完成列表中没有 并且 也没在正进行中列表
+				if finishedQuestTmp.Type == QuestDef.QuestType.Branch or finishedQuestTmp.Type == QuestDef.QuestType.Reputation then
+					--判断 不是头部任务 或者 是不受头部任务限制 
+					local result = CQuest.Instance():CanRecieveQuest( next_quest_id )
+					local index = table.indexof(instance._QuestCurrent, next_quest_id )
+					if result and not index then
+						isShowNextQuest = true
+					end
+				end
+
+				if isShowNextQuest then
+					table.insert(instance._QuestCurrent, #instance._QuestCurrent + 1, next_quest_id)
+				end
+			end
+		end
+	end
+
+	--添加可以接的新支线
+	--UpdateFristRecieveQuest(-1)
+
+	--sort
+	if #instance._QuestCurrent > 1 then
+		local SortFunc = function(left, right)
+			local tl = CElementData.GetQuestTemplate(left) --left:GetTemplate()
+			local tr = CElementData.GetQuestTemplate(right) --right:GetTemplate()
+			local ml = CQuest.Instance():FetchQuestModel(left)
+			local mr = CQuest.Instance():FetchQuestModel(right)
+			if tl.Type ~= tr.Type then	-- 主线任务 > 支线任务 > 日常任务> 悬赏 > 职业
+				--return tl.Type < tr.Type
+				return QuestDef.SortIndex[tl.Type+1] < QuestDef.SortIndex[tr.Type+1] 
+			end
+			if ml.QuestStatus ~= mr.QuestStatus then
+				 return ml.QuestStatus ~= QuestDef.Status.NotRecieved and mr.QuestStatus == QuestDef.Status.NotRecieved
+			end
+			return tl.Id < tr.Id
+		end
+		table.sort(instance._QuestCurrent, SortFunc)
+	end
+
+--[[	if instance._IsShow then
+		UpdateList()
+	end--]]
+end
+
 --任务数量
 local function QuestChangeCount(quest_id, objective_id, count)
 	local model = GetInProcessQuest(quest_id)
@@ -272,6 +398,9 @@ local function QuestChangeCount(quest_id, objective_id, count)
 		warn("can not get objectiveModel, id = " .. objective_id)
 		return
 	end
+
+	if IsNil(instance._List) then return end 
+
     local quest_index = GetQuestIndex(quest_id)
     local item = nil
     if quest_index ~= -1 then
@@ -370,7 +499,7 @@ local function OnQuestEvents(sender, event)
 		OnQuestData(data)
 	elseif name == EnumDef.QuestEventNames.QUEST_RECIEVE then		--接任务
 		local quest_data = CElementData.GetQuestTemplate(data.Id)
-
+		
 		if quest_data.Type == QuestDef.QuestType.Hang then
 			return
 		end
@@ -387,6 +516,19 @@ local function OnQuestEvents(sender, event)
 		else							--如果任务不是进行中，当新任务处理（1.新任务。2.cmd发的任务。3.可多次领取的任务）	
 			QuestAdd(data.Id)
 		end
+
+		local index = GetQuestIndex(data.Id)
+				-- 移动至新接任务
+		if instance._List ~= nil then
+			instance._List:ScrollToStep( index - 1 )
+			local item = instance._List:GetItem( index - 1 )
+			if item ~= nil then
+				instance:ShowQuestUIFX(QuestDef.UIFxEventType.Recrive, item)
+			end
+		end
+
+
+		
 	elseif name == EnumDef.QuestEventNames.QUEST_COMPLETE then		--交任务
 		local quest_data = CElementData.GetQuestTemplate(data.Id)
 
@@ -397,32 +539,16 @@ local function OnQuestEvents(sender, event)
 		instance:ListItemsNoSelect()
 		QuestRemove(data.Id)
 		
---[[		local quest_data_next = CElementData.GetQuestTemplate(quest_data.DeliverRelated.NextQuestId)
-		if quest_data and quest_data_next and not CQuest.Instance():IsAutoProvider(quest_data_next.Id) then
-			QuestAdd(quest_data_next.Id)
-			-- CQuestAutoMan中已经监听了该消息，直接在相关逻辑中处理，这里不处理自动化逻辑
-		end--]]
-		
+		--暂不添加支线 下方一起添加
 		local result = CQuest.Instance():CanRecieveQuest( quest_data.DeliverRelated.NextQuestId )
 		local index = table.indexof(instance._QuestCurrent, quest_data.DeliverRelated.NextQuestId )
-		if result and not index then
+		if result and not index and quest_data.Type ~= QuestDef.QuestType.Branch then
 			QuestAdd(quest_data.DeliverRelated.NextQuestId)
 		end
 
 		--添加可以接的新支线
-		local subQuests = string.split(quest_data.DeliverRelated.NextSubQuestIds, "*")
-		result = false
-		if subQuests ~= nil and subQuests[1] ~= "" then
-			for i,v in ipairs(subQuests) do
-				result = CQuest.Instance():CanRecieveQuest(tonumber(v))
-				local index = table.indexof(instance._QuestCurrent, tonumber(v))
-				if result and not index then
-				--if result then
-					QuestAdd(tonumber(v))
-					--table.insert(instance._QuestCurrent, #instance._QuestCurrent + 1, tonumber(v))
-				end
-			end
-		end
+		UpdateFristRecieveQuest( quest_data.DeliverRelated.NextQuestId )
+
 	elseif name == EnumDef.QuestEventNames.QUEST_CHANGE then		--任务数量变化
 		local quest_data = CElementData.GetQuestTemplate(data.QuestId)
 
@@ -448,9 +574,11 @@ local function OnQuestEvents(sender, event)
 
 		--主线任务放弃 播放特效 
 		if quest_data.Type == QuestDef.QuestType.Main then
-			local item = instance._List:GetItem(0)
-			if item ~= nil then
-				instance:ShowQuestUIFX(QuestDef.UIFxEventType.Fail, item)
+			if instance._List ~= nil then
+				local item = instance._List:GetItem(0)
+				if item ~= nil then
+					instance:ShowQuestUIFX(QuestDef.UIFxEventType.Fail, item)
+				end
 			end
 		end
 	elseif name == EnumDef.QuestEventNames.QUEST_TIME then		--任务时间
@@ -459,24 +587,7 @@ local function OnQuestEvents(sender, event)
 end
 
 local function OnHostPlayerLevelChangeEvent(sender, event)
-	for k,v in pairs( CQuest.Instance()._CompletedMap ) do
-		local finishedQuestTmp = CElementData.GetQuestTemplate( k )
-		if finishedQuestTmp ~= nil then
-			--添加可以接的新支线
-			local subQuests = string.split(finishedQuestTmp.DeliverRelated.NextSubQuestIds, "*")
-			local result = false
-			if subQuests ~= nil and subQuests[1] ~= "" then
-				for i1,v1 in ipairs(subQuests) do
-					result = CQuest.Instance():CanRecieveQuest(tonumber(v1))
-					local index = table.indexof(instance._QuestCurrent, tonumber(v1))
-					if result and not index then
-						QuestAdd(tonumber(v1))
-						--table.insert(instance._QuestCurrent, #instance._QuestCurrent + 1, tonumber(v))
-					end
-				end
-			end
-		end
-	end
+	UpdateFristRecieveQuest(-1)
 end
 
 local function OnItemChangeEvent(sender, event)
@@ -510,6 +621,10 @@ local function OnOpenDebugModeEvent(sender, event)
 		UpdateList()
 	end
 end
+
+local function OnEntityEnterEvent(sender, event)
+	UpdateFristRecieveQuest(-1)
+end
 --------------------------------------------------------------
 ------------------------界面基础结构---------------------------
 --------------------------------------------------------------
@@ -527,7 +642,14 @@ def.method().Init = function(self)
 	CGame.EventManager:addHandler('GainNewItemEvent', OnItemChangeEvent)
 	CGame.EventManager:addHandler('DebugModeEvent', OnOpenDebugModeEvent)
 	CGame.EventManager:addHandler('PlayerGuidLevelUp', OnHostPlayerLevelChangeEvent)
+	CGame.EventManager:addHandler(EntityEnterEvent, OnEntityEnterEvent)  
 	
+end
+
+def.method().Update = function (self)
+	if instance._IsShow then
+		UpdateList()
+	end
 end
 
 --添加副本倒计时
@@ -609,6 +731,17 @@ def.method("number", "boolean").SetSelectByID = function(self, quest_id, onlySho
 		if onlyShowGfx then CSoundMan.Instance():Play2DAudio(PATH.GUISound_Choose_Press, 0) end
 		--print("Select Quest Item, index =", index, debug.traceback())
 	end
+end
+
+--是否可以选中这个任务ID
+def.method("number","=>","boolean").IsSelectByID = function(self, quest_id)
+	if self._List ~= nil then
+		local index = GetQuestIndex(quest_id)
+		if index > 0 then
+			return true
+		end
+	end
+	return false 
 end
 
 local function SetOneObjective(object, data)
@@ -863,9 +996,9 @@ def.method("userdata", "number").OnInitItem = function(self, item, index)
 							break
 						end
 					end
-					item = nil
+					--item = nil
 				end
-			
+
 				if item ~= nil then
 					obj_Prop:SetActive(true)
 					btn_Prop:SetActive(true)
@@ -929,7 +1062,7 @@ def.method("userdata", "number").OnSelectItem = function(self, item, index)
 	hp:SetMineGatherId(0)
 	
 	local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
-	local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+	local CAutoFightMan = require "AutoFight.CAutoFightMan"
 	local CQuestAutoMan = require "Quest.CQuestAutoMan"
 
 	--如果有特殊副本目标特殊处理
@@ -967,7 +1100,9 @@ def.method("userdata", "number").OnSelectItem = function(self, item, index)
 			local function AutoLogic()
 				hp:Stand()
 				CAutoFightMan.Instance():Start()
-				CAutoFightMan.Instance():SetMode(EnumDef.AutoFightType.QuestFight, self._QuestCurrent[index], false)
+				if self._QuestCurrent ~= nil then
+					CAutoFightMan.Instance():SetMode(EnumDef.AutoFightType.QuestFight, self._QuestCurrent[index], false)
+				end
 				local questAutoMan = CQuestAutoMan.Instance()
 				-- 如果当前任务处于自动化中，忽略
 				--if not questAutoMan:IsQuestInAuto(data) then
@@ -994,7 +1129,7 @@ def.method("userdata", "string", "number").OnSelectItemButton = function(self, i
 			if prop ~= nil and prop.ItemType == EItemType.Equipment then
 				break
 			end
-			prop = nil
+			--prop = nil
 		end
 
 		if prop ~= nil then
@@ -1008,6 +1143,7 @@ end
 ----------------------------------------------------
 def.method("number", "userdata").ShowQuestUIFX = function(self, stateType, item)
     if item == nil then return end
+    --print("ShowQuestUIFX===============",stateType,debug.traceback())
     if stateType == QuestDef.UIFxEventType.InProgress then
         --任务选中特效 
         local anchor_up = item:FindChild("Fx_Up")
@@ -1034,6 +1170,11 @@ def.method("number", "userdata").ShowQuestUIFX = function(self, stateType, item)
 		if anchor_mid ~= nil then
             GameUtil.PlayUISfxClipped(PATH.UIFX_QuestN_Mission_Complete, anchor_mid, item, self._Panel)
 		end
+	elseif stateType == QuestDef.UIFxEventType.Recrive then
+        local fx = GameUtil.PlayUISfxClipped(PATH.UIFX_QuestN_Mission_Receive, item, item, self._Panel)
+        local rc = item:GetComponent(ClassType.RectTransform)
+        fx.localScale = Vector3.New(1,rc.sizeDelta.y/48.3,1)
+        --print("=========",fx.childCount)
 	elseif stateType == QuestDef.UIFxEventType.Finish then
         --任务完成特效显示
         local anchor_mid = item:FindChild("Img_Finish")
@@ -1126,7 +1267,9 @@ def.method("userdata").OnInitItemSpecialDungeonGoal = function(self,item)
 
 	local lab_name = item:FindChild("Frame_Top/Lab_Name")
 	local name = ""
-	name = dungeonInfo.TextDisplayName
+	if dungeonInfo ~= nil then
+		name = dungeonInfo.TextDisplayName
+	end
 	GUI.SetText(lab_name, RichTextTools.GetQuestTypeColorText(name, QuestDef.QuestType.Activity))
 
     self:ShowQuestUIFX(QuestDef.UIFxEventType.InProgress, item)
@@ -1198,7 +1341,7 @@ end
 
 def.method("number").UpdateSpecialDungeonGoal = function(self,nIndex)
 	--如果有特殊副本目标特殊处理
-	if self._SpecialDungeonGoal ~= nil then
+	if self._SpecialDungeonGoal ~= nil and self._SpecialDungeonGoalItem ~= nil then
 	 	local dungeonGoal = game._DungeonMan:GetDungeonGoalByIndex(nIndex)
 		local dungeonID = game._DungeonMan:GetDungeonID()
 
@@ -1264,6 +1407,7 @@ def.method().Release = function(self)
 	CGame.EventManager:removeHandler('GainNewItemEvent', OnItemChangeEvent)
 	CGame.EventManager:removeHandler('DebugModeEvent', OnOpenDebugModeEvent)
 	CGame.EventManager:removeHandler('PlayerGuidLevelUp', OnHostPlayerLevelChangeEvent)
+	CGame.EventManager:removeHandler(EntityEnterEvent, OnEntityEnterEvent)  
 	
 end
 
@@ -1274,6 +1418,7 @@ def.method().Destroy = function(self)
 	self._List = nil
 	self._ListObject = nil
 
+	isShowFristRecieveQuest = -1
 	instance = nil
 end
 

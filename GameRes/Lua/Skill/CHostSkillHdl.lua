@@ -40,6 +40,7 @@ local EStartPositionType = require "PB.Template".ExecutionUnit.ExecutionUnitEven
 local SqrDistanceH = Vector3.SqrDistanceH_XZ
 local MapBasicConfig = require "Data.MapBasicConfig"
 local SkillMoveType = require "PB.Template".ExecutionUnit.ExecutionUnitEvent.EventSkillMove.SkillMoveType
+local BEHAVIOR = require "Main.CSharpEnum".BEHAVIOR
 
 local CHostSkillHdl = Lplus.Extend(CObjectSkillHdl, "CHostSkillHdl")
 local def = CHostSkillHdl.define
@@ -391,7 +392,6 @@ local function DistanceCheck(self, skill_id, skill, target, pos, tryAgainFunc)
 	end
 
 	if targetPos ~= nil then
-		--targetPos.y = 0   --  这句不能少，不然新手本最后Boss不能跑过去打到；但是这不是正确做法，下一版本修改 -- added by Jerry
 		local isConnected = true
 		local connectedPos = nil
 		if not skill.IgnoreObstacle then -- 不可无视障碍
@@ -409,12 +409,13 @@ local function DistanceCheck(self, skill_id, skill, target, pos, tryAgainFunc)
 		local minDis = (skill.MinRange > 0) and (skill.MinRange * 1.2) or 0
 		if maxDis <= minDis then minDis = maxDis - 0.2 end
 
+		--[[
 		-- 距离小于半径之和，先走到外边来，在放技能
 		if distance < 0 and target ~= nil then
 			local backDir = self._Host:GetPos() - target:GetPos()
 			backDir.y = 0
 			backDir = backDir:Normalize()
-			local backTargetPos = target:GetPos() + backDir * (minDis  + target:GetRadius() + self._Host:GetRadius())
+			local backTargetPos = target:GetPos() + backDir * (maxDis/2  + target:GetRadius() + self._Host:GetRadius())
 			isConnected, connectedPos = TargetConnectedCheck(self, backTargetPos)
 			if not isConnected then
 				if connectedPos ~= nil then
@@ -427,6 +428,7 @@ local function DistanceCheck(self, skill_id, skill, target, pos, tryAgainFunc)
 			end
 			return CAST_SKILL_RETCODE.MOVE_THEN_CAST
 		end
+		]]
 
 		-- 连通且距离合适
 		if distance <= maxDis and (distance >= minDis and minDis > 0.001 or minDis <= 0.001) and isConnected then
@@ -499,7 +501,6 @@ local function ClearCacheInfo(self, delay_2_clear_indicator)
 	else
 		CFxMan.Instance():DrawSkillCastIndicator(0, nil, nil, 0, 0, 0)
 	end
-	local skill = self._CurSkill
 	self._CurSkillCastStage = SKILL_CAST_STAGE.S0_NONE
 	self._CurSkill = nil
 	self._CurSkillID = 0
@@ -679,7 +680,7 @@ def.method("number", "boolean", "=>", "boolean").CastSkill = function(self, skil
 	end
 
 	do
-		local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+		local CAutoFightMan = require "AutoFight.CAutoFightMan"
 		if not CAutoFightMan.Instance():IsOn() and skill.Category ~= Template.Skill.SkillCategory.Leisure then
 			--停止自动跟随
 			self._Host:StopAutoFollow()
@@ -692,6 +693,7 @@ def.method("number", "boolean", "=>", "boolean").CastSkill = function(self, skil
 	--end
 		
 	if not QTEValidCheck(self, skill) and not skill.UseNoCheck then
+		warn("Failed to QTEValidCheck", QTEValidCheck(self, skill), skill.UseNoCheck)
 		return false
 	end
 		
@@ -879,8 +881,11 @@ def.method(CEntity, "boolean").CastSkill_2 = function(self, target, ignoreIndica
 	local skill_id = self._CurSkillID
 	-- 距离检测
 	local ret = DistanceCheck(self, skill_id, skill, target, pos, function()
-						self:CastSkill(skill_id, true)
-						self:CastSkill_2(target, true)
+						if self:CastSkill(skill_id, true) then
+							self:CastSkill_2(target, true)
+						else
+							self._Host:Stand()
+						end
 					end)
 	if ret ~= CAST_SKILL_RETCODE.OK then
 		if ret == CAST_SKILL_RETCODE.DISTANCE_NOT_OK or ret == CAST_SKILL_RETCODE.POSITION_CAN_NOT_REACH then
@@ -905,7 +910,7 @@ def.method(CEntity, "boolean").CastSkill_2 = function(self, target, ignoreIndica
 		if self._IsSkillMoving then
 			self._IsSkillMoving = false	
 			self._SkillMovingDest = nil
-			local BEHAVIOR = require "Main.CSharpEnum".BEHAVIOR
+			
 			GameUtil.RemoveBehavior(self._Host:GetGameObject(), BEHAVIOR.MOVE)
 		end
 	elseif isFsmMoving then
@@ -963,7 +968,6 @@ end
 def.override("boolean").StopCurActiveSkill = function(self, change2stand)
 	if self._ActiveCommonSkill ~= nil then		
 		local last_skill_id = self._ActiveCommonSkill._SkillID
-		NotifyCurSkillEnd(self._Host._ID, last_skill_id, false)	
 		self:OnSkillInterruptted(change2stand)
 		self:OnSkillEnd(last_skill_id, false, false)
 		self:EnableAutoSystemPause(false)
@@ -984,7 +988,7 @@ def.method("table").Roll = function(self, pos)
 	end
 end
 
-def.method("number", CEntity, "table", "=>", "boolean").CanCastSkillNow = function(self, skill_id, target, targetPos)
+def.method("number", CEntity, "=>", "boolean").CanCastSkillNow = function(self, skill_id, target)
 	local skill = nil
 
 	if self._Host:IsModelChanged() then
@@ -1006,13 +1010,10 @@ def.method("number", CEntity, "table", "=>", "boolean").CanCastSkillNow = functi
 	end
 
 	-- 仅做最小距离检测（最大距离不满足，可以移动过去后再释放）
-	if targetPos ~= nil then
+	if target ~= nil then
 		local hostPos = self._Host:GetPos()
-		local distance = Vector3.DistanceH(hostPos, targetPos) - self._Host:GetRadius()
-		if target ~= nil then 			
-			distance = distance - target:GetRadius() 			
-		end
-		
+		local distance = Vector3.DistanceH(hostPos, target:GetPos())
+		distance = distance - self._Host:GetRadius() - target:GetRadius() 		
 		if skill.MinRange > 0 and distance < skill.MinRange then
 			return false
 		end
@@ -1172,7 +1173,6 @@ def.method("number", "number", "function").OnPerformStart = function(self, skill
 	end
 
 	if perform_idx ~= 1 then  -- 第一个技能段在技能cast开始就做了判断
-		local BEHAVIOR = require "Main.CSharpEnum".BEHAVIOR
 		local is_normal_moving, dest = self._Host:GetNormalMovingInfo()
 		if is_normal_moving then
 			if not CElementSkill.CanMoveWithSkill(skill_id, perform_idx) then
@@ -1250,7 +1250,7 @@ def.method("number", "number", "function").OnPerformStart = function(self, skill
 	if not perform.AutoTurn then
 		-- 枪骑士冲锋，可通过摇杆控制朝向；如果是类似技能，在自动战斗中，技能段开始时，自动调整一下方向
 		if self._AttackTarget ~= nil and skill_move_event ~= nil and skill_move_event.CanChangeDirection then
-			local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+			local CAutoFightMan = require "AutoFight.CAutoFightMan"
 			if CAutoFightMan.Instance():IsOn() then
 				local dir = self._AttackTarget:GetPos() - self._Host:GetPos()
 				dir.y = 0
@@ -1297,24 +1297,22 @@ def.override("number", "number", "boolean", "number", "table", "table", "table")
 	local CPanelSkillSlot = require "GUI.CPanelSkillSlot"
 	if performidx == 1 then
 		CPanelSkillSlot.Instance():OnSkillPerformed(skillid)
-	end
-
-	local perform = cur_skill_info._Skill.Performs[performidx]
-	if perform ~= nil and not perform.IsChargePerform then
-		CPanelSkillSlot.Instance():TriggerComboSkill(0, skillid, true)
+		local perform = cur_skill_info._Skill.Performs[performidx]
+		if perform ~= nil and not perform.IsChargePerform then
+			CPanelSkillSlot.Instance():TriggerComboSkill(0, skillid, true)
+		end
 	end
 	self._IsCastingDeathSkill = isDeathSkill
 end
 
 def.method("number", "boolean").OnPerformEnd = function(self, skill_id, force_stop_skill)	
 	local cur_skill_info = self._ActiveCommonSkill
-	local perform = nil
 	if cur_skill_info ~= nil then
 		local skill = cur_skill_info._Skill
 		local cur_perform_idx = cur_skill_info._PerformIdx
 
 		-- 停止半身动作
-		perform = cur_skill_info._Skill.Performs[cur_perform_idx]
+		local perform = cur_skill_info._Skill.Performs[cur_perform_idx]
 		if perform ~= nil and perform.MoveCastType == Template.Skill.Perform.PerformMoveCastType.HalfBody then
 			self._Host:StopPartialAnimation(perform.DefaultAnimationName)
 		end
@@ -1522,31 +1520,25 @@ def.method("table", "=>", "table").CalcChargeDstPos = function(self, event)
 				dir = dir:Normalize()
 				destPos = curPos + dir * maxDistance
 			end
-		elseif self._AttackTarget ~= nil then -- 要考虑直线可达
+		elseif self._AttackTarget ~= nil and not event.PierceTarget then -- 要考虑直线可达
 			local target = self._AttackTarget
 			local targetPos = target:GetPos()
 
-			local dir = (targetPos - curPos)
+			local dir = nil
+			local disSqr = Vector3.SqrDistanceH(curPos, targetPos)
+			if disSqr < 0.01 then -- 太近，按照重合处理
+				dir = -self._Host:GetDir()
+			else
+				dir = (targetPos - curPos)
+			end
 			dir.y = 0
 			dir = dir:Normalize()
-			if not event.PierceTarget and GameUtil.PathFindingIsConnected(curPos, targetPos) then 		
-				if event.CollisionCurrentTarget and Vector3.SqrDistanceH(curPos, targetPos) <= maxDistance * maxDistance then			
-					destPos = targetPos - dir * target:GetRadius()
+			if GameUtil.PathFindingIsConnected(curPos, targetPos) then 		
+				local radius = target:GetRadius() + self._Host:GetRadius()
+				if disSqr > (maxDistance + radius) * (maxDistance + radius) then
+					destPos = curPos + dir * maxDistance
 				else
-					local radius = target:GetRadius() + self._Host:GetRadius()
-					local radiusSqr = radius * radius
-					destPos = targetPos - dir * target:GetRadius()
-					-- 将要越界
-					if SqrDistanceH(destPos.x, destPos.z, targetPos.x, targetPos.z) <= radiusSqr then			
-						destPos = targetPos - dir * radius
-					-- 当前已经越界
-					elseif SqrDistanceH(curPos.x, curPos.z, targetPos.x, targetPos.z) <= radiusSqr then							
-						destPos = curPos
-					end	
-
-					if Vector3.SqrDistanceH(curPos, destPos) > maxDistance * maxDistance then
-						destPos = curPos + dir * maxDistance
-					end
+					destPos = targetPos - dir * radius
 				end
 			end
 		end
@@ -1656,12 +1648,14 @@ end
 def.method("number", "dynamic").OnSkillFailed = function(self, skill_id, pos)	
 	-- 客户端技能已经结束，无需做特殊处理，只需要同步一下位置
 	if self._ActiveCommonSkill == nil then
+		print("Recv S2CSkillPerformFailed after Client SkillStop")
 		self._Host:SetPos(pos)
 		return
 	end
 
 	-- 异常, 已经切换到了另一个技能，直接忽略当前消息
 	if self._ActiveCommonSkill._SkillID ~= skill_id then
+		print("Recv S2CSkillPerformFailed when a new Skill is performing " .. skill_id .. " - " .. self._ActiveCommonSkill._SkillID)
 		return
 	end	
 

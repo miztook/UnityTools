@@ -111,6 +111,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         local item_icon = uiTemplate:GetControl(13)
         local lab_btn_time = uiTemplate:GetControl(14)
         local lab_cash_cost = uiTemplate:GetControl(15)
+        local lab_refresh_tip = uiTemplate:GetControl(16)
         if good_temp.IsBigIcon then
             img_icon:SetActive(true)
             item_icon:SetActive(false)
@@ -144,7 +145,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
             lab_cash_cost:SetActive(true)
             img_money_icon:SetActive(false)
             if good_item.CashCount > 0 then
-                GUI.SetText(lab_cash_cost, string.format(StringTable.Get(31000), good_item.CashCount))
+                GUI.SetText(lab_cash_cost, string.format(StringTable.Get(31000), GUITools.FormatNumber(good_item.CashCount, false)))
             else
                 GUI.SetText(lab_cash_cost, StringTable.Get(31029))
             end
@@ -161,18 +162,19 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         lab_remain_time:SetActive(false)
         if good_temp.LimitType == ELimitType.NoLimit then
             frame_has_buy:SetActive(false)
-            lab_btn_time:SetActive(false)
+            lab_refresh_tip:SetActive(false)
             lab_remain_count:SetActive(false)
             lab_remain_tip:SetActive(false)
         else
             lab_remain_count:SetActive(true)
             lab_remain_tip:SetActive(true)
+            lab_refresh_tip:SetActive(false)
             GUI.SetText(lab_remain_count, tostring(math.max(0, (good_item.Stock - hasBuyCount))))
             if good_temp.LimitType == ELimitType.Cycle then                     -- 周期性限购
                 frame_cost_diamond:SetActive(true)
                 frame_has_buy:SetActive(false)
                 if hasBuyCount >= good_item.Stock then
-                    lab_btn_time:SetActive(true)
+                    lab_refresh_tip:SetActive(true)
                     lab_cost:SetActive(false)
                     lab_cash_cost:SetActive(false)
                     GUI.SetText(lab_remain_count, "")
@@ -188,7 +190,6 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                                 lab_cash_cost:SetActive(true)
                                 lab_cost:SetActive(false)
                             end
-                            lab_btn_time:SetActive(false)
                             _G.RemoveGlobalTimer(self._GoodTimers[good_item.Id])
                             self._GoodTimers[good_item.Id] = 0
                         end
@@ -199,7 +200,6 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                     end
                     self._GoodTimers[good_item.Id] = _G.AddGlobalTimer(1, false, callback)
                 else
-                    lab_btn_time:SetActive(false)
                     if good_temp.StockCycle == 24 then
                         GUI.SetText(lab_remain_tip, StringTable.Get(31057))
                     elseif good_temp.StockCycle == 168 then
@@ -280,6 +280,8 @@ def.override('userdata', 'string', 'number').OnSelectItem = function(self, item,
     else
         warn("error !! CMallPageCommonTipShop self._PageData 数据为空")
     end
+
+	CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
 end
 
 def.override("userdata", "string", "string", "number").OnSelectItemButton = function(self, button_obj, id, id_btn, index)
@@ -287,6 +289,18 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
     if id_btn == "ItemIconNew" then
         local item = self._PageData.Goods[index]
         CItemTipMan.ShowItemTips(item.ItemId, TipsPopFrom.OTHER_PANEL, button_obj, TipPosition.FIX_POSITION)
+    elseif id_btn == "Btn_Buy" then
+        if self._PageData ~= nil then
+            local good_item = self._PageData.Goods[index]
+            if good_item == nil then
+                warn("error !! OnSelectItem 商品数据为空，index", index)
+                return
+            end
+            local data = {storeID = self._PageData.StoreId, goodData = good_item}
+            game._GUIMan:Open("CPanelMallCommonBuy", data)
+        else
+            warn("error !! CMallPageCommonShop self._PageData 数据为空")
+        end
     end
 end
 

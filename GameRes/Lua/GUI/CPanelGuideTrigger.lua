@@ -55,7 +55,7 @@ def.override("dynamic").OnData = function(self, data)
     -- 小步骤
     self._SmallStepList = { }
     for i = 1, #self._CurBigStepConfig.Steps do
-        ----print("OnData", string.format("Step_%d_%d", self._CurBigStep, i))
+        --print("OnData", string.format("Step_%d_%d", self._CurBigStep, i))
         --self._SmallStepList[i] = self:GetUIObject(string.format("Step_%d_%d", self._CurBigStep, i))
         self._SmallStepList[i] = self._BigStepRoot:FindChild(tostring(i))
     end
@@ -100,21 +100,24 @@ def.method().ShowStep = function(self)
         self._SmallStepList[self._CurSmallStep]:SetActive(true)
 
         local maskTransform = self._SmallStepList[self._CurSmallStep]:FindChild("BlackMaskTransform")
+        local isLerp = false
+        if self._CurBigStepConfig.Steps[self._CurSmallStep].IsLerp ~= nil then
+            isLerp = self._CurBigStepConfig.Steps[self._CurSmallStep].IsLerp
+        end
         if self._CurBigStepConfig.Steps[self._CurSmallStep].IsHighLight ~= nil and self._CurBigStepConfig.Steps[self._CurSmallStep].IsHighLight then
-            GameUtil.SetMaskTrs(true,self._BlackBG,maskTransform)
+            GameUtil.SetMaskTrs(true,self._BlackBG,maskTransform,isLerp)
+        elseif self._CurBigStepConfig.Steps[self._CurSmallStep].IsHighLight2 ~= nil and self._CurBigStepConfig.Steps[self._CurSmallStep].IsHighLight2 then
+            if self._HightLightBtn ~= nil then
+                GameUtil.SetMaskTrs(true,self._BlackBG,self._HightLightBtn,isLerp)
+            end
         else
-            GameUtil.SetMaskTrs(false,self._BlackBG,maskTransform)
+            GameUtil.SetMaskTrs(false,self._BlackBG,maskTransform,false)
         end
 
         local effect = self._SmallStepList[self._CurSmallStep]:FindChild("Effect")
         if effect ~= nil then
             GameUtil.SetFxSorting(effect,self:GetSortingLayer(),self:GetSortingOrder() + GUIDE_FX_ORDER_EX,true)
-            
-            effect = effect:FindChild("Frame_Des")
-            if effect ~= nil then
-                --GameUtil.SetPanelSortingLayer(effect, self:GetSortingLayer())
-                GameUtil.SetPanelSortingLayerOrder(effect, self:GetSortingLayer(), self:GetSortingOrder() + GUIDE_FX_ORDER_EX)
-            end
+            GameUtil.SetPanelSortingLayerOrder(effect, self:GetSortingLayer(), self:GetSortingOrder() + GUIDE_FX_ORDER_EX)
         end
     end
 end
@@ -132,14 +135,14 @@ def.method().ShowCurSmallStep = function(self)
             self._Btn_Skip:SetActive(true)
             rc.anchorMin = Vector2.New(1,1)
             rc.anchorMax = Vector2.New(1,1)
-            rc.pivot = Vector2.New(1,1)
-            rc.anchoredPosition = Vector2.New(-50,-10)
+            rc.pivot = Vector2.New(0.5,0.5)
+            rc.anchoredPosition = Vector2.New(-89,-41)
         elseif self._CurBigStepConfig.Steps[self._CurSmallStep].IsSkip == 2 then
             self._Btn_Skip:SetActive(true)
             rc.anchorMin = Vector2.New(1,0)
             rc.anchorMax = Vector2.New(1,0)
-            rc.pivot = Vector2.New(1,0)
-            rc.anchoredPosition = Vector2.New(-50,10)
+            rc.pivot = Vector2.New(0.5,0.5)
+            rc.anchoredPosition = Vector2.New(-89,41)
         end
 
         local function ShowStepCallBack()
@@ -174,6 +177,17 @@ def.method().ShowCurSmallStep = function(self)
         if self._CurBigStepConfig.Steps[self._CurSmallStep].InitCallBack ~= nil then
             self._CurBigStepConfig.Steps[self._CurSmallStep].InitCallBack()
         end
+
+        local node = self._SmallStepList[self._CurSmallStep]
+        if node ~= nil then
+            local OperationFrame = node:FindChild("OperationFrame")
+            if OperationFrame ~= nil then
+                GameUtil.PlayUISfx(PATH.UIFX_OperationTips_effect_bg_xinshou, OperationFrame, OperationFrame, -1, 20, -1)
+                GameUtil.PlayUISfx(PATH.UIFX_OperationTips_effect_xinshou, OperationFrame, OperationFrame, -1, 20, 1)
+            end
+        end
+
+        
     end
 end
 
@@ -191,7 +205,7 @@ def.method().Finish = function(self)
 end
 
 def.method().ShowNextSmallStep = function(self)
-    if not IsNil(self._SmallStepList[self._CurSmallStep]) and #self._SmallStepList > 0 then
+    if not IsNil(self._SmallStepList) and not IsNil(self._SmallStepList[self._CurSmallStep]) and #self._SmallStepList > 0 then
         self._SmallStepList[self._CurSmallStep]:SetActive(false)
         self._CurSmallStep = self._CurSmallStep + 1
         -- --print("self._CurSmallStep==============",self._CurBigStep,self._CurSmallStep)
@@ -205,7 +219,16 @@ end
 
 def.override("string").OnClick = function(self, id)
     if id == "Btn_Skip" then
-        game._CGuideMan:JumpCurGuide()
+        
+        local function callback( ret )
+            if ret then
+                game._CGuideMan:JumpCurGuide()
+            end
+        end
+
+
+        local title, msg, closeType = StringTable.GetMsg(137) 
+        MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback, nil, nil, MsgBoxPriority.Quit)
     else
         if self._CurBigStepConfig.Steps[self._CurSmallStep].NextStepTriggerBehaviour == EnumDef.EGuideBehaviourID.OnClickBlackBG then
             local GuideEvent = require "Events.GuideEvent"
@@ -256,8 +279,7 @@ def.method().RemoveAutoTimer = function(self)
 end
 
 def.method("userdata").EffectAutoPos = function(self, btn)
---print("EffectAutoPos1111",btn)
-    if btn == nil or self._CurBigStepConfig == nil then
+    if btn == nil or self._CurBigStepConfig == nil or self._CurBigStepConfig.Steps[self._CurSmallStep] == nil then
         return
     end
 --print("EffectAutoPos2222")
@@ -308,12 +330,12 @@ def.method("userdata").EffectAutoPos = function(self, btn)
             if element ~= nil then
                 --element.localScale = Vector3.New(rcTarget.sizeDelta.x / 50,rcTarget.sizeDelta.y / 50,1) 
                 local max = 0
-                if rcTarget.sizeDelta.x > rcTarget.sizeDelta.y then
-                    max = rcTarget.sizeDelta.x
+                if rcTarget.rect.width > rcTarget.rect.height then
+                    max = rcTarget.rect.width
                 else
-                    max = rcTarget.sizeDelta.y
+                    max = rcTarget.rect.height
                 end
-                element.localScale = Vector3.New(max / 50,max / 50,1) 
+                element.localScale = Vector3.New(max / 80,max / 80,1) 
                 if self._CurBigStepConfig.Steps[self._CurSmallStep].EffectScale ~= nil then
                     element.localScale = element.localScale * self._CurBigStepConfig.Steps[self._CurSmallStep].EffectScale
                 end
@@ -321,22 +343,19 @@ def.method("userdata").EffectAutoPos = function(self, btn)
 
             element = effect:FindChild("ui_xinshou_juxing")
             if element ~= nil then
-                element.localScale = Vector3.New(rcTarget.sizeDelta.x / 50,rcTarget.sizeDelta.y / 50,1) 
+                for i=1, element.childCount do
+                    local child_go = element:GetChild(i-1)
+                    local child_rc = child_go:GetComponent(ClassType.RectTransform)
+                    --print("11111111111")
+                    --print("~~~~~~~~~~",rcTarget.sizeDelta.x,rcTarget.sizeDelta.y)
+                    --print("~~~~~~~~~~",rcTarget.rect.width,rcTarget.rect.height)
+                    child_rc.sizeDelta = Vector2.New( rcTarget.rect.width + 32, rcTarget.rect.height + 32 )
+                    --print("~~~~~~~~~~",child_rc.sizeDelta.x,child_rc.sizeDelta.y)
+                end
                 if self._CurBigStepConfig.Steps[self._CurSmallStep].EffectScale ~= nil then
                     element.localScale = element.localScale * self._CurBigStepConfig.Steps[self._CurSmallStep].EffectScale
                 end
             end
-
---[[            --根据缩放 排列位置
-            local Frame_Des = effect:FindChild("Frame_Des")
-            if Frame_Des ~= nil then
-                local DesRc = Frame_Des:GetComponent(ClassType.RectTransform)
-                if DesRc.anchoredPosition.y == 1  then
-                    DesRc.anchoredPosition = Vector2.New(0, rcTarget.sizeDelta.y/2)
-                elseif DesRc.anchoredPosition.y == -1 then
-                    DesRc.anchoredPosition = Vector2.New(0, -rcTarget.sizeDelta.y/2)
-                end
-            end--]]
 
             --根据缩放 排列位置
             local Frame_Des = effect:FindChild("Frame_Des")
@@ -346,17 +365,29 @@ def.method("userdata").EffectAutoPos = function(self, btn)
                 local x = 0
                 local y = 0
                 if DesRc.anchoredPosition.x == 1  then
-                    x = rcTarget.sizeDelta.y/4
+                    x = rcTarget.rect.width/2 + 50
                 elseif DesRc.anchoredPosition.x == -1 then
-                    x = -rcTarget.sizeDelta.y/4
+                    x = -rcTarget.rect.width/2 - 50
                 end
                 if DesRc.anchoredPosition.y == 1  then
-                    y = rcTarget.sizeDelta.y/4
+                    y = rcTarget.rect.height/2 + 50
                 elseif DesRc.anchoredPosition.y == -1 then
-                    y = -rcTarget.sizeDelta.y/4
+                    y = -rcTarget.rect.height/2 - 50
                 end
 
-                DesRc.anchoredPosition = Vector2.New(x, y)
+                if x ~= 0 or y ~= 0 then
+                    DesRc.anchoredPosition = Vector2.New(x, y)
+                end
+            end
+
+            local isLerp = false
+            if self._CurBigStepConfig.Steps[self._CurSmallStep].IsLerp ~= nil then
+                isLerp = self._CurBigStepConfig.Steps[self._CurSmallStep].IsLerp
+            end
+            if self._CurBigStepConfig.Steps[self._CurSmallStep].IsHighLight2 ~= nil and self._CurBigStepConfig.Steps[self._CurSmallStep].IsHighLight2 then
+                GameUtil.SetMaskTrs(true,self._BlackBG,target,isLerp)
+            else
+                GameUtil.SetMaskTrs(false,self._BlackBG,target,false)
             end
         end
     end

@@ -8,8 +8,8 @@ local CElementData = require "Data.CElementData"
 --发送的成就列表
 local function OnS2CAchievementList(sender, msg)
 	for _,v in ipairs(msg.Achieves) do
-		game._AcheivementMan: ChangeAchievementState(v)
-		CPlatformSDKMan.Instance():UpdateGoogleAchieveData(v.GoogleAchieveId, v.CurrParm, v.IsFinish)
+		local currParm = game._AcheivementMan:ChangeAchievementState(v)
+		CPlatformSDKMan.Instance():UpdateGoogleAchieveData(v.GoogleAchieveId, currParm, v.IsFinish)
 	end
 	game._AcheivementMan:UpdateAdvancedGuideInfo()
 	game._AcheivementMan:NeedShowRedPoint()
@@ -40,13 +40,14 @@ local function OnS2CAchivementFinish(sender,msg)
 	
 	local CElementData = require "Data.CElementData"
 	local achievementTemp = CElementData.GetTemplate("Achievement", tid)
-	local ECHAT_CHANNEL_ENUM = require "PB.data".ChatChannel
-	local ChatManager = require "Chat.ChatManager"
-	local msgstr = string.format(StringTable.Get(13048), achievementTemp.Name)
-	if msgstr ~= nil and game._AcheivementMan:IsAchievementUseType(tid) then
-		ChatManager.Instance():ClientSendMsg(ECHAT_CHANNEL_ENUM.ChatChannelSystem, msgstr, false, 0, nil,nil)
-	end
-
+    if achievementTemp ~= nil then
+	    local ECHAT_CHANNEL_ENUM = require "PB.data".ChatChannel
+	    local ChatManager = require "Chat.ChatManager"
+	    local msgstr = string.format(StringTable.Get(13048), achievementTemp.Name)
+	    if msgstr ~= nil and game._AcheivementMan:IsAchievementUseType(tid) then
+		    ChatManager.Instance():ClientSendMsg(ECHAT_CHANNEL_ENUM.ChatChannelSystem, msgstr, false, 0, nil,nil)
+	    end
+    end
 	CPlatformSDKMan.Instance():UpdateGoogleAchieveData(msg.GoogleAchieveId, msg.ReachParm, true)
 	CPlatformSDKMan.Instance():SetGoogleAchievementCompletionLevel(msg.GoogleAchieveId, msg.ReachParm)
 	CPlatformSDKMan.Instance():CompleteGoogleAchievement(msg.GoogleAchieveId)
@@ -77,9 +78,9 @@ PBHelper.AddHandler("S2CAchieveDrawBatchRet", OnS2CGetBatchAchievementReward)
 --成就发生了改变
 local function OnS2CChangeAchievement(sender,msg)
 	for _,v in ipairs(msg.Achieves) do
-		game._AcheivementMan: ChangeAchievementState(v)
-		CPlatformSDKMan.Instance():UpdateGoogleAchieveData(v.GoogleAchieveId, v.CurrParm, v.IsFinish)
-		CPlatformSDKMan.Instance():SetGoogleAchievementCompletionLevel(v.GoogleAchieveId, v.CurrParm)
+		local currParm = game._AcheivementMan: ChangeAchievementState(v)
+		CPlatformSDKMan.Instance():UpdateGoogleAchieveData(v.GoogleAchieveId, currParm, v.IsFinish)
+		CPlatformSDKMan.Instance():SetGoogleAchievementCompletionLevel(v.GoogleAchieveId, currParm)
 	end
 	game._AcheivementMan:UpdateAdvancedGuideInfo()
     game._AcheivementMan:NeedShowRedPoint()

@@ -234,6 +234,10 @@ def.method().OnBtnActive = function(self)
 	if game._HostPlayer._Guild._Fund < data._Data.BuffLevelUps[data._Level].CostMoney then
 		game._GUIMan:ShowTipText(StringTable.Get(844), true)
 	else
+		if game._HostPlayer:IsInGlobalZone() then
+	        game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+	        return
+	    end
 		self:OnC2SGuildBuffOpen(data._Data.BuffId)
 	end
 end

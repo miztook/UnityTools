@@ -172,6 +172,7 @@ local function UpdateMainMenuRedPoint()
 end
 
 def.override("dynamic").OnData = function(self, data)
+    self._HelpUrlType = HelpPageUrlType.Exterior
 	local openType = ExteriorPageType._Ride -- 默认打开坐骑页面
 	local camType = CExteriorMan.Instance():GetEnterCamType()
 	if camType == EnumDef.CamExteriorType.Wing then
@@ -274,7 +275,7 @@ def.override("string").OnClick = function(self, id)
         GameUtil.AddOrSubForTest(4, true)
     elseif string.find(id, "Btn_HeightDown") then
         GameUtil.AddOrSubForTest(4, false)
-    elseif string.find(id, "Btn_Change") then
+    elseif id == "Btn_Change" then
         local yawDeg = tonumber(self._InputField_Yaw.text)
         local pitchDeg = tonumber(self._InputField_Pitch.text)
         local distance = tonumber(self._InputField_Dist.text)
@@ -423,11 +424,11 @@ def.method().UpdateWingList = function (self)
 end
 
 -- 点击人物
-def.method().ClickHostPlayer = function (self)
-	if self._CurFrameType == ExteriorPageType._Ride then
-		self._RidePage:ClickHostPlayer()
-	end
-end
+-- def.method().ClickHostPlayer = function (self)
+-- 	if self._CurFrameType == ExteriorPageType._Ride then
+-- 		self._RidePage:ClickHostPlayer()
+-- 	end
+-- end
 
 -- 刷新时装列表
 -- @param updateType 更新类型 0:列表初始化 1:添加时装 2:时装过期 3:时装分解 4:时装穿戴或卸下 5:时装染色

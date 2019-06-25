@@ -152,6 +152,8 @@ local function ApplyLayerSettings(self)
 	end
 	game:EnableMainCamera(not auto_hideCam)
 
+	--CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.FSUI, is_fullscreen_open)
+
 	self._UseIMLighting = use_IM_lighting
 	self:OpenEnvLighting()
 
@@ -480,10 +482,16 @@ def.method("string", "dynamic", "table", "=>", "table").OpenByScript = function(
 			if p ~= panel_script then
 				if p ~= nil then
 					warn("!!!!!!! UI SOrder Conflicted : " .. panel_name .. " with " .. p._Name)
+					_CloseByScript(self, p)
 				end
 				panel_script._Name = panel_name
+
 				_CloseByScript(self, panel_script)
-				_CloseByScript(self, p)
+--TODO
+--				if panel_script:IsShow() then
+--					panel_script:MoveUISortingOrder(panel_script._Layer,new_order - panel_script._RealOrderInLayer)
+--				end
+
 			elseif (p == panel_script) then
 				if panel_script._IsLoading then
 					-- Resources are still on the way
@@ -790,38 +798,8 @@ def.method("table", "boolean").BlockMainCamera = function(self, ui_inst, flag)
 
 end
 
--- Android回退键-- return handled
-def.method("=>", "boolean").HandleEscapeKey = function(self)
-	local boxMan = require "GUI.CMsgBoxMan"
-	if boxMan.Instance()._CurPriority == MsgBoxPriority.Quit then
-		if boxMan.Instance():HandleEscapeKeyManually() then
-			-- warn("HandleEscapeKey boxMan")
-			return true
-		end
-	end
-
-	-- As no window
-	if game._CPowerSavingMan:IsSleeping() then return false end
-	if CGMan.IsPlaying() then return false end
-	if game._CGuideMan:InGuide() then
-		-- warn("JumpCurGuide InGuideIsLimit")
-		if game._CGuideMan:InGuideIsLimit() then
-			return false
-		else
-			-- warn("JumpCurGuide")
-			game._CGuideMan:JumpCurGuide()
-			return true
-		end
-	end
-
-	if boxMan.Instance():HandleEscapeKeyManually() then
-		-- warn("HandleEscapeKey boxMan manually")
-		return true
-	end
-
-	local chk_layers = { self._UISetting.Sorting_Layer.NormalTip, self._UISetting.Sorting_Layer.Dialog, self._UISetting.Sorting_Layer.SubPanel }
-	for _, v_layer in pairs(chk_layers) do
-		local layer = self._LayerMap[v_layer]
+local function HandleESCInLayer(self, layer_id)
+	local layer = self._LayerMap[layer_id]
 		if layer ~= nil and layer:GetCount() > 0 then
 			local panel = layer:GetTop()
 			if panel ~= nil then
@@ -831,8 +809,50 @@ def.method("=>", "boolean").HandleEscapeKey = function(self)
 				end
 			end
 		end
+    return false
+end
+
+-- Android回退键-- return handled
+def.method("=>", "boolean").HandleEscapeKey = function(self)
+	local boxMan = require "GUI.CMsgBoxMan"
+    
+        --msgbox in layer debug
+	if boxMan.Instance():HandleEscapeKeyManually(self._UISetting.Sorting_Layer.Debug) then
+		--warn("HandleEscapeKey boxMan")
+		return true
 	end
-	-- warn("HandleEscapeKey False")
+
+	-- As no window
+	if game._CPowerSavingMan:IsSleeping() then return false end
+
+	if _G.IsCGPlaying then return false end
+
+        --important tips
+        if HandleESCInLayer(self, self._UISetting.Sorting_Layer.ImportantTip) then return true end
+
+        --guide
+	if boxMan.Instance():HandleEscapeKeyManually(self._UISetting.Sorting_Layer.Guide) then
+                --warn("HandleEscapeKey boxMan")
+		return true
+	end
+
+	if game._CGuideMan:InGuide() then
+                --warn("JumpCurGuide InGuideIsLimit")
+		if game._CGuideMan:InGuideIsLimit() then
+			return false
+		else
+                        --warn("JumpCurGuide")
+			game._CGuideMan:JumpCurGuide()
+			return true
+		end
+	end
+
+        --lower
+	local chk_layers = {self._UISetting.Sorting_Layer.ImportantTip, self._UISetting.Sorting_Layer.NormalTip, self._UISetting.Sorting_Layer.Dialog, self._UISetting.Sorting_Layer.SubPanel}
+	for _, v_layer in pairs(chk_layers) do
+        if HandleESCInLayer(self, v_layer) then return true end
+	end
+
 	return false
 end
 

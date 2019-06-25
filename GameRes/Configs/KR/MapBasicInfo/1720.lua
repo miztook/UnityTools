@@ -34,7 +34,7 @@ local MapInfo =
 	{
 		[4225] = 
 		{
-			[1] = { x = -120.06, y = 63.32, z = 121.73, name = "칼 마신", SortID = 30, FunctionName = " " },
+			[1] = { x = -120.06, y = 63.32, z = 121.73, name = "카 마신", SortID = 30, FunctionName = " " },
 		},
 		[3012] = 
 		{

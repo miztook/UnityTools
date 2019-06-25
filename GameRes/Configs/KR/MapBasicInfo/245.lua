@@ -15,7 +15,7 @@ local MapInfo =
 	{
 		[23430] = 
 		{
-			[1] = { x = -0.34, y = 14.96, z = 85.34, name = "노예 선봉군", level = 55,IsBoss = true },
+			[1] = { x = -0.34, y = 14.96, z = 85.34, name = "주라스 수련자", level = 55,IsBoss = true },
 		},
 		[23431] = 
 		{

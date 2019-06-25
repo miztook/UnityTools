@@ -96,7 +96,7 @@ local function setBtnExpress(obj, param)
 	GameUtil.SetBtnExpress(obj,param)
 end
 
-local function setBtnGray(obj, param)
+local function setBtnGray(obj, param, dontA)
     if obj == nil or param == nil or type(param) ~= "boolean" then return end
     GameUtil.SetBtnExpress(obj,param)
     local uiTemplate = obj:GetComponent(ClassType.UITemplate)
@@ -104,7 +104,11 @@ local function setBtnGray(obj, param)
         local img_money = uiTemplate:GetControl(2)
         local img_bg = uiTemplate:GetControl(0)
         if img_bg ~= nil then
-            makeBtnBgGray(img_bg, param)
+            if dontA then
+                GameUtil.MakeImageGray(img_bg, param)
+            else
+                makeBtnBgGray(img_bg, param)
+            end
         end
         if img_money ~= nil then
             makeBtnBgGray(img_money, param)
@@ -363,6 +367,10 @@ local function ReParseFormatNum(number)
 end
 
 local function formatMoney(number)
+	if number == nil then
+		warn("the formatMoney Number is nil! ", debug.traceback())
+		number = 0
+	end
 	local num = number
 	if num >= 1000000 then	
 		num = ReParseFormatNum(tonumber(fixFloor(num / 1000000, 1)))  .."M"
@@ -583,10 +591,16 @@ local function setRelativePosition(alignedObj, targetObj, alignType)
     elseif alignType == EnumDef.AlignType.Bottom then
         offsetY = alignedTrans.rect.height / 2  + targetTrans.rect.height / 2
 	elseif alignType == EnumDef.AlignType.PVPLeft then		
-		offsetX = alignedTrans.rect.width
-        offsetY = - alignedTrans.rect.height - 15
+		offsetX = targetTrans.rect.width / 3
+        offsetY = - alignedTrans.rect.height+15
     elseif alignType == EnumDef.AlignType.PVPRight then		
-		offsetX = 0
+		offsetX = - targetTrans.rect.width / 3
+        offsetY = - alignedTrans.rect.height+15
+	elseif alignType == EnumDef.AlignType.PVP1V1Left then
+		offsetX = targetTrans.rect.width / 2
+        offsetY = - alignedTrans.rect.height - 15
+    elseif alignType == EnumDef.AlignType.PVP1V1Right then		
+		offsetX = - targetTrans.rect.width / 2
         offsetY = - alignedTrans.rect.height - 15
     elseif alignType == EnumDef.AlignType.PanelBuff then		
 		-- offsetX = alignedTrans.rect.width / 3
@@ -884,6 +898,14 @@ local function registerButtonEventHandler(panel_obj, btn_obj, recursion)
     end
 end
 
+local function registerToggleEventHandler(panel_obj, btn_obj, recursion)
+    if recursion then
+        GameUtil.RegisterUIEventHandler(panel_obj, btn_obj, ClassType.Toggle, recursion)
+    else
+        GameUtil.RegisterUIEventHandler(panel_obj, btn_obj, ClassType.Toggle)
+    end
+end
+
 local function registerGTextEventHandler(panel_obj, gtext_obj, recursion)
     if recursion then
     	GameUtil.RegisterUIEventHandler(panel_obj, gtext_obj, ClassType.GText, recursion)
@@ -1014,33 +1036,6 @@ local function setTabListOpenTypeImg(item, type)
 	setGroupImg(item:FindChild("Img_Arrow"), type)
 end
 
-local function checkName(name)
-	if name == nil then
-		warn("checkName--the name is nil")
-		return false
-	end
-	name = tostring(name)
-	local trimName = string.gsub(name, "^%s*(.-)%s*$", "%1")
-	if (nil == trimName or  0 == string.len(trimName)) then  
-		game._GUIMan:ShowTipText(StringTable.Get(26), true)
-		return false
-	end
-	local filter = require "Utility.BadWordsFilter".Filter
-	local filterName = filter.FilterName(name)
-	local containMainWord = GameUtil.CheckName_ContainMainWord(name)
-	local isValidWord = GameUtil.CheckName_IsValidWord(name)
-
-	if filterName ~= name or not isValidWord then
-		game._GUIMan:ShowTipText(StringTable.Get(24), true)
-		return false
-	elseif not containMainWord then
-		game._GUIMan:ShowTipText(StringTable.Get(25), true)
-		return false
-	end
-
-	return true
-end
-
 local function setEngraveIcon(img, value)
 	if img == nil then return end
 
@@ -1083,6 +1078,14 @@ end
 local function scaleChildFXObj(goParent, scale)
     local go = goParent:FindChild("FXObj");
     go.localScale = Vector3.New(scale,scale,scale)
+end
+
+local function showCommonTip(title, des, obj)
+    local data = {}
+    data._Title = title or ""
+    data._Des = des or ""
+    data._Obj = obj
+    game._GUIMan:Open("CPanelUICommonTip", data)
 end
 
 def.const("function").setButtonEnable 		= setButtonEnable
@@ -1138,6 +1141,7 @@ def.const("function").SetTokenItem			= setTokenItem
 def.const("function").GetChild				= getChild
 --def.const("function").RegisterUIEventHandler = registerUIEventHandler
 def.const("function").RegisterButtonEventHandler = registerButtonEventHandler
+def.const("function").RegisterToggleEventHandler = registerToggleEventHandler
 def.const("function").RegisterGTextEventHandler	= registerGTextEventHandler
 def.const("function").RegisterImageModelEventHandler = registerImageModelEventHandler
 def.const("function").RegisterSliderEventHandler = registerSliderEventHandler
@@ -1153,12 +1157,12 @@ def.const("function").SetPointImageReverseY = setPointImageReverseY
 def.const("function").SetupDropdownTemplate = setupDropdownTemplate
 def.const("function").SetTabListOpenTypeImg = setTabListOpenTypeImg
 def.const("function").GetDropLibraryItemList = getDropLibraryItemList
-def.const("function").CheckName = checkName
 def.const("function").SetEngraveIcon = setEngraveIcon
 def.const("function").GetEmojiByType = getEmojiByType
 def.const("function").GetTextSize = getTextSize
 def.const("function").FormatRichTextSize = formatRichTextSize
 def.const("function").ScaleChildFXObj = scaleChildFXObj
+def.const("function").ShowCommonTip = showCommonTip
 
 def.const("function").ParseWebViewMsg = parseWebViewMsg
 def.const("function").AddWebViewURLHeads = addWebViewURLHeads

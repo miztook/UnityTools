@@ -69,7 +69,7 @@ def.method().UpdateTopUI = function(self)
     local is_buy = fundStruct ~= nil and fundStruct.IsBuy
     GameUtil.PlayUISfx(PATH.UIFX_Mall_FundTop, ui_fx, ui_fx, -1)
     if self._FundData.CostType == ECostType.Cash then
-        GUI.SetText(lab_count, string.format(StringTable.Get(31000), self._FundData.CashCount))
+        GUI.SetText(lab_count, string.format(StringTable.Get(31000), GUITools.FormatNumber(self._FundData.CashCount, false)))
         self._BuyBtn:SetInteractable(not is_buy)
         self._BuyBtn:MakeGray(is_buy)
         GUI.SetText(self._PanelObject._Lab_PriceNum, string.format(StringTable.Get(31053), GUITools.FormatNumber(self._FundData.CashCount, true)))
@@ -140,7 +140,7 @@ def.method("table").SortFundItems = function(self, fundTemp)
         if value1.State ~= value2.State then
             return value1.State > value2.State
         else
-            return value1.Param < value2.Param
+            return value1.Id < value2.Id
         end
     end
     table.sort(fundTemp.FundRewardDetails, func)
@@ -264,13 +264,12 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
             
             local fundStruct = CMallMan.Instance():GetFundRoleData(self._FundTemp.Id)
             local is_buy = (fundStruct ~= nil and fundStruct.IsBuy)
-            GUITools.SetBtnExpressGray(item, true)
+            GUITools.SetBtnExpressGray(item, false)
             if detailItem.Id == 0 then
                 lab_head_right_now:SetActive(true)
                 lab_right_now:SetActive(true)
                 item_icon1:SetActive(true)
                 if detailItem.State == FundState.NotReach then
-                    GUITools.SetBtnExpressGray(item, false)
                     btnGet:SetActive(true)
                     GUITools.SetBtnGray(btnGet, true)
                     GUI.SetText(lab_btn_get, StringTable.Get(31200))
@@ -288,8 +287,8 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                 elseif detailItem.EventType == EEventType.Fight then
                     frame_Battle:SetActive(true)
                     frame_head_battle:SetActive(true)
-                    GUI.SetText(labNeedBattle, detailItem.Param.."")
-                    GUI.SetText(lab_head_need_battle, string.format(StringTable.Get(31053), detailItem.Param..""))
+                    GUI.SetText(labNeedBattle, GUITools.FormatNumber(detailItem.Param, false))
+                    GUI.SetText(lab_head_need_battle, string.format(StringTable.Get(31053), GUITools.FormatNumber(detailItem.Param, false)))
                 elseif detailItem.EventType == EEventType.Quest then
                     frame_head_quest:SetActive(true)
                     frame_quest:SetActive(true)
@@ -340,13 +339,14 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                     GUI.SetText(lab_btn_get, StringTable.Get(31200))
                 elseif detailItem.State == FundState.GotIt then
                     img_compeleted:SetActive(true)
+                    GUITools.SetBtnExpressGray(item, true)
                 else
                     btnGet:SetActive(true)
                     img_btn_fx:SetActive(true)
                     GameUtil.PlayUISfxClipped(PATH.UIFX_Mall_FundLabelFX, img_uifx_bg, img_uifx_bg, item.parent.parent)
                 end
             else
-                btnGet:SetActive(true)
+                btnGet:SetActive(false)
                 GUITools.SetBtnGray(btnGet, true)
                 GUI.SetText(lab_btn_get, StringTable.Get(31200))
                 img_compeleted:SetActive(false)
@@ -422,6 +422,7 @@ def.override().OnDestory = function(self)
     CMallPageBase.OnDestory(self)
     if self._BuyBtn ~= nil then
         self._BuyBtn:Destroy()
+        self._BuyBtn = nil
     end
     self._FundTemp = nil
     self._FundData = nil

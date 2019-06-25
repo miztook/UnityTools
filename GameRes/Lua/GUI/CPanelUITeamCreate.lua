@@ -129,13 +129,13 @@ def.override().OnCreate = function(self)
 
     --FIXME: 副本BUG 暂时组队模块隐掉
 --    self._PanelObject._Times_Group:SetActive( false )
-    self._HelpUrlType = HelpPageUrlType.Team
 
     CGame.EventManager:addHandler('TeamInfoChangeEvent', OnTeamInfoChange)
     CGame.EventManager:addHandler('PVEMatchEvent', OnPVEMatchChange)
 end
 
 def.override("dynamic").OnData = function(self, data)
+    self._HelpUrlType = HelpPageUrlType.Team
     self:OnMenuTabChange()
     self:SetListCount()
 
@@ -185,7 +185,7 @@ def.override("dynamic").OnData = function(self, data)
         CommonInit()
     end
     
-    self:InitSeleteRoom()
+    -- self:InitSeleteRoom()
 end
 
 --初始化房间
@@ -199,6 +199,7 @@ def.method().InitSeleteRoom = function(self)
     -- self._PanelObject._Lab_TargetCount:SetActive(false)
 
     local bShowTimeGroup = (self._Current_SelectData.PlayingLaw ~= ERule.NONE)
+    -- warn("self._Current_SelectData.PlayingLaw = ", self._Current_SelectData.PlayingLaw, ERule.NONE, debug.traceback())
 
     --FIXME: 副本BUG 暂时组队模块隐掉
     self._PanelObject._Times_Group:SetActive(bShowTimeGroup)
@@ -261,7 +262,7 @@ def.method("table", "=>", "table").CalcMeetList = function(self, list)
             end
         end
     end
-    print("#meetList ", #meetList)
+    -- print("#meetList ", #meetList)
     return meetList
 end
 
@@ -665,17 +666,32 @@ def.method('userdata','number','number').OnInitTabListDeep2 = function(self,item
 
     local dungeon_temp = CElementData.GetTemplate("Instance", current_smallData.Data.PlayingLawParam1)
     local is_showBig = false
+    local name = current_smallData.Data.ChannelTwoName
+    local limitedLv = current_smallData.Data.DisplayLevel
+    local Lab_Lv = item:FindChild("Lab_Lv")
+    Lab_Lv:SetActive(limitedLv>0)
+    if limitedLv > 0 then
+        local str = string.format(StringTable.Get(10714), limitedLv)
+        GUI.SetText(Lab_Lv, str)
+    end
+
     if current_smallData.Data.PlayingLaw == require "PB.Template".TeamRoomConfig.Rule.DUNGEON  then
         if dungeon_temp then
             is_showBig = dungeon_temp.InstanceTeamType == EInstanceTeamType.EInstanceTeam_Corps
+            if remain_count > 0 and is_dungeon_open then
+                GUI.SetText(item:FindChild("Lab_Text"), name)
+            else
+                GUI.SetText(item:FindChild("Lab_Text"), string.format(StringTable.Get(10634), name))
+            end
+        end
+    else
+        if is_dungeon_open then
+            GUI.SetText(item:FindChild("Lab_Text"), name)
+        else
+            GUI.SetText(item:FindChild("Lab_Text"), string.format(StringTable.Get(10634), name))
         end
     end
     img_big_sign:SetActive(is_showBig)
-    if remain_count > 0 and is_dungeon_open then
-        GUI.SetText(item:FindChild("Lab_Text"), current_smallData.Data.ChannelTwoName)
-    else
-        GUI.SetText(item:FindChild("Lab_Text"), string.format(StringTable.Get(10634), current_smallData.Data.ChannelTwoName))
-    end
 end
 
 --初始化，sub_index为-1时是第一级，否则是二级

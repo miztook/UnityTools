@@ -83,7 +83,7 @@ def.method().DrumpToRightStore = function(self)
         local recommend_data = self._FieldData.RcommendGoodss[self._CurIndex]
         if recommend_data ~= nil then
             local CPanelMall = require "GUI.CPanelMall"
-            if CPanelMall.Instance():IsShow() then
+            if CPanelMall.Instance():IsShow() and recommend_data.StoreId > 0 then
                 CPanelMall.Instance():SwitchToShop(recommend_data.StoreId)
             end
         end

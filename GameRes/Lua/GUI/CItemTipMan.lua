@@ -224,6 +224,24 @@ local function _CloseCurrentTips()
 	ItemObj = nil 
 end
 
+local function _IsShowTipButton(isShowButton)
+	if gCurTipPanel ~= nil then
+		gCurTipPanel:IsShowButton(isShowButton)
+	end
+end
+
+local function _IsSetCompareTipCenter(isCenter)
+	if gCurTipPanel ~= nil then
+		gCurTipPanel:IsSetCompareTipCenter(isCenter)
+	end
+end
+
+local function _MoveCompareTipPosition()
+	if gCurTipPanel ~= nil then
+		gCurTipPanel:MoveCompareTipPosition()
+	end
+end
+
 ---- 背包的对比tip 和单个tip 弹出位置不同 所以 增加一个偏移量
 --local function _InitTipPosition(tipObj,offsetX)
 --	if tipPosition == nil or TargetObj == nil then return end
@@ -281,6 +299,8 @@ _G.CItemTipMan =
 	ShowPetSkillTips = _CreatPetSkillTips,
 
 	InitTipPosition = _InitTipPosition,
+	IsShowTipButton = _IsShowTipButton,
+	IsSetCompareTipCenter = _IsSetCompareTipCenter,
 	CloseCurrentTips   = _CloseCurrentTips,
 }
 

@@ -189,21 +189,24 @@ def.override().CreatePate = function (self)
 	local CNPCTopPate = require "GUI.CPate".CNPCTopPate
 	local pate = CNPCTopPate.new()
 	self._TopPate = pate
-	local callback = function()
-		self:OnPateCreate()
-		--self._TopPate:OnTitleNameChange(true,"测试头衔牛不牛")
-	end
+--	local callback = function()
+--		self:OnPateCreate()
+--		--self._TopPate:OnTitleNameChange(true,"测试头衔牛不牛")
+--	end
 
-	pate:Create(self, callback)
+	pate:Init(self, nil, false)
+	self:OnPateCreate()
 end
 
 def.override().OnPateCreate = function(self)
 	CEntity.OnPateCreate(self)
 	if self._TopPate == nil then return end
 
+	self._TopPate:MarkAsValid(true)
 	if not self:IsVisible() then 
 		self._TopPate:SetVisible(false)
 	end
+	self._TopPate:UpdateName(true)
 	local titleStr = self:GetTitle()
 	if titleStr ~= "" then
 		self._TopPate:OnTitleNameChange(true, titleStr) 
@@ -245,12 +248,11 @@ end
 def.override("string","=>","string","boolean").GetAnimationName = function (self,nowAniname)
 	local isReplace = false
     if self._AnimationReplaceTable ~= nil then 
-	    for k,v in ipairs(self._AnimationReplaceTable) do 
-	        if v.OldAniname == nowAniname then 
-	        	isReplace = true
-	            return v.NewAniname,isReplace
-	        end
-	    end
+	    local newAniName = self._AnimationReplaceTable[nowAniname]
+    	if newAniName then
+        	isReplace = true
+        	return newAniName,isReplace
+    	end
 	end
 	if self._MonsterTemplate and self._MonsterTemplate.new1 ~= nil and self._MonsterTemplate.new1 ~= "" and self._MonsterTemplate.old1 ~= nil
 	and self._MonsterTemplate.old1 ~= ""  then 

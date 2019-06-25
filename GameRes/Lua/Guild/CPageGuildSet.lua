@@ -1,6 +1,7 @@
 local Lplus = require "Lplus"
 local CElementData = require "Data.CElementData"
 local PBHelper = require "Network.PBHelper"
+local NameChecker = require "Utility.NameChecker"
 local CPageGuildSet = Lplus.Class("CPageGuildSet")
 local def = CPageGuildSet.define
 
@@ -139,13 +140,19 @@ end
 def.method("userdata", "number").InitGroupList1 = function(self, item, index)
     local guildIcon = self._Guild_Icon_1[index]._Icon
     local _Guild = game._HostPlayer._Guild
+    local uiTemplate = item:GetComponent(ClassType.UITemplate)
+    local ImgU = uiTemplate:GetControl(6)
+    local ImgUseBg = uiTemplate:GetControl(4)
+    local ImgD = uiTemplate:GetControl(1)
+    local ImgLockBg = uiTemplate:GetControl(2)
+    local LabCost = uiTemplate:GetControl(7)
     if guildIcon.Id == _Guild._GuildIconInfo._BaseColorID then
-        item:FindChild("Img_U"):SetActive(true)
+        ImgU:SetActive(true)
         self._List_Item_1._Item = item
         self._List_Item_1._Index = index
-        item:FindChild("Img_Use_Bg"):SetActive(true)
+        ImgUseBg:SetActive(true)
     else
-        item:FindChild("Img_Use_Bg"):SetActive(false)
+        ImgUseBg:SetActive(false)
     end
     local lock = true
     if guildIcon.CostMoneyNum == 0 then
@@ -161,23 +168,30 @@ def.method("userdata", "number").InitGroupList1 = function(self, item, index)
     end
     self._Guild_Icon_1[index]._Lock = lock
     if lock then
-        item:FindChild("Img_Lock_Bg"):SetActive(true)
+        ImgLockBg:SetActive(true)
+        GUI.SetText(LabCost,tostring(guildIcon.CostMoneyNum))
     else
-        item:FindChild("Img_Lock_Bg"):SetActive(false) 
+        ImgLockBg:SetActive(false) 
     end
-    GameUtil.SetImageColor(item:FindChild("Img_D"), guildIcon.ColorValue)
+    GameUtil.SetImageColor(ImgD, guildIcon.ColorValue)
 end
 
 def.method("userdata", "number").InitGroupList2 = function(self, item, index)
     local guildIcon = self._Guild_Icon_2[index]._Icon
     local _Guild = game._HostPlayer._Guild
+    local uiTemplate = item:GetComponent(ClassType.UITemplate)
+    local ImgU = uiTemplate:GetControl(6)
+    local ImgUseBg = uiTemplate:GetControl(4)
+    local ImgD = uiTemplate:GetControl(1)
+    local ImgLockBg = uiTemplate:GetControl(2)
+    local LabCost = uiTemplate:GetControl(7)
     if guildIcon.Id == _Guild._GuildIconInfo._FrameID then
-        item:FindChild("Img_U"):SetActive(true)
+        ImgU:SetActive(true)
         self._List_Item_2._Item = item
         self._List_Item_2._Index = index
-        item:FindChild("Img_Use_Bg"):SetActive(true)
+        ImgUseBg:SetActive(true)
     else
-        item:FindChild("Img_Use_Bg"):SetActive(false)
+        ImgUseBg:SetActive(false)
     end
     local lock = true
     if guildIcon.CostMoneyNum == 0 then
@@ -193,23 +207,30 @@ def.method("userdata", "number").InitGroupList2 = function(self, item, index)
     end
     self._Guild_Icon_2[index]._Lock = lock
     if lock then
-        item:FindChild("Img_Lock_Bg"):SetActive(true)
+        ImgLockBg:SetActive(true)
+        GUI.SetText(LabCost,tostring(guildIcon.CostMoneyNum))
     else
-        item:FindChild("Img_Lock_Bg"):SetActive(false) 
+        ImgLockBg:SetActive(false) 
     end
-    GUITools.SetGuildIcon(item:FindChild("Img_D"), guildIcon.IconPath)  
+    GUITools.SetGuildIcon(ImgD, guildIcon.IconPath)  
 end
 
 def.method("userdata", "number").InitGroupList3 = function(self, item, index)
     local guildIcon = self._Guild_Icon_3[index]._Icon
     local _Guild = game._HostPlayer._Guild
+    local uiTemplate = item:GetComponent(ClassType.UITemplate)
+    local ImgU = uiTemplate:GetControl(6)
+    local ImgUseBg = uiTemplate:GetControl(4)
+    local ImgD = uiTemplate:GetControl(1)
+    local ImgLockBg = uiTemplate:GetControl(2)
+    local LabCost = uiTemplate:GetControl(7)
     if guildIcon.Id == _Guild._GuildIconInfo._ImageID then
-        item:FindChild("Img_U"):SetActive(true)
+        ImgU:SetActive(true)
         self._List_Item_3._Item = item
         self._List_Item_3._Index = index
-        item:FindChild("Img_Use_Bg"):SetActive(true)
+        ImgUseBg:SetActive(true)
     else
-        item:FindChild("Img_Use_Bg"):SetActive(false)
+        ImgUseBg:SetActive(false)
     end
     local lock = true 
     if guildIcon.CostMoneyNum == 0 then
@@ -225,11 +246,12 @@ def.method("userdata", "number").InitGroupList3 = function(self, item, index)
     end
     self._Guild_Icon_3[index]._Lock = lock
     if lock then
-        item:FindChild("Img_Lock_Bg"):SetActive(true)
+        ImgLockBg:SetActive(true)
+        GUI.SetText(LabCost,tostring(guildIcon.CostMoneyNum))
     else
-        item:FindChild("Img_Lock_Bg"):SetActive(false) 
+        ImgLockBg:SetActive(false) 
     end
-    GUITools.SetGuildIcon(item:FindChild("Img_D"), guildIcon.IconPath)
+    GUITools.SetGuildIcon(ImgD, guildIcon.IconPath)
 end
 
 
@@ -268,8 +290,11 @@ def.method("string").OnClick = function(self, id)
             end
         end
         local title, msg, closeType = StringTable.GetMsg(119)
-        msg = string.format(msg, GUITools.FormatNumber(self._TotalCostMoney, false))
-        MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback)   
+        local setting = {
+            [MsgBoxAddParam.CostMoneyID] = 3,
+            [MsgBoxAddParam.CostMoneyCount] = self._TotalCostMoney,
+        }
+        MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback, nil, nil, MsgBoxPriority.Normal, setting)   
     elseif id == "Rdo_Check" then  --审批
         self._Rdo_Check:ToggleValue()
         local uiTemplate = self._Frame_Toggle:GetComponent(ClassType.UITemplate)
@@ -291,8 +316,9 @@ end
 -- 当输入框有变化
 def.method("string", "string").OnValueChanged = function(self, id, str)
     if id == "InputField_Name" then
-        if GameUtil.GetStringLength(str) > GlobalDefinition.MaxGuildNameLength then
-            self._InputField_Name.text = GameUtil.SetStringLength(str, GlobalDefinition.MaxGuildNameLength)
+        local ret = NameChecker.SubGuildName(str)
+        if ret ~= str then
+            self._InputField_Name.text = ret
         end
         self:UpdateCostMoney()
     end
@@ -376,18 +402,22 @@ def.method().UpdateInputState = function(self)
     if self._NeedScore <= 0 then
         GUI.SetText(self._Lab_Count, StringTable.Get(8110))
         GameUtil.SetButtonInteractable(self._Btn_Minus, false)
-        GUITools.SetGroupImg(self._Btn_Minus:FindChild("Img_BG"), 1)
+        GUITools.SetBtnGray(self._Btn_Minus, true, true)
+--        GUITools.SetGroupImg(self._Btn_Minus:FindChild("Img_BG"), 1)
     else
         GUI.SetText(self._Lab_Count, tostring(self._NeedScore))
         GameUtil.SetButtonInteractable(self._Btn_Minus, true)
-        GUITools.SetGroupImg(self._Btn_Minus:FindChild("Img_BG"), 0)
+        --GUITools.SetGroupImg(self._Btn_Minus:FindChild("Img_BG"), 0)
+        GUITools.SetBtnGray(self._Btn_Minus, false, true)
     end
     if self._NeedScore >= GlobalDefinition.MaxFightScoreNum then
         GameUtil.SetButtonInteractable(self._Btn_Plus, false)
-        GUITools.SetGroupImg(self._Btn_Plus:FindChild("Img_BG"), 1)
+        --GUITools.SetGroupImg(self._Btn_Plus:FindChild("Img_BG"), 1)
+        GUITools.SetBtnGray(self._Btn_Plus, true, true)
     else
         GameUtil.SetButtonInteractable(self._Btn_Plus, true)
-        GUITools.SetGroupImg(self._Btn_Plus:FindChild("Img_BG"), 0)
+        --GUITools.SetGroupImg(self._Btn_Plus:FindChild("Img_BG"), 0)
+        GUITools.SetBtnGray(self._Btn_Plus, false, true)
     end
 end
 
@@ -424,18 +454,11 @@ end
 -- 保存修改
 def.method().SaveSettings = function(self)
     local name = self._InputField_Name.text
-    local Filter = require "Utility.BadWordsFilter".Filter
-    local filterStr = Filter.FilterName(name)
-    if filterStr ~= name then
+    if not NameChecker.CheckGuildNameValid(name) then
         self._InputField_Name.text = game._HostPlayer._Guild._GuildName
-        game._GUIMan:ShowTipText(StringTable.Get(8057), true)
         return
     end
-    if GameUtil.GetStringLength(name) < GlobalDefinition.MinGuildNameLength then
-        game._GUIMan:ShowTipText(string.format(StringTable.Get(856), GlobalDefinition.MinGuildNameLength), true)
-    elseif GameUtil.GetStringLength(name) > GlobalDefinition.MaxGuildNameLength then
-        game._GUIMan:ShowTipText(string.format(StringTable.Get(857), GlobalDefinition.MaxGuildNameLength), true)
-    elseif game._HostPlayer:GetBindDiamonds() < self._TotalCostMoney then
+    if game._HostPlayer:GetBindDiamonds() < self._TotalCostMoney then
         local callback = function(value)
             if value then
                 local protocol = (require "PB.net".C2SGuildSetDisplayInfo)()

@@ -14,7 +14,7 @@ local CPanelUIManual = require "GUI.CPanelUIManual"
 def.field("table")._Reputations = BlankTable
 def.field("table")._ReputationsTIDs = nil
 def.field("number")._QuestFinishCount = 0
-def.field("number")._RepShopSpecialID = 319     --声望商店特殊id
+def.field("number")._RepShopSpecialID = 320     --声望商店特殊id
 
 def.static("=>", CReputationMan).new = function()
     local obj = CReputationMan()

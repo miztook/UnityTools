@@ -264,7 +264,7 @@ def.method("string").Click1V1OrBattle = function (self,id)
             game._GUIMan:Open("CPanelBuffOrTalent",
             { 
                 Target = game._HostPlayer, Obj = Btn_Obj, 
-                AlignType = EnumDef.AlignType.PanelBuff,
+                AlignType = EnumDef.AlignType.PVP1V1Left,
                 IsShowTalent = false,
             })
         end
@@ -280,7 +280,7 @@ def.method("string").Click1V1OrBattle = function (self,id)
             game._GUIMan:Open("CPanelBuffOrTalent",
             { 
                 Target = EnemyEntity, Obj = Btn_Obj, 
-                AlignType = EnumDef.AlignType.PanelBuff,
+                AlignType = EnumDef.AlignType.PVP1V1Right,
                 IsShowTalent = false,
             })
         end
@@ -719,7 +719,7 @@ def.method("table" ,"number","=>", "table").GetBuffItem = function(self,playerOb
     if playerObj._BuffItemById[buffId] == nil then
         for i=1, self._3V3MaxBuff do
             local item = playerObj._ListBuff:FindChild("item"..i-1)
-            if IsNil(item) then warn("don't find this item" ..i-1 ) return end
+            if IsNil(item) then warn("don't find this item" ..i-1 ) return nil end
             if item.activeSelf == false then
                 local buffItem = {}
                 buffItem.Obj = item

@@ -15,6 +15,7 @@ def.field("userdata")._ImgRole1 = nil
 def.field("userdata")._ImgRole2 = nil 
 def.field("userdata")._ImgBg = nil 
 def.field("table")._RivalData = nil 
+def.field("number")._TimerID = 0
 
 local instance = nil
 def.static('=>', CPanelArenaOneMatching).Instance = function ()
@@ -59,9 +60,11 @@ local function ShowRoleInfo(self,obj,data)
     GUI.SetText(labName,data.Name)
 
     local labFightScore_Data = obj:FindChild("Lab_FightScore_Data")
-    GUI.SetText(labFightScore_Data,tostring(data.FightScore))
+    GUI.SetText(labFightScore_Data,GUITools.FormatNumber(data.FightScore))
     local labRank = obj:FindChild("Lab_Rank")
     local labPoint = obj:FindChild("Lab_Point")
+    local labLevel = obj:FindChild("Lab_Level")
+    GUI.SetText(labLevel,string.format(StringTable.Get(20053),data.Level))
     if data.Rank == 0 then 
         GUI.SetText(labRank,StringTable.Get(20103))
     else
@@ -103,6 +106,23 @@ local function AddGlobalTimer(self)
     end
     timer_id = _G.AddGlobalTimer(1, false, callback)
 end
+
+--添加倒计时（当无法接受到服务器返回匹配消息后直接关闭界面 没有成功进入1v1）
+local function AddClosePanelTimer(self)
+    local time = 0
+    self._TimerID = 0
+    local callback = function()
+        time = time + 1
+        if time == 8 then
+            _G.RemoveGlobalTimer(self._TimerID)
+            self._TimerID = 0
+            if self:IsShow() then 
+                game._GUIMan:CloseByScript(self)
+            end
+        end
+    end
+    self._TimerID = _G.AddGlobalTimer(1, false, callback)
+end 
 
 --1V1匹配成功
 local function OnSuccess(self, data)
@@ -146,10 +166,15 @@ end
 def.override("dynamic").OnData = function(self,data)
     self._FrameEnemy:SetActive(false)
     OnMatching(self)
+    AddClosePanelTimer(self)
 end
 
 def.method("table").UpdateState = function(self,data)
     if not self:IsShow() then return end
+    if self._TimerID > 0 then 
+        _G.RemoveGlobalTimer(self._TimerID)
+        self._TimerID = 0
+    end
     if data.State == EJJC1x1State.Success then
         OnSuccess(self,data)
     elseif data.State == EJJC1x1State.Failed then
@@ -165,6 +190,10 @@ def.override().OnDestroy = function(self)
     if self._Model4ImgRender2 then
         self._Model4ImgRender2:Destroy()
         self._Model4ImgRender2 = nil
+    end
+    if self._TimerID > 0 then 
+        _G.RemoveGlobalTimer(self._TimerID)
+        self._TimerID = 0
     end
     instance = nil 
 

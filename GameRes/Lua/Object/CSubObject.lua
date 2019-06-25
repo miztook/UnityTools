@@ -9,6 +9,7 @@ local bit = require "bit"
 local ObjectInfoList = require "Object.ObjectInfoList"
 local OBJ_TYPE = require "Main.CSharpEnum".OBJ_TYPE
 local CFxObject = require "Fx.CFxObject"
+local CSkillActorMan = require "Skill.CSkillActorMan"
 
 local CSubobject = Lplus.Extend(CEntity, "CSubobject")
 local def = CSubobject.define
@@ -105,14 +106,13 @@ local function CreateGameObject(self)
     
 	GameUtil.AddObjectComponent(self, root, self._ID, self:GetObjectType(), self._Radius)
 
-	local CSkillActorMan = require "Skill.CSkillActorMan"	
 	CSkillActorMan.Instance():GenerateSubobjectActor(self)
 
 	if self._GfxObject ~= nil then
 		self._Model._GameObject = self._GfxObject:GetGameObject()
 
 		if not self._IsAttched then
-			if not IsNil(self._Model._GameObject) then
+			if self._Model._GameObject ~= nil then
 				self._Model._GameObject.parent = root
 			end			
 		end
@@ -173,14 +173,17 @@ def.override("=>", "table").GetPos = function (self)
         return self._InitPos
     end
 
-    if self._GfxObject == nil or self._GfxObject:GetGameObject() == nil then
+    local go = nil
+    if self._GfxObject ~= nil then go = self._GfxObject:GetGameObject() end
+
+    if go == nil then
     	if self._Dest ~= nil then
     		return Vector3.New(self._Dest.x, self._Dest.y, self._Dest.z)
     	else
     	 	return self._InitPos
     	end
     else
-    	return self._GfxObject:GetGameObject().position
+    	return go.position
     end
 end
 
@@ -189,8 +192,11 @@ def.override("=>", "number", "number", "number").GetPosXYZ = function (self)
         return 0, 0, 0
     end
     
-    if self._GfxObject ~= nil and self._GfxObject:GetGameObject() ~= nil then
-    	return self._GfxObject:GetGameObject():PositionXYZ()
+    local go = nil
+    if self._GfxObject ~= nil then go = self._GfxObject:GetGameObject() end
+
+    if go then
+    	return go:PositionXYZ()
     end
 
     if self._Dest ~= nil then
@@ -205,8 +211,11 @@ def.override("=>", "number", "number").GetPosXZ = function (self)
         return 0, 0
     end
     
-    if self._GfxObject ~= nil and self._GfxObject:GetGameObject() ~= nil then
-    	return self._GfxObject:GetGameObject():PositionXZ()
+    local go = nil
+    if self._GfxObject ~= nil then go = self._GfxObject:GetGameObject() end
+
+    if go then
+    	return go:PositionXZ()
     end
 
     if self._Dest ~= nil then
@@ -327,16 +336,25 @@ def.override("number", "number", "=>", "boolean").OnCollideWithOther = function(
 end
 
 --播放预警指示特效
-def.method("number", "number", "number", "number", "=>", "boolean").PlaySkillIndicatorGfx = function (self, skill_indicator_type, duration, param1, param2)
+def.method("number", "number", "number", "number","boolean", "=>", "boolean").PlaySkillIndicatorGfx = function (self, skill_indicator_type, duration, param1, param2,IsNotCloseToGround)
 	local gfx_path = nil
 	local scale = Vector3.one
+
 	if skill_indicator_type == EIndicatorType.Circular then
-		gfx_path = PATH.Etc_Yujing_Ring
+		if not IsNotCloseToGround then 
+			gfx_path = PATH.Etc_Yujing_Ring_Decl
+		else
+			gfx_path = PATH.Etc_Yujing_Ring
+		end
 		scale.x = param1 + 0.5
 		scale.y = 1
 		scale.z = param1+ 0.5
 	elseif skill_indicator_type == EIndicatorType.Fan then
-		gfx_path = PATH["Etc_Yujing_Shanxing"..param2]
+		if not IsNotCloseToGround then 
+			gfx_path = PATH["Etc_Yujing_Shanxing"..param2.."_Decl"]
+		else
+			gfx_path = PATH["Etc_Yujing_Shanxing"..param2]
+		end
 
 		if gfx_path == nil then
 			warn("Cannot find path:", "Etc_Yujing_Shanxing"..param2)
@@ -347,7 +365,11 @@ def.method("number", "number", "number", "number", "=>", "boolean").PlaySkillInd
 		scale.y = 1
 		scale.z = param1+ 0.5
 	elseif skill_indicator_type == EIndicatorType.Rectangle then
-		gfx_path = PATH.Etc_Yujing_Juxing
+		if not IsNotCloseToGround then 
+			gfx_path = PATH.Etc_Yujing_Juxing_Decl
+		else
+			gfx_path = PATH.Etc_Yujing_Juxing
+		end
 		
 		scale.x = param1+ 0.5
 		scale.y = 1
@@ -369,7 +391,8 @@ def.method("number", "number", "number", "number", "=>", "boolean").PlaySkillInd
 	if self._SkillIndicatorFx == nil then
 		self._SkillIndicatorFx = CFxObject.new()
 	end
-	local fx, id = GameUtil.PlayEarlyWarningGfx(gfx_path, pos, dir, scale, duration)
+
+	local fx, id = GameUtil.PlayEarlyWarningGfx(gfx_path, pos, dir, scale, duration,IsNotCloseToGround)
 	self._SkillIndicatorFx:Init(id, fx, nil)
 
 	return true

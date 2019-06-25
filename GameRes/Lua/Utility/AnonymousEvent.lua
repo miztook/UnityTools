@@ -134,7 +134,7 @@ do
 	def.method("dynamic", Object).raiseEvent = function (self, sender, arg)
 		checkObject(arg, "raiseEvent", 3, 2)
 		
-		return raiseEvent_internal(self, sender, arg, arg:getTypeTable())
+		raiseEvent_internal(self, sender, arg, arg:getTypeTable())
 	end
 	
 	--[[
@@ -144,7 +144,7 @@ do
 	def.method("dynamic", Object).raiseEventIncludingBase = function (self, sender, arg)
 		checkObject(arg, "raiseEvent", 3, 2)
 
-		return raiseEventIncludingBase_internal(self, sender, arg, arg:getTypeTable())
+		raiseEventIncludingBase_internal(self, sender, arg, arg:getTypeTable())
 	end
 	
 	--[[

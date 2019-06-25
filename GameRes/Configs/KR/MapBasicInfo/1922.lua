@@ -55,8 +55,8 @@ local MapInfo =
 		},
 		[14263] = 
 		{
-			[1] = { x = 18.49, y = 42.83, z = 60.78, name = "불멸의 군사", level = 57, SortID = 38, DropItemIds = " " },
-			[2] = { x = -63.20, y = 46.13, z = -1.30, name = "불멸의 군사", level = 57, SortID = 39, DropItemIds = " " },
+			[1] = { x = 18.49, y = 42.83, z = 60.78, name = "불사의 군사", level = 57, SortID = 38, DropItemIds = " " },
+			[2] = { x = -63.20, y = 46.13, z = -1.30, name = "불사의 군사", level = 57, SortID = 39, DropItemIds = " " },
 		},
 		[14273] = 
 		{
@@ -73,10 +73,10 @@ local MapInfo =
 	{
 		[4049] = 
 		{
-			[1] = { x = -174.66, y = 31.50, z = -161.59, name = "카이아의 검 수비병", SortID = 2, FunctionName = " " },
-			[2] = { x = -53.68, y = 45.19, z = 4.27, name = "카이아의 검 수비병", SortID = 8, FunctionName = " " },
-			[3] = { x = -66.60, y = 43.95, z = 37.13, name = "카이아의 검 수비병", SortID = 10, FunctionName = " " },
-			[4] = { x = 16.30, y = 44.19, z = 45.67, name = "카이아의 검 수비병", SortID = 31, FunctionName = " " },
+			[1] = { x = -174.66, y = 31.50, z = -161.59, name = "카이아의 검 호위병", SortID = 2, FunctionName = " " },
+			[2] = { x = -53.68, y = 45.19, z = 4.27, name = "카이아의 검 호위병", SortID = 8, FunctionName = " " },
+			[3] = { x = -66.60, y = 43.95, z = 37.13, name = "카이아의 검 호위병", SortID = 10, FunctionName = " " },
+			[4] = { x = 16.30, y = 44.19, z = 45.67, name = "카이아의 검 호위병", SortID = 31, FunctionName = " " },
 		},
 		[4012] = 
 		{
@@ -97,7 +97,7 @@ local MapInfo =
 		},
 		[4234] = 
 		{
-			[1] = { x = 16.30, y = 43.58, z = 60.20, name = "칼 마신", SortID = 11, FunctionName = " " },
+			[1] = { x = 16.30, y = 43.58, z = 60.20, name = "카 마신", SortID = 11, FunctionName = " " },
 		},
 		[4232] = 
 		{

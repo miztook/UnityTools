@@ -5,7 +5,7 @@ local MapInfo =
 	TextDisplayName = "살무사 아레나",
 	Length = 576,
 	Width = 576,
-	NavMeshName = "World01.navmesh",
+	NavMeshName = "Dn_pvp02_Arena02.navmesh",
 	BackgroundMusic = "BGM_Map_1/Map_1/Map_1_phase",
 	BattleMusic = "",
 	EnvironmentMusic = "Zone_Ambience/Ambience/Viper_Arena",
@@ -39,7 +39,7 @@ local MapInfo =
 		},
 		[10151] = 
 		{
-			[1] = { x = 190.29, y = 20.93, z = -176.65, name = "공격", level = 50, SortID = 33 },
+			[1] = { x = 190.29, y = 20.93, z = -176.65, name = "공격력", level = 50, SortID = 33 },
 		},
 		[10188] = 
 		{

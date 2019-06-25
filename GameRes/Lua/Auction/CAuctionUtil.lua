@@ -24,9 +24,68 @@ def.static("=>", CAuctionUtil).new = function ()
     return Instance
 end
 
+def.method().Init = function(self)
+    self:GetAllItemInfo()
+end
+
+local ParseMarketItems = function(items, productId)
+    local new_table = {}
+    local selected_table = {}
+    for i,v in ipairs(items) do
+        local item = {}
+        item.ItemID = v.ItemID
+        item.ItemNum = v.ItemNum
+        item.Price = v.Price
+        item.StartPrice = v.StartPrice
+        item.FixedPrice = v.FixedPrice
+        item.PutawayTime = v.PutawayTime
+        item.ItemPos = v.ItemPos
+        item.Duration = v.Duration
+        item.Bidder = v.Bidder
+        item.OwnerId = v.OwnerId
+        item.ShareHolder = v.ShareHolder
+        item.Item = v.Item
+        item.Added = false
+        new_table[#new_table + 1] = item
+    end
+    local market_temp = CElementData.GetTemplate("MarketItem", productId)
+    local limitCount = market_temp == nil and 0 or market_temp.MaxCellNum
+    if limitCount > 0 and #new_table > limitCount then
+        for i = 1,limitCount do
+            local default = 2^53
+            local index = -1
+            for i1,v in ipairs(new_table) do
+                if v.Added == false and v.Price < default then
+                    default = v.Price
+                    index = i1
+                end
+            end
+            if index > 0 then
+                selected_table[#selected_table + 1] = new_table[index]
+                new_table[index].Added = true
+            end
+        end
+    else
+        selected_table = new_table
+    end
+    return selected_table
+end
+
+local ParseCellItems = function(items)
+    local new_items = {}
+    for i,v in ipairs(items) do
+        local item = {}
+        item.ItemID = v.ItemID
+        item.ItemNum = v.ItemNum
+        item.ProductId = v.ProductId
+        new_items[#new_items + 1] = item
+    end
+    return new_items
+end
+
 --检索当前大标签下的所有ItemID 得到小标签下的Item
 def.method("number","number","number").GetSmallTabListData = function (self,marketType,smallTypeID,refTime) 
-    local tm = {} 
+    local tm = {}
     local itemIDs = self._TemplateData[marketType]  
     for _,v1 in ipairs(self._CurrentBigTypeData) do 
         if itemIDs[v1.ItemID].SmallTypeID == smallTypeID and v1.ItemNum > 0 then
@@ -76,21 +135,21 @@ end
 --处理模板数据
 def.method().GetAllItemInfo = function (self)
     self:GetAllItemID()
-    local bigTypeID ,smallTypeID = 0,0
     for i = 1 ,3 do 
         local temp1 = {}
         local temp2 = {}
         local templateData = CElementData.GetMarketTemplate(i)
         for _,v1 in ipairs(templateData.UIBigTypes) do
-            bigTypeID = v1.Id
+            local bigTypeID = v1.Id
             for _,v2 in ipairs(v1.UISmallTypes) do
-                smallTypeID = v2.Id
+                local smallTypeID = v2.Id
                 if not IsNilOrEmptyString(v2.SellItems) then
                     local sellItemIDs = string.split(v2.SellItems,'*')
                     for _,v3 in ipairs(sellItemIDs) do
                         local j = tonumber(v3)
                         table.insert(temp2,j)
                         temp1[self._AllItemID[j].ItemID] = {}
+                        temp1[self._AllItemID[j].ItemID].MarketItemID = j
                         temp1[self._AllItemID[j].ItemID].BigTypeID = bigTypeID
                         temp1[self._AllItemID[j].ItemID].SmallTypeID = smallTypeID
                         temp1[self._AllItemID[j].ItemID].MinPrice = self._AllItemID[j].MinPrice
@@ -108,6 +167,16 @@ def.method("number").SetRefCount = function(self, count)
     self._RefCount = count
 end
 
+-- 通过ItemID找到交易所的商品ID
+def.method("number", "=>", "number").GetMarketItemIDByItemID = function(self, itemID)
+    for k,v in pairs(self._AllItemID) do 
+        if v.ItemID == itemID then
+            return k
+        end
+    end
+    return -1
+end
+
 def.method().GetAllItemID = function (self)
     local allIds = GameUtil.GetAllTid("MarketItem")
     for _,v in pairs(allIds) do
@@ -115,7 +184,7 @@ def.method().GetAllItemID = function (self)
         self._AllItemID[marketItem.Id] = {}
         self._AllItemID[marketItem.Id].MinPrice = marketItem.MinPrice
         self._AllItemID[marketItem.Id].MaxPrice = marketItem.MaxPrice 
-        self._AllItemID[marketItem.Id].ItemID = marketItem.ItemId  
+        self._AllItemID[marketItem.Id].ItemID = marketItem.ItemId
     end 
 end
 
@@ -173,6 +242,15 @@ def.method("number","table").UpdataMarketBuyItemList = function(self,marketType,
         self._CurrentBigTypeData = itemList
         self:GetGuildSmallTabListData(marketType,CPanelAuction.Instance()._CurrentSelectSmallTabId,0)
     end                  
+end
+
+def.method().Release = function(self)
+    self._BuyItemList = {}
+    self._TemplateData = {}
+    self._CurrentBigTypeData = {}
+    self._SellItems = {}
+    self._AllItemID = {}
+    self._PutawaryItemsData = {}
 end
 -- 根据当前UI界面所处CellList还是ItemList像服务器发送数据
 -- def.method("number").C2SByItemUIType = function(self,itemUIType)
@@ -242,12 +320,11 @@ def.method("number","number").SendC2SMarketItemTakeOut = function (self,marketTy
     -- body
 end
 --购买
-def.method("number","number","number","number").SendC2SMarketItemBuy = function (self,marketType,itemID,price,buyNum)
+def.method("number","number","number").SendC2SMarketItemBuy = function (self,marketType,itemPos,buyNum)
     local C2SMarketItemBuy = require"PB.net".C2SMarketItemBuy
     local protocol = C2SMarketItemBuy()
     protocol.MarketType = marketType
-    protocol.ItemID = itemID
-    protocol.Price = price 
+    protocol.ItemPos = itemPos
     protocol.BuyNum = buyNum
     PBHelper.Send(protocol)
     -- body
@@ -266,14 +343,16 @@ end
 ----------------------------------------------S2C-------------------------
 def.method("number","table","number").LoadMarketCellListData = function (self,marketType,cellItems,refTime)
     if CPanelAuction.Instance():IsShow() and CPanelAuction.Instance()._CurrentRightToggle == marketType  then
-        self._CurrentBigTypeData = cellItems
+        self._CurrentBigTypeData = ParseCellItems(cellItems)
         self:GetSmallTabListData(marketType,CPanelAuction.Instance()._CurrentSelectSmallTabId,refTime) 
     end
 end
  
-def.method("number","table").LoadMarketItemListData = function (self,marketType,itemList)
+def.method("table").LoadMarketItemListData = function (self,msg)
+    local marketType = msg.MarketType
+    local productId = msg.ProductId
     if CPanelAuction.Instance():IsShow() and CPanelAuction.Instance()._CurrentRightToggle == marketType then  
-        self._BuyItemList = itemList
+        self._BuyItemList = ParseMarketItems(msg.ItemList, productId)
         self: UpdataMarketBuyItemList(marketType,self._BuyItemList)
     end
 end

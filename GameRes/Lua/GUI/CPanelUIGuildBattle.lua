@@ -68,12 +68,12 @@ end
 -- 当创建
 def.override().OnCreate = function(self)
 	self:InitObject()
-	self:Init()
-	self._HelpUrlType = HelpPageUrlType.Guild_Battle
 end
 
 -- 当数据
 def.override("dynamic").OnData = function(self, data)
+	self._HelpUrlType = HelpPageUrlType.Guild_Battle
+	self:Init()
 	self:InitData(data)
 end
 
@@ -158,13 +158,15 @@ def.method().Init = function(self)
 --	else
 --		self._Frame_OtherReward_2:SetActive(false)
 --	end
-	GUI.SetText(self._Lab_Sign_Num, CSpecialIdMan.GetDefault("GuildBattleSignDes"))
-	GUI.SetText(self._Lab_Open_Num, CSpecialIdMan.GetDefault("GuildBattleOpenDes"))
-    GUI.SetText(self._Lab_Need_Score, liveness_need.."")
+    local text_temp1 = CElementData.GetTemplate("Text", 477)
+    local text_temp2 = CElementData.GetTemplate("Text", 478)
+	GUI.SetText(self._Lab_Sign_Num, text_temp1 ~= nil and text_temp1.TextContent or "")
+	GUI.SetText(self._Lab_Open_Num, text_temp2 ~= nil and text_temp2.TextContent or "")
+    GUI.SetText(self._Lab_Need_Score, GUITools.FormatNumber(liveness_need, false))
     if liveness >= liveness_need then
-        GUI.SetText(self._Lab_Have_Score, liveness .. "")
+        GUI.SetText(self._Lab_Have_Score, GUITools.FormatNumber(liveness, false))
     else
-        GUI.SetText(self._Lab_Have_Score, string.format(StringTable.Get(20414), liveness))
+        GUI.SetText(self._Lab_Have_Score, string.format(StringTable.Get(20446), GUITools.FormatNumber(liveness, false)))
     end
 end
 
@@ -357,7 +359,7 @@ def.method().OnBtnSign = function(self)
 end
 
 def.method("table").ShowBtnSign = function(self, data)
-	self:InitData(data)
+	self:OnData(data)
 end
 
 def.method().OnBtnStart = function(self)

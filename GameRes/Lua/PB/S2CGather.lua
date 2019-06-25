@@ -5,31 +5,36 @@
 local PBHelper = require "Network.PBHelper"
 local CElementData = require "Data.CElementData"
 local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
+local CQuestAutoMan = require"Quest.CQuestAutoMan"
 
 --采集物通知
 local function OnS2CGatherSuccess(sender, msg)
 	local hp = game._HostPlayer
 	if msg.HostID == hp._ID then
-		hp:AddGatherNum(msg.MineTID,1)
-		local mine_tmp = CElementData.GetMineTemplate(msg.MineTID)
-		if mine_tmp and 
-		   mine_tmp.IsShowGatherSuccessedSkill and
-		   not hp:IsInCombatState() then
-		   
-			-- 技能打断影响 副本目标和服务器消息的配合
-			if not CDungeonAutoMan.Instance():IsOn()  then
+		if hp._CurTarget ~= nil and hp._CurTarget._ID == msg.EntityID then
+			hp:UpdateTargetInfo(nil, false)
+		end
+
+		hp:AddGatherNum(msg.MineTID, 1)
+		local mineTemp = CElementData.GetMineTemplate(msg.MineTID)
+		if mineTemp ~= nil then
+			local ignoreSuccessedSkill = not mineTemp.IsShowGatherSuccessedSkill 
+										or hp:IsInCombatState() 
+										or CDungeonAutoMan.Instance():IsOn() 
+										or CQuestAutoMan.Instance():IsOn()
+
+			if not ignoreSuccessedSkill then
 				local SkillDef = require "Skill.SkillDef"
 				local succeedSkillId = SkillDef.GatherSuccessedSkills[hp._InfoData._Prof]
 				hp:UseSkill(succeedSkillId)    
 				hp._SkillHdl:RegisterCallback(false, function(ret)
-        				hp:SetMineGatherId(0)
-    				end)
+	    				hp:SetMineGatherId(0)
+					end)
+			else
+				hp:SetMineGatherId(0)
 			end
-		-- 不用欢呼
-		elseif mine_tmp then
-			hp:SetMineGatherId(0)
-		end
-		game._CGuideMan:OnGatherFinish(msg.MineTID)		
+			game._CGuideMan:OnGatherFinish(msg.MineTID)	
+		end	
 	end
 
 	local function UpdateFlag(mine)

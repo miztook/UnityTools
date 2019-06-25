@@ -11,7 +11,7 @@ PBHelper.AddHandler("S2CMarketCellList", OnS2CMarketCellList)
 
 local function OnS2CMarketItemList(sender,msg)
     if msg.ResCode == 0 then
-        game._CAuctionUtil:LoadMarketItemListData(msg.MarketType,msg.ItemList)
+        game._CAuctionUtil:LoadMarketItemListData(msg)
     else
         game._GUIMan:ShowErrorTipText(msg.ResCode)
     end

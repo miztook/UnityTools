@@ -15,7 +15,7 @@ local PBHelper = require "Network.PBHelper"
 local net = require "PB.net"
 local CPanelCalendar = require "GUI.CPanelCalendar"
 local CPVPAutoMatch = require "ObjHdl.CPVPAutoMatch"
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local EMatchType = require "PB.net".EMatchType
 
 local CPage3V3 = Lplus.Class("CPage3V3")
@@ -42,7 +42,7 @@ end
 local function UpdateRoleInfo (self,obj)
 	local data  = game._CArenaMan._3V3HostData
 	local labFightScore_Data = obj:FindChild("Lab_FightScore_Data")
-	GUI.SetText(labFightScore_Data,tostring(data.FightScore))
+	GUI.SetText(labFightScore_Data,GUITools.FormatNumber(data.FightScore))
 	local num = data.ObtainedHonor/data.MaxHonor
 	self._PanelObject._HonorIndicator.value = num
 	GUI.SetText(self._PanelObject._LabBlood,string.format(StringTable.Get(20061),data.ObtainedHonor,data.MaxHonor))
@@ -54,13 +54,9 @@ local function UpdateRoleInfo (self,obj)
 	GUI.SetText(self._PanelObject._LabWin, tostring(data.WinTimes))
 	GUI.SetText(self._PanelObject._LabWinPoint, string.format("%.0f", (data.WinTimes / data.TotalTimes) * 100) .. "%")
 	--时间 等 显示 
-	self._PanelObject._FrameSeasonTime:SetActive(false)
-
-	if not game._CArenaMan._IsMatching3V3 then 
-		self._PanelObject._FrameSeasonTime:SetActive(true)
-		local Time = math.abs(data.SeasonLeftTime)
-		GUI.SetText(self._PanelObject._LabSeasonTime,GUITools.FormatTimeSpanFromSeconds(Time))
-	end
+	self._PanelObject._FrameSeasonTime:SetActive(true)
+	local Time = math.abs(data.SeasonLeftTime)
+	GUI.SetText(self._PanelObject._LabSeasonTime,GUITools.FormatTimeSpanFromSeconds(Time))
 	GUI.SetText(self._PanelObject._LabChance,StringTable.Get(20058))
 	--奖励todo
 	GUI.SetText(self._PanelObject._LabAwardStage2,StringTable.Get(20059))
@@ -150,31 +146,28 @@ local function StartArena3V3Matching(self)
 end
 
 local function BanMatchTime3V3(self,endTime)
-	self._PanelObject._FrameSeasonTime:SetActive(false)
-	self._PanelObject._LabChanceAndBanTime:SetActive(true)
+	GUITools.SetBtnGray(self._PanelObject._BtnCharge3V3,true)
+	self._PanelObject._FrameMatchTime:SetActive(true)
 	self._PanelObject._BtnCancelCharge :SetActive(false)
+	GUI.SetText(self._PanelObject._LabMatchBanTip,string.format(StringTable.Get(20084),StringTable.Get(20063)))
 	if self._BanMatchTimerID > 0 then
 		_G.RemoveGlobalTimer(self._BanMatchTimerID)
 		self._BanMatchTimerID = 0
 	end 
-
 	local timeStr = ""
 	local callback = function()
 		local showTime = endTime - GameUtil.GetServerTime()/1000
 		timeStr = GUITools.FormatTimeFromSecondsToZero(false,showTime)
-        if not IsNil(self._PanelObject._Lab_Btn_Charge3V3) then
-            GUI.SetText(self._PanelObject._Lab_Btn_Charge3V3,StringTable.Get(20063))
-            GUI.SetText(self._PanelObject._LabChanceAndBanTime,timeStr)
-        end
+        GUI.SetText(self._PanelObject._LabChanceAndBanTime,string.format(StringTable.Get(20084),timeStr))
         if showTime <= 0 then 
             -- 消除计时器
-	        GameUtil.SetButtonInteractable(self._PanelObject._BtnCharge3V3,true)
-	        GUI.SetText(self._PanelObject._Lab_Btn_Charge3V3,StringTable.Get(20062))
+	        GUITools.SetBtnGray(self._PanelObject._BtnCharge3V3,false)
+    		GameUtil.SetButtonInteractable(self._PanelObject._BtnCharge3V3,true)
+
 	        _G.RemoveGlobalTimer(self._BanMatchTimerID)
 		    self._BanMatchTimerID = 0
 		    game._CArenaMan._IsBanMatching3V3 = false
-		    self._PanelObject._FrameSeasonTime:SetActive(true)
-			self._PanelObject._LabChanceAndBanTime:SetActive(false)
+			self._PanelObject._FrameMatchTime:SetActive(false)
         end            
     end
     self._BanMatchTimerID = _G.AddGlobalTimer(1, false, callback)  	
@@ -198,9 +191,9 @@ end
 -- 从小地图进去控制3v3匹配按钮显示状态
 def.method("boolean").Change3V3BtnChargeState = function (self,isOpenTime3V3)
 	if isOpenTime3V3 == nil then return end
-	if not isOpenTime3V3 then  
-        GUI.SetText(self._PanelObject._Lab_Btn_Charge3V3,StringTable.Get(20062))
-        self._PanelObject._Lab_Btn_Charge3V3:SetActive(false)
+	if not isOpenTime3V3 then 
+		-- 未开启状态直接关闭界面
+		game._GUIMan:Close("CPanelMirrorArena")
 	else
 		if game._CArenaMan._IsMatching3V3 then 
 			CPVPAutoMatch.Instance():Stop()
@@ -215,9 +208,8 @@ def.method("boolean").Change3V3BtnChargeState = function (self,isOpenTime3V3)
     		self._PanelObject._BtnCancelCharge:SetActive(false)
     		self._PanelObject._BtnCharge3V3:SetActive(true)
     		self._PanelObject._FrameSeasonTime:SetActive(true)
-    		self._PanelObject._LabChanceAndBanTime:SetActive(false)
+    		self._PanelObject._FrameMatchTime:SetActive(false)
     	    GameUtil.SetButtonInteractable(self._PanelObject._BtnCharge3V3,true)
-            GUI.SetText(self._PanelObject._Lab_Btn_Charge3V3,StringTable.Get(20062))
     	end
 	end
 end 
@@ -226,13 +218,14 @@ end
 def.method("number").ShowMatchingTime3V3 = function(self,startTime)
 	self._PanelObject._BtnCancelCharge :SetActive(true)
 	self._PanelObject._BtnCharge3V3:SetActive(false)
-	self._PanelObject._FrameSeasonTime:SetActive(false)
-	self._PanelObject._LabChanceAndBanTime:SetActive(true)
+	-- self._PanelObject._FrameSeasonTime:SetActive(false)
+	self._PanelObject._FrameMatchTime:SetActive(true)
 
 	if self._Matching_TimerID > 0 then
 		_G.RemoveGlobalTimer(self._Matching_TimerID)
 		self._Matching_TimerID = 0
 	end	
+	GUI.SetText(self._PanelObject._LabMatchBanTip,string.format(StringTable.Get(20086),StringTable.Get(20085)))
 	local timeStr = ""
 	self._Matching_Waiting_time = CSpecialIdMan.Get("Arena3V3MateTime")
 	local showTime = 0
@@ -245,8 +238,8 @@ def.method("number").ShowMatchingTime3V3 = function(self,startTime)
 				return 
 			end
 			timeStr = GUITools.FormatTimeFromSecondsToZero(false,showTime)
-			GUI.SetText(self._PanelObject._LabTime, StringTable.Get(20051))	
-			GUI.SetText(self._PanelObject._LabChanceAndBanTime,timeStr)		
+			GUI.SetText(self._PanelObject._LabTime, StringTable.Get(242))	
+			GUI.SetText(self._PanelObject._LabChanceAndBanTime,string.format(StringTable.Get(20086), timeStr))
 		end
 	end)
 end
@@ -258,7 +251,7 @@ def.method().Cancel3V3Timer = function (self)
 		self._Matching_TimerID = 0
 	end
 	self._PanelObject._FrameSeasonTime:SetActive(true)
-	self._PanelObject._LabChanceAndBanTime:SetActive(false)
+	self._PanelObject._FrameMatchTime:SetActive(false)
 	self._PanelObject._BtnCancelCharge:SetActive(false)
 	self._PanelObject._BtnCharge3V3:SetActive(true)
 	GUI.SetText(self._PanelObject._Lab_Btn_Charge3V3,StringTable.Get(20062))
@@ -275,9 +268,6 @@ def.method("string").Click = function(self, id)
 			game._GUIMan: ShowTipText(StringTable.Get(20076),false)
 			return
 		end
-		-- 战斗中（和服务器统一 判断仇恨列表）
-		local hateList = hp:GetHatedEntityList()
-		if #hateList > 0 then game._GUIMan:ShowTipText(StringTable.Get(20077),false) return end
 		--处于杀戮模式
 		if hp:IsMassacre() then game._GUIMan:ShowTipText(StringTable.Get(20079),false)  return end
 

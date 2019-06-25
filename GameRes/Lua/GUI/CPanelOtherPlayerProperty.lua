@@ -41,7 +41,8 @@ def.field("userdata")._ImgDownArrow = nil
 
 def.field(CUIModel)._Model4ImgRender1 = nil
 def.field(CFrameCurrency)._Frame_Money = nil
-def.field("table")._BtnList = nil 
+def.field("table")._BtnList1 = nil 
+def.field("table")._BtnList2 = nil 
 def.field("table")._ListAttrs = nil 		--属性List
 def.field("table")._ListDress = nil 		--实装List
 def.field("table")._ListEquip  = nil        --装备
@@ -170,7 +171,8 @@ end
 
 
 def.override().OnCreate = function(self)
-	self._BtnList = {}
+	self._BtnList1 = {}
+	self._BtnList2 = {}
 	self._LabLevel =  self:GetUIObject("Lab_RoleLv")   		
 	self._LabRoleName =  self:GetUIObject("Lab_RoleName") 		
     self._LabJob =  self:GetUIObject("Lab_Job") 			
@@ -272,7 +274,7 @@ def.override('dynamic').OnData = function(self, data)
 	end
 	local value = Info.Exp / levelExp
     self._LabBldExp.value = value
-   	GUI.SetText(self._LabExp, string.format(StringTable.Get(21518),GUITools.FormatMoney(Info.Exp),GUITools.FormatMoney(levelExp)))
+   	GUI.SetText(self._LabExp, string.format(StringTable.Get(21518),Info.Exp,levelExp))
    	self: UpdateBaseProperty()
 
    	if Info.CreatureAttrs[ENUM.FIGHTSCORE] ~= nil then
@@ -363,8 +365,7 @@ def.method().UpdateBaseProperty = function(self)
 	{
 		"002","003","004","005","010","011","030","069",
 	}
-	
-	self:SetPropertyData(nameList, nil)
+	self:SetPropertyData(nameList, self:GetUIObject("Img_LittleBG"),true)
 end
 
 def.method().UpdateOtherProperty = function(self) ----subList2
@@ -373,9 +374,9 @@ def.method().UpdateOtherProperty = function(self) ----subList2
 	do
 		nameList = 
 		{
-			"010","080","030","036","096","050",
+			"010","080","030","032","096","050",
 		}
-		self:SetPropertyData(nameList, self:GetUIObject("Img_LittleBG1"))
+		self:SetPropertyData(nameList, self:GetUIObject("Img_LittleBG1"),false)
 	end
 
 	--生存
@@ -384,7 +385,7 @@ def.method().UpdateOtherProperty = function(self) ----subList2
 		{
 			"069","011","034","070","075","051",
 		}
-		self:SetPropertyData(nameList, self:GetUIObject("Img_LittleBG2"))
+		self:SetPropertyData(nameList, self:GetUIObject("Img_LittleBG2"),false)
 	end
 
 	--元素伤害
@@ -394,7 +395,7 @@ def.method().UpdateOtherProperty = function(self) ----subList2
 			"012","084","013","086","014","088",
 			"015","090","016","092","017","094",
 		}
-		self:SetPropertyData(nameList, self:GetUIObject("Img_LittleBG3"))
+		self:SetPropertyData(nameList, self:GetUIObject("Img_LittleBG3"),false)
 	end
 
 	-- 元素抗性
@@ -403,29 +404,35 @@ def.method().UpdateOtherProperty = function(self) ----subList2
 		{
 			"018","019","020","021","022","023",
 		}
-		self:SetPropertyData(nameList, self:GetUIObject("Img_LittleBG4"))
+		self:SetPropertyData(nameList, self:GetUIObject("Img_LittleBG4"),false)
 	end
 end
 
 --设置属性的函数，按照现有结构定义
-def.method("table","userdata").SetPropertyData = function(self, nameList, parentObj)
+def.method("table","userdata","boolean").SetPropertyData = function(self, nameList, parentObj,IsBaseProperty)
 	local info_data = self._ListAttrs
 	local player_data = game._HostPlayer._InfoData._FightProperty
 
 	for i,v in ipairs(nameList) do
 		local enumIndex = tonumber(v)
 		local objProperty = nil
-		
-		if self._BtnList[enumIndex] == nil then
-			if parentObj == nil then
-				objProperty = self:GetUIObject("Lab_"..v)
-			else
+		 
+		if not IsBaseProperty then 
+			if self._BtnList2[enumIndex] == nil then
 				local strProperty = string.format("%s%s%s%s", "properties_", v, "/Lab_", v)
 				objProperty = parentObj:FindChild(strProperty)
+				self._BtnList2[enumIndex] = objProperty
+			else
+				objProperty = self._BtnList2[enumIndex]
 			end
-			self._BtnList[enumIndex] = objProperty
 		else
-			objProperty = self._BtnList[enumIndex]
+			if self._BtnList1[enumIndex] == nil then
+				local strProperty = string.format("%s%s%s%s", "properties_", v, "/Lab_", v)
+				objProperty = parentObj:FindChild(strProperty)
+				self._BtnList1[enumIndex] = objProperty
+			else
+				objProperty = self._BtnList1[enumIndex]
+			end
 		end
 
 		local objValue = nil
@@ -433,7 +440,6 @@ def.method("table","userdata").SetPropertyData = function(self, nameList, parent
 			objValue = self:GetUIObject("Lab_Number"..v)
 		else
 			local strValue = string.format("%s%s%s%s%s%s", "properties_", v, "/Img_Data", v, "/Lab_Number", v)
-
 			objValue = parentObj:FindChild(strValue)
 		end
 		--读取数据,显示格式,显示属性名称
@@ -505,8 +511,13 @@ end
 def.method("number").ShowPropertyTip = function(self, index)
 	local Object = nil 
 
-	if self._BtnList[index] == nil then return end
-	Object = self._BtnList[index].parent
+	if not self._IsShowBaseInfo  then 
+		if self._BtnList2[index] == nil then return end
+		Object = self._BtnList2[index].parent
+	else
+		if self._BtnList1[index] == nil then return end
+		Object = self._BtnList1[index].parent
+	end
 
 	local data = CElementData.GetTemplate("FightPropertyConfig", index)
 	if data == nil or data.DetailDesc == "" then return end
@@ -577,7 +588,6 @@ def.override().OnHide = function(self)
 end
 
 def.override().OnDestroy = function(self)
-	self._BtnList = nil	
 	if self._Frame_Money ~= nil then
         self._Frame_Money:Destroy()
         self._Frame_Money = nil

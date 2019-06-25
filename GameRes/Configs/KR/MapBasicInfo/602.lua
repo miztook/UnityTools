@@ -15,7 +15,7 @@ local MapInfo =
 	{
 		[36002] = 
 		{
-			[1] = { x = -9.00, y = 76.02, z = 86.90, name = "호가스 국왕", level = 32,IsBoss = true },
+			[1] = { x = -9.00, y = 76.02, z = 86.90, name = "호가스 왕", level = 32,IsBoss = true },
 		},
 	},
 	Npc = 

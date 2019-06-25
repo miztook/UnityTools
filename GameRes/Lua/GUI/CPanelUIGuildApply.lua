@@ -16,6 +16,8 @@ local def = CPanelUIGuildApply.define
 def.field("userdata")._List_MenuType = nil
 -- 申请成员数据
 def.field("table")._Apply_List = nil
+def.field('userdata')._FrameContent = nil 
+def.field("userdata")._LabNothing = nil 
 
 local instance = nil
 def.static("=>", CPanelUIGuildApply).Instance = function()
@@ -32,6 +34,8 @@ end
 -- 当创建
 def.override().OnCreate = function(self)
 	self._List_MenuType = self:GetUIObject("List_MenuType"):GetComponent(ClassType.GNewListLoop)
+	self._FrameContent = self:GetUIObject("Frame_Content")
+	self._LabNothing = self:GetUIObject("Lab_Nothing")
 end
 
 -- 当数据
@@ -39,6 +43,11 @@ def.override("dynamic").OnData = function(self, data)
 	self._Apply_List = {}	
 	for i = #data, 1, -1 do
 		self._Apply_List[#self._Apply_List + 1] = data[i]
+	end
+	if #data == 0 then 
+		self._FrameContent:SetActive(false)
+		self._LabNothing:SetActive(true)
+		return
 	end
 	self._List_MenuType:SetItemCount(#data)
 end

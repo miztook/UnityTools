@@ -573,7 +573,8 @@ local _cmdList =
     ["show_psSta"] = "show_psSta",
     ["show_WBtip"] = "show_WBtip",
 	["show_BTip"]="show_BTip",
-	["show_ui_pos"]="show_ui_pos",
+	["ui_pos"]="ui_pos",
+	["soundMan"] = "soundMan"
 }
 
 def.override("string","string").OnEndEdit = function(self, goName, str)
@@ -603,8 +604,10 @@ def.override("string","string").OnEndEdit = function(self, goName, str)
             uiManCore:Debug_WBTip()
         elseif(str_call == "show_BTip") then
             game._GUIMan:PopBattleStgTip(1)
-		elseif(str_call == "show_ui_pos") then
+		elseif(str_call == "ui_pos") then
             GameUtil.DebugLogUIRT(call_table[2])
+		elseif(str_call == "soundMan") then
+            CSoundMan.Instance():DebugMode(call_table)
         end
 
         GUITools.SetUIActive(self._CmdHint, false)
@@ -830,7 +833,7 @@ def.override('userdata').OnClickGameObject = function(self, gameObj)
 		game._CFunctionMan:SetOpenAll4Debug(false)
 
 	elseif gameObjName == "Btn_CLRMemGC" then
-		GameUtil.GC(true)
+		game:GC(true)
 	elseif gameObjName == "Btn_LuaMemGC" then
 		collectgarbage("collect")
 		self._LuaMemLastGC = collectgarbage("count")

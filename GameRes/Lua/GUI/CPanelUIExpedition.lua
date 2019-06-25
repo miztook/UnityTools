@@ -229,6 +229,7 @@ local function OnQuickMatchStateEvent(sender, event)
 end
 
 def.override("dynamic").OnData = function(self, data)
+	self._HelpUrlType = HelpPageUrlType.Expedition
 	local curPageType = EPageType.Normal
 	if data ~= nil and type(data.DungeonID) == "number" then
 		for pageType, pageData in pairs(self._AllExpedtionDataMap) do
@@ -299,6 +300,7 @@ def.override("userdata").OnPointerClick = function(self, target)
 end
 
 def.override("string").OnClick = function(self, id)
+	CPanelBase.OnClick(self,id)
 	GUITools.SetUIActive(self._Frame_BuffTips, false)
 	if self._Frame_Money:OnClick(id) then return end
 
@@ -325,7 +327,7 @@ def.override("string").OnClick = function(self, id)
 			return
 		end
 		
-		game:BuyCountGroup(game._DungeonMan:GetRemainderCount(template.Id), template.CountGroupTid)
+		game._CCountGroupMan:BuyCountGroup(game._DungeonMan:GetRemainderCount(template.Id), template.CountGroupTid)
 	elseif id == "IOSToggle_Assist" then
 		-- 好友助战
 		self:EnableAssist(not self._IsOpenAssist)
@@ -453,10 +455,10 @@ def.method().EnterLogic = function(self)
 		if countGroupTemplate ~= nil then
 			if countGroupTemplate.InitBuyCount > 0 then
 				-- 属于可购买次数的副本
-				-- local leftTime = game:OnCurLaveCount(dungeonTemp.CountGroupTid) -- 剩余可购买次数
+				-- local leftTime = game._CCountGroupMan:OnCurLaveCount(dungeonTemp.CountGroupTid) -- 剩余可购买次数
 				-- if leftTime > 0 then
 					-- 还可以购买
-					game:BuyCountGroupWhenEnter(dungeonTemp.CountGroupTid)
+					game._CCountGroupMan:BuyCountGroupWhenEnter(dungeonTemp.CountGroupTid)
 					return
 				-- end
 			end
@@ -590,7 +592,7 @@ def.method("number").SelectDungeon = function(self, nIndex)
 	-- 名称
 	GUI.SetText(self._Lab_Name, template.TextDisplayName)
 	-- 等级
-	GUI.SetText(self._Lab_BossLevel, StringTable.Get(23001) .. template.MinEnterLevel)
+	GUI.SetText(self._Lab_BossLevel, "<color=#ECB554>"..StringTable.Get(23001).."</color>" .. template.MinEnterLevel)
 	-- 玩法类型描述
 	GUI.SetText(self._Lab_PlayDescription, template.PlayTypeDescription)
 	-- 推荐战力
@@ -681,7 +683,7 @@ def.method().UpdateQuickJoinState = function(self)
 	local dungeonTemp = GetCurTemplate(self)
 	if dungeonTemp == nil then return end
 
-	GUI.SetText(self._Lab_QuickJoin, StringTable.Get(dungeonTemp.IsQuickMatch and (game._DungeonMan:IsQuickMatching() and 936 or 935) or 934))
+	GUI.SetText(self._Lab_QuickJoin, StringTable.Get(dungeonTemp.IsQuickMatch and 935 or 934))
 end
 
 -- 更新奖励次数

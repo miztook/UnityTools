@@ -24,6 +24,11 @@ local cfg = {
     Btn_Tips = -2122842245,
     Drop_Template = -240205878,
     DropDown_Up = -487217815,
+    Lab_TalentName = 1786059721,
+    Lab_TalentDesc = 1785765839,
+    Lab_Name = -1901045187,
+    Lab_Genre = 1190797329,
+    Img_Genre = 1899632071,
 }
  
 return cfg

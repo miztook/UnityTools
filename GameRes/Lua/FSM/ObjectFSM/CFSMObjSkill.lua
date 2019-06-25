@@ -8,6 +8,7 @@ local def = CFSMObjSkill.define
 def.field("string")._Animation = ""
 def.field("boolean")._IsHalfBody = false
 
+
 def.final(CEntity, "string", "dynamic", "=>", CFSMObjSkill).new = function (o, ani, half)
 	local obj = CFSMObjSkill()
 	obj._Host = o
@@ -25,8 +26,11 @@ end
 def.override("number").EnterState = function(self, oldstate)
 	CFSMStateBase.EnterState(self, oldstate)
 	self._Host:StopHurAnimation()
-	self._Host:UpdateWingAnimation()
-	local fade_time = 0
+
+	if self._Mountable then			
+		self._Host:UpdateWingAnimation()
+	end
+
 	if not self._IsHalfBody then
 		self._Host:PlayAnimation(self._Animation, EnumDef.SkillFadeTime.MonsterSkill, false, 0, 1)
 	else
@@ -41,13 +45,17 @@ def.override().LeaveState = function(self)
 end
 
 def.override(CFSMStateBase).UpdateState = function(self, newstate)
-	self._Animation = newstate._Animation
-	self._IsHalfBody = newstate._IsHalfBody
-	if not self._IsHalfBody then
-		self._Host:PlayAnimation(self._Animation, EnumDef.SkillFadeTime.MonsterSkill, false, 0, 1)
-	else
-		self._Host:PlayPartialAnimation(self._Animation)
-	end
+	-- 技能动作按照技能配置执行，存在不同相连段播放同一个动作的情况  -- added by lijian
+	--if self._Animation ~= newstate._Animation or self._IsHalfBody ~= newstate._IsHalfBody then
+		self._Animation = newstate._Animation
+		self._IsHalfBody = newstate._IsHalfBody
+
+		if not self._IsHalfBody then
+			self._Host:PlayAnimation(self._Animation, EnumDef.SkillFadeTime.MonsterSkill, false, 0, 1)
+		else
+			self._Host:PlayPartialAnimation(self._Animation)
+		end
+	--end
 end
 
 CFSMObjSkill.Commit()

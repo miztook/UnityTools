@@ -10,6 +10,7 @@ local CUIModel = require "GUI.CUIModel"
 local ENUM = require "PB.data".ENUM_FIGHTPROPERTY
 local CDressMan = require "Dress.CDressMan"
 local EquipChangeCompleteEvent = require "Events.EquipChangeCompleteEvent"
+local EntityEvilNumChangeEvent = require "Events.EntityEvilNumChangeEvent"
 local ShowDressEvent = require "Events.ShowDressEvent"
 local CPageBag = require"GUI.CPageBag"
 local CPageProperty = require"GUI.CPageProperty"
@@ -128,6 +129,13 @@ local OnNotifyPropEvent = function(sender, event)
     end
 end
 
+local OnEntityEvilNumChangeEvent = function (sender, event)
+     if instance ~= nil and instance:IsShow() then
+        if instance._CurPageType ~= PageType.PROPERTY then return end
+        CPageProperty.Instance():UpdateEvil()
+    end
+end
+
 local function UpdateUIModel(panel)
     if panel ~= nil and panel._Panel ~= nil then
         local uiModel = panel._Model4ImgRender1
@@ -238,6 +246,7 @@ def.override().OnCreate = function(self)
     self._LabTitle = self:GetUIObject("Lab_Title")
     self._Page_Property = self:GetUIObject("Page_Property")
     self._Page_Bag = self:GetUIObject("Page_Bag")
+
     -- self._Page_Strong = self:GetUIObject("Page_Strong")
 
     self._ImgDressOpen = self:GetUIObject("Img_DressOpen")
@@ -310,7 +319,7 @@ def.override().OnCreate = function(self)
         info._LabLockCell = self:GetUIObject("Lab_LockCell")
         info._ItemsByDecomList = self:GetUIObject("List_Item3"):GetComponent(ClassType.GNewListLoop)
         info._DecomposeListView = self:GetUIObject('List_Item4'):GetComponent(ClassType.GNewListLoop)
-
+        info._RdoImgRedBag = self:GetUIObject("Rdo_Bag"):FindChild("Img_RedPoint")
         -- 仓库页码
         info._RdoStroToggle = self:GetUIObject("Rdo_Storage")
         info._RdoPage1 = self:GetUIObject("Rdo_1")
@@ -345,6 +354,8 @@ def.override("dynamic").OnData = function(self,data)
     CGame.EventManager:addHandler(ShowDressEvent, OnDressChangedEvent)
     CGame.EventManager:addHandler(PackageChangeEvent, OnPackageChangeEvent)	
     CGame.EventManager:addHandler(CloseTipsEvent, OnCloseTipsEvent)
+    CGame.EventManager:addHandler("EntityNameChangeEvent", OnEntityNameChangeEvent)
+    CGame.EventManager:addHandler(EntityEvilNumChangeEvent, OnEntityEvilNumChangeEvent)
     if self._Frame_Money == nil then
         self:GetUIObject("Frame_Money"):SetActive(true)
         self._Frame_Money = CFrameCurrency.new(self, self:GetUIObject("Frame_Money"), EnumDef.MoneyStyleType.None)
@@ -400,6 +411,10 @@ def.method().InitPanel = function (self)
     GUITools.SetGroupImg(self._ImgBg,0)
     self:UpdateRoleLeft()
     self:InitPage()
+    -- 显示红点
+    local img_RedPoint = self:GetUIObject("Rdo_Bag"):FindChild("Img_RedPoint")
+    local state = CRedDotMan.GetModuleState(RedDotSystemType.Bag)
+    img_RedPoint:SetActive(state)
     if self._Model4ImgRender1 == nil then
         self._Model4ImgRender1 = GUITools.CreateHostUIModel(self._Img_Role, EnumDef.RenderLayer.UI, nil)
         
@@ -531,10 +546,9 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
 end
 
 def.override("string").OnClick = function(self,id)
+    if self._Frame_Money ~= nil and self._Frame_Money:OnClick(id) then return end
     if id == 'Btn_Exit' then
         game._GUIMan:CloseSubPanelLayer()
-    elseif self._Frame_Money ~= nil and self._Frame_Money:OnClick(id) then
-        return
     elseif id == "Btn_ShowDress"then
         local isShowDress = game._HostPlayer:GetDressEnable()
         if not isShowDress then 
@@ -548,16 +562,21 @@ def.override("string").OnClick = function(self,id)
         end
         CDressMan.Instance():C2SShowDress(not isShowDress)
     elseif id == "Btn_ShowDressPanel" then
-        local CExteriorMan = require "Main.CExteriorMan"
-        if CExteriorMan.Instance():CanEnter() then
-            local data =
-            {
-                Type = EnumDef.CamExteriorType.Armor
-            }
-            local CExteriorMan = require "Main.CExteriorMan"
-            CExteriorMan.Instance():Enter(data)
-            --game._GUIMan:CloseByScript(self)	--CBT_UE - 66 返回按钮不返回至上一个菜单，提高了操作疲劳度 
+        -- 时装funcTid
+        local DressFuncTid = 22
+        if not game._CFunctionMan:IsUnlockByFunTid(DressFuncTid) then
+            -- 功能未解锁
+            game._CGuideMan:OnShowTipByFunUnlockConditions(0, DressFuncTid)
+            return
         end
+        local CExteriorMan = require "Main.CExteriorMan"
+        local data =
+        {
+            Type = EnumDef.CamExteriorType.Armor
+        }
+        local CExteriorMan = require "Main.CExteriorMan"
+        CExteriorMan.Instance():Enter(data)
+        --game._GUIMan:CloseByScript(self)	--CBT_UE - 66 返回按钮不返回至上一个菜单，提高了操作疲劳度 
     elseif id == "Btn_EquiptBest" then 
         -- TODO()
      
@@ -676,6 +695,12 @@ def.method().UpdateHostName = function(self)
     end
 end
 
+def.method().UpdateGuildInfo = function(self)
+    if self:IsShow() and self._CurPageType == PageType.PROPERTY then
+        CPageProperty.Instance():UpdateGuildInfo()
+    end
+end
+
 def.method().SetDecomposeFilter = function (self)
     if self:IsShow() and self._CurPageType == PageType.BAG then
         CPageBag.Instance():SetDecomposeFilter()
@@ -711,6 +736,8 @@ def.override().OnHide = function(self)
     CGame.EventManager:removeHandler(ShowDressEvent, OnDressChangedEvent)
     CGame.EventManager:removeHandler(CloseTipsEvent, OnCloseTipsEvent)
     CGame.EventManager:removeHandler(ExpUpdateEvent,OnExpUpdateEvent)
+    CGame.EventManager:removeHandler("EntityNameChangeEvent", OnEntityNameChangeEvent)
+    CGame.EventManager:removeHandler(EntityEvilNumChangeEvent, OnEntityEvilNumChangeEvent)
     CPageBag.Instance():Hide()
     CPageProperty.Instance():Hide()
     CPageReputation.Instance():Hide()

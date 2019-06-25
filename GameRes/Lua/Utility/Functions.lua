@@ -1380,3 +1380,36 @@ _G.fixFloor = function(val, digit)
 
     return result
 end
+
+-- 百位以内 数值 => 中文
+_G.ExchangeNum2Chinese = function(num)
+    local retStr = ""
+    if type(num) == "number" then
+        local tensDigit = math.floor(num / 10)
+        local singleDigit = num % 10
+        local strTensDigit = ""
+
+        if tensDigit > 0 then
+            strTensDigit = StringTable.Get(760)
+
+            if tensDigit > 1 then
+                strTensDigit = string.format("%s%s", ExchangeNum2Chinese(tensDigit), strTensDigit) 
+            end
+        end
+
+        local strSingleDigit = StringTable.Get(750 + singleDigit)
+        if tensDigit > 0 then
+            if singleDigit == 0 then
+                retStr = strTensDigit
+            else
+                retStr = string.format("%s%s", strTensDigit, strSingleDigit)
+            end
+        else
+            retStr = strSingleDigit
+        end
+    else
+        warn("Error: ExchangeNum2Chinese... must number type!")
+    end
+
+    return retStr
+end

@@ -65,10 +65,13 @@ local function OnS2CItemDevResult(sender, protocol)
         --精炼
         local refineLv = protocol.itemCell.ItemData.RefineLevel
         local template = CElementData.GetTemplate("Item", protocol.itemCell.ItemData.Tid)
+        if template == nil then return end
+        
         local name = RichTextTools.GetQualityText(template.TextDisplayName, template.InitQuality)
         local str = string.format(StringTable.Get(31326), name, refineLv)
 
         SendMsgToSysteamChannel(str)
+        --[[ 取消装备强化和转化的错误系统提示
     elseif protocol.devTpye == EItemDev.TALENTCHANGE then
         local template = CElementData.GetTemplate("Item", protocol.itemCell.ItemData.Tid)
         local name = RichTextTools.GetQualityText(template.TextDisplayName, template.InitQuality)
@@ -83,9 +86,9 @@ local function OnS2CItemDevResult(sender, protocol)
             local inforceLevel = protocol.itemCell.ItemData.InforceLevel
             local template = CElementData.GetTemplate("Item", protocol.itemCell.ItemData.Tid)
             local name = RichTextTools.GetQualityText(template.TextDisplayName, template.InitQuality)
-            local str = string.format(StringTable.Get(31329), name, inforceLevel)
+            -- local str = string.format(StringTable.Get(31329), name, inforceLevel)
 
-            SendMsgToSysteamChannel(str)
+            -- SendMsgToSysteamChannel(str)
         elseif protocol.result == ERROR_CODE.EquipInforceFaildButSafe then
             local template = CElementData.GetTemplate("Item", protocol.itemCell.ItemData.Tid)
             local name = RichTextTools.GetQualityText(template.TextDisplayName, template.InitQuality)
@@ -99,9 +102,15 @@ local function OnS2CItemDevResult(sender, protocol)
             local str = string.format(StringTable.Get(31328), name, inforceLevel)
             SendMsgToSysteamChannel(str)
         end
+        ]]
     elseif protocol.devTpye == EItemDev.INHERIT then
         local str = StringTable.Get(31336)
         SendMsgToSysteamChannel(str)
+    elseif protocol.devTpye == EItemDev.TALENTCHANGECONFIRM then
+        --传奇属性保存
+        SendMsgToSysteamChannel(StringTable.Get(31344))
+    elseif protocol.devTpye == EItemDev.TALENTCHANGECANCEL then
+
     end
 
     if protocol.result ~= 0 and

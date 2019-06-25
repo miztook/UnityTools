@@ -10,10 +10,11 @@ local instance = nil
 def.field("table")._PanelObject = nil
 def.field("boolean")._IsSuccess = true
 def.field("boolean")._ShowGfx = false
+def.field("number")._GfxDelay = 0
 def.field("number")._NewCharmID = 0
 def.field("number")._OldCharmID = 0
-def.field("number")._Mat1 = 0
-def.field("number")._Mat2 = 0
+def.field("number")._Count = 0
+def.field("function")._CallBack = nil
 
 def.static('=>', CPanelCharmComposeResult).Instance = function ()
 	if not instance then
@@ -37,6 +38,7 @@ def.override().OnCreate = function(self)
     self._PanelObject._Lab_LevelInfo = self:GetUIObject("Lab_LevelInfo")
     self._PanelObject._Lab_LevelBase = self:GetUIObject("Lab_LevelBase")
     self._PanelObject._Lab_LevelUp = self:GetUIObject("Lab_LevelUp")
+    self._PanelObject._Lab_Count = self:GetUIObject("Lab_Count")
     self._PanelObject._Lab_AttrName1 = self:GetUIObject("Lab_AttrName1")
     self._PanelObject._Lab_AttrName2 = self:GetUIObject("Lab_AttrName2")
     self._PanelObject._Lab_AttrValue1 = self:GetUIObject("Lab_AttrValue1")
@@ -53,9 +55,18 @@ def.override("dynamic").OnData = function (self,data)
     self._IsSuccess = data.IsSuccess
     self._NewCharmID = data.NewCharmTid
     self._OldCharmID = data.OldCharmTid
-    self._Mat1 = data.Mat1 or 0
-    self._Mat2 = data.Mat2 or 0
+    self._Count = data.Count or 0
+    self._CallBack = data.CallBack
     self._ShowGfx = not CCharmMan.Instance():GetCharmComposeSkipGfx()
+    local old_charm_temp = CElementData.GetTemplate("CharmItem", self._OldCharmID)
+    if old_charm_temp then
+        local composeTemp = CElementData.GetTemplate("CharmUpgrade", old_charm_temp.UpgradeTargetId)
+        if composeTemp then
+            self._GfxDelay = (composeTemp.CostItemTId > 0 and composeTemp.CostItemCount > 0) and 0.6 or 0.3
+            print("self._GfxDelay ", self._GfxDelay)
+        end
+    end
+
     self:GfxLogic()
 	self:UpdatePanel()
 end
@@ -73,7 +84,7 @@ def.method().InitGfxGroup = function(self)
 
     root.DoTweenPlayer = self._Panel:GetComponent(ClassType.DOTweenPlayer)
     root.TweenGroupId = "2"
-    root.DoTweenTimeDelay = self._ShowGfx and 1.8 or 0
+    root.DoTweenTimeDelay = self._ShowGfx and self._GfxDelay or 0
     root.TweenObjectHook = self:GetUIObject("Img_Item")
     root.OrignPosition = root.TweenObjectHook.localPosition
     root.OrignScale = root.TweenObjectHook.localScale
@@ -94,8 +105,8 @@ end
 -- 播放背景特效
 def.method().PlayGfxBg = function(self)
     local root = self._GfxObjectGroup
-    self:AddEvt_PlayFx(gfxGroupName, self._ShowGfx and 1.8 or 0, root.GfxBg1, root.GfxBgHook1, root.GfxBgHook1, -1, 1)
-    self:AddEvt_PlayFx(gfxGroupName, self._ShowGfx and 1.8 or 0, root.GfxBg2, root.GfxBgHook2, root.GfxBgHook2, -1, 1)
+    self:AddEvt_PlayFx(gfxGroupName, self._ShowGfx and self._GfxDelay or 0, root.GfxBg1, root.GfxBgHook1, root.GfxBgHook1, -1, 1)
+    self:AddEvt_PlayFx(gfxGroupName, self._ShowGfx and self._GfxDelay or 0, root.GfxBg2, root.GfxBgHook2, root.GfxBgHook2, -1, 1)
 end
 -- 关闭背景特效
 def.method().StopGfxBg = function(self)
@@ -105,13 +116,13 @@ end
 -- 播放特效
 def.method().PlayGfx = function(self)
     local root = self._GfxObjectGroup
-    if self._ShowGfx then
-        GameUtil.PlayUISfx(root.Gfx, root.GfxHook, root.GfxHook, -1, 20 , 3)
-    end
-    self:AddEvt_SetActive(gfxGroupName, self._ShowGfx and 1.8 or 0, self._Panel:FindChild("Frame_Center"), true)
-    self:AddEvt_SetActive(gfxGroupName, self._ShowGfx and 1.8 or 0, self._Panel:FindChild("Img_BG"), true)
-    self:AddEvt_PlayDotween(gfxGroupName, self._ShowGfx and 1.8 or 0, root.DoTweenPlayer, root.TweenGroupId)
-    self:AddEvt_Shake(gfxGroupName, self._ShowGfx and 2.3 or 0.5, 15, 0.05)
+--    if self._ShowGfx then
+--        GameUtil.PlayUISfx(root.Gfx, root.GfxHook, root.GfxHook, -1, 20 , 3)
+--    end
+    self:AddEvt_SetActive(gfxGroupName, self._ShowGfx and self._GfxDelay or 0, self._Panel:FindChild("Frame_Center"), true)
+    self:AddEvt_SetActive(gfxGroupName, self._ShowGfx and self._GfxDelay or 0, self._Panel:FindChild("Img_BG"), true)
+    self:AddEvt_PlayDotween(gfxGroupName, self._ShowGfx and self._GfxDelay or 0, root.DoTweenPlayer, root.TweenGroupId)
+    self:AddEvt_Shake(gfxGroupName, self._ShowGfx and self._GfxDelay + 0.5 or 0.5, 15, 0.05)
 end
 -- 关闭特效
 def.method().StopGfx = function(self)
@@ -165,6 +176,7 @@ def.method().UpdatePanel = function(self)
     GUI.SetText(self._PanelObject._Lab_LevelInfo, StringTable.Get(19363))
     GUI.SetText(self._PanelObject._Lab_LevelBase, old_charm_temp.Level.."")
     GUI.SetText(self._PanelObject._Lab_LevelUp, new_charm_temp.Level.."")
+    GUI.SetText(self._PanelObject._Lab_Count, string.format(StringTable.Get(19365), self._Count))
     if self._IsSuccess then
         self._PanelObject._Tab_SuccessAttr:SetActive(true)
         self._PanelObject._Tab_FaildTip:SetActive(false)
@@ -196,19 +208,6 @@ def.method().UpdatePanel = function(self)
         else
             self._PanelObject._Lab_AttrValue4:SetActive(false)
         end
-    else
---        self._PanelObject._Lab_SuccessTip:SetActive(false)
---        self._PanelObject._Lab_FaildTip:SetActive(true)
-        self._PanelObject._Tab_SuccessAttr:SetActive(false)
-        self._PanelObject._Tab_FaildTip:SetActive(true)
-        local mat_charm_temp1 = CElementData.GetTemplate("CharmItem", self._Mat1)
-        local mat_charm_temp2 = CElementData.GetTemplate("CharmItem", self._Mat2)
-        if mat_charm_temp1 == nil or mat_charm_temp2 == nil then
-            warn("CPanelCahrmComposeResult  UpdatePanel, 两个材料神符为空 ")
-            return
-        end
-        GUI.SetText(self._PanelObject._Lab_FailedTip1, string.format(StringTable.Get(19353), mat_charm_temp1.Name))
-        GUI.SetText(self._PanelObject._Lab_FailedTip2, string.format(StringTable.Get(19353), mat_charm_temp2.Name))
     end
 end
 
@@ -230,8 +229,10 @@ def.override().OnHide = function(self)
     self:StopGfxBg()
     self:StopGfx()
     self._NewCharmID = 0
-    self._Mat1 = 0
-    self._Mat2 = 0
+    if self._CallBack ~= nil then
+        self._CallBack()
+        self._CallBack = nil
+    end
 end
 
 def.override().OnDestroy = function(self)

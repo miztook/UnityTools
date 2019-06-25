@@ -37,7 +37,7 @@ local MapInfo =
 		},
 		[12038] = 
 		{
-			[1] = { x = 324.88, y = 47.52, z = -53.17, name = "돌격하는 척후병", level = 35, SortID = 4 },
+			[1] = { x = 324.88, y = 47.52, z = -53.17, name = "돌진하는 정찰병", level = 35, SortID = 4 },
 		},
 		[12037] = 
 		{
@@ -50,9 +50,9 @@ local MapInfo =
 		},
 		[12030] = 
 		{
-			[1] = { x = 307.56, y = 38.82, z = -20.30, name = "투석차 낙석", level = 36, SortID = 19 },
-			[2] = { x = 286.50, y = 38.82, z = -24.78, name = "투석차 낙석", level = 36, SortID = 20 },
-			[3] = { x = 269.58, y = 41.00, z = -25.32, name = "투석차 낙석", level = 36, SortID = 21 },
+			[1] = { x = 307.56, y = 38.82, z = -20.30, name = "투석기 낙석", level = 36, SortID = 19 },
+			[2] = { x = 286.50, y = 38.82, z = -24.78, name = "투석기 낙석", level = 36, SortID = 20 },
+			[3] = { x = 269.58, y = 41.00, z = -25.32, name = "투석기 낙석", level = 36, SortID = 21 },
 		},
 		[12031] = 
 		{
@@ -118,7 +118,7 @@ local MapInfo =
 		{
 			[209] = { x = 330.18, y = 47.72, z = -81.81, name = "전방 캠프", worldId = 0, IsCanFind = 1, PkMode = 0 },
 			[210] = { x = 268.59, y = 42.38, z = -35.23, name = "선봉군 항구", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[211] = { x = 253.86, y = 47.72, z = -28.53, name = "전선", worldId = 0, PkMode = 0 },
+			[211] = { x = 253.86, y = 47.72, z = -28.53, name = "전선", worldId = 0, IsCanFind = 1, PkMode = 0 },
 		},
 	},
 	Mine = 

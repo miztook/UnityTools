@@ -113,38 +113,23 @@ do
 	--[[获取技能ID 升级等级的数值， 需要遍历]]
 	def.static("number", "number", "number", "boolean", "=>", "number").GetSkillLevelUpValue = function(skillId, levelupId, skillLevel, bIsTalent)
 		--warn("GetSkillLevelUpValue = ", skillId, levelupId, skillLevel, bIsTalent)
-		local SkillLevelupTemplateKey = "SkillLevelUp"
-		local TalentLevelupTemplateKey = "TalentLevelUp"
-
 		local result = 0
-		local allSkillLevelUp = nil
-
-		if bIsTalent then
-			allSkillLevelUp =  GameUtil.GetAllTid( TalentLevelupTemplateKey )
-		else
-			allSkillLevelUp = GameUtil.GetAllTid( SkillLevelupTemplateKey )
-		end
-
-		local levelUpTemplate = nil
-		for i, tid in ipairs( allSkillLevelUp ) do
-			if bIsTalent then
-				local talentLevelUpTemplate = CElementData.GetTemplate(TalentLevelupTemplateKey, tid)
-				if talentLevelUpTemplate.SkillId == skillId and talentLevelUpTemplate.LevelUpId == levelupId then
-					levelUpTemplate = talentLevelUpTemplate
-					break
-				end
-			else
-				local skillLevelUpTemplate = CElementData.GetTemplate(SkillLevelupTemplateKey, tid)
-				if skillLevelUpTemplate.SkillId == skillId and skillLevelUpTemplate.LevelUpId == levelupId then
-					levelUpTemplate = skillLevelUpTemplate
-					break
-				end
+		local allSkillLevelUp =  CElementData.GetAllTalentOrSkillLevelUpTemplateSimple(bIsTalent)
+		local Tid = 0
+		for tid, temp in ipairs( allSkillLevelUp ) do
+			if temp.SkillId == skillId and temp.LevelUpId == levelupId then
+				Tid = tid
+				break
 			end
 		end
-
-		if levelUpTemplate ~= nil then
-			if levelUpTemplate.LevelDatas[skillLevel] ~= nil then
-				result = levelUpTemplate.LevelDatas[skillLevel].Value
+		if Tid > 0 then 
+			local templateName = "TalentLevelUp"
+			if not bIsTalent then 
+				templateName = "SkillLevelUp"
+			end
+			local temp = CElementData.GetTemplate( templateName,Tid)
+			if temp ~= nil and temp.LevelDatas[skillLevel] ~= nil  then 
+				result = temp.LevelDatas[skillLevel].Value
 			end
 		end
 

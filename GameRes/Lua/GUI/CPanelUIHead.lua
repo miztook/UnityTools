@@ -11,7 +11,6 @@ local CFrameBuff = require "GUI.CFrameBuff"
 local CTeamMan = require "Team.CTeamMan"
 local CElementData = require "Data.CElementData"
 local CPanelRoleInfo = require "GUI.CPanelRoleInfo"
-local CBtnAutoKill = require "GUI.CBtnAutoKill"
 local CPanelUIHead = Lplus.Extend(CPanelBase, "CPanelUIHead")
 local def = CPanelUIHead.define
 local instance = nil
@@ -23,8 +22,9 @@ def.field("number")._BuffMaxCount = 5
 def.field("table")._LastBuffInfo = BlankTable
 def.field("number")._HeadIconWidth = 0
 def.field("number")._UIFxTimer = 0
-def.field(CBtnAutoKill)._CBtnAutoKill = nil
+
 def.field(CFrameBuff)._CFrameBuff = nil
+def.field("number")._PkModeMaxCount = 3
 
 def.static("=>", CPanelUIHead).Instance = function ()
 	if not instance then
@@ -48,7 +48,6 @@ def.override().OnCreate = function(self)
         DisableGroup = {},				--系统菜单弹出时，需要显隐的组件
     }
 	
-	self._CBtnAutoKill = CBtnAutoKill.Instance( self:GetUIObject('Btn_Autokill'),nil )
     do
     --目标的目标
     	local info = self._PanelObject.Frame_TargetHead
@@ -92,7 +91,7 @@ def.override().OnCreate = function(self)
 		-- PK模式
 		local Img_HeadBoard = info.Root:FindChild("Img_HeadBoard")
 		info._ImgPKSet = Img_HeadBoard:FindChild('Btn_PKSet/Img_PKSet')
-		info._Frame_Fight = Img_HeadBoard:FindChild('Frame_Fight')
+		info._Frame_Fight = self:GetUIObject('Frame_Fight')
         -- 战斗力
         info._FightScore = self:GetUIObject('Lab_FightScore_Data')
 	end
@@ -245,15 +244,7 @@ def.override().OnCreate = function(self)
 		-- table.insert(info, self:GetUIObject('Prg_Stamina0'))
 		-- table.insert(info, self:GetUIObject('List_BuffHost'))
 		-- table.insert(info, self:GetUIObject('Btn_BuffHost'))
-	end
-
-	do
-		-- 判断功能是否解锁  150 成长引导Tid
-		local unlock = game._CFunctionMan:IsUnlockByFunTid(150)
-		if self:GetUIObject('Btn_GrowthGuide') ~= nil then
-			self:GetUIObject('Btn_GrowthGuide'):SetActive(unlock)
-		end
-	end
+	end	
 end
 
 --FIX S2C Message also send when hp getline
@@ -407,11 +398,26 @@ def.method().UpdatePKMode = function(self)
 	end
 end
 
+def.override("userdata").OnPointerClick = function(self,target)
+	self:OnPKFight(false)
+end
+
 def.method().UpdatePKPanel = function(self)
-    self:GetUIObject("Btn_Fight1"):SetActive(true)
-	self:GetUIObject("Btn_Fight2"):SetActive(true)
-	self:GetUIObject("Btn_Fight3"):SetActive(true)
-    self:GetUIObject("Btn_Fight"..self._CurPkMode):SetActive(false)
+    -- self:GetUIObject("Btn_Fight1"):SetActive(true)
+	-- self:GetUIObject("Btn_Fight2"):SetActive(true)
+	-- self:GetUIObject("Btn_Fight3"):SetActive(true)
+	-- self:GetUIObject("Btn_Fight"..self._CurPkMode):SetActive(false)
+	
+	for i = 1, self._PkModeMaxCount do
+		local obj = self:GetUIObject("Btn_Fight" .. i)
+		local Img_Select = obj:FindChild("Img_Select")
+		obj:SetActive(true)
+		if i == self._CurPkMode then
+			Img_Select:SetActive(true)
+		else
+			Img_Select:SetActive(false)
+		end
+	end
 end
 
 -- def.method().InitLanguage = function(self)
@@ -455,9 +461,6 @@ def.override("string").OnClick = function(self,id)
 		end
         self:OnPKFight(not self._IsShowPKFight)   
         return  
-    elseif id == "Btn_GrowthGuide" then 
-    	game._GUIMan:Open("CPanelStrong",nil)
-    	return
 	elseif string.find(id, "Btn_Fight") then
 		self:OnPKFight(false)		
 		-- LRL:取消紫名玩家限定只能开启杀戮模式   取消有队伍不能切换杀戮模式    lidaming  2018/07/13
@@ -481,17 +484,17 @@ def.override("string").OnClick = function(self,id)
 	elseif id == "Btn_SelectHeadMonster" then 
 	 	CPageMonsterHead.Instance():OnClickHeadIconShowAffixDes()
     elseif id == "Btn_RoleInfo" then 
+    	if game._GUIMan:IsFuncForbid(EnumDef.EGuideTriggerFunTag.Role) then return end
     	game._GUIMan:Open("CPanelRoleInfo",nil)
-    elseif id == "Btn_Autokill" then 
-    	if self._CBtnAutoKill ~= nil then
-    		self._CBtnAutoKill:OnClick()
-    	end
+    
 	end
 
     self:OnPKFight(false)
 end
 
 def.method("boolean").OnPKFight = function(self, bIsShow)
+	if self._IsShowPKFight == bIsShow then return end
+
 	local info = self._PanelObject.Frame_HostHead
     info._Frame_Fight:SetActive(bIsShow)
     self._IsShowPKFight = bIsShow
@@ -570,10 +573,6 @@ def.override().OnHide = function (self)
 		self._CFrameBuff:Destory()
     	self._CFrameBuff = nil
     end
-    if self._CBtnAutoKill ~= nil then
-  		self._CBtnAutoKill:Destory()
-    	self._CBtnAutoKill = nil
-    end  
     if self._UIFxTimer ~= 0 then
         _G.RemoveGlobalTimer(self._UIFxTimer)
         self._UIFxTimer = 0
@@ -582,6 +581,7 @@ def.override().OnHide = function (self)
 end
 
 def.override().OnDestroy = function(self)
+   
 	self._PanelObject = nil
 	--instance = nil
 end

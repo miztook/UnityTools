@@ -8,7 +8,7 @@ local CSkillSealInfo = require "Skill.CSkillSealInfo"
 local CSharpEnum = require "Main.CSharpEnum"
 local CModel = require "Object.CModel"
 local OBJ_TYPE = require "Main.CSharpEnum".OBJ_TYPE
-
+local CFSMStateBase = require "FSM.CFSMStateBase"
 local CGame = Lplus.ForwardDeclare("CGame")
 
 local CPet = Lplus.Extend(CNonPlayerCreature, "CPet")
@@ -17,7 +17,9 @@ local def = CPet.define
 def.field("dynamic")._PetTemplate = nil
 def.field("dynamic")._AssociatedMonsterTemplate = nil 	-- 关联怪物
 def.field("number")._OwnerId = 0	--主人ID
-
+def.field("number")._IdleAnimationTimer = 0 --休闲动作待机timer
+def.field("number")._IdleStateTimer = 0 --进入休闲状态timer
+def.field("boolean")._IsIdleState = false   --休闲状态
 
 def.static("=>", CPet).new = function ()
 	local obj = CPet()
@@ -105,13 +107,12 @@ end
 
 def.override().OnModelLoaded = function(self)
 	CNonPlayerCreature.OnModelLoaded(self)
-
 	--castShadow
 	self:EnableCastShadows(true)
 
 	self:EnableShadow(false)
+	self:BeginIdleState()
 end
-
 
 -- 设置宠物 高度偏移量，用于飞行类宠物 贴地高度偏移
 def.method().SetHeightOffset = function(self)
@@ -146,6 +147,7 @@ def.override().OnPateCreate = function(self)
 	CNonPlayerCreature.OnPateCreate(self)
 	if self._TopPate == nil then return end
 	
+	self._TopPate:SetVisible(true)
 	--self._TopPate:SetChildrenVisible(false, false)
 	self._TopPate:SetHPLineIsShow(false,EnumDef.HPColorType.None)
 	self._TopPate:SetStaLineIsShow(false)
@@ -162,7 +164,6 @@ end
 
 def.override().OnClick = function (self)
 	CEntity.OnClick(self)
-	local hostplayer = game._HostPlayer
 end
 
 def.override("=>", "string").GetModelPath = function (self)
@@ -209,7 +210,106 @@ def.method().SetColorName = function(self)
 	end
 end
 
+def.method().PlayTalentAnimation = function(self)
+    if not self._IsReady then return end
+
+    local model = self:GetCurModel()
+    if model ~= nil then
+		model:PlayAnimation(EnumDef.CLIP.LEVELUP, 0, false, 0, 1)
+		model:PlayAnimation(EnumDef.CLIP.COMMON_STAND, 0, true, 0, 1)
+    end
+end
+
+def.method().PlayIdelAnimation = function(self)
+	if not self._IsReady then return end
+
+    local model = self:GetCurModel()
+    if model ~= nil then
+		model:PlayAnimation(EnumDef.CLIP.TALK_IDLE, 0, false, 0, 1)
+		model:PlayAnimation(EnumDef.CLIP.COMMON_STAND, 0, true, 0, 1)
+    end
+
+    self:BeginIdleState()
+end
+
+def.override("boolean", "number", "number", "number", 'table').UpdateState = function(self, add, state_id, duration, originId, info)
+    CEntity.UpdateState(self, add, state_id, duration, originId, info) 
+
+    if add then
+    	self:PlayTalentAnimation()
+    end
+end
+
+--状态机改变的地方
+def.override(CFSMStateBase, "=>", "boolean").ChangeState = function(self, state)
+	local oldType = self:GetCurStateType()
+	CEntity.ChangeState(self, state)
+	
+	--切换到idel状态，开始timer
+	if state._Type == FSM_STATE_TYPE.IDLE then
+		if oldType ~= FSM_STATE_TYPE.IDLE then
+			if self._IsIdleState then
+				--已经进入了休闲状态
+				self:RemoveIdleStateTimer()
+				self:StartIdleAnimation()
+			else
+				--休闲状态检测
+				self:BeginIdleState()
+			end
+		end
+	else
+		self:ClearIdleState()
+	end
+
+	return true
+end
+
+def.override().BeginIdleState = function(self)
+	if self:GetCurStateType() ~= FSM_STATE_TYPE.IDLE then return end
+	local function callStateback()
+		self:RemoveIdleStateTimer()
+		self._IsIdleState = true
+		self:StartIdleAnimation()
+	end
+	self:RemoveIdleStateTimer()
+	self._IdleStateTimer = self:AddTimer(5, true, callStateback)
+end
+
+--进入休闲状态，开始逻辑操作
+def.method().StartIdleAnimation = function(self)		
+	local function callback()
+		self:RemoveIdleAnimationTimer()
+		self:PlayIdelAnimation()
+	end
+	self:RemoveIdleAnimationTimer()
+	self._IdleAnimationTimer = self:AddTimer(5, true, callback)
+end
+
+--删除待机动作检测的timer
+def.method().RemoveIdleAnimationTimer = function(self)
+	if self._IdleAnimationTimer ~= 0 then
+		self:RemoveTimer(self._IdleAnimationTimer)
+        self._IdleAnimationTimer = 0
+	end
+end
+
+--删除待机状态的检测
+def.method().RemoveIdleStateTimer = function(self)
+	if self._IdleStateTimer ~= 0 then
+		self:RemoveTimer(self._IdleStateTimer)
+        self._IdleStateTimer = 0	
+	end
+end
+
+def.method().ClearIdleState = function(self)
+	self:RemoveIdleAnimationTimer()	
+	self:RemoveIdleStateTimer()
+	self._IsIdleState = false
+end
+
 def.override().Release = function (self)
+	self:ClearIdleState()
+
 	CEntity.Release(self)
 	game:RaiseUIShortCutEvent(EnumDef.EShortCutEventType.DialogEnd, self)
 end

@@ -7,7 +7,7 @@ local MapBasicConfig = require "Data.MapBasicConfig"
 local CUIModel = require "GUI.CUIModel"
 local CCommonBtn = require "GUI.CCommonBtn"
 local CQuest = Lplus.ForwardDeclare("CQuest")
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local CGame = Lplus.ForwardDeclare("CGame")
 local CPanelUIAutoKill = Lplus.Extend(CPanelBase, "CPanelUIAutoKill")
 local def = CPanelUIAutoKill.define
@@ -43,6 +43,7 @@ def.override().OnCreate = function(self)
 end
 
 def.override("dynamic").OnData = function(self, data)
+    self._HelpUrlType = HelpPageUrlType.AutoKillMonster
 	self:ListenToEvent()
 	--self._Tab_UIModels = {}
 	self._Tab_GoReputationNpc = {}
@@ -87,8 +88,19 @@ local rewards = nil
 def.method().showFrameBySelectMap = function(self)
 	rewards = {}
 	local mapDataArray = self._Tab_HangQuestTemps[self._SelectedMapID]
+	for i,v in ipairs(self._Tab_GoReputationNpc) do
+		if v ~= nil then
+	        v:Destroy()
+	        v = nil
+	    end
+	end
+	for i,v in ipairs(self._Tab_ReceiveReward) do
+		if v ~= nil then
+	        v:Destroy()
+	        v = nil
+	    end
+	end
 	self._List_Monster:SetItemCount( #mapDataArray )
-	self._List_Monster:ScrollToStep(0)
 end
 
 
@@ -98,6 +110,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
     	local Img_Bg = item:FindChild("Img_Bg")
 		local Lab_RegionName = item:FindChild("Lab_RegionName")
         local Lab_Name = item:FindChild("HideGroup/Lab_Name")
+        local Lab_LvTips = item:FindChild("HideGroup/Lab_Name/Text")
         local Lab_LvValues = item:FindChild("HideGroup/Lab_LvValues")
         local Img_Role_1 = item:FindChild("HideGroup/Img_Role_1")
 
@@ -115,18 +128,6 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         local Btn_GoReputationNpc = CCommonBtn.new( item:FindChild("Btn_GoKillMonster"),nil )
         local Btn_ReceiveReward = CCommonBtn.new( item:FindChild("Btn_ReceiveReward"),nil )
         local Frame_Reward = item:FindChild("Frame_Reward")
-		for i,v in ipairs(self._Tab_GoReputationNpc) do
-			if v ~= nil then
-		        v:Destroy()
-		        v = nil
-		    end
-		end
-		for i,v in ipairs(self._Tab_ReceiveReward) do
-			if v ~= nil then
-		        v:Destroy()
-		        v = nil
-		    end
-		end
 
         self._Tab_GoReputationNpc[idx] = Btn_GoReputationNpc
         self._Tab_ReceiveReward[idx] = Btn_ReceiveReward
@@ -259,6 +260,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
 			GUI.SetAlpha(Img_Bg,47)
 			GUI.SetAlpha(Lab_RegionName,255)
 			GUI.SetAlpha(Lab_Name,255)
+			GUI.SetAlpha(Lab_LvTips,255)
 			GUI.SetAlpha(Img_Role_1,255)
 			GUI.SetAlpha(Img_MonsterBg,255)
 
@@ -287,6 +289,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
 			GUI.SetAlpha(Img_Bg,14.1)
 			GUI.SetAlpha(Lab_RegionName,76.5)
 			GUI.SetAlpha(Lab_Name,76.5)
+			GUI.SetAlpha(Lab_LvTips,76.5)
 			GUI.SetAlpha(Img_Role_1,76.5)
 			GUI.SetAlpha(Img_MonsterBg,76.5)
 			
@@ -340,6 +343,26 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
         if questData ~= nil then
 			CQuest.Instance():DoDeliverQuest2(HangQuestTemp.QuestId)
         end
+
+        local Tree = self:GetUIObject("List_Map"):FindChild("Viewport/Content")
+        local strpath = "item-"..(self._SelectedIndex-1).."/Img_RedPoint"
+
+        		    --判断有无大类型红点
+	    local isShowRedPoint = false
+        for k,v in ipairs( mapTempArray ) do
+	        local questData =  CQuest.Instance():GetInProgressQuestModel( v.QuestId )
+	        if questData ~= nil and HangQuestTemp.QuestId ~= v.QuestId then
+	            local objs = questData:GetCurrentQuestObjetives()
+	            if #objs > 0 then
+	                if objs[1]:GetCurrentCount() >= objs[1]:GetNeedCount() then
+	                    isShowRedPoint = true
+	                    break
+	                end
+	            end  
+	        end     
+	    end
+
+        Tree:FindChild( strpath ):SetActive(isShowRedPoint)
     end
 end
 
@@ -360,6 +383,7 @@ def.method().UnlistenToEvent = function(self)
 end
 
 def.override("string").OnClick = function(self, id)
+	CPanelBase.OnClick(self,id)
     if id == "Btn_Back" then
         game._GUIMan:CloseByScript(self)
     elseif id == "Btn_Info" then
@@ -388,8 +412,22 @@ def.override("userdata", "userdata", "number", "number").OnTabListInitItem = fun
 		    item:FindChild("Lab_Text"):GetComponent(ClassType.Text).text = mapTemplate.TextDisplayName
 
 		    --判断有无大类型红点
-		    local isShow = false
-		    item:FindChild("Img_RedPoint"):SetActive(isShow)
+		    local isShowRedPoint = false
+	        local mapTempArray = self._Tab_HangQuestTemps[current_mapID]
+	        for k,v in ipairs( mapTempArray ) do
+		        local questData =  CQuest.Instance():GetInProgressQuestModel( v.QuestId )
+		        if questData ~= nil then
+		            local objs = questData:GetCurrentQuestObjetives()
+		            if #objs > 0 then
+		                if objs[1]:GetCurrentCount() >= objs[1]:GetNeedCount() then
+		                    isShowRedPoint = true
+		                    break
+		                end
+		            end  
+		        end     
+		        
+		    end
+		    item:FindChild("Img_RedPoint"):SetActive(isShowRedPoint)
         elseif sub_index ~= -1 then
             local bigTypeIndex = main_index + 1
             local smallTypeIndex = sub_index + 1
@@ -414,6 +452,7 @@ def.override("userdata", "userdata", "number", "number").OnTabListSelectItem = f
             end
             
         	self:showFrameBySelectMap()
+        	self._List_Monster:ScrollToStep(0)
             --self:OnClickTabListDeep1(list,item,bigTypeIndex)
         elseif sub_index ~= -1 then
             local bigTypeIndex = main_index + 1

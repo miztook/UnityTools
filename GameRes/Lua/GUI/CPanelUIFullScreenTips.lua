@@ -26,6 +26,7 @@ def.static("=>", CPanelUIFullScreenTips).Instance = function ()
 		instance._PrefabPath = PATH.UI_FullScreenTips
 		instance._PanelCloseType = EnumDef.PanelCloseType.None
 		instance._DestroyOnHide = true
+		instance._ForbidESC = true
 		instance:SetupSortingParam()
 	end
 	return instance

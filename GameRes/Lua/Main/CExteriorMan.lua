@@ -116,7 +116,7 @@ def.method("dynamic").Enter = function (self, data)
 	end
 
 	local CTargetDetector = require "ObjHdl.CTargetDetector"
-	local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+	local CAutoFightMan = require "AutoFight.CAutoFightMan"
 	local CQuestAutoMan = require "Quest.CQuestAutoMan"
 	local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
 	local CPath = require "Path.CPath"
@@ -183,7 +183,7 @@ local function OnQuitComplete()
 
 	local CQuestAutoMan = require "Quest.CQuestAutoMan"
 	local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
-	local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+	local CAutoFightMan = require "AutoFight.CAutoFightMan"
 	local CPath = require "Path.CPath"
 	CQuestAutoMan.Instance():Restart(_G.PauseMask.UIShown)
 	CDungeonAutoMan.Instance():Restart(_G.PauseMask.UIShown)

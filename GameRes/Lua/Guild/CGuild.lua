@@ -133,7 +133,7 @@ end
 -- 获取公会技能战斗力
 def.method("=>", "number").GetGuildSkillScore = function(self)
 	if self._GuildSkill._SkillData == nil then
-		warn("This player do not have a guild")
+		--warn("This player do not have a guild")
 		return 0
 	end
 	local CScoreCalcMan = require "Data.CScoreCalcMan"

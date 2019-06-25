@@ -54,7 +54,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[333] = { x = -154.16, y = 37.85, z = -69.83, name = "德佩拉宅邸", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {4012,4013,4014,4015} },
+			[333] = { x = -154.16, y = 37.85, z = -69.83, name = "德佩拉宅邸", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {4012,4013,4016,4015} },
 			[377] = { x = -162.55, y = 37.96, z = -59.69, name = "抵达区域", worldId = 0, PkMode = 0 },
 		},
 	},

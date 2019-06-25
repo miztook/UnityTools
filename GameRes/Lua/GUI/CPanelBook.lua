@@ -5,7 +5,7 @@ local CQuestAutoMan = require"Quest.CQuestAutoMan"
 local CIvtrItem = require "Package.CIvtrItems".CIvtrItem
 local CDungeonAutoMan = require"Dungeon.CDungeonAutoMan"
 local DynamicText = require "Utility.DynamicText"
-local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+local CAutoFightMan = require "AutoFight.CAutoFightMan"
 
 local CPanelBook = Lplus.Extend(CPanelBase, 'CPanelBook')
 local def = CPanelBook.define

@@ -150,11 +150,11 @@ local MapInfo =
 		},
 		[2] = 
 		{
-			[297] = { x = 60.50, y = 13.60, z = -142.21, name = "장로회", worldId = 0, PkMode = 0 },
-			[298] = { x = 156.79, y = 17.71, z = -175.25, name = "미스테리움", worldId = 0, PkMode = 0 },
-			[299] = { x = -108.20, y = 34.64, z = -161.61, name = "엘프군 지휘소", worldId = 0, PkMode = 0 },
-			[300] = { x = -135.17, y = 1.00, z = -18.75, name = "명품 거래소", worldId = 0, PkMode = 0 },
-			[301] = { x = -186.61, y = -23.42, z = 49.83, name = "魔导港口", worldId = 0, PkMode = 0 },
+			[297] = { x = 60.50, y = 13.60, z = -142.21, name = "장로회", worldId = 0, IsCanFind = 1, PkMode = 0 },
+			[298] = { x = 156.79, y = 17.71, z = -175.25, name = "미스테리움", worldId = 0, IsCanFind = 1, PkMode = 0 },
+			[299] = { x = -108.20, y = 34.64, z = -161.61, name = "엘프군 지휘소", worldId = 0, IsCanFind = 1, PkMode = 0 },
+			[300] = { x = -135.17, y = 1.00, z = -18.75, name = "명품 거래소", worldId = 0, IsCanFind = 1, PkMode = 0 },
+			[301] = { x = -186.61, y = -23.42, z = 49.83, name = "魔导港口", worldId = 0, IsCanFind = 1, PkMode = 0 },
 			[302] = { x = 120.85, y = 0.00, z = -120.87, name = "锐风盈城【剧情相位】", worldId = 0, PkMode = 0 },
 			[303] = { x = 61.90, y = 4.46, z = -12.11, name = "途中", worldId = 0, PkMode = 0 },
 			[304] = { x = 162.10, y = 17.61, z = -197.33, name = "h生命之花监测装置", worldId = 0, PkMode = 0 },

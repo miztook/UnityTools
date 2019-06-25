@@ -157,7 +157,7 @@ def.override("string").OnClick = function(self, id)
 		if #rewards > 0 then
 			for i,v in ipairs( rewards ) do
 				if not v.IsTokenMoney then
-					local itemtemp = CElementData.GetItemTemplate( v.Data.Id )
+					--local itemtemp = CElementData.GetItemTemplate( v.Data.Id )
 					--print("111111111111111111111",v.Data.Id,itemtemp.BindType,v.Data.Count,game._HostPlayer:HasEnoughSpace( v.Data.Id,true,v.Data.Count ))
 					if not game._HostPlayer:HasEnoughSpace( v.Data.Id,true,v.Data.Count ) then
 						game._GUIMan:ShowTipText(StringTable.Get(276), false)

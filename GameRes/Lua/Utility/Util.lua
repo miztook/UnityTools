@@ -149,19 +149,33 @@ local function getWingAssetPath(wing_id, wing_level, wing_talent_page_id)
 			local CWingsMan = require "Wings.CWingsMan" 
 			local wing_template = CWingsMan.Instance():GetWingData(wing_id)
 			if wing_template ~= nil then
-				local grade = CWingsMan.Instance():CalcGradeByLevel(wing_level)
-				if grade < wing_template.ShowGrade then
-					-- 小于特效展示等级，显示原本的模型
-					asset_path = wing_template.ModelAssetPath
-				else
-					-- 找到对应天赋页的翅膀模型
-					-- PS:路径不是特效的路径，是整个翅膀模型的路径
-					if wing_talent_page_id == wing_template.WingTalentPage1 then
-						asset_path = wing_template.SpecialEffectPath1
-					elseif wing_talent_page_id == wing_template.WingTalentPage2 then
-						asset_path = wing_template.SpecialEffectPath2
-					elseif wing_talent_page_id == wing_template.WingTalentPage3 then
-						asset_path = wing_template.SpecialEffectPath3
+				local show_grades = string.split(wing_template.ShowGrade, "*")
+				if show_grades ~= nil then
+					local cur_grade = CWingsMan.Instance():CalcGradeByLevel(wing_level)
+					-- 先找到对应阶级的翅膀模型路径的索引
+					local index = 0
+					for i, grade_str in ipairs(show_grades) do
+						local grade = tonumber(grade_str)
+						if grade ~= nil and grade <= cur_grade then
+							index = i
+						else
+							break
+						end
+					end
+					if index > 0 then
+						-- 找到对应天赋页的翅膀模型
+						-- PS:路径不是特效的路径，是整个翅膀模型的路径
+						local special_effect_paths = nil
+						if wing_talent_page_id == wing_template.WingTalentPage1 then
+							special_effect_paths = string.split(wing_template.SpecialEffectPath1, "*")
+						elseif wing_talent_page_id == wing_template.WingTalentPage2 then
+							special_effect_paths = string.split(wing_template.SpecialEffectPath2, "*")
+						elseif wing_talent_page_id == wing_template.WingTalentPage3 then
+							special_effect_paths = string.split(wing_template.SpecialEffectPath3, "*")
+						end
+						if special_effect_paths ~= nil and special_effect_paths[index] ~= nil then
+							asset_path = special_effect_paths[index]
+						end
 					end
 				end
 			else

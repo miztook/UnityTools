@@ -284,22 +284,23 @@ def.method("userdata", "string", "number").OnExteriorInitItem = function(self, i
         local lab_attri = uiTemplate:GetControl(7) -- 属性名
 
         GameUtil.MakeImageGray(img_bg, not data.IsGot)
-        GUITools.SetUIActive(lab_quality, data.IsGot)
         GameUtil.MakeImageGray(img_icon, not data.IsGot)
 
         local nameStr = RichTextTools.GetQualityText(template.Name, template.Quality)
+        local qualityStr = StringTable.Get(10000 + template.Quality)
         local attriValStr = template.AddSpeedRatio * 100 .. "%"
         local attriStr = StringTable.Get(15507)
         if not data.IsGot then
             -- 未获得
             nameStr = GetGreyColorStr(template.Name)
+            qualityStr = GetGreyColorStr(qualityStr)
             attriValStr = GetGreyColorStr(attriValStr)
             attriStr = GetGreyColorStr(attriStr)
         else
-            local qualityStr = RichTextTools.GetQualityText(StringTable.Get(10000 + template.Quality), template.Quality)
-            GUI.SetText(lab_quality, qualityStr)
+            qualityStr = RichTextTools.GetQualityText(qualityStr, template.Quality)
         end
         GUI.SetText(lab_name, nameStr)
+        GUI.SetText(lab_quality, qualityStr)
         GUI.SetText(lab_attri_val, attriValStr)
         GUI.SetText(lab_attri, attriStr)
     end
@@ -360,13 +361,15 @@ def.method("string").OnExteriorClick = function(self, id)
         local data = 
         {
             ApproachIDs = template.ApproachIDs,
-            ParentObj = self._Btn_Approach
+            ParentObj = self._Frame_Right
         }
         game._GUIMan:Open("CPanelItemApproach", data)
+    elseif string.find(id, "Btn_ChangeRideAnim") then
+        self:ChangeRideAnimation()
     end
 end
 
-def.method().ClickHostPlayer = function (self)
+def.method().ChangeRideAnimation = function (self)
     local hp = game._HostPlayer
     local mountModel = hp._MountModel
     if hp:IsOnRide() and mountModel ~= nil and not mountModel:IsPlaying(EnumDef.CLIP.BORN) then
@@ -375,6 +378,7 @@ def.method().ClickHostPlayer = function (self)
         if self._IsRideRun then
             -- 停止奔跑
             hp:PlayMountAnimation(EnumDef.CLIP.COMMON_STAND, EnumDef.SkillFadeTime.HostOther, false, 0, 1)
+            hp:PlaySpecialMountStandSound(EnumDef.SkillFadeTime.HostOther)
             local animation = hp:GetRideStandAnimationName()
             hp:PlayAnimation(animation, EnumDef.SkillFadeTime.HostOther, false, 0, 1)
             if comp ~= nil then
@@ -382,6 +386,7 @@ def.method().ClickHostPlayer = function (self)
             end
         else
             hp:PlayMountAnimation(EnumDef.CLIP.COMMON_RUN, EnumDef.SkillFadeTime.HostOther, false, 0, 1)
+            hp:PlaySpecialMountMoveSound(0)
             local animation = hp:GetRideRunAnimationName()
             hp:PlayAnimation(animation, EnumDef.SkillFadeTime.HostOther, false, 0, 1)
             if comp ~= nil then

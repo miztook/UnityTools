@@ -63,7 +63,6 @@ def.field("table")._WingListShow = BlankTable -- 展示列表
 def.field("number")._SelectedWingId = 0 -- 指定的翅膀ID
 def.field("table")._CurWingData = nil -- 当前翅膀数据
 def.field("table")._CurWingData_Old = nil -- 当前翅膀的前一级数据（进阶展示界面用）
-def.field("number")._GradeUpItem_ID = 0 -- 进阶道具ID
 def.field("table")._RedPointChangeStatusCacheMap = BlankTable -- 红点状态发生了改变的缓存表
 def.field("table")._WingListAll = BlankTable -- 所有翅膀列表
 def.field("table")._UIFxDataList = BlankTable -- 特效信息列表
@@ -138,10 +137,6 @@ def.method().Init = function(self)
     -- 设置下拉菜单层级
     local drop_template = self._Root:GetUIObject("Drop_Template")
     GUITools.SetupDropdownTemplate(self._Root, drop_template)
-
-    -- 道具ID读特殊ID表
-    local CSpecialIdMan = require "Data.CSpecialIdMan"
-    self._GradeUpItem_ID = CSpecialIdMan.Get("WingGradeUpItem")
 
     self:SetWingList()
 
@@ -370,11 +365,6 @@ def.method("string").OnClick = function(self, id)
         if curData == nil then return end
 
         local materialItemId = curData.C_PerfusionItemId
-        -- if curData.C_CanGradeUp then
-        --     materialItemId = self._GradeUpItem_ID
-        -- else
-        --     materialItemId = curData.C_PerfusionItemId
-        -- end
         CItemTipMan.ShowItemTips(materialItemId, TipsPopFrom.OTHER_PANEL, self._Frame_MaterialIcon, TipPosition.FIX_POSITION)
     elseif string.find(id, "Btn_Next") then
         -- 关闭进阶成功界面
@@ -614,17 +604,17 @@ def.method("userdata", "number").OnInitWingList = function(self, item, index)
     -- 图标
     local frame_icon = uiTemplate:GetControl(0)
     self:SetWingIcon(frame_icon, data.Id, not data.IsGot)
-    -- 是否已装备
-    local img_equip = uiTemplate:GetControl(3)
-    GUITools.SetUIActive(img_equip, data.IsDefault)
+    local isNew = self._RedPointChangeStatusCacheMap[data.Id] == true
+    local setting =
+    {
+        [EItemIconTag.New] = isNew, -- 是否新翅膀
+        [EItemIconTag.Equip] = data.IsDefault, -- 是否已装备
+    }
+    IconTools.SetTags(frame_icon, setting)
     -- 红点
     local img_red_point = uiTemplate:GetControl(8)
     GUITools.SetUIActive(img_red_point, self:IsShowRedPoint(data))
     self._ImgTable_RedPoint[index+1] = img_red_point
-    -- 是否新翅膀
-    local isNew = self._RedPointChangeStatusCacheMap[data.Id] == true
-    local img_new = uiTemplate:GetControl(9)
-    GUITools.SetUIActive(img_new, isNew)
 
     local lab_name = uiTemplate:GetControl(5) -- 名称
     local lab_attri = uiTemplate:GetControl(6) -- 属性名
@@ -736,6 +726,16 @@ def.method("number").InitCurWingData = function (self, wingId)
     if wingId <= 0 then return end
     local wingTemplate = CWingsManIns:GetWingData(wingId)
     if wingTemplate == nil then return end
+    local showGradeList = {}
+    local showGrades = string.split(wingTemplate.ShowGrade, "*")
+    if showGrades ~= nil then
+        for _, gradeStr in ipairs(showGrades) do
+            local grade = tonumber(gradeStr)
+            if grade ~= nil then
+                table.insert(showGradeList, grade)
+            end
+        end
+    end
     local curWingId = game._HostPlayer:GetCurWingId()
     local info = 
     {
@@ -744,7 +744,7 @@ def.method("number").InitCurWingData = function (self, wingId)
         C_IsGot = false,                            -- 是否已拥有
         C_Name = wingTemplate.WingName,             -- 翅膀名字
         C_Origin = wingTemplate.OriginOfWing,       -- 来源文本
-        C_ShowGrade = wingTemplate.ShowGrade,       -- 显示天赋页翅膀模型的阶级
+        C_ShowGrades = showGradeList,               -- 升级翅膀模型的阶级列表
         C_AssetPath = "",                           -- 模型路径
         C_PerfusionItemId = 0,                      -- 灌注道具Id
         C_PerfusionNum = 0,                         -- 灌注道具所需数量
@@ -765,8 +765,17 @@ def.method("number").InitCurWingData = function (self, wingId)
         info.C_IsGot = true
         info.C_Level = serverInfo.Level
         info.C_FightScore = serverInfo.FightScore
+        info.C_Attri = CWingsManIns:GetWingLevelUpData(info.C_Id, info.C_Level)
         info.C_NextAttri = CWingsManIns:GetWingLevelUpData(info.C_Id, info.C_Level+1)
+        for i, nextAttri in ipairs(info.C_NextAttri) do
+            local attri = info.C_Attri[i]
+            if attri == nil or attri.key ~= nextAttri.key then
+                -- 在当前等级的属性列表加入升级新加的属性，值为0
+                info.C_Attri[i] = { key=nextAttri.key, data=0 }
+            end
+        end
     else
+        info.C_Attri = CWingsManIns:GetWingLevelUpData(info.C_Id, 1)
         info.C_FightScore = CWingsManIns:GetWingFightScore(info.C_Id, 1) -- 一级的战力
     end
     local lvUpTemplate = CWingsManIns:GetWingLevelUpInfo(info.C_Id, info.C_Level)
@@ -783,7 +792,6 @@ def.method("number").InitCurWingData = function (self, wingId)
         info.C_PerfusionNum = lvUpTemplate.NeedItemNum
         info.C_MoenyCost = lvUpTemplate.CostMoneyNum
     end
-    info.C_Attri = CWingsManIns:GetWingLevelUpData(info.C_Id, info.C_Level)
     local Util = require "Utility.Util"
     local curPageId = game._HostPlayer:GetCurWingPageId()
     info.C_AssetPath = Util.GetWingAssetPath(info.C_Id, info.C_Level, curPageId)
@@ -815,8 +823,15 @@ def.method("table").InitWingRight = function (self, data)
         self:ShowOperateInfo(data)
     end
     -- 天赋展现等级提示
-    GUI.SetText(self._Lab_Unlock, string.format(StringTable.Get(19563), data.C_ShowGrade))
-    GUITools.SetUIActive(self._Lab_Unlock, not data.C_IsGot or curGrade < data.C_ShowGrade)
+    local nextShowGrade = 0
+    for _, grade in ipairs(data.C_ShowGrades) do
+        if curGrade < grade then
+            nextShowGrade = grade
+            break
+        end
+    end
+    GUI.SetText(self._Lab_Unlock, string.format(StringTable.Get(19563), nextShowGrade))
+    GUITools.SetUIActive(self._Lab_Unlock, nextShowGrade > 0)
 end
 
 -- 更新属性列表
@@ -990,11 +1005,9 @@ def.method().UpdateMaterialNum = function (self)
     local needNum = 0 -- 所需道具道具
     if data.C_CanGradeUp then
         -- 进阶
-        -- itemId = self._GradeUpItem_ID
         needNum = data.C_GradeNum
     else
         -- 灌注
-        -- itemId = data.C_PerfusionItemId
         needNum = data.C_PerfusionNum
     end
     IconTools.InitMaterialIconNew(self._Frame_MaterialIcon, itemId, needNum)
@@ -1031,7 +1044,14 @@ def.method().ShowGradeUp = function (self)
         GUITools.SetUIActive(self._Frame_WingAttri_GradeUp, false)
     end
     -- 解锁天赋外观提示
-    GUITools.SetUIActive(self._Frame_UnlockTips, curData.C_ShowGrade == nextGrade and nextTransLv == 1)
+    local isShowGrade = false
+    for _, grade in ipairs(curData.C_ShowGrades) do
+        if nextGrade == grade then
+            isShowGrade = true
+            break
+        end
+    end
+    GUITools.SetUIActive(self._Frame_UnlockTips, isShowGrade and nextTransLv == 1)
     self:StartGradeUpEffect()
 end
 

@@ -1,9 +1,4 @@
 local cfg = {
-    Frame_PetValue1 = 341704269,
-    Frame_PetValue2 = 341704270,
-    Frame_PetValue3 = 341704271,
-    Frame_PetValue4 = 341704272,
-    Frame_PetValue5 = 341704273,
     Group_Talent = -938509588,
     Frame_Change = 786735874,
     Lab_TalentChange = -1892328082,
@@ -30,6 +25,9 @@ local cfg = {
     Img_Star5_BG = 942960413,
     Lab_Next = -1901040987,
     Btn_OK = 2000023231,
+    Frame_Fuse = 1721589555,
+    Img_Talent = -872534744,
+    Lab_ReturnInfo = 1725812784,
 }
  
 return cfg

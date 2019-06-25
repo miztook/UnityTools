@@ -869,7 +869,7 @@ local HeadwearInfo =
 		[1] = 
 		{
 			path = "Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Neck/Bip001 Head",
-			position = { -0.511 , -0.102 , 0 },
+			position = { -0.111 , -0.102 , 0 },
 			rotation = { 286.269 , 270 , 180 },
 			scale = { 1 , 1 , 1 },
 			isHideFace =  False,
@@ -878,7 +878,7 @@ local HeadwearInfo =
 		[2] = 
 		{
 			path = "Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Spine2/Bip001 Neck/Bip001 Head",
-			position = { -0.527 , -0.096 , 0 },
+			position = { -0.227 , -0.096 , 0 },
 			rotation = { 282.23 , 270 , 180 },
 			scale = { 1 , 1 , 1 },
 			isHideFace =  False,
@@ -887,7 +887,7 @@ local HeadwearInfo =
 		[3] = 
 		{
 			path = "Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Spine2/Bip001 Neck/Bip001 Head",
-			position = { -0.465 , -0.015 , 0 },
+			position = { -0.165 , -0.015 , 0 },
 			rotation = { 275.7209 , 270 , 180 },
 			scale = { 1 , 1 , 1 },
 			isHideFace =  False,
@@ -896,7 +896,7 @@ local HeadwearInfo =
 		[4] = 
 		{
 			path = "Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Spine2/Bip001 Neck/Bip001 Head",
-			position = { -0.482 , 0.021 , 0 },
+			position = { -0.182 , 0.021 , 0 },
 			rotation = { 270.0198 , 90 , 0 },
 			scale = { 1 , 1 , 1 },
 			isHideFace =  False,
@@ -905,7 +905,7 @@ local HeadwearInfo =
 		[5] = 
 		{
 			path = "Bip001/Bip001 Pelvis/Bip001 Spine/Bip001 Spine1/Bip001 Spine2/Bip001 Spine3/Bip001 Neck/Bip001 Head",
-			position = { -0.536 , -0.063 , 0 },
+			position = { -0.236 , -0.063 , 0 },
 			rotation = { 275.7209 , 270 , 180 },
 			scale = { 1 , 1 , 1 },
 			isHideFace =  False,

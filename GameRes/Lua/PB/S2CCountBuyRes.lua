@@ -28,16 +28,16 @@ local function OnS2CCountBuyRes(sender, msg)
     -- warn("S2CCountBuyRes msg.errorCode == ", msg.errorCode, CountGroupId)
     if msg.errorCode == 0 then
         game._GUIMan: ShowTipText(StringTable.Get(31100), false)
-        -- warn("S2CCountBuyRes game._CountGroupData == ", #game._CountGroupData)
-        if game._CountGroupData ~= nil then
-            for i,v in pairs(game._CountGroupData) do
+        warn("S2CCountBuyRes game._CCountGroupMan._CountGroupData == ", #game._CCountGroupMan._CountGroupData)
+        if game._CCountGroupMan._CountGroupData ~= nil then
+            for i,v in pairs(game._CCountGroupMan._CountGroupData) do
                 if v.Tid == msg.CountGroupId then 
                     v.Count = v.Count + 1
                     v.BuyCount = v.BuyCount + 1
                 end 
             end
         else
-            game._CountGroupData = msg.CountGroups
+            game._CCountGroupMan._CountGroupData = msg.CountGroups
         end
 
         local  CountGroupUpdateEvent = require "Events.CountGroupUpdateEvent"
@@ -54,6 +54,6 @@ PBHelper.AddHandler("S2CCountBuyRes", OnS2CCountBuyRes)
 local function OnS2CCountGroupSync(sender, msg)
     if msg == nil then return end
     -- warn("lidaming S2CCountGroupSync ----------------> msg.CountGroups == ", #msg.CountGroups)
-    game._CountGroupData = msg.CountGroups
+    game._CCountGroupMan._CountGroupData = msg.CountGroups
 end
 PBHelper.AddHandler("S2CCountGroupSync", OnS2CCountGroupSync)

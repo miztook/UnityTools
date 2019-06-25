@@ -20,7 +20,7 @@ def.static("=>",QualitySettingMan).Instance = function()
 	return instance
 end
 
---获取地图偏移量
+--获取手机机型等级
 def.method("=>","table").GetDeviceLevel = function(self)
 	local DeviceLevel = nil 
 	local ret, msg, result = pcall(dofile, "Configs/DeviceLevelCfg.lua")
@@ -35,7 +35,6 @@ end
 def.method("=>", "number").GetRecommendLevel = function(self)
 	local recommendLevel = 0
 	local deviceModel = SystemInfo.deviceModel
-   	local dataList = self:GetDeviceLevel()
 	if recommendLevel == 0 then
 		if _G.IsAndroid() then  -- android
             local deviceModel = SystemInfo.deviceModel
@@ -47,7 +46,7 @@ def.method("=>", "number").GetRecommendLevel = function(self)
            		end
            	end
            	if recommendLevel ~= 0 and recommendLevel ~= nil then 
-           		warn(" deviceModel recommendLevel ",deviceModel,recommendLevel)
+           		warn(" By Config Get deviceModel recommendLevel ",deviceModel,recommendLevel)
            		return recommendLevel 
             end
 
@@ -55,22 +54,22 @@ def.method("=>", "number").GetRecommendLevel = function(self)
             local processorFrequency = SystemInfo.processorFrequency
             if processorFrequency >= 2000 then
             	if processorCount >= 8 then   
-            		recommendLevel = 3 
+            		recommendLevel = 5 
             	elseif processorCount >= 4 then 
-            		recommendLevel = 2
+            		recommendLevel = 4
             	else
-            		recommendLevel = 1
+            		recommendLevel = 3
             	end
             elseif processorFrequency >= 1500 and processorFrequency < 2000 then
                 if processorCount >= 8 then   
-            		recommendLevel = 3 
+            		recommendLevel = 4 
             	elseif processorCount >= 4 then 
-            		recommendLevel = 2
+            		recommendLevel = 3
             	else
-            		recommendLevel = 1
+            		recommendLevel = 2
             	end
             else 
-            	recommendLevel = 1
+            	recommendLevel = 2
             end
             warn("processorCount,processorFrequency,recommendLevel ",processorCount,processorFrequency,recommendLevel)
             return recommendLevel
@@ -81,13 +80,13 @@ def.method("=>", "number").GetRecommendLevel = function(self)
            	recommendLevel = dataList.ios[deviceModel]
            	if recommendLevel == nil then 
 				warn("Other platform:", deviceModel,1)
-           		return 1
+           		return 2
            	else
-           		warn("ios DeviceModel:", deviceModel, recommendLevel)
+           		warn("By Config Get ios DeviceModel:", deviceModel, recommendLevel)
            		return recommendLevel
            	end
         else
-        	recommendLevel = 3
+        	recommendLevel = 5
         	warn("Windows:", deviceModel, recommendLevel)
         end
 	end
@@ -98,6 +97,19 @@ end
 local QualitySettings =
 {
 	[1] = { 
+			PostProcessLevel = 3,			--关闭
+			ShadowLevel = 0,
+			CharacterLevel = 0,
+			SceneDetailLevel = 0,
+			FxLevel = 0,
+
+			DofOn = false,
+			PostProcessFogOn = false,
+			WaterReflectionOn = false,
+			FPSLimit = 30,
+		  },
+
+	[2] = { 
 			PostProcessLevel = 0,
 			ShadowLevel = 0,
 			CharacterLevel = 0,
@@ -107,12 +119,10 @@ local QualitySettings =
 			DofOn = false,
 			PostProcessFogOn = false,
 			WaterReflectionOn = false,
-			WeatherOn = false,
-			DetailSoundOn = false,
 			FPSLimit = 30,
 		  },
 
-	[2] = { 
+	[3] = { 
 			PostProcessLevel = 1,
 			ShadowLevel = 1,
 			CharacterLevel = 1,
@@ -122,14 +132,12 @@ local QualitySettings =
 			DofOn = false,
 			PostProcessFogOn = false,
 			WaterReflectionOn = false,
-			WeatherOn = true,
-			DetailSoundOn = false,
 			FPSLimit = 30,
 		  },
 
-	[3] = { 
+	[4] = { 
 			PostProcessLevel = 2,
-			ShadowLevel = 1,
+			ShadowLevel = 2,
 			CharacterLevel = 2,
 			SceneDetailLevel = 2,
 			FxLevel = 2,
@@ -137,23 +145,19 @@ local QualitySettings =
 			DofOn = false,
 			PostProcessFogOn = false,
 			WaterReflectionOn = false,
-			WeatherOn = true,
-			DetailSoundOn = true,
 			FPSLimit = 30,
 		},
 
-	[4] = { 
-			PostProcessLevel = 3,
+	[5] = { 
+			PostProcessLevel = 2,
 			ShadowLevel = 2,
 			CharacterLevel = 2,
 			SceneDetailLevel = 2,
 			FxLevel = 2,
 
 			DofOn = true,
-			PostProcessFogOn = false,
-			WaterReflectionOn = false,
-			WeatherOn = true,
-			DetailSoundOn = true,
+			PostProcessFogOn = true,
+			WaterReflectionOn = true,
 			FPSLimit = 30,
 		},
 }
@@ -169,9 +173,9 @@ def.method().DecideQualityLevel = function(self)
 
 	--控制高帧率显示
 	if _G.IsAndroid() then  -- android
-	
+	    self:UpdateCanSetHighRate(true)     -- 暂时全部加上60帧
 	elseif _G.IsIOS() then  -- iOS
-
+        self:UpdateCanSetHighRate(true)     -- 暂时全部加上60帧
 	else  --
 		self:UpdateCanSetHighRate(true)
 	end
@@ -186,12 +190,9 @@ def.method().DecideQualityLevel = function(self)
 	self:SetWholeQualityLevel(recommendLv)
 	self:ApplyChanges()
 
-	if recommendLv >= 1 and recommendLv <= 4 then
+	if recommendLv >= 1 and recommendLv <= 5 then
 		local setting = QualitySettings[recommendLv]
 
-		self:EnableDOF(setting.DofOn)
-		self:EnablePostProcessFog(setting.PostProcessFogOn)
-		self:EnableWaterReflection(setting.WaterReflectionOn)
 		self:SetFPSLimit(setting.FPSLimit)
 	end
 
@@ -244,40 +245,20 @@ end
 --总体等级 低 中 高 最高 自定义
 def.method("number").SetWholeQualityLevel = function (self, level)
 	
-	if level == 1 then
+	if level < 1 or level > 5 then return end
 
-		self:SetPostProcessLevel(QualitySettings[1].PostProcessLevel)
-		self:SetShadowLevel(QualitySettings[1].ShadowLevel)
-		self:SetCharacterLevel(QualitySettings[1].CharacterLevel)
-		self:SetSceneDetailLevel(QualitySettings[1].SceneDetailLevel)
-		self:SetFxLevel(QualitySettings[1].FxLevel)
+	local setting = QualitySettings[level]
 
-	elseif level == 2 then
+	self:SetPostProcessLevel(setting.PostProcessLevel)
+	self:SetShadowLevel(setting.ShadowLevel)
+	self:SetCharacterLevel(setting.CharacterLevel)
+	self:SetSceneDetailLevel(setting.SceneDetailLevel)
+	self:SetFxLevel(setting.FxLevel)
 
-		self:SetPostProcessLevel(QualitySettings[2].PostProcessLevel)
-		self:SetShadowLevel(QualitySettings[2].ShadowLevel)
-		self:SetCharacterLevel(QualitySettings[2].CharacterLevel)
-		self:SetSceneDetailLevel(QualitySettings[2].SceneDetailLevel)
-		self:SetFxLevel(QualitySettings[2].FxLevel)
+	self:EnableDOF(setting.DofOn)
+	self:EnablePostProcessFog(setting.PostProcessFogOn)
+	self:EnableWaterReflection(setting.WaterReflectionOn)
 
-	elseif level == 3 then
-
-		self:SetPostProcessLevel(QualitySettings[3].PostProcessLevel)
-		self:SetShadowLevel(QualitySettings[3].ShadowLevel)
-		self:SetCharacterLevel(QualitySettings[3].CharacterLevel)
-		self:SetSceneDetailLevel(QualitySettings[3].SceneDetailLevel)
-		self:SetFxLevel(QualitySettings[3].FxLevel)
-
-	elseif level == 4 then
-
-		self:SetPostProcessLevel(QualitySettings[4].PostProcessLevel)
-		self:SetShadowLevel(QualitySettings[4].ShadowLevel)
-		self:SetCharacterLevel(QualitySettings[4].CharacterLevel)
-		self:SetSceneDetailLevel(QualitySettings[4].SceneDetailLevel)
-		self:SetFxLevel(QualitySettings[4].FxLevel)
-
-	end
-	
 end
 
 def.method("=>", "number").GetWholeQualityLevel = function (self)
@@ -286,37 +267,67 @@ def.method("=>", "number").GetWholeQualityLevel = function (self)
 	local characterLevel = self:GetCharacterLevel()
 	local scenedetailLevel = self:GetSceneDetailLevel()
 	local fxLevel = self:GetFxLevel()
+	local dof = self:IsUseDOF()
+	local fog = self:IsUsePostProcessFog()
+	local reflect = self:IsUseWaterReflection()
 
-	return self:CalcWholeQualityLevel(postprocessLevel, shadowLevel, characterLevel, scenedetailLevel, fxLevel)
+	return self:CalcWholeQualityLevel(postprocessLevel, shadowLevel, characterLevel, scenedetailLevel, fxLevel, dof, fog, reflect)
 end
 
-def.method("number", "number", "number", "number", "number", "=>", "number").CalcWholeQualityLevel = function (self, postprocessLevel, shadowLevel, characterLevel, scenedetailLevel, fxLevel)
+def.method("number", "number", "number", "number", "number", "boolean", "boolean", "boolean", "=>", "number").CalcWholeQualityLevel = function (self, postprocessLevel, shadowLevel, characterLevel, scenedetailLevel, fxLevel, useDof, usePostprocessFog, useWaterReflection)
 	local wholeLevel = 0
 
-	if QualitySettings[1].PostProcessLevel == postprocessLevel and
-			QualitySettings[1].ShadowLevel == shadowLevel and
-			QualitySettings[1].CharacterLevel == characterLevel and
-			QualitySettings[1].SceneDetailLevel == scenedetailLevel and
-			QualitySettings[1].FxLevel == fxLevel then
+	local setting1 = QualitySettings[1]
+	local setting2 = QualitySettings[2]
+	local setting3 = QualitySettings[3]
+	local setting4 = QualitySettings[4]
+	local setting5 = QualitySettings[5]
+
+	if setting1.PostProcessLevel == postprocessLevel and
+			setting1.ShadowLevel == shadowLevel and
+			setting1.CharacterLevel == characterLevel and
+			setting1.SceneDetailLevel == scenedetailLevel and
+			setting1.FxLevel == fxLevel and
+			setting1.DofOn == useDof and
+			setting1.PostProcessFogOn == usePostprocessFog and
+			setting1.WaterReflectionOn == useWaterReflection then
 		wholeLevel = 1
-	elseif QualitySettings[2].PostProcessLevel == postprocessLevel and
-			QualitySettings[2].ShadowLevel == shadowLevel and
-			QualitySettings[2].CharacterLevel == characterLevel and
-			QualitySettings[2].SceneDetailLevel == scenedetailLevel and
-			QualitySettings[2].FxLevel == fxLevel then
+	elseif setting2.PostProcessLevel == postprocessLevel and
+			setting2.ShadowLevel == shadowLevel and
+			setting2.CharacterLevel == characterLevel and
+			setting2.SceneDetailLevel == scenedetailLevel and
+			setting2.FxLevel == fxLevel and
+			setting2.DofOn == useDof and
+			setting2.PostProcessFogOn == usePostprocessFog and
+			setting2.WaterReflectionOn == useWaterReflection then
 		wholeLevel = 2
-	elseif QualitySettings[3].PostProcessLevel == postprocessLevel and
-			QualitySettings[3].ShadowLevel == shadowLevel and
-			QualitySettings[3].CharacterLevel == characterLevel and
-			QualitySettings[3].SceneDetailLevel == scenedetailLevel and
-			QualitySettings[3].FxLevel == fxLevel then
+	elseif setting3.PostProcessLevel == postprocessLevel and
+			setting3.ShadowLevel == shadowLevel and
+			setting3.CharacterLevel == characterLevel and
+			setting3.SceneDetailLevel == scenedetailLevel and
+			setting3.FxLevel == fxLevel and
+			setting3.DofOn == useDof and
+			setting3.PostProcessFogOn == usePostprocessFog and
+			setting3.WaterReflectionOn == useWaterReflection then
 		wholeLevel = 3
-	elseif QualitySettings[4].PostProcessLevel == postprocessLevel and
-			QualitySettings[4].ShadowLevel == shadowLevel and
-			QualitySettings[4].CharacterLevel == characterLevel and
-			QualitySettings[4].SceneDetailLevel == scenedetailLevel and
-			QualitySettings[4].FxLevel == fxLevel then
+	elseif setting4.PostProcessLevel == postprocessLevel and
+			setting4.ShadowLevel == shadowLevel and
+			setting4.CharacterLevel == characterLevel and
+			setting4.SceneDetailLevel == scenedetailLevel and
+			setting4.FxLevel == fxLevel and
+			setting4.DofOn == useDof and
+			setting4.PostProcessFogOn == usePostprocessFog and
+			setting4.WaterReflectionOn == useWaterReflection then
 		wholeLevel = 4
+	elseif setting5.PostProcessLevel == postprocessLevel and
+			setting5.ShadowLevel == shadowLevel and
+			setting5.CharacterLevel == characterLevel and
+			setting5.SceneDetailLevel == scenedetailLevel and
+			setting5.FxLevel == fxLevel and
+			setting5.DofOn == useDof and
+			setting5.PostProcessFogOn == usePostprocessFog and
+			setting5.WaterReflectionOn == useWaterReflection then
+		wholeLevel = 5
 	end
 	
 	return wholeLevel

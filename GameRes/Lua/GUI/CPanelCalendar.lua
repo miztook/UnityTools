@@ -138,10 +138,10 @@ def.override().OnCreate = function(self)
 
     self._Frame_TimesActivity:SetActive(true)
     self._Frame_Quest:SetActive(false)
-    self._HelpUrlType = HelpPageUrlType.Activity
 end
 
 def.override("dynamic").OnData = function(self,data)
+    self._HelpUrlType = HelpPageUrlType.Activity
     if data == nil then
         self._CurActivityIdx = 1
         self:ShowFrame(EPageType.Dungeon)  
@@ -167,8 +167,7 @@ def.method().RefrashCalendar = function(self)
     self._CurType == EPageType.Arena or
     self._CurType == EPageType.GuildActivity or
     self._CurType == EPageType.DailyActivity then
-        self._CurCalendar = self._ActivityContent[self._CurActivityIdx] 
-        self:CalendarDesc(self._CurCalendar, self._CurActivityIdx)
+        self:ShowActivityByType(self._CurType, self._CurActivityIdx)
     end
 end
 
@@ -392,7 +391,6 @@ def.method("userdata","number").InitActivityShow = function(self,item, nIndex)
             elseif temData._Data.ShowNumType == 1 then
                 NumValurStr = temData._Data.ShowNumString
             end
-
             GUI.SetText(Lab_CalendarTimes, string.format(StringTable.Get(19449), NumValurStr))
         end       
         if temData._IsOpen and temData._IsOpenByTime then
@@ -415,13 +413,15 @@ def.method("userdata","number").InitActivityShow = function(self,item, nIndex)
         if game._CFunctionMan:IsUnlockByFunTid(temData._Data.FunId) == false then
             Img_LevelLockBg:SetActive(true)
             GUI.SetText(Lab_OpenLevel, StringTable.Get(19496))  
+            Img_TimesBg:SetActive(false)
         elseif temData._IsOpenByTime == false then
             Img_LevelLockBg:SetActive(true)
-            GUI.SetText(Lab_OpenLevel, StringTable.Get(19469))    
+            GUI.SetText(Lab_OpenLevel, StringTable.Get(19469)) 
+            Img_TimesBg:SetActive(false)   
         else
             Img_LevelLockBg:SetActive(false)
             Lab_Done:SetActive(false)
-            
+            Img_TimesBg:SetActive(true)
         end
         
     end
@@ -474,11 +474,17 @@ def.method("number").InitActivityContent = function(self, curType)
     local lock_by_time_list = {}
     -- local lock_by_level_list = {}
     local activity_sort_by_sortindex = {}
+    local SpecialFunHideCheck = function(id)
+        if id == 14 and game._IsHideGuildBattle then
+            return false
+        end
+        return true
+    end
     for _, v in ipairs(game._CCalendarMan:GetAllCalendarData()) do
         if v._Data.TabType == curType then
             -- 属于冒险指南
             -- 开启等级为 -1  隐藏活动
-            if v._Data.OpenLevel ~= -1 then
+            if v._Data.OpenLevel ~= -1 and SpecialFunHideCheck(v._Data.Id) then
                 if v._IsOpen then
                     if not v._IsOpenByTime then
                         table.insert(lock_by_time_list, v)
@@ -586,7 +592,6 @@ def.method("table","number").CalendarDesc = function(self , DescData, nIndex)
     elseif DescData._Data.ShowNumType == 1 then
         NumValurStr = DescData._Data.ShowNumString
     end
-
     -- local ActivityNumStr = nil
     -- ActivityNumStr = (DescData._Data.ActivityNum - DescData._CurValue) .. "/" .. DescData._Data.ActivityNum
     GUI.SetText(self._Lab_NumberValues, NumValurStr)
@@ -636,14 +641,14 @@ def.method("table","number").CalendarDesc = function(self , DescData, nIndex)
         else
             if FinishNum >= TotalNum and TotalNum ~= 0 then
                 -- GameUtil.MakeImageGray(self._Btn_Join:FindChild("Img_Bg"), true)    
-                GUITools.SetBtnGray(self._Btn_Join, true)
+                -- GUITools.SetBtnGray(self._Btn_Join, true)
                 self._CurActivityState = ActivityState.NoCount
             else                 
                 local RewardService = CElementData.GetServiceTemplate(810)
                 if game._HostPlayer._OpHdl:JudgeServiceOption(RewardService) then
                     self._Btn_Join:SetActive(true)
                     -- GameUtil.MakeImageGray(self._Btn_Join:FindChild("Img_BtnBg"), false)    
-                    GUITools.SetBtnGray(self._Btn_Join, false)
+                    -- GUITools.SetBtnGray(self._Btn_Join, false)
                     
                 end
             end

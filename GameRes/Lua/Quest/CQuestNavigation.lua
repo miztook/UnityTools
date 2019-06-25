@@ -189,7 +189,7 @@ local function StartAction(target)
             return
         end
         local CQuestAutoMan = require"Quest.CQuestAutoMan"
-        local CAutoFightMan = require "ObjHdl.CAutoFightMan"
+        local CAutoFightMan = require "AutoFight.CAutoFightMan"
         if CQuestAutoMan.Instance():IsOn() and CAutoFightMan.Instance():IsOn() then
             CAutoFightMan.Instance():SetMode(EnumDef.AutoFightType.QuestFight, instance._ActionParams[1], false)
         end
@@ -288,9 +288,12 @@ local function DoNavigat(sceneId, destPos, targetType, targetTid, params)
                 StartDetect()
             else
                 --视野内 无法找到对象 并且 目标点 又在自己范围内时 记录点
+                -- 开始往目标点寻路
                 instance._TargetSceneId = sceneId
                 instance._TargetPos = destPos
-                RecordSearchInfo()
+                -- 如果是在视野内，但是目标是在相位，其实也需要向服务器发送去相位的提示，下面这行会直接调用回调函数而且会给服务器发送进相位的消息，否则进不了相位。
+                CTransManage.Instance():StartMoveByMapIDAndPos(sceneId, destPos, RecordSearchInfo, true, true)
+--                RecordSearchInfo()
             end
             --print("检测找目标--------------未找到", targetTid)
         else
@@ -312,6 +315,10 @@ end
 def.method("number", "table").NavigatToNpc = function(self, npc_tid, params)
     CheckAndResetRecord(1, npc_tid)
     local scene_id, dest_pos, idx = MapBasicConfig.GetDestParams("Npc", npc_tid, self._LastRecord)
+    -- 公会建设寻路为跳转添加log
+    if npc_tid == 20005 then
+        warn("lidaming NavigatToNpc npc_tid == npc_tid, scene_id ==>>>", scene_id, "dest_pos ==>>", dest_pos)
+    end
     DoNavigat(scene_id, dest_pos, "Npc", npc_tid, params)
     --self._LastRecord[3] = idx
     self._SearchIdx = idx
@@ -343,6 +350,7 @@ def.method("number", "number","number").NavigatToMonsterGenerator = function(sel
     self._LastRecord[4] = 4
 end
 
+--[[
 local function GetCtrlDataById(target_list, ctrl_id)
     if target_list == nil then
         warn("the param 'target_list' is nil.")
@@ -360,7 +368,7 @@ local function GetCtrlDataById(target_list, ctrl_id)
     return nil
 end
 
---[[def.method("number", "number").NavigatToRegion = function(self, scene_id, region_id)
+def.method("number", "number").NavigatToRegion = function(self, scene_id, region_id)
     local CElementData = require "Data.CElementData"
     local map_model = CElementData.GetSceneTemplate(scene_id)
     if map_model == nil or map_model.RegionRoot == nil or map_model.RegionRoot.Regions == nil then

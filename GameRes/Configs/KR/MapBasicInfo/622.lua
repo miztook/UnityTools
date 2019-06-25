@@ -15,7 +15,7 @@ local MapInfo =
 	{
 		[36022] = 
 		{
-			[1] = { x = 2.20, y = -0.40, z = 20.00, name = "핏빛 폭군", level = 56,IsBoss = true },
+			[1] = { x = 2.20, y = -0.40, z = 20.00, name = "피의 폭군", level = 56,IsBoss = true },
 		},
 	},
 	Npc = 

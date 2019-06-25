@@ -26,34 +26,38 @@ local function SendMsgToCombatChannel(entity, attacker, HpDamage, isTreatment)
 	end
 end
 
+local function play_hurt_animation(attacker, protocol)
+	local entity = game._CurWorld:FindObject(protocol.EntityId) 
+	if entity == nil then return end
+
+	if attacker ~= nil then			
+		local client_not_calc = true
+		local client_calc_victims = attacker._SkillHdl._ClientCalcVictims
+		if attacker:IsHostPlayer() and client_calc_victims and client_calc_victims[protocol.PerformId] ~= nil then
+			local victims = client_calc_victims[protocol.PerformId]
+			for i,v in ipairs(victims) do
+				if v._ID == protocol.EntityId then
+					client_not_calc = false
+					break
+				end
+			end
+		end
+
+		if not attacker:IsHostPlayer() or client_not_calc then
+			entity:OnBeHitted(attacker, protocol.HitActorId, protocol.HitGfxPosition, protocol.HitAnimationPlayType ~= JudgementHitAnimationPlayType.DoNotPlay)
+		end
+
+		if client_calc_victims then
+			client_calc_victims[protocol.PerformId] = nil
+		end
+	end
+end
+
 local function OnEntityBeJudged(sender, protocol)
 	local entity = game._CurWorld:FindObject(protocol.EntityId) 
 	if entity == nil then return end
 
 	local attacker = game._CurWorld:FindObject(protocol.OriginId)
-	local function play_hurt_animation()
-		if attacker ~= nil then			
-			local client_not_calc = true
-			if attacker:IsHostPlayer() and attacker._SkillHdl._ClientCalcVictims and attacker._SkillHdl._ClientCalcVictims[protocol.PerformId] ~= nil then
-				local victims = attacker._SkillHdl._ClientCalcVictims[protocol.PerformId]
-				for i,v in ipairs(victims) do
-					if v._ID == protocol.EntityId then
-						client_not_calc = false
-						break
-					end
-				end
-			end
-
-			if not attacker:IsHostPlayer() or client_not_calc then
-				entity:OnBeHitted(attacker, protocol.HitActorId, protocol.HitGfxPosition, protocol.HitAnimationPlayType ~= JudgementHitAnimationPlayType.DoNotPlay)
-			end
-
-			if attacker._SkillHdl._ClientCalcVictims and attacker._SkillHdl._ClientCalcVictims[protocol.PerformId] then
-				attacker._SkillHdl._ClientCalcVictims[protocol.PerformId] = nil
-			end
-		end
-	end
-
 	-- 控制状态
 	local controlledInfo = protocol.ControlledInfo
 	if controlledInfo ~= nil and controlledInfo.ControlType ~= 0 and entity._HitEffectInfo ~= nil then
@@ -62,12 +66,12 @@ local function OnEntityBeJudged(sender, protocol)
 		if entity:IsHostPlayer() then 
 			entity:SetAutoPathFlag(false)
 		end
-		play_hurt_animation()
+		play_hurt_animation(attacker, protocol)
 		local hiteffect = entity._HitEffectInfo
 		local hit_params = {controlledInfo.Param1, controlledInfo.Param2, controlledInfo.Param3}
 		hiteffect:ChangeEffect(attacker, controlledInfo.ControlType, hit_params, controlledInfo.MovedDest)
 	else
-		play_hurt_animation()
+		play_hurt_animation(attacker, protocol)
 	end
 	
 	if protocol.HpDamage > 0 then
@@ -120,7 +124,9 @@ local function OnEntityBeHealed(sender, protocol)
 
 	if entity:IsHostPlayer() then
 		local attacker = game._CurWorld:FindObject(protocol.OriginId)
-		SendMsgToCombatChannel(entity, attacker, protocol.HpHealed, true)
+		if (attacker ~= nil and attacker:IsHostPlayer()) or entity:IsHostPlayer() then 
+			SendMsgToCombatChannel(entity, attacker, protocol.HpHealed, true)
+		end
 	end
 
 	local heal_type = 0
@@ -142,7 +148,9 @@ local function OnEntityDamage(sender, protocol)
 
 	if protocol.HpDamage > 0 then
 		local attacker = game._CurWorld:FindObject(protocol.OriginId)
-		SendMsgToCombatChannel(entity, attacker, protocol.HpDamage, false)
+		if (attacker ~= nil and attacker:IsHostPlayer()) or entity:IsHostPlayer() then 
+			SendMsgToCombatChannel(entity, attacker, protocol.HpDamage, false)
+		end
 		entity:OnHPChange(-protocol.HpDamage, -1)	
 		entity:OnHurt(protocol.HpDamage, protocol.OriginId, protocol.CriticalHit, protocol.ElementType)
 	end
@@ -161,7 +169,6 @@ local function OnDamageLog(sender, protocol)
 	for i,v in ipairs(protocol.BeAttackedBuffIds) do
 		beattackedBuffIds = beattackedBuffIds .. " " .. v .. ","
 	end
-	warn("=============================================================")
 
 	local attackStr = string.format("攻击方: %d 最终攻击力：%f 技能ID：%d 生效元素：%d 该元素数值：%f 最终暴击率：%f 暴伤百分比: %f 最终追击几率：%f 最终精通几率：%f 基础加成：%f 最终加成：%f 元素穿透：%f 护甲穿透：%f BuffIds: %s  元素伤害加成比例: %f 治疗加成比例: %f 攻击方的破盾概率: %f", 
 		protocol.AttackEntityId , protocol.FinalAttack, protocol.SkillId, protocol.ElementType, protocol.ElementValue, protocol.FinalCriticalRate,

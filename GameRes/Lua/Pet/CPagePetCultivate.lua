@@ -55,13 +55,13 @@ def.method().InitPanel = function(self)
         property.Lab_Property = property.Root:FindChild("Lab_Property")
         property.Lab_OldValue = property.Root:FindChild("Lab_OldValue")
         property.Lab_NewValue = property.Root:FindChild("Lab_NewValue")
+        property.Img_CanReset = property.Root:FindChild("Img_CanReset")
 
         table.insert(self._PanelObject.PropertyList, property)
     end
 
     do
         local root = self._PanelObject.Group_CultivateLevelInfo
-        root.Frame_Cultivate_Lab_Level = self._Parent:GetUIObject('Frame_Cultivate_Lab_Level')
         local sld = self._Parent:GetUIObject('Frame_Cultivate_Sld_Exp')
         root.GfxHook = sld:FindChild("Fill Area")
         root.Sld = sld:GetComponent(ClassType.Slider)
@@ -161,12 +161,12 @@ def.method().UpdateProperty = function(self)
         GUI.SetText(UIInfo.Lab_Property, propertyInfo.Name)
         GUI.SetText(UIInfo.Lab_OldValue, GUITools.FormatNumber(oldVal))
         GUI.SetText(UIInfo.Lab_NewValue, GUITools.FormatNumber(oldVal + addValue))
+        UIInfo.Img_CanReset:SetActive( Aptitude.CanReset ) 
     end
 end
 
 def.method().UpdateExp = function(self)
     local root = self._PanelObject.Group_CultivateLevelInfo
-    GUI.SetText(root.Frame_Cultivate_Lab_Level, tostring(self._PetData._Level))
 
     if self._PetData._MaxExp == 0 then
         root.Sld.value = 1
@@ -330,6 +330,10 @@ def.method("string").OnClick = function(self, id)
             local medicineTid = Medicine.Tid
             UseMedicine(self, medicineTid, 10)
         end
+    elseif string.find(id, "Frame_Cultivate_Property") then
+        -- 暂时注释，后期修改显示方案
+        -- local index = tonumber(string.sub(id, -1))
+        -- self:ShowPropertyTip(index)
     elseif string.find(id, "Medicine") then
         local index = tonumber( string.sub(id, -1) )
         if index == self._SelectMaterialIndex then
@@ -342,6 +346,64 @@ def.method("string").OnClick = function(self, id)
             self:UpdateSelectMaterial()
         end
     end
+end
+
+def.method("number").ShowPropertyTip = function(self, index)
+    local fightPropertyId = self._PetData._AptitudeList[index].FightPropertyId
+    local fix_id = CPetUtility.ExchangeToPropertyTipsID(fightPropertyId)
+    local data = CElementData.GetTemplate("FightPropertyConfig", fix_id)
+
+    if data == nil or data.DetailDesc == "" then return end
+    
+    local cnt = 0
+    local replaceIdStr = data.ReplaceIdStr
+    local strIds = {}
+
+    if replaceIdStr ~= nil and replaceIdStr ~= "" then
+        strIds = string.split(replaceIdStr, "*")
+        cnt = #strIds
+    end
+
+    local exchangeIndex1 = index
+    local exchangeIndex2 = 0
+    local strDesc = ""
+
+    if cnt == 1 then
+        exchangeIndex1 = tonumber(strIds[1])
+    elseif cnt == 2 then
+        exchangeIndex1 = tonumber(strIds[1])
+        exchangeIndex2 = tonumber(strIds[2])
+    end
+
+    local value = self._PetData._AptitudeList[index].Value
+    if value == nil then return end
+
+    if exchangeIndex2 == 0 then
+        local ModuleProfDiffConfig = require "Data.ModuleProfDiffConfig" 
+        local config = ModuleProfDiffConfig.GetModuleInfo("FightProperty")
+        if config ~= nil and config.DESC ~= nil and config.DESC[index] ~= nil then
+            strDesc = config.DESC[index][game._HostPlayer._InfoData._Prof]
+        else
+            local exchangeData = CElementData.GetTemplate("FightPropertyConfig", exchangeIndex1)
+            if string.sub(exchangeData.ValueFormat, -1) == "%" then
+                value = value * 100
+            end
+            
+            strDesc = string.format(data.DetailDesc, value)
+        end     
+    else
+        local value1 = value*100
+        local value2 = self._PetData._AptitudeList[index].Value * 100
+        strDesc = string.format(data.DetailDesc, value1, value2)
+    end
+
+    local param = 
+    {
+        Obj = self._Parent:GetUIObject("Frame_Cultivate_Property"..index),
+        Value = strDesc,
+        AlignType = EnumDef.AlignType.Top,
+    }
+    game._GUIMan:Open("CPanelRoleInfoTips", param)
 end
 
 def.method("string").OnPointerLongPress = function(self, id)
