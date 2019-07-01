@@ -4,6 +4,7 @@
 
 #include "ATypes.h"
 #include <string>
+#include <memory.h>
 
 #ifdef A_PLATFORM_WIN_DESKTOP
 

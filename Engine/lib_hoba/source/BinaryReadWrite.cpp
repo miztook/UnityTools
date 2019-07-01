@@ -1,5 +1,6 @@
 #include "ATypes.h"
 #include "ASys.h"
+#include <memory.h>
 
 extern "C" {
 #include "lua.h"

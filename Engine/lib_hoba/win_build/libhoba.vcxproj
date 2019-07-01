@@ -97,7 +97,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBHOBA_EXPORTS;CURL_STATICLIB;LUA_LIB</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBHOBA_EXPORTS;CURL_STATICLIB;LUA_LIB;USE_SSL=true;SSL=static;USE_WINSSL=false</PreprocessorDefinitions>
       <CompileAs>Default</CompileAs>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>..\source\;..\source\luavm\inc;..\source\pbc;..\source\lua_bind;..\source\Base;..\source\SkillCollision;..\source\MapCollision;..\source\Platform\Windows;..\dependency\zlib-1.2.8;..\dependency\7zDecode;..\csshare\Common;..\csshare\Csv;..\csshare\AutoNavigation;..\updatelib;..\gles2hook;..\gles2hook\interface;..\gles2hook\GLES2;..\dependency\GLES\Include;..\dependency\curl\include;..\dependency\curl\shim</AdditionalIncludeDirectories>
@@ -141,7 +141,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;LIBHOBA_EXPORTS;CURL_STATICLIB;LUA_LIB</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;LIBHOBA_EXPORTS;CURL_STATICLIB;LUA_LIB;USE_SSL=true;SSL=static;USE_WINSSL=false</PreprocessorDefinitions>
       <CompileAs>Default</CompileAs>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>..\source\;..\source\luavm\inc;..\source\pbc;..\source\lua_bind;..\source\Base;..\source\SkillCollision;..\source\MapCollision;..\source\Platform\Windows;..\dependency\zlib-1.2.8;..\dependency\7zDecode;..\csshare\Common;..\csshare\Csv;..\csshare\AutoNavigation;..\updatelib;..\gles2hook;..\gles2hook\interface;..\gles2hook\GLES2;..\dependency\GLES\Include;..\dependency\curl\include;..\dependency\curl\shim</AdditionalIncludeDirectories>
