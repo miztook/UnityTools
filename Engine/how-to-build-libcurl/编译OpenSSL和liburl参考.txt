@@ -1,0 +1,36 @@
+https://github.com/leenjewel/openssl_for_ios_and_android
+
+https://blog.csdn.net/ljttianqin/article/details/72978612
+
+https://github.com/sangreal/AndroidOpenSSL/blob/master/buildLibCurl.sh
+
+https://github.com/samwang0723/curl-ios-android
+
+windows下编译curl openssl
+https://blog.csdn.net/china_jeffery/article/details/80589278
+
+编译32位 openssl
+	1. 打开 VS2015 x86 Native Tools Command Prompt， 到本目录下
+	2. 执行 compile-openssl-win32.bat，等待
+	3. 在本目录下创建 deps32,  拷贝 win32-release\include\openssl 到 deps32\include\openssl\openssl
+	4. 拷贝 win32-release\lib 到 deps32\lib
+	
+编译32位 libcurl
+	1. 修改 curl-curl-7_51_0\windbuild\MakefileBuild.vc 文件 中的 "WITH_SSL"附近的 
+			libeay32.lib ssleay32.lib 改为 libcrypto.lib libssl.lib  (链接的openssl库名称改变)
+	2. 打开 VS2015 x86 Native Tools Command Prompt， 到本目录下
+	3. 执行 compile-libcurl-win32.bat，等待
+	4. 最终的结果在 curl-curl-7_51_0\builds下 libcurl-vc14-x86-release-static-ssl-static-ipv6
+	
+编译64位 openssl
+	1. 打开 VS2015 x64 Native Tools Command Prompt， 到本目录下
+	2. 执行 compile-openssl-win64.bat，等待
+	3. 在本目录下创建 deps64,  拷贝 win64-release\include\openssl 到 deps64\include\openssl\openssl
+	4. 拷贝 win64-release\lib 到 deps64\lib
+	
+编译64位 libcurl
+	1. 修改 curl-curl-7_51_0\windbuild\MakefileBuild.vc 文件 中的 "WITH_SSL"附近的 
+			libeay32.lib ssleay32.lib 改为 libcrypto.lib libssl.lib  (链接的openssl库名称改变)
+	2. 打开 VS2015 x86 Native Tools Command Prompt， 到本目录下
+	3. 执行 compile-libcurl-win64.bat，等待
+	4. 最终的结果在 curl-curl-7_51_0\builds下 libcurl-vc14-x64-release-static-ssl-static-ipv6
