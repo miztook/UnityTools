@@ -4,18 +4,20 @@ import com.meteoritestudio.applauncher.CameraPhoto;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Debug;
 import android.util.Log;
 import android.app.PendingIntent;
 import android.app.AlarmManager;
 
+import com.meteoritestudio.applauncher.EmulatorDetector;
 import com.meteoritestudio.applauncher.JavaLog;
 import com.meteoritestudio.applauncher.PermissionUtils;
 import com.meteoritestudio.applauncher.MacUtils;
 
 import android.support.v4.app.ActivityCompat;
 import android.support.annotation.NonNull;
-import android.widget.Toast;
 import android.app.ActivityManager;
+import android.os.Environment;
 
 
 public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin implements ActivityCompat.OnRequestPermissionsResultCallback {
@@ -55,6 +57,13 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin implement
 	protected void onDestroy() {
 		//JavaLog.Instance().Destory();
 		super.onDestroy();
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		// New intent update to the current activity
+		this.setIntent(intent);
 	}
 
 	protected void WriteLog(String strLog) {
@@ -142,31 +151,31 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin implement
 		public void onPermissionGranted(int requestCode) {
 			switch (requestCode) {
 				case PermissionUtils.CODE_RECORD_AUDIO:
-					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_RECORD_AUDIO", Toast.LENGTH_SHORT).show();
+					//Toast.makeText(MainActivity.this, "Result Permission Grant CODE_RECORD_AUDIO", Toast.LENGTH_SHORT).show();
 					break;
 				case PermissionUtils.CODE_GET_ACCOUNTS:
-					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_GET_ACCOUNTS", Toast.LENGTH_SHORT).show();
+					//Toast.makeText(MainActivity.this, "Result Permission Grant CODE_GET_ACCOUNTS", Toast.LENGTH_SHORT).show();
 					break;
 				case PermissionUtils.CODE_READ_PHONE_STATE:
-					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_READ_PHONE_STATE", Toast.LENGTH_SHORT).show();
+					//Toast.makeText(MainActivity.this, "Result Permission Grant CODE_READ_PHONE_STATE", Toast.LENGTH_SHORT).show();
 					break;
 				case PermissionUtils.CODE_CALL_PHONE:
-					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_CALL_PHONE", Toast.LENGTH_SHORT).show();
+					//Toast.makeText(MainActivity.this, "Result Permission Grant CODE_CALL_PHONE", Toast.LENGTH_SHORT).show();
 					break;
 				case PermissionUtils.CODE_CAMERA:
-					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_CAMERA", Toast.LENGTH_SHORT).show();
+					//Toast.makeText(MainActivity.this, "Result Permission Grant CODE_CAMERA", Toast.LENGTH_SHORT).show();
 					break;
 				case PermissionUtils.CODE_ACCESS_FINE_LOCATION:
-					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_ACCESS_FINE_LOCATION", Toast.LENGTH_SHORT).show();
+					//Toast.makeText(MainActivity.this, "Result Permission Grant CODE_ACCESS_FINE_LOCATION", Toast.LENGTH_SHORT).show();
 					break;
 				case PermissionUtils.CODE_ACCESS_COARSE_LOCATION:
-					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_ACCESS_COARSE_LOCATION", Toast.LENGTH_SHORT).show();
+					//Toast.makeText(MainActivity.this, "Result Permission Grant CODE_ACCESS_COARSE_LOCATION", Toast.LENGTH_SHORT).show();
 					break;
 				case PermissionUtils.CODE_READ_EXTERNAL_STORAGE:
-					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_READ_EXTERNAL_STORAGE", Toast.LENGTH_SHORT).show();
+					//Toast.makeText(MainActivity.this, "Result Permission Grant CODE_READ_EXTERNAL_STORAGE", Toast.LENGTH_SHORT).show();
 					break;
 				case PermissionUtils.CODE_WRITE_EXTERNAL_STORAGE:
-					Toast.makeText(MainActivity.this, "Result Permission Grant CODE_WRITE_EXTERNAL_STORAGE", Toast.LENGTH_SHORT).show();
+					//Toast.makeText(MainActivity.this, "Result Permission Grant CODE_WRITE_EXTERNAL_STORAGE", Toast.LENGTH_SHORT).show();
 					break;
 				default:
 					break;
@@ -196,12 +205,55 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin implement
 		PermissionUtils.requestPermission(_Instance, requestCode, _Instance.mPermissionGrant);
 	}
 
+	private static final String[] videoPermissions =
+			{
+					PermissionUtils.PERMISSION_RECORD_AUDIO,
+					PermissionUtils.PERMISSION_CAMERA,
+					PermissionUtils.PERMISSION_WRITE_EXTERNAL_STORAGE
+			};
+
+	public static void requestVideoPermission()
+	{
+		if (_Instance == null)
+			return;
+		PermissionUtils.requestMultiPermissions(_Instance, videoPermissions, _Instance.mPermissionGrant);
+	}
+
 	public static String getMAC()
 	{
 		if (_Instance == null)
 			return "";
 		return MacUtils.getMAC(_Instance
 				.getBaseContext());
+	}
+
+	public static int getTotalPss()
+	{
+		Debug.MemoryInfo memInfo = new Debug.MemoryInfo();
+		Debug.getMemoryInfo(memInfo);
+		return memInfo.getTotalPss();
+	}
+
+	public static String getMemotryStats()
+	{
+		Debug.MemoryInfo memInfo = new Debug.MemoryInfo();
+		Debug.getMemoryInfo(memInfo);
+		String stats = String.format("total PSS: %d \n dalvikPss: %d\n nativePss: %d\n otherPss: %d",
+				memInfo.getTotalPss(), memInfo.dalvikPss, memInfo.nativePss, memInfo.otherPss);
+		return stats;
+	}
+
+	public static String getSDCardDir()
+	{
+		String sdcardDir = Environment.getExternalStorageDirectory().toString();
+		return sdcardDir;
+	}
+
+	public static String getEmulatorName()
+	{
+		if (_Instance == null)
+			return "";
+		return EmulatorDetector.with(_Instance).getEmulatorString();
 	}
 
 	/*

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/re_notice"
+    android:layout_width="453dp"
+    android:layout_height="255dp" >
+
+    <WebView
+        android:id="@+id/notice_content"
+        android:layout_width="375dp"
+        android:layout_height="145dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="55dp"
+        android:textColor="#595959"
+        android:textSize="14dp" />
+
+    <TextView
+        android:id="@+id/notice_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="11dp"
+        android:text="公告"
+        android:textColor="#000"
+        android:textSize="16dp" />
+    
+
+    <ImageView
+        android:id="@+id/iv_dialog_close"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="12dp"
+        android:padding="5dp" />
+    
+    
+
+    <Button
+        android:id="@+id/btn_sure"
+        android:layout_width="98dp"
+        android:layout_height="32dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="12dp"
+        android:padding="5dp"
+        android:textColor="#FFFFFF"
+        android:textSize="15sp" />
+    
+    
+
+    <ImageView
+        android:id="@+id/btn_notice"
+        android:layout_width="98dp"
+        android:layout_height="32dp"
+        android:clickable="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="12dp"
+        android:layout_marginRight="12dp"
+        android:padding="5dp" />
+
+    <LinearLayout
+        android:id="@+id/iv_dialog_close_ll"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignBottom="@+id/notice_title"
+        android:layout_alignRight="@+id/iv_dialog_close"
+        android:orientation="horizontal" >
+    </LinearLayout>
+
+</RelativeLayout>
