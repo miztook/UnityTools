@@ -12,6 +12,7 @@ local EPetOptType = require "PB.net".S2CPetUpdate.EPetOptType
 local CPetUtility = require "Pet.CPetUtility"
 local CCommonBtn = require "GUI.CCommonBtn"
 local CTokenMoneyMan = require "Data.CTokenMoneyMan"
+local CElementSkill = require "Data.CElementSkill"
 
 def.field("table")._Parent = nil
 def.field("userdata")._Panel = nil
@@ -35,9 +36,6 @@ local listQuality =
     5, -- 传说
     6, -- 起源
 }
-local function SendFlashMsg(msg)
-    game._GUIMan:ShowTipText(msg, false)
-end
 
 local instance = nil
 def.static("table", "userdata", "=>", CPagePetSkill).new = function(parent, panel)
@@ -110,7 +108,7 @@ end
 
 def.method("table").UpdateSelectPet = function(self, data)
     self._Panel:SetActive(data ~= nil)
-
+    self._SelectSkillIndex = 1
     self._PetData = data
     if self._PetData == nil then return end
     
@@ -223,7 +221,7 @@ def.method().UpdateButtonState = function(self)
 
     if bHasSkill then
         local lv = self._PetData._SkillList[self._SelectSkillIndex].Level
-        local moneyNeed = self._PetSkillTakeOffCostInfo[lv][2]
+        local moneyNeed = self._PetSkillTakeOffCostInfo[lv][2] or 0
         local setting = {
             [EnumDef.CommonBtnParam.MoneyCost] = moneyNeed   
         }
@@ -240,6 +238,14 @@ def.method("dynamic").SelectSkillBook = function(self, bookItem)
     GUITools.SetIcon(root.Img_ItemIcon, bookItem._IconAtlasPath)
     GUITools.SetGroupImg(root.Img_Quality, bookItem._Quality)
     GUITools.SetGroupImg(root.Img_QualityBG, bookItem._Quality)
+end
+
+local function FindFirstKey(parsedText)
+    for k,v in string.gmatch(parsedText, _G.Regexp4Int) do
+        if string.find(k, "talentlevelup") then
+            return k
+        end
+    end
 end
 
 local function OnInitItem(self, item, data)
@@ -286,10 +292,11 @@ local function OnInitItem(self, item, data)
         local skillId = tonumber(itemTemp.Type1Param1)
         local name = RichTextTools.GetQualityText(itemTemp.TextDisplayName, itemTemp.InitQuality)
         local skillCommonInfo = CElementData.GetSkillInfoByIdAndLevel(skillId, lv, true)
-        local skillInfo = DynamicText.GetParseSkillDescTextKeyValue(skillId, lv, true)
-        local value = fmtVal2Str(skillInfo.Integer[1].Value)
-
-        local strTalentName = string.format(StringTable.Get(10979), skillCommonInfo.PropertyName, value)
+        local parsedText = CElementSkill.GetSkillDesc(skillId, true)
+        local key = FindFirstKey(parsedText)
+        local levelupId = tonumber( string.match(key, _G.Regexp4Num) )
+        local val = CElementSkill.GetSkillLevelUpValue(skillId, levelupId, lv, true)
+        local strTalentName = string.format(StringTable.Get(10979), skillCommonInfo.PropertyName, fmtVal2Str(val))
         GUI.SetText(Lab_TalentName, strTalentName)
         GUI.SetText(Lab_ItemName, name)
     end
@@ -308,7 +315,7 @@ local function OnSelectItem(self, item, data, bIsConfirm)
     end
 
     if bUnableClick then
-        SendFlashMsg(StringTable.Get(19085))
+        TeraFuncs.SendFlashMsg(StringTable.Get(19085))
         return false
     end
 
@@ -523,14 +530,13 @@ def.method("string").OnClick = function(self, id)
         end
 
         local title, msg, closeType = StringTable.GetMsg(139)
-        local moneyName = CTokenMoneyMan.Instance():GetEmoji(moneyId)
-        msg = string.format(msg, moneyName, moneyNeed, strName)
+        msg = string.format(msg, strName)
 
         local setting = {
             [MsgBoxAddParam.CostMoneyID] = moneyId,
             [MsgBoxAddParam.CostMoneyCount] = moneyNeed,
         }
-        MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, Do, nil, nil, MsgBoxPriority.Normal, setting)
+        MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, Callback, nil, nil, MsgBoxPriority.Normal, setting)
         
     elseif string.find(id, "Frame_Skill_Skill") then
         local index = tonumber(string.sub(id,-1))
@@ -540,7 +546,7 @@ def.method("string").OnClick = function(self, id)
         local bSkillOpen = (skillInfo ~= nil)
         if not bSkillOpen then
             local msg = string.format(StringTable.Get(19062), PetSkillUnlockInfo[index-1])
-            SendFlashMsg(msg, false)
+            TeraFuncs.SendFlashMsg(msg, false)
             return
         end
 
@@ -548,6 +554,7 @@ def.method("string").OnClick = function(self, id)
         self:UpdateButtonState()
     elseif id == "Btn_Drop_SkillBook" then
         self:ResetSkillBookInfo()
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_UnEquipProcessing, 0)
     end
 end
 
@@ -561,7 +568,7 @@ end
 def.method("=>", "boolean").CheckCanLearnSkill = function(self)
      if self._CurrentSelectSkillBookData == nil then
         --没有可以用于学习的宠物技能书
-        SendFlashMsg(StringTable.Get(19071))
+        TeraFuncs.SendFlashMsg(StringTable.Get(19071))
         return false
     end
 
@@ -579,7 +586,7 @@ def.method("=>", "boolean").CheckCanLearnSkill = function(self)
     end
     
     if bUnableClick then
-        SendFlashMsg(StringTable.Get(19083))
+        TeraFuncs.SendFlashMsg(StringTable.Get(19083))
         return false
     end
 
@@ -626,7 +633,6 @@ def.method().Hide = function(self)
     CGame.EventManager:removeHandler(PetUpdateEvent, OnPetUpdateEvent)
 
     self._Panel:SetActive(false)
-    self._PanelObject = nil
     self._PetData = nil
     self._CurrentSelectSkillBookData = nil
     self._GfxDelay = false

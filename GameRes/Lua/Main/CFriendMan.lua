@@ -53,9 +53,23 @@ def.field("table")._FightMirrorData = BlankTable                                
 --     CHAT_MESSAGES = "chat_messages",           --本地数据中存储聊天记录的key
 --     UNREAD_MESSAGES = "unread_messages",           -- 本地数据中存储未读数据记录的key
 -- }
+local function InitSpecialIds(self)
+    self._MaxFriendClosely = CSpecialIdMan.Get("MaxClosely")
+    self._MaxFriend = CSpecialIdMan.Get("MaxFriend")
+    -- max_enemies = CSpecialIdMan.Get("MaxEnemies")
+    self._MaxBlackListNum = CSpecialIdMan.Get("MaxBlackList")
+    self._MaxApplyList = CSpecialIdMan.Get("MaxApplyList")
+    self._MaxServerMsg = CSpecialIdMan.Get("MaxServerMsg")
+    self._MaxClientMsg = CSpecialIdMan.Get("MaxClientMsg")
+    self._MaxChars = CSpecialIdMan.Get("MaxChars")
+    self._MinApplyInterval = CSpecialIdMan.Get("ApplyInterval")  
+    self._MaxGroupNum = CSpecialIdMan.Get("MaxGroupNum")
+end
+
 
 def.final("=>", CFriendMan).new = function ()
 	local obj = CFriendMan()
+    InitSpecialIds(obj)
 	return obj
 end
 
@@ -141,7 +155,7 @@ end
 --添加未读消息
 local function AddUnreadMsg(self,msg)
 	local roleId = msg.senderInfo.Id or msg.senderInfo.RoleId
-    local msg1 = {DesRoleId = game._HostPlayer._ID,chatType = msg.chatType, text = msg.text ,voiceTxt = msg.voice, time = msg.time, seconds = msg.voiceLength,itemInfo = msg.itemInfo}
+    local msg1 = {DesRoleId = game._HostPlayer._ID,chatType = msg.chatType, text = msg.text ,voiceTxt = msg.voice, time = msg.time, seconds = msg.voiceLength}
         -- 添加到未读消息列表
     if self._UnreadMsgList[roleId] == nil then 
         self._UnreadMsgList[roleId] = {}
@@ -357,14 +371,11 @@ local function HostPlayerSendMsg(self,content,desRoleId)
             game._GUIMan:ShowTipText(StringTable.Get(13025), false)
             return
         end
-
         local itemTemplate = CElementData.GetItemTemplate(content.itemInfo.Tid)
-        if string.find(StrMsg, itemTemplate.TextDisplayName) then
-            local LinkBefore = "[l]#"..EnumDef.Quality2ColorHexStr[itemTemplate.InitQuality].." <"
-            local LinkAfter = ">[-]"
-            StrMsg = string.gsub(StrMsg, "<", LinkBefore)
-            StrMsg = string.gsub(StrMsg, ">", LinkAfter)
-        end
+        local LinkBefore = "[l]#"..EnumDef.Quality2ColorHexStr[itemTemplate.InitQuality].." <"
+        local LinkAfter = ">[-]"
+        StrMsg = string.gsub(StrMsg, "<", LinkBefore)
+        StrMsg = string.gsub(StrMsg, ">", LinkAfter)
         AddMsg(self, desRoleId,nil, ChatType.ChatTypeItemInfo,StrMsg, content.time, "",true, nil,false,content.itemInfo)
     end
     InserRecentContactByRoleData(self,self._DesRoleData,false)
@@ -393,19 +404,16 @@ local function ReceiveMessage(self,content)
                         }
 
     end
-
     if content.chatType == ChatType.ChatTypeItemInfo then 
         if content.itemInfo.Tid == 0 then 
             game._GUIMan:ShowTipText(StringTable.Get(13025), false)
             return
         end
         local itemTemplate = CElementData.GetItemTemplate(content.itemInfo.Tid)
-        if string.find(StrMsg, itemTemplate.TextDisplayName) then
-            local LinkBefore = "[l]#"..EnumDef.Quality2ColorHexStr[itemTemplate.InitQuality].." <"
-            local LinkAfter = ">[-]"
-            StrMsg = string.gsub(StrMsg, "<", LinkBefore)
-            StrMsg = string.gsub(StrMsg, ">", LinkAfter)
-        end
+        local LinkBefore = "[l]#"..EnumDef.Quality2ColorHexStr[itemTemplate.InitQuality].." <"
+        local LinkAfter = ">[-]"
+        StrMsg = string.gsub(StrMsg, "<", LinkBefore)
+        StrMsg = string.gsub(StrMsg, ">", LinkAfter)
     end
 
     InserRecentContactByRoleData(self,roleData,false)
@@ -416,37 +424,6 @@ local function ReceiveMessage(self,content)
         CPanelFriend.Instance():ShowChatFriendRed()
     end
 end
-
-def.method().Init = function(self)
-	
-    self._MaxFriendClosely = CSpecialIdMan.Get("MaxClosely")
-    self._MaxFriend = CSpecialIdMan.Get("MaxFriend")
-    -- max_enemies = CSpecialIdMan.Get("MaxEnemies")
-    self._MaxBlackListNum = CSpecialIdMan.Get("MaxBlackList")
-    self._MaxApplyList = CSpecialIdMan.Get("MaxApplyList")
-    self._MaxServerMsg = CSpecialIdMan.Get("MaxServerMsg")
-    self._MaxClientMsg = CSpecialIdMan.Get("MaxClientMsg")
-    self._MaxChars = CSpecialIdMan.Get("MaxChars")
-    self._MinApplyInterval = CSpecialIdMan.Get("ApplyInterval")  
-    self._MaxGroupNum = CSpecialIdMan.Get("MaxGroupNum")
-end
-
-def.method().Release = function(self)
-    self._ChatMessageList = {}
-    self._UnreadMsgList = {}
-    self._FriendList = {}
-    self._BlackList = {}
-    self._ApplyList = {}
-    self._SearchResult = nil
-    self._RecommondList = {}
-    self._OnLineMsgList = {}
-    self._RecentList = {}
-    self._ApplyListToElse = {}
-    self._CurChatMsgListData = {}
-    self._RemoveRecentIdListTime = {}
-    self._DesRoleData = nil
-end
-
 
 --好友数是否超过上限
 def.method("=>","boolean").IsFriendNumberOverMax = function(self)
@@ -813,8 +790,12 @@ def.method("table").DoRejectApply = function(self,data)
 end
 
 --搜索好友
-def.method("string").DoSearch = function(self, text)
-    self:SendProtocol("C2SSocialSearch", text)
+def.method("string","boolean").DoSearch = function(self, text,IsFuzzy)
+    if game._HostPlayer:IsInGlobalZone() then
+        game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+        return
+    end
+    self:SendProtocol("C2SSocialSearch", {text = text,IsFuzzy = IsFuzzy})
 end
 
 --请求推荐好友
@@ -940,6 +921,7 @@ def.method("table", "string").DoSendText = function(self, roleData, txt)
         return
     end
     if IsMsgOverMaxChars(self,txt) then return end
+    --if roleData == nil then return end
     if self:IsInBlackList(roleData.RoleId) then game._GUIMan:ShowTipText(StringTable.Get(30333),false) return end
 
     local FilterMgr = require "Utility.BadWordsFilter".Filter
@@ -971,26 +953,44 @@ end
 def.method("table","string","table").DoSendItemLink = function(self,roleData,strMsg,itemInfo)
     if self:IsInBlackList(roleData.RoleId) then game._GUIMan:ShowTipText(StringTable.Get(30333),false) return end
     self._DesRoleData = {}
-    self._DesRoleData = {RoleId = roleData.RoleId, Name = roleData.Name, Profession = roleData.Profession,
+    local itemTemplate = CElementData.GetItemTemplate(itemInfo._Tid)
+    local index1 = string.find(strMsg,"<")
+    local index2 = string.find(strMsg,">")
+    local strname = ""
+    if index1 ~= nil and index2 ~= nil then
+        strname = string.sub(strMsg,index1 + 1,index2 -1)
+    end
+    if strname == itemTemplate.TextDisplayName then
+        self._DesRoleData = {RoleId = roleData.RoleId, Name = roleData.Name, Profession = roleData.Profession,
                         Gender = roleData.Gender, Level = roleData.Level, GroupId = roleData.GroupId,
                         SocialType = roleData.SocialType, Amicability = roleData.Amicability, Fight = roleData.Fight,
                         OptTime = roleData.OptTime, IsOnLine = roleData.IsOnLine,CustomImgSet = roleData.CustomImgSet}
-    local bagType = BagType.BACKPACK
-    if itemInfo._PackageType == IVTRTYPE_ENUM.IVTRTYPE_EQUIPPACK then
-        bagType = BagType.ROLE_EQUIP
+        local bagType = BagType.BACKPACK
+        if itemInfo._PackageType == IVTRTYPE_ENUM.IVTRTYPE_EQUIPPACK then
+            bagType = BagType.ROLE_EQUIP
+        end
+        self:SendProtocol("C2SSocialChat", {roleData.RoleId,ChatType.ChatTypeItemInfo,ChatChannel.ChatChannelSocial,strMsg, "", itemInfo._Slot, bagType, nil,nil})
+    else
+        self:DoSendText(roleData, strMsg)
     end
-    self:SendProtocol("C2SSocialChat", {roleData.RoleId,ChatType.ChatTypeItemInfo,ChatChannel.ChatChannelSocial,strMsg, "", itemInfo._Slot, bagType, nil,nil})
+    
 end
+
+-- 发送位置链接
+--def.method("table","string","table").DoSendPositionLink = function(self,roleData,strMsg,itemInfo)
+
+--end
 
 def.method("string", "dynamic").SendProtocol = function(self, protocol_name, param)
     -- warn(protocol_name.." sended. Params:")
     local prot = GetC2SProtocol(protocol_name)
     if protocol_name == "C2SSocialSearch" then
-        prot.IDorName = param
+        prot.IDorName = param.text
+        prot.IsFuzzy = param.IsFuzzy
     elseif protocol_name == "C2SSocialClearApplyList" then
         prot.SocialType = SOCIAL_TYPE.Friends
     elseif protocol_name == "C2SSocialOperation" then
-       for i,v in ipairs(param[1]) do
+       for i,v in ipairs(param[1]) do 
            table.insert(prot.RoleIds,v)
        end
         prot.OptType = param[2]
@@ -1060,21 +1060,31 @@ end
 ---------------------------------------------------------------------------------
 --------------------------服务器相关通讯-server to client-------------------------
 ---------------------------------------------------------------------------------
---进游戏返回好友列表
+--进游戏返回好友列表（切地图时也会收到）
 def.method("table").OnSocialInfo = function(self, data)
     GetUserData(self)
     self._FriendList = data.Info.Friends or {}
     self._BlackList = data.Info.Blacks or {}
     GetOffLineMsg(self,data.Info.Contents)
     --红点
-    self._ApplyList = data.Info.Applys or {}
-    if #self._ApplyList > 0 then 
-        local data = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.Friends)
-        if data == nil then
-            data = {}
+    local applyList = data.Info.Applys or {}
+    local RedData = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.Friends)
+    if RedData == nil then
+        RedData = {}
+        self._ApplyList = applyList
+        if #self._ApplyList > 0 then
+            RedData.IsShowApplyRed = true
+            CRedDotMan.SaveModuleDataToUserData(RedDotSystemType.Friends,RedData)
         end
-        data.IsShowApplyRed = true
-        CRedDotMan.SaveModuleDataToUserData(RedDotSystemType.Friends,data)
+    elseif RedData ~= nil and not RedData.IsShowApplyRed then
+        --判断是否有新的申请人加入
+        if #self._ApplyList < #applyList then 
+            RedData.IsShowApplyRed = true
+            CRedDotMan.SaveModuleDataToUserData(RedDotSystemType.Friends,RedData)
+        end
+        self._ApplyList = applyList
+    else 
+        self._ApplyList = applyList
     end
     CPanelFriend.Instance():ShowChatFriendRed()
     self._RecentList = data.Info.ContactRoles or {}
@@ -1275,12 +1285,14 @@ end
 --搜索结果
 def.method("table").OnS2CSocialSearch = function(self, data)
     if data.ResCode == 0 then 
-        self._SearchResult = data.Player
+        self._SearchResult = data.Players
+    else
+        self._SearchResult = nil 
     end
     CPanelFriend.Instance():UpdatePageShow(CPanelFriend.OpenPageType.INQUIRE)
     if CPanelCreateChat.Instance():IsShow() then 
         if data.ResCode == 0 then 
-            self:AddChat(data.Player.RoleId)
+            self:AddChat(data.Players[1].RoleId)
             game._GUIMan:Close("CPanelCreateChat")
         else
             game._GUIMan:ShowTipText(StringTable.Get(30348),false)
@@ -1371,6 +1383,22 @@ end
 
 def.method("table").OnS2CSocialInfoMirrorFriend = function(self,data)
     self._FightMirrorData = data.MirrorFriends
+end
+
+def.method().Cleanup = function(self)
+    self._ChatMessageList = {}
+    self._UnreadMsgList = {}
+    self._FriendList = {}
+    self._BlackList = {}
+    self._ApplyList = {}
+    self._SearchResult = nil
+    self._RecommondList = {}
+    self._OnLineMsgList = {}
+    self._RecentList = {}
+    self._ApplyListToElse = {}
+    self._CurChatMsgListData = {}
+    self._RemoveRecentIdListTime = {}
+    self._DesRoleData = nil
 end
 
 CFriendMan.Commit()

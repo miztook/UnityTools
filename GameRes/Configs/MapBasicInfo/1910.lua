@@ -11,11 +11,12 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world05.png",
 	AssetPath = "Assets/Outputs/Scenes/World05.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14068] = 
 		{
-			[1] = { x = 98.23, y = 58.14, z = -41.31, name = "暴躁的新兵", level = 52, SortID = 1 },
+			[1] = { x = 98.23, y = 58.14, z = -41.31, name = "挑战的士兵", level = 52, SortID = 1 },
 		},
 		[14072] = 
 		{
@@ -23,15 +24,15 @@ local MapInfo =
 		},
 		[14074] = 
 		{
-			[1] = { x = 91.67, y = 58.14, z = -37.18, name = "暴躁的新兵", level = 52, SortID = 2 },
+			[1] = { x = 91.67, y = 58.14, z = -37.18, name = "暴躁的士兵", level = 52, SortID = 2 },
 		},
 		[14073] = 
 		{
-			[1] = { x = 106.51, y = 58.14, z = -38.27, name = "暴躁的新兵", level = 52, SortID = 3 },
+			[1] = { x = 106.51, y = 58.14, z = -38.27, name = "好斗的士兵", level = 52, SortID = 3 },
 		},
 		[14075] = 
 		{
-			[1] = { x = 106.51, y = 58.14, z = -38.27, name = "暴躁的新兵", level = 52, SortID = 3 },
+			[1] = { x = 106.51, y = 58.14, z = -38.27, name = "暴躁的士兵", level = 52, SortID = 3 },
 		},
 	},
 	Npc = 
@@ -45,8 +46,8 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[438] = { x = 97.91, y = 62.78, z = -38.62, name = "声望无礼的挑战者", worldId = 0, PkMode = 0 },
-			[439] = { x = 98.83, y = 62.04, z = -36.21, name = "声望训练新兵刷怪区域", worldId = 0, PkMode = 0 },
+			[438] = { x = 97.91, y = 62.78, z = -38.62, name = "声望无礼的挑战者", worldId = 0, PkMode = 1 },
+			[439] = { x = 98.83, y = 62.04, z = -36.21, name = "声望训练新兵刷怪区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

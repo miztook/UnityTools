@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Forest",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10033] = 
@@ -82,9 +83,9 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[75] = { x = -116.31, y = 62.87, z = 189.62, name = "", worldId = 0, PkMode = 0 },
-			[192] = { x = -119.76, y = 63.06, z = 189.94, name = "进入方法", worldId = 0, PkMode = 0 },
-			[193] = { x = -153.62, y = 67.63, z = 190.68, name = "逃离区域", worldId = 0, PkMode = 0 },
+			[75] = { x = -116.31, y = 62.87, z = 189.62, name = "", worldId = 0, PkMode = 1 },
+			[192] = { x = -119.76, y = 63.06, z = 189.94, name = "进入方法", worldId = 0, PkMode = 1 },
+			[193] = { x = -153.62, y = 67.63, z = 190.68, name = "逃离区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

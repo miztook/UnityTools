@@ -336,26 +336,14 @@ def.override("number", "number", "=>", "boolean").OnCollideWithOther = function(
 end
 
 --播放预警指示特效
-def.method("number", "number", "number", "number","boolean", "=>", "boolean").PlaySkillIndicatorGfx = function (self, skill_indicator_type, duration, param1, param2,IsNotCloseToGround)
-	local gfx_path = nil
+def.method("number", "number", "number", "number","boolean", "=>", "boolean").PlaySkillIndicatorGfx = function (self, skill_indicator_type, duration, param1, param2, isNotCloseToGround)
+	local gfx_path = CFxMan.GetAttackWarningFxPath(not isNotCloseToGround, skill_indicator_type, param2)
 	local scale = Vector3.one
-
 	if skill_indicator_type == EIndicatorType.Circular then
-		if not IsNotCloseToGround then 
-			gfx_path = PATH.Etc_Yujing_Ring_Decl
-		else
-			gfx_path = PATH.Etc_Yujing_Ring
-		end
 		scale.x = param1 + 0.5
 		scale.y = 1
 		scale.z = param1+ 0.5
 	elseif skill_indicator_type == EIndicatorType.Fan then
-		if not IsNotCloseToGround then 
-			gfx_path = PATH["Etc_Yujing_Shanxing"..param2.."_Decl"]
-		else
-			gfx_path = PATH["Etc_Yujing_Shanxing"..param2]
-		end
-
 		if gfx_path == nil then
 			warn("Cannot find path:", "Etc_Yujing_Shanxing"..param2)
 			gfx_path = ""
@@ -365,18 +353,10 @@ def.method("number", "number", "number", "number","boolean", "=>", "boolean").Pl
 		scale.y = 1
 		scale.z = param1+ 0.5
 	elseif skill_indicator_type == EIndicatorType.Rectangle then
-		if not IsNotCloseToGround then 
-			gfx_path = PATH.Etc_Yujing_Juxing_Decl
-		else
-			gfx_path = PATH.Etc_Yujing_Juxing
-		end
-		
 		scale.x = param1+ 0.5
 		scale.y = 1
 		scale.z = param2+ 0.5
-	-- 环形
-	elseif skill_indicator_type == EIndicatorType.Ring then
-		gfx_path = PATH.Etc_Yujing_Hollow
+	elseif skill_indicator_type == EIndicatorType.Ring then  	-- 环形
 		scale.x = param2 + 0.5 -- 外径
 		scale.y = 1
 		scale.z = param1 - 0.5 -- 内径		
@@ -392,7 +372,7 @@ def.method("number", "number", "number", "number","boolean", "=>", "boolean").Pl
 		self._SkillIndicatorFx = CFxObject.new()
 	end
 
-	local fx, id = GameUtil.PlayEarlyWarningGfx(gfx_path, pos, dir, scale, duration,IsNotCloseToGround)
+	local fx, id = GameUtil.PlayEarlyWarningGfx(gfx_path, pos, dir, scale, duration, isNotCloseToGround)
 	self._SkillIndicatorFx:Init(id, fx, nil)
 
 	return true

@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10168] = 
@@ -150,11 +151,11 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[49] = { x = 73.35, y = 64.10, z = 195.81, name = "그린마을 서문", worldId = 0, PkMode = 0 },
-			[50] = { x = 107.13, y = 67.22, z = 184.35, name = "表现激活区", worldId = 0, PkMode = 0 },
-			[51] = { x = 32.21, y = 62.75, z = 200.91, name = "处决触发区域", worldId = 0, PkMode = 0 },
-			[52] = { x = 116.52, y = 66.79, z = 182.79, name = "对话激活区", worldId = 0, PkMode = 0 },
-			[53] = { x = 95.73, y = 67.22, z = 183.43, name = "激活保护", worldId = 0, PkMode = 0 },
+			[49] = { x = 73.35, y = 64.10, z = 195.81, name = "그린 마을 서문", worldId = 0, PkMode = 1 },
+			[50] = { x = 107.13, y = 67.22, z = 184.35, name = "表现激活区", worldId = 0, PkMode = 1 },
+			[51] = { x = 32.21, y = 62.75, z = 200.91, name = "处决触发区域", worldId = 0, PkMode = 1 },
+			[52] = { x = 116.52, y = 66.79, z = 182.79, name = "对话激活区", worldId = 0, PkMode = 1 },
+			[53] = { x = 95.73, y = 67.22, z = 183.43, name = "激活保护", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

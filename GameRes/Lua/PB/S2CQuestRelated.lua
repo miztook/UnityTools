@@ -10,30 +10,30 @@ PBHelper.AddHandler("S2CQuestData", OnS2CQuestData)
 
 --领任务
 local function OnS2CQuestProvide(sender, protocol)
-	warn("领任务",protocol.CurrentQuest.Id)
+	warn("领任务", protocol.CurrentQuest.Id)
 	CQuest.Instance():OnS2CQuestProvide(protocol.CurrentQuest)
 end
 PBHelper.AddHandler("S2CQuestProvide", OnS2CQuestProvide)
 
 --交任务
 local function OnS2CQuestDeliver(sender, protocol)
-	warn("交任务",protocol.FinishedQuest.Id)
+	warn("交任务", protocol.FinishedQuest.Id)
 	CQuest.Instance():OnS2CQuestDeliver(protocol.FinishedQuest)
 	-- 弹出app弹窗
-	game:OnAppMsgBoxStatic(EnumDef.TriggerTag.FinishQuest, protocol.FinishedQuest.Id)
+	AppMsgBox.StartWork(EnumDef.TriggerTag.FinishQuest, protocol.FinishedQuest.Id)
 end
 PBHelper.AddHandler("S2CQuestDeliver", OnS2CQuestDeliver)
 
 --任务数据变化
 local function OnS2CQuestNotify(sender, protocol)
-	print("任务数据变化",protocol.QuestId, protocol.ObjectiveId, protocol.ObjectiveCounter)
+	--print("任务数据变化",protocol.QuestId, protocol.ObjectiveId, protocol.ObjectiveCounter)
 	CQuest.Instance():OnS2CQuestNotify(protocol)
 end
 PBHelper.AddHandler("S2CQuestNotify", OnS2CQuestNotify)
 
 --放弃任务 or 删任务
 local function OnS2CQuestGiveUp(sender, protocol)
-	print("任务放弃",protocol.QuestId)
+	--print("任务放弃",protocol.QuestId)
 	CQuest.Instance():OnS2CQuestGiveUp(protocol.QuestId)
 end
 PBHelper.AddHandler("S2CQuestGiveUp", OnS2CQuestGiveUp)
@@ -95,4 +95,10 @@ local function OnS2CNpcDialogueSyn(sender, protocol)
 	game._GUIMan:Open("CPanelDialogue", dialogue_data)
 end
 PBHelper.AddHandler("S2CNpcDialogueSyn", OnS2CNpcDialogueSyn)
+
+local function OnS2CFrontLineInfo(sender, protocol)
+	game._GUIMan:Open("CPanelUIFrontLine", {tid = protocol.FrontLineId,endtime = protocol.EndTime})
+end
+PBHelper.AddHandler("S2CFrontLineInfo", OnS2CFrontLineInfo)
+
 

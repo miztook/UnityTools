@@ -1,7 +1,7 @@
 local Lplus = require "Lplus"
 local CElementData = require "Data.CElementData"
-local CConsumeUtil = Lplus.Class("CConsumeUtil")
 
+local CConsumeUtil = Lplus.Class("CConsumeUtil")
 local def = CConsumeUtil.define
 --[[	
 	结构定义
@@ -19,10 +19,6 @@ local def = CConsumeUtil.define
 		},
 	}
 ]]
-
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
 
 --消耗通用函数  
 def.static("number", "number", "table", "string", "function", "function").ConsumeTodo = function(moneyId, moneyNeed, needMaterials, orignPanel, callbackSuccess, callbackFail)
@@ -42,7 +38,7 @@ def.static("number", "number", "table", "string", "function", "function").Consum
 		local moneyHave = hp:GetMoneyCountByType(moneyId)
 		if moneyHave < moneyNeed then
 			warn("货币不够")
-			SendFlashMsg(StringTable.Get(260), false) 
+			TeraFuncs.SendFlashMsg(StringTable.Get(260), false) 
 			do return end
 
 			--货币不够
@@ -69,7 +65,7 @@ def.static("number", "number", "table", "string", "function", "function").Consum
 			local materialHave = pack:GetItemCount(material.ID)
 			if materialHave < material.Count then
 				warn("材料不够")
-				SendFlashMsg(StringTable.Get(10901), false)
+				TeraFuncs.SendFlashMsg(StringTable.Get(10901), false)
 				do return end
 				
 				CUseDiamondMan.Instance():BuyItemUseDiamond(orignPanel, material.ID, material.Count - materialHave, BuySuccess, BuyFail)

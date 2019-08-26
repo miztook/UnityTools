@@ -5,7 +5,7 @@ local def = CHUDTextPlayer.define
 
 def.field("number")._Type = -1
 def.field("number")._Interval = 0
-def.field("userdata")._Target = nil
+def.field("table")._Target = nil
 def.field("number")._TimerId = 0
 def.field("table")._Texts = nil
 
@@ -42,16 +42,18 @@ local function RunOnce(self)
         end
     end
     
-    if not IsNil(self._Target) and CPanelDebug.Instance():IsOpenHUD() then
+    if not IsNil(self._Target:GetGameObject()) and CPanelDebug.Instance():IsOpenHUD() then
 		local item = Pop(self)
 		if item ~= nil then
-			GameUtil.ShowHUDText(item, self._Target, self._Type)
+			GameUtil.ShowHUDText(item, self._Target:GetGameObject(), self._Type)
 		end
+    else
+        self:Clear()
     end
     self._TimerId = _G.AddGlobalTimer(self._Interval, true, function() OnTimeOver() end)
 end
 
-def.static("userdata","number","number","=>", CHUDTextPlayer).new = function (target, type, interval)
+def.static("table","number","number","=>", CHUDTextPlayer).new = function (target, type, interval)
     local obj = CHUDTextPlayer()
     obj._Target = target
     obj._Type = type

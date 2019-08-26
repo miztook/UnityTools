@@ -612,6 +612,17 @@ def.method(CNpc, "table", "=>", "table").FilterServiceOptions = function (self, 
 				if option ~= nil then
 					servOptions[#servOptions + 1] = option
 				end	
+			elseif service.FrontLine ._is_present_in_parent then 
+				option = 
+				{
+					service_id = service.Id, 
+					service_name = service.TextDisplayName,
+					service_type = EnumDef.ServiceType.FrontLine, 
+					service_data = service.FrontLine.FrontLineId
+				}
+				if option ~= nil then
+					servOptions[#servOptions + 1] = option
+				end	
 			end
 		end
 	end
@@ -751,6 +762,8 @@ def.method("number", "=>", "boolean").HaveServiceOptionsByNPCTid = function (sel
 			elseif service.StoragePack ._is_present_in_parent then
 						return true
 			elseif service.QuestRandGroup ._is_present_in_parent then
+						return true
+			elseif service.FrontLine ._is_present_in_parent then
 						return true
 			end
 		end

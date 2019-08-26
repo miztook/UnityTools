@@ -11,11 +11,12 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD03.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn03_QXGJ01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[36002] = 
 		{
-			[1] = { x = -9.00, y = 76.02, z = 86.90, name = "호가스 왕", level = 32,IsBoss = true },
+			[1] = { x = -9.00, y = 76.02, z = 86.90, name = "우엔 호가스", level = 32,IsBoss = true },
 		},
 	},
 	Npc = 

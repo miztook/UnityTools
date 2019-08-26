@@ -21,9 +21,9 @@ def.field("number")._CacheGoodsID = -1                  -- 从推荐页传过来
 def.field("userdata")._WebView = nil                    -- WebView的载体
 def.field("userdata")._List_BigTab = nil                -- 大页签List
 def.field("userdata")._TabList_SmallTab = nil           -- 小页签TabList
-def.field("userdata")._VideoPlayer_Pet = nil
-def.field("userdata")._Img_Screen_Video = nil
-def.field("userdata")._VideoPlayer_Elf = nil
+--def.field("userdata")._VideoPlayer_Pet = nil
+--def.field("userdata")._Img_Screen_Video = nil
+--def.field("userdata")._VideoPlayer_Elf = nil
 def.field("number")._CurrentSelectBigTabID = 0          -- 当前选择的大页签ID
 def.field("number")._CurrentSelectSmallTabID = 0        -- 当前选择的小页签ID
 def.field("number")._CurrentSelectBigTabIndex = 0       -- 当前选择的大页签的index
@@ -57,13 +57,13 @@ def.override().OnCreate = function(self)
     self._WebView = self._PanelObjects.ViewPort:GetComponent(ClassType.GWebView)
     self._List_BigTab = self:GetUIObject("List_BigMenu"):GetComponent(ClassType.GNewList)
     self._TabList_SmallTab = self:GetUIObject("TabList"):GetComponent(ClassType.GNewTabList)
-
-    self._VideoPlayer_Elf = self:GetUIObject("VideoPlayer_Elf")
-    self._VideoPlayer_Pet = self:GetUIObject("VideoPlayer_Pet")
-    self._Img_Screen_Video = self:GetUIObject("Img_Elf")
-    self._Img_Screen_Video:SetActive(false)
-    GameUtil.PrepareVideoUnit(self._VideoPlayer_Elf, "Mall_CG01_Loop.mp4")
-    GameUtil.PrepareVideoUnit(self._VideoPlayer_Pet, "Mall_CG02_Loop.mp4")
+    self._PanelObjects._TabList:SetActive(false)
+--    self._VideoPlayer_Elf = self:GetUIObject("VideoPlayer_Elf")
+--    self._VideoPlayer_Pet = self:GetUIObject("VideoPlayer_Pet")
+--    self._Img_Screen_Video = self:GetUIObject("Img_Elf")
+--    self._Img_Screen_Video:SetActive(false)
+--    GameUtil.PrepareVideoUnit(self._VideoPlayer_Elf, "Mall_CG01_Loop.mp4")
+--    GameUtil.PrepareVideoUnit(self._VideoPlayer_Pet, "Mall_CG02_Loop.mp4")
 end
 
 def.override("dynamic").OnData = function(self, data)
@@ -105,7 +105,7 @@ def.method("table").Init = function(self, data)
         GUI.SetGroupToggleOn(self._PanelObjects._List_BigTab, self._CurrentSelectBigTabIndex + 2)
         self._TabList_SmallTab:SetSelection(self._CurrentSelectSmallTabIndex - 1, 0)
     end
-    
+    game._CGuideMan:TriggerDelayCallBack()
     self._IsPanelMallInited = true
 end
 
@@ -377,11 +377,11 @@ def.method("table").HandleSmallTabData = function(self, data)
         else
             self._PanelObjects._TabList:SetActive(true)
         end
-        if self._CurrentPage._HasBGVideo then
-            self._Img_Screen_Video:SetActive(true)
-        else
-            self._Img_Screen_Video:SetActive(false)
-        end
+--        if self._CurrentPage._HasBGVideo then
+--            self._Img_Screen_Video:SetActive(true)
+--        else
+--            self._Img_Screen_Video:SetActive(false)
+--        end
     end
     self._CacheGoodsID = -1
     --game._CGuideMan:AnimationEndCallBack(self)
@@ -449,6 +449,25 @@ def.method("table").GenerateTabs = function(self, tabDatas)
     else
         warn("商城小页签数据为空!!!")
     end
+end
+
+--------------------------------------------------------------
+--为教学提供的找到大页签的名字的接口。 key是商城大页签ID
+--------------------------------------------------------------
+def.method("number", "=>", "string").GetBigTabNameForGuide = function(self, key)
+    if not self:IsShow() then
+        warn("error !! 商城界面为打开就调用了GetBigTabNameForGuide()函数")
+        return ""
+    end
+    local tab_datas = CMallMan.Instance():GetTagsDataFromServer()
+    for i,v in ipairs(tab_datas.StoreTagFounds) do
+        if v.TagId == key then
+            local item = self._List_BigTab:GetItem(i-1)
+            return item.name
+        end
+    end
+    warn("error !!! 未找到商城大页签的item, 请确认key是否正确（商城大页签ID） , key : ", key)
+    return ""
 end
 
 --------------------------------------------------------------
@@ -706,7 +725,25 @@ def.method("number", "number", "boolean").ShowRedPoint = function(self, tagID, s
     end
 end
 
+-- 返回键
+def.override("=>", "boolean").HandleEscapeKey = function(self)
+    if self:IsOpen() then
+        if self._CurrentPage ~= nil then 
+            if self._CurrentPage:HandleEscapeKey() then
+                return true
+            end
+        end
+        game._GUIMan:CloseByScript(self)
+        return true
+    else
+        return false
+    end
+end
+
 def.override().OnHide = function(self)
+    -- send receipt cache
+    CPlatformSDKMan.Instance():ProcessPurchaseCache()
+
     self:RemoveAllSmallTagTimer()
     CPanelBase.OnHide(self)
     self:HideWebView()
@@ -735,12 +772,11 @@ def.override().OnDestroy = function(self)
         end
         self._Pages = {}
     end
-    GameUtil.ReleaseVideoUnit(self._VideoPlayer_Elf)
-    GameUtil.ReleaseVideoUnit(self._VideoPlayer_Pet)
-    self._VideoPlayer_Pet = nil
-    self._VideoPlayer_Elf = nil
-    self._Img_Screen_Video = nil
-    CMallMan.Instance():Clear()
+--    GameUtil.ReleaseVideoUnit(self._VideoPlayer_Elf)
+--    GameUtil.ReleaseVideoUnit(self._VideoPlayer_Pet)
+--    self._VideoPlayer_Pet = nil
+--    self._VideoPlayer_Elf = nil
+--    self._Img_Screen_Video = nil
 end
 CPanelMall.Commit()
 return CPanelMall

@@ -6,6 +6,7 @@ local Lplus = require "Lplus"
 local CPlayerStrongMan = Lplus.Class("CPlayerStrongMan")
 local def = CPlayerStrongMan.define
 
+
 local CElementData = require "Data.CElementData"
 local PBHelper = require "Network.PBHelper"
 local CWingsMan = require "Wings.CWingsMan"
@@ -16,6 +17,8 @@ local CScoreCalcMan = require "Data.CScoreCalcMan"
 local EFightPropertiesType = require "PB.data".EFightPropertiesType
 local CPetUtility = require "Pet.CPetUtility"
 local CSkillUtil = require "Skill.CSkillUtil"
+local UserData = require "Data.UserData"
+
 
 def.field("table")._TableAllStrongData = nil --我要变强数据。将表格做整合
 def.field("number")._ScoreC = 0
@@ -23,6 +26,11 @@ def.field("number")._ScoreB = 0
 def.field("number")._ScoreA = 0
 def.field("number")._ScoreS = 0
 def.field("boolean")._IsNeedPlayerStrong = false --是否需要提示我要变强
+def.field("boolean")._IsShowStrongPanel = true  --设置今天是否展示我要变强界面
+def.field("boolean")._IsGetUserData = true    
+def.field("number")._SetDateDay = 0            -- 设置日期天
+def.field("number")._SetDateMonth = 0          -- 设置日期月
+
 
 
 def.field("number")._DesignationFightScore = 0 	--称号战力
@@ -30,18 +38,18 @@ def.field("number")._ManualFightScore = 0 		--玩物志战力
 
 def.static("=>", CPlayerStrongMan).new = function()
     local obj = CPlayerStrongMan()
-    obj:InitScore()
+    local CSpecialIdMan = require  "Data.CSpecialIdMan"
+	obj._ScoreC = CSpecialIdMan.Get("PlayerSrongScoreC")
+	obj._ScoreB = CSpecialIdMan.Get("PlayerSrongScoreB")
+	obj._ScoreA = CSpecialIdMan.Get("PlayerSrongScoreA")
+	obj._ScoreS = CSpecialIdMan.Get("PlayerSrongScoreS")
 	return obj
 end
 
-def.method().InitScore = function(self)
-	local CSpecialIdMan = require  "Data.CSpecialIdMan"
-	self._ScoreC = CSpecialIdMan.Get("PlayerSrongScoreC")
-	self._ScoreB = CSpecialIdMan.Get("PlayerSrongScoreB")
-	self._ScoreA = CSpecialIdMan.Get("PlayerSrongScoreA")
-	self._ScoreS = CSpecialIdMan.Get("PlayerSrongScoreS")
-
+def.method().Init = function(self)
 	self._TableAllStrongData = {}
+	if not self._IsGetUserData then return end
+	self:GetShowStrongPanelUserData()
 end
 
 def.method("=>", "table").GetAllData = function(self)
@@ -56,7 +64,7 @@ end
 
 def.method().InitData = function(self)
 	self._TableAllStrongData = {}
-    local allData = GameUtil.GetAllTid("PlayerStrong")
+    local allData = CElementData.GetAllTid("PlayerStrong")
     for _,v in ipairs(allData) do
     	local iData = CElementData.GetTemplate("PlayerStrong",v)	
     	local index = #self._TableAllStrongData + 1
@@ -192,18 +200,29 @@ def.method("=>","number").GetOtherFightScore = function(self)
 end
 
 def.method("number","number","=>","number").GetImgScoreGroupID = function(self, curFight, basicFight)
-	local ratio = curFight / basicFight * 100
-	ratio = math.ceil(ratio)
-	-- warn("ratio "..ratio)
-	if ratio >= self._ScoreS then
-		return 3
-	elseif ratio >= self._ScoreA then
-		return 2
-	elseif  ratio >= self._ScoreB then
-		return 1
-	else
-		return 0
-	end
+--	local maxRatio = self._ScoreS / self._ScoreA
+--	local ratio = curFight / basicFight * self._ScoreA
+--	ratio = math.ceil(ratio)
+--	-- warn("ratio "..ratio)\
+--	if ratio > self._ScoreS then
+--		return 3
+--	elseif ratio > self._ScoreA then
+--		return 2
+--	elseif  ratio > self._ScoreB then
+--		return 1
+--	else
+--		return 0
+--	end
+    local ratio_value = basicFight/self._ScoreA
+    if curFight > ratio_value * self._ScoreS then
+        return 3
+    elseif curFight > ratio_value * self._ScoreA then
+        return 2
+    elseif curFight > ratio_value * self._ScoreB then
+        return 1
+    else
+        return 0
+    end
 end
 
 def.method("number","=>","number").GetFightScoreByType = function(self, nType)
@@ -236,23 +255,132 @@ def.method("number","=>","number").GetBasicValueByValueID = function(self, Value
 	return basicData.ValueDatas[idex].Value
 end
 
+def.method("number", "=>", "number").GetSValueByValueID = function(self, valueID)
+    local basicData = CElementData.GetTemplate("PlayerStrongValue", valueID)
+	if basicData == nil then 
+		warn("GetBasicValueByValueID:找不到我要变强ID："..valueID.."推荐值")
+		return 1 
+	end
+    local add_value = self._ScoreS/self._ScoreA
+	local idex = math.clamp(game._HostPlayer._InfoData._Level,1, #basicData.ValueDatas)
+	return math.ceil(basicData.ValueDatas[idex].Value * add_value)
+end
+
 --设置我要变强提示状态
 def.method("boolean").SetNeedPlayerStrong = function(self, isNeed)
 	self._IsNeedPlayerStrong = isNeed
 end
 
+local function CheckSetTime(self,Day,Month)
+	local nowTime = GameUtil.GetServerTime()/1000
+	local timeTable = os.date("*t",nowTime)
+    local day,month = 0,0
+    for i,v in pairs(timeTable) do
+    	if i == "day" then 
+    		day = v
+    	elseif i == "month" then 
+    		month = v
+    	end
+    end
+    if day == Day and month == Month then
+    	return true
+		-- self._IsShowStrongPanel = data.IsShowPlayerStrongPanel
+	else
+		return false
+		-- self._IsShowStrongPanel = true
+	end
+end
+
+local function GetSetTime(self)
+	local nowTime = GameUtil.GetServerTime()/1000
+    local timeTable = os.date("*t",nowTime)
+    local day,month = 0,0
+    for i,v in pairs(timeTable) do
+    	if i == "day" then 
+    		day = v
+    	elseif i == "month" then 
+    		month = v
+    	end
+    end
+    return day,month
+end
+
+def.method("boolean").SetShowPlayerStrongPanel = function(self, isShow)
+	self._IsShowStrongPanel = isShow
+	self._SetDateDay,self._SetDateMonth = GetSetTime(self)
+end
+
+def.method("=>","boolean").GetShowPlayerStrongPanelState = function (self)
+	local isEqual = CheckSetTime(self,self._SetDateDay,self._SetDateMonth)
+	if not isEqual then 
+		self._IsShowStrongPanel = true
+		return self._IsShowStrongPanel
+	end
+	return self._IsShowStrongPanel
+end
+
 --是否需要提示我要变强
 def.method().CheckShowPlayerStrong = function(self)
-	if self._IsNeedPlayerStrong then
+	local isEqual = CheckSetTime(self,self._SetDateDay,self._SetDateMonth)
+	if not isEqual then 
+		self._IsShowStrongPanel = true
+	end
+	if self._IsNeedPlayerStrong and self._IsShowStrongPanel then
 		self._IsNeedPlayerStrong = false
 		game._GUIMan:Open("CPanelStrong",{ PageType = CPanelStrong.PageType.GETSTRONG})
 	end
 end
 
-local EFightPropertiesType = require "PB.data".EFightPropertiesType
-	
+-- 获取我要变强用户数据
+def.method().GetShowStrongPanelUserData = function (self)
+	local account = game._NetMan._UserName
+    local data = nil
+    local accountInfo = UserData.Instance():GetCfg(EnumDef.LocalFields.IsShowPlayerStrongPanel, account)  or {} 
+    if accountInfo ~= nil then
+        local serverInfo = accountInfo[game._NetMan._ServerName]
+        if serverInfo ~= nil then
+            data = serverInfo[game._HostPlayer._ID]
+        end
+    end
+    if data ~= nil then 
+    	self._SetDateDay,self._SetDateMonth = data.Day ,data.Month
+    	local isEqual = CheckSetTime(self,self._SetDateDay,self._SetDateMonth)
+		if not isEqual then 
+			self._IsShowStrongPanel = true
+		else
+			self._IsShowStrongPanel = data.IsShowPlayerStrongPanel
+		end
+    end
+	self._IsGetUserData = false
+	-- body
+end
 
-	
+def.method().SaveRecord = function (self)
+	if game._HostPlayer == nil or game._HostPlayer._ID == 0 then return end
+	local account = game._NetMan._UserName
+	local accountInfo = UserData.Instance():GetCfg(EnumDef.LocalFields.IsShowPlayerStrongPanel, account)
+    if accountInfo == nil then
+        accountInfo = {}
+    end
+    local serverName = game._NetMan._ServerName
+    if accountInfo[serverName] == nil then
+        accountInfo[serverName] = {}
+    end
+    local roleId = game._HostPlayer._ID
+    if accountInfo[serverName][roleId] == nil then
+        accountInfo[serverName][roleId] = {}
+    end
+    local day, month = GetSetTime(self)
+    local data = {
+    				IsShowPlayerStrongPanel = self._IsShowStrongPanel,
+    				Day = day ,
+    				Month = month,
+				}
+    accountInfo[serverName][roleId] = data
+    UserData.Instance():SetCfg(EnumDef.LocalFields.IsShowPlayerStrongPanel, account, accountInfo)
+end
+
+local EFightPropertiesType = require "PB.data".EFightPropertiesType
 --战力更新
 def.method("table").ChangeFightScore = function(self, msg)
 	if msg.FightScoreType == EFightPropertiesType.Design then
@@ -271,12 +399,15 @@ def.method("number","=>","number").GetFightScoreByPropertiesType = function(self
 	end
 end
 
-def.method().Release = function(self)
+def.method().Cleanup = function(self)
 	self._TableAllStrongData = nil
 	self._IsNeedPlayerStrong = false
 	self._DesignationFightScore = 0
 	self._ManualFightScore = 0
+	self._IsGetUserData = true
+	self._SetDateDay = 0
+	self._SetDateMonth = 0 
 end
 
-CPlayerStrongMan.Commit()
+CPlayerStrongMan.Commit()   
 return CPlayerStrongMan

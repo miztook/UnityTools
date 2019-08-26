@@ -36,6 +36,27 @@ def.static("number", "=>", "table").GetRune = function(tid)
 	return CElementData.GetRuneTemplate(tid)
 end
 
+--[[
+--获取技能，被动技能的一个结构
+def.static('number', 'number', 'boolean', '=>', 'table').GetSkillInfoByIdAndLevel = function(id, level, bIsTalent)
+	local template = CElementData.GetTemplate("Talent", id)
+	if template == nil then return nil end
+	
+	local DynamicText = require "Utility.DynamicText"
+	local info = {}
+	info.ID = id
+	info.Name = template.Name
+	info.Level = level
+	info.Desc = DynamicText.ParseSkillDescText(id, level, bIsTalent)
+	
+	local propertyId = template.ExecutionUnits[1].Event.AddAttachedProperty.Id
+	local fightElement = CElementData.GetAttachedPropertyTemplate(propertyId)
+	info.PropertyName = fightElement ~= nil and fightElement.TextDisplayName or ""
+
+	return info
+end
+]]
+	
 -- 当前技能段能否移动施法
 def.static("number", "number", "=>", "boolean").CanMoveWithSkill = function(skill_id, perform_idx)
 	local skill = CElementSkill.Get(skill_id)
@@ -133,7 +154,7 @@ def.static("number", "number", "number", "=>", "number").GetRuneLevelUpValue = f
 		return 0
 	end
 	local result = 0
-	local allRuneLevelUp = GameUtil.GetAllTid(RuneLevelupTemplateKey)
+	local allRuneLevelUp = CElementData.GetAllTid(RuneLevelupTemplateKey)
 
 	for i, tid in ipairs( allRuneLevelUp ) do
 		local runeLevelUp = CElementData.GetTemplate(RuneLevelupTemplateKey, tid)
@@ -169,6 +190,16 @@ def.static("number", "number", "number", "=>", "number").GetTalentLevelUpValue =
 		end
 	end
 	return result
+end
+
+--[[获取技能&被动技能的描述]]
+def.static("number", "boolean", "=>", "string").GetSkillDesc = function(skillId, bIsTalent)
+	return CElementData.GetSkillDesc(skillId, bIsTalent)
+end
+
+--[[获取技能ID 升级等级的数值， 需要遍历]]
+def.static("number", "number", "number", "boolean", "=>", "number").GetSkillLevelUpValue = function(skillId, levelupId, skillLevel, bIsTalent)
+	return CElementData.GetSkillLevelUpValue(skillId, levelupId, skillLevel, bIsTalent)
 end
 
 CElementSkill.Commit()

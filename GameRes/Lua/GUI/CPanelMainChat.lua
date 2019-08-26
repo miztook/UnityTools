@@ -31,7 +31,7 @@ def.field("userdata")._Btn_Bag = nil
 def.field("userdata")._PanelTween = nil 
 def.field("userdata")._Item_template = nil
 def.field("userdata")._ItemContent = nil
-def.field("userdata")._Lab_CameraMode = nil
+def.field("userdata")._Img_Camera = nil
 def.field("boolean")._Main_Chat_Switch = true
 def.field(CPageInteractive)._PageInteractive = nil --交互面板
 def.field("dynamic")._SizeDelta = nil
@@ -71,6 +71,19 @@ def.field("userdata")._Bar_DuelLeft = nil
 def.field("userdata")._Lab_DuelLeft = nil
 def.field("userdata")._Bar_DuelRight = nil
 def.field("userdata")._Lab_DuelRight = nil
+def.field("userdata")._Frame_KillProgress = nil
+def.field("userdata")._Bar_KillProgress = nil
+def.field("userdata")._Lab_KillProgressPercent = nil
+def.field("userdata")._Lab_KillProgressInfo = nil
+def.field("userdata")._TweenMan_KillProgressBoss = nil
+def.field("userdata")._Img_KillProgressBoss = nil
+def.field("userdata")._Frame_KillProgressBossEffect = nil
+def.field("boolean")._IsKillProgressBossActivated = false
+-- 主界面快捷消息
+def.field("userdata")._Frame_QuickMsg = nil
+def.field("userdata")._List_QuickMsg = nil
+def.field('table')._QuickMsgList = BlankTable
+def.field("boolean")._IsShowQuickMsg = false
 
 local instance = nil
 def.static('=>', CPanelMainChat).Instance = function ()
@@ -125,6 +138,14 @@ local OnEntityEnterEvent = function(sender, event)
     end
 end
 
+local function OnNotifyFunctionEvent(sender, event)
+	if instance then
+		if event.FunID == EnumDef.EGuideTriggerFunTag.Bag then
+			instance._Btn_Bag:SetActive(true)
+		end
+	end
+end
+
 def.override().OnCreate = function(self)
     if IsNil(self._Panel) then return end
     self._PanelChat = self:GetUIObject('Img_Chat'):GetComponent(ClassType.RectTransform)
@@ -149,6 +170,7 @@ def.override().OnCreate = function(self)
     CGame.EventManager:addHandler('NotifyClick', OnEntityClick)
     CGame.EventManager:addHandler(NotifyGuildEvent, OnNotifyGuildEvent)
     CGame.EventManager:addHandler(EntityEnterEvent, OnEntityEnterEvent)  
+    CGame.EventManager:addHandler("NotifyFunctionEvent", OnNotifyFunctionEvent)
     -- self:refreshMsgList(true)
     -- 背景缩半隐藏
     -- self._SizeDelta = self._PanelChat.sizeDelta
@@ -174,10 +196,12 @@ def.override().OnCreate = function(self)
     self._Btn_Bag = self:GetUIObject("Btn_Bag")
     if not game._CFunctionMan:IsUnlockByFunID(EnumDef.EGuideTriggerFunTag.Bag) then
         self._Btn_Bag :SetActive(false)
+    else
+        self._Btn_Bag:SetActive(true)
     end    
 
     -- 相机模式
-    self._Lab_CameraMode = self:GetUIObject("Lab_CameraMode")
+    self._Img_Camera = self:GetUIObject("Img_Camera")
     local camera_mode = GameUtil.GetGameCamCtrlMode()
     self:SetLabCameraMode(camera_mode)
 
@@ -202,8 +226,22 @@ def.override().OnCreate = function(self)
     self._Lab_DuelLeft = self:GetUIObject("Lab_DuelLeft")
     self._Bar_DuelRight = self:GetUIObject("Bar_DuelRight"):GetComponent(ClassType.Scrollbar)
     self._Lab_DuelRight = self:GetUIObject("Lab_DuelRight")
+    -- 副本通用杀怪计数进度条
+    self._Frame_KillProgress = self:GetUIObject("Frame_KillProgress")
+    self._Bar_KillProgress = self:GetUIObject("Bar_KillProgress"):GetComponent(ClassType.Scrollbar)
+    self._Lab_KillProgressPercent = self:GetUIObject("Lab_KillProgressPercent")
+    self._Lab_KillProgressInfo = self:GetUIObject("Lab_KillProgressInfo")
+    self._TweenMan_KillProgressBoss = self:GetUIObject("Frame_KillProgressBoss"):GetComponent(ClassType.DOTweenPlayer)
+    self._Img_KillProgressBoss = self:GetUIObject("Img_KillProgressBoss")
+    self._Frame_KillProgressBossEffect = self:GetUIObject("Frame_KillProgressBossEffect")
+
+    -- 主界面快捷消息
+    self._Frame_QuickMsg = self:GetUIObject("Frame_QuickMsg")
+    self._List_QuickMsg = self:GetUIObject("List_QuickMsg"):GetComponent(ClassType.GNewList)
+    self._QuickMsgList = _G.QuickMsgTable
 
     ChatManager.Instance():UpdateChatSetStates()
+    
 end
 
 def.override('dynamic').OnData = function(self, data)   
@@ -220,6 +258,7 @@ def.override('dynamic').OnData = function(self, data)
     self:SetBagCapacityLast(self._BagPercentNum)
     -- 显示时间 电量和网络
     self:SetSystemInfo()
+    self:ListenToEvent()
 end
 
 --显示背包红点
@@ -345,11 +384,11 @@ def.method("table").UpdateMsgInShow = function(self, msg)
         local hp = game._HostPlayer
         if msg.Channel ~= ChatChannel.ChatChannelSocial then        -- 私聊不显示头顶气泡
             if msg.RoleId ~= nil and msg.RoleId == hp._ID then
-                hp:OnTalkPopTopChange(true, msg.StrMsg, 10)
+                hp:ShowPopText(true, msg.StrMsg, 10)
             else
                 local entity = game._CurWorld:FindObject(msg.RoleId)
                 if entity then
-                    entity:OnTalkPopTopChange(true, msg.StrMsg, 10)	    
+                    entity:ShowPopText(true, msg.StrMsg, 10)	    
                 end
             end
         end
@@ -359,7 +398,8 @@ def.method("table").UpdateMsgInShow = function(self, msg)
         or (msg.Channel == ChatChannel.ChatChannelCurrent and ChatManager.Instance()._Channel_Current == false)
         or (msg.Channel == ChatChannel.ChatChannelSystem and ChatManager.Instance()._Channel_System == false) 
         or (msg.Channel == ChatChannel.ChatChannelCombat and ChatManager.Instance()._Channel_Combat == false)   -- 战斗频道的信息不显示在主界面中。
-        or (msg.Channel == ChatChannel.ChatChannelSocial and ChatManager.Instance()._Channel_Social == false) then
+        or (msg.Channel == ChatChannel.ChatChannelSocial and ChatManager.Instance()._Channel_Social == false) 
+        or (msg.Channel == ChatChannel.ChatChannelRecruit and ChatManager.Instance()._Channel_Recruit == false) then
 			return
         end
         
@@ -438,13 +478,19 @@ end
 
 def.override('string').OnClick = function(self, id)    
     if id == 'Btn_Friend' then
+        self._IsShowQuickMsg = false
+        self._Frame_QuickMsg:SetActive(self._IsShowQuickMsg) 
         game._GUIMan:Open("CPanelFriend",nil)       
 
     elseif id == "Btn_Email" then
+        self._IsShowQuickMsg = false
+        self._Frame_QuickMsg:SetActive(self._IsShowQuickMsg) 
         -- 打开邮件
         local CEmailManager = require "Email.CEmailMan".Instance()
         CEmailManager:OnC2SEmailInfo()        
     elseif id == "Btn_Relax" then
+        self._IsShowQuickMsg = false
+        self._Frame_QuickMsg:SetActive(self._IsShowQuickMsg) 
         -- TODO()
         if self._IsShowRelax then
             self._IsShowRelax = false
@@ -461,6 +507,8 @@ def.override('string').OnClick = function(self, id)
             self._PageInteractive:ClickSkillBtn(nSkillIdex)
         end
     elseif id == "Btn_Camera" then
+        self._IsShowQuickMsg = false
+        self._Frame_QuickMsg:SetActive(self._IsShowQuickMsg) 
         local camera_mode = GameUtil.GetGameCamCtrlMode()
         local next_mode = camera_mode + 1
         if next_mode > EnumDef.CameraCtrlMode.FIX25D then
@@ -472,6 +520,39 @@ def.override('string').OnClick = function(self, id)
 
         self:SetLabCameraMode(next_mode)
 
+        game:SaveCamParamsToUserData()
+        UserData:SaveDataToFile()
+
+    elseif id == "Btn_QuickMsg" then
+        self._IsShowQuickMsg = not self._IsShowQuickMsg
+        self._Frame_QuickMsg:SetActive(self._IsShowQuickMsg)
+        self._IsShowRelax = false
+        self._PageInteractive:SetVisible(false)
+        -- if self._QuickMsgList == nil then return end
+        self:SaveQuickMsgToData()
+        local account = game._NetMan._UserName
+		local UserData = require "Data.UserData"
+		local accountInfo = UserData.Instance():GetCfg(EnumDef.LocalFields.QuickMsg, account)
+		if accountInfo ~= nil then
+			local serverInfo = accountInfo[game._NetMan._ServerName]
+			if serverInfo ~= nil then
+				local roleInfo = serverInfo[game._HostPlayer._ID]
+				if roleInfo ~= nil then
+					local listFx = roleInfo["QuickMsg"]
+					if listFx ~= nil then
+						if self._QuickMsgList == nil then
+							self._QuickMsgList = {}
+                        end                        
+                        for i,v in ipairs(listFx) do
+							self._QuickMsgList[i] = v
+						end
+						UserData.Instance():SetCfg(EnumDef.LocalFields.QuickMsg, account, accountInfo)
+					end
+				end
+			end
+		end
+        -- init快捷消息
+        self._List_QuickMsg:SetItemCount(#self._QuickMsgList)
 --[[
         if next_mode ~= EnumDef.CameraCtrlMode.FIX25D then
             local UserData = require "Data.UserData".Instance()
@@ -482,13 +563,15 @@ def.override('string').OnClick = function(self, id)
         end
 ]]
     elseif id == "Btn_Bag" then
+        self._IsShowQuickMsg = false
+        self._Frame_QuickMsg:SetActive(self._IsShowQuickMsg) 
         local panelData = 
             {
                 PageType = CPanelRoleInfo.PageType.BAG,
                 IsByNpcOpenStorage = false,
             }
         game._GUIMan:Open("CPanelRoleInfo",panelData)           
-    end
+    end    
 end
 
 def.method('number', 'number').OnGTextClick = function(self, msgId, linkId)     
@@ -502,6 +585,77 @@ def.method('number', 'number').OnGTextClick = function(self, msgId, linkId)
     end
 end
 
+def.override('userdata', 'string', 'number').OnInitItem = function(self, item, id, index)
+    if id == 'List_QuickMsg' then
+        local QuickMsg_Input = GUITools.GetChild(item , 1):GetComponent(ClassType.InputField)
+        QuickMsg_Input.text = self._QuickMsgList[index + 1]
+        -- QuickMsg_Input.enable(false)
+        QuickMsg_Input.enabled = false
+        GameUtil.SetInputFieldValidation(QuickMsg_Input , 0)
+    end
+end
+
+def.override('userdata', 'string', 'number').OnSelectItem = function(self, item, id, index)
+    if id == 'List_QuickMsg' then
+        local QuickMsg_Input = GUITools.GetChild(item , 1):GetComponent(ClassType.InputField)
+        QuickMsg_Input.enabled = true
+    end
+end
+
+def.override("userdata", "string", "string", "number").OnSelectItemButton = function(self, button_obj, id, id_btn, index)
+    if id_btn == "Btn_SendQuickMsg" then
+        local item = self._List_QuickMsg:GetItem(index)
+        if item == nil then return end
+        local QuickMsg_Input = GUITools.GetChild(item , 1):GetComponent(ClassType.InputField)
+        self._IsShowQuickMsg = not self._IsShowQuickMsg
+        self._Frame_QuickMsg:SetActive(self._IsShowQuickMsg)
+        ChatManager.Instance():ClientSendMsg(ChatChannel.ChatChannelCurrent, QuickMsg_Input.text, true, 0, nil, nil)
+        -- self._QuickMsgList[index + 1] = QuickMsg_Input.text
+        self:SaveQuickMsgToData()
+    end
+end
+
+--关闭Frame_QuickMsg的时候，缓存一次快捷消息
+def.method().SaveQuickMsgToData = function (self)
+    local account = game._NetMan._UserName
+    local UserData = require "Data.UserData"
+    local accountInfo = UserData.Instance():GetCfg(EnumDef.LocalFields.QuickMsg, account)
+    if accountInfo == nil then
+        accountInfo = {}
+    end
+    local serverName = game._NetMan._ServerName
+    if accountInfo[serverName] == nil then
+        accountInfo[serverName] = {}
+    end
+            
+    local roleIndex = game._HostPlayer._ID  
+    if accountInfo[serverName][roleIndex] == nil then
+        accountInfo[serverName][roleIndex] = {}
+    end
+
+    local QuickMsglist = accountInfo[serverName][roleIndex]["QuickMsg"]
+    QuickMsglist = {}  --不管有没有新数据，全都重新存一遍	
+
+    if self._QuickMsgList ~= nil and #self._QuickMsgList > 0 then		
+        for i,v in ipairs(self._QuickMsgList) do
+            local item = self._List_QuickMsg:GetItem(i - 1)
+            if item == nil then return end
+            local QuickMsg_Input = GUITools.GetChild(item , 1):GetComponent(ClassType.InputField)
+            local FilterMgr = require "Utility.BadWordsFilter".Filter
+            local StrMsg = FilterMgr.FilterChat(QuickMsg_Input.text)
+            if StrMsg == "" then
+                StrMsg = v
+            end
+            QuickMsglist[#QuickMsglist + 1] = StrMsg			
+        end
+    else
+        accountInfo[serverName][roleIndex]["QuickMsg"] = nil
+    end
+
+    accountInfo[serverName][roleIndex]["QuickMsg"] = QuickMsglist    
+    UserData.Instance():SetCfg(EnumDef.LocalFields.QuickMsg, account, accountInfo)
+end
+
 --target不为空点击就可以执行  TODO：后续需要加上判断不是文字链接
 def.override("userdata").OnPointerClick = function(self,target)
     if target == nil then return end
@@ -509,12 +663,32 @@ def.override("userdata").OnPointerClick = function(self,target)
         self._PageInteractive:SetVisible(false)
     return end
     -- warn("lidaming target == ", target.name)
-    if target.name ~= "Img_Mask" then
+    if target.name ~= "Img_Mask" and target.name == "View_Chanel" then
         -- TODO()
         if CPanelChatNew.Instance():IsShow() then return end
         game._GUIMan:Open("CPanelChatNew",nil)
     end	     
+    self._IsShowQuickMsg = false
+    self._Frame_QuickMsg:SetActive(self._IsShowQuickMsg)
 end
+
+local OnEntityClick = function(sender, event)
+    if event._Param ~= nil and instance:IsShow() and event._Param ~= instance._Panel.name then
+        if instance._Frame_QuickMsg.activeSelf then
+            instance._Frame_QuickMsg:SetActive(false)
+            instance._IsShowQuickMsg = false
+        end
+    end
+end
+
+def.method().ListenToEvent = function(self)
+    CGame.EventManager:addHandler('NotifyClick', OnEntityClick)	
+end
+
+def.method().UnlistenToEvent = function(self)
+    CGame.EventManager:removeHandler('NotifyClick', OnEntityClick)	
+end
+
 
 def.method("boolean").IsShowRelaxPanel = function(self, isShowRelax)
     self._IsShowRelax = isShowRelax
@@ -541,15 +715,18 @@ end
 
 --切换相机模式设置文本
 def.method("number").SetLabCameraMode = function (self, mode)
-    local str = ""
+    -- local str = ""
     if mode == EnumDef.CameraCtrlMode.FOLLOW then
-        str = "3D+"
+        -- str = "3D+"
+        GUITools.SetGroupImg(self._Img_Camera, 2)
     elseif mode == EnumDef.CameraCtrlMode.FIX3D then
-        str = "3D"
+        -- str = "3D"
+        GUITools.SetGroupImg(self._Img_Camera, 1)
     elseif mode == EnumDef.CameraCtrlMode.FIX25D then
-        str = "2.5D"
+        -- str = "2.5D"
+        GUITools.SetGroupImg(self._Img_Camera, 0)
     end
-    GUI.SetText(self._Lab_CameraMode, str)
+    -- warn("SSSSSSSSSSSSSSSSetCccc ===>>>", str)
 end
 
 -- 更新公会护送
@@ -616,9 +793,7 @@ def.method("table").OnDungeonProgress = function(self, serverInfo)
             if textTemplate ~= nil then
                 GUI.SetText(self._Lab_ProgressInfo, textTemplate.TextContent)
             end
-            if not self._Frame_ProgressBar.activeSelf then
-                self._Frame_ProgressBar:SetActive(true)
-            end
+            self._Frame_ProgressBar:SetActive(true)
             self:UpdateBarProgress(serverInfo.curProcess / serverInfo.maxValue)
             -- TODO:style
         elseif serverInfo.notifyType == ENotifyTypes.UPDATE then
@@ -632,9 +807,7 @@ def.method("table").OnDungeonProgress = function(self, serverInfo)
         -- 对抗进度条
         if serverInfo.notifyType == ENotifyTypes.OPEN then
             -- 开启进度条
-            if not self._Frame_CompetitionBar.activeSelf then
-                self._Frame_CompetitionBar:SetActive(true)
-            end
+            self._Frame_CompetitionBar:SetActive(true)
             self:UpdateBarCompetition(serverInfo.curProcess / serverInfo.maxValue) -- 默认各占一半
         elseif serverInfo.notifyType == ENotifyTypes.UPDATE then
             -- 更新进度条
@@ -647,9 +820,7 @@ def.method("table").OnDungeonProgress = function(self, serverInfo)
         -- 决斗进度条
         if serverInfo.notifyType == ENotifyTypes.OPEN then
             -- 开启进度条
-            if not self._Frame_DuelBar.activeSelf then
-                self._Frame_DuelBar:SetActive(true)
-            end
+            self._Frame_DuelBar:SetActive(true)
             local leftRate = serverInfo.curProcess / serverInfo.maxValue
             local rightRate = serverInfo.curProcess2 / serverInfo.maxValue2
             self:UpdateBarDuel(leftRate, rightRate)
@@ -670,9 +841,7 @@ def.method("table").OnDungeonProgress = function(self, serverInfo)
             if textTemplate ~= nil and serverInfo.roleName ~= nil then
                 GUI.SetText(self._Lab_ProgressInfo, serverInfo.roleName .. textTemplate.TextContent)
             end
-            if not self._Frame_ProgressBar.activeSelf then
-                self._Frame_ProgressBar:SetActive(true)
-            end
+            self._Frame_ProgressBar:SetActive(true)
             self:UpdateBarProgress(serverInfo.curProcess / serverInfo.maxValue)
             -- TODO:style
         elseif serverInfo.notifyType == ENotifyTypes.UPDATE then
@@ -681,6 +850,24 @@ def.method("table").OnDungeonProgress = function(self, serverInfo)
         elseif serverInfo.notifyType == ENotifyTypes.CLOSE then
             -- 关闭进度条
             self._Frame_ProgressBar:SetActive(false)
+        end
+    elseif serverInfo.progressType == EProgressTypes.KILLMONSTER then
+        -- 杀怪计数进度条
+        if serverInfo.notifyType == ENotifyTypes.OPEN then
+            -- 开启进度条
+            self._IsKillProgressBossActivated = true
+            local textTemplate = CElementData.GetTextTemplate(serverInfo.textTempId)
+            if textTemplate ~= nil then
+                GUI.SetText(self._Lab_KillProgressInfo, textTemplate.TextContent)
+            end
+            self._Frame_KillProgress:SetActive(true)
+            self:UpdateBarKillProgress(serverInfo.curProcess / serverInfo.maxValue)
+        elseif serverInfo.notifyType == ENotifyTypes.UPDATE then
+            -- 更新进度条
+            self:UpdateBarKillProgress(serverInfo.curProcess / serverInfo.maxValue)
+        elseif serverInfo.notifyType == ENotifyTypes.CLOSE then
+            -- 关闭进度条
+            self._Frame_KillProgress:SetActive(false)
         end
     end
 end
@@ -712,22 +899,42 @@ def.method("number", "number").UpdateBarDuel = function(self, leftRate, rightRat
     GUI.SetText(self._Lab_DuelRight, rightPercent .. "%")
 end
 
+-- 更新杀怪计数进度条
+def.method("number").UpdateBarKillProgress = function(self, rate)
+    self._Bar_KillProgress.size = rate
+    local percent = string.format("%.2f", rate * 100)
+    GUI.SetText(self._Lab_KillProgressPercent, percent .. "%")
+    local tweenId = "Boss"
+    if rate == 1 then
+        if not self._IsKillProgressBossActivated then
+            GUITools.SetUIActive(self._Frame_KillProgressBossEffect, true)
+            GameUtil.MakeImageGray(self._Img_KillProgressBoss, false)
+            self._TweenMan_KillProgressBoss:Restart(tweenId)
+            self._IsKillProgressBossActivated = true
+        end
+    else
+        if self._IsKillProgressBossActivated then
+            GUITools.SetUIActive(self._Frame_KillProgressBossEffect, false)
+            GameUtil.MakeImageGray(self._Img_KillProgressBoss, true)
+            self._TweenMan_KillProgressBoss:Stop(tweenId)
+            self._IsKillProgressBossActivated = false
+        end
+    end
+end
+
 -- 隐藏通用进度条
 def.method().HideDungeonCommonBar = function(self)
     if not IsNil(self._Frame_ProgressBar) then
-        if self._Frame_ProgressBar.activeSelf then
-            self._Frame_ProgressBar:SetActive(false)
-        end
+        self._Frame_ProgressBar:SetActive(false)
     end
     if not IsNil(self._Frame_CompetitionBar) then
-        if self._Frame_CompetitionBar.activeSelf then
-            self._Frame_CompetitionBar:SetActive(false)
-        end
+        self._Frame_CompetitionBar:SetActive(false)
     end
     if not IsNil(self._Frame_DuelBar) then
-        if self._Frame_DuelBar.activeSelf then
-            self._Frame_DuelBar:SetActive(false)
-        end
+        self._Frame_DuelBar:SetActive(false)
+    end
+    if not IsNil(self._Frame_KillProgress) then
+        self._Frame_KillProgress:SetActive(false)
     end
 end
 ----------------------------副本辅助显示 end-------------------------------
@@ -746,6 +953,7 @@ def.override().OnHide = function(self)
         _G.RemoveGlobalTimer(self._TimerId) 
         self._TimerId = 0
     end
+    self:UnlistenToEvent()
 end
 
 def.override().OnDestroy = function(self)
@@ -754,6 +962,7 @@ def.override().OnDestroy = function(self)
     CGame.EventManager:removeHandler('NotifyClick', OnEntityClick)
     CGame.EventManager:removeHandler(NotifyGuildEvent, OnNotifyGuildEvent)
     CGame.EventManager:removeHandler(EntityEnterEvent, OnEntityEnterEvent)  
+    CGame.EventManager:removeHandler("NotifyFunctionEvent", OnNotifyFunctionEvent)	
     self._UniqueMsg = {}
     --instance = nil --destroy
     if self._PageInteractive ~= nil then
@@ -765,8 +974,27 @@ def.override().OnDestroy = function(self)
     self._Should_Set_HPInfo = true
 
     self._Frame_ProgressBar = nil
+    self._Bar_Progress = nil
+    self._Lab_ProgressPercent = nil
+    self._Lab_ProgressInfo = nil
     self._Frame_CompetitionBar = nil
+    self._Bar_Competition = nil
+    self._Lab_CompetitionLeft = nil
+    self._Lab_CompetitionRight = nil
     self._Frame_DuelBar = nil
+    self._Bar_DuelLeft = nil
+    self._Lab_DuelLeft = nil
+    self._Bar_DuelRight = nil
+    self._Lab_DuelRight = nil
+    self._Frame_KillProgress = nil
+    self._Bar_KillProgress = nil
+    self._Lab_KillProgressPercent = nil
+    self._Lab_KillProgressInfo = nil
+    self._TweenMan_KillProgressBoss = nil
+    self._Img_KillProgressBoss = nil
+    self._Frame_KillProgressBossEffect = nil
+
+    self:SaveQuickMsgToData()
 end
 
 CPanelMainChat.Commit()

@@ -56,6 +56,15 @@ def.method(CFSMStateBase).UpdateStateParam = function (self, state)
 	end
 end
 
+def.method("=>", "boolean").UpdateCurStateWhenBecomeVisible = function (self)
+	if self._CurState ~= nil then
+		self._CurState:UpdateWhenBecomeVisible()
+		return true
+	end
+
+	return false
+end
+
 def.method().UpdateMoveStateAnimation = function (self)
 	self._CurState:PlayMountStateAnimation(0)
 end

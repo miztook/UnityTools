@@ -17,8 +17,12 @@ def.field("string")._AccessToken = ""
 def.field("boolean")._IsGuest = true
 def.field("boolean")._Is2ShowGoogleAchievement = false
 def.field("table")._GoogleAchievementList = BlankTable
+def.field("table")._DungeonGoalBreakPointMap = BlankTable -- 副本目标的打点表
+def.field("string")._OrderId = ""
+
 
 local DEFAULT_UPLOAD_GUILD_NAME = "-" -- 默认上传的工会名
+local SINGULAR_LEVEL_EVENT_PREFIX = "level achieve "
 
 local instance = nil
 def.static("=>",CPlatformSDKMan).Instance = function()
@@ -58,11 +62,9 @@ def.method("boolean").InitCallback = function(self,bSuccess)
 
 	game._GUIMan:CloseCircle()
 	if bSuccess then
+		game:EnterLoginStage()
 		local pType = self:GetPlatformType()
-		if pType == SDKDef.PlatformType.Any then
-			-- Debug Type
-			game._GUIMan:Open("CPanelLogin", { IsOnGameStart = true })
-		else
+		if pType ~= SDKDef.PlatformType.Any then
 			-- 检查自动登录
 			-- 如果已自动登录，会调 LoginCallback
 			PlatformSDK.CheckAutoLogin()
@@ -72,9 +74,6 @@ def.method("boolean").InitCallback = function(self,bSuccess)
 				if self:IsInLongtu() then
 					-- 龙图平台直接调用登录，走渠道登录进程
 					self:LoginAsLongtu()
-				else
-					-- 还没有登录，需要弹SDK登录界面
-					game._GUIMan:Open("CPanelLogin", { IsOnGameStart = true })
 				end
 			end
 		end
@@ -91,28 +90,31 @@ def.method("number","string","string","string","boolean").LoginCallback = functi
 	warn("登录回调 Lua::LoginCallback... ", eLoginState, " ID:", strUserID, " IsGuest:", bGuest, " PushState Player:", self:GetPlayerPushStatus(), "Night:", self:GetNightPushStatus())
 
 	game._GUIMan:CloseCircle()
+	CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.PS, false) -- 恢复背景音乐音量
 	if eLoginState == SDKDef.LoginState.Succeed then
 		self._UserID = strUserID
 		self._AccessToken = strAccessToken
 		self._IsGuest = bGuest
 
-		-- Show Lontu Notice
 		if self:IsInLongtu() then
+			-- Show Lontu Notice
 			self:SetBreakPoint(SDKDef.PointState.Game_Get_Announcement)
 			self:ShowAnnouncement(nil)
+		elseif self:IsInKakao() then
+			self:SetBreakPoint(SDKDef.PointState.Game_Account_Login_Succeed)
+			PlatformSDK.SendSingularEvent("Login")
 		end
-
 		-- 更新界面
-		local CPanelLogin = require "GUI.CPanelLogin"
-		if CPanelLogin.Instance():IsShow() then
-			CPanelLogin.Instance():CheckOpenType(self:GetPanelLoginOpenType())
-		else
-			game._GUIMan:Open("CPanelLogin", { IsOnGameStart = true })
+		local panelLogin = require "GUI.CPanelLogin".Instance()
+		if panelLogin:IsShow() then
+			panelLogin:CheckOpenType(self:GetPanelLoginOpenType())
 		end
-	elseif eLoginState == SDKDef.LoginState.HasAssociate then
-		-- TODO("在其他地方登录")
-	elseif eLoginState == SDKDef.LoginState.TimeOut then
-		-- TODO("登录超时")
+	else
+		if eLoginState == SDKDef.LoginState.HasAssociate then
+			-- TODO("在其他地方登录")
+		elseif eLoginState == SDKDef.LoginState.TimeOut then
+			-- TODO("登录超时")
+		end
 	end
 end
 
@@ -124,18 +126,30 @@ def.method("boolean").LogoutCallback = function(self,bSuccess)
 	if bSuccess then
 		self:Clear()
 		game:LogoutAccount()
-		game:ReturnLoginStage()
 	end
+end
+
+-- 临时 同步支付失败状态 打开5分钟开单限制
+def.method("string").SendC2SPurchaseFaild = function(self, orderId)
+	local C2SPurchaseFaild = require "PB.net".C2SPurchaseFaild
+	local protocol = C2SPurchaseFaild()
+
+	protocol.OrderId = string.len(orderId) > 0 and orderId or self._OrderId
+	SendProtocol(protocol)
 end
 
 -- 支付回调
 def.method("boolean","number","string","string","string").BuyCallback = function(self,bSuccess,iBillingType,strOrderId,strTransactionId,strReceipt)
-	warn("支付回调 Lua::BuyCallback...", bSuccess)
-
+	--warn("支付回调 Lua::BuyCallback...", bSuccess)
 	if bSuccess then
-
+		-- PlatformSDK.SendSingularEvent("IAP")
 	else
-
+		if _G.IsAndroid() then
+			local title, msg, closeType = StringTable.GetMsg(141)
+			MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OK)
+		end
+		-- 临时 同步支付失败状态 打开5分钟开单限制
+		self:SendC2SPurchaseFaild(strOrderId)
 	end
 
 	-- 验单
@@ -167,6 +181,7 @@ def.method().Clear = function(self)
 	self._IsGuest = true
 	self._Is2ShowGoogleAchievement = false
 	self._GoogleAchievementList = {}
+	self._DungeonGoalBreakPointMap = {}
 end
 
 def.method("=>", "boolean").IsLogined = function(self)
@@ -214,7 +229,9 @@ def.method().LoginAsKakao = function(self)
 	-- 	return
 	-- end
 	warn("Start LoginAsKakao...")
+	self:SetBreakPoint(SDKDef.PointState.Game_Account_Login)
 	game._GUIMan:ShowCircle(StringTable.Get(14002), true)
+	CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.PS, true) -- 背景音乐音量降为0
 	PlatformSDK.Login(SDKDef.KakaoIDP.Kakao)
 end
 
@@ -225,7 +242,9 @@ def.method().LoginAsGuest = function(self)
 	-- 	return
 	-- end
 	warn("Start LoginAsGuest...")
+	self:SetBreakPoint(SDKDef.PointState.Game_Account_Login)
 	game._GUIMan:ShowCircle(StringTable.Get(14002), true)
+	CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.PS, true) -- 背景音乐音量降为0
 	PlatformSDK.Login(SDKDef.KakaoIDP.Guest)
 end
 
@@ -279,7 +298,6 @@ def.method().Unregister = function(self)
 			-- 返回登录界面
 			self:Clear()
 			game:LogoutAccount()
-			game:ReturnLoginStage()
 		end
 	end
 	PlatformSDK.Unregister(callback)
@@ -338,6 +356,14 @@ def.method("number").UploadRoleInfo = function(self, uploadType)
 		elseif uploadType == EnumDef.UploadRoleInfoType.Login then
 			sendType = 1
 		end
+	elseif self:IsInKakao() then
+		if uploadType == EnumDef.UploadRoleInfoType.RoleInfoChange then
+			local level = hp._InfoData._Level
+			if level == 5 or level == 10 then
+				-- 升1/5/10级上传固定打点信息 kakao暂定需求
+				PlatformSDK.SendSingularEvent(SINGULAR_LEVEL_EVENT_PREFIX..level)
+			end
+		end
 	end
 	-- warn("UploadRoleInfo uploadType:", uploadType, "sendType:", sendType, debug.traceback())
 	local hp_info = hp._InfoData
@@ -358,6 +384,9 @@ def.method("number", "string", "number", "number", "string", "number").UploadRol
 	local sendType = 0
 	if self:IsInLongtu() then
 		sendType = 2 -- 对于龙图平台 sendType 0:角色信息变更 1:登陆 2:创角
+	elseif self:IsInKakao() then
+		-- 升1/5/10级上传固定打点信息 kakao暂定需求
+		PlatformSDK.SendSingularEvent(SINGULAR_LEVEL_EVENT_PREFIX..roleLevel)
 	end
 	-- warn("UploadRoleInfoWhenCreate sendType:", sendType, debug.traceback())
 	if IsNilOrEmptyString(guildName) then
@@ -424,6 +453,12 @@ end
 -- end
 def.method("string").ShowInAppWeb = function(self, url)
 	PlatformSDK.ShowInAppWeb(url)
+end
+
+-- 平台SDK DaumCafe
+-- @param url:打开的DaumCafe链接
+def.method("string").ShowDaumCafeWithUrl = function(self, url)
+	PlatformSDK.ShowDaumCafe(url)
 end
 
 -- 优惠券
@@ -531,6 +566,98 @@ def.method("dynamic").SetBreakPoint = function(self, pointType)
 	PlatformSDK.SetBreakPoint(pointType)
 end
 
+-- 设置主线打点
+def.method("number", "dynamic").SetPipelineBreakPoint = function(self, pType, data)
+	if data == nil then return end
+	local function CheckDataVaild(data)
+		local ret = false
+		if data ~= nil then
+			local dataType = type(data)
+			if pType == SDKDef.PipelinePointType.QuestEnter or
+			   pType == SDKDef.PipelinePointType.QuestEnd or
+			   pType == SDKDef.PipelinePointType.PlayCG or
+			   pType == SDKDef.PipelinePointType.BossEnter or
+			   pType == SDKDef.PipelinePointType.DungeonEnter or
+			   pType == SDKDef.PipelinePointType.DungeonEnd or
+			   pType == SDKDef.PipelinePointType.GuideEnter or
+			   pType == SDKDef.PipelinePointType.GuideEnd or
+			   pType == SDKDef.PipelinePointType.GuideTriggerEnter or
+			   pType == SDKDef.PipelinePointType.GuideTriggerEnd then
+				ret = dataType == "number"
+			elseif pType == SDKDef.PipelinePointType.DungeonGoal then
+				if dataType == "table" then
+					ret = type(data.DungeonId) == "number" and type(data.GoalId) == "number"
+				end
+			end
+		end
+		return ret
+	end
+	if not CheckDataVaild(data) then
+		warn("SetPipelineBreakPoint failed, got wrong data", debug.traceback())
+		return
+	end
+
+	local pointStr = ""
+	if self:IsInKakao() then
+		local numberStr = nil -- 打点编号
+		local category = "" -- 分类
+		local BreakPointConfig = require "Data.BreakPointConfig"
+		local config = BreakPointConfig.Get("Kakao")
+		if config ~= nil then
+			if pType == SDKDef.PipelinePointType.QuestEnter and config.Quest ~= nil then
+				numberStr = config.Quest[data]
+				category = "Quest"
+			elseif pType == SDKDef.PipelinePointType.PlayCG and config.CG ~= nil then
+				numberStr = config.CG[data]
+				category = "CG"
+			elseif pType == SDKDef.PipelinePointType.BossEnter and config.Boss ~= nil then
+				numberStr = config.Boss[data]
+				category = "Dungeon"
+			elseif pType == SDKDef.PipelinePointType.DungeonGoal and config.Dungeon ~= nil then
+				if config.Dungeon[data.DungeonId] ~= nil then
+					numberStr = config.Dungeon[data.DungeonId][data.GoalId]
+					category = "Dungeon"
+					if numberStr ~= nil then
+						if self._DungeonGoalBreakPointMap[numberStr] ~= nil then return end -- 防止重复发送
+						self._DungeonGoalBreakPointMap[numberStr] = true
+					end
+				end
+			elseif pType == SDKDef.PipelinePointType.DungeonEnter then
+				self._DungeonGoalBreakPointMap = {}
+			end
+		end
+		if IsNilOrEmptyString(numberStr) then return end -- 没有对应编号配置的不上传
+
+		local roleId = game._HostPlayer ~= nil and game._HostPlayer._ID or 0 -- 角色ID
+		pointStr = pointStr .. category .. "*" .. roleId .. "*" .. numberStr .. "_"
+	end
+	if pType == SDKDef.PipelinePointType.QuestEnter then
+		pointStr = pointStr .. "Quest_Enter_" .. data
+	elseif pType == SDKDef.PipelinePointType.QuestEnd then
+		pointStr = pointStr .. "Quest_End_" .. data
+	elseif pType == SDKDef.PipelinePointType.PlayCG then
+		pointStr = pointStr .. "PlayCG_" .. data
+	elseif pType == SDKDef.PipelinePointType.BossEnter then
+		pointStr = pointStr .. "Boss_Enter_" .. data
+	elseif pType == SDKDef.PipelinePointType.DungeonGoal then
+		pointStr = pointStr .. "DungeonID:" .. data.DungeonId .. "_DungeonGoal_ID:" .. data.GoalId
+	elseif pType == SDKDef.PipelinePointType.DungeonEnter then
+		pointStr = pointStr .. "Enter_Dungeon_ID:" .. data
+	elseif pType == SDKDef.PipelinePointType.DungeonEnd then
+		pointStr = pointStr .. "Leave_Dungeon_ID:" .. data
+	elseif pType == SDKDef.PipelinePointType.GuideEnter then
+		pointStr = pointStr .. "Guide_Enter_" .. data
+	elseif pType == SDKDef.PipelinePointType.GuideEnd then
+		pointStr = pointStr .. "Guide_End_" .. data
+	elseif pType == SDKDef.PipelinePointType.GuideTriggerEnter then
+		pointStr = pointStr .. "GuideTrigger_Enter_" .. data
+	elseif pType == SDKDef.PipelinePointType.GuideTriggerEnd then
+		pointStr = pointStr .. "GuideTrigger_End_" .. data
+	end
+	-- print("SetPipelineBreakPoint pointStr:", pointStr, debug.traceback())
+	self:SetBreakPoint(pointStr)
+end
+
 -- 平台是否有退出游戏（弹窗）
 def.method("=>", "boolean").IsPlatformExitGame = function(self)
 	return PlatformSDK.IsPlatformExitGame()
@@ -542,30 +669,62 @@ def.method().ExitGame = function(self)
 end
 
 ---------------------------- 支付相关 start -------------------------
+
+def.method().SetProductIds = function(self)
+	-- warn("Lua:SetProductIds")
+	if _G.IsWin() then return end
+
+	local ECostType = require "PB.Template".Goods.ECostType
+	local CElementData = require "Data.CElementData"
+	local pids = {}
+	local appGoodTids = CElementData.GetAllGoods()
+
+	for i, tid in ipairs( appGoodTids ) do
+		local goods = CElementData.GetTemplate("Goods", tid)
+		if goods and goods.Switch and
+		   goods.CostType == ECostType.Cash then
+		   	local pid = _G.IsIOS() and goods.IOS_ProductId or goods.AND_ProductId
+		   	if string.len(pid) > 0 then
+				table.insert(pids, pid)
+			end
+		end
+	end
+	if #pids > 0 then
+		-- for i, pid in ipairs(pids) do
+		-- 	warn("可用的PID = ", pid)
+		-- end
+
+		PlatformSDK.SetProductIds(pids)
+	end
+end
+
 def.method("number").InitIap = function(self, roldId)
-	warn("Lua::InitIap")
+	-- warn("Lua::InitIap")
 	PlatformSDK.InitializeIAP(roldId)
 end
 
 -- 开启支付
 def.method("number", "string", "string").DoPurchase = function(self, purchaseType, orderId, productId)
-	warn("Lua::DoPurchase : ", purchaseType, orderId, productId)
+	-- warn("Lua::DoPurchase : ", purchaseType, orderId, productId)
+	self._OrderId = orderId
 	PlatformSDK.DoPurchase(purchaseType, orderId, productId)
 end
 
 -- 缓存中Receipt 再验证
 def.method().ProcessPurchaseCache = function(self)
-	PlatformSDK.ProcessPurchaseCache()
+	if self:IsInKakao() then
+		PlatformSDK.ProcessPurchaseCache()
+	end
 end
 
 def.method("number").GetOrderInfoByType = function (self, purchaseType)
-	warn("GetOrderInfoByType...")
+	-- warn("GetOrderInfoByType...")
 	if purchaseType == EPurchaseType.EPlatformType_AppStore then
-		warn("Apple Store Info")
+		-- warn("Apple Store Info")
 	elseif purchaseType == EPurchaseType.EPlatformType_GooglePlay then
-		warn("Google Play Info")
+		-- warn("Google Play Info")
 	elseif purchaseType == EPurchaseType.EPlatformType_TStore then
-		warn("T-Store Info")
+		-- warn("T-Store Info")
 	else
 		warn("Not supported purchaseType Platform = ", purchaseType)
 	end

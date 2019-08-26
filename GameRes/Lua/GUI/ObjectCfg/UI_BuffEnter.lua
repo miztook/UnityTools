@@ -21,6 +21,7 @@ local cfg = {
     Btn_WorldBoss = 1445148604,
     Btn_Autokill = -905479088,
     Btn_GrowthGuide = 799932370,
+    Btn_ActivityMall = -640612602,
 }
  
 return cfg

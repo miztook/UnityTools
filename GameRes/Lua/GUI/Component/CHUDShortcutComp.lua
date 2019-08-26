@@ -107,7 +107,7 @@ local function NavigateToTarget(target)
         local function onFail()
             CAutoFightMan.Instance():Restart(_G.PauseMask.ManualControl)
         end
-        game:NavigatToPos(dest, offset, onReach, onFail)            
+        TeraFuncs.NavigatToPos(dest, offset, onReach, onFail)            
     end
 end
 

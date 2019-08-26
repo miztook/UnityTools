@@ -1,6 +1,5 @@
 local Lplus = require 'Lplus'
 local CPanelBase = require 'GUI.CPanelBase'
-local CloseTipsEvent = require "Events.CloseTipsEvent"
 local CGame = Lplus.ForwardDeclare("CGame")
 
 local CPanelHintBase = Lplus.Extend(CPanelBase, 'CPanelHintBase')
@@ -152,8 +151,7 @@ def.override().OnHide = function(self)
     self._IsShowCompare = false
     self._IsShowButton = false
     game._GUIMan:Close("CPanelItemApproach")    
-	local event = CloseTipsEvent()
-    CGame.EventManager:raiseEvent(nil, event)
+    EventUntil.RaiseCloseTipsEvent()
     self._Lay_Button = nil 
     self._Scroll1 = nil 
     self._Scroll2 = nil 

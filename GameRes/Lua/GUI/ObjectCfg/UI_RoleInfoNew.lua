@@ -154,6 +154,8 @@ local cfg = {
     Lab_Title = 1202927846,
     Lab_NoItem = -1531449434,
     Frame_R = 1057400288,
+    Btn_Storage = 1226672984,
+    StorageMask = 1142075367,
 }
  
 return cfg

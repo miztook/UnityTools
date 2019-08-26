@@ -11,19 +11,20 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[50201] = 
 		{
-			[1] = { x = 300.07, y = 51.98, z = -67.88, name = "검은 날개 시칸 약탈자", level = 33, SortID = 4, DropItemIds = " " },
+			[1] = { x = 300.07, y = 51.98, z = -67.88, name = "검은 날개 약탈자", level = 33, SortID = 4, DropItemIds = " " },
 		},
 		[50202] = 
 		{
-			[1] = { x = 324.43, y = 48.78, z = -74.86, name = "검은 날개 시칸 사제", level = 33, SortID = 5, DropItemIds = " " },
+			[1] = { x = 324.43, y = 48.78, z = -74.86, name = "검은 날개 사제", level = 33, SortID = 5, DropItemIds = " " },
 		},
 		[50203] = 
 		{
-			[1] = { x = 301.07, y = 52.00, z = -70.05, name = "검은 날개 시칸 대주교", level = 33, SortID = 6, DropItemIds = " " },
+			[1] = { x = 301.07, y = 52.00, z = -70.05, name = "검은 날개 대주교", level = 33, SortID = 6, DropItemIds = " " },
 		},
 		[50204] = 
 		{
@@ -49,7 +50,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[3] = { x = 318.94, y = 48.81, z = -81.63, name = "相位区域", worldId = 0, PkMode = 0 },
+			[3] = { x = 318.94, y = 48.81, z = -81.63, name = "相位区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

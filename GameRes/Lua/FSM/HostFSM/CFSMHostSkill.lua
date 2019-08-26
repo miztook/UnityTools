@@ -24,6 +24,7 @@ end
 
 def.override("number").EnterState = function(self, oldstate)
 	CFSMStateBase.EnterState(self, oldstate)
+	self._Host:QuitExterior()
 	self._Host:StopHurAnimation()
 	self._Host:UpdateWingAnimation()
 

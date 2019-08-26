@@ -11,11 +11,12 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD04.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn04_Zuras01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[36012] = 
 		{
-			[1] = { x = 0.00, y = 5.67, z = 35.00, name = "风之精灵首领", level = 44,IsBoss = true },
+			[1] = { x = 0.00, y = 5.67, z = 35.00, name = "辛特瑞昂", level = 44,IsBoss = true },
 		},
 	},
 	Npc = 

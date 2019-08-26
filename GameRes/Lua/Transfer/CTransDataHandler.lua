@@ -19,11 +19,6 @@ def.static("=>", CTransDataHandler).Instance = function()
 	return instance
 end
 
---def.static("=>", CTransDataHandler).new = function()
---    local obj = CTransDataHandler()
---    return obj
---end
-
 def.method().Init = function(self)
     self:LoadAllTransTable()
 end
@@ -31,6 +26,11 @@ end
 def.method().LoadAllTransTable = function (self)
 	--self._TableMapInfo = MapBasicConfig.Get()
     self._TableMapLink = MapBasicConfig.GetLink()
+end
+
+def.method().ClearAllTransTable = function (self)
+	--self._TableMapInfo = MapBasicConfig.Get()
+    self._TableMapLink = nil
 end
 
 -- 根据mapID获得地图数据
@@ -101,7 +101,7 @@ def.method("number","table","=>","boolean","table").GetTransLinkDataByMapAndPosi
 end
 
 local function GetProtalDataByMapID(nMapID)
-	local allTransData = GameUtil.GetAllTid("Trans")
+	local allTransData = CElementData.GetAllTid("Trans")
 	for _,v in pairs(allTransData) do
 		local transData = CElementData.GetTemplate("Trans", v)    
 		if transData ~= nil and transData.MapId ~= nil then

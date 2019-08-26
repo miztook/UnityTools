@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Desert",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13011] = 
@@ -143,8 +144,8 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[288] = { x = -194.61, y = 175.80, z = -118.24, name = "血骨王座", worldId = 0, IsCanFind = 1, Describe = "血骨王座", PkMode = 0 },
-			[315] = { x = -179.16, y = 29.78, z = -150.60, name = "逃离区域", worldId = 0, PkMode = 0 },
+			[288] = { x = -194.61, y = 175.80, z = -118.24, name = "血骨王座", worldId = 0, IsCanFind = 1, Describe = "血骨王座", PkMode = 1 },
+			[315] = { x = -179.16, y = 29.78, z = -150.60, name = "逃离区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

@@ -58,24 +58,29 @@ local SystemEntranceCfg =
     [0] =  {  Name = "퀘스트",    IconPath = "System_Task",   Priority = 2, },    --任务
     [1]  = {  Name = "스킬",    IconPath = "System_Skill",   Priority = 1, },     --技能    
 	[32] = {  Name = "스타일",    IconPath = "System_Appearence",   Priority = 4, },     --外观
-    [31] = {  Name = "가공",    IconPath = "System_Processing",   Priority = 5, },     --装备   
+    [31] = {  Name = "강화",    IconPath = "System_Processing",   Priority = 5, },     --装备   
     [48] = {  Name = "날개",    IconPath = "System_Wing",   Priority = 24, },    --翅膀养成
     [2]  = {  Name = "펫",    IconPath = "System_Pet",   Priority = 6, },     --宠物
     [11] = {  Name = "룬",    IconPath = "System_Magic",   Priority = 7, },     --神符
     
-    [34] = {  Name = "상점",    IconPath = "System_Shop",   Priority = 8, },     --商店
-    [43] = {  Name = "업적",    IconPath = "System_Museum",   Priority = 3, },    --荣誉
-    [6]  = {  Name = "길드",    IconPath = "System_Guild",   Priority = 9, },     --公会    
+    [34] = {  Name = "잡화점",    IconPath = "System_Shop",   Priority = 8, },     --商店
+    [51] = {  Name = "소환",    IconPath = "System_Lottery",   Priority = 27, },    --召唤
+    [37] = {  Name = "거래",    IconPath = "System_Auction",   Priority = 25, },    --交易 
+    [6]  = {  Name = "길드",    IconPath = "System_Guild",   Priority = 9, },     --公会  
+
+
+    [43] = {  Name = "업적",    IconPath = "System_Museum",   Priority = 3, },    --荣誉      
     [33] = {  Name = "랭킹",    IconPath = "System_Ranking",   Priority = 10, },     --排行榜
+    [50] = {  Name = "절전",    IconPath = "System_PowerSaving",   Priority = 26, },    --省电模式 
     [35] = {  Name = "설정",    IconPath = "System_Setting",   Priority = 11, },    --设置
 
-    [38] = {  Name = "복리",    IconPath = "System_Welfare",   Priority = 23, },    --福利
-    [49] = {  Name = "가이드",    IconPath = "System_Activity",   Priority = 22, },    --指南
+    [38] = {  Name = "이벤트",    IconPath = "System_Welfare",   Priority = 23, },    --福利
+    [49] = {  Name = "임무",    IconPath = "System_Activity",   Priority = 22, },    --指南
     [7] =  {  Name = "모험",    IconPath = "System_Calendar",   Priority = 21, },    --冒险
-    [19] = {  Name = "상점",    IconPath = "System_Mall",   Priority = 20, },    --商城
+    [19] = {  Name = "<color=#fecc6a>테라샵</color>",    IconPath = "System_Mall",   Priority = 20, },    --商城
 
-    [37] = {  Name = "거래",    IconPath = "System_Auction",   Priority = 25, },    --交易  
-    [50] = {  Name = "절전모드",    IconPath = "System_Auction",   Priority = 26, },    --省电模式  
+     
+     
     
     
 }

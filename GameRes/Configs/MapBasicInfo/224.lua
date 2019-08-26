@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD02.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn02_Cave01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[21001] = 
@@ -98,15 +99,15 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[133] = { x = 57.06, y = 55.50, z = -62.23, name = "洞穴最深处", worldId = 0, PkMode = 0 },
-			[183] = { x = 105.97, y = 59.53, z = -121.08, name = "宝藏判定区域", worldId = 0, PkMode = 0 },
-			[168] = { x = 105.45, y = 57.67, z = -111.50, name = "石门CG触发区域", worldId = 0, PkMode = 0 },
-			[179] = { x = 75.97, y = 57.98, z = -62.79, name = "初始抵达区域", worldId = 0, PkMode = 0 },
-			[184] = { x = 109.35, y = 57.63, z = -101.30, name = "鹰眼区域", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {514} },
-			[186] = { x = 89.74, y = 57.38, z = -97.37, name = "阻拦区域", worldId = 0, PkMode = 0 },
-			[197] = { x = 71.65, y = 57.98, z = -64.14, name = "真·初始任务到达区域", worldId = 0, PkMode = 0 },
-			[198] = { x = 77.14, y = 57.41, z = -89.85, name = "抵达区域", worldId = 0, PkMode = 0 },
-			[199] = { x = 74.07, y = 60.68, z = -59.26, name = "副本刷怪区域", worldId = 0, PkMode = 0 },
+			[133] = { x = 57.06, y = 55.50, z = -62.23, name = "洞穴最深处", worldId = 0, PkMode = 1 },
+			[183] = { x = 105.97, y = 59.53, z = -121.08, name = "宝藏判定区域", worldId = 0, PkMode = 1 },
+			[168] = { x = 105.45, y = 57.67, z = -111.50, name = "石门CG触发区域", worldId = 0, PkMode = 1 },
+			[179] = { x = 75.97, y = 57.98, z = -62.79, name = "初始抵达区域", worldId = 0, PkMode = 1 },
+			[184] = { x = 109.35, y = 57.63, z = -101.30, name = "鹰眼区域", worldId = 0, PkMode = 1, IsCanHawkeye = true, QuestID = {514} },
+			[186] = { x = 89.74, y = 57.38, z = -97.37, name = "阻拦区域", worldId = 0, PkMode = 1 },
+			[197] = { x = 71.65, y = 57.98, z = -64.14, name = "真·初始任务到达区域", worldId = 0, PkMode = 1 },
+			[198] = { x = 77.14, y = 57.41, z = -89.85, name = "抵达区域", worldId = 0, PkMode = 1 },
+			[199] = { x = 74.07, y = 60.68, z = -59.26, name = "副本刷怪区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

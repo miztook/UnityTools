@@ -15,8 +15,6 @@ local MapBasicConfig = require "Data.MapBasicConfig"
 local CPath = require "Path.CPath"
 local QuestUtil = require "Quest.QuestUtil"
 
-local CombatStateChangeEvent = require"Events.CombatStateChangeEvent"
-
 local CPageMiniMap = Lplus.Class("CPageMiniMap")
 local def = CPageMiniMap.define
 
@@ -26,6 +24,7 @@ def.field("userdata")._Frame_HostPlayer = nil
 def.field("userdata")._Rect_HostPlayer = nil
 def.field("userdata")._Img_CameraSight = nil
 def.field("userdata")._Img_Weather = nil
+def.field("userdata")._Img_PKMode = nil
 def.field("userdata")._Lab_MapName = nil
 def.field("userdata")._Mask_Map = nil
 def.field("userdata")._Frame_Map = nil
@@ -72,6 +71,7 @@ def.field("table")._TmpVector3 = BlankTable
 def.field("table")._MapOffset = BlankTable
 def.field("number")._SightRangeSqr = 0 -- 视野范围的平方
 def.field("function")._OnCombatStateChange = nil
+def.field("function")._OnNotifyEnterRegion = nil
 def.field("boolean")._IsPlayingFx = false
 def.field("number")._CurWeather = 0 -- 当前天气
 -- 常量
@@ -123,6 +123,7 @@ def.method("table").Init = function(self, parent)
 	local rectCameraSight = self._Img_CameraSight:GetComponent(ClassType.RectTransform)
 	rectCameraSight.pivot = Vector2.New(0.5, 0)
 	self._Img_Weather = self._Parent:GetUIObject("Img_Weather")
+	self._Img_PKMode = self._Parent:GetUIObject("Img_PKMode")
 
 	self._Frame_Map = self._Parent:GetUIObject("Frame_Map")
 	self._Img_Map = self._Parent:GetUIObject("Img_Map")
@@ -218,8 +219,12 @@ end
 def.method().Hide = function (self)
 	self:EnableUISfx(false)
 	if self._OnCombatStateChange ~= nil then
-		CGame.EventManager:removeHandler(CombatStateChangeEvent, self._OnCombatStateChange)
+		CGame.EventManager:removeHandler("CombatStateChangeEvent", self._OnCombatStateChange)
 		self._OnCombatStateChange = nil
+	end
+	if self._OnNotifyEnterRegion ~= nil then
+		CGame.EventManager:removeHandler("NotifyEnterRegion", self._OnNotifyEnterRegion)
+		self._OnNotifyEnterRegion = nil
 	end
 	self:Stop()
 end
@@ -231,6 +236,7 @@ def.method().Destroy = function (self)
 	self._Rect_HostPlayer = nil
 	self._Img_CameraSight = nil
 	self._Img_Weather = nil
+	self._Img_PKMode = nil
 	self._Lab_MapName = nil
 	self._Mask_Map = nil
 	self._Frame_Map = nil
@@ -268,8 +274,14 @@ def.method().Start = function(self)
 			self:EnableUISfx(event._IsInCombatState)
 		end
 	end
+	CGame.EventManager:addHandler("CombatStateChangeEvent", self._OnCombatStateChange)
 
-	CGame.EventManager:addHandler(CombatStateChangeEvent, self._OnCombatStateChange)
+	self:UpdatePKModeIcon()
+	-- 监听进出区域
+	self._OnNotifyEnterRegion = function (sender,event)
+		self:UpdatePKModeIcon()
+	end
+	CGame.EventManager:addHandler("NotifyEnterRegion", self._OnNotifyEnterRegion)
 
 	-- Add Timer
 	if self._M_TimerId == 0 then
@@ -362,6 +374,24 @@ def.method().UpdateWeather = function (self)
 		self._CurWeather = CurrentWeather
 		GUITools.SetGroupImg(self._Img_Weather, CurrentWeather)
 	end
+end
+
+def.method().UpdatePKModeIcon = function (self)
+	local mode = game._HostPlayer:GetCurRegionPKMode()
+	local index = -1
+	local EPkMode = require "PB.data".EPkMode
+	if mode == EPkMode.EPkMode_Peace or mode == EPkMode.EPkMode_Invalid then
+		index = 0
+	elseif mode == EPkMode.EPkMode_Guild or mode == EPkMode.EPkMode_Massacre then
+		index = 1
+	elseif mode == EPkMode.EPkMode_NoLimit then
+		index = 2
+	end
+	if index == -1 then
+		warn("UpdatePKModeIcon failed, got wrong mode:", mode)
+		return
+	end
+	GUITools.SetGroupImg(self._Img_PKMode, index)
 end
 
 def.method().UpdateHostPosDir = function (self)
@@ -632,7 +662,8 @@ end
 
 -- 更新鹰眼指示
 def.method().UpdateHawkEyePointing = function (self)
-	local hawkEyePosTable = game._HostPlayer._TableHawkEyeTargetPos
+	local CHawkeyeEffectMan = require "Main.CHawkeyeEffectMan"
+	local hawkEyePosTable = CHawkeyeEffectMan.Instance():GetRegions()
 	local bShowMapHawkEye = false -- 是否显示小地图范围内的鹰眼
 	local allHawkEyes = {} -- 当前的鹰眼指示
 	local isHideAll = false

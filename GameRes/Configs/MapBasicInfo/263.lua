@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD06.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn06_EmpireRelic.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[25404] = 
@@ -82,7 +83,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[330] = { x = -62.73, y = 0.08, z = 154.00, name = "BOSS战斗区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 0 },
+			[330] = { x = -62.73, y = 0.08, z = 154.00, name = "BOSS战斗区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1 },
 		},
 	},
 	Mine = 

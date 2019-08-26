@@ -110,9 +110,12 @@ def.override().OnPateCreate = function(self)
 	CNonPlayerCreature.OnPateCreate(self)
 	if self._TopPate == nil then return end
 
-	self._TopPate:SetVisible(true)
+    if self:IsVisible() then
+        self._TopPate:SetVisible(true)
+    end
+
 	self._TopPate:SetHPLineIsShow(false, EnumDef.HPColorType.None)
-	self._TopPate:UpdateName(true)
+	--self._TopPate:UpdateName(true)
 	self:OnQuestStatusChange()
 end
 
@@ -260,10 +263,6 @@ def.method("=>", "boolean", "number").CheckAndUpdateQuestStatus = function (self
 		end
 	end
 
-
-					
-
-
 	--self._TopPate:OnLogoChange(logoType)
 	if pathName ~= self._CurOverheadModelPath then
 		RemoveIconModel(self)
@@ -275,12 +274,21 @@ def.method("=>", "boolean", "number").CheckAndUpdateQuestStatus = function (self
 
 		if PATH[pathName] ~= nil then
 			local function loaded(res)
-				if pathName == "" or res == nil or self._IsReleased then return end
+				if pathName == "" or res == nil or self._IsReleased then 
+					Object.Destroy(res)
+					return 
+				end
 				self:AddLoadedCallback(function(p)
 					local obj = self:GetGameObject()
-					if IsNil(obj) then return end
-					if self._CurOverheadModelPath == "" or self._CurOverheadModelPath ~= pathName then return end
-					self._IconModel = Object.Instantiate(res)
+					if IsNil(obj) then 
+						Object.Destroy(res)
+						return 
+					end
+					if self._CurOverheadModelPath == "" or self._CurOverheadModelPath ~= pathName then 
+						Object.Destroy(res)
+						return 
+					end
+					self._IconModel = res -- Object.Instantiate(res)
 					GameUtil.SetLayerRecursively(self._IconModel, EnumDef.RenderLayer.EntityAttached)
 					self._IconModel:SetActive(true)
 					self._IconModel:SetParent(obj)
@@ -302,7 +310,7 @@ def.method("=>", "boolean", "number").CheckAndUpdateQuestStatus = function (self
 					end
 				end)
 			end
-			GameUtil.AsyncLoad(PATH[pathName], loaded)
+			GameUtil.AsyncLoad(PATH[pathName], loaded, true, "Characters")
 		end
 	end
 
@@ -335,7 +343,7 @@ def.override().OnClick = function (self)
 	end
 
     local targetPos = self:GetPos()
-    game:NavigatToPos(targetPos, _G.NAV_OFFSET + self:GetRadius(), sucessCb, failedCb)
+    TeraFuncs.NavigatToPos(targetPos, _G.NAV_OFFSET + self:GetRadius(), sucessCb, failedCb)
 end
 
 def.override("boolean", "boolean", "number", "boolean", "boolean").UpdateCombatState = function(self, is_in_combat_state, is_client_state, origin_id, ignore_lerp, delay)
@@ -475,7 +483,7 @@ def.override().Release = function (self)
 
 	CEntity.Release(self)
 	--game._GUIMan:Close("CNpcShortCut")
-	game:RaiseUIShortCutEvent(EnumDef.EShortCutEventType.DialogEnd, self)
+	EventUntil.RaiseUIShortCutEvent(EnumDef.EShortCutEventType.DialogEnd, self)
 end
 
 CNpc.Commit()

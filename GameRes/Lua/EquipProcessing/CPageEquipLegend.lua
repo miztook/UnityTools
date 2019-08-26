@@ -13,11 +13,6 @@ local NotifyMoneyChangeEvent = require "Events.NotifyMoneyChangeEvent"
 local CCommonBtn = require "GUI.CCommonBtn"
 
 local gfxGroupName = "CPageEquipLegend"
-
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
-
 local MAX_REFINE_STAR_COUNT = 10    -- 最大星星个数
 
 --存储UI的集合，便于OnHide()时置空
@@ -249,6 +244,9 @@ def.method("dynamic").Show = function(self, data)
         self._ItemData = data
     end
 
+    local root = self._PanelObject
+    GUI.SetText(root.Lab_None_Selection, StringTable.Get(10970))
+    
     --更新是否显示分界面
     self:UpdateFrame()
 
@@ -414,7 +412,7 @@ def.method("boolean", "=>", "boolean").CheckCanChange = function(self, bShowReas
     local bRet = true
     local function ShowReason(msg)
         if bShowReason then
-            SendFlashMsg(msg, false)
+            TeraFuncs.SendFlashMsg(msg, false)
         end
     end
 

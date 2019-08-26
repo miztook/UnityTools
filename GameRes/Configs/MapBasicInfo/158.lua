@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Battle",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12132] = 
@@ -97,9 +98,9 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[2] = { x = 282.33, y = 45.42, z = 9.87, name = "相位区域", worldId = 0, PkMode = 0 },
-			[483] = { x = 243.66, y = 41.98, z = 48.44, name = "5-1", worldId = 0, PkMode = 0 },
-			[484] = { x = 266.65, y = 40.84, z = -25.16, name = "1-1", worldId = 0, PkMode = 0 },
+			[2] = { x = 282.33, y = 45.42, z = 9.87, name = "相位区域", worldId = 0, PkMode = 1 },
+			[483] = { x = 243.66, y = 41.98, z = 48.44, name = "5-1", worldId = 0, PkMode = 1 },
+			[484] = { x = 266.65, y = 40.84, z = -25.16, name = "1-1", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

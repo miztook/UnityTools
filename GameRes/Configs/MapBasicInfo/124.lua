@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Foerst",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10038] = 
@@ -45,8 +46,8 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[66] = { x = -216.74, y = 50.71, z = -183.02, name = "", isShowName = true, worldId = 0, PkMode = 0 },
-			[187] = { x = -219.13, y = 43.00, z = -145.21, name = "爆炸区", worldId = 0, PkMode = 0 },
+			[66] = { x = -214.27, y = 50.71, z = -182.71, name = "", isShowName = true, worldId = 0, PkMode = 1 },
+			[187] = { x = -219.13, y = 43.00, z = -145.21, name = "爆炸区", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

@@ -11,13 +11,14 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/city01.png",
 	AssetPath = "Assets/Outputs/Scenes/City01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[50005] = 
 		{
-			[1] = { x = 7.02, y = 185.74, z = -207.66, name = "어린 엘프", level = 10, SortID = 1 },
-			[2] = { x = 6.05, y = 185.56, z = -188.48, name = "어린 엘프", level = 10, SortID = 3 },
-			[3] = { x = 9.11, y = 185.56, z = -198.96, name = "어린 엘프", level = 10, SortID = 5 },
+			[1] = { x = 7.02, y = 185.74, z = -207.66, name = "작은 요정", level = 10, SortID = 1 },
+			[2] = { x = 6.05, y = 185.56, z = -188.48, name = "작은 요정", level = 10, SortID = 3 },
+			[3] = { x = 9.11, y = 185.56, z = -198.96, name = "작은 요정", level = 10, SortID = 5 },
 		},
 		[50008] = 
 		{
@@ -51,7 +52,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[3] = { x = -5.81, y = 185.56, z = -199.25, name = "区域1", worldId = 0, PkMode = 0 },
+			[3] = { x = -5.81, y = 185.56, z = -199.25, name = "区域1", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

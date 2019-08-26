@@ -102,16 +102,7 @@ def.override().CreatePate = function (self)
 	local pate = CItemTopPate.new()
 	self._TopPate = pate
 
---	local callback = function()
---		self:OnPateCreate()
---	end
-
 	pate:Init(self, nil, false)
-	self:OnPateCreate()
-end
-
-def.override().OnPateCreate = function (self)
-	CEntity.OnPateCreate(self)
 	self._TopPate:MarkAsValid(true)
 	self:OnQuestStatusChange()
 end
@@ -242,7 +233,7 @@ def.override().OnClick = function (self)
     end
 
     local targetPos = self:GetPos()
-    game:NavigatToPos(targetPos, _G.NAV_OFFSET + self:GetRadius(), sucessCb, nil)
+    TeraFuncs.NavigatToPos(targetPos, _G.NAV_OFFSET + self:GetRadius(), sucessCb, nil)
 end
 
 def.override("=>", "number").GetObjectType = function (self)

@@ -11,7 +11,6 @@ local CWingsMan = require "Wings.CWingsMan"
 local CScoreCalcMan = require "Data.CScoreCalcMan"
 local CElementData = require "Data.CElementData"
 
-def.field("userdata")._Lab_Title = nil
 def.field("userdata")._Lab_TitleVal = nil
 def.field("userdata")._View_Attri = nil
 def.field("userdata")._View_Charm = nil
@@ -42,7 +41,6 @@ def.static("=>",CPanelUIExteriorAttributeCheck).Instance = function ()
 end
 
 def.override().OnCreate = function (self)
-	self._Lab_Title = self:GetUIObject("Lab_Title")
 	self._Lab_TitleVal = self:GetUIObject("Lab_TitleValue")
 	self._View_Attri = self:GetUIObject("View_Attribute")
 	self._List_Attri = self:GetUIObject("List_Attribute"):GetComponent(ClassType.GNewList)
@@ -86,7 +84,7 @@ def.override("userdata", "string", "number").OnInitItem = function (self, item, 
         GUI.SetText(lab_tip, attri_temp.TextDisplayName)
 
         local lab_attri = uiTemplate:GetControl(1)
-        GUI.SetText(lab_attri, tostring(attri.Value))
+        GUI.SetText(lab_attri, GUITools.FormatNumber(attri.Value, false, 7))
 	end
 end
 
@@ -144,8 +142,8 @@ end
 -- 展示翅膀属性
 def.method().ShowWingAttriInfo = function (self)
 	-- 标题
-	GUI.SetText(self._Lab_Title, StringTable.Get(22107))
-	GUI.SetText(self._Lab_TitleVal, tostring(CWingsMan.Instance():GetAllWingsFightScore()))
+	local score = CWingsMan.Instance():GetAllWingsFightScore()
+	GUI.SetText(self._Lab_TitleVal, GUITools.FormatNumber(score, false, 7))
 	if #self._AttriList > 0 then
 		self._List_Attri:SetItemCount(#self._AttriList)
 		self._View_Attri:SetActive(true)
@@ -190,7 +188,6 @@ def.method().ShowDressCharmInfo = function (self)
 	local scoreList = CDressUtility.GetChramScoreList() -- 魅力值列表
 	local curScore = CDressMan.Instance():GetCurCharmScore() -- 当前魅力值
 	-- 标题
-	GUI.SetText(self._Lab_Title, StringTable.Get(22108))
 	GUI.SetText(self._Lab_TitleVal, tostring(curScore))
 	-- 魅力值
 	local PropertyInfoConfig = require "Data.PropertyInfoConfig" 

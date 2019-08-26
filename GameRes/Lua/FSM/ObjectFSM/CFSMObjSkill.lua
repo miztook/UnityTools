@@ -58,5 +58,11 @@ def.override(CFSMStateBase).UpdateState = function(self, newstate)
 	--end
 end
 
+-- 隐身期间，所有技能表现均已经忽略，只要回到最终状态就OK
+def.override().UpdateWhenBecomeVisible = function(self)
+	local ani = self._Host:IsInServerCombatState() and EnumDef.CLIP.BATTLE_STAND or EnumDef.CLIP.COMMON_STAND
+	self._Host:PlayAnimation(ani, EnumDef.SkillFadeTime.MonsterOther, false, 0, 1)
+end
+
 CFSMObjSkill.Commit()
 return CFSMObjSkill

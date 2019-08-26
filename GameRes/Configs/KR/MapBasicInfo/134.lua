@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world02.png",
 	AssetPath = "Assets/Outputs/Scenes/World02.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[11016] = 
@@ -44,7 +45,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[181] = { x = -131.27, y = 93.16, z = -256.16, name = "皮虫试炼相位【个人】", worldId = 0, PkMode = 0 },
+			[181] = { x = -131.27, y = 93.16, z = -256.16, name = "皮虫试炼相位【个人】", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

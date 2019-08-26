@@ -73,7 +73,7 @@ do
     def.static("string","number","number", "number", "function","=>",TeamInviteNotify).new = function (targetName, teamID, targetID, dungeonID, callBack)
 		local obj = TeamInviteNotify()
         obj._NotifyType = EnumDef.NotificationType.TeamInvite
-        obj._TargetName = CTeamMan.Instance():GetTeamRoomNameByDungeonId(dungeonID)
+        obj._TargetName = TeamUtil.GetTeamRoomNameByDungeonId(dungeonID)
         obj._InviterName = targetName
         obj._TeamID = teamID
         obj._TargetID = targetID
@@ -86,9 +86,9 @@ do
     --执行通知
     def.override("boolean").DONotify = function(self, isOK)
         if isOK then
-            CTeamMan.Instance():InvitateAccept(self._TeamID)
+            TeamUtil.InviteAccept(self._TeamID)
         else
-            CTeamMan.Instance():InvitateRefuse(self._TeamID)
+            TeamUtil.InviteRefuse(self._TeamID)
         end
         NotifyBase.DONotify(self, isOK)
     end
@@ -107,12 +107,11 @@ do
         if dungeon_temp == nil then 
             return StringTable.Get(22039)
         else
-            local teamMan = CTeamMan.Instance()
-            local roomId = teamMan:ExchangeToRoomId(self._DungeonID)
+            local roomId = TeamUtil.ExchangeToRoomId(self._DungeonID)
             local roomTemplate = CElementData.GetTemplate("TeamRoomConfig", roomId)
             local str = ""
             if roomTemplate == nil then
-                str = teamMan:GetTeamRoomNameByDungeonId(self._DungeonID)
+                str = TeamUtil.GetTeamRoomNameByDungeonId(self._DungeonID)
             else
                 str = RichTextTools.GetElsePlayerNameRichText(roomTemplate.DisplayName, false)
             end

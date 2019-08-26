@@ -51,6 +51,7 @@ _G.PATH =
 	UI_Manual = "UI_Manual.prefab",
 	UI_Manual_ElementSubDes = "UI_Manual_ElementSubDes.prefab",
 	UI_QuestList = "UI_QuestList.prefab",
+	UI_FrontLine = "UI_FrontLine.prefab",
     UI_Buff = "UI_Buff.prefab",
 	UI_EquipProcess = 'UI_EquipProcess.prefab',
 	UI_EquipFortityResult = "UI_EquipFortityResult.prefab",
@@ -65,7 +66,6 @@ _G.PATH =
 	UI_Bag = "UI_Bag.prefab",
 	UI_EquipmentTips = "UI_EquipHint.prefab",
 	UI_ItemHint = "UI_ItemHint.prefab",
-	UI_CharmItemHint = "UI_CharmItemHint.prefab",
 	UI_Head = "UI_Head.prefab",
     UI_InteractiveMenu = "UI_InteractiveMenu.prefab",
     UI_CommonOperate = "UI_CommonOperate.prefab",
@@ -124,6 +124,7 @@ _G.PATH =
 	UI_ReputationLvTips = "UI_ReputationLvTips.prefab",
 	UI_NPCShop = "UI_NPCShop.prefab",
     UI_Mall = "UI_Mall.prefab",
+    UI_ActivityMall = "UI_ActivityMall.prefab",
     UI_MallCommonBuy = "UI_MallCommonBuy.prefab",
     UI_MallLottery = "UI_MallLottery.prefab",
     UI_QuickBuy = "UI_CommonBuyGuide.prefab",
@@ -140,6 +141,7 @@ _G.PATH =
 	UI_Map = "UI_Map.prefab",
 	UI_ChatSet = "UI_ChatSet.prefab",
 	UI_Setting = "UI_Setting.prefab",
+    UI_Summon = "UI_Summon.prefab",
 	UI_Lottery = "UI_Lottery.prefab",
 	UI_Mail = "UI_Mail.prefab",
     UI_NumberKeyboard = "UI_NumberKeyboard.prefab",
@@ -216,6 +218,7 @@ _G.PATH =
 	UI_CommonNotice = "UI_CommonNotice.prefab",
 	UI_InquireReward = "UI_InquireReward.prefab",
 	UI_PetSkillReplace = "UI_PetSkillReplace.prefab",
+	UI_SanctionPrompt = "UI_SanctionPrompt.prefab",
 	--------------------------新UI界面 "UI_NPCShop.prefab",--------------------------
 	
 	Skill_Indicator = { 
@@ -244,6 +247,7 @@ _G.PATH =
 	Gfx_PlayerArrow = "Assets/Outputs/Sfx/Etc/etc_renwuzhixiang_yellow.prefab",
 
 	Gfx_PharseEffect = "Assets/Outputs/Sfx/Etc/etc_jingtou_xiangweitexiao.prefab",
+	Gfx_HawkeyeEffect = "Assets/Outputs/Sfx/Etc/etc_shenzhishijie_jinru_test.prefab",
 	
 	Shadow = "Assets/Outputs/Sfx/Etc/etc_jiaodiheiquan.prefab",
 	TopPate = "Panel_M_Head.prefab",
@@ -297,21 +301,21 @@ _G.PATH =
 	Model_Gold_5 = "Assets/Outputs/Sfx/Etc/etc_diaoluo_qiandai2.prefab",
 	--Model_Gold_5 = 286,
 
-	Gfx_Pick_Gold_0 = "Assets/Outputs/Sfx/Etc/etc_tuowei_bai.prefab",
-	Gfx_Pick_Gold_1 = "Assets/Outputs/Sfx/Etc/etc_tuowei_lv.prefab",
-	Gfx_Pick_Gold_2 = "Assets/Outputs/Sfx/Etc/etc_tuowei_lan.prefab",
-	Gfx_Pick_Gold_3 = "Assets/Outputs/Sfx/Etc/etc_tuowei_zi.prefab",
-	Gfx_Pick_Gold_4 = "Assets/Outputs/Sfx/Etc/etc_tuowei_huangse.prefab",
-	Gfx_Pick_Gold_5 = "Assets/Outputs/Sfx/Etc/etc_tuowei_chengse.prefab",
-	Gfx_Pick_Gold_6 = "Assets/Outputs/Sfx/Etc/etc_tuowei_hong.prefab",
+	--Gfx_Pick_Gold_0 = "Assets/Outputs/Sfx/Etc/etc_tuowei_bai.prefab",
+	--Gfx_Pick_Gold_1 = "Assets/Outputs/Sfx/Etc/etc_tuowei_lv.prefab",
+	--Gfx_Pick_Gold_2 = "Assets/Outputs/Sfx/Etc/etc_tuowei_lan.prefab",
+	--Gfx_Pick_Gold_3 = "Assets/Outputs/Sfx/Etc/etc_tuowei_zi.prefab",
+	--Gfx_Pick_Gold_4 = "Assets/Outputs/Sfx/Etc/etc_tuowei_huangse.prefab",
+	--Gfx_Pick_Gold_5 = "Assets/Outputs/Sfx/Etc/etc_tuowei_chengse.prefab",
+	--Gfx_Pick_Gold_6 = "Assets/Outputs/Sfx/Etc/etc_tuowei_hong.prefab",
 	
 	--掉落品质特效
-	Etc_Item_Quality_1 = "Assets/Outputs/Sfx/Etc/etc_zhaungbeipinzhi_lv.prefab", 		--Green
-	Etc_Item_Quality_2 = "Assets/Outputs/Sfx/Etc/etc_zhaungbeipinzhi_lan.prefab",		--Blue
-	Etc_Item_Quality_3 = "Assets/Outputs/Sfx/Etc/etc_zhaungbeipinzhi_zi.prefab",		--Purple
-	Etc_Item_Quality_4 = "Assets/Outputs/Sfx/Etc/etc_zhaungbeipinzhi_huang.prefab",		--Gold
-	Etc_Item_Quality_5 = "Assets/Outputs/Sfx/Etc/etc_zhaungbeipinzhi_chengse.prefab",	--Orange
-	Etc_Item_Quality_6 = "Assets/Outputs/Sfx/Etc/etc_zhaungbeipinzhi_hong.prefab",		--Red
+	--Etc_Item_Quality_1 = "Assets/Outputs/Sfx/Etc/etc_zhaungbeipinzhi_lv.prefab", 		--Green
+	--Etc_Item_Quality_2 = "Assets/Outputs/Sfx/Etc/etc_zhaungbeipinzhi_lan.prefab",		--Blue
+	--Etc_Item_Quality_3 = "Assets/Outputs/Sfx/Etc/etc_zhaungbeipinzhi_zi.prefab",		--Purple
+	--Etc_Item_Quality_4 = "Assets/Outputs/Sfx/Etc/etc_zhaungbeipinzhi_huang.prefab",		--Gold
+	--Etc_Item_Quality_5 = "Assets/Outputs/Sfx/Etc/etc_zhaungbeipinzhi_chengse.prefab",	--Orange
+	--Etc_Item_Quality_6 = "Assets/Outputs/Sfx/Etc/etc_zhaungbeipinzhi_hong.prefab",		--Red
 
     --掉落品质飞行特效
     Etc_Item_FlyQuality_1 = "Assets/Outputs/Sfx/Etc/etc_jingyantuowei.prefab",
@@ -329,6 +333,7 @@ _G.PATH =
 	ICON_ITEN_TOKEN_4="Item/Item_Token_4",
 	ICON_ITEN_HOTTIME_02="Item/Item_Hottime_02",
 	ICON_ITEN_HOTTIME_01="Item/Item_Hottime_01",
+	ICON_ITEN_HOTTIME_03 = "Item/Item_Hottime_03",
 
 	IMG_LOADINGLOGO        = _G.CommonAtlasDir.."Image/Loading/Img_Loading_World_02.png",            --LOADINGLOGO IMG
 	IMG_Dungeon01        = _G.CommonAtlasDir.."Image/Loading/Img_Dungeon_01.png",            --LOADINGLOGO IMG
@@ -351,8 +356,8 @@ _G.PATH =
 	IMG_Loading_City_02       = _G.CommonAtlasDir.."Image/Loading/Img_Loading_City_02.png",            --LOADINGLOGO IMG
 	Img_Loading_Guild_01       = _G.CommonAtlasDir.."Image/Loading/Img_Loading_Guild_01.png",            --LOADINGLOGO IMG
 	--技能预警范围指示特效(贴地)
-	Etc_Yujing_Hollow = "Assets/Outputs/Sfx/Etc/etc_yujing_huan.prefab",
 	--贴地
+	Etc_Yujing_Hollow_Decl = "Assets/Outputs/Sfx/Etc/etc_yujing_huan_decl.prefab",
 	Etc_Yujing_Ring_Decl = "Assets/Outputs/Sfx/Etc/etc_yujing_ring_decl.prefab",
 	Etc_Yujing_Juxing_Decl = "Assets/Outputs/Sfx/Etc/etc_gongjiyujing_juxing_decl.prefab",
 	Etc_Yujing_Shanxing30_Decl = "Assets/Outputs/Sfx/Etc/etc_gongjiyujing_shanxing30_decl.prefab",
@@ -362,6 +367,7 @@ _G.PATH =
 	Etc_Yujing_Shanxing120_Decl = "Assets/Outputs/Sfx/Etc/etc_gongjiyujing_shanxing120_decl.prefab",
 	Etc_Yujing_Shanxing150_Decl = "Assets/Outputs/Sfx/Etc/etc_gongjiyujing_shanxing150_decl.prefab",
 	--不贴地
+	Etc_Yujing_Hollow = "Assets/Outputs/Sfx/Etc/etc_yujing_huan.prefab",
 	Etc_Yujing_Ring = "Assets/Outputs/Sfx/Etc/etc_yujing_ring.prefab",
 	Etc_Yujing_Juxing = "Assets/Outputs/Sfx/Etc/etc_gongjiyujing_juxing.prefab",
 	Etc_Yujing_Shanxing30 = "Assets/Outputs/Sfx/Etc/etc_gongjiyujing_shanxing30.prefab",
@@ -376,7 +382,6 @@ _G.PATH =
 
 	--技能升级界面特效
 	UI_jinengshengji = "Assets/Outputs/Sfx/UI/UI_jinengshengji.prefab",
-	UI_zhuangbeiwenzhang = "Assets/Outputs/Sfx/UI/UI_zhuangbeiwenzhang.prefab",
 	UI_xinwenzhang = "Assets/Outputs/Sfx/UI/UI_xinwenzhang.prefab",
 	UI_wenzhangjiesuo = "Assets/Outputs/Sfx/UI/UI_wenzhangjiesuo.prefab",
 	UI_shengjishuzhi = "Assets/Outputs/Sfx/UI/ui_shuzhibianhua_tongyong.prefab",
@@ -673,6 +678,12 @@ _G.PATH =
 	UIFX_WELFARE_Baoxiang_Baokai = "Assets/Outputs/Sfx/UI/ui_baoxiang_baokai.prefab",
 	UIFX_WELFARE_SpecialSign_Changzhu = "Assets/Outputs/Sfx/UI/ui_teshuqiandao_bj_effect_02.prefab",
 	UIFX_WELFARE_SpecailSign_Get = "Assets/Outputs/Sfx/UI/ui_tongyongkelingqu_06.prefab",
+	UIFX_WELFARE_SignLingqu = "Assets/Outputs/Sfx/UI/ui_welfare_qiandao_liuguang_01.prefab",
+	UIFX_WELFARE_SignLiuguang = "Assets/Outputs/Sfx/UI/ui_tongyongkelingqu_08.prefab",
+	UIFX_WELFARE_Dice_Loop = "Assets/Outputs/Sfx/UI/ui_shaizihuodong_xiankuang_loop.prefab",
+	UIFX_WELFARE_Dice_Loop2 = "Assets/Outputs/Sfx/UI/ui_shaizihuodong_xiankuang_loop2.prefab",
+	UIFX_WELFARE_Dice_Once = "Assets/Outputs/Sfx/UI/ui_shaizihuodong_xiankuang_once.prefab",
+	UIFX_WELFARE_Dice_Stop = "Assets/Outputs/Sfx/UI/ui_shaizihuodong_xiankuang_stop.prefab",
 
 	-- 战力对比	
 	UIFX_Compare_WIN = "Assets/Outputs/Sfx/UI/ui_win_touxiang_effect.prefab",
@@ -682,7 +693,7 @@ _G.PATH =
 	UIFX_FS_UP = "Assets/Outputs/Sfx/UI/ui_zhanlitisheng.prefab",
 	UIFX_FS_UP_2 = "Assets/Outputs/Sfx/UI/ui_zhanlitisheng_02.prefab",
 	UIFX_FS_DOWN = "Assets/Outputs/Sfx/UI/ui_zhanlixiajiang.prefab",
-	UIFX_FS_DOWN_2 = "Assets/Outputs/Sfx/UI/ui_zhanlixiajiang_02.prefab",
+	--UIFX_FS_DOWN_2 = "Assets/Outputs/Sfx/UI/ui_zhanlixiajiang_02.prefab",
 	UIFX_FS_DETAIL = "Assets/Outputs/Sfx/UI/ui_shuxingbianhuatishi.prefab",
 	UIFX_FS_OVER = "Assets/Outputs/Sfx/UI/ui_zhanlibianhua_xiaoshi.prefab",
 	
@@ -700,9 +711,10 @@ _G.PATH =
 	
 	--声音
 	BGM_Login = "BGM_login",
-
+	GUISound_Chapter_Open = "chapter_open",
+	GUISound_Event_map_portal = "event_map_portal",
 	GUISound_Btn_Press = "click_normal",
-	GUISound_Tab_Press = "click_normal",
+	GUISound_Tab_Press = "click_tab_global",
     GUISound_Choose_Press = "click_normal",
     GUISound_RollDown = "",
     GUISound_RollUp = "",
@@ -725,6 +737,7 @@ _G.PATH =
     GUISound_Effect_EnterMap = "",
     GUISound_Inventory_FlyGet = "window_inventory_get",
     GUISound_Open_Mall = "click_shop",
+    GUISound_Open_Quest = "click_mission",
     GUISound_Open_Calendar = "click_adventure",
     GUISound_Buy_Item = "click_buy",
     GUISound_Sell_Item = "click_sell",
@@ -738,22 +751,27 @@ _G.PATH =
 	GUISound_Add_BagCell = "window_storage_unlock",
 	GUISound_Open_Book = "window_letter_open",
 	GUISound_Close_Book = "window_letter_close",
-    GUISound_AchieveGot = "achievement_01",
+    GUISound_AchieveGot = "window_achivement",
     GUISound_AchieveGotSpecial = "ui_achivement_02",
     GUISound_MallLotteryClick = "LuckDraw_01",
     GUISound_CharmInlay = "Runes_01",
+    GUISound_CharmPutOff = "click_normal",
     GUISound_GuildDonate = "ui_guild_02",
+    GUISound_Create = "guild_inception",
     GUISound_GuildBFFail = "ui_guild_defeat",
     GUISound_GuildBFVictory = "ui_guild_victory",
     GUISound_GuildSkill = "ui_guild_skill",
+    GUISound_PrayAcc = "UISound_MoonGarden_01",
 	GUISound_GuildBFTowerDestroy = "ui_tower_destroy",
+    GUISound_LootFlyToPlayerExplode = "experience_point",
 	GUISound_RuneUnlock = "equip_common_rune",
 	GUISound_SkillUpgrade = "ui_skill_common",
 	GUISound_RuneEquip = "equip_skill_rune",
 	GUISound_UnEquipSkillRune = "unequip_skill_rune",
     GUISound_DrugItem_Click = "event_potion_use",
     GUISound_Btn_Back = "click_back",
-    GUISound_Btn_Menu = "click_menu",
+	GUISound_Btn_Menu = "click_menu",
+	GUISound_Btn_Menu_UnLock = "menu_unlock",
     GUISound_Matching_Arena = "click_matching_start",
     GUISound_Window_Count = "window_count",
     GUISound_Window_Start = "window_start",
@@ -763,8 +781,11 @@ _G.PATH =
     GUISound_Arena3v3Match = "Arena3v3_Match",
     GUISound_Arena3V3Loading = "Arena3v3_Loading",
     GUISound_Arena1v1Victory = "Arena1v1_Victory",
+    GUISound_Arena1v1Defeat = "Arena1v1_Defeat",
     GUISound_DungeonEnd = "Dungeon_End",
     GUISound_DungeonDetails ="Dungeon_Details",
+    GUISound_DungeonList = "click_adventure_global",
+    GUISound_DungeonListUnlock = "menu_unlock",
     GUISound_StarUp = "ui_star_get",
     GUISound_StarDown = "ui_star_broken",
     GUISound_VictoryStage = "ui_tier_up",
@@ -793,6 +814,19 @@ _G.PATH =
 	GUISound_LottertOpen = "event_msg_get",
 	GUISound_SkillCommon = "ui_skill_common",
 	GUISound_PetProcessing = "ui_pet_processing",
+	GUISound_UnEquipProcessing = "unequip_processing",
+	GUISound_UI_POPUP = "ui_popup",
+	GUISound_Pet_Eating = "pet_eating",
+	GUISound_System_Menu = "click_system_menu_global",
+	GUISound_System_Menu_Open = "click_system_menu_open",
+	GUISound_System_Menu_Close = "click_system_menu_close",
+	GUISound_System_Bonus = "click_event",
+	GUISound_System_Bonus_Sign = "click_event_global",
+	GUISound_Dice_01 = "UISound_Dice_01",
+	GUISound_Dice_02 = "UISound_Dice_02",
+	GUISound_Dice_03 = "UISound_Dice_03",
+	GUISound_Storage_Unlock = "window_storage_unlock",
+
 	--通用可领取 大100*100 小80*80  
 	UI_Tongyongkelingqu = "Assets/Outputs/Sfx/UI/ui_tongyongkelingqu.prefab",
 	UI_Tongyongkelingqu_02 = "Assets/Outputs/Sfx/UI/ui_tongyongkelingqu_02.prefab",

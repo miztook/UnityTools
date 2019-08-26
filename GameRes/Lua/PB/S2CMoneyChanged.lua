@@ -2,11 +2,11 @@ local PBHelper = require "Network.PBHelper"
 local Lplus = require "Lplus"
 local CGame = Lplus.ForwardDeclare("CGame")
 local NotifyMoneyChangeEvent = require "Events.NotifyMoneyChangeEvent"
-
+local ENUM_ITEM_SRC = require "PB.data".ENUM_ITEM_SRC
 -- 获得货币发送系统消息提示
 local function SendMsgToSysteamChannel(ItemID, nCount, AddCause)
     --[[ 取消获得货币系统提示
-    local ENUM_ITEM_SRC = require "PB.data".ENUM_ITEM_SRC
+    
     local ECHAT_CHANNEL_ENUM = require "PB.data".ChatChannel
 	local ChatManager = require "Chat.ChatManager"
 	local ItemName = ""
@@ -67,7 +67,9 @@ local function OnS2CMoneyChanged(sender, protocol)
                 if offset > 0 then
                     --game._GUIMan:ShowGetCoinTip(offset)
                     SendMsgToSysteamChannel(nType, offset, protocol.AddCause)
-                    game._GUIMan:ShowMoveItemTextTips(nType,true,offset, false)
+                    if protocol.AddCause ~= ENUM_ITEM_SRC.BONUS_DICE then
+                        game._GUIMan:ShowMoveItemTextTips(nType,true,offset, false)
+                    end
                 end
 
                 game._HostPlayer._InfoData._RoleResources[nType] = nValue
@@ -78,9 +80,11 @@ local function OnS2CMoneyChanged(sender, protocol)
                 local offset = nValue - accountInfo._Diamond
                 accountInfo._Diamond = nValue
                 if offset > 0 then
-                   -- game._GUIMan:ShowGetDiamondTip(offset, false)
-                   SendMsgToSysteamChannel(nType, offset, protocol.AddCause)
-                    game._GUIMan:ShowMoveItemTextTips(nType,true,offset, false)
+                    -- game._GUIMan:ShowGetDiamondTip(offset, false)
+                    SendMsgToSysteamChannel(nType, offset, protocol.AddCause)
+                    if protocol.AddCause ~= ENUM_ITEM_SRC.BONUS_DICE then
+                        game._GUIMan:ShowMoveItemTextTips(nType,true,offset, false)
+                    end
                 end
 
                 game._HostPlayer._InfoData._RoleResources[nType] = nValue
@@ -95,7 +99,9 @@ local function OnS2CMoneyChanged(sender, protocol)
                 if offset > 0 then
                     --game._GUIMan:ShowGetDiamondTip(offset, true)
                     SendMsgToSysteamChannel(nType, offset, protocol.AddCause)
-                    game._GUIMan:ShowMoveItemTextTips(nType,true,offset, false)
+                    if protocol.AddCause ~= ENUM_ITEM_SRC.BONUS_DICE then
+                        game._GUIMan:ShowMoveItemTextTips(nType,true,offset, false)
+                    end
                 end
 
                 game._HostPlayer._InfoData._RoleResources[nType] = nValue
@@ -110,7 +116,9 @@ local function OnS2CMoneyChanged(sender, protocol)
                 if offset > 0 then
                     --game._GUIMan:ShowGetDiamondTip(offset, true)
                     SendMsgToSysteamChannel(nType, offset, protocol.AddCause)
-                    game._GUIMan:ShowMoveItemTextTips(nType,true,offset, false)
+                    if protocol.AddCause ~= ENUM_ITEM_SRC.BONUS_DICE then
+                        game._GUIMan:ShowMoveItemTextTips(nType,true,offset, false)
+                    end
                 end
 
                 game._HostPlayer._InfoData._RoleResources[nType] = nValue
@@ -120,7 +128,9 @@ local function OnS2CMoneyChanged(sender, protocol)
                 local offset = nValue - game._HostPlayer._InfoData._RoleResources[nType]
                 if offset > 0 then
                     SendMsgToSysteamChannel(nType, offset, protocol.AddCause)
-                    game._GUIMan:ShowMoveItemTextTips(nType,true,offset, false)
+                    if protocol.AddCause ~= ENUM_ITEM_SRC.BONUS_DICE then
+                        game._GUIMan:ShowMoveItemTextTips(nType,true,offset, false)
+                    end
                 end
                 game._HostPlayer._InfoData._RoleResources[nType] = nValue
                 
@@ -139,7 +149,9 @@ local function OnS2CMoneyChanged(sender, protocol)
                 local offset = nValue - game._HostPlayer._InfoData._RoleResources[nType]
                 if offset > 0 then
                     SendMsgToSysteamChannel(nType, offset, protocol.AddCause)
-                    game._GUIMan:ShowMoveItemTextTips(nType,true,offset, false)
+                    if protocol.AddCause ~= ENUM_ITEM_SRC.BONUS_DICE then
+                        game._GUIMan:ShowMoveItemTextTips(nType,true,offset, false)
+                    end
                 end
                 game._HostPlayer._InfoData._RoleResources[nType] = nValue
             end

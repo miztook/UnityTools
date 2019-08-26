@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world02.png",
 	AssetPath = "Assets/Outputs/Scenes/World02.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[11061] = 
@@ -70,10 +71,10 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[138] = { x = 174.81, y = 71.14, z = -36.01, name = "쿠차트 요새", worldId = 0, IsCanFind = 1, Describe = "쿠차트 요새", PkMode = 0 },
-			[139] = { x = 137.98, y = 59.05, z = -23.75, name = "玩家到达演习区域", worldId = 0, PkMode = 0 },
-			[140] = { x = 140.05, y = 56.81, z = -47.37, name = "离开区域", worldId = 0, PkMode = 0 },
-			[456] = { x = 190.59, y = 69.00, z = -14.83, name = "第二阶段传送区域", worldId = 0, PkMode = 0 },
+			[138] = { x = 174.81, y = 71.14, z = -36.01, name = "쿠차트 요새", worldId = 0, IsCanFind = 1, Describe = "쿠차트 요새", PkMode = 1 },
+			[139] = { x = 137.98, y = 59.05, z = -23.75, name = "玩家到达演习区域", worldId = 0, PkMode = 1 },
+			[140] = { x = 140.05, y = 56.81, z = -47.37, name = "离开区域", worldId = 0, PkMode = 1 },
+			[456] = { x = 190.59, y = 69.00, z = -14.83, name = "第二阶段传送区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

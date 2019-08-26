@@ -20,7 +20,7 @@ def.field("table")._Parent = nil                            -- Panel节点
 
 def.static("table", "=>", CPageLiveness).new = function(root)
     local obj = CPageLiveness()
-    print(root)
+    --print(root)
     obj._Parent = root
     obj._ParentGO = root._Panel
 	obj:Init()

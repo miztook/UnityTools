@@ -84,7 +84,7 @@ def.method().SetRideList = function (self)
     self._RideListHave = {}
     self._RideListNotHave = {}
     self._RideListAll = {}
-    local rideIdAll = GameUtil.GetAllTid("Horse")
+    local rideIdAll = CElementData.GetAllTid("Horse")
     if rideIdAll == nil then return end
 
     local hp = game._HostPlayer
@@ -288,7 +288,7 @@ def.method("userdata", "string", "number").OnExteriorInitItem = function(self, i
 
         local nameStr = RichTextTools.GetQualityText(template.Name, template.Quality)
         local qualityStr = StringTable.Get(10000 + template.Quality)
-        local attriValStr = template.AddSpeedRatio * 100 .. "%"
+        local attriValStr = fixFloatStr(template.AddSpeedRatio * 100, 0) .. "%"
         local attriStr = StringTable.Get(15507)
         if not data.IsGot then
             -- 未获得
@@ -544,7 +544,7 @@ def.method("table").SetRideInfo = function (self, data)
     -- 介绍
     GUI.SetText(self._Lab_Des, template.Description)
     -- 属性
-    GUI.SetText(self._Lab_Attri, template.AddSpeedRatio * 100 .. "%")
+    GUI.SetText(self._Lab_Attri, fixFloatStr(template.AddSpeedRatio * 100, 0) .. "%")
     -- 来源
     if not IsNilOrEmptyString(template.Origin) then
         GUI.SetText(self._Lab_Origin, template.Origin)

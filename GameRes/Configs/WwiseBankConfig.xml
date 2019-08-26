@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <WwiseBankConfig>
+		<AsyncLoad value="false"/>
+		
 		<AlwaysLoad>
 			<bank name="NPC.bnk" />
 			<bank name="SFX.bnk" />
-			<bank name="Dunjeon.bnk" />
-			<bank name="Cut_Dunjeon.bnk" />
 			<bank name="Voice_Dunjeon.bnk" localize="1"/>
 			<bank name="Voice_NPC.bnk" localize="1"/>
+			<bank name="Voice_Tutorial_Guide.bnk" localize="1"/>
 		</AlwaysLoad>
 		
 		<NonMap>
 			<bank name="Intro.bnk" />
 		</NonMap>
+		
+		<Dungeon>
+			<bank name="Dunjeon.bnk" />
+			<bank name="Cut_Dunjeon.bnk" />
+		</Dungeon>
 		
 		<Map>
 			<bank name="Map_1.bnk" navmesh="Dn_pvp02_Arena02" />
@@ -35,6 +41,8 @@
 			<bank name="Voice_Maincastle_1.bnk" navmesh="City01" localize="1"/>
 			<bank name="Voice_Maincastle_2.bnk" navmesh="City02" localize="1"/>
 			<bank name="Cut_Tutorial.bnk" navmesh="Dungn00_EmpireRelicPrologue" />
+			<bank name="Dunjeon.bnk" navmesh="Dungn00_EmpireRelicPrologue" />
+			<bank name="Cut_Dunjeon.bnk" navmesh="Dungn00_EmpireRelicPrologue" />
 			<bank name="Cut_Map_1.bnk" navmesh="Dn_pvp02_Arena02" />
 			<bank name="Cut_Map_1.bnk" navmesh="World01" />
 			<bank name="Cut_Map_2.bnk" navmesh="World02" />
@@ -46,4 +54,5 @@
 			<bank name="Cut_Maincastle_1.bnk" navmesh="City01" />
 			<bank name="Cut_Maincastle_2.bnk" navmesh="City02" />
 		</Map>
+
 </WwiseBankConfig>

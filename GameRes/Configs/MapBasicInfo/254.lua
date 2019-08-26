@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD05.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn05_ElfArch.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[24401] = 
@@ -25,7 +26,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[282] = { x = 37.85, y = 55.30, z = -79.42, name = "出场区域", worldId = 0, BackgroundMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 0 },
+			[282] = { x = 37.85, y = 55.30, z = -79.42, name = "出场区域", worldId = 0, BackgroundMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1 },
 		},
 	},
 	Mine = 

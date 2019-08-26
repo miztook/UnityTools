@@ -123,7 +123,7 @@ local function OnStopVoice(self , fileId)
 	----CSoundMan.Instance():SetSoundBGMVolume(1, true)
 	--CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.FChat, false)
 	CSoundMan.Instance():SubChatVoiceCount()
-	local ret = VoiceUtil.OffLine_StopPlayFile(fileId)
+	VoiceUtil.OffLine_StopPlayFile(fileId)
 end
 
 -- 播放语音聊天
@@ -135,7 +135,7 @@ local function OnPlayVoice(self , fileId)
 	----CSoundMan.Instance():SetSoundBGMVolume(0, true)
 	--CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.FChat, true)
 	CSoundMan.Instance():AddChatVoiceCount()
-	local ret = VoiceUtil.OffLine_PlayRecordedFile(fileId)
+	VoiceUtil.OffLine_PlayRecordedFile(fileId)
 	self._CurPlayVoiceID = fileId
 end
 
@@ -147,9 +147,9 @@ local function OnVoiceClick(self, msgId)
 	-- local VoiceExist = true
 	-- warn(" VoiceExist == false", VoiceExist)
 	local resPath = msg.voiceTxt
-	if VoiceExist == false then  		--判断本地是否已经存在。
+	if not VoiceExist then  		--判断本地是否已经存在。
 		local ret = VoiceUtil.OffLine_DownloadFile(msg.voiceTxt , resPath)
-	elseif VoiceExist == true then
+	else
 		OnPlayVoice(self,msg.voiceTxt)
 	end
 end
@@ -275,11 +275,11 @@ local function ShowOneChatMsg(self,msg,msgId)
     	imgHead:SetActive(true)
     	if msg.senderInfo.Id ~= game._HostPlayer._ID then 
 	    	GUI.SetText(labLv, tostring(self._CurChatRoleData.Level))
-	    	game:SetEntityCustomImg(imgHead,msg.senderInfo.Id,self._CurChatRoleData.CustomImgSet,self._CurChatRoleData.Gender,self._CurChatRoleData.Profession)
+	    	TeraFuncs.SetEntityCustomImg(imgHead,msg.senderInfo.Id,self._CurChatRoleData.CustomImgSet,self._CurChatRoleData.Gender,self._CurChatRoleData.Profession)
     	else
 		    GUI.SetText(labName, game._HostPlayer._InfoData._Name)
 			GUI.SetText(labLv, tostring(game._HostPlayer._InfoData._Level))
-	    	game:SetEntityCustomImg(imgHead,msg.senderInfo.Id,game._HostPlayer._InfoData._CustomImgSet,game._HostPlayer._InfoData._Gender,game._HostPlayer._InfoData._Prof)
+	    	TeraFuncs.SetEntityCustomImg(imgHead,msg.senderInfo.Id,game._HostPlayer._InfoData._CustomImgSet,game._HostPlayer._InfoData._Gender,game._HostPlayer._InfoData._Prof)
     	end
     else
     	imgLv:SetActive(false)
@@ -449,7 +449,8 @@ def.method("string").Click = function (self,id)
 				           }
 			MenuList.Show(comps, nil, nil)
 		else
-			game:CheckOtherPlayerInfo(self._CurChatRoleData.RoleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.RecentList)
+			local PBUtil = require "PB.PBUtil"
+			PBUtil.RequestOtherPlayerInfo(self._CurChatRoleData.RoleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.RecentList)
 		end
 	elseif string.find(id,"Btn_PlayerVoice")then
 	    game:AddForbidTimer(self._Parent._ClickInterval)  
@@ -458,7 +459,6 @@ def.method("string").Click = function (self,id)
 	        msgId = string.sub(id, string.len("Btn_PlayerVoice") - string.len(id))     
 	    end
 	    OnVoiceClick(self,tonumber(msgId))
-	    game._IsSystemPlayVoice = false
 	end
 end
 
@@ -515,7 +515,7 @@ def.method('userdata', 'string', 'number').InitItem = function(self, item, id, i
 		return end
 		imgSystemHead:SetActive(false)
 		imgHead:SetActive(true)
-        game:SetEntityCustomImg(imgHead,data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
+        TeraFuncs.SetEntityCustomImg(imgHead,data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
         GUITools.SetGroupImg(imgProfession,data.Profession - 1)
 		lablv:SetActive(true)
         GUI.SetText(lablv,string.format(StringTable.Get(30327),data.Level))
@@ -558,7 +558,8 @@ def.method("userdata", "string", "string", "number").SelectItemButton = function
 				           }
 			MenuList.Show(comps, nil, nil)
 		else
-			game:CheckOtherPlayerInfo(self._RecentListData[index + 1].RoleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.RecentList)
+			local PBUtil = require "PB.PBUtil"
+			PBUtil.RequestOtherPlayerInfo(self._RecentListData[index + 1].RoleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.RecentList)
 		end
 	end
 end
@@ -571,12 +572,22 @@ def.method('userdata', 'string', 'number').SelectItem = function(self, item, id,
 	end
 end
 
-def.method().SendMsg = function(self)
+def.method("boolean","dynamic").SendMsg = function(self,isQuestSend,content)
  	local itemInfo = CPanelEmotions.Instance():IsSendItemLink()
+ 	local text = self._InputChat:GetComponent(ClassType.InputField).text
+ 	if isQuestSend and content ~= nil and content ~="" then 
+ 		text = content
+ 	end
+    if text == "" or text == nil then return end
+
+    if string.len(text) <= 0 then
+        game._GUIMan: ShowTipText(StringTable.Get(13019),true)
+        return
+    end
 	if itemInfo ~= nil then 
-        game._CFriendMan:DoSendItemLink(self._CurChatRoleData,self._InputChat:GetComponent(ClassType.InputField).text,itemInfo)
+        game._CFriendMan:DoSendItemLink(self._CurChatRoleData,text,itemInfo)
     else
-	    game._CFriendMan:DoSendText(self._CurChatRoleData,self._InputChat:GetComponent(ClassType.InputField).text)
+	    game._CFriendMan:DoSendText(self._CurChatRoleData,text)
     end
     self._InputChat:GetComponent(ClassType.InputField).text = "" 
 end
@@ -683,9 +694,7 @@ def.method("number").LinkClick = function(self,msgId)
         if msg.itemInfo == nil then  return end  
         local itemTemplate = CElementData.GetItemTemplate(msg.itemInfo.Tid)
         local itemName = itemTemplate.TextDisplayName
-        if string.find(msg.text, itemName) then
-            CItemTipMan.ShowChatItemTips(msg.itemInfo, TipsPopFrom. CHAT_PANEL)
-        end
+        CItemTipMan.ShowItemDBTips(msg.itemInfo, TipsPopFrom. CHAT_PANEL)
     end
 end
 

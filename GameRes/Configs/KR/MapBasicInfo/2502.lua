@@ -2,15 +2,16 @@ local MapInfo =
 {
 	MapType = 4,
 	Remarks = "雪峰堡战役相位",
-	TextDisplayName = "눈의 성 전투2",
+	TextDisplayName = "눈의 성 전투 2",
 	Length = 800,
 	Width = 800,
 	NavMeshName = "World03Part2.navmesh",
-	BackgroundMusic = "",
+	BackgroundMusic = "BGM_Map_3/Map_3/Map_3_phase",
 	BattleMusic = "",
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[60001] = 
@@ -94,7 +95,7 @@ local MapInfo =
 		},
 		[60023] = 
 		{
-			[1] = { x = -175.13, y = 84.85, z = 7.95, name = "엘리언", level = 40, SortID = 2,IsBoss = true },
+			[1] = { x = -175.13, y = 84.85, z = 7.95, name = "엘리온", level = 40, SortID = 2,IsBoss = true },
 		},
 		[60024] = 
 		{

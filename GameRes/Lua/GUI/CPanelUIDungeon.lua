@@ -339,8 +339,8 @@ def.method("number", "dynamic").ShowFrame = function (self, nType, uiData)
 	-- 播放特效
 	if nType == DungeonPage._Gilliam then
 		GameUtil.PlayUISfx(PATH.UIFX_DungeonGilliam, self._Img_GilliamBoss, self._Img_GilliamBoss, -1)
-	elseif nType == DungeonPage._DragonLair then
-		GameUtil.PlayUISfx(PATH.UIFX_DungeonDragon, self._Img_DragonNestBoss, self._Img_DragonNestBoss, -1)
+	-- elseif nType == DungeonPage._DragonLair then
+	-- 	GameUtil.PlayUISfx(PATH.UIFX_DungeonDragon, self._Img_DragonNestBoss, self._Img_DragonNestBoss, -1)
 	end
 	-- 2018/06/14 wuyou新需求：风暴试炼不显示次数组购买按钮。
 	-- 2019/06/13 yangzonghan新需求：奇利恩不显示次数组购买按钮。
@@ -645,6 +645,7 @@ end
 
 def.method("number").SetRuinListSelection = function (self, index)
 	self._List_Dungeon:SetSelection(index)
+	CSoundMan.Instance():Play2DAudio(PATH.GUISound_DungeonList, 0)
 end
 
 def.method("boolean").EnableAssist = function (self, enable)
@@ -681,9 +682,9 @@ def.method().QuickJoinLogic = function(self)
 	-- 									   dungeonTemp.Id)
 	
 	if dungeonTemp.IsQuickMatch then
-		local roomId = CTeamMan.Instance():ExchangeToRoomId(dungeon_id)
+		local roomId = TeamUtil.ExchangeToRoomId(dungeon_id)
 		if roomId > 0 then
-			local curMatchDungeonId = CTeamMan.Instance():ExchangeToDungeonId(game._DungeonMan:GetQuickMatchTargetId())
+			local curMatchDungeonId = TeamUtil.ExchangeToDungeonId(game._DungeonMan:GetQuickMatchTargetId())
 			-- 快捷匹配
 			if curMatchDungeonId == dungeon_id then
 			--[[

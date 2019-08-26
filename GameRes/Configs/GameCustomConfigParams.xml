@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GameCustomConfig>
+	<EnableLogCache value="1" />
+
 	 <PreloadBundles>
 		<bundle name="commonatlas"/>
 		<bundle name="commonres"/>
@@ -24,10 +26,12 @@
 		<area name = "Dungn06_EmpireRelic" ground="8" grass="0.8" road="0.05" mindistance="5" />
 	 </NavMeshAreaCost>
 	 
-	 <PingInverval value="3" />
+	 <PingInverval value="5" />
 	 <MaxProcessProtocol value="60" />
 	 <MaxProcessSpecialProtocol value="30" />
 	 
+	 <TerrainBasemapDistance value="50" />
+	 	 
 	 <ShaderWarmUp value="1" />
 	 <UseSound value="1" />
 	 <PowerSavingCount value="300" />

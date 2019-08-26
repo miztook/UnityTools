@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world02.png",
 	AssetPath = "Assets/Outputs/Scenes/World02.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[50010] = 
@@ -22,10 +23,10 @@ local MapInfo =
 		},
 		[50011] = 
 		{
-			[1] = { x = -45.38, y = 61.63, z = 205.08, name = "광폭한 세이버투스", level = 10, SortID = 1 },
-			[2] = { x = -65.67, y = 60.65, z = 186.36, name = "광폭한 세이버투스", level = 10, SortID = 3 },
-			[3] = { x = -39.85, y = 62.44, z = 175.06, name = "광폭한 세이버투스", level = 10, SortID = 5 },
-			[4] = { x = -32.36, y = 61.84, z = 197.79, name = "광폭한 세이버투스", level = 10, SortID = 8 },
+			[1] = { x = -45.38, y = 61.63, z = 205.08, name = "난폭한 세이버투스", level = 10, SortID = 1 },
+			[2] = { x = -65.67, y = 60.65, z = 186.36, name = "난폭한 세이버투스", level = 10, SortID = 3 },
+			[3] = { x = -39.85, y = 62.44, z = 175.06, name = "난폭한 세이버투스", level = 10, SortID = 5 },
+			[4] = { x = -32.36, y = 61.84, z = 197.79, name = "난폭한 세이버투스", level = 10, SortID = 8 },
 		},
 		[50012] = 
 		{
@@ -36,10 +37,10 @@ local MapInfo =
 		},
 		[50013] = 
 		{
-			[1] = { x = -56.05, y = 61.85, z = 204.01, name = "쉐도우 쿠거", level = 10, SortID = 2 },
-			[2] = { x = -54.29, y = 64.65, z = 174.51, name = "쉐도우 쿠거", level = 10, SortID = 4 },
-			[3] = { x = -60.98, y = 62.36, z = 196.97, name = "쉐도우 쿠거", level = 10, SortID = 6 },
-			[4] = { x = -32.36, y = 61.84, z = 197.79, name = "쉐도우 쿠거", level = 10, SortID = 8 },
+			[1] = { x = -56.05, y = 61.85, z = 204.01, name = "그림자 쿠거", level = 10, SortID = 2 },
+			[2] = { x = -54.29, y = 64.65, z = 174.51, name = "그림자 쿠거", level = 10, SortID = 4 },
+			[3] = { x = -60.98, y = 62.36, z = 196.97, name = "그림자 쿠거", level = 10, SortID = 6 },
+			[4] = { x = -32.36, y = 61.84, z = 197.79, name = "그림자 쿠거", level = 10, SortID = 8 },
 		},
 		[50031] = 
 		{
@@ -67,7 +68,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[5] = { x = -46.92, y = 61.84, z = 190.50, name = "刷挂区域", worldId = 0, PkMode = 0 },
+			[5] = { x = -46.92, y = 61.84, z = 190.50, name = "刷挂区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

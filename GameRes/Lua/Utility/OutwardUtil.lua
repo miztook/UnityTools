@@ -24,38 +24,6 @@ def.static("number", "string", "number", "=>", "dynamic").Get = function(profId,
 	return nil
 end
 
-def.static("userdata", "number", "number", "function").ChangeArmor = function(go, armorTid, prof, cb)
-	local gender = Profession2Gender[prof]
-	local Util = require "Utility.Util"
-	local asset_path = Util.GetArmorAssetPath(armorTid, prof, gender)
-	if asset_path ~= "" then
-		GameUtil.ChangeOutward(go, EnumDef.EntityPart.Body, asset_path, cb)
-	else
-		if cb ~= nil then cb() end
-	end
-end
-
-
-def.static("userdata", "number", "number", "function").ChangeFace = function(go, profId, id, cb)
-	local asset_path = OutwardUtil.Get(profId, "Face", id)
-	if asset_path == nil or type(asset_path) ~= "string" then
-		warn("Can not get face cfg data, prof = " .. profId .. " id = " .. id)
-		if cb ~= nil then cb() end
-		return
-	end
-	GameUtil.ChangeOutward(go, EnumDef.EntityPart.Face, asset_path, cb)
-end
-
-def.static("userdata", "number", "number", "function").ChangeHair = function(go, profId, id, cb)
-	local asset_path = OutwardUtil.Get(profId, "Hair", id)
-	if asset_path == nil or type(asset_path) ~= "string" then
-		warn("Can not get hair cfg data, prof = " .. profId .. " id = " .. id)
-		if cb ~= nil then cb() end
-		return
-	end
-	GameUtil.ChangeOutward(go, EnumDef.EntityPart.Hair, asset_path, cb)
-end
-
 def.static("userdata","number","number").ChangeSkinColor = function(go,profId,colorID)
 	local id = OutwardUtil.Get(profId, "SkinColor", colorID)
 	if id == nil then

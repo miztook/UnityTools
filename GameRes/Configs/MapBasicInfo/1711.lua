@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[39300] = 
@@ -35,14 +36,14 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[475] = { x = 33.59, y = 66.64, z = 150.65, name = "神之多人-1", worldId = 0, PkMode = 0 },
-			[476] = { x = 32.92, y = 115.49, z = 152.49, name = "神之多人-2", worldId = 0, PkMode = 0 },
-			[477] = { x = 32.85, y = 123.89, z = 152.42, name = "神之多人-3", worldId = 0, PkMode = 0 },
-			[478] = { x = 29.01, y = 65.99, z = 153.78, name = "神之多人-4", worldId = 0, PkMode = 0 },
-			[479] = { x = -121.15, y = 24.34, z = -175.54, name = "神之多人-5", worldId = 0, PkMode = 0 },
-			[480] = { x = -119.75, y = 19.36, z = -172.54, name = "神之多人-6", worldId = 0, PkMode = 0 },
-			[481] = { x = -125.96, y = 19.03, z = -172.54, name = "神之多人-7", worldId = 0, PkMode = 0 },
-			[482] = { x = -127.19, y = 19.68, z = -170.11, name = "神之多人-8", worldId = 0, PkMode = 0 },
+			[475] = { x = 33.59, y = 66.64, z = 150.65, name = "神之多人-1", worldId = 0, PkMode = 1 },
+			[476] = { x = 32.92, y = 115.49, z = 152.49, name = "神之多人-2", worldId = 0, PkMode = 1 },
+			[477] = { x = 32.85, y = 123.89, z = 152.42, name = "神之多人-3", worldId = 0, PkMode = 1 },
+			[478] = { x = 29.01, y = 65.99, z = 153.78, name = "神之多人-4", worldId = 0, PkMode = 1 },
+			[479] = { x = -121.15, y = 24.34, z = -175.54, name = "神之多人-5", worldId = 0, PkMode = 1 },
+			[480] = { x = -119.75, y = 19.36, z = -172.54, name = "神之多人-6", worldId = 0, PkMode = 1 },
+			[481] = { x = -125.96, y = 19.03, z = -172.54, name = "神之多人-7", worldId = 0, PkMode = 1 },
+			[482] = { x = -127.19, y = 19.68, z = -170.11, name = "神之多人-8", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

@@ -6,6 +6,8 @@ local PBHelper = require "Network.PBHelper"
 
 local function OnS2CUpdateQueueNumber(sender, msg)
 	-- warn("OnS2CUpdateQueueNumber number:", msg.number, " total:", msg.total)
+	_G.Do_SendProtocol_Ping(GameUtil.GetPingTimeStamp())
+
 	game._GUIMan:CloseCircle()
 	local data =
 	{

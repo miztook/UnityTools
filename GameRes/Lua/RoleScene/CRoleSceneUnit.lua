@@ -21,7 +21,7 @@ do
 
 		self._IsLoadingScene = true
 		Application.backgroundLoadingPriority = EnumDef.ThreadPriority.High
-		GameUtil.AsyncLoad(path, function(mapres)
+		local cb = function(mapres)
 				Application.backgroundLoadingPriority = EnumDef.ThreadPriority.Normal
 				self._IsLoadingScene = false
 
@@ -45,7 +45,8 @@ do
 						end
 					end)
 				end
-			end)
+			end
+		GameUtil.AsyncLoad(path, cb, false, nil)
 	end
 
 	def.virtual("=>", "boolean").CanInstantiate = function (self)
@@ -410,7 +411,7 @@ do
 		end
 
 		if not IsNilOrEmptyString(self._ScenePath) then
-			GameUtil.UnloadBundle("scenes")
+			--GameUtil.UnloadBundle("scenes")
 			GameUtil.UnloadBundleOfAsset(self._ScenePath)
 		end
 		self._ScenePath = ""
@@ -617,7 +618,7 @@ do
 		end
 
 		if not IsNilOrEmptyString(self._ScenePath) then
-			GameUtil.UnloadBundle("scenes")
+			--GameUtil.UnloadBundle("scenes")
 			GameUtil.UnloadBundleOfAsset(self._ScenePath)
 		end
 		self._ScenePath = ""

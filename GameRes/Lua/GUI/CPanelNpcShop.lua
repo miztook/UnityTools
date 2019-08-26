@@ -97,13 +97,16 @@ def.override().OnCreate = function(self)
     self._PanelObject._Btn_Buy = self:GetUIObject("Btn_Buy")
     self._PanelObject._Item_Icon = self:GetUIObject("ItemIconNew")
     self._PanelObject._LabLevel = self:GetUIObject("Lab_Level")
+    self._PanelObject._Frame_Right = self:GetUIObject("Frame_Items")
     self._Frame_Money = CFrameCurrency.new(self, self:GetUIObject("Frame_Money"), EnumDef.MoneyStyleType.None)
+    self._PanelObject._Frame_Right:SetActive(false)
     local setting = {
        [EnumDef.CommonBtnParam.MoneyID] = 1,
        [EnumDef.CommonBtnParam.MoneyCost] = 0   
     }
     self._Btn_Buy = CCommonBtn.new(self._PanelObject._Btn_Buy, setting)
     local onCountChange = function(count)
+        if not self:IsShow() then return end
         self._CurNumber = count
         self:UpdateBuyInfoPanel()
     end
@@ -174,6 +177,8 @@ def.method().UpdateMoneyFrame = function(self)
         else
             self._Frame_Money:Init(EnumDef.MoneyStyleType.None)
         end
+    elseif self._CurrentBigShopID == 24 then
+        self._Frame_Money:Init(EnumDef.MoneyStyleType.DressShop)
     else
         self._Frame_Money:Init(EnumDef.MoneyStyleType.None)
     end
@@ -196,8 +201,9 @@ end
 ----------------------------------------------------------------------
 def.method().GetDataFromTemplate = function (self)
 	self._ShopData = {}
-	local allIDs = GameUtil.GetAllTid("NpcSale")
+	local allIDs = CElementData.GetAllTid("NpcSale")
     local hp_level = game._HostPlayer._InfoData._Level
+    local function_man = game._CFunctionMan
 	for i,v in pairs(allIDs) do
 		repeat
 			local shopItem = CElementData.GetTemplate("NpcSale", v)
@@ -206,6 +212,9 @@ def.method().GetDataFromTemplate = function (self)
                 break
             end
             if shopItem.IsNotShow and self._OpenType == OpenShopType.FROMUI then break end
+            if shopItem.GuideID ~= nil and shopItem.GuideID > 0 then
+                if not function_man:IsUnlockByFunTid(shopItem.GuideID) then break end
+            end
 			self._ShopData[#self._ShopData + 1] = {}
 			self._ShopData[#self._ShopData].ShopId = shopItem.Id
             self._ShopData[#self._ShopData].Name = shopItem.Name
@@ -375,9 +384,11 @@ end
 ----------------------------------------------------------------------
 def.method().UpdateBuyInfoPanel = function (self)
     local index = self._CurItemIndex
+    if #self._CurrentItemsData < index + 1 then return end
     self._Btn_Buy:SetInteractable(true)
     self._Btn_Buy:MakeGray(false)
     self._Num_Input:SetInteractable(true)
+    self._PanelObject._Frame_Right:SetActive(true)
     local interactable = true
     local no_limit = false
     local cost_money_id = self._CurrentItemsData[index + 1].CostMoneyId
@@ -450,7 +461,7 @@ def.method().UpdateBuyInfoPanel = function (self)
 	local item = CElementData.GetItemTemplate(itemId)
     local buy_count = self:GetBuyCountByDetialID(self._CurrentItemsData[index + 1].Id)
 	GUI.SetText(self._PanelObject._LabItemName, self:GetItemNameRichText(itemId))
-    GUI.SetText(self._PanelObject._Lab_ItemNumber, no_limit and StringTable.Get(8086) or tostring(self._MaxNumber))
+    GUI.SetText(self._PanelObject._Lab_ItemNumber, no_limit and StringTable.Get(8086) or tostring(math.max(self._CurrentItemsData[index + 1].LimitCount - buy_count ,0)))
     GUI.SetText(self._PanelObject._LabLevel, string.format(StringTable.Get(10657), item.InitLevel))
 	IconTools.InitItemIconNew(self._PanelObject._Item_Icon, itemId, nil, EItemLimitCheck.AllCheck)
 
@@ -497,7 +508,7 @@ end
 
 def.method().OnClickBtnBuy = function(self)
     local index = self._CurItemIndex
-    if index < 0 then
+    if index < 0 or #self._CurrentItemsData <= 0 or self._CurrentItemsData[index + 1] == nil then
         return
     end
     -- 判断条件是否满足
@@ -719,7 +730,7 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
         end
     
         if self._CurrentItemsData[index + 1].IsReputation then
-       		local ReputationTemplate = CElementData.GetReputationTemplate (self._CurrentItemsData[index + 1].ReputationType)
+       		local ReputationTemplate = CElementData.GetTemplate("Reputation", self._CurrentItemsData[index + 1].ReputationType)
        		local is_rep_locked = true 
        		for i,v in pairs(self._HostPlayerReputations) do 
        			if i == self._CurrentItemsData[index + 1].ReputationType then
@@ -831,6 +842,14 @@ def.override("userdata", "userdata", "number", "number").OnTabListSelectItem = f
     end
 end
 
+-- 获得配置的时间的截取段。如果配置成23:59:59，需要显示成00:00
+def.method("string", "=>", "string").GetSubTimeString = function(self, timeStr)
+    if timeStr == "23:59:59" then
+        return "00:00"
+    end
+    return string.sub(timeStr, 1, -4)
+end
+
 ----------------------------------------------------------------------
 --点击MenuList的一级页签处理函数<index>一级页签的index</index>
 ----------------------------------------------------------------------
@@ -866,7 +885,7 @@ def.method('userdata','userdata','number').OnClickTabListDeep1 = function(self,l
 		self._CurrentBigShopID = self._ShowShop[self._CurBigShopIndex].ShopId
         self._CurSubShopIndex = -1
         self:OnClickTabListDeep2(list, index, 1)
-		GUI.SetText(self._PanelObject._LabRefreshTimeTips,string.format(StringTable.Get(22310), string.sub(shopData.NpcSaleSubs[self._CurSubShopIndex].RefreshTime,1, -4)))
+		GUI.SetText(self._PanelObject._LabRefreshTimeTips,string.format(StringTable.Get(22310), self:GetSubTimeString(shopData.NpcSaleSubs[self._CurSubShopIndex].RefreshTime)))
         if shopData.IsHideSubMenu then
             self._PanelObject._MenuTabList:OpenTab(0)
         else
@@ -901,7 +920,7 @@ end
 def.method("table").UpdateRefreshTimeInfo = function(self, subShop)
     if subShop == nil then return end
     if subShop.SaleType == ESaleType.ESaleType_Normal then
-        GUI.SetText(self._PanelObject._LabRefreshTimeTips,string.format(StringTable.Get(22310),string.sub(subShop.RefreshTime, 1, -4)))
+        GUI.SetText(self._PanelObject._LabRefreshTimeTips,string.format(StringTable.Get(22310),self:GetSubTimeString(subShop.RefreshTime)))
         self._PanelObject._BtnRefresh:SetActive(false)
     elseif subShop.SaleType == ESaleType.ESaleType_Random then
         local cost_types = string.split(subShop.ResetCostMoneyIds, "*")

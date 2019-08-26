@@ -76,10 +76,12 @@ def.override().OnCreate = function(self)
     self._LabGameName = self:GetUIObject("Lab_GameName")
     self._FrameRed = {}
     for i= 1,3 do
+        local FrameHead = self:GetUIObject("Frame_Head"..i)
+        FrameHead:SetActive(false)
         self._FrameRed[#self._FrameRed + 1] = 
         {
             _RoleID = 0,
-            _FrameHead = self:GetUIObject("Frame_Head"..i),
+            _FrameHead =  FrameHead,
             _ImgHead = self: GetUIObject("Img_Head"..i),
             _ImgTarget = self:GetUIObject("Img_Target"..i),
             _ImgHpProgress = self:GetUIObject("Img_Progress"..i),
@@ -97,6 +99,8 @@ def.override().OnCreate = function(self)
     end
     self._FrameBlue = {}
     for i = 4,6  do
+        local FrameHead = self:GetUIObject("Frame_Head"..i)
+        FrameHead:SetActive(false)
         self._FrameBlue[#self._FrameBlue + 1] = 
         {
             _RoleID = 0,
@@ -304,7 +308,7 @@ def.method().UnlistenToEvent = function(self)
 end
 
 local function SetPlayerShow(nType,index,PlayerInfo)
-    if PlayerInfo == nil then return end
+    if PlayerInfo == nil then warn(" PlayerInfo  is nil ") return end
     local uiItem = nil
     if nType == 2 then
         uiItem = instance._FrameBlue[index]
@@ -312,9 +316,9 @@ local function SetPlayerShow(nType,index,PlayerInfo)
         uiItem = instance._FrameRed[index]
     end
 
-
+    uiItem._FrameHead:SetActive(true)
     uiItem._RoleID = PlayerInfo.RoleId
-    game:SetEntityCustomImg(uiItem._ImgHead,PlayerInfo.RoleId,PlayerInfo.CustomImgSet,Profession2Gender[PlayerInfo.Profession],PlayerInfo.Profession)
+    TeraFuncs.SetEntityCustomImg(uiItem._ImgHead,PlayerInfo.RoleId,PlayerInfo.CustomImgSet,Profession2Gender[PlayerInfo.Profession],PlayerInfo.Profession)
     local hostId = game._HostPlayer._ID
     local ColorName = "<color=#FFFFFFFF>" ..PlayerInfo.Name.."</color>" 
     if hostId == PlayerInfo.RoleId then
@@ -322,7 +326,12 @@ local function SetPlayerShow(nType,index,PlayerInfo)
     end
     GUI.SetText(uiItem._LabName,ColorName)
     local entity = game._CurWorld:FindObject(PlayerInfo.EntityId)
-    if entity == nil then return end
+    if entity == nil then
+        uiItem._ImgLeave:SetActive(true)
+        GameUtil.SetButtonInteractable(uiItem._BtnPlayer, false)
+        uiItem._ListBuff:SetActive(false)
+        return 
+    end
     uiItem._ImgLeave:SetActive(false)
     GameUtil.SetButtonInteractable(uiItem._BtnPlayer, true)
     uiItem._ImgHpProgress:GetComponent(ClassType.Image).fillAmount = entity._InfoData._CurrentHp / entity._InfoData._MaxHp
@@ -336,7 +345,7 @@ local function InitHostShowInfo(self)
     local hp = game._HostPlayer._InfoData
     GUI.SetText(self:GetUIObject("Lab_HostName"),hp._Name)
     GUI.SetText(self:GetUIObject("Lab_LvHosPlayer"),string.format(StringTable.Get(21508),hp._Level))
-    game:SetEntityCustomImg(self:GetUIObject("Img_HeadHosPlayer"),game._HostPlayer._ID,hp._CustomImgSet,hp._Gender,hp._Prof)
+    TeraFuncs.SetEntityCustomImg(self:GetUIObject("Img_HeadHosPlayer"),game._HostPlayer._ID,hp._CustomImgSet,hp._Gender,hp._Prof)
     local HpHost = self:GetUIObject('Bld_HPHostPlayer'):GetComponent(ClassType.GBlood)
     local MpHost = self:GetUIObject('Prg_FillRectHostPlayer'):GetComponent(ClassType.Image)
     local value1 = hp._CurrentHp / hp._MaxHp
@@ -359,7 +368,7 @@ local function Init1V1EnemyShowInfo(self,data)
         GUI.SetText(self:GetUIObject("Lab_EnemyName"),data.Name)
     end
     GUI.SetText(self:GetUIObject("Lab_LvEnemy"),string.format(StringTable.Get(21508),data.Level))
-    game:SetEntityCustomImg(self:GetUIObject("Img_HeadEnemy"),data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
+    TeraFuncs.SetEntityCustomImg(self:GetUIObject("Img_HeadEnemy"),data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
     local HpEnemy = self:GetUIObject("Bld_HPEnemy"):GetComponent(ClassType.GBlood)
     local value2 = data.CurrentHp / data.MaxHp
     HpEnemy:SetValue(value2)
@@ -379,7 +388,7 @@ local function InitBattleEnemyShowInfo(self,data)
     local info = data._InfoData
     GUI.SetText(self:GetUIObject("Lab_EnemyName"),info._Name)
     GUI.SetText(self:GetUIObject("Lab_LvEnemy"),string.format(StringTable.Get(21508),info._Level))
-    game:SetEntityCustomImg(self:GetUIObject("Img_HeadEnemy"),data._ID,info._CustomImgSet,info._Gender,info._Prof)
+    TeraFuncs.SetEntityCustomImg(self:GetUIObject("Img_HeadEnemy"),data._ID,info._CustomImgSet,info._Gender,info._Prof)
     local HpEnemy = self:GetUIObject("Bld_HPEnemy"):GetComponent(ClassType.GBlood)
     local value2 = info._CurrentHp / info._MaxHp
     HpEnemy:SetValue(value2)
@@ -489,6 +498,7 @@ def.method("number").Update3V3PlayerHp = function (self,roleId)
                     GameUtil.StopUISfx(PATH.UIFx_3V3Target,self._TargetObj._FrameHead)
                 end
                 v._ImgDead:SetActive(true)
+                v._ListBuff:SetActive(false)
                 local fxObjParent = v._ImgDead:FindChild("Img_Dead")
                 GameUtil.PlayUISfx(PATH.UIFx_3V3Dead, fxObjParent, fxObjParent, -1)
             end
@@ -505,6 +515,7 @@ def.method("number").Update3V3PlayerHp = function (self,roleId)
                 end
                 local fxObjParent = v._ImgDead:FindChild("Img_Dead")
                 v._ImgDead:SetActive(true)
+                v._ListBuff:SetActive(false)
                 GameUtil.PlayUISfx(PATH.UIFx_3V3Dead, fxObjParent, fxObjParent, -1)
             end
         return end
@@ -525,11 +536,13 @@ def.method("number").UpdatePlayerHpAndMp = function (self,roleId)
         local HpEnemy = self:GetUIObject("Bld_HPEnemy"):GetComponent(ClassType.GBlood)
         local MpEnemy = self:GetUIObject("Prg_FillRectEnemy"):GetComponent(ClassType.Image)
         local entity = game._CurWorld:FindObject(roleId)
-        local value2 = entity._InfoData._CurrentHp / entity._InfoData._MaxHp
-        HpEnemy:SetValue(value2)
-        local energy_type, cur_energy, max_energy = entity:GetEnergy()
-        MpEnemy.fillAmount = cur_energy / max_energy
-        GUI.SetText(self:GetUIObject("Lab_HPEnemy"),string.format(StringTable.Get(20061),entity._InfoData._CurrentHp,entity._InfoData._MaxHp))
+        if entity ~= nil then
+            local value2 = entity._InfoData._CurrentHp / entity._InfoData._MaxHp
+            HpEnemy:SetValue(value2)
+            local energy_type, cur_energy, max_energy = entity:GetEnergy()
+            MpEnemy.fillAmount = cur_energy / max_energy
+            GUI.SetText(self:GetUIObject("Lab_HPEnemy"),string.format(StringTable.Get(20061),entity._InfoData._CurrentHp,entity._InfoData._MaxHp))
+        end
     elseif self._CurOpenArenaType == EDungeonType.Type_Eliminate and self._BattleCurEnemy~= nil and roleId == self._BattleCurEnemy._ID then 
          local HpEnemy = self:GetUIObject("Bld_HPEnemy"):GetComponent(ClassType.GBlood)
         local MpEnemy = self:GetUIObject("Prg_FillRectEnemy"):GetComponent(ClassType.Image)

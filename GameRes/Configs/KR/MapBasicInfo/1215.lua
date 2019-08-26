@@ -11,11 +11,12 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10046] = 
 		{
-			[1] = { x = 172.00, y = 27.69, z = -204.94, name = "해적 용병", level = 14, SortID = 1 },
+			[1] = { x = 178.84, y = 27.69, z = -209.09, name = "해적 용병", level = 14, SortID = 1 },
 		},
 		[10012] = 
 		{
@@ -23,9 +24,9 @@ local MapInfo =
 		},
 		[10057] = 
 		{
-			[1] = { x = 190.94, y = 27.65, z = -141.14, name = "타락한 병사", level = 14, SortID = 11 },
-			[2] = { x = 163.76, y = 27.65, z = -148.71, name = "타락한 병사", level = 14, SortID = 12 },
-			[3] = { x = 156.11, y = 26.63, z = -142.88, name = "타락한 병사", level = 14, SortID = 13 },
+			[1] = { x = 190.94, y = 27.65, z = -141.14, name = "부패한 병사", level = 14, SortID = 11 },
+			[2] = { x = 163.76, y = 27.65, z = -148.71, name = "부패한 병사", level = 14, SortID = 12 },
+			[3] = { x = 156.11, y = 26.63, z = -142.88, name = "부패한 병사", level = 14, SortID = 13 },
 		},
 		[10058] = 
 		{
@@ -41,12 +42,12 @@ local MapInfo =
 		[163] = 
 		{
 			[1] = { x = 199.32, y = 27.76, z = -210.63, name = "케스타닉 노예", SortID = 3 },
-			[2] = { x = 172.20, y = 27.63, z = -204.32, name = "케스타닉 노예", SortID = 5 },
+			[2] = { x = 177.39, y = 27.63, z = -206.82, name = "케스타닉 노예", SortID = 5 },
 		},
 		[164] = 
 		{
 			[1] = { x = 199.32, y = 27.76, z = -210.63, name = "휴먼 노예", SortID = 3 },
-			[2] = { x = 172.20, y = 27.63, z = -204.32, name = "휴먼 노예", SortID = 5 },
+			[2] = { x = 177.39, y = 27.63, z = -206.82, name = "휴먼 노예", SortID = 5 },
 		},
 		[553] = 
 		{
@@ -61,16 +62,16 @@ local MapInfo =
 	{
 		[1] = 
 		{
-			[131] = { x = 181.54, y = 21.52, z = -184.19, xA = 166.70, yA = 27.64, zA = -197.58, name = "传送楼下", worldId = 1215, PkMode = 0 },
-			[132] = { x = 156.69, y = 27.20, z = -186.17, xA = 183.87, yA = 20.85, zA = -180.41, name = "传送楼上", worldId = 1215, PkMode = 0 },
+			[131] = { x = 181.54, y = 21.52, z = -184.19, xA = 166.70, yA = 27.64, zA = -197.58, name = "传送楼下", worldId = 1215, PkMode = 1 },
+			[132] = { x = 156.69, y = 27.20, z = -186.17, xA = 183.87, yA = 20.85, zA = -180.41, name = "传送楼上", worldId = 1215, PkMode = 1 },
 		},
 		[2] = 
 		{
-			[82] = { x = 215.84, y = 27.63, z = -200.46, name = "奴隶区", worldId = 0, PkMode = 0 },
-			[83] = { x = 210.04, y = 27.63, z = -146.71, name = "군사 구역", worldId = 0, PkMode = 0 },
-			[84] = { x = 147.62, y = 24.12, z = -132.52, name = "竞技场外", worldId = 0, PkMode = 0 },
-			[85] = { x = 172.31, y = 43.92, z = -144.51, name = "", worldId = 0, PkMode = 0 },
-			[130] = { x = 190.17, y = 20.85, z = -174.95, name = "竞技场内环", worldId = 0, PkMode = 0 },
+			[82] = { x = 215.84, y = 27.63, z = -200.46, name = "奴隶区", worldId = 0, PkMode = 1 },
+			[83] = { x = 210.04, y = 27.63, z = -146.71, name = "군사 구역", worldId = 0, PkMode = 1 },
+			[84] = { x = 147.62, y = 24.12, z = -132.52, name = "竞技场外", worldId = 0, PkMode = 1 },
+			[85] = { x = 172.31, y = 43.92, z = -144.51, name = "", worldId = 0, PkMode = 1 },
+			[130] = { x = 190.17, y = 20.85, z = -174.95, name = "竞技场内环", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 
@@ -92,7 +93,7 @@ local MapInfo =
 	{
 		[1] = 
 		{
-			x = 172.00, y = 27.69, z = -204.94, Type = 1,
+			x = 178.84, y = 27.69, z = -209.09, Type = 1,
 			Tid = 
 			{
 				[10046] = 12,
@@ -157,7 +158,7 @@ local MapInfo =
 		},
 		[5] = 
 		{
-			x = 172.20, y = 27.63, z = -204.32, Type = 2,
+			x = 177.39, y = 27.63, z = -206.82, Type = 2,
 			Tid = 
 			{
 				[163] = 2,
@@ -208,7 +209,7 @@ local MapInfo =
 	TargetPoint = 
 	{
 		[1] = { posx = 183.87, posy = 20.85, posz = -180.41, rotx = 0.00, roty = 19.75, rotz = 0.00 },
-		[2] = { posx = 166.70, posy = 27.64, posz = -197.58, rotx = 0.00, roty = 127.02, rotz = 0.00 },
+		[2] = { posx = 167.67, posy = 27.64, posz = -196.30, rotx = 0.00, roty = 127.02, rotz = 0.00 },
 		[3] = { posx = 188.62, posy = 20.54, posz = -174.42, rotx = 0.00, roty = 0.00, rotz = 0.00 },
 	},
 

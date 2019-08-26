@@ -105,6 +105,7 @@ end
 
 local rewards = nil
 def.override("dynamic").OnData = function(self, data)
+	CItemTipMan.CloseCurrentTips()
     self._OnTipFinishCB = data.OnFinish
 	local quest_data = CElementData.GetQuestTemplate(data._QuestId)
  	local chapterTip = string.split(quest_data.QuestChapterInfo, ".")

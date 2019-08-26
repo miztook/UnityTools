@@ -26,6 +26,13 @@ def.method("table", "=>", "boolean").IsPetCreateble = function(self, msg_pet)
 		warn("the pet message is nil.")
 		return false
 	end
+
+	local hostId = msg_pet.HostId
+	local world = game._CurWorld
+	local owner = world:FindObject(hostId)
+	-- 不可见玩家的子物体隐藏
+	if owner ~= nil and owner:IsElsePlayer() and not owner:IsCullingVisible() then return false end
+
 	local id = msg_pet.MonsterInfo.CreatureInfo.MovableInfo.EntityInfo.EntityId
 	if self:Get(id) ~= nil then
 		--warn("There is another Pet with the same id, id = ", id)
@@ -50,7 +57,7 @@ def.method("table", "=>", CPet).CreatePetObject = function (self, info)
 					p._GameObject.parent = self._PetsRoot
 				end
 			end)
-		pet:Load( EnumDef.SightUpdateType.Unknown ) 	--宠物没有效果，暂时写死默认值
+		--pet:Load( EnumDef.SightUpdateType.Unknown ) 	--宠物没有效果，暂时写死默认值
 		self._ObjMap[entity_id] = pet
 		return pet
 	end
@@ -69,11 +76,11 @@ end
 
 -- 宠物的显隐与所属玩家一致
 def.override().Update = function (self)
-	do return end
+	local game = game
 	local world = game._CurWorld
 	for k,v in pairs(self._ObjMap) do
 		local owner = world:FindObject(v:GetOwnerId())
-		v:EnableCullingVisible(owner ~= nil and owner:IsCullingVisible())
+		v:EnableCullingVisible(owner ~= nil and owner:IsCullingVisible() and not game._IsInWorldBoss)
 	end
 end
 

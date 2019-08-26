@@ -58,6 +58,7 @@ def.field("number")._CurFrameType = 0
 def.field("dynamic")._CurPageClass = nil
 def.field("boolean")._IsPlayingDoTween = false		-- 是否正在播放动效
 def.field("function")._OnTweenCompleteCallback = nil
+def.field("boolean")._IsHiding = false
 
 local ExteriorPageType =
 {
@@ -248,13 +249,9 @@ def.override("string").OnClick = function(self, id)
 		CExteriorMan.Instance():Quit()
 		game._GUIMan:CloseSubPanelLayer()
 	elseif string.find(id, "Btn_Hide") then
-		self:RestartDoTween(self._ETweenType.MoveOut, function()
-			GameUtil.EnableBlockCanvas(false)
-			self._Btn_Show:SetActive(true)
-		end)
+		self:EnableHideMainContent(true)
 	elseif string.find(id, "Btn_Show") then
-		self._Btn_Show:SetActive(false)
-		self:RestartDoTween(self._ETweenType.MoveIn, nil)
+		self:EnableHideMainContent(false)
 	--------------策划调试用，之后删----------
 	elseif string.find(id, "Btn_CameraDebug") then
 		self._IsOpenDebug = not self._IsOpenDebug
@@ -386,7 +383,7 @@ def.override("string", "string").OnDOTComplete = function(self, go_name, dot_id)
 end
 
 def.method("string", "function").RestartDoTween = function(self, dot_id, callback)
-	if self._IsPlayingDoTween then return end
+	-- if self._IsPlayingDoTween then return end
 
 	GameUtil.EnableBlockCanvas(true) -- 阻挡点击
 	self._IsPlayingDoTween = true
@@ -465,22 +462,42 @@ end
 def.method("boolean").EnableRightTips = function (self, enable)
 	GUITools.SetUIActive(self._Frame_RightTips, enable)
 	if enable then
-		local tipStr = StringTable.Get(22115)
+		local tipStr = ""
 		if self._CurFrameType == ExteriorPageType._Ride then
-			tipStr = tipStr .. StringTable.Get(22112)
+			tipStr = StringTable.Get(22112)
 		elseif self._CurFrameType == ExteriorPageType._Dress then
-			tipStr = tipStr .. StringTable.Get(22113)
+			tipStr = StringTable.Get(22113)
 		elseif self._CurFrameType == ExteriorPageType._Wing then
-			tipStr = tipStr .. StringTable.Get(22114)
+			tipStr = StringTable.Get(22114)
 		end
 		GUI.SetText(self._Lab_RightTips, tipStr)
+	end
+end
+
+def.method("boolean").EnableHideMainContent = function (self, enable)
+	if self._IsHiding == enable then return end
+
+	self._IsHiding = enable
+	if enable then
+		self:RestartDoTween(self._ETweenType.MoveOut, function()
+			if not self._IsHiding then return end
+			GameUtil.EnableBlockCanvas(false)
+			self._Btn_Show:SetActive(true)
+		end)
+	else
+		self._Btn_Show:SetActive(false)
+		self:RestartDoTween(self._ETweenType.MoveIn, nil)
 	end
 end
 
 -------------------------------------------------------------------
 
 def.override("=>","boolean").HandleEscapeKey=function(self)
-	CExteriorMan.Instance():Quit()
+	if self._IsHiding then
+		self:EnableHideMainContent(false)
+	else
+		CExteriorMan.Instance():Quit()
+	end
 	return true
 end
 

@@ -316,7 +316,7 @@ def.method("boolean").ShowDungeonDamageInfo = function (self, isReorder)
                 _Lab_Name = uiTemplate:GetControl(0),
                 _Lab_Damage = uiTemplate:GetControl(1),
                 _Lab_Rank = uiTemplate:GetControl(2),
-                _Sld_RankPercent = uiTemplate:GetControl(3),
+                _Sld_RankPercent = uiTemplate:GetControl(3):GetComponent(ClassType.Slider),
                 _Img_SldFill = uiTemplate:GetControl(4),
             }
             self._DungeonObjList[i] = item
@@ -352,7 +352,7 @@ def.method("boolean").ShowDungeonDamageInfo = function (self, isReorder)
                     GUITools.SetGroupImg(item._Img_SldFill, 0)
                 end
             end
-            GUITools.DoSlider(item._Sld_RankPercent, sldPercent, _G.minimap_update_time, nil, nil)
+            item._Sld_RankPercent.value = sldPercent
         end
 
         count = i
@@ -452,14 +452,12 @@ def.method().ShowWorldBossDamageInfo = function (self)
                 _Lab_Name = uiTemplate:GetControl(0),
                 _Lab_Damage = uiTemplate:GetControl(1),
                 _Lab_Rank = uiTemplate:GetControl(2),
-                _Sld_RankPercent = uiTemplate:GetControl(3),
+                _Sld_RankPercent = uiTemplate:GetControl(3):GetComponent(ClassType.Slider),
                 _Img_SldFill = uiTemplate:GetControl(4),
             }
             self._WorldBossObjList[index] = item
         end
-        if item._Item.activeSelf == false then
-            item._Item:SetActive(true)
-        end
+        item._Item:SetActive(true)
         return item
     end
 
@@ -502,7 +500,7 @@ def.method().ShowWorldBossDamageInfo = function (self)
                     GUITools.SetGroupImg(item._Img_SldFill, 0)
                 end
             end
-            GUITools.DoSlider(item._Sld_RankPercent, sldPercent, _G.minimap_update_time, nil, nil)
+            item._Sld_RankPercent.value = sldPercent
             -- 伤害
             local bShowDamage = self._BossMaxHP > 0
             GUITools.SetUIActive(item._Lab_Damage, bShowDamage)
@@ -540,9 +538,7 @@ def.method().ShowWorldBossDamageInfo = function (self)
     -- 隐藏多余的
     for i = count + 1, #self._WorldBossObjList do
         local item = self._WorldBossObjList[i]._Item
-        if item.activeSelf == true then
-            item:SetActive(false)
-        end
+        item:SetActive(false)
     end
 end
 ----------------------------世界Boss实时伤害统计 end---------------------------

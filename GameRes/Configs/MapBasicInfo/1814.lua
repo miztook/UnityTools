@@ -11,15 +11,16 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12228] = 
 		{
-			[1] = { x = -89.37, y = 93.59, z = 127.80, name = "风之武者", level = 32, DropItemIds = " " },
+			[1] = { x = -89.37, y = 93.59, z = 127.80, name = "风之武者阴影", level = 32, DropItemIds = " " },
 		},
 		[12229] = 
 		{
-			[1] = { x = -89.37, y = 93.59, z = 127.80, name = "风之祭司", level = 32, DropItemIds = " " },
+			[1] = { x = -89.37, y = 93.59, z = 127.80, name = "风之祭司阴影", level = 32, DropItemIds = " " },
 		},
 		[12230] = 
 		{
@@ -33,11 +34,11 @@ local MapInfo =
 		},
 		[12221] = 
 		{
-			[1] = { x = -28.79, y = 98.34, z = 151.43, name = "风之武者暗影", level = 32, DropItemIds = " " },
+			[1] = { x = -28.79, y = 98.34, z = 151.43, name = "风之武者", level = 32, DropItemIds = " " },
 		},
 		[12222] = 
 		{
-			[1] = { x = -28.79, y = 98.34, z = 151.43, name = "风之祭司暗影", level = 32, DropItemIds = " " },
+			[1] = { x = -28.79, y = 98.34, z = 151.43, name = "风之祭司", level = 32, DropItemIds = " " },
 		},
 		[12223] = 
 		{
@@ -102,12 +103,12 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[456] = { x = -87.07, y = 93.56, z = 121.05, name = "到达区域1", worldId = 0, PkMode = 0 },
-			[457] = { x = -83.28, y = 93.73, z = 137.48, name = "到达区域2", worldId = 0, PkMode = 0 },
-			[458] = { x = -28.67, y = 98.33, z = 143.54, name = "到达区域3", worldId = 0, PkMode = 0 },
-			[459] = { x = -28.90, y = 98.13, z = 167.04, name = "到达区域4", worldId = 0, PkMode = 0 },
-			[460] = { x = -28.50, y = 98.14, z = 173.16, name = "鹰眼", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {2231} },
-			[461] = { x = -67.81, y = 94.71, z = 125.24, name = "相位区域", worldId = 0, PkMode = 0 },
+			[456] = { x = -87.07, y = 93.56, z = 121.05, name = "到达区域1", worldId = 0, PkMode = 1 },
+			[457] = { x = -83.28, y = 93.73, z = 137.48, name = "到达区域2", worldId = 0, PkMode = 1 },
+			[458] = { x = -28.67, y = 98.33, z = 143.54, name = "到达区域3", worldId = 0, PkMode = 1 },
+			[459] = { x = -28.90, y = 98.13, z = 167.04, name = "到达区域4", worldId = 0, PkMode = 1 },
+			[460] = { x = -28.50, y = 98.14, z = 173.16, name = "鹰眼", worldId = 0, PkMode = 1, IsCanHawkeye = true, QuestID = {2231} },
+			[461] = { x = -67.81, y = 94.71, z = 125.24, name = "相位区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

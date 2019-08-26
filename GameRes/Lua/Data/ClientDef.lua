@@ -52,7 +52,8 @@ _G.EnumDef =
         InProgress  = 11,
         InWeakPoint = 12,
         InViolent   = 13,
-        None        = -1
+        None        = -1,
+        NotSet      = -2
     },
 
     ServerState = 
@@ -60,7 +61,15 @@ _G.EnumDef =
         Good        = 0,        --良好
         Normal      = 1,        --一般
         Busy        = 2,        --火爆
-        Unuse       = 3,        --不可登录
+        Unuse       = 3,        --维护中（白名单可登录）
+        Unrun       = 4,        --未启动
+    },
+
+    AccountSpecialLevel = 
+    {
+        Normal      = 0,        --一般
+        Level2      = 1,        --无视排队;维护可进;
+        Level1      = 2,        --等级2账号功能;GM模式;
     },
 
     ManualType =
@@ -113,6 +122,7 @@ _G.EnumDef =
         NpcSale             = 18,
         StoragePack          = 19,
         CyclicQuest          = 20,
+        FrontLine            = 21,
     },
 
     CLIP =
@@ -169,6 +179,7 @@ _G.EnumDef =
         NPC = 11,
         Blockable = 12,
         Clickable = 13,
+        Background = 14,
         HostPlayer = 16,
         EntityAttached = 17,  -- 对象附属物 （光圈 头顶字 等）
         Fx = 18,
@@ -274,6 +285,8 @@ _G.EnumDef =
         [7] = "097EE9",
         [8] = "32A6E2",
         [9] = "3ECD55",
+        [10] = "3ECD55",
+        [11] = "3ECD55",
     },
 
     SuitColorHexStr = 
@@ -589,6 +602,7 @@ _G.EnumDef =
         FinishGuide  = 24, --完成某个教學
         BagCapacityLast  = 25, --背包超过剩余空间行为
         CloseUI = 26,  --关闭某个界面行为
+        ReadyToDeliverTask = 27,  --可交付条件触发行为
     },
 
     EGuideConditionID =      --教学
@@ -653,6 +667,7 @@ _G.EnumDef =
         WingEnter           = 48,--翅膀养成
         Activity            = 49,--指南
         Power               = 50,--省点模式
+        Summon              = 51,--召唤
     },
 
     TokenId = 
@@ -722,7 +737,8 @@ _G.EnumDef =
 
 		ShowHeadInfo							= "ShowHeadInfo",
 
-        QuickMsg                        = "QuickMsg",
+        QuickMsg                        = "ALLQuickMsg",
+        IsShowPlayerStrongPanel         = "IsShowPlayerStrongPanel",
     },
 
     HangPoint = 
@@ -1063,6 +1079,7 @@ _G.EnumDef =
         _SpecialSign    = 3,  -- 特殊签到
         _Festival       = 4,  -- 材料兑换
         _OnLineReward   = 5,  -- 在线奖励
+        _Dice           = 6,  -- 骰子
     },
 
     --福利类型 1 = 签到   (暂时只有签到，以后有了再加)
@@ -1521,19 +1538,21 @@ _G.EnumDef =
         GuildName = 5,
         GuildConvoy = 6,
         Rescue = 7,
+        --Name = 8,
     },
 
 	BattleStgType = 
 	{
-		Concentrate=1, --集火BOSS，
-		Cover =2, --转火，
-		FallBack=3, --远离BOSS，
-		StayClose=4, --靠近BOSS，
-		Evade=5, --注意走位，
-		Heal=6,	--注意治疗，
-		Scatter=7, --分散，
-		Ralley=8,	--集合
-		Total=9,
+		Concentrate = 1, --集火BOSS，
+		Cover = 2, --转火，
+		FallBack = 3, --远离BOSS，
+		StayClose = 4, --靠近BOSS，
+		Evade = 5, --注意走位，
+		Heal = 6,	--注意治疗，
+		Scatter = 7, --分散，
+		Ralley = 8,	--集合
+
+		Total= 9,
 	},
 
     EquipProcessStatus = 
@@ -1576,6 +1595,13 @@ _G.EnumDef =
         Charm = 4,
         Consumables = 5,
         Else = 6,
+    },
+
+    -- MessageBox关闭类型
+    CloseType =
+    {
+        CloseBtn = 0,
+        ClickAnyWhere = 1,
     }
 }
 
@@ -1639,6 +1665,7 @@ _G.CSoundMan = require "Main.CSoundMan"
 _G.IDMan = require "Main.IDMan"
 _G.CSpecialIdMan = require "Data.CSpecialIdMan"
 _G.GUITools = require "GUI.GUITools"
+_G.TeamUtil = require "Team.TeamUtil"
 _G.RichTextTools = require "GUI.RichTextTools"
 require "GUI.IconTools"
 _G.CFlashTipMan = require "Main.CFlashTipMan"
@@ -1678,7 +1705,7 @@ _G.SWITCH_HUD_TEXT = false
 _G.RelationDesc = { [0] = "Neutral", [1] = "Friendly", [2] = "Enemy" }
 
 -- 玩家数量显示控制
-_G.MAX_VISIBLE_PLAYER = 20
+_G.MAX_VISIBLE_PLAYER = 25
 _G.VISIBLE_PLAYER_INNER_RATIO = 0.4
 
 _G.BeginnerDungeonCgId = 2
@@ -1712,3 +1739,7 @@ _G.PanelPageConfig =
 }
 
 _G.MaxLevel = 60
+
+_G.Regexp4Int = "([a-zA-Z]+[0-9]+)"
+_G.Regexp4Percent = "([a-zA-Z]+[0-9]+\%%)"
+_G.Regexp4Num = "[0-9]+"

@@ -20,8 +20,8 @@ _G.logc2s = false
 _G._TotalSendProtoCount = 0
 _G.logs2c = false
 _G._TotalRecvProtoCount = 0
-_G.canSendPing = false
-_G.canAutoReconnect = true
+_G.CanSendPing = false
+_G.CanAutoReconnect = true
 
 _G.lastIsStop = false
 _G.lastHostPosX, _G.lastHostPosZ = 0, 0
@@ -49,7 +49,6 @@ function _G.IsWin()
 end
 
 function _G.GetDebugLineInfo(stack)
-
     local info = debug.getinfo(stack, "Sl") 
     if info == nil then return "" end
     return string.format("[ %s, %d ]", info.source or "", info.currentline)
@@ -66,9 +65,6 @@ function _G.GetDebugLineInfo(stack)
 end
 
 function _G.StartGame()
-	print("InitGame")
-	game:Init()
-
 	print("StartGame")
 	game:Start()
 
@@ -97,8 +93,7 @@ function _G.ReleaseGame()
 end
 
 function _G.PauseGame()
-	print("PauseGame")
-	game:SaveUserDataToFile()
+	--print("PauseGame")
 end
 
 function _G.MemoryHook(tickTime)
@@ -112,27 +107,6 @@ function _G.OnLowMemory()
 
 	collectgarbage("collect")
 	return collectgarbage("count")
-end
-
-function _G.TickGame(dt)
-	if mem_hook_time > 0 then
-		mem_hook_time = mem_hook_time - 1
-		if mem_hook_time == 0 then
-			local MemLeakDetector = require "Profiler.CMemLeakDetector"
-			MemLeakDetector.StopRecordAllocAndDumpStat()
-		end
-	end
-
-	game:Tick(dt)
-
-	if game._NetMan ~= nil and game._NetMan._GameSession ~= nil and _G.canSendPing then
-		game._NetMan._GameSession:CheckConnection(10)	--检查是否10秒内收到了服务器响应
-	end
-
-end
-
-function _G.LateTickGame(dt)
-
 end
 
 function _G.AddGlobalTimer(ttl, once, cb)
@@ -239,7 +213,7 @@ function _G.OnClickGround(pos)
 		return 
 	end
 	game:OnClickGround(pos)
-	game:RaiseNotifyClickEvent("Ground")
+	EventUntil.RaiseNotifyClickEvent("Ground")
 end
 
 function _G.BeginSleeping()
@@ -250,10 +224,6 @@ function _G.OnSingleDrag(delta)
 end
 
 function _G.OnTwoFingersDrag(delta)
-end
-
-function _G.OnSyncLog(log_str)
-	game:OnUnityLog(log_str)
 end
 
 function _G.OnTraceBack()
@@ -357,38 +327,34 @@ function _G.Voice_OnApplyMessageKeyComplete(code)
 end
 
 function _G.Voice_OnUploadReccordFileComplete(code, filepath, fileId)
-	-- warn("_G.Voice_OnUploadReccordFileComplete", filepath, fileId)
 	if fileId ~= "" then
 		local VoiveSeconds = VoiceUtil.OffLine_GetVoiceFileSeconds()
-		-- warn("Upload game._IsSystemVoice == ", game._IsSystemVoice)
-		if game._IsSystemVoice == true then			
-			local CPanelChatNew = require 'GUI.CPanelChatNew'
-			CPanelChatNew.Instance():OnSendVoiceMsg(fileId, VoiveSeconds)
-		end
+		-- local CPanelChatNew = require 'GUI.CPanelChatNew'
+		-- CPanelChatNew.Instance():OnSendVoiceMsg(fileId, VoiveSeconds)
 	end
 end
 
 function _G.Voice_OnDownloadRecordFileComplete(code, filepath, fileId)
-	-- warn("_G.Voice_OnDownloadRecordFileComplete", filepath, fileId)
+	warn("_G.Voice_OnDownloadRecordFileComplete")
+	-- TODO: 开始播放
+	-- 以下判断方式不合适，两条不同语音先后播放，_IsSystemPlayVoice会出现错乱
+	-- 应将语音播放接口抽离出具体逻辑模块    -- added by Jerry
+	
+	--[[
 	if fileId ~= "" then
-		-- warn("Download game._IsSystemPlayVoice == ", game._IsSystemPlayVoice)
-		if game._IsSystemPlayVoice == true then			
+		if game._IsSystemPlayVoice then			
 			local ChatManager = require 'Chat.ChatManager'
 			ChatManager.Instance():OnPlayVoice(fileId)
-		elseif game._IsSystemPlayVoice == false then
+		else
 			local CFriendMan = require 'Main.CFriendMan'
 			game._CFriendMan:OnPlayVoice(fileId)
 		end
-		
 	end
+	]]
 end
 
 function  _G.Voice_OnPlayRecordFileComplete(code, filepath)
-	--warn("_G.Voice_OnPlayRecordFileComplete", filepath)
-	--CSoundMan.Instance():SetSoundBGMVolume(1, true)
-
 	CSoundMan.Instance():SubChatVoiceCount()
-
 end
 
 function _G.Voice_OnRecordingFileComplete(code)
@@ -430,19 +396,18 @@ _G.EVENT =
     CONNECT_FAILED = 5,
 }
 
-_G.MsgBoxDisconnectShow = false
-
 function _G.OnConnectionEvent(eventCode)
 	if eventCode == EVENT.CONNECTED then
 		warn("网络连接成功")
-        game:RaiseConnectEvent()
+        EventUntil.RaiseConnectEvent()
 		local callback = function()	
 			if not game._IsReconnecting then
 				game._GUIMan:CloseCircle()
-				--MsgBox.CloseAll()
+				MsgBox.ClearAllBoxes()
 			end
 		end
 		_G.AddGlobalTimer(5, true, callback)
+		game:ClearAutoReconnectTimer()
 
 	elseif eventCode == EVENT.DISCONNECTED then
 		warn("网络断开连接")
@@ -451,20 +416,30 @@ function _G.OnConnectionEvent(eventCode)
 
 		--关闭所有MsgBox		
 		game._GUIMan:CloseCircle()
-		MsgBox.CloseAllExceptDisconnect()
+		MsgBox.ClearAllExceptDisconnect()
 
-		if not game._AnotherDeviceLogined then
-			if _G.canAutoReconnect then
+		if not game._AnotherDeviceLogined and
+		   not game:IsRoleSceneAutoReturnLogin() then
+			if game._IsLoggingout then
+				-- 处于登出中，返回登录界面，防止断线重连
+				game:ReturnToLoginStage()
+			end
+			if _G.CanAutoReconnect then
 				--当在登录界面时忽略网络断连消息
 				local loginPanel = require "GUI.CPanelLogin".Instance()
 				if IsNil(loginPanel._Panel) or not loginPanel:IsShow() then
-					game:RaiseDisconnectEvent()
+					EventUntil.RaiseDisconnectEvent()
 					ClearScreenFade()
 
+					if _G.CanAutoReconnect then
+						game:AutoReconnect()
+					end
+					--[[
 					_G.AddGlobalTimer(5, true, function() 
-							if not _G.canAutoReconnect then return end
+							if not _G.CanAutoReconnect then return end
 							game:AutoReconnect() 
 						end)
+					]]
 				end
 			end
 		end
@@ -472,11 +447,11 @@ function _G.OnConnectionEvent(eventCode)
 		warn("网络关闭")
 
 		game._GUIMan:CloseCircle()
-		MsgBox.CloseAll()
+		MsgBox.ClearAllBoxes()
 
 	elseif eventCode == EVENT.CONNECT_FAILED then
 		warn("网络连接失败")
-		if _G.ReconnectTimerId == 0 and not _G.MsgBoxDisconnectShow then 		--重连中忽略连接错误消息
+		if _G.ReconnectTimerId == 0 and not MsgBox.IsDisconnectShow() then 		--重连中忽略连接错误消息
 			-- 平台SDK打点
 			local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
 			CPlatformSDKMan.Instance():SetBreakPoint(PlatformSDKDef.PointState.Game_User_Login_Fail)
@@ -490,7 +465,7 @@ function _G.OnConnectionEvent(eventCode)
 			--延迟1s加载
 			local callback = function()	
 				game._GUIMan:CloseCircle()
-				MsgBox.CloseAll()
+				MsgBox.ClearAllBoxes()
 			end
 
 			do
@@ -527,7 +502,24 @@ function _G.GetLuaMemory()
 end
 
 function _G.GetDesignWidthAndHeight()
-	return 1920, 1080
+	local QualitySettingMan = require "Main.QualitySettingMan"
+	local lv = QualitySettingMan.Instance():GetRecommendLevel()
+
+	--warn("Device Level =", lv)
+
+	local resolutionCfg = 
+		{
+			{1280,  720},  -- 1
+			{1024,  720},  -- 2
+			{1600,  900},  -- 3
+			{1920, 1080},  -- 4
+			{1920, 1080},  -- 5
+		}
+	local cfg = resolutionCfg[lv] or resolutionCfg[3]
+
+	--warn("Device Level =", lv, "ScreenSize =", cfg[1], cfg[2])
+
+	return cfg[1], cfg[2]
 end
 
 function _G.ChangeCombatStateImmediately(go, isInCombat)
@@ -547,9 +539,8 @@ end
 
 local c2s_ping_protocol = nil
 local time_point = nil
-function _G.SendProtocol_Ping(timestamp)
-	if not _G.canSendPing then return end
 
+function _G.Do_SendProtocol_Ping(timestamp)
 	if c2s_ping_protocol == nil then
 		local C2SPING = require "PB.net".C2SPING
 		c2s_ping_protocol = C2SPING()
@@ -563,6 +554,12 @@ function _G.SendProtocol_Ping(timestamp)
 	table.insert(c2s_ping_protocol.TimeList, time_point)
 	local PBHelper = require "Network.PBHelper"
 	PBHelper.Send(c2s_ping_protocol)
+end
+
+function _G.SendProtocol_Ping(timestamp)
+	if not _G.CanSendPing then return end
+
+	_G.Do_SendProtocol_Ping(timestamp)
 end
 
 local c2s_rolemove_protocol = nil 
@@ -747,6 +744,16 @@ function _G.ConfirmSafeArea(x, y, z, w, dev_mod, platform)
 	return x, y, z, w
 end
 
+--标准输入框文字 
+function _G.StdInputValidation(text, charIndex, char, is_singleLine, ucy)
+    --warn("StdInputValidation "..char.." "..ucy)
+    if (ucy == 14 and (is_singleLine or (char~= 13 and char ~= 10)))
+        or ucy == 29 or ucy == 17 or ucy == 16 or ucy == 15 or ucy == 7 then
+        -- Control Format OtherNotAssigned PrivateUse Surrogate EnclosingMark
+        return 0
+    end
+    return char
+end
 
 _G.CurrentWeather = 1
 

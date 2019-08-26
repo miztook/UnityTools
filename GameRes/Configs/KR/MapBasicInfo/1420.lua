@@ -2,15 +2,16 @@ local MapInfo =
 {
 	MapType = 3,
 	Remarks = "호가스 남부",
-	TextDisplayName = "빛의 의식【스토리】",
+	TextDisplayName = "빛의 의식[시나리오]",
 	Length = 800,
 	Width = 800,
 	NavMeshName = "World03Part1.navmesh",
-	BackgroundMusic = "",
+	BackgroundMusic = "BGM_Map_3/Map_3/Map_3_phase",
 	BattleMusic = "",
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14228] = 
@@ -37,7 +38,7 @@ local MapInfo =
 		},
 		[14312] = 
 		{
-			[1] = { x = 244.84, y = -9.85, z = 70.84, name = "검은 날개 시칸 대주교", level = 55, SortID = 29, DropItemIds = " " },
+			[1] = { x = 244.84, y = -9.85, z = 70.84, name = "검은 날개 대주교", level = 55, SortID = 29, DropItemIds = " " },
 		},
 	},
 	Npc = 
@@ -55,28 +56,28 @@ local MapInfo =
 	{
 		[1] = 
 		{
-			[560] = { x = 271.83, y = -3.18, z = 14.10, xA = 318.83, yA = 30.16, zA = 26.92, name = "谷底", worldId = 1420, PkMode = 0 },
-			[561] = { x = 312.36, y = 30.51, z = 24.53, xA = 275.57, yA = -9.91, zA = 23.21, name = "谷上", worldId = 1420, PkMode = 0 },
+			[560] = { x = 271.83, y = -3.18, z = 14.10, xA = 318.83, yA = 30.16, zA = 26.92, name = "谷底", worldId = 1420, PkMode = 1 },
+			[561] = { x = 309.66, y = 30.51, z = 24.49, xA = 275.57, yA = -9.91, zA = 23.21, name = "谷上", worldId = 1420, PkMode = 1 },
 		},
 		[2] = 
 		{
-			[192] = { x = -229.11, y = -17.62, z = -158.52, name = "폐가", worldId = 0, PkMode = 0 },
-			[193] = { x = -198.14, y = 59.64, z = -65.22, name = "버려진 데바 주둔지", worldId = 0, PkMode = 0 },
-			[194] = { x = -283.94, y = 1.98, z = -68.46, name = "몽환 마을", worldId = 0, PkMode = 0 },
-			[195] = { x = -369.51, y = 2.10, z = 6.43, name = "아룬의 샘", worldId = 0, PkMode = 0 },
-			[197] = { x = -270.07, y = 0.17, z = -2.85, name = "북쪽 몽환의 숲", worldId = 0, PkMode = 0 },
-			[198] = { x = -200.71, y = -1.28, z = 114.12, name = "환각석 절벽", worldId = 0, PkMode = 0 },
-			[199] = { x = -122.91, y = 5.71, z = -5.15, name = "주라스 대교", worldId = 0, PkMode = 0 },
-			[200] = { x = -50.60, y = 31.00, z = -13.48, name = "파라밍 캠프", worldId = 0, PkMode = 0 },
-			[201] = { x = 39.88, y = 30.46, z = 76.43, name = "루린 마을", worldId = 0, PkMode = 0 },
-			[202] = { x = -59.39, y = 40.51, z = 59.73, name = "산꼭대기의 폐허", worldId = 0, PkMode = 0 },
-			[203] = { x = -39.66, y = 6.80, z = -116.19, name = "감옥 캠프", worldId = 0, PkMode = 0 },
-			[204] = { x = 256.07, y = 34.35, z = -43.22, name = "태양의 협곡", worldId = 0, PkMode = 0 },
-			[205] = { x = 319.85, y = 48.62, z = -89.62, name = "시칸 마을", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[206] = { x = 333.08, y = 30.27, z = 67.90, name = "검은 제단", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[207] = { x = 296.25, y = 5.41, z = 42.27, name = "황금 무덤", worldId = 0, IsCanFind = 1, PkMode = 2 },
-			[208] = { x = 129.33, y = 15.05, z = -16.69, name = "파라밍 광야", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[464] = { x = 314.61, y = 18.32, z = 28.32, name = "相位区域", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {4519} },
+			[192] = { x = -229.11, y = -17.62, z = -158.52, name = "폐가", worldId = 0, PkMode = 1 },
+			[193] = { x = -198.14, y = 59.64, z = -65.22, name = "버려진 데바 주둔지", worldId = 0, PkMode = 1 },
+			[194] = { x = -283.94, y = 1.98, z = -68.46, name = "몽환 마을", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[195] = { x = -369.51, y = 2.10, z = 6.43, name = "아룬의 샘", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[197] = { x = -270.07, y = 0.17, z = -2.85, name = "북쪽 몽환의 숲", worldId = 0, PkMode = 1 },
+			[198] = { x = -200.71, y = -1.28, z = 114.12, name = "환각석 절벽", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[199] = { x = -122.91, y = 5.71, z = -5.15, name = "주라스 대교", worldId = 0, IsCanFind = 1, XMap = -155.8, YMap = 5.369486, ZMap = -1.2, PkMode = 1 },
+			[200] = { x = -50.60, y = 31.00, z = -13.48, name = "파라밍 캠프", worldId = 0, PkMode = 1 },
+			[201] = { x = 39.88, y = 30.46, z = 76.43, name = "루린 마을", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[202] = { x = -59.39, y = 40.51, z = 59.73, name = "산꼭대기의 폐허", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[203] = { x = -39.66, y = 6.80, z = -116.19, name = "감옥 캠프", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[204] = { x = 256.07, y = 34.35, z = -43.22, name = "태양의 협곡", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[205] = { x = 319.85, y = 48.62, z = -89.62, name = "시칸 마을", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[206] = { x = 333.08, y = 30.27, z = 67.90, name = "검은 제단", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[207] = { x = 296.25, y = 5.41, z = 42.27, name = "황금 무덤", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[208] = { x = 129.33, y = 15.05, z = -16.69, name = "파라밍 광야", worldId = 0, PkMode = 1 },
+			[464] = { x = 314.61, y = 18.32, z = 28.32, name = "相位区域", worldId = 0, PkMode = 1, IsCanHawkeye = true, QuestID = {4519} },
 		},
 	},
 	Mine = 

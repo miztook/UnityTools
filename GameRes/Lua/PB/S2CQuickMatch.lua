@@ -8,10 +8,6 @@ local CGame = Lplus.ForwardDeclare("CGame")
 local QuickMatchStateEvent = require "Events.QuickMatchStateEvent"
 local CTeamMan = require "Team.CTeamMan"
 
-local function SendFlashMsg(msg)
-	game._GUIMan:ShowTipText(msg, false)
-end
-
 local function SendQuickMatchStateEvent()
 	local event = QuickMatchStateEvent()
 	CGame.EventManager:raiseEvent(nil, event)
@@ -19,7 +15,6 @@ end
 
 -- 便捷匹配 开启 & 关闭
 local function OnS2CQuickMatchState(sender,protocol)
--- warn("=============OnS2CQuickMatchState=============", protocol.bState)
 	if protocol.bState then
 		-- warn("S2CQuickMatchState targetId = ", protocol.targetId)
 		game._DungeonMan:StartQuickMatch(protocol.targetId)
@@ -34,9 +29,8 @@ PBHelper.AddHandler("S2CQuickMatchState", OnS2CQuickMatchState)
 
 -- 便捷匹配 开启界面，同步数据
 local function OnS2CQuickMatchSyncData(sender,protocol)
--- warn("=============OnS2CQuickMatchSyncData=============")
 	local param = {}
-	local dungeonId = CTeamMan.Instance():ExchangeToDungeonId(protocol.targetId)
+	local dungeonId = TeamUtil.ExchangeToDungeonId(protocol.targetId)
 
 	param.DungeonId = dungeonId
 	param.RoomId = protocol.targetId
@@ -64,29 +58,22 @@ PBHelper.AddHandler("S2CQuickMatchSyncData", OnS2CQuickMatchSyncData)
 
 -- 便捷匹配 状态界面更新
 local function OnS2CQuickMatchUpdate(sender,protocol)
--- warn("=============OnS2CQuickMatchUpdate=============")
 	local EQuickMatchUpdate = require "PB.net".S2CQuickMatchUpdate.EQuickMatchUpdate
 	local optType = protocol.optType
 	
 	if EQuickMatchUpdate.update == optType then
-		-- warn("OnS2CQuickMatchUpdate---------update")
 		local CPanelUIQuickMatchConfirm = require "GUI.CPanelUIQuickMatchConfirm"
 		if CPanelUIQuickMatchConfirm.Instance():IsShow() then
 			CPanelUIQuickMatchConfirm.Instance():UpdateTeamMemberConfirmed(protocol.memberId)
 		end
 	elseif EQuickMatchUpdate.success == optType then
-		-- warn("OnS2CQuickMatchUpdate---------success")
 		game._GUIMan:Close("CPanelUIQuickMatchConfirm")
 	elseif EQuickMatchUpdate.cancel == optType then
-		-- warn("OnS2CQuickMatchUpdate---------cancel")
-		local name = ""
 		if protocol.memberId == game._HostPlayer._ID then
-			name = StringTable.Get(248)
+			TeraFuncs.SendFlashMsg(StringTable.Get(965))
 		else
-			name = protocol.memberName
+			TeraFuncs.SendFlashMsg(string.format(StringTable.Get(938), protocol.memberName))
 		end
-		SendFlashMsg(string.format(StringTable.Get(938), name))
-
 		game._GUIMan:Close("CPanelUIQuickMatchConfirm")
 	end
 end

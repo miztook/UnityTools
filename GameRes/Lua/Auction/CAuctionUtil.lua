@@ -7,25 +7,21 @@ local CPanelAuctionSell1 = require "GUI.CPanelAuctionSell1"
 local CAuctionUtil = Lplus.Class("CAuctionUtil")
 local def = CAuctionUtil.define
 
+def.field("table")._AllItemID = nil
+def.field('table')._TemplateData = nil
+def.field("table")._SellItems = nil
 
 def.field("number")._BuyItemID = 0
 def.field("number")._BuyItemPos = 0
 def.field("number")._RefCount = 0
 def.field("number")._AuctionRefCount = 0    --拍卖行的刷新次数
 def.field("table")._BuyItemList = BlankTable
-def.field('table')._TemplateData = BlankTable
 def.field("table")._CurrentBigTypeData= BlankTable
-def.field("table")._SellItems = BlankTable
-def.field("table")._AllItemID = BlankTable
 def.field("table")._PutawaryItemsData = BlankTable
 
 def.static("=>", CAuctionUtil).new = function ()
-    local Instance = CAuctionUtil()
-    return Instance
-end
-
-def.method().Init = function(self)
-    self:GetAllItemInfo()
+    local obj = CAuctionUtil()
+    return obj
 end
 
 local ParseMarketItems = function(items, productId)
@@ -133,8 +129,22 @@ def.method("table","number","=>","table").SortAscending = function (self,items,k
     -- body
 end
 --处理模板数据
-def.method().GetAllItemInfo = function (self)
-    self:GetAllItemID()
+def.method().LoadAllMarketItemData = function (self)
+    if self._AllItemID ~= nil then return end
+
+    self._AllItemID = {}
+    self._TemplateData = {}
+    self._SellItems = {}
+
+    local allIds = CElementData.GetAllTid("MarketItem")
+    for _,v in pairs(allIds) do
+        local marketItem = CElementData.GetTemplate("MarketItem", v) 
+        self._AllItemID[marketItem.Id] = {}
+        self._AllItemID[marketItem.Id].MinPrice = marketItem.MinPrice
+        self._AllItemID[marketItem.Id].MaxPrice = marketItem.MaxPrice 
+        self._AllItemID[marketItem.Id].ItemID = marketItem.ItemId
+    end 
+
     for i = 1 ,3 do 
         local temp1 = {}
         local temp2 = {}
@@ -163,6 +173,12 @@ def.method().GetAllItemInfo = function (self)
     end
 end
 
+def.method().ClearAllMarketItemData = function (self)
+    self._AllItemID = nil
+    self._TemplateData = nil
+    self._SellItems = nil
+end
+
 def.method("number").SetRefCount = function(self, count)
     self._RefCount = count
 end
@@ -175,17 +191,6 @@ def.method("number", "=>", "number").GetMarketItemIDByItemID = function(self, it
         end
     end
     return -1
-end
-
-def.method().GetAllItemID = function (self)
-    local allIds = GameUtil.GetAllTid("MarketItem")
-    for _,v in pairs(allIds) do
-        local marketItem = CElementData.GetTemplate("MarketItem", v) 
-        self._AllItemID[marketItem.Id] = {}
-        self._AllItemID[marketItem.Id].MinPrice = marketItem.MinPrice
-        self._AllItemID[marketItem.Id].MaxPrice = marketItem.MaxPrice 
-        self._AllItemID[marketItem.Id].ItemID = marketItem.ItemId
-    end 
 end
 
 --获取拍卖行刷新次数
@@ -244,12 +249,9 @@ def.method("number","table").UpdataMarketBuyItemList = function(self,marketType,
     end                  
 end
 
-def.method().Release = function(self)
+def.method().Cleanup = function(self)
     self._BuyItemList = {}
-    self._TemplateData = {}
     self._CurrentBigTypeData = {}
-    self._SellItems = {}
-    self._AllItemID = {}
     self._PutawaryItemsData = {}
 end
 -- 根据当前UI界面所处CellList还是ItemList像服务器发送数据
@@ -357,7 +359,7 @@ def.method("table").LoadMarketItemListData = function (self,msg)
     end
 end
 --加载从服务器端传来的单个Item上架信息数据
-def.method ("table").LoadMarketItemPutaway = function(self,item)
+def.method("table").LoadMarketItemPutaway = function(self,item)
     if item == nil or not CPanelAuction.Instance():IsShow() then return end
     self._PutawaryItemsData = self:UpdataPutawaryOrBuyItemList(self._PutawaryItemsData,item)
     CPanelAuction.Instance():UpdataSellBagItemShow()

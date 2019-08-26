@@ -230,10 +230,10 @@ def.method("number").OnInitGloryDesc = function(self, index)
     local NeedMoney = self._GloryGiftInfo[index].Gift1Price
 	if NeedMoney > HaveMoney then
     	local haven = "<color=red>"..NeedMoney.."</color>"
-    	GUI.SetText(Lab_GiftBuyNeedMoney, tostring(haven))
+    	GUI.SetText(Lab_GiftBuyNeedMoney, GUITools.FormatNumber(haven))
     else 
         local haven = NeedMoney
-    	GUI.SetText(Lab_GiftBuyNeedMoney, tostring(haven))
+    	GUI.SetText(Lab_GiftBuyNeedMoney, GUITools.FormatNumber(haven))
     end
 
     local giftBuyInfo = game._CWelfareMan:GetGloryGiftBuyInfo(index)

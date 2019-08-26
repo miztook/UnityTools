@@ -11,13 +11,14 @@
 	<WwiseSFXVolume value="1564184899" />
 	<WwiseCutsceneVolume value="1766603218" />
 	<WwiseUIVolume value="1719345792" />
+	<WwiseTimeOfDay value="207908541" />
 	
 	<WwiseBGEffect value="2706344916" />
 	<WwiseBGEffectSound value="Tuto_BG_Effect"/>
 
 	<WeatherSound>
-			<item type="1" wwise="Day_And_Night" />
-			<item type="2" wwise="Day_And_Night" />
+			<item type="1" wwise="Day_and_Night/Day_and_Night/Day" />
+			<item type="2" wwise="Day_and_Night/Day_and_Night/Night" />
 			<item type="3" wwise="Rain" />
 			<item type="4" wwise="Snow" />
 	</WeatherSound>

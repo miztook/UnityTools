@@ -39,7 +39,7 @@ def.method("userdata", "number", "number").Init = function(self, gameObject, hpM
 	self._CellCountMax = cellCountMax
 
 	-- 计算单个血条-最大血量上限
-	self._CellHpMax = self._HpMax / self._CellCountMax
+	self._CellHpMax = math.ceil(self._HpMax / self._CellCountMax)
 	-- 设置数量
 	self:SetCellCount(self._CellCountMax, true)
 
@@ -74,7 +74,7 @@ def.method("number", "=>", "table").CalcMutipleProcessInfo = function(self, hp)
 	end
 
 	result.Increase = result.New.Hp - result.Old.Hp
-	result.AcrossCellCount = result.Old.CellCount - result.New.CellCount
+	result.AcrossCellCount = math.abs(result.Old.CellCount - result.New.CellCount)
 
 	return result
 end

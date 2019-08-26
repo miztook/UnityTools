@@ -11,11 +11,12 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world05.png",
 	AssetPath = "Assets/Outputs/Scenes/World05.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14209] = 
 		{
-			[1] = { x = 130.75, y = 14.04, z = 118.87, name = "부활한 병사", level = 50, SortID = 1, DropItemIds = " " },
+			[1] = { x = 130.75, y = 14.04, z = 118.87, name = "부활한 사병", level = 50, SortID = 1, DropItemIds = " " },
 		},
 		[14210] = 
 		{
@@ -42,7 +43,7 @@ local MapInfo =
 		},
 		[14215] = 
 		{
-			[1] = { x = 109.50, y = 18.50, z = 179.20, name = "언데드 영주", level = 50, SortID = 17, DropItemIds = " " },
+			[1] = { x = 110.06, y = 18.50, z = 179.20, name = "언데드 영주", level = 50, SortID = 17, DropItemIds = " " },
 		},
 		[14216] = 
 		{
@@ -75,8 +76,8 @@ local MapInfo =
 		},
 		[4266] = 
 		{
-			[1] = { x = 134.08, y = 15.70, z = 97.20, name = "엘리언 쿠벨", SortID = 29, FunctionName = " " },
-			[2] = { x = 106.16, y = 14.75, z = 108.97, name = "엘리언 쿠벨", SortID = 32, FunctionName = " " },
+			[1] = { x = 134.08, y = 15.70, z = 97.20, name = "엘리온 쿠벨", SortID = 29, FunctionName = " " },
+			[2] = { x = 106.16, y = 14.75, z = 108.97, name = "엘리온 쿠벨", SortID = 32, FunctionName = " " },
 		},
 		[4267] = 
 		{
@@ -135,16 +136,16 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[400] = { x = -15.49, y = 30.42, z = -60.44, name = "卡斯塔仑领土", worldId = 0, PkMode = 0 },
-			[401] = { x = -242.83, y = 298.43, z = 345.44, name = "塔索克平台", worldId = 0, PkMode = 0 },
-			[402] = { x = 86.45, y = 44.84, z = 155.82, name = "전장", worldId = 0, PkMode = 0 },
-			[439] = { x = 144.30, y = 14.49, z = 139.10, name = "进军抵达区域", worldId = 0, PkMode = 0 },
-			[440] = { x = 134.46, y = 15.84, z = 160.90, name = "进军结束抵达区域", worldId = 0, PkMode = 0 },
-			[553] = { x = 125.80, y = 16.42, z = 124.20, name = "1913刷怪", worldId = 0, PkMode = 0 },
-			[554] = { x = 104.26, y = 15.54, z = 127.52, name = "绝望之战-第二条路线抵达区域", worldId = 0, PkMode = 0 },
-			[555] = { x = 138.30, y = 21.26, z = 269.22, name = "绝望之战-cg区域", worldId = 0, PkMode = 0 },
-			[556] = { x = 129.37, y = 45.88, z = 97.32, name = "动员区域", worldId = 0, PkMode = 0 },
-			[557] = { x = 139.61, y = 21.32, z = 253.45, name = "绝望之战-大营抵达区域", worldId = 0, PkMode = 0 },
+			[400] = { x = -15.49, y = 30.42, z = -60.44, name = "卡斯塔仑领土", worldId = 0, PkMode = 1 },
+			[401] = { x = -242.83, y = 298.43, z = 345.44, name = "塔索克平台", worldId = 0, PkMode = 1 },
+			[402] = { x = 86.45, y = 44.84, z = 155.82, name = "전장", worldId = 0, PkMode = 1 },
+			[439] = { x = 144.30, y = 14.49, z = 139.10, name = "进军抵达区域", worldId = 0, PkMode = 1 },
+			[440] = { x = 134.46, y = 15.84, z = 160.90, name = "进军结束抵达区域", worldId = 0, PkMode = 1 },
+			[553] = { x = 125.80, y = 16.42, z = 124.20, name = "1913刷怪", worldId = 0, PkMode = 1 },
+			[554] = { x = 104.26, y = 15.54, z = 127.52, name = "绝望之战-第二条路线抵达区域", worldId = 0, PkMode = 1 },
+			[555] = { x = 138.30, y = 21.26, z = 269.22, name = "绝望之战-cg区域", worldId = 0, PkMode = 1 },
+			[556] = { x = 129.37, y = 45.88, z = 97.32, name = "动员区域", worldId = 0, PkMode = 1 },
+			[557] = { x = 139.61, y = 21.32, z = 253.45, name = "绝望之战-大营抵达区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 
@@ -263,7 +264,7 @@ local MapInfo =
 		},
 		[17] = 
 		{
-			x = 109.50, y = 18.50, z = 179.20, Type = 1,
+			x = 110.06, y = 18.50, z = 179.20, Type = 1,
 			Tid = 
 			{
 				[14215] = 2,

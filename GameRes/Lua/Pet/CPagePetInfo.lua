@@ -14,10 +14,6 @@ def.field("userdata")._Panel = nil
 def.field("table")._PanelObject = nil   -- 存放UI的集合
 def.field("table")._PetData = nil       -- 当前选中的Pet数据
 
-local function SendFlashMsg(msg)
-    game._GUIMan:ShowTipText(msg, false)
-end
-
 local instance = nil
 def.static("table", "userdata", "=>", CPagePetInfo).new = function(parent, panel)
     if instance == nil then

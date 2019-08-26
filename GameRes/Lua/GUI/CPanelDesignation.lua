@@ -118,9 +118,8 @@ def.override("dynamic").OnData = function(self, data)
 	if self._TabList_Menu ~= nil then
 		self._TabList_Menu:SetItemCount(#self._DesignationList + 1)	
 	end
-
 	local openID = self._CurDesignationID	--打开当前装备称号
-	if data ~= nil then	--指定打开ID
+	if data ~= nil and data ~= "" then	--指定打开ID
 		openID = data
 	end
 
@@ -274,10 +273,10 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
 			local isRatio = PropertyInfoConfig.IsRatio(self._TableTalentID[index + 1].AttrId)
 			if isRatio then
 				-- 属于百分比属性
-				local percent = fixFloat(self._TableTalentID[index + 1].AttrValue * 100)
-				valStr = fixFloatStr(percent, 1) .. "%" -- 修正浮点数，保留小数点后一位
+				local percent = string.format("%.1f", (self._TableTalentID[index + 1].AttrValue * 100))
+				valStr = percent .. "%" -- 修正浮点数，保留小数点后一位
 			else
-				valStr = tostring(self._TableTalentID[index + 1].AttrValue)
+				valStr = GUITools.FormatMoney(self._TableTalentID[index + 1].AttrValue)
 			end
 			GUI.SetText(labValue, valStr)
 		end
@@ -296,10 +295,10 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
 			local isRatio = PropertyInfoConfig.IsRatio(self._Table_OverViewTalentID[index + 1].AttrId)
 			if isRatio then
 				-- 属于百分比属性
-				local percent = fixFloat(self._Table_OverViewTalentID[index + 1].AttrValue * 100)
-				valStr = fixFloatStr(percent, 1) .. "%" -- 修正浮点数，保留小数点后一位
+				local percent = string.format("%.1f", (self._Table_OverViewTalentID[index + 1].AttrValue * 100))
+				valStr = percent .. "%" -- 修正浮点数，保留小数点后一位
 			else
-				valStr = tostring(self._Table_OverViewTalentID[index + 1].AttrValue)
+				valStr = GUITools.FormatMoney(self._Table_OverViewTalentID[index + 1].AttrValue)
 			end
 			GUI.SetText(labValue, valStr)
 		end
@@ -413,8 +412,9 @@ def.method().OverViewInfo = function(self)
 			GUI.SetText(Lab_OverViewTitle, strName)
 		end	
 
-		if not IsNil(Img_PutOnTitleBg) then
-			GUITools.SetGroupImg(Img_PutOnTitleBg, temData._Data.Quality)
+		if not IsNil(Img_PutOnTitleBg) and temData._Data.IconPath ~= "" then
+			-- GUITools.SetGroupImg(Img_PutOnTitleBg, temData._Data.Quality)
+			GUITools.SetSprite(Img_PutOnTitleBg, temData._Data.IconPath)
 		end
 
 		if temData._Time ~= 0 then
@@ -499,9 +499,10 @@ def.method("number","number").ShowClickDesignation = function(self, nType, nInde
 		
     	if not IsNil(self._LabTips) then
     		GUI.SetText(self._LabTips, temData._Data.SrcDescript) 
-    	end
-		if not IsNil(self._ImgTitleBg) then
-			GUITools.SetGroupImg(self._ImgTitleBg, temData._Data.Quality)
+		end
+		if not IsNil(self._ImgTitleBg) and temData._Data.IconPath ~= "" then
+			-- GUITools.SetGroupImg(self._ImgTitleBg, temData._Data.Quality)
+			GUITools.SetSprite(self._ImgTitleBg, temData._Data.IconPath)
 		end
 
     	local strName = "<color="..temData._Data.ColorRGB..">" ..temData._Data.Name.."</color>"

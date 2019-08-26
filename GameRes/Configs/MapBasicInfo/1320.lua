@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world02.png",
 	AssetPath = "Assets/Outputs/Scenes/World02.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14227] = 
@@ -44,8 +45,8 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[149] = { x = -35.91, y = 72.23, z = -204.61, name = "库摩斯相位【个人】", worldId = 0, PkMode = 0 },
-			[559] = { x = -35.35, y = 68.35, z = -245.95, name = "鹰眼", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {4512} },
+			[149] = { x = -35.91, y = 72.23, z = -204.61, name = "库摩斯相位【个人】", worldId = 0, PkMode = 1 },
+			[559] = { x = -35.35, y = 68.35, z = -245.95, name = "鹰眼", worldId = 0, PkMode = 1, IsCanHawkeye = true, QuestID = {4512} },
 		},
 	},
 	Mine = 

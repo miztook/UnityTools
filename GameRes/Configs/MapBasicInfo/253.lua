@@ -11,11 +11,12 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD05.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn05_ElfArch.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[24400] = 
 		{
-			[1] = { x = 36.61, y = 55.24, z = -100.78, name = "卡拉斯试炼者", level = 52,IsBoss = true },
+			[1] = { x = 36.61, y = 55.24, z = -100.78, name = "卡拉斯试炼者", level = 50,IsBoss = true },
 		},
 	},
 	Npc = 
@@ -25,7 +26,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[282] = { x = 37.85, y = 55.30, z = -79.42, name = "出场区域", worldId = 0, BackgroundMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 0 },
+			[282] = { x = 37.85, y = 55.30, z = -79.42, name = "出场区域", worldId = 0, BackgroundMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1 },
 		},
 	},
 	Mine = 

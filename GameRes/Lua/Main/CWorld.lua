@@ -47,7 +47,7 @@ end
 def.method("string", "function").Load = function (self, scene_resource_path, cb)
 	self._IsReady = false
 	--warn("Game World Begin Load...")
-	GameUtil.AsyncLoad(scene_resource_path, function(mapres)
+	local callback = function(mapres)
 			if mapres ~= nil then
 				--判断是否已经先删除，这时不是要加载的world
 				local sceneTid = self._WorldInfo.SceneTid
@@ -62,13 +62,19 @@ def.method("string", "function").Load = function (self, scene_resource_path, cb)
 				self._CurScene = Object.Instantiate(mapres)
 				self:OnLoaded()
 				if cb ~= nil then cb() end
+			else
+				warn("failed to load", scene_resource_path)
 			end
-		end)
+		end
+	GameUtil.AsyncLoad(scene_resource_path, callback, false, nil)
 end
 
 def.method().OnLoaded = function (self)
 	self._IsReady = true
 	
+	local FPSAdapter = require "System.FPSAdapter"
+	FPSAdapter.Revert()
+
 	GameUtil.OnWorldLoaded(self._CurScene)
 
 	if self._OnLoadedCallbacks then
@@ -78,19 +84,21 @@ def.method().OnLoaded = function (self)
         self._OnLoadedCallbacks = nil
     end 
 
-    self._UpdateStep = 0
-	self._UpdateTimer = _G.AddGlobalTimer(0.3, false, function()
-		if self._UpdateStep == 0 then
-			self._PlayerMan:Update()
-			self._UpdateStep = 1
-		elseif self._UpdateStep == 1 then
+--    self._UpdateStep = 0
+	self._UpdateTimer = _G.AddGlobalTimer(1.5, false, function()
 			self._PetMan:Update()
-			self._UpdateStep = 2
-		else
-			self._LootObjectMan:Update()
-			self._UpdateStep = 0
-		end
-	end)
+		end)
+		--if self._UpdateStep == 0 then
+--			self._PlayerMan:Update()
+--			--self._UpdateStep = 1
+--		--elseif self._UpdateStep == 1 then
+--		--	self._PetMan:Update()
+--		--	self._UpdateStep = 2
+--		--else
+--		--	self._LootObjectMan:Update()
+--		--	self._UpdateStep = 0
+--		--end
+--	end)
 end
 
 def.method("function").AddLoadedCallback = function (self, cb)
@@ -147,7 +155,7 @@ def.method("number", "=>", CEntity).FindObject = function (self, id)
 		return man:Get(id)
 	end
 	
-	print("ERROR: cant find obj ", id)
+	--print("ERROR: cant find obj ", id)
 	return nil
 end
 
@@ -175,7 +183,7 @@ def.method("=>", "table").FindObjectsByIsHawkEye = function (self)
 		end
 	end
 
-	print( "HawkEyeObjs",HawkEyeObjs)
+	--print( "HawkEyeObjs",HawkEyeObjs)
 	return HawkEyeObjs
 end
 
@@ -212,7 +220,7 @@ def.method("boolean", "boolean").Release = function (self, is_release_scene, is_
 		self._CurScene = nil
 
 		if not IsNilOrEmptyString(self._CurScenePath) then
-			GameUtil.UnloadBundle("scenes")
+			--GameUtil.UnloadBundle("scenes")
 			GameUtil.UnloadBundleOfAsset(self._CurScenePath)
 		end
 		self._CurScenePath = ""

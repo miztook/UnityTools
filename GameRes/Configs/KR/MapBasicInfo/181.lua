@@ -11,16 +11,17 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Castle",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13027] = 
 		{
-			[1] = { x = -218.72, y = 104.18, z = 142.78, name = "쉐도우 쿠거", level = 48, SortID = 23 },
-			[2] = { x = -216.12, y = 106.31, z = 163.65, name = "쉐도우 쿠거", level = 48, SortID = 24 },
+			[1] = { x = -218.72, y = 104.18, z = 142.78, name = "그림자 쿠거", level = 48, SortID = 23 },
+			[2] = { x = -216.12, y = 106.31, z = 163.65, name = "그림자 쿠거", level = 48, SortID = 24 },
 		},
 		[13028] = 
 		{
-			[1] = { x = -224.41, y = 106.04, z = 181.30, name = "쉐도우 쿠거", level = 49, SortID = 25 },
+			[1] = { x = -224.41, y = 106.04, z = 181.30, name = "그림자 쿠거", level = 49, SortID = 25 },
 		},
 		[13014] = 
 		{
@@ -32,7 +33,7 @@ local MapInfo =
 		},
 		[13015] = 
 		{
-			[1] = { x = -203.05, y = 44.94, z = -103.47, name = "타락 영혼", level = 48, SortID = 31 },
+			[1] = { x = -203.05, y = 44.94, z = -103.47, name = "타락한 영혼", level = 48, SortID = 31 },
 		},
 		[13025] = 
 		{
@@ -42,7 +43,7 @@ local MapInfo =
 		},
 		[13026] = 
 		{
-			[1] = { x = 112.42, y = 43.07, z = -19.74, name = "공포의 여왕거미", level = 48, SortID = 49 },
+			[1] = { x = 112.42, y = 43.07, z = -19.74, name = "공포의 여왕 거미", level = 48, SortID = 49 },
 		},
 	},
 	Npc = 
@@ -60,11 +61,11 @@ local MapInfo =
 		},
 		[3116] = 
 		{
-			[1] = { x = 143.18, y = 22.64, z = -217.24, name = "남작", SortID = 6 },
+			[1] = { x = 143.18, y = 22.64, z = -217.24, name = "레인저", SortID = 6 },
 		},
 		[3119] = 
 		{
-			[1] = { x = 217.09, y = 26.73, z = -148.68, name = "엘프 잡화상인", SortID = 7 },
+			[1] = { x = 217.09, y = 26.73, z = -148.68, name = "엘프 잡화 상인", SortID = 7 },
 		},
 		[3110] = 
 		{
@@ -80,13 +81,13 @@ local MapInfo =
 		},
 		[3117] = 
 		{
-			[1] = { x = -23.82, y = 80.36, z = 35.67, name = "남작", SortID = 13 },
-			[2] = { x = -37.74, y = 80.36, z = 30.77, name = "남작", SortID = 20 },
-			[3] = { x = -45.42, y = 80.68, z = 42.05, name = "남작", SortID = 22 },
+			[1] = { x = -23.82, y = 80.36, z = 35.67, name = "레인저", SortID = 13 },
+			[2] = { x = -37.74, y = 80.36, z = 30.77, name = "레인저", SortID = 20 },
+			[3] = { x = -45.42, y = 80.68, z = 42.05, name = "레인저", SortID = 22 },
 		},
 		[3120] = 
 		{
-			[1] = { x = -30.05, y = 80.40, z = 22.89, name = "엘프 잡화상인", SortID = 14 },
+			[1] = { x = -30.05, y = 80.40, z = 22.89, name = "엘프 잡화 상인", SortID = 14 },
 		},
 		[3109] = 
 		{
@@ -125,32 +126,32 @@ local MapInfo =
 		},
 		[3124] = 
 		{
-			[1] = { x = 53.79, y = 59.83, z = -100.91, name = "엘리언 쿠벨", SortID = 44 },
+			[1] = { x = 53.79, y = 59.83, z = -100.91, name = "엘리온 쿠벨", SortID = 44 },
 		},
 	},
 	Region = 
 	{
 		[1] = 
 		{
-			[284] = { x = 254.96, y = 36.32, z = -185.33, xA = -198.64, yA = 31.32, zA = -223.06, name = "传送区域-埃塞尼亚东", worldId = 170, PkMode = 0 },
+			[284] = { x = 254.96, y = 36.32, z = -185.33, xA = -198.64, yA = 31.32, zA = -223.06, name = "传送区域-埃塞尼亚东", worldId = 170, PkMode = 1 },
 		},
 		[2] = 
 		{
-			[302] = { x = 180.65, y = 16.20, z = -184.83, name = "절벽의 요새", worldId = 0, PkMode = 0 },
-			[303] = { x = -170.01, y = 30.19, z = -167.81, name = "그림자 숲", worldId = 0, PkMode = 0 },
-			[304] = { x = -95.07, y = 59.18, z = -107.47, name = "로크 제단", worldId = 0, PkMode = 0 },
-			[305] = { x = 100.48, y = 49.38, z = -28.56, name = "거미줄 동굴", worldId = 0, PkMode = 0 },
-			[306] = { x = -60.94, y = 105.04, z = 174.47, name = "바람의 성루", worldId = 0, PkMode = 0 },
-			[307] = { x = -50.31, y = 95.43, z = 88.57, name = "정원", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[308] = { x = -29.30, y = 99.22, z = 171.42, name = "성루", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[309] = { x = -209.19, y = 84.24, z = 65.71, name = "마법 서클", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[310] = { x = 1.71, y = 21.45, z = 226.93, name = "훈련장", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[311] = { x = -155.03, y = 133.91, z = 224.19, name = "현자 기념관", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[323] = { x = -108.63, y = 38.30, z = -208.32, name = "前往黑区", worldId = 0, PkMode = 0 },
-			[324] = { x = -207.22, y = 44.63, z = -106.05, name = "黑魂刷新区域", worldId = 0, PkMode = 0 },
-			[325] = { x = 19.57, y = 37.88, z = -187.18, name = "追踪风之精灵", worldId = 0, PkMode = 0 },
-			[326] = { x = 57.19, y = 60.15, z = -115.53, name = "追到风之精灵", worldId = 0, PkMode = 0 },
-			[327] = { x = 8.00, y = 46.42, z = -162.08, name = "风之精灵脚印鹰眼区域", worldId = 0, PkMode = 0 },
+			[302] = { x = 180.65, y = 16.20, z = -184.83, name = "절벽의 요새", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[303] = { x = -170.01, y = 30.19, z = -167.81, name = "그림자 숲", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[304] = { x = -95.07, y = 59.18, z = -107.47, name = "로크 제단", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[305] = { x = 100.48, y = 49.38, z = -28.56, name = "거미줄 동굴", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[306] = { x = -60.94, y = 105.04, z = 174.47, name = "바람의 성루", worldId = 0, PkMode = 1 },
+			[307] = { x = -50.31, y = 95.43, z = 88.57, name = "정원", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[308] = { x = -29.30, y = 99.22, z = 171.42, name = "성루", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[309] = { x = -209.19, y = 84.24, z = 65.71, name = "마법 서클", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[310] = { x = 1.71, y = 21.45, z = 226.93, name = "훈련장", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[311] = { x = -155.03, y = 133.91, z = 224.19, name = "현자 기념관", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[323] = { x = -108.63, y = 38.30, z = -208.32, name = "前往黑区", worldId = 0, PkMode = 1 },
+			[324] = { x = -207.22, y = 44.63, z = -106.05, name = "黑魂刷新区域", worldId = 0, PkMode = 1 },
+			[325] = { x = 19.57, y = 37.88, z = -187.18, name = "追踪风之精灵", worldId = 0, PkMode = 1 },
+			[326] = { x = 57.19, y = 60.15, z = -115.53, name = "追到风之精灵", worldId = 0, PkMode = 1 },
+			[327] = { x = 8.00, y = 46.42, z = -162.08, name = "风之精灵脚印鹰眼区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

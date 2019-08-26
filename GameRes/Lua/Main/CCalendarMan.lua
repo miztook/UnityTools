@@ -5,8 +5,6 @@
 
 
 local Lplus = require "Lplus"
-local CCalendarMan = Lplus.Class("CCalendarMan")
-local def = CCalendarMan.define
 local CElementData = require "Data.CElementData"
 local CGame = Lplus.ForwardDeclare("CGame")
 local NotifyActivityEvent = require "Events.NotifyActivityEvent"
@@ -16,14 +14,19 @@ local CQuestNavigation = require"Quest.CQuestNavigation"
 local CPanelCalendar = require "GUI.CPanelCalendar"
 local CQuest = require "Quest.CQuest"
 
-def.field("table")._CalendarDataTable = BlankTable
-def.field("table")._OpenTimeByPlayIdTable = BlankTable
+local CCalendarMan = Lplus.Class("CCalendarMan")
+local def = CCalendarMan.define
+
+def.field("table")._CalendarDataTable = nil
+def.field("table")._TaskDayChestTemplateTable = nil
+def.field("table")._TaskWeekChestTemplateTable = nil
+def.field("table")._OpenTimeByPlayIdTable = nil
 def.field("number")._CurrentActivityValue = 0
-def.field("table")._ActivityGainRewardTable = BlankTable
-def.field("table")._TaskDayChestTemplateTable = BlankTable
-def.field("table")._TaskWeekChestTemplateTable = BlankTable
+def.field("table")._ActivityGainRewardTable = nil
 def.field("boolean")._IsQuestFinish = false
+
 local GuildBFApplyScriptCalendarID = 18
+
 def.static("=>", CCalendarMan).new = function()
     local obj = CCalendarMan()
 	return obj
@@ -39,8 +42,12 @@ local function sort_func(value1,value2)
 end
 
 --缓存所有冒险指南数据
-def.method().LoadAllCalendarData = function(self)
+def.method().Init = function(self)
+	if self._CalendarDataTable ~= nil then return end
+
     self._CalendarDataTable = {}
+    self._OpenTimeByPlayIdTable = {}
+
 	local cfgPath = _G.ConfigsDir.."AdventureGuideBasicInfo.lua"
     local allInfo = _G.ReadConfigTable(cfgPath)
 	if allInfo == nil then return end
@@ -57,6 +64,7 @@ def.method().LoadAllCalendarData = function(self)
 				_PlayCurNum = 0,		--玩法当前次数
 				_PlayMaxNum = 0,		--玩法最大次数
 				_CalendarId = 0,		--对应活动日历ID
+				_IsGMActivity = true, 	--gm是否开启，优先级高于isActivity
 			}
 
 			if string.len(v.DateDisplayText) > 0 and string.len(v.PlayID) then
@@ -77,7 +85,7 @@ def.method().LoadAllCalendarData = function(self)
 
 	self._TaskDayChestTemplateTable = {}
 	self._TaskWeekChestTemplateTable = {}
-    local allTid = GameUtil.GetAllTid("DailyTaskBox")
+    local allTid = CElementData.GetAllTid("DailyTaskBox")
     for _, tid in ipairs(allTid) do
         local template = CElementData.GetTemplate("DailyTaskBox", tid)
         if template.BoxType == EBoxType.EBoxType_Day then
@@ -122,14 +130,13 @@ def.method("table", "boolean").UpdateCalendarDataState = function(self, data, is
 --		warn("*** "..#data.adventureGuideDatas)
 	end
 --	warn("-----------------S2C--------------- self._CurrentActivityValue ", self._CurrentActivityValue)
-
-	for _,v in pairs(self._CalendarDataTable) do
-		for _,k in pairs(data.adventureGuideDatas) do
+	for _,k in ipairs(data.adventureGuideDatas) do
+		for _,v in pairs(self._CalendarDataTable) do		
 			if v._Data.Id == k.TId then
-				-- warn("lidaming ------updateCalendarState----->>>", v._Data.Id, v._Data.Name, k.isActivity, k.CalendarId)		
+				-- warn("lidaming ------updateCalendarState----->>>", v._Data.Id, v._Data.Name, k.isActivity, k.CalendarId, k.isGMActivity)		
 				v._IsOpenByTime = k.isActivity	
 				v._CalendarId = k.CalendarId
-				
+				v._IsGMActivity = k.isGMActivity
 				if game._CFunctionMan:IsUnlockByFunTid(v._Data.FunId) then
 					v._IsOpen = true
 				else
@@ -138,8 +145,10 @@ def.method("table", "boolean").UpdateCalendarDataState = function(self, data, is
 				break
 			end
 		end
+	end
 
-		for _,k in pairs(data.adventureGuideCount) do
+	for _,k in ipairs(data.adventureGuideCount) do
+		for _,v in pairs(self._CalendarDataTable) do		
 			if v._Data.Id == k.TId then
 				-- warn("lidaming ------updateCalendarState----->>>", k.TId, v._Data.Name, k.playCurNum, k.playMaxNum)		
 				v._CurValue = k.curNum
@@ -149,6 +158,8 @@ def.method("table", "boolean").UpdateCalendarDataState = function(self, data, is
 			end
 		end
 	end
+
+
 	if CPanelCalendar.Instance():IsShow() then
 		CPanelCalendar.Instance():RefrashCalendar()
 		CPanelCalendar.Instance():UpdateCalendarToggleRedPoint()		
@@ -210,7 +221,7 @@ def.method("number","=>","boolean").IsCalendarOpenByPlayID = function(self, pID)
 		if v._Data.PlayID ~= "" then 
 			for i,k in ipairs(v._Data.Play) do 
 				if k.playId == pID then
-					if game._CFunctionMan:IsUnlockByFunTid(v._Data.FunId) and v._IsOpenByTime then
+					if game._CFunctionMan:IsUnlockByFunTid(v._Data.FunId) and v._IsOpenByTime and v._IsGMActivity then
 						return true
 					else
 						return false
@@ -243,7 +254,7 @@ def.method("=>", "boolean").GetCalendarRedPointState = function(self)
         end
 	end          
 	for i,v in pairs(self._CalendarDataTable) do
-		if v._Data.TabType == 0 and v._IsOpen and v._IsOpenByTime and v._Data.OpenLevel > 0 then
+		if v._Data.TabType == 0 and v._IsOpen and v._IsOpenByTime and v._IsGMActivity and v._Data.OpenLevel > 0 then
             if (v._CurValue * v._Data.Liveness) < (v._Data.ActivityNum * v._Data.Liveness) then
 				IsShowRedPoint = true
 				break 
@@ -258,7 +269,7 @@ end
 def.method("number", "=>", "boolean").GetCalendarRedPointStateByType = function(self, TabType)
     local IsShowRedPoint = false        
 	for i,v in pairs(self._CalendarDataTable) do
-		if v._Data.TabType == TabType and v._IsOpen and v._IsOpenByTime and self:GetActivityRedPointByTemData(v) then
+		if v._Data.TabType == TabType and v._IsOpen and v._IsOpenByTime and v._IsGMActivity and self:GetActivityRedPointByTemData(v) then
 			IsShowRedPoint = self:GetActivityRedPointByTemData(v)
 			break
         end
@@ -298,10 +309,10 @@ def.method("table", "=>", "boolean").GetActivityRedPointByTemData = function(sel
 		local playInfo = self:GetPlayInfoByActivityID(ActivityData._Data.Id)
 		-- warn("1111111111111111111=====>>>", playInfo.playId)
 		local data = game._DungeonMan:GetDungeonData(playInfo.playId)
-		if ActivityData._IsOpenByTime and data ~= nil and data.DungeonFinishFlag <= 0 then
+		if ActivityData._IsOpenByTime and ActivityData._IsGMActivity and data ~= nil and data.DungeonFinishFlag <= 0 then
 			return true
 		end
-    elseif ActivityData._Data.Id == 10 and ActivityData._IsOpen and ActivityData._IsOpenByTime and ActivityData._PlayCurNum ~= 0 then
+    elseif ActivityData._Data.Id == 10 and ActivityData._IsOpen and ActivityData._IsOpenByTime and ActivityData._IsGMActivity and ActivityData._PlayCurNum ~= 0 then
         return true
     elseif ActivityData._Data.Id == 2 then
         local state = false
@@ -330,7 +341,7 @@ end
 def.method().MainRedPointState = function(self)
 	local mainCalendarRedPoint = false
 	for i,v in pairs(self._CalendarDataTable) do
-		if v._IsOpen and v._IsOpenByTime and self:GetActivityRedPointByTemData(v) then
+		if v._IsOpen and v._IsOpenByTime and v._IsGMActivity and self:GetActivityRedPointByTemData(v) then
 			mainCalendarRedPoint = self:GetActivityRedPointByTemData(v)
 			break
         end
@@ -524,7 +535,7 @@ end
 
 -- 根据页签类型和排序索引，获取到对应玩法信息。
 def.method("number","=>", "table").GetPlayInfoByActivityID = function(self, calendarId)
-    local adventureGuide = game._CCalendarMan:GetCalendarDataByID(calendarId)
+    local adventureGuide = self:GetCalendarDataByID(calendarId)
     -- warn("adventureGuide._Data.PlayID ==", adventureGuide._Data.PlayID)
     if adventureGuide._Data.PlayID ~= "" then 
         table.sort(adventureGuide._Data.Play , sort_func)
@@ -659,6 +670,7 @@ def.method("table").OpenPlayByActivityInfo = function(self, temData)
 			{
 				_type = MapType.REGION,
 				_MapID = MapId,
+				_EyeType = require "GUI.CPanelMap".EyeType.Single,
 			}
 			game._GUIMan:Open("CPanelMap", panelData)    
 		elseif temData._Data.ContentEventOpenUI == EnumDef.ActivityOpenUIType.MultiHawkeye then
@@ -687,6 +699,7 @@ def.method("table").OpenPlayByActivityInfo = function(self, temData)
 			{
 				_type = MapType.REGION,
 				_MapID = MapId,
+				_EyeType = require "GUI.CPanelMap".EyeType.Multiplayer,
 			}
 			game._GUIMan:Open("CPanelMap", panelData)   
 		end
@@ -835,7 +848,7 @@ end
 
 -- 是否显示每日任务红点
 def.method("=>", "boolean").IsShowDailyTaskRedPoint = function(self)	
-	do
+	if self._TaskDayChestTemplateTable ~= nil and self._TaskWeekChestTemplateTable ~= nil then
 		-- 检查每日宝箱
 		local drawBoxMap = {} -- 已领取的宝箱
 		for _, tid in ipairs(self._BoxDrawListTable) do
@@ -855,6 +868,7 @@ def.method("=>", "boolean").IsShowDailyTaskRedPoint = function(self)
 			end
 		end
 	end
+
 	-- 检查是否有可领取奖励的任务
 	for i, v in ipairs(self._TaskDatasTable) do
 		if v.IsProvide and not v.IsDrawReward then
@@ -896,15 +910,16 @@ end
 
 ----------------------------------------------------------------------
 
-def.method().Release = function (self)
+def.method().Cleanup = function (self)
 	self._CalendarDataTable = nil
-	self._OpenTimeByPlayIdTable = nil
-	self._CurrentActivityValue = 0
-	self._ActivityGainRewardTable = nil
 	self._TaskDayChestTemplateTable = nil
 	self._TaskWeekChestTemplateTable = nil
 
-	self._TaskDatasTable = nil
+	self._OpenTimeByPlayIdTable = nil
+	self._CurrentActivityValue = 0
+	self._ActivityGainRewardTable = nil
+
+	self._TaskDatasTable = {}
 	self._BoxDrawListTable = nil
 	self._DayReachCount = 0
 	self._WeekReachCount = 0

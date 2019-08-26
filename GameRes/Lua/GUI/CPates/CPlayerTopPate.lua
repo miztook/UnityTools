@@ -11,6 +11,8 @@ local CPlayerTopPate = Lplus.Extend(CPateBase, "CPlayerTopPate")
 do
 	local def = CPlayerTopPate.define
 
+    local CONST_CACHE_AMOUNT = 200
+
 	--UI Elems
 	def.field('userdata')._Go_Name = nil
 	def.field('userdata')._Go_GuildName = nil
@@ -22,16 +24,7 @@ do
 	def.field('userdata')._Go_Back = nil
 	def.field('userdata')._Go_Front = nil
 	def.field('userdata')._Go_ActionTip = nil
-	--def.field('userdata')._Go_AutoPathIcon = nil
-
-	--def.field('userdata')._Frame_Title = nil
-	--def.field("userdata")._Frame_Guild = nil
 	def.field("userdata")._Img_Convoy = nil
-	--def.field('userdata')._Frame_CharName = nil
---	def.field('userdata')._Frame_ActionTip = nil
---	def.field('userdata')._Frame_QuestTalk = nil
-	--def.field('userdata')._Go_QuestTalk = nil
-	--def.field('userdata')._Go_Talk = nil
 	def.field('userdata')._Frame_Guild_Flag = nil
 
 	def.field('userdata')._GB_HP = nil
@@ -41,30 +34,34 @@ do
 
 	--Mem
 	def.field('boolean')._IsShowHP = true
-	--def.field('number')._HPType = -1
-	--def.field('number')._GuildConvoyId = 0
 	def.field('number')._LogoType = -1
 	def.field('boolean')._IsMirrorPlayer = false
 	def.field('number')._TextHeight = 18
 
+    def.field('boolean')._IsMini = false
+	def.field('userdata')._Go_Frame_Normal = nil
+	def.field('userdata')._Go_Frame_Mini = nil
+	def.field('userdata')._Txt_TitleName_m = nil
+
+
 	def.final("=>", CPlayerTopPate).new = function ()
-		local obj = CPlayerTopPate()
-
-		local data=CPateBase.StaticData()
-
-		--table.insert(data._AllCreated,obj)
+        local cache, limit = CPlayerTopPate.GetPateCache()
+		local obj = CPateBase.CreateNewInternal("GUI.CPates.CPlayerTopPate", cache, limit) --CNPCTopPate()
+	    obj._IsShowHP = true
+	    obj._LogoType = -1
+	    obj._IsMirrorPlayer = false
+	    obj._TextHeight = 18
+        --obj._IsMini = false
 
 		return obj
 	end
 
-	def.override().Release = function(self)
-		--_G.RemoveGlobalTimer(self._TextPopTimerId)
+	def.method().Pool = function (self)
+        --self:SetMini(false)
 
-		if self._GB_HP ~= nil then
+		if not IsNil(self._GB_HP) then
 			self._GB_HP:MakeInvalid()
 		end
-
-		CPateBase.Release(self)
 
 		self._Go_Name = nil
 		self._Go_GuildName = nil
@@ -76,13 +73,10 @@ do
 		self._Go_Back = nil
 		self._Go_Front = nil
 		self._Go_ActionTip = nil
-		--self._Go_AutoPathIcon = nil
 
 		self._Img_Convoy = nil
 		self._Frame_QuestTalk = nil
 		self._Frame_ActionTip = nil
-		--self._Go_QuestTalk = nil
-		--self._Go_Talk = nil
 		self._Frame_Guild_Flag = nil
 
 		self._GB_HP = nil
@@ -90,25 +84,26 @@ do
 		self._Txt_GuildName = nil
 		self._Txt_TitleName = nil
 
-		--self._HPType = -1
-		self._IsShowHP = false
-		--self._GuildConvoyId = 0
-		self._LogoType = 0
-		self._IsMirrorPlayer = false
-		self._TextHeight = 18
+        self._Go_Frame_Normal = nil
+        self._Go_Frame_Mini = nil
+        self._Txt_TitleName_m = nil
 
-		--local data=CPateBase.StaticData()
-		--table.remove(data._AllCreated,obj)
-
+        local cache, limit = CPlayerTopPate.GetPateCache()
+        CPateBase.PoolInternal(self, cache, limit) --CPlayerTopPate()
 	end
 
---	def.override("=>", "userdata").GetCacheRoot = function (self)
---		return _PlayerTopPateCache
+--	def.static("number").SetCacheAmount = function (num)
+--        CONST_CACHE_AMOUNT = num
 --	end
+
+	def.static("=>", "table", "number").GetPateCache = function ()
+		local data = CPateBase.StaticData()
+		return data._PlayerPateCache, CONST_CACHE_AMOUNT
+	end
 
 	def.override("=>", "table", "number", "userdata").GetGoCache = function (self)
 		local data = CPateBase.StaticData()
-		return data._PlayerTopPateCache, 50, data._PlayerTopPatePrefab
+		return data._PlayerPateGOCache, CONST_CACHE_AMOUNT, data._PlayerPatePrefab
 	end
 
 	def.override().UIFind = function(self)
@@ -124,22 +119,18 @@ do
 			self._Go_TitleName = self:GetUIObject("Txt_Title")
 			self._Go_TitleIcon = self:GetUIObject("Img_Title")
 			self._Go_PkIcon = self:GetUIObject("Img_PK")
-			--self._Go_PkIcon.localPosition = Vector3.New(self._Go_PkIcon.localPosition.x, self._TextHeight, 0)
 			self._Go_HP = self:GetUIObject("Prg_M_Head_Hp")
 			self._Go_Back = self:GetUIObject("Img_Back")
 			self._Go_Front = self:GetUIObject("Img_Front")
 			self._Go_ActionTip = self:GetUIObject("Img_Inf")
-			--self._Go_AutoPathIcon = self:GetUIObject("Frame_AutoPath")
-
-			--self._Frame_Title = self:GetUIObject("Frame_Title")
-			--self._Frame_Guild = self:GetUIObject("Frame_Guild")
 			self._Img_Convoy = self:GetUIObject("Img_Convoy")
-			--self._Frame_CharName = self:GetUIObject("Frame_CharName")
 			self._Frame_ActionTip = self:GetUIObject("Frame_Inf")
 			self._Frame_QuestTalk = self:GetUIObject("Frame_QuestTalk")
-			--self._Go_QuestTalk = self:GetUIObject("Img_QuestTalk")
-			--self._Go_Talk = self:GetUIObject("Lab_Talk")
 			self._Frame_Guild_Flag = self:GetUIObject("Frame_GuildFlag")
+
+            self._Go_Frame_Normal = self:GetUIObject("Frame_Normal")
+            self._Go_Frame_Mini = self:GetUIObject("Frame_Mini")
+            
 
 			if self._Go_HP ~= nil then
 				self._GB_HP = self._Go_HP:GetComponent(ClassType.GBlood)
@@ -153,25 +144,29 @@ do
 			if self._Go_TitleName ~= nil then
 				self._Txt_TitleName = self._Go_TitleName:GetComponent(ClassType.Text)
 			end
+            
+            if self._Go_Frame_Normal ~= nil and self._Go_Frame_Mini ~= nil then
+                self._IsMini = not self._Go_Frame_Normal.activeSelf
+                self._Go_Frame_Mini:SetActive(self._IsMini)
+            end
 
+            local txt_name_m = self:GetUIObject("Txt_CharName_m")
+			if txt_name_m ~= nil then
+				self._Txt_TitleName_m = txt_name_m:GetComponent(ClassType.Text)
+			end
 		end
 	end
 
 	def.override().UIReset = function(self)
 		GUITools.SetUIActive(self._Go_ActionTip, false)
-		--GUITools.SetUIActive(self._Frame_Title, false)
-		--GUITools.SetUIActive(self._Frame_Guild, false)
 		GUITools.SetUIActive(self._Go_TitleIcon, false)
 		GUITools.SetUIActive(self._Go_GuildName, false)
 		GameUtil.SetIgnoreLayout(self._Go_GuildName, false)
 		GUITools.SetUIActive(self._Frame_Guild_Flag, false)
 		GUITools.SetUIActive(self._Go_PkIcon, false)
 		GUITools.SetUIActive(self._Go_HP, false)
-		--GUITools.SetUIActive(self._Go_QuestTalk, false)
-		--self._Go_QuestTalk:SetActive(false)
 		GUITools.SetUIActive(self._Img_Convoy, false)
 	end
-	--
 
 	local function SyncHPStyle(self, isShow,curType)
 		if self._Go_HP ~= nil then
@@ -187,65 +182,62 @@ do
 	end
 
 	def.method("boolean","number").SetHPLineIsShow = function (self, isShow, curType)
-		if self._IsReleased then return end
+		if self._IsPooled then return end
 		self._IsShowHP = isShow
 
 		if self:IsObjCreated() then
-			SyncHPStyle(self, isShow,curType)
+			SyncHPStyle(self, isShow, curType)
 		else
 			self._Data._HPType = curType
 		end	
 	end
 
-	local function SyncHP(self, num)
+	local function SyncHP(self, hp, guard)
 		if self._PateObj ~= nil then
-			--self._GB_HP = self._Go_HP:GetComponent(ClassType.GBlood)
-
-			if self._IsShowHP then
-				self._GB_HP:SetValue(num)
-			end
+			if self._IsShowHP and self._GB_HP then
+                if guard == nil then guard = 0 end
+                if hp == nil then hp = 0 end
+                local hp_rate, gd_rate = self:CalcHpGuard(hp, guard)
+                self._GB_HP:SetValue(hp_rate)
+                self._GB_HP:SetGuardValue(gd_rate)
+            end
 		end
 	end
 
-	def.override("number").OnHPChange = function (self, num)
-		if self._IsReleased then return end
+	def.override("number").OnHPChange = function (self, hp)
+		if self._IsPooled or self._Owner == nil then return end
+        local guard = 0
+        if self._Owner ~= nil and self._Owner._InfoData ~= nil then
+            guard  = self._Owner._InfoData._CurShield / self._Owner._InfoData._MaxHp
+        end
+
 		if self:IsObjCreated() then
-			SyncHP(self, num)
+			SyncHP(self, hp, guard)
 		else
-			self._Data.HP = num
+			self._Data._HP = hp
+			self._Data._GuardP = guard
 		end
 	end
 
 	local function SyncGuild(self, isShow, guild_name, guild_icon)
 	    if self._Go_GuildName ~= nil then
-			--GUITools.SetUIActive(self._Frame_Guild, isShow)
 			GUITools.SetUIActive(self._Go_GuildName, isShow)
 			GameUtil.SetIgnoreLayout(self._Go_GuildName, not isShow)
 			GUITools.SetUIActive(self._Frame_Guild_Flag, isShow)
 
 			if isShow then
-				-- GUI.SetText(self._Go_GuildName, tostring(RichTextTools.GetTopPateColorText("["..guild._GuildName.."]", 1))
-				--GUI.SetTextAndChangeLayout(self._Go_GuildName, tostring("["..guild._GuildName.."]"), 200)
 				if self._Txt_GuildName ~= nil then
 					self._Txt_GuildName.text = "["..guild_name.."]"
 				end
 
 				game._GuildMan:SetPlayerGuildIcon(guild_icon, self._Go_GuildIcon)
-				-- 瑞龙需求：有公会，PK模式的图标显示在名称和公会中间。
-				--self._TextHeight = 34 -- text的最小高度。
-				-- warn("lidaming self._TextHeight ==", self._TextHeight)
-				--self._Go_PkIcon.localPosition = Vector3.New(self._Go_PkIcon.localPosition.x, self._TextHeight, 0)
-			else
-				-- 瑞龙需求：没有公会，PK模式的图标显示在名称中间。
-				--self._TextHeight = 17
-				--self._Go_PkIcon.localPosition = Vector3.New(self._Go_PkIcon.localPosition.x, self._TextHeight/2, 0)
 			end
 		end
 	end
 
 	--公会更改
 	def.method("boolean", "table").OnGuildNameChange = function (self, isShow, guild)
-		if self._IsReleased then return end
+		if self._IsPooled then return end
 		if self:IsObjCreated() then
 			SyncGuild(self, isShow, guild._GuildName, guild._GuildIconInfo)
 		else
@@ -254,25 +246,6 @@ do
 			self._Data._GuildIconInfo = guild._GuildIconInfo
 		end
 	end
-
---	local function SyncGuildConvoy(self)
---		warn("SyncGuildConvoy "..self._GuildConvoyId, debug.traceback())
---		local isShow = self._GuildConvoyId > 1
---		GUITools.SetUIActive(self._Img_Convoy, isShow)
---		if isShow then
---			GUITools.SetUIActive(self._Go_PkIcon, false)
---			GUITools.SetGroupImg(self._Img_Convoy, self._GuildConvoyId + 2)
---		end
---	end
-
---	-- 护送更改
---	def.method("number").OnGuildConvoyChange = function(self, index)
---		if self._IsReleased then return end
---		self._GuildConvoyId = index
---		if self:IsObjCreated() then
---			SyncGuildConvoy(self)
---		end
---	end
 
 	local function SyncPK(self)
 		if self._PateObj == nil or self._Owner == nil then return end
@@ -294,7 +267,7 @@ do
 	end
 
 	def.method().SetPKIconIsShow = function (self)
-		if self._IsReleased then return end
+		if self._IsPooled then return end
 		if self:IsObjCreated() then
 			SyncPK(self)
 		end
@@ -305,13 +278,12 @@ do
 		if self._LogoType ~= EnumDef.EntityLogoType.None or self._LogoType == EnumDef.EntityLogoType.Rescue then
 			GUITools.SetUIActive(self._Go_ActionTip, false)
 		else
-			--GUITools.SetGroupImg(self._Go_ActionTip, self._LogoType)
 			GUITools.SetUIActive(self._Go_ActionTip, true)
 		end
 	end
 
 	def.override("number").OnLogoChange = function (self, curType)
-		if self._IsReleased then return end
+		if self._IsPooled then return end
 		self._LogoType = curType
 		if self:IsObjCreated() then
 			SyncLogo(self)
@@ -321,33 +293,27 @@ do
 
 	local function SyncTitle(self, isShow, name)
 	    if self._Go_TitleName ~= nil then
-			--GUITools.SetUIActive(self._Frame_Title, isShow)
 			GUITools.SetUIActive(self._Go_TitleIcon, isShow)
-			--GUITools.SetUIActive(self._Go_TitleName, isShow)
-			--if not IsNil(self._Go_TitleIcon) then
 			if isShow then
-				if not self._IsMirrorPlayer then
-					local Designation = game._DesignationMan:GetDesignationDataByID(self._Owner:GetDesignationId())    -- game._DesignationMan:GetCurDesignation()
-					if Designation ~= nil then
-						GUITools.SetGroupImg(self._Go_TitleIcon, Designation.Quality)
+				local Designation = game._DesignationMan:GetDesignationDataByID(self._Owner:GetDesignationId())    -- game._DesignationMan:GetCurDesignation()
+				if Designation ~= nil and Designation.IconPath ~= "" then
+					-- GUITools.SetGroupImg(self._Go_TitleIcon, Designation.Quality)
+					GUITools.SetSprite(self._Go_TitleIcon, Designation.IconPath)
+					if self._Txt_TitleName ~= nil then
+						self._Txt_TitleName.text = name
 					end
-				end
-
-				if self._Txt_TitleName ~= nil then
-					self._Txt_TitleName.text = name
+				else
+					GUITools.SetUIActive(self._Go_TitleIcon, false)
 				end
 			end
-			--end
-			-- GUI.SetText(self._Go_TitleName, RichTextTools.GetTopPateColorText(name, 2) )
-			--GUI.SetTextAndChangeLayout(self._Go_TitleName, tostring(name), 200)
 		end
 	end
 
 	def.override("boolean","string").OnTitleNameChange = function (self, isShow, name)
 		if name == "" then
-			isShow=false
+			isShow = false
 		end
-		if self._IsReleased then return end
+		if self._IsPooled then return end
 		if self:IsObjCreated() then
 			SyncTitle(self, isShow,name)
 		else
@@ -361,24 +327,30 @@ do
 		GUITools.SetUIActive(self._Go_Name, isShow)
 		if isShow then
 			local name = self._Owner:GetEntityColorName()
+			
 			if game._IsOpenDebugMode == true then
 				local clientPosX, clientPosY, clientPosZ = self._Owner:GetPosXYZ()
 				clientPosX = string.format("%.2f", clientPosX)
 				clientPosY = string.format("%.2f", clientPosY)
-				clientPosZ = string.format("%.2f", clientPosZ)		
+				clientPosZ = string.format("%.2f", clientPosZ)
 				local clientPos = clientPosX .. "," .. clientPosY .. "," .. clientPosZ
 				name = name .. self._Owner._ID .. ", CPos:".. clientPos
 			end
-			-- GUI.SetText(self._Go_Name, name )
-			--GUI.SetTextAndChangeLayout(self._Go_Name, tostring(name), 200)
-			if self._Txt_Name ~=nil then
-				self._Txt_Name.text = name
-			end
+
+            		if not self:IsMini() then
+				if self._Txt_Name ~= nil then
+					self._Txt_Name.text = name
+                		end
+            		else
+                		if self._Txt_TitleName_m ~= nil then
+                    			self._Txt_TitleName_m.text = name
+				end
+            		end
 		end
 	end
 
-	def.override("boolean").UpdateName= function(self, isShow)
-		if self._IsReleased then return end
+	def.override("boolean").UpdateName = function(self, isShow)
+		if self._IsPooled then return end
 		if self:IsObjCreated() then
 			SyncName(self, isShow)
 		else
@@ -386,32 +358,16 @@ do
 		end
 	end
 
-----???
---	local function SyncAutoPath(self, isShow)
---	    --local autoPrefab = self._PateObj: FindChild("Prg_Find")
---	    if(self._Go_AutoPathIcon ~= nil) then
---			GUITools.SetUIActive(self._Go_AutoPathIcon, isAutoPath)
---		end
---	end
-
---	def.method("boolean").SetAutoPathingState= function(self, isAutoPath)
---		if self._IsReleased then return end
---		if self:IsObjCreated() then
---			SyncAutoPath(self, isAutoPath)
---		else
---			self._Data._IsAutoPath = isShow
---		end
---	end
-
 	def.override().SyncDataToUI = function (self)
-		if not self._IsReleased and self:IsObjCreated() then
+		if not self._IsPooled and self:IsObjCreated() then
 			if self._Data._HPType ~= nil then
 				SyncHPStyle(self, self._IsShowHP, self._Data._HPType)
 				self._Data._HPType = nil
 			end
 			if self._Data._HP ~= nil then
-				SyncHP(self, self._Data._HP)
+				SyncHP(self, self._Data._HP, self._Data._GuardP)
 				self._Data._HP = nil
+                self._Data._GuardP = nil
 			end
 			if self._Data.isShow ~= nil and  self._Data._GuildName ~= nil and  self._Data._GuildIconInfo ~= nil then
 				SyncGuild(self, self._Data._IsShowGuild, self._Data._GuildName, self._Data._GuildIconInfo)
@@ -419,17 +375,6 @@ do
 				self._Data._GuildName = nil
 				self._Data._GuildIconInfo = nil
 			end
-
-			--SyncGuildConvoy(self)
-
---			if self._Data._LogoType ~= nil then
---				SyncLogo(self, self._Data._LogoType)
---				self._Data._LogoType = nil
---			end
---			if self._Data._IsPK ~= nil then
---				SyncPK(self, self._Data._IsPK)
---				self._Data._IsPK = nil
---			end
 
 			SyncLogo(self)
 			SyncPK(self)
@@ -443,12 +388,24 @@ do
 				SyncName(self, self._Data._IsShowName)
 				self._Data._IsShowName = nil
 			end
---			if self._Data._IsAutoPath ~= nil then
---				SyncAutoPath(self, self._Data._IsAutoPath)
---				self._Data._IsAutoPath = nil 
---			end
 		end
 	end
+
+    def.method("boolean").SetMini = function(self, flag)
+        if self._IsMini ~= flag then
+            self._IsMini = flag
+            if self._Go_Frame_Normal ~= nil then
+                self._Go_Frame_Normal:SetActive(not self._IsMini)
+            end
+            if self._Go_Frame_Mini ~= nil then
+                self._Go_Frame_Mini:SetActive(self._IsMini)
+            end
+        end
+    end
+
+    def.override("=>", "boolean").IsMini = function(self)
+        return self._IsMini
+    end
 
 	CPlayerTopPate.Commit()
 end

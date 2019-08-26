@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Forest",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12006] = 
@@ -55,7 +56,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[194] = { x = -283.53, y = 1.98, z = -66.49, name = "迷幻村落", worldId = 0, PkMode = 0 },
+			[194] = { x = -283.53, y = 1.98, z = -66.49, name = "迷幻村落", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

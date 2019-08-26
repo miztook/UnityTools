@@ -11,10 +11,7 @@ def.field("number")._CountdownMax = 0               -- 倒计时
 def.field("table")._InfoData = BlankTable           -- 外部参数
 def.field("number")._TimerId = 0                    -- 计时器Id
 def.field("boolean")._Inited = false                -- 是否初始化过
-
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
+def.field("boolean")._IsShowingMsgBox = false       -- 是否正在弹复活的msgbox
 
 local instance = nil
 def.static('=>', CPanelUIRevive).Instance = function ()
@@ -336,7 +333,7 @@ def.method().OnBtnInPlaceChargeLogic = function(self)
             self:SendProtocol(EResurrectType.InPlaceCharge)
             game._GUIMan:CloseByScript(self)
         -- else
-        --     SendFlashMsg(StringTable.Get(1113), false)
+        --     TeraFuncs.SendFlashMsg(StringTable.Get(1113), false)
         end
     end
 
@@ -344,12 +341,16 @@ def.method().OnBtnInPlaceChargeLogic = function(self)
         if ret then
             MsgBox.ShowQuickBuyBox(EResourceType.ResourceTypeBindDiamond, self._InfoData.Cost, callback)
         end
+        self._IsShowingMsgBox = false
     end
 
     local title, msg, closeType = StringTable.GetMsg(109)
     local moneyName = CTokenMoneyMan.Instance():GetEmoji(EResourceType.ResourceTypeBindDiamond)
     msg = string.format(msg, moneyName,self._InfoData.Cost)
-    MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, Do)
+    if not self._IsShowingMsgBox then
+        self._IsShowingMsgBox = true
+        MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, Do)
+    end
 end
 
 -- 免费立即复活逻辑
@@ -401,6 +402,9 @@ def.method().OnBtnQuitDungeon = function(self)
         if game._HostPlayer:IsInGlobalZone() then
             -- 跨服副本
             title, message, closeType = StringTable.GetMsg(131)
+        elseif game._DungeonMan:InTowerDungeon() or game._DungeonMan:InGuildDungeon() then
+            -- 爬塔或者公会副本
+            title, message, closeType = StringTable.GetMsg(140)
         else
             title, message, closeType = StringTable.GetMsg(17)
         end

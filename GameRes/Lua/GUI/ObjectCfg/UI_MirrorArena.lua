@@ -75,6 +75,7 @@ local cfg = {
     Frame_MatchBan = -996599076,
     Lab_MatchBanTime = 1113446313,
     Lab_MatchBanTip = 313012287,
+    Lab_NoBattleRank = -713330857,
 }
  
 return cfg

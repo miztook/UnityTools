@@ -243,6 +243,10 @@ def.method().UpdateField = function(self)
     end
 end
 
+def.method("=>", "boolean").IsReadyToClick = function(self)
+    return self._State > FieldState.None
+end
+
 def.method("=>", "number").GetState = function(self)
     return self._State
 end 
@@ -441,6 +445,7 @@ def.override("dynamic").OnData = function(self, data)
     else
         CSoundMan.Instance():Play2DAudio(PATH.GUISound_Gacha_TenEnter, 0)
     end
+    CMallMan.Instance()._IsExtracting = false
     --self:AddEvt_PlayFx(GfxKey, 0, PATH.UIFX_MallLottery_Get, point_go, point_go, 3, 1)
 end
 
@@ -457,7 +462,7 @@ def.method("table", "=>", "table").TransData = function(self, data)
         repeat
             if v.ItemId == GiftItemID and (v.Count == 1 or v.Count == 10) then break end
             local item = {}
-            item.ItemId = v.ItemId
+            item.ItemId = v.Tid
             item.Count = v.Count
             item.IsMoney = false
             new_table[#new_table + 1] = item
@@ -649,6 +654,7 @@ def.override('string').OnClick = function(self, id)
     elseif id == "Btn_Back"then
         game._GUIMan:CloseByScript(self)
     elseif id == "Btn_OnceMore" then
+        if CMallMan.Instance()._IsExtracting then return end
         local callback = function(val)
             if val then
                 CMallMan.Instance():PetExtract(1)
@@ -659,6 +665,7 @@ def.override('string').OnClick = function(self, id)
         local dropRuleTemplate = CElementData.GetTemplate("DropRule",dropRuleId)
         MsgBox.ShowQuickBuyBox(dropRuleTemplate.CostMoneyId, dropRuleTemplate.CostMoneyCount, callback)
     elseif id == "Btn_TenMore" then
+        if CMallMan.Instance()._IsExtracting then return end
         local callback = function(val)
             if val then
                 CMallMan.Instance():PetExtract(10)
@@ -669,6 +676,7 @@ def.override('string').OnClick = function(self, id)
         local dropTenRuleTemplate = CElementData.GetTemplate("DropRule", dropTenRuleId)
         MsgBox.ShowQuickBuyBox(dropTenRuleTemplate.CostMoneyId, dropTenRuleTemplate.CostMoneyCount, callback)
     elseif id == "Btn_ElfOne" then
+        if CMallMan.Instance()._IsExtracting then return end
         local callback = function(val)
             if val then
                 CMallMan.Instance():ElfExtract(1)
@@ -691,6 +699,7 @@ def.override('string').OnClick = function(self, id)
         }
         MsgBox.ShowQuickMultBuyBox(rewardTable, callback)
     elseif id == "Btn_ElfTen" then
+        if CMallMan.Instance()._IsExtracting then return end
         local callback = function(val)
             if val then
                 CMallMan.Instance():ElfExtract(10)
@@ -720,6 +729,7 @@ def.override('string').OnClick = function(self, id)
     elseif string.find(id, "Item") then
         local index = tonumber(string.sub(id, -1))
         if index == nil then return end
+        if not self:IsAllFieldReady() then return end
         local field = self._Fields[index + 1]
         if field ~= nil then
             field:OnSelectItem(0)
@@ -727,6 +737,15 @@ def.override('string').OnClick = function(self, id)
         end
         self:UpdatePanel()
     end
+end
+
+def.method("=>", "boolean").IsAllFieldReady = function(self)
+    for i,v in ipairs(self._Fields) do
+        if not v:IsReadyToClick() then
+            return false
+        end
+    end
+    return true
 end
 
 def.override().OnHide = function(self)
@@ -742,6 +761,7 @@ def.override().OnHide = function(self)
     if CPanelMall.Instance():IsShow() then
         CPanelMall.Instance():PlayVideoBG()
     end
+    game._CGameTipsQ._AchiSwitch = true
     self._Fields = nil
     self._RewardDatas = nil
 end

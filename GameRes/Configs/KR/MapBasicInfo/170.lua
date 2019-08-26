@@ -11,11 +11,12 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13000] = 
 		{
-			[1] = { x = -28.50, y = 66.14, z = 222.38, name = "시조새", level = 40, IsCanFind = 1, Describe = "Lv.40 시조새", SortID = 37, DropItemIds = "1001*1113*20100*1112*52*20010*27010*24000*20200*20201*1111*27011*24001*20300*3000*2022*1030*20011*1031*20202*24002*54*27200*21102" },
+			[1] = { x = -28.50, y = 66.14, z = 222.38, name = "시조새", level = 40, IsCanFind = 1, Describe = "Lv.40,시조새", SortID = 37, DropItemIds = "1001*1143*10013*20100*1142*10012*52*20010*27010*24000*1141*10011*27011*24001*20012*20300*3000*1032*20011*8300101*24002*54*27200*21102" },
 		},
 		[13011] = 
 		{
@@ -33,7 +34,7 @@ local MapInfo =
 		},
 		[13019] = 
 		{
-			[1] = { x = -98.72, y = 14.50, z = -209.91, name = "사막 행인", level = 41, SortID = 42 },
+			[1] = { x = -90.39, y = 24.39, z = -139.98, name = "사막 행인", level = 41, SortID = 42 },
 		},
 		[13038] = 
 		{
@@ -55,11 +56,11 @@ local MapInfo =
 		},
 		[13051] = 
 		{
-			[1] = { x = -78.10, y = 18.58, z = -189.30, name = "사막의 은닉자", level = 44, IsCanFind = 1, Describe = "Lv.44 사막 은둔자", SortID = 101, DropItemIds = "1001*1113*20100*1112*51*20010*27010*24000*20200*20201*1111*27011*24001*20300*3000*2022*1030*20011*1031*20202*24002*54*27200*21202" },
+			[1] = { x = -77.90, y = 18.58, z = -200.20, name = "사막 은둔자", level = 44, IsCanFind = 1, Describe = "Lv.44,사막 은둔자", SortID = 101, DropItemIds = "1001*1143*10013*20100*1142*10012*51*20010*27010*24000*1141*10011*27011*24001*20012*20300*3000*1032*20011*8300301*24002*54*27200*21202" },
 		},
 		[13002] = 
 		{
-			[1] = { x = -30.90, y = 75.11, z = 149.10, name = "카마이 도발자", level = 42, IsCanFind = 1, Describe = "Lv.42 카마이 도발자", SortID = 117, DropItemIds = "1001*1113*20100*1112*52*20010*27010*24000*20200*20201*1111*27011*24001*20300*3000*2022*1030*20011*1031*20202*24002*54*27200*21102" },
+			[1] = { x = -30.90, y = 75.11, z = 149.10, name = "카마이 도발자", level = 42, IsCanFind = 1, Describe = "Lv.42,카마이 도발자", SortID = 117, DropItemIds = "1001*1143*10013*20100*1142*10012*52*20010*27010*24000*1141*10011*27011*24001*20012*20300*3000*1032*20011*8300101*24002*54*27200*21102" },
 			[2] = { x = -152.40, y = 68.24, z = 137.40, name = "카마이 도발자", level = 42, SortID = 121 },
 			[3] = { x = -195.20, y = 55.14, z = 108.00, name = "카마이 도발자", level = 42, SortID = 122 },
 			[4] = { x = -142.70, y = 64.74, z = 108.00, name = "카마이 도발자", level = 42, SortID = 123 },
@@ -82,7 +83,7 @@ local MapInfo =
 		},
 		[13058] = 
 		{
-			[1] = { x = 144.37, y = 71.46, z = 33.62, name = "흑곰", level = 44, SortID = 129 },
+			[1] = { x = 119.00, y = 71.46, z = 96.90, name = "흑곰", level = 44, SortID = 129 },
 			[2] = { x = 105.47, y = 61.84, z = 93.88, name = "흑곰", level = 44, SortID = 131 },
 		},
 		[13055] = 
@@ -100,45 +101,29 @@ local MapInfo =
 		{
 			[1] = { x = -134.62, y = 59.31, z = 66.81, name = "천명의 도살자", level = 45, SortID = 124,IsBoss = true },
 		},
-		[39000] = 
-		{
-			[1] = { x = -130.10, y = 72.10, z = 206.60, name = "아논 사제", level = 10, SortID = 156 },
-			[2] = { x = 56.40, y = 60.44, z = 10.90, name = "아논 사제", level = 10, SortID = 153 },
-			[3] = { x = -90.50, y = 60.40, z = -25.60, name = "아논 사제", level = 10, SortID = 157 },
-			[4] = { x = -25.20, y = 18.00, z = -212.30, name = "아논 사제", level = 10, SortID = 159 },
-			[5] = { x = -201.40, y = 26.40, z = -172.00, name = "아논 사제", level = 10, SortID = 162 },
-		},
-		[39001] = 
-		{
-			[1] = { x = -130.10, y = 72.10, z = 206.60, name = "불사의 근위병", level = 10, SortID = 156 },
-			[2] = { x = 56.40, y = 60.44, z = 10.90, name = "불사의 근위병", level = 10, SortID = 153 },
-			[3] = { x = -90.50, y = 60.40, z = -25.60, name = "불사의 근위병", level = 10, SortID = 157 },
-			[4] = { x = -25.20, y = 18.00, z = -212.30, name = "불사의 근위병", level = 10, SortID = 159 },
-			[5] = { x = -201.40, y = 26.40, z = -172.00, name = "불사의 근위병", level = 10, SortID = 162 },
-		},
-		[39002] = 
-		{
-			[1] = { x = -130.10, y = 72.10, z = 206.60, name = "불사의 병사", level = 10, SortID = 156 },
-			[2] = { x = 56.40, y = 60.44, z = 10.90, name = "불사의 병사", level = 10, SortID = 153 },
-			[3] = { x = -90.50, y = 60.40, z = -25.60, name = "불사의 병사", level = 10, SortID = 157 },
-			[4] = { x = -25.20, y = 18.00, z = -212.30, name = "불사의 병사", level = 10, SortID = 159 },
-			[5] = { x = -201.40, y = 26.40, z = -172.00, name = "불사의 병사", level = 10, SortID = 162 },
-		},
 		[39003] = 
 		{
-			[1] = { x = -130.10, y = 72.10, z = 206.60, name = "타락 영혼", level = 10, SortID = 156 },
-			[2] = { x = 56.40, y = 60.44, z = 10.90, name = "타락 영혼", level = 10, SortID = 153 },
-			[3] = { x = -90.50, y = 60.40, z = -25.60, name = "타락 영혼", level = 10, SortID = 157 },
-			[4] = { x = -25.20, y = 18.00, z = -212.30, name = "타락 영혼", level = 10, SortID = 159 },
-			[5] = { x = -201.40, y = 26.40, z = -172.00, name = "타락 영혼", level = 10, SortID = 162 },
+			[1] = { x = -130.44, y = 74.55, z = 208.22, name = "타락한 영혼", level = 10, DropItemIds = " " },
+			[2] = { x = 56.40, y = 60.50, z = 10.90, name = "타락한 영혼", level = 10, DropItemIds = " " },
+			[3] = { x = -90.50, y = 51.39, z = -25.60, name = "타락한 영혼", level = 10, DropItemIds = " " },
+			[4] = { x = -28.43, y = 18.26, z = -211.38, name = "타락한 영혼", level = 10, DropItemIds = " " },
+			[5] = { x = -201.40, y = 28.18, z = -172.00, name = "타락한 영혼", level = 10, DropItemIds = " " },
 		},
-		[39004] = 
+		[39005] = 
 		{
-			[1] = { x = -130.10, y = 72.10, z = 206.60, name = "감염자", level = 10, SortID = 156 },
-			[2] = { x = 56.40, y = 60.44, z = 10.90, name = "감염자", level = 10, SortID = 153 },
-			[3] = { x = -90.50, y = 60.40, z = -25.60, name = "감염자", level = 10, SortID = 157 },
-			[4] = { x = -25.20, y = 18.00, z = -212.30, name = "감염자", level = 10, SortID = 159 },
-			[5] = { x = -201.40, y = 26.40, z = -172.00, name = "감염자", level = 10, SortID = 162 },
+			[1] = { x = -130.44, y = 74.55, z = 208.22, name = "아르곤 선봉", level = 10, DropItemIds = " " },
+			[2] = { x = 56.40, y = 60.50, z = 10.90, name = "아르곤 선봉", level = 10, DropItemIds = " " },
+			[3] = { x = -90.50, y = 51.39, z = -25.60, name = "아르곤 선봉", level = 10, DropItemIds = " " },
+			[4] = { x = -28.43, y = 18.26, z = -211.38, name = "아르곤 선봉", level = 10, DropItemIds = " " },
+			[5] = { x = -201.40, y = 28.18, z = -172.00, name = "아르곤 선봉", level = 10, DropItemIds = " " },
+		},
+		[39006] = 
+		{
+			[1] = { x = -130.44, y = 74.55, z = 208.22, name = "아르곤 흑마법사", level = 10, DropItemIds = " " },
+			[2] = { x = 56.40, y = 60.50, z = 10.90, name = "아르곤 흑마법사", level = 10, DropItemIds = " " },
+			[3] = { x = -90.50, y = 51.39, z = -25.60, name = "아르곤 흑마법사", level = 10, DropItemIds = " " },
+			[4] = { x = -28.43, y = 18.26, z = -211.38, name = "아르곤 흑마법사", level = 10, DropItemIds = " " },
+			[5] = { x = -201.40, y = 28.18, z = -172.00, name = "아르곤 흑마법사", level = 10, DropItemIds = " " },
 		},
 		[39300] = 
 		{
@@ -149,17 +134,17 @@ local MapInfo =
 		},
 		[39301] = 
 		{
-			[1] = { x = -112.70, y = 23.65, z = -154.50, name = "바포메트", level = 43, SortID = 167,IsBoss = true },
-			[2] = { x = -18.90, y = 20.96, z = -183.80, name = "바포메트", level = 43, SortID = 168,IsBoss = true },
-			[3] = { x = -155.40, y = 32.39, z = -246.60, name = "바포메트", level = 43, SortID = 169,IsBoss = true },
-			[4] = { x = -165.20, y = 20.76, z = -194.40, name = "바포메트", level = 43, SortID = 170,IsBoss = true },
+			[1] = { x = -112.70, y = 23.65, z = -154.50, name = "바포메트", level = 42, SortID = 167,IsBoss = true },
+			[2] = { x = -18.90, y = 20.96, z = -183.80, name = "바포메트", level = 42, SortID = 168,IsBoss = true },
+			[3] = { x = -155.40, y = 32.39, z = -246.60, name = "바포메트", level = 42, SortID = 169,IsBoss = true },
+			[4] = { x = -165.20, y = 20.76, z = -210.00, name = "바포메트", level = 42, SortID = 170,IsBoss = true },
 		},
 		[35233] = 
 		{
 			[1] = { x = -164.99, y = 61.18, z = 185.97, name = "대예언가", level = 40, SortID = 175 },
 			[2] = { x = 43.00, y = 63.50, z = 174.35, name = "대예언가", level = 40, SortID = 177 },
 			[3] = { x = 59.78, y = 65.13, z = 114.18, name = "대예언가", level = 40, SortID = 179 },
-			[4] = { x = -180.97, y = 27.79, z = -221.97, name = "대예언가", level = 40, SortID = 181 },
+			[4] = { x = -173.89, y = 27.79, z = -221.97, name = "대예언가", level = 40, SortID = 181 },
 			[5] = { x = -79.58, y = 31.62, z = -117.53, name = "대예언가", level = 40, SortID = 183 },
 		},
 		[35234] = 
@@ -167,31 +152,31 @@ local MapInfo =
 			[1] = { x = -164.99, y = 61.18, z = 185.97, name = "아논 노예 용사", level = 40, SortID = 175 },
 			[2] = { x = 43.00, y = 63.50, z = 174.35, name = "아논 노예 용사", level = 40, SortID = 177 },
 			[3] = { x = 59.78, y = 65.13, z = 114.18, name = "아논 노예 용사", level = 40, SortID = 179 },
-			[4] = { x = -180.97, y = 27.79, z = -221.97, name = "아논 노예 용사", level = 40, SortID = 181 },
+			[4] = { x = -173.89, y = 27.79, z = -221.97, name = "아논 노예 용사", level = 40, SortID = 181 },
 			[5] = { x = -79.58, y = 31.62, z = -117.53, name = "아논 노예 용사", level = 40, SortID = 183 },
 		},
 		[35235] = 
 		{
-			[1] = { x = -164.99, y = 61.18, z = 185.97, name = "검은 날개 시칸 탈옥범 두목", level = 40, SortID = 175 },
-			[2] = { x = 43.00, y = 63.50, z = 174.35, name = "검은 날개 시칸 탈옥범 두목", level = 40, SortID = 177 },
-			[3] = { x = 59.78, y = 65.13, z = 114.18, name = "검은 날개 시칸 탈옥범 두목", level = 40, SortID = 179 },
-			[4] = { x = -180.97, y = 27.79, z = -221.97, name = "검은 날개 시칸 탈옥범 두목", level = 40, SortID = 181 },
-			[5] = { x = -79.58, y = 31.62, z = -117.53, name = "검은 날개 시칸 탈옥범 두목", level = 40, SortID = 183 },
+			[1] = { x = -164.99, y = 61.18, z = 185.97, name = "검은 날개 탈옥범 두목", level = 40, SortID = 175 },
+			[2] = { x = 43.00, y = 63.50, z = 174.35, name = "검은 날개 탈옥범 두목", level = 40, SortID = 177 },
+			[3] = { x = 59.78, y = 65.13, z = 114.18, name = "검은 날개 탈옥범 두목", level = 40, SortID = 179 },
+			[4] = { x = -173.89, y = 27.79, z = -221.97, name = "검은 날개 탈옥범 두목", level = 40, SortID = 181 },
+			[5] = { x = -79.58, y = 31.62, z = -117.53, name = "검은 날개 탈옥범 두목", level = 40, SortID = 183 },
 		},
 		[35248] = 
 		{
-			[1] = { x = -164.99, y = 61.18, z = 185.97, name = "아논 촌장", level = 45, SortID = 189 },
-			[2] = { x = 43.00, y = 63.50, z = 174.35, name = "아논 촌장", level = 45, SortID = 188 },
-			[3] = { x = 59.78, y = 65.13, z = 114.18, name = "아논 촌장", level = 45, SortID = 187 },
-			[4] = { x = -180.97, y = 27.79, z = -221.97, name = "아논 촌장", level = 45, SortID = 186 },
-			[5] = { x = -79.58, y = 31.62, z = -117.53, name = "아논 촌장", level = 45, SortID = 185 },
+			[1] = { x = -164.99, y = 61.18, z = 185.97, name = "아논 족장", level = 45, SortID = 189 },
+			[2] = { x = 43.00, y = 63.50, z = 174.35, name = "아논 족장", level = 45, SortID = 188 },
+			[3] = { x = 59.78, y = 65.13, z = 114.18, name = "아논 족장", level = 45, SortID = 187 },
+			[4] = { x = -173.80, y = 27.79, z = -221.97, name = "아논 족장", level = 45, SortID = 186 },
+			[5] = { x = -79.58, y = 31.62, z = -117.53, name = "아논 족장", level = 45, SortID = 185 },
 		},
 		[35249] = 
 		{
 			[1] = { x = -164.99, y = 61.18, z = 185.97, name = "사막 행인 두목", level = 45, SortID = 189 },
 			[2] = { x = 43.00, y = 63.50, z = 174.35, name = "사막 행인 두목", level = 45, SortID = 188 },
 			[3] = { x = 59.78, y = 65.13, z = 114.18, name = "사막 행인 두목", level = 45, SortID = 187 },
-			[4] = { x = -180.97, y = 27.79, z = -221.97, name = "사막 행인 두목", level = 45, SortID = 186 },
+			[4] = { x = -173.80, y = 27.79, z = -221.97, name = "사막 행인 두목", level = 45, SortID = 186 },
 			[5] = { x = -79.58, y = 31.62, z = -117.53, name = "사막 행인 두목", level = 45, SortID = 185 },
 		},
 		[35250] = 
@@ -199,7 +184,7 @@ local MapInfo =
 			[1] = { x = -164.99, y = 61.18, z = 185.97, name = "오아시스 행인", level = 45, SortID = 189 },
 			[2] = { x = 43.00, y = 63.50, z = 174.35, name = "오아시스 행인", level = 45, SortID = 188 },
 			[3] = { x = 59.78, y = 65.13, z = 114.18, name = "오아시스 행인", level = 45, SortID = 187 },
-			[4] = { x = -180.97, y = 27.79, z = -221.97, name = "오아시스 행인", level = 45, SortID = 186 },
+			[4] = { x = -173.80, y = 27.79, z = -221.97, name = "오아시스 행인", level = 45, SortID = 186 },
 			[5] = { x = -79.58, y = 31.62, z = -117.53, name = "오아시스 행인", level = 45, SortID = 185 },
 		},
 		[35260] = 
@@ -207,7 +192,7 @@ local MapInfo =
 			[1] = { x = -164.99, y = 61.18, z = 185.97, name = "호가스 왕", level = 50, SortID = 190 },
 			[2] = { x = 43.00, y = 63.50, z = 174.35, name = "호가스 왕", level = 50, SortID = 191 },
 			[3] = { x = 59.78, y = 65.13, z = 114.18, name = "호가스 왕", level = 50, SortID = 192 },
-			[4] = { x = -180.97, y = 27.79, z = -221.97, name = "호가스 왕", level = 50, SortID = 193 },
+			[4] = { x = -173.75, y = 27.79, z = -221.97, name = "호가스 왕", level = 50, SortID = 193 },
 			[5] = { x = -79.58, y = 31.62, z = -117.53, name = "호가스 왕", level = 50, SortID = 194 },
 		},
 		[35261] = 
@@ -215,16 +200,16 @@ local MapInfo =
 			[1] = { x = -164.99, y = 61.18, z = 185.97, name = "플리앙 족장", level = 50, SortID = 190 },
 			[2] = { x = 43.00, y = 63.50, z = 174.35, name = "플리앙 족장", level = 50, SortID = 191 },
 			[3] = { x = 59.78, y = 65.13, z = 114.18, name = "플리앙 족장", level = 50, SortID = 192 },
-			[4] = { x = -180.97, y = 27.79, z = -221.97, name = "플리앙 족장", level = 50, SortID = 193 },
+			[4] = { x = -173.75, y = 27.79, z = -221.97, name = "플리앙 족장", level = 50, SortID = 193 },
 			[5] = { x = -79.58, y = 31.62, z = -117.53, name = "플리앙 족장", level = 50, SortID = 194 },
 		},
 		[34209] = 
 		{
-			[1] = { x = -131.06, y = 59.32, z = 68.59, name = "천명의 도살자", level = 43, SortID = 114, DropItemIds = " ",IsEliteBoss = true,BossIconPath = "CBT_Map_Tag_018_001" },
+			[1] = { x = -153.20, y = 59.32, z = -235.73, name = "천명의 도살자", level = 43, SortID = 114, DropItemIds = " ",IsEliteBoss = true,BossIconPath = "CBT_Map_Tag_018_001" },
 		},
 		[34208] = 
 		{
-			[1] = { x = -95.45, y = 62.68, z = 129.38, name = "극독", level = 40, SortID = 116, DropItemIds = " ",IsEliteBoss = true,BossIconPath = "CBT_Map_Tag_018_001" },
+			[1] = { x = -132.10, y = 59.33, z = 68.70, name = "맹독", level = 40, SortID = 116, DropItemIds = " ",IsEliteBoss = true,BossIconPath = "CBT_Map_Tag_018_001" },
 		},
 		[60039] = 
 		{
@@ -240,15 +225,15 @@ local MapInfo =
 		},
 		[60042] = 
 		{
-			[1] = { x = -159.59, y = 63.00, z = 210.36, name = "과격한 카마이 전사", level = 43, SortID = 207, DropItemIds = " " },
+			[1] = { x = -158.37, y = 65.66, z = 217.90, name = "과격한 카마이 전사", level = 43, SortID = 207, DropItemIds = " " },
 		},
 		[60043] = 
 		{
-			[1] = { x = -159.44, y = 62.55, z = 207.90, name = "과격한 카마이 전사", level = 43, SortID = 208, DropItemIds = " " },
+			[1] = { x = -160.02, y = 64.67, z = 215.73, name = "과격한 카마이 전사", level = 43, SortID = 208, DropItemIds = " " },
 		},
 		[60044] = 
 		{
-			[1] = { x = -160.27, y = 61.94, z = 204.06, name = "과격한 카마이 전사", level = 43, SortID = 209, DropItemIds = " " },
+			[1] = { x = -160.78, y = 64.63, z = 215.71, name = "과격한 카마이 전사", level = 43, SortID = 209, DropItemIds = " " },
 		},
 		[60050] = 
 		{
@@ -274,7 +259,7 @@ local MapInfo =
 		},
 		[3029] = 
 		{
-			[1] = { x = 169.66, y = 50.64, z = 256.11, name = "남작", SortID = 5 },
+			[1] = { x = 169.66, y = 50.64, z = 256.11, name = "레인저", SortID = 5 },
 		},
 		[3067] = 
 		{
@@ -329,15 +314,18 @@ local MapInfo =
 		},
 		[3004] = 
 		{
-			[1] = { x = 130.56, y = 51.87, z = 205.06, name = "엘프 잡화상인", IsCanFind = 1, IconPath = "Map_Img_Shop", Describe = "잡화상인", SortID = 26 },
-			[2] = { x = 61.36, y = 66.04, z = 102.42, name = "엘프 잡화상인", SortID = 28 },
-			[3] = { x = 80.96, y = 59.52, z = 12.49, name = "엘프 잡화상인", SortID = 29 },
-			[4] = { x = -250.83, y = 52.94, z = 218.56, name = "엘프 잡화상인", SortID = 141 },
-			[5] = { x = -38.59, y = 30.96, z = -131.11, name = "엘프 잡화상인", SortID = 146 },
+			[1] = { x = 130.56, y = 51.87, z = 205.06, name = "엘프 잡화 상인", IsCanFind = 1, IconPath = "Map_Img_Shop", Describe = "잡화 상인", SortID = 26 },
 		},
 		[3062] = 
 		{
-			[1] = { x = 192.08, y = 52.42, z = 193.23, name = "여관 여주인", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "여관 여주인", SortID = 27, FunctionName = "명성" },
+			[1] = { x = 192.08, y = 52.42, z = 193.23, name = "여관 주인", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "여관 주인", SortID = 27, FunctionName = "명성" },
+		},
+		[3080] = 
+		{
+			[1] = { x = 61.36, y = 66.03, z = 102.42, name = "엘프 잡화 상인", FunctionName = " " },
+			[2] = { x = 80.96, y = 59.41, z = 12.49, name = "엘프 잡화 상인", FunctionName = " " },
+			[3] = { x = -250.83, y = 52.94, z = 218.56, name = "엘프 잡화 상인", FunctionName = " " },
+			[4] = { x = -38.59, y = 31.23, z = -131.11, name = "엘프 잡화 상인", FunctionName = " " },
 		},
 		[3011] = 
 		{
@@ -427,17 +415,17 @@ local MapInfo =
 		},
 		[3126] = 
 		{
-			[1] = { x = -191.53, y = 25.66, z = -212.04, name = "프레디아 로한", SortID = 75 },
+			[1] = { x = -202.54, y = 28.57, z = -212.85, name = "프레디아 로한", SortID = 75 },
 		},
 		[3127] = 
 		{
-			[1] = { x = -183.58, y = 24.73, z = -211.68, name = "엘프군 병사", IconPath = "Common_Npc_013", SortID = 76 },
-			[2] = { x = -154.00, y = 27.19, z = -233.10, name = "엘프군 병사", SortID = 77 },
-			[3] = { x = -156.00, y = 20.29, z = -202.60, name = "엘프군 병사", SortID = 78 },
+			[1] = { x = -181.80, y = 24.73, z = -211.70, name = "엘프군 병사", SortID = 76 },
+			[2] = { x = -195.33, y = 27.93, z = -216.14, name = "엘프군 병사", SortID = 77 },
+			[3] = { x = -183.35, y = 30.19, z = -226.47, name = "엘프군 병사", SortID = 78 },
 		},
 		[3140] = 
 		{
-			[1] = { x = -32.20, y = 30.73, z = -121.95, name = "여행자", SortID = 80 },
+			[1] = { x = -32.35, y = 30.73, z = -121.95, name = "여행자", SortID = 80 },
 		},
 		[3141] = 
 		{
@@ -469,8 +457,8 @@ local MapInfo =
 		},
 		[3281] = 
 		{
-			[1] = { x = -188.44, y = 24.34, z = -201.31, name = "마법 나무인간", SortID = 112, FunctionName = " " },
-			[2] = { x = -188.38, y = 24.42, z = -204.53, name = "마법 나무인간", SortID = 113, FunctionName = " " },
+			[1] = { x = -188.44, y = 24.34, z = -201.31, name = "마법 나무 인간", SortID = 112, FunctionName = " " },
+			[2] = { x = -188.38, y = 24.42, z = -204.53, name = "마법 나무 인간", SortID = 113, FunctionName = " " },
 		},
 		[3304] = 
 		{
@@ -526,77 +514,77 @@ local MapInfo =
 		},
 		[3329] = 
 		{
-			[1] = { x = -76.84, y = 65.70, z = 68.69, name = "受伤的卡玛伊战士", FunctionName = " " },
+			[1] = { x = -76.84, y = 65.70, z = 68.69, name = "카마이 부상자", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "카마이 부상자", FunctionName = "명성" },
 		},
 		[3330] = 
 		{
-			[1] = { x = -77.96, y = 65.70, z = 65.98, name = "受伤的卡玛伊战士", FunctionName = " " },
+			[1] = { x = -77.96, y = 64.89, z = 65.98, name = "카마이 부상자", FunctionName = " " },
 		},
 		[3331] = 
 		{
-			[1] = { x = -124.73, y = 63.54, z = 121.96, name = "受伤的卡玛伊战士", FunctionName = " " },
+			[1] = { x = -124.73, y = 63.54, z = 121.96, name = "카마이 부상자", FunctionName = " " },
 		},
 	},
 	Region = 
 	{
 		[1] = 
 		{
-			[281] = { x = 168.49, y = 49.24, z = 280.31, xA = -182.91, yA = 43.74, zA = -175.83, name = "传送区域-霍加斯", worldId = 150, PkMode = 0 },
-			[282] = { x = -66.15, y = 22.66, z = -265.33, xA = -6.61, yA = -0.79, zA = 217.78, name = "传送区域-尔雷曼西亚", worldId = 160, PkMode = 0 },
-			[283] = { x = -208.59, y = 33.22, z = -222.10, xA = 249.42, yA = 36.16, zA = -185.28, name = "传送区域-埃塞尼亚西", worldId = 180, PkMode = 0 },
+			[281] = { x = 168.49, y = 49.24, z = 280.31, xA = -182.91, yA = 43.74, zA = -175.83, name = "传送区域-霍加斯", worldId = 150, IsCanFind = 1, Describe = "호가스 북부", PkMode = 0 },
+			[282] = { x = -66.15, y = 22.66, z = -265.33, xA = -6.61, yA = -0.79, zA = 217.78, name = "传送区域-尔雷曼西亚", worldId = 160, IsCanFind = 1, Describe = "알레만시아", PkMode = 0 },
+			[283] = { x = -221.47, y = 33.22, z = -222.59, xA = 249.42, yA = 36.16, zA = -185.28, name = "传送区域-埃塞尼亚西", worldId = 180, IsCanFind = 1, Describe = "에세니아 서부", PkMode = 0 },
 		},
 		[2] = 
 		{
-			[284] = { x = 163.95, y = 56.41, z = 204.52, name = "경쾌한 노래의 항구", isShowName = true, worldId = 0, PkMode = 1, EnvironmentMusic = "Zone_Ambience/Ambience/Town" },
-			[285] = { x = 48.94, y = 63.51, z = 28.95, name = "타란로스 요새", isShowName = true, worldId = 0, PkMode = 1, EnvironmentMusic = "Zone_Ambience/Ambience/Military" },
-			[286] = { x = -178.08, y = 69.80, z = 156.68, name = "카마이 마을", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 1 },
-			[287] = { x = -43.66, y = 39.58, z = -101.40, name = "단물 캠프", isShowName = true, worldId = 0, PkMode = 1 },
+			[284] = { x = 163.95, y = 56.41, z = 204.52, name = "경쾌한 노래의 항구", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Town" },
+			[285] = { x = 48.94, y = 63.51, z = 28.95, name = "타란로스 요새", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Military" },
+			[286] = { x = -178.08, y = 69.80, z = 156.68, name = "카마이 마을", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 0 },
+			[287] = { x = -43.66, y = 39.58, z = -101.40, name = "단물 캠프", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 0 },
 			[288] = { x = -198.88, y = 40.87, z = -138.18, name = "죽음의 왕좌", isShowName = true, worldId = 0, IsCanFind = 1, Describe = "죽음의 왕좌", PkMode = 0 },
 			[289] = { x = 167.93, y = 50.64, z = 259.33, name = "初次抵达区域", worldId = 0, PkMode = 0 },
 			[291] = { x = 182.98, y = 52.17, z = 187.59, name = "酒馆区域", worldId = 0, PkMode = 0 },
-			[294] = { x = -105.91, y = 65.34, z = 105.48, name = "엘프 유적", worldId = 0, BackgroundMusic = "BGM_Map_4/Map_4/map_4_dunjeon_1", BattleMusic = "BGM_Map_4/Map_4/map_4_battle", PkMode = 0 },
+			[294] = { x = -105.91, y = 65.34, z = 105.48, name = "엘프 유적", worldId = 0, IsCanFind = 1, BackgroundMusic = "BGM_Map_4/Map_4/map_4_dunjeon_1", BattleMusic = "BGM_Map_4/Map_4/map_4_battle", PkMode = 0 },
 			[295] = { x = 220.39, y = 57.11, z = 169.87, name = "花园区域", worldId = 0, PkMode = 0 },
 			[296] = { x = -161.13, y = 74.12, z = 147.70, name = "卡玛伊相位区域", worldId = 0, PkMode = 0 },
-			[312] = { x = 179.83, y = 72.52, z = 40.42, name = "곰들의 소굴", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 2, CameraDistance = 15 },
+			[312] = { x = 184.63, y = 72.52, z = 38.44, name = "곰들의 소굴", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 2, CameraDistance = 15 },
 			[317] = { x = -104.51, y = 51.07, z = -35.09, name = "潜伏者", worldId = 0, PkMode = 0 },
 			[318] = { x = -203.85, y = 56.64, z = 215.45, name = "探查-腐肉", worldId = 0, PkMode = 0 },
 			[319] = { x = -205.44, y = 41.57, z = -99.97, name = "生命印记", worldId = 0, PkMode = 0 },
 			[320] = { x = -16.57, y = 30.26, z = -111.39, name = "探查-箭只", worldId = 0, PkMode = 0 },
 			[321] = { x = -101.10, y = 54.21, z = -22.35, name = "버려진 주둔지", isShowName = true, worldId = 0, PkMode = 0 },
-			[322] = { x = -130.24, y = 17.63, z = -180.37, name = "沙行者支线任务到达", worldId = 0, PkMode = 0 },
+			[322] = { x = -130.24, y = 17.63, z = -180.37, name = "沙行者支线到达", worldId = 0, PkMode = 0 },
 			[324] = { x = -133.33, y = 18.96, z = -209.82, name = "支线沙行者刷新", worldId = 0, PkMode = 0 },
 			[325] = { x = -198.05, y = 25.98, z = -204.11, name = "支线塔里克刷新", worldId = 0, PkMode = 0 },
 			[326] = { x = 46.66, y = 66.87, z = 121.50, name = "公会任务-小营地鹰眼", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {53010} },
 			[327] = { x = -64.82, y = 31.58, z = -90.17, name = "公会任务-护送甜水绿洲【到达】", worldId = 0, PkMode = 0 },
 			[328] = { x = -30.88, y = 66.73, z = 220.55, name = "公会任务-探查小山谷", worldId = 0, PkMode = 0 },
 			[329] = { x = -69.10, y = 17.09, z = -219.86, name = "公会任务-护送长桥【到达】", worldId = 0, PkMode = 0 },
-			[330] = { x = -133.03, y = 16.68, z = -179.67, name = "神之视界采集", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {13039} },
+			[330] = { x = -133.03, y = 16.68, z = -179.67, name = "支线鹰眼科瑞森的日记", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {13039} },
 			[368] = { x = 35.21, y = 27.82, z = 52.89, name = "背景音乐-森林", worldId = 0, BackgroundMusic = "BGM_Map_4/Map_4/map_4_zone_1", PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Forest" },
 			[369] = { x = -153.79, y = 49.50, z = 112.78, name = "背景音乐-卡玛伊", worldId = 0, BackgroundMusic = "BGM_Map_4/Map_4/map_4_zone_3", PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Forest" },
 			[370] = { x = -160.20, y = 12.88, z = -108.33, name = "背景音乐-沙化地", worldId = 0, BackgroundMusic = "BGM_Map_4/Map_4/map_4_zone_2", PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Desert" },
 			[383] = { x = -42.49, y = 31.55, z = -75.22, name = "万物志鹰眼-神之眼08", worldId = 0, PkMode = 0 },
-			[384] = { x = 59.73, y = 66.03, z = 101.79, name = "猎熊营地【公共】", worldId = 0, IsCanFind = 1, PkMode = 1 },
-			[385] = { x = -110.53, y = 17.78, z = -227.90, name = "神龛复活点", worldId = 0, PkMode = 1 },
-			[464] = { x = -119.36, y = 76.60, z = 200.39, name = "神之单人-1", worldId = 0, PkMode = 0, IsCanHawkeye = true },
-			[465] = { x = 72.30, y = 88.02, z = 59.52, name = "神之单人-2", worldId = 0, PkMode = 0, IsCanHawkeye = true },
-			[466] = { x = -66.83, y = 55.90, z = -14.69, name = "神之单人-3", worldId = 0, PkMode = 0, IsCanHawkeye = true },
-			[467] = { x = -64.70, y = 24.39, z = -194.59, name = "神之单人-4", worldId = 0, PkMode = 0, IsCanHawkeye = true },
-			[468] = { x = -208.45, y = 34.82, z = -134.56, name = "神之单人-5", worldId = 0, PkMode = 0, IsCanHawkeye = true },
+			[384] = { x = 59.73, y = 66.03, z = 101.79, name = "猎熊营地", worldId = 0, IsCanFind = 1, PkMode = 0 },
+			[385] = { x = -110.53, y = 17.78, z = -227.90, name = "神龛复活点", worldId = 0, PkMode = 0 },
+			[464] = { x = -103.10, y = 74.53, z = 164.60, name = "神之单人-1-new1", worldId = 0, PkMode = 0, IsCanHawkeye = true },
+			[465] = { x = -13.00, y = 88.02, z = 15.60, name = "神之单人-2-new2", worldId = 0, PkMode = 0, IsCanHawkeye = true },
+			[466] = { x = -13.00, y = 88.02, z = 15.60, name = "神之单人-3-new2", worldId = 0, PkMode = 0, IsCanHawkeye = true },
+			[467] = { x = -60.70, y = 16.03, z = -169.50, name = "神之单人-4-new3", worldId = 0, PkMode = 0, IsCanHawkeye = true },
+			[468] = { x = -60.70, y = 16.03, z = -169.50, name = "神之单人-5-new3", worldId = 0, PkMode = 0, IsCanHawkeye = true },
 			[473] = { x = 71.38, y = 90.03, z = 59.56, name = "神之单人-商人1", worldId = 0, PkMode = 0, IsCanHawkeye = true },
 			[474] = { x = -221.87, y = 33.34, z = 194.14, name = "神之单人-商人2", worldId = 0, PkMode = 0, IsCanHawkeye = true },
-			[475] = { x = 25.17, y = 66.64, z = 155.70, name = "神之多人-1", worldId = 0, PkMode = 0, IsCanHawkeye = true },
-			[476] = { x = 22.65, y = 115.49, z = 153.32, name = "神之多人-2", worldId = 0, PkMode = 0, IsCanHawkeye = true },
-			[477] = { x = 24.23, y = 123.89, z = 156.55, name = "神之多人-3", worldId = 0, PkMode = 0, IsCanHawkeye = true },
-			[478] = { x = 12.69, y = 65.99, z = 164.87, name = "神之多人-4", worldId = 0, PkMode = 0, IsCanHawkeye = true },
-			[479] = { x = -91.70, y = 24.34, z = -206.10, name = "神之多人-5", worldId = 0, PkMode = 0, IsCanHawkeye = true },
-			[480] = { x = -91.70, y = 19.36, z = -206.10, name = "神之多人-6", worldId = 0, PkMode = 0, IsCanHawkeye = true },
-			[481] = { x = -91.70, y = 19.03, z = -206.10, name = "神之多人-7", worldId = 0, PkMode = 0, IsCanHawkeye = true },
-			[482] = { x = -95.43, y = 19.68, z = -203.77, name = "神之多人-8", worldId = 0, PkMode = 0, IsCanHawkeye = true },
+			[475] = { x = 27.97, y = 66.64, z = 141.24, name = "神之多人-1", worldId = 0, PkMode = 0, IsCanHawkeye = true },
+			[476] = { x = 25.16, y = 115.49, z = 144.76, name = "神之多人-2", worldId = 0, PkMode = 0, IsCanHawkeye = true },
+			[477] = { x = 26.59, y = 123.89, z = 152.56, name = "神之多人-3", worldId = 0, PkMode = 0, IsCanHawkeye = true },
+			[478] = { x = 27.44, y = 65.99, z = 151.75, name = "神之多人-4", worldId = 0, PkMode = 0, IsCanHawkeye = true },
+			[479] = { x = -124.56, y = 24.34, z = -188.25, name = "神之多人-5", worldId = 0, PkMode = 0, IsCanHawkeye = true },
+			[480] = { x = -124.11, y = 19.36, z = -188.31, name = "神之多人-6", worldId = 0, PkMode = 0, IsCanHawkeye = true },
+			[481] = { x = -118.98, y = 19.03, z = -174.28, name = "神之多人-4", worldId = 0, PkMode = 0, IsCanHawkeye = true },
+			[482] = { x = -126.46, y = 19.68, z = -180.05, name = "神之多人-8", worldId = 0, PkMode = 0, IsCanHawkeye = true },
 			[483] = { x = -19.09, y = 65.12, z = 220.12, name = "시조새 둥지", isShowName = true, worldId = 0, PkMode = 0 },
 			[484] = { x = -38.09, y = 75.81, z = 150.25, name = "경쾌한 노래의 항구 외곽", isShowName = true, worldId = 0, PkMode = 0 },
-			[485] = { x = -72.94, y = 17.63, z = -169.32, name = "영험의 사막", isShowName = true, worldId = 0, PkMode = 0 },
-			[567] = { x = -131.50, y = 63.82, z = 68.84, name = "엘프 유적", isShowName = true, worldId = 0, PkMode = 0 },
-			[568] = { x = -95.51, y = 66.88, z = 129.45, name = "엘프 유적", isShowName = true, worldId = 0, PkMode = 0 },
+			[485] = { x = -70.23, y = 17.63, z = -160.65, name = "영험의 사막", isShowName = true, worldId = 0, PkMode = 0 },
+			[567] = { x = -153.17, y = 63.82, z = -235.58, name = "영험의 사막", isShowName = true, worldId = 0, PkMode = 0 },
+			[568] = { x = -131.54, y = 66.88, z = 68.32, name = "엘프 유적", isShowName = true, worldId = 0, PkMode = 0 },
 			[569] = { x = -120.32, y = 78.68, z = 184.40, name = "声望神视-找母蛛", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {65106} },
 			[570] = { x = -151.52, y = 69.09, z = 227.00, name = "声望-前往卡玛伊村落", worldId = 0, PkMode = 0 },
 			[581] = { x = -97.60, y = 63.05, z = 87.28, name = "最后一战相位", worldId = 0, PkMode = 0 },
@@ -609,6 +597,8 @@ local MapInfo =
 			[589] = { x = -112.09, y = 45.36, z = -89.88, name = "声望-沙坑刷怪", worldId = 0, PkMode = 0 },
 			[590] = { x = -39.54, y = 60.45, z = 8.40, name = "声望-自然学家-护送1-消失", worldId = 0, PkMode = 0 },
 			[591] = { x = -48.06, y = 54.86, z = -24.57, name = "声望-自然学家-护送2-消失", worldId = 0, PkMode = 0 },
+			[592] = { x = -137.71, y = 73.24, z = -128.18, name = "pk区域", worldId = 0, PkMode = 4 },
+			[593] = { x = -115.18, y = 18.84, z = -228.30, name = "神龛复活点安全区", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 
@@ -747,7 +737,7 @@ local MapInfo =
 		},
 		[284] = 
 		{
-			[1] = { x = -181.23, y = 27.82, z = -221.96 },
+			[1] = { x = -173.71, y = 27.82, z = -221.96 },
 		},
 		[285] = 
 		{
@@ -767,7 +757,7 @@ local MapInfo =
 		},
 		[736] = 
 		{
-			[1] = { x = -181.23, y = 27.82, z = -221.96 },
+			[1] = { x = -173.71, y = 27.82, z = -221.96 },
 		},
 		[737] = 
 		{
@@ -787,7 +777,7 @@ local MapInfo =
 		},
 		[786] = 
 		{
-			[1] = { x = -181.23, y = 27.82, z = -221.96 },
+			[1] = { x = -173.71, y = 27.82, z = -221.96 },
 		},
 		[787] = 
 		{
@@ -866,7 +856,7 @@ local MapInfo =
 		},
 		[42] = 
 		{
-			x = -98.72, y = 14.50, z = -209.91, Type = 1,
+			x = -90.39, y = 24.39, z = -139.98, Type = 1,
 			Tid = 
 			{
 				[13019] = 5,
@@ -930,7 +920,7 @@ local MapInfo =
 		},
 		[101] = 
 		{
-			x = -78.10, y = 18.58, z = -189.30, Type = 1,
+			x = -77.90, y = 18.58, z = -200.20, Type = 1,
 			Tid = 
 			{
 				[13051] = 25,
@@ -1008,7 +998,7 @@ local MapInfo =
 		},
 		[129] = 
 		{
-			x = 144.37, y = 71.46, z = 33.62, Type = 1,
+			x = 119.00, y = 71.46, z = 96.90, Type = 1,
 			Tid = 
 			{
 				[13058] = 2,
@@ -1072,62 +1062,52 @@ local MapInfo =
 		},
 		[156] = 
 		{
-			x = -130.10, y = 72.10, z = 206.60, Type = 1,
+			x = -130.44, y = 74.55, z = 208.22, Type = 1,
 			Tid = 
 			{
-				[39000] = 4,
-				[39001] = 4,
-				[39002] = 4,
 				[39003] = 1,
-				[39004] = 4,
+				[39005] = 4,
+				[39006] = 4,
 			},
 		},
 		[153] = 
 		{
-			x = 56.40, y = 60.44, z = 10.90, Type = 1,
+			x = 56.40, y = 60.50, z = 10.90, Type = 1,
 			Tid = 
 			{
-				[39000] = 4,
-				[39001] = 4,
-				[39002] = 4,
 				[39003] = 1,
-				[39004] = 4,
+				[39005] = 4,
+				[39006] = 4,
 			},
 		},
 		[157] = 
 		{
-			x = -90.50, y = 60.40, z = -25.60, Type = 1,
+			x = -90.50, y = 51.39, z = -25.60, Type = 1,
 			Tid = 
 			{
-				[39000] = 4,
-				[39001] = 4,
-				[39002] = 4,
 				[39003] = 1,
-				[39004] = 4,
+				[39005] = 4,
+				[39006] = 4,
 			},
 		},
 		[159] = 
 		{
-			x = -25.20, y = 18.00, z = -212.30, Type = 1,
+			x = -28.43, y = 18.26, z = -211.38, Type = 1,
 			Tid = 
 			{
-				[39000] = 4,
-				[39001] = 4,
-				[39002] = 4,
 				[39003] = 1,
-				[39004] = 4,
+				[39005] = 4,
+				[39006] = 4,
 			},
 		},
 		[162] = 
 		{
-			x = -201.40, y = 26.40, z = -172.00, Type = 1,
+			x = -201.40, y = 28.18, z = -172.00, Type = 1,
 			Tid = 
 			{
-				[39000] = 4,
-				[39001] = 4,
-				[39002] = 4,
 				[39003] = 1,
-				[39004] = 4,
+				[39005] = 4,
+				[39006] = 4,
 			},
 		},
 		[163] = 
@@ -1188,7 +1168,7 @@ local MapInfo =
 		},
 		[170] = 
 		{
-			x = -165.20, y = 20.76, z = -194.40, Type = 1,
+			x = -165.20, y = 20.76, z = -210.00, Type = 1,
 			Tid = 
 			{
 				[39301] = 1,
@@ -1226,7 +1206,7 @@ local MapInfo =
 		},
 		[181] = 
 		{
-			x = -180.97, y = 27.79, z = -221.97, Type = 1,
+			x = -173.89, y = 27.79, z = -221.97, Type = 1,
 			Tid = 
 			{
 				[35233] = 1,
@@ -1276,7 +1256,7 @@ local MapInfo =
 		},
 		[186] = 
 		{
-			x = -180.97, y = 27.79, z = -221.97, Type = 1,
+			x = -173.80, y = 27.79, z = -221.97, Type = 1,
 			Tid = 
 			{
 				[35248] = 1,
@@ -1323,7 +1303,7 @@ local MapInfo =
 		},
 		[193] = 
 		{
-			x = -180.97, y = 27.79, z = -221.97, Type = 1,
+			x = -173.75, y = 27.79, z = -221.97, Type = 1,
 			Tid = 
 			{
 				[35260] = 1,
@@ -1341,7 +1321,7 @@ local MapInfo =
 		},
 		[114] = 
 		{
-			x = -131.06, y = 59.32, z = 68.59, Type = 1,
+			x = -153.20, y = 59.32, z = -235.73, Type = 1,
 			Tid = 
 			{
 				[34209] = 1,
@@ -1349,7 +1329,7 @@ local MapInfo =
 		},
 		[116] = 
 		{
-			x = -95.45, y = 62.68, z = 129.38, Type = 1,
+			x = -132.10, y = 59.33, z = 68.70, Type = 1,
 			Tid = 
 			{
 				[34208] = 1,
@@ -1381,7 +1361,7 @@ local MapInfo =
 		},
 		[207] = 
 		{
-			x = -159.59, y = 63.00, z = 210.36, Type = 1,
+			x = -158.37, y = 65.66, z = 217.90, Type = 1,
 			Tid = 
 			{
 				[60042] = 3,
@@ -1389,7 +1369,7 @@ local MapInfo =
 		},
 		[208] = 
 		{
-			x = -159.44, y = 62.55, z = 207.90, Type = 1,
+			x = -160.02, y = 64.67, z = 215.73, Type = 1,
 			Tid = 
 			{
 				[60043] = 4,
@@ -1397,7 +1377,7 @@ local MapInfo =
 		},
 		[209] = 
 		{
-			x = -160.27, y = 61.94, z = 204.06, Type = 1,
+			x = -160.78, y = 64.63, z = 215.71, Type = 1,
 			Tid = 
 			{
 				[60044] = 5,
@@ -1645,18 +1625,18 @@ local MapInfo =
 		},
 		[28] = 
 		{
-			x = 61.36, y = 66.04, z = 102.42, Type = 2,
+			x = 61.36, y = 66.03, z = 102.42, Type = 2,
 			Tid = 
 			{
-				[3004] = 1,
+				[3080] = 1,
 			},
 		},
 		[29] = 
 		{
-			x = 80.96, y = 59.52, z = 12.49, Type = 2,
+			x = 80.96, y = 59.41, z = 12.49, Type = 2,
 			Tid = 
 			{
-				[3004] = 1,
+				[3080] = 1,
 			},
 		},
 		[30] = 
@@ -1887,7 +1867,7 @@ local MapInfo =
 		},
 		[75] = 
 		{
-			x = -191.53, y = 25.66, z = -212.04, Type = 2,
+			x = -202.54, y = 28.57, z = -212.85, Type = 2,
 			Tid = 
 			{
 				[3126] = 1,
@@ -1895,7 +1875,7 @@ local MapInfo =
 		},
 		[76] = 
 		{
-			x = -183.58, y = 24.73, z = -211.68, Type = 2,
+			x = -181.80, y = 24.73, z = -211.70, Type = 2,
 			Tid = 
 			{
 				[3127] = 8,
@@ -1903,7 +1883,7 @@ local MapInfo =
 		},
 		[77] = 
 		{
-			x = -154.00, y = 27.19, z = -233.10, Type = 2,
+			x = -195.33, y = 27.93, z = -216.14, Type = 2,
 			Tid = 
 			{
 				[3127] = 8,
@@ -1911,7 +1891,7 @@ local MapInfo =
 		},
 		[78] = 
 		{
-			x = -156.00, y = 20.29, z = -202.60, Type = 2,
+			x = -183.35, y = 30.19, z = -226.47, Type = 2,
 			Tid = 
 			{
 				[3127] = 8,
@@ -1919,7 +1899,7 @@ local MapInfo =
 		},
 		[80] = 
 		{
-			x = -32.20, y = 30.73, z = -121.95, Type = 2,
+			x = -32.35, y = 30.73, z = -121.95, Type = 2,
 			Tid = 
 			{
 				[3140] = 1,
@@ -1954,15 +1934,15 @@ local MapInfo =
 			x = -250.83, y = 52.94, z = 218.56, Type = 2,
 			Tid = 
 			{
-				[3004] = 1,
+				[3080] = 1,
 			},
 		},
 		[146] = 
 		{
-			x = -38.59, y = 30.96, z = -131.11, Type = 2,
+			x = -38.59, y = 31.23, z = -131.11, Type = 2,
 			Tid = 
 			{
-				[3004] = 1,
+				[3080] = 1,
 			},
 		},
 		[151] = 
@@ -2127,7 +2107,7 @@ local MapInfo =
 		},
 		[222] = 
 		{
-			x = -77.96, y = 65.70, z = 65.98, Type = 2,
+			x = -77.96, y = 64.89, z = 65.98, Type = 2,
 			Tid = 
 			{
 				[3330] = 1,
@@ -2479,7 +2459,7 @@ local MapInfo =
 		},
 		[182] = 
 		{
-			x = -181.23, y = 27.82, z = -221.96, Type = 6,
+			x = -173.71, y = 27.82, z = -221.96, Type = 6,
 			Tid = 
 			{
 				[284] = 1,
@@ -2519,7 +2499,7 @@ local MapInfo =
 		},
 		[196] = 
 		{
-			x = -181.23, y = 27.82, z = -221.96, Type = 6,
+			x = -173.71, y = 27.82, z = -221.96, Type = 6,
 			Tid = 
 			{
 				[736] = 1,
@@ -2559,7 +2539,7 @@ local MapInfo =
 		},
 		[203] = 
 		{
-			x = -181.23, y = 27.82, z = -221.96, Type = 6,
+			x = -173.71, y = 27.82, z = -221.96, Type = 6,
 			Tid = 
 			{
 				[786] = 1,

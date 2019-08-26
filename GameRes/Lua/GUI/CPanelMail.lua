@@ -4,7 +4,7 @@ local CPanelBase = require 'GUI.CPanelBase'
 local CEmailMan = Lplus.ForwardDeclare("CEmailMan").Instance()
 local CElementData = require "Data.CElementData"
 local RewardType = require"PB.data".RewardType
-
+local CPageBag = require"GUI.CPageBag"
 local CPanelMail = Lplus.Extend(CPanelBase, 'CPanelMail')
 local def = CPanelMail.define
  
@@ -21,6 +21,10 @@ def.field('userdata')._Frame_Right = nil
 def.field('userdata')._Frame_Bottom = nil
 def.field('userdata')._Btn_CheckAll = nil
 def.field('userdata')._Btn_CleanALL = nil
+
+def.field('userdata')._Frame_BagFull = nil
+def.field('userdata')._Lab_Msg= nil
+
 def.field('table')._EmailData = BlankTable   --邮件数据
 def.field('table')._Reward = BlankTable   --邮件奖励
 
@@ -39,7 +43,7 @@ def.static('=>', CPanelMail).Instance = function ()
 	if not instance then
         instance = CPanelMail()
         instance._PrefabPath = PATH.UI_Mail
-        instance._PanelCloseType = EnumDef.PanelCloseType.ClickEmpty
+        instance._PanelCloseType = EnumDef.PanelCloseType.None
         instance._DestroyOnHide = true
 
         instance:SetupSortingParam()
@@ -66,7 +70,8 @@ def.override().OnCreate = function(self)
     self._Frame_LeftList = self:GetUIObject('Frame_LeftList')
     self._SliderStore = self:GetUIObject("SliderStore"):GetComponent(ClassType.Slider)
     self._LabStore = self:GetUIObject("Lab_Store")
-    game:SendC2SRankRewardGet()
+    self._Frame_BagFull = self:GetUIObject("Frame_BagFull")
+    self._Lab_Msg = self:GetUIObject("Lab_Message")
     self._SelectIndex = 0
     self._IsSelect = false
     self._EmailData = {}
@@ -84,10 +89,12 @@ end
 
 def.override("dynamic").OnData = function(self,data)     
     CSoundMan.Instance():Play2DAudio(PATH.GUISound_Open_Mail, 0)
+    local PBUtil = require "PB.PBUtil"
+    PBUtil.RequestRankReward()
 end
 
 local LessPred = function (email1, email2) --按照时间和是否已读排序
-	if email1 ~= nil and email2 == nil then
+    if email1 ~= nil and email2 == nil then
         return true
     elseif email1 == nil and email2 ~= nil then
         return false
@@ -99,15 +106,23 @@ local LessPred = function (email1, email2) --按照时间和是否已读排序
     if email1._IsRead and not email2._IsRead then    -- 未阅读 > 已阅读。  
         return false
     end
-    if email1._IsRead and email2._IsRead then 
+    if email1._IsRead and email2._IsRead then
+        if (email1._IsHaveReward and email1._IsDraw) and not email2._IsHaveReward then -- 有附件已领取 > 无附件
+            return email1._CreateTime > email2._CreateTime
+        end
+        if not email1._IsHaveReward and (email2._IsHaveReward and email2._IsDraw) then
+            return email1._CreateTime > email2._CreateTime
+        end
+
         if email1._IsHaveReward and not email2._IsHaveReward then -- 有附件 > 无附件
             return true
         end
         if not email1._IsHaveReward and email2._IsHaveReward  then  -- 有附件 > 无附件 
             return false
         end
+
         if email2._IsHaveReward and email1._IsHaveReward then  -- 有附件的 未领取 > 已领取
-            if not email1._IsDraw and  email2._IsDraw then 
+            if not email1._IsDraw and email2._IsDraw then 
                 return true
             end
             if  email1._IsDraw and not email2._IsDraw then 
@@ -115,7 +130,7 @@ local LessPred = function (email1, email2) --按照时间和是否已读排序
             end
         end
     end
-	if email1._CreateTime ~= email2._CreateTime then  --  时间早 > 时间晚
+    if email1._CreateTime ~= email2._CreateTime then  --  时间早 > 时间晚
 		return email1._CreateTime > email2._CreateTime
 	end
 
@@ -147,11 +162,7 @@ def.method().OnEmailList = function(self)
         GameUtil.SetButtonInteractable(self._Btn_Check, true)
         self._Frame_Right:SetActive(true)
         self._Frame_Bottom:SetActive(true)
-        self._Frame_LeftList:SetActive(true)
-        if self._EmailCreateTime == 0 then   --获取特殊配置中邮件的有效时间（天）
-            self._EmailCreateTime = tonumber(CElementData.GetSpecialIdTemplate(self._EmailCreateTimeId).Value)
-            self._EmailCreateTime = self._EmailCreateTime * 86400
-        end                    
+        self._Frame_LeftList:SetActive(true)                          
     end
     -- self._Btn_CleanALL:SetActive(true)
     -- self._Btn_CheckAll:SetActive(true)
@@ -180,6 +191,14 @@ def.method().OnEmailList = function(self)
         local Img_ItemIcon = uiTemplate:GetControl(3)
         --默认读取第一封邮件            
         self._SelectIndex = 1
+        if self._EmailCreateTime == 0 then   --获取特殊配置中邮件的有效时间（天）
+            local EmailDuration = self._EmailData[self._SelectIndex]._DurationSecond 
+            if EmailDuration ~= nil and EmailDuration > 0 then
+                self._EmailCreateTime = EmailDuration
+            else
+                self._EmailCreateTime = tonumber(CElementData.GetSpecialIdTemplate(self._EmailCreateTimeId).Value)  * 86400
+            end
+        end  
         Img_D:SetActive(true)
         self._BeforeSelectItem = item
         self._BeforeSelectIndex = self._SelectIndex
@@ -209,13 +228,45 @@ def.override('string').OnClick = function(self, id)
         local title, str, closeType = StringTable.GetMsg(117)
         MsgBox.ShowMsgBox(str,title, closeType, MsgBoxType.MBBT_OKCANCEL,callback) 
     elseif id == 'Btn_CheckAll' then    
-        if CEmailMan:OnEmailRedPoint() then
-            CEmailMan:OnC2SEmailBatchDrawReward()
+        if not CPageBag.Instance():IsBagFull() then 
+            self._Frame_BagFull:SetActive(false)
+            if CEmailMan:OnEmailRedPoint() then
+                CEmailMan:OnC2SEmailBatchDrawReward()
+            end
+        else
+            self._Frame_BagFull:SetActive(true)     
+            if self._Lab_Msg ~= nil then
+                GUI.SetText(self._Lab_Msg, StringTable.Get(15009))
+            end
         end
-    elseif id == 'Btn_Check' then    
-        CEmailMan:OnC2SEmailDrawReward(self._EmailData[self._SelectIndex]._EmailID)
+        
+    elseif id == 'Btn_Check' then   
+        if not CPageBag.Instance():IsBagFull() then 
+            self._Frame_BagFull:SetActive(false)
+            CEmailMan:OnC2SEmailDrawReward(self._EmailData[self._SelectIndex]._EmailID)
+        else
+            self._Frame_BagFull:SetActive(true)     
+            if self._Lab_Msg ~= nil then
+                GUI.SetText(self._Lab_Msg, StringTable.Get(15009))
+            end
+        end 
+        
     elseif id == 'Btn_Clean' then
         CEmailMan:OnC2SEmailRemove(self._EmailData[self._SelectIndex]._EmailID)
+    elseif id == 'Btn_CloseNotice' then
+        self._Frame_BagFull:SetActive(false)
+    elseif id == 'Btn_GoMall' then
+        self._Frame_BagFull:SetActive(false)
+        game._GUIMan:Open("CPanelMall", 24)	-- 其他商店
+    elseif id == 'Btn_GoBag' then
+        self._Frame_BagFull:SetActive(false)
+	    local CPanelRoleInfo = require"GUI.CPanelRoleInfo"
+	    local panelData = 
+            {
+                PageType = CPanelRoleInfo.PageType.BAG,
+                IsByNpcOpenStorage = false,
+            }
+        game._GUIMan:Open("CPanelRoleInfo",panelData) 
     end
 end
 
@@ -232,20 +283,35 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         local Img_Bg = uiTemplate:GetControl(0)
         local Img_Read = uiTemplate:GetControl(8)
         local Img_ItemIcon_Open = uiTemplate:GetControl(9)
+
+
+        local EmailDuration = self._EmailData[emailIndex]._DurationSecond 
+        if EmailDuration ~= nil and EmailDuration > 0 then
+            self._EmailCreateTime = EmailDuration
+        else
+            self._EmailCreateTime = tonumber(CElementData.GetSpecialIdTemplate(self._EmailCreateTimeId).Value)  * 86400
+        end
+
+
         local strTime = os.date("%Y-%m-%d", self._EmailData[emailIndex]._CreateTime)
         local createTime = self._EmailCreateTime - (GameUtil.GetClientTime() / 1000 - self._EmailData[emailIndex]._CreateTime)
         if createTime > 86400 then
             createTime = math.round(createTime / 86400) .. StringTable.Get(1003)
         else
             -- createTime = StringTable.Get(15001)            
-            local time = os.date("%Y/%m/%d %H:%M:%S", createTime)
+            local time = GUITools.FormatTimeFromSecondsToZero(true, createTime)
             if time ~= nil then
-                local year, mon, mday, hour, min, sec = string.match(time, "(%d+)/(%d+)/(%d+) (%d+):(%d+):(%d+)")
-                createTime = hour..StringTable.Get(1002).. min ..StringTable.Get(1001)
+                local hour, min, sec = string.match(time, "(%d+):(%d+):(%d+)")
+                if hour ~= "00" then
+                    createTime = hour..StringTable.Get(1002).. min ..StringTable.Get(1001)
+                else
+                    createTime = min ..StringTable.Get(1001)
+                end
             else
                 createTime = StringTable.Get(15001) 
             end
         end
+        -- warn("lidaming aaaa email time ===>>>", emailIndex, self._EmailCreateTime, createTime)
         if self._EmailData[emailIndex]._IsRead == true then            
             Img_ItemIcon_Open:SetActive(true)      
             -- Img_ItemIcon:SetActive(false)     
@@ -298,28 +364,45 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
 
 
     elseif id == 'List_Reward' then  --邮件内容奖励列表
-        local itemData = nil
         local frame_icon = GUITools.GetChild(item, 0)
         local uiTemplate = frame_icon:GetComponent(ClassType.UITemplate)
         local Img_Done = uiTemplate:GetControl(5)
         if self._Reward[index + 1 ].Id ~= nil then
-            -- itemData = CElementData.GetTemplate("Item", self._Reward[index + 1].Id)
             if self._Reward[index + 1 ].Type == RewardType.Item then 
-                IconTools.InitItemIconNew(frame_icon, self._Reward[index + 1].Id, { [EItemIconTag.Number] = self._Reward[index + 1].Num })
+                IconTools.InitItemIconNew(frame_icon, self._Reward[index + 1].Id, 
+                { 
+                    [EItemIconTag.Number] = self._Reward[index + 1].Num,
+                })
             elseif self._Reward[index + 1 ].Type == RewardType.Resource then 
                 IconTools.InitTokenMoneyIcon(frame_icon, self._Reward[index + 1 ].Id, self._Reward[index + 1].Num)
             end
 
         elseif self._Reward[index + 1 ].Tid ~= nil then
-            -- itemData = CElementData.GetTemplate("Item", self._Reward[index + 1].Tid)   
-            IconTools.InitItemIconNew(frame_icon, self._Reward[index + 1].Tid, { [EItemIconTag.Number] = self._Reward[index + 1].Count })
+
+            local grade = -1 -- 装备类型的显示评分
+            local itemTemplate = CElementData.GetItemTemplate(self._Reward[index + 1].Tid)
+            if itemTemplate ~= nil then
+                local EItemType = require "PB.Template".Item.EItemType
+                if itemTemplate.ItemType == EItemType.Equipment then
+                    grade = self._Reward[index + 1].FightProperty.star
+                end
+            end
+ 
+            IconTools.InitItemIconNew(frame_icon, self._Reward[index + 1].Tid, 
+            { 
+                [EItemIconTag.Number] = self._Reward[index + 1].Count,
+                [EItemIconTag.Grade] = grade,
+            })
         
         -- 走奖励模板
         elseif self._Reward[index + 1].IsTokenMoney ~= nil then 
             if self._Reward[index + 1].IsTokenMoney then
                 IconTools.InitTokenMoneyIcon(frame_icon, self._Reward[index + 1].Data.Id, self._Reward[index + 1].Data.Count)
             else
-                IconTools.InitItemIconNew(frame_icon, self._Reward[index + 1].Data.Id, { [EItemIconTag.Number] = self._Reward[index + 1].Data.Count })
+                IconTools.InitItemIconNew(frame_icon, self._Reward[index + 1].Data.Id,
+                {
+                    [EItemIconTag.Number] = self._Reward[index + 1].Data.Count,
+                })
             end
         else 
             warn("itemData have lost!!!")      
@@ -374,8 +457,9 @@ def.override('userdata', 'string', 'number').OnSelectItem = function(self, item,
             end
         elseif self._Reward[index + 1 ].Tid ~= nil then
             --CItemTipMan.ShowItemTips(self._Reward[index + 1 ].Tid, TipsPopFrom.OTHER_PANEL,item,TipPosition.FIX_POSITION)
-            print("SellCoolDownExpired", self._Reward.SellCoolDownExpired)
-            CItemTipMan.ShowItemTips(self._Reward[index + 1 ], TipsPopFrom.OTHER_PANEL,item,TipPosition.FIX_POSITION)
+            --print("SellCoolDownExpired", self._Reward.SellCoolDownExpired)
+            CItemTipMan.ShowItemDBTips(self._Reward[index + 1 ], TipsPopFrom.ITEM_DBPANEL)
+            -- CItemTipMan.ShowItemTips(self._Reward[index + 1 ], TipsPopFrom.OTHER_PANEL,item,TipPosition.FIX_POSITION)
         elseif self._Reward[index + 1].IsTokenMoney ~= nil then 
             if not self._Reward[index + 1].IsTokenMoney then 
                 CItemTipMan.ShowItemTips(self._Reward[index + 1 ].Data.Id, TipsPopFrom.OTHER_PANEL,item,TipPosition.FIX_POSITION)

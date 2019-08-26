@@ -167,6 +167,10 @@ def.method().UpdateShow = function(self)
             local curValue = game._AcheivementMan:GetTargetAchievementCurrent(advancedInfo.Tid)
             local reachParm = string.split(advancedInfo.ReachParm, "*")
             reachParm = reachParm[1]
+            --服务器可能会多计数。。所以前端限制一下以免出现超出进度的情况
+            if advancedInfo.isFinish then
+                curValue = reachParm
+            end
             GUI.SetText(btnInfo.Progress, curValue .. "/" .. reachParm)
 
             local item_data = GUITools.GetRewardList(advancedInfo.RewardId, true)

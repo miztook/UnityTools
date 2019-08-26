@@ -27,6 +27,8 @@ def.field("userdata")._BtnDonate = nil
 def.field("userdata")._ImgBtnDonate = nil 
 def.field("userdata")._ImgPoint = nil 
 def.field("userdata")._BtnBonusTip = nil 
+def.field("userdata")._LabSalaryDesTip = nil 
+def.field("userdata")._LabBottomTip = nil 
 -- 上次选中的Image
 def.field("userdata")._LastSelected = nil
 def.field("table")._Btn_Bonus = BlankTable
@@ -55,11 +57,11 @@ end
 def.method().Init = function(self)
 	if #self._Guild_Salary > 0 then return end
 
-	local allTid1 = GameUtil.GetAllTid("GuildSalary")
+	local allTid1 = CElementData.GetAllTid("GuildSalary")
 	for i = 1, #allTid1 do
 		self._Guild_Salary[#self._Guild_Salary + 1] = CElementData.GetTemplate("GuildSalary", allTid1[i])
 	end
-	local allTid2 = GameUtil.GetAllTid("GuildRewardPoints")
+	local allTid2 = CElementData.GetAllTid("GuildRewardPoints")
 	for i = 1, #allTid2 do
 		self._Guild_Reward_Points[#self._Guild_Reward_Points + 1] = CElementData.GetTemplate("GuildRewardPoints", allTid2[i])
 	end
@@ -81,6 +83,11 @@ def.method().Init = function(self)
 	self._BtnDonate = parent:GetUIObject("Btn_Bonus_Donate")
 	self._ImgBtnDonate = parent:GetUIObject("Img_Bonus_Donate")
 	self._BtnBonusTip = parent:GetUIObject("Btn_BonusTip")
+	self._LabSalaryDesTip = parent:GetUIObject("Week_Salary_Des0")
+	self._LabBottomTip = parent:GetUIObject("Lab_BottomTip")
+	GUI.SetText(self._LabSalaryDesTip,StringTable.Get(8137))
+	GUI.SetText(self._LabBottomTip,StringTable.Get(8138))
+
 	for i = 1, 5 do
 		self._Btn_Bonus[#self._Btn_Bonus + 1] = parent:GetUIObject("Btn_Bonus_" .. i)
 	end
@@ -125,7 +132,7 @@ def.method().Update = function(self)
 		self._ImgSalary:SetActive(false)
 		self._LabSalary:SetActive(false)
 		self._LabSalaryRemind:SetActive(true)
-		GUI.SetText(self._LabSalaryRemind,string.format(StringTable.Get(8130),self._Guild_Salary[index].GuildPoints))
+		GUI.SetText(self._LabSalaryRemind,string.format(StringTable.Get(8130),GUITools.FormatNumber( tonumber(self._Guild_Salary[index].GuildPoints))))
 	else
 		self._ImgSalary:SetActive(true)
 		self._LabSalary:SetActive(true)
@@ -156,7 +163,7 @@ def.method().Update = function(self)
 		end
 	end
 	self._ImgPoint:GetComponent(ClassType.Image).fillAmount = totalValue
-	GUI.SetText(self._LabPoint, rewardPoints .. "/" .. self._Max_Reward_Point)
+	GUI.SetText(self._LabPoint, GUITools.FormatNumber(rewardPoints, false) .. "/" .. GUITools.FormatNumber(self._Max_Reward_Point, false))
 	if _Guild:GetDonateNum() == 0 then 
 		GUITools.SetBtnGray(self._BtnDonate,true)
 		-- GameUtil.MakeImageGray(self._ImgBtnDonate,true)
@@ -289,7 +296,7 @@ def.method("userdata", "string", "number").InitItem = function(self, item, id, i
     		GUI.SetText(labRank,tostring(index + 1))
     		imgRankBg:SetActive(false)
     	end
-    	game:SetEntityCustomImg(imgHead, member._RoleID, member._CustomImgSet, Profession2Gender[member._ProfessionID], member._ProfessionID)
+    	TeraFuncs.SetEntityCustomImg(imgHead, member._RoleID, member._CustomImgSet, Profession2Gender[member._ProfessionID], member._ProfessionID)
     	GUI.SetText(labName, string.format(baseContent, member._RoleName))
         GUI.SetText(labJob, StringTable.Get(10300 + member._ProfessionID - 1))
     	GUI.SetText(labLevel, string.format(baseContent, tostring(member._RoleLevel)))
@@ -308,13 +315,14 @@ def.method("userdata", "string", "number").SelectItem = function(self, item, id,
 		end
 		local guild = game._HostPlayer._Guild
 		local member = guild._MemberList[guild._MemberID[index + 1]]
-		if member._RoleID ~= game._HostPlayer._ID then
+		if member and member._RoleID ~= game._HostPlayer._ID then
 			local uiTemplate = item:GetComponent(ClassType.UITemplate)
 			uiTemplate:GetControl(8):SetActive(true)
 			self._LastSelected = uiTemplate:GetControl(8)
 
 			local EOtherRoleInfoType = require "PB.data".EOtherRoleInfoType
-            game:CheckOtherPlayerInfo(member._RoleID, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.Guild)
+            local PBUtil = require "PB.PBUtil"
+			PBUtil.RequestOtherPlayerInfo(member._RoleID, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.Guild)
 		end
 	end
 end

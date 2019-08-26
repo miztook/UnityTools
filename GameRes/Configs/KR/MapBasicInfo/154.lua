@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 3,
 	Remarks = "雪峰堡战役相位",
-	TextDisplayName = "눈의 성 전투2",
+	TextDisplayName = "눈의 성 전투 2",
 	Length = 800,
 	Width = 800,
 	NavMeshName = "World03Part2.navmesh",
@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12057] = 
@@ -27,21 +28,21 @@ local MapInfo =
 		},
 		[12116] = 
 		{
-			[1] = { x = -306.56, y = 101.29, z = -8.87, name = "제 3군단 주술사", level = 33, SortID = 15 },
+			[1] = { x = -306.56, y = 101.29, z = -8.87, name = "제3군단 흑마법사", level = 33, SortID = 15 },
 		},
 		[12117] = 
 		{
-			[1] = { x = -306.56, y = 101.29, z = -8.87, name = "제 3군단 장교", level = 32, SortID = 15 },
+			[1] = { x = -306.56, y = 101.29, z = -8.87, name = "제3군단 천부장", level = 32, SortID = 15 },
 		},
 		[12062] = 
 		{
-			[1] = { x = -311.04, y = 122.32, z = 78.75, name = "불사자", level = 35, SortID = 23 },
-			[2] = { x = -320.30, y = 108.84, z = 27.00, name = "불사자", level = 35, SortID = 28 },
-			[3] = { x = -307.83, y = 102.18, z = -0.59, name = "불사자", level = 35, SortID = 29 },
-			[4] = { x = -297.48, y = 97.94, z = -29.63, name = "불사자", level = 35, SortID = 30 },
-			[5] = { x = -272.65, y = 91.93, z = -52.93, name = "불사자", level = 35, SortID = 31 },
-			[6] = { x = -246.12, y = 88.33, z = -55.88, name = "불사자", level = 35, SortID = 32 },
-			[7] = { x = -213.28, y = 88.33, z = -33.46, name = "불사자", level = 35, SortID = 33 },
+			[1] = { x = -311.04, y = 122.32, z = 78.75, name = "언데드", level = 35, SortID = 23 },
+			[2] = { x = -320.30, y = 108.84, z = 27.00, name = "언데드", level = 35, SortID = 28 },
+			[3] = { x = -307.83, y = 102.18, z = -0.59, name = "언데드", level = 35, SortID = 29 },
+			[4] = { x = -297.48, y = 97.94, z = -29.63, name = "언데드", level = 35, SortID = 30 },
+			[5] = { x = -272.65, y = 91.93, z = -52.93, name = "언데드", level = 35, SortID = 31 },
+			[6] = { x = -246.12, y = 88.33, z = -55.88, name = "언데드", level = 35, SortID = 32 },
+			[7] = { x = -213.28, y = 88.33, z = -33.46, name = "언데드", level = 35, SortID = 33 },
 		},
 		[12064] = 
 		{
@@ -53,12 +54,12 @@ local MapInfo =
 		},
 		[12063] = 
 		{
-			[1] = { x = -320.30, y = 108.84, z = 27.00, name = "불사자", level = 20, SortID = 28 },
-			[2] = { x = -307.83, y = 102.18, z = -0.59, name = "불사자", level = 20, SortID = 29 },
-			[3] = { x = -297.48, y = 97.94, z = -29.63, name = "불사자", level = 20, SortID = 30 },
-			[4] = { x = -272.65, y = 91.93, z = -52.93, name = "불사자", level = 20, SortID = 31 },
-			[5] = { x = -246.12, y = 88.33, z = -55.88, name = "불사자", level = 20, SortID = 32 },
-			[6] = { x = -213.28, y = 88.33, z = -33.46, name = "불사자", level = 20, SortID = 33 },
+			[1] = { x = -320.30, y = 108.84, z = 27.00, name = "언데드", level = 20, SortID = 28 },
+			[2] = { x = -307.83, y = 102.18, z = -0.59, name = "언데드", level = 20, SortID = 29 },
+			[3] = { x = -297.48, y = 97.94, z = -29.63, name = "언데드", level = 20, SortID = 30 },
+			[4] = { x = -272.65, y = 91.93, z = -52.93, name = "언데드", level = 20, SortID = 31 },
+			[5] = { x = -246.12, y = 88.33, z = -55.88, name = "언데드", level = 20, SortID = 32 },
+			[6] = { x = -213.28, y = 88.33, z = -33.46, name = "언데드", level = 20, SortID = 33 },
 		},
 	},
 	Npc = 
@@ -132,10 +133,10 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[219] = { x = -247.01, y = 122.23, z = 32.04, name = "눈의 성", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[247] = { x = -299.78, y = 100.41, z = -19.48, name = "侦查1", worldId = 0, PkMode = 0 },
-			[248] = { x = -317.55, y = 113.33, z = 40.06, name = "侦查2", worldId = 0, PkMode = 0 },
-			[249] = { x = -186.15, y = 85.91, z = 3.58, name = "返回", worldId = 0, PkMode = 0 },
+			[219] = { x = -247.01, y = 122.23, z = 32.04, name = "눈의 성", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[247] = { x = -299.78, y = 100.41, z = -19.48, name = "侦查1", worldId = 0, PkMode = 1 },
+			[248] = { x = -317.55, y = 113.33, z = 40.06, name = "侦查2", worldId = 0, PkMode = 1 },
+			[249] = { x = -186.15, y = 85.91, z = 3.58, name = "返回", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

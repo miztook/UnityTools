@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Forest",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world02.png",
 	AssetPath = "Assets/Outputs/Scenes/World02.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[11036] = 
@@ -55,8 +56,8 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[152] = { x = -183.90, y = 80.21, z = 191.35, name = "猎人营地【个人】", worldId = 0, PkMode = 0 },
-			[174] = { x = -163.52, y = 78.67, z = 185.26, name = "鹰眼区域【个人】", worldId = 0, IsCanFind = 1, PkMode = 0, IsCanHawkeye = true, QuestID = {1105} },
+			[152] = { x = -183.90, y = 80.21, z = 191.35, name = "猎人营地【个人】", worldId = 0, PkMode = 1 },
+			[174] = { x = -163.52, y = 78.67, z = 185.26, name = "鹰眼区域【个人】", worldId = 0, IsCanFind = 1, PkMode = 1, IsCanHawkeye = true, QuestID = {1105} },
 		},
 	},
 	Mine = 

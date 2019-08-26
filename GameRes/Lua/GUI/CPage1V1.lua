@@ -108,13 +108,18 @@ def.method( "userdata").UpdateRoleInfo = function(self,obj)
 	GUI.SetText(labName,data.Name)
 
 	local labFightScore_Data = obj:FindChild("Lab_FightScore_Data")
-	GUI.SetText(labFightScore_Data,GUITools.FormatMoney(data.FightScore))
+	GUI.SetText(labFightScore_Data,GUITools.FormatNumber(data.FightScore))
 	local labRank = obj:FindChild("Lab_Rank")
+	local labNoRank = obj:FindChild("Lab_NoRank")
 	local labPoint = obj:FindChild("Lab_PointTips/Lab_Point")
+
+	labRank:SetActive(true)
+	labNoRank:SetActive(false)
+
 	if data.Rank == 0 then 
 		GUI.SetText(labRank,StringTable.Get(20103))
 	else
-		GUI.SetText(labRank,tostring(data.Rank))
+		GUI.SetText(labRank,GUITools.FormatNumber(data.Rank))
 	end
 	GUI.SetText(labPoint,tostring(data.Score))
 end
@@ -187,7 +192,8 @@ def.method("string").Click = function(self, id)
 	elseif id == "Btn_ShowAward"  then
 		local panelData = {
 								_RewardData = self._RankReward1V1Data,
-								_MyRank = game._CArenaMan._1V1HostData.Rank
+								_MyRank = game._CArenaMan._1V1HostData.Rank,
+								_IsGuild = false,
 						  }
 		game._GUIMan:Open("CPanelRewardShow",panelData)
 	elseif string.find(id,"Btn_ItemIcon") then 

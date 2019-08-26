@@ -160,6 +160,7 @@ def.method().Init = function(self)
                 self._Img_RuneIcon[i] = self._Parent:GetUIObject("Img_RuneIcon" .. i)
             end
         end
+        self._SkillToggle[i].RedPoint = self._SkillToggle[i]._GameObject:FindChild("RedPoint")
         RuneIconNameDic[runeGOName] = self._Img_RuneIcon[i]
         RuneIconDotNameDic[self._Img_RuneIcon[i]] = runeGOName
         self._Img_RuneIcon[i]:SetActive(false)
@@ -284,7 +285,7 @@ def.method().InitInfo = function (self)
     end
     
 	-- 纹章基础信息
-	local allRune = GameUtil.GetAllTid("Rune")
+	local allRune = CElementData.GetAllTid("Rune")
 	for i, v in ipairs(allRune) do
 		local rune = CElementSkill.GetRune(v)
 		self._DefaultRuneInfo[rune.SkillId .. rune.UiPos] = v
@@ -355,6 +356,9 @@ def.method().UpdateRuenData = function (self)
     local normalPack = hp._Package._NormalPack
     local skillPoseToInfo = hp._MainSkillIDList
     for k, v in pairs(skillPoseToInfo) do
+        local hasRune = false
+        local hasRuneActivity = false
+
         self._SkillToggle[k]._IsLearned = (self._SkillInfo[v] ~= nil) -- 如果学习过的技能索引里面含有这个技能则已经学习
         if self._SkillInfo[v] then
             local SkillRuneInfoDatas = self._SkillInfo[v].SkillRuneInfoDatas
@@ -362,6 +366,11 @@ def.method().UpdateRuenData = function (self)
             for m, n in ipairs(SkillRuneInfoDatas) do
                 local rune = CElementSkill.GetRune(n.runeId)
                 if rune.UiPos >= 1 and rune.UiPos <= 3 then
+                    hasRune = true
+                    if n.isActivity then
+                        hasRuneActivity = true
+                    end
+
                     local level = n.level
                     local Info = {}
                     Info._IsOwn = true
@@ -415,6 +424,7 @@ def.method().UpdateRuenData = function (self)
             end
             self._SkillToggle[k]._RuneInfo = runeInfo
         end
+        self._SkillToggle[k].RedPoint:SetActive(hasRune and (not hasRuneActivity))
     end
 end
 
@@ -592,7 +602,7 @@ def.method().OnShowRuneInfo = function(self)
 
     local runeTemplate = CElementData.GetTemplate("Rune", runeToggle._Tid)
     if runeTemplate ~= nil then
-        runeDes2 = DynamicText.ParseRuneDescSpecial(runeToggle._Tid, runeLevelDes, runeTemplate.SkillWithRuneDes2)
+        runeDes2 = DynamicText.ParseRuneDescSpecial(runeTemplate.SkillWithRuneDes2, runeToggle._Tid, runeLevelDes)
     end
     runeDes = runeDes .. "\n" .. runeDes2
 
@@ -613,9 +623,11 @@ def.method().OnShowRuneInfo = function(self)
             val = val * 100
         end
         val = math.abs(val)
-        local replStr = fmtVal2Str(tonumber(fmtVal2Str(val)))
+        local replStr = fixFloatStr(val, 2)
         if isFloat then
             replStr = string.format("%s%%", replStr)
+        else
+            replStr = GUITools.FormatNumber(tonumber(replStr), false)
         end
         return replStr
     end
@@ -910,7 +922,6 @@ def.method().OnBtnUpgradeRune = function(self)
         end
         local sl = math.fmod( runeToggle._Level, 3 )
         if runeToggle._IsUpgrade then
-            self:PlayUISfx(2, self._SelectedRuneIndex)
             local runeToggleFxParent = self._RuneToggle[self._SelectedRuneIndex]._GameObject:FindChild("Img_RuneIcon_R")
             GameUtil.PlayUISfx(PATH.UIFX_WenZhangZhuanJingShengJi, runeToggleFxParent, runeToggleFxParent, -1)
             if sl == 0 then
@@ -956,8 +967,7 @@ def.method().OnBtnConfigRune = function(self)
         game._GUIMan:ShowTipText(StringTable.Get(139), true)
     else
         local runeToggle = self._SkillToggle[self._Parent._SelectedSkillIndex]._RuneInfo[self._SelectedRuneIndex] --self._RuneToggle[self._SelectedRuneIndex]
-        if runeToggle._IsOwn then
-            self:PlayUISfx(2, self._SelectedRuneIndex)   
+        if runeToggle._IsOwn then  
             if not runeToggle._IsActivity then
                 CSoundMan.Instance():Play2DAudio(PATH.GUISound_RuneEquip, 0)
             else
@@ -1018,10 +1028,7 @@ end
 
 
 def.method("number", "number").PlayUISfx = function(self, sfxType, index)
-    if sfxType == 2 then
-        GameUtil.PlayUISfx(PATH.UI_zhuangbeiwenzhang, self._RuneToggle[index]._GameObject:FindChild("Img_RuneIcon_R"),
-            self._RuneToggle[index]._GameObject:FindChild("Img_RuneIcon_R"), 1) 
-    elseif sfxType == 3 then
+    if sfxType == 3 then
         GameUtil.PlayUISfx(PATH.UI_wenzhangjiesuo, self._RuneToggle[index]._GameObject:FindChild("Img_RuneIcon_R"),self._RuneToggle[index]._GameObject:FindChild("Img_RuneIcon_R"),
          1)
     end

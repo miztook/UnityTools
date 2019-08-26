@@ -183,8 +183,9 @@ def.method().TickLogic = function(self)
         return
     end
 
-    if self._TargetEntiy._CurrentTargetId > 0 then
-        local object = game._CurWorld:FindObject(self._TargetEntiy._CurrentTargetId)
+    local targetId = self._TargetEntiy:GetCurrentTargetId()
+    if targetId > 0 then
+        local object = game._CurWorld:FindObject(targetId)
         if object == nil then self:ShowTarget(false) return end
         --没目标时以上逻辑已返回 忽略
 
@@ -205,7 +206,7 @@ def.method().TickLogic = function(self)
             info._HeadIcon_Elite:SetActive(false)
             info._HeadIcon_Boss:SetActive(false)
             --设置头像
-            game: SetEntityCustomImg(info._HeadIcon,
+            TeraFuncs.SetEntityCustomImg(info._HeadIcon,
                                      object._ID,
                                      object._InfoData._CustomImgSet,
                                      object._InfoData._Gender,

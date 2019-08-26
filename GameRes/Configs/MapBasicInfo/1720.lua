@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14241] = 
@@ -46,7 +47,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[288] = { x = -90.03, y = 67.22, z = 87.30, name = "血骨王座", worldId = 0, IsCanFind = 1, Describe = "血骨王座", PkMode = 0, IsCanHawkeye = true, QuestID = {4533} },
+			[288] = { x = -90.03, y = 67.22, z = 87.30, name = "血骨王座", worldId = 0, IsCanFind = 1, Describe = "血骨王座", PkMode = 1, IsCanHawkeye = true, QuestID = {4533} },
 		},
 	},
 	Mine = 

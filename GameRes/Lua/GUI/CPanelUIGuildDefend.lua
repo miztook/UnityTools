@@ -14,6 +14,7 @@ local CGame = Lplus.ForwardDeclare("CGame")
 
 local CPanelUIGuildDefend = Lplus.Extend(CPanelBase, "CPanelUIGuildDefend")
 local def = CPanelUIGuildDefend.define
+local EXPEDITION_POPUP_TID = 14 -- 次元魔潮介绍弹窗TID
 
 def.field("table")._RewardData = nil
 def.field("table")._MoneyData = nil
@@ -70,18 +71,18 @@ def.override("dynamic").OnData = function(self, data)
 	if self._MoneyData[1] ~= nil then
 		self._Frame_OtherReward_1:SetActive(true)
 		GUITools.SetTokenMoneyIcon(self._Img_OtherReward_1, self._MoneyData[1].Data.Id)
-		GUI.SetText(self._Lab_OtherReward_1, tostring(self._MoneyData[1].Data.Count))
+		GUI.SetText(self._Lab_OtherReward_1, GUITools.FormatNumber(self._MoneyData[1].Data.Count, false))
 	else
 		self._Frame_OtherReward_1:SetActive(false)
 	end
 	if self._MoneyData[2] ~= nil then
 		self._Frame_OtherReward_2:SetActive(true)
 		GUITools.SetTokenMoneyIcon(self._Img_OtherReward_2, self._MoneyData[2].Data.Id)
-		GUI.SetText(self._Lab_OtherReward_2, tostring(self._MoneyData[2].Data.Count))
+		GUI.SetText(self._Lab_OtherReward_2, GUITools.FormatNumber(self._MoneyData[2].Data.Count, false))
 	else
 		self._Frame_OtherReward_2:SetActive(false)
 	end
-	GUI.SetText(self._Lab_Battle_Num, tostring(guildDefend.Score))
+	GUI.SetText(self._Lab_Battle_Num, GUITools.FormatNumber(guildDefend.Score, false))
 	if data.ActiviyOpenFlag then
 		GUI.SetText(self._Lab_Activity_Num, StringTable.Get(8083))
 	else
@@ -110,6 +111,8 @@ def.override("string").OnClick = function(self, id)
     	TODO(StringTable.Get(19))
     elseif id == "Btn_Enter" then
     	self:OnBtnEnter()
+    elseif id == "Btn_Rule" then
+        game._GUIMan:Open("CPanelUIDungeonIntroduction", EXPEDITION_POPUP_TID)
 	end
 end
 

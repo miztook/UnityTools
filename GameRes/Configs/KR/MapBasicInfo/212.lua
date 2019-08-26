@@ -11,34 +11,35 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD01.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn01_Rins01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[20400] = 
 		{
-			[1] = { x = -3.16, y = 54.21, z = -0.91, name = "바하르 수련자", level = 32,IsBoss = true },
+			[1] = { x = -3.16, y = 54.21, z = -0.91, name = "바하르 수련자", level = 27,IsBoss = true },
 		},
 		[20401] = 
 		{
-			[1] = { x = -3.33, y = 54.23, z = -1.59, name = "바하르 수련자", level = 32 },
-			[2] = { x = -3.26, y = 54.23, z = -3.11, name = "바하르 수련자", level = 32 },
-			[3] = { x = -3.26, y = 54.23, z = -3.11, name = "바하르 수련자", level = 32 },
+			[1] = { x = -3.33, y = 54.23, z = -1.59, name = "바하르 수련자", level = 27 },
+			[2] = { x = -3.26, y = 54.23, z = -3.11, name = "바하르 수련자", level = 27 },
+			[3] = { x = -3.26, y = 54.23, z = -3.11, name = "바하르 수련자", level = 27 },
 		},
 		[20402] = 
 		{
-			[1] = { x = -3.20, y = 54.23, z = -1.20, name = "용암 사냥개", level = 32 },
+			[1] = { x = -3.20, y = 54.23, z = -1.20, name = "용암 사냥개", level = 27 },
 		},
 		[20403] = 
 		{
-			[1] = { x = -3.60, y = 54.23, z = -1.52, name = "바하르 수련자", level = 32 },
-			[2] = { x = -3.28, y = 54.21, z = -1.23, name = "바하르 수련자", level = 32 },
+			[1] = { x = -3.60, y = 54.23, z = -1.52, name = "바하르 수련자", level = 27 },
+			[2] = { x = -3.28, y = 54.21, z = -1.23, name = "바하르 수련자", level = 27 },
 		},
 		[20405] = 
 		{
-			[1] = { x = 1.85, y = 54.23, z = -9.47, name = "바하르 수련자", level = 32 },
-			[2] = { x = -11.29, y = 54.23, z = -6.08, name = "바하르 수련자", level = 32 },
-			[3] = { x = 5.27, y = 54.23, z = 3.77, name = "바하르 수련자", level = 32 },
-			[4] = { x = -7.69, y = 54.23, z = 7.05, name = "바하르 수련자", level = 32 },
-			[5] = { x = -2.96, y = 54.23, z = -0.75, name = "바하르 수련자", level = 32 },
+			[1] = { x = 1.85, y = 54.23, z = -9.47, name = "바하르 수련자", level = 27 },
+			[2] = { x = -11.29, y = 54.23, z = -6.08, name = "바하르 수련자", level = 27 },
+			[3] = { x = 5.27, y = 54.23, z = 3.77, name = "바하르 수련자", level = 27 },
+			[4] = { x = -7.69, y = 54.23, z = 7.05, name = "바하르 수련자", level = 27 },
+			[5] = { x = -2.96, y = 54.23, z = -0.75, name = "바하르 수련자", level = 27 },
 		},
 	},
 	Npc = 
@@ -48,7 +49,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[192] = { x = -3.11, y = 54.21, z = -4.31, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 0 },
+			[192] = { x = -3.11, y = 54.21, z = -4.31, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1 },
 		},
 	},
 	Mine = 

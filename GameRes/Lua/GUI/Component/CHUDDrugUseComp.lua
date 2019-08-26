@@ -19,6 +19,10 @@ def.field("userdata")._LabNumber = nil
 def.field("userdata")._DrugBtnIcon = nil                       
 def.field("userdata")._ImgCoolDown = nil                       
 def.field("userdata")._LabCoolDown = nil                       
+def.field("userdata")._ImgArrow = nil                          
+def.field("userdata")._QualityBG = nil                           
+def.field("userdata")._ImgSelect = nil  
+def.field("userdata")._DrugBtn = nil               
 
 -- 数据成员
 def.field("number")._DrugItemShowTimer = 0
@@ -31,8 +35,46 @@ def.static("table", "=>", CHUDDrugUseComp).new = function(root)
     return obj 
 end
 
+def.method("boolean").ShowArrow = function(self, isShow)
+    self._ImgArrow:SetActive(isShow)
+    if not isShow then return end
+    local equip_drug_id =  game._HostPlayer:GetEquipedPotion()
+    local normalPack = game._HostPlayer._Package._NormalPack
+    if equip_drug_id > 0 then
+        local template = CElementData.GetTemplate("Item", equip_drug_id)
+        local drugCount = normalPack:GetItemCount(equip_drug_id)
+	
+        local EItemType = require "PB.Template".Item.EItemType
+        local drugList = normalPack:GetItemListByType(EItemType.Potion)
+
+        local tid = -1
+        for i, v in ipairs(drugList) do
+            if tid < v._Tid then
+                tid = v._Tid
+            end
+        end
+
+        local isShow = false
+        if template and drugCount > 0 then
+            if equip_drug_id < tid then
+                isShow = true
+            end
+        else
+            if tid > -1 then
+                isShow = true
+            end
+        end
+        if isShow then
+            self._ImgArrow:GetComponent(ClassType.DOTweenPlayer):Restart("ArrowUp")
+        else
+            self._ImgArrow:GetComponent(ClassType.DOTweenPlayer):Stop("ArrowUp")
+        end
+    end
+end
+
 def.method().InitUIObjs = function(self)
     self._FrameItemBg = self._Parent:GetUIObject("Frame_Item_Bg")
+    self._DrugBtn = self._FrameItemBg.parent
     self._FrameItemBg:SetActive(false)
     self._SkillDoTween = self._FrameItemBg:GetComponent(ClassType.DOTweenPlayer)
     self._DrugNodeTweenItems = 
@@ -47,9 +89,14 @@ def.method().InitUIObjs = function(self)
     self._DrugBtnIcon = self._Parent:GetUIObject("Img_DrugItemIcon")
     self._ImgCoolDown = self._Parent:GetUIObject("Img_Item_CoolDown")
     self._LabCoolDown = self._Parent:GetUIObject("Lab_Item_CD")
+    self._ImgArrow = self._LabCoolDown.parent:FindChild("Img_Arrow")
+    self._QualityBG = self._LabCoolDown.parent:FindChild("Img_DrugQuality")
+    self._ImgSelect = self._LabCoolDown.parent:FindChild("Img_Select")
 end
 
 def.method().Update = function(self)
+    local drugList = game._HostPlayer:GetNoEquipedPotions(false)
+    self:ShowArrow(#drugList > 0)
     local empty_icon = self._EmptyIcon
     empty_icon:SetActive(false)
     local labCount = self._LabNumber
@@ -70,7 +117,15 @@ def.method().Update = function(self)
             GUITools.SetIcon(self._DrugBtnIcon, template.IconAtlasPath)
             GUI.SetText(labCount, tostring(drugCount))          
             self:UpdateCDInfo()
+
+            self._QualityBG:SetActive(true)
+            local template = CElementData.GetItemTemplate(equip_drug_id)
+            if template then
+                GUITools.SetGroupImg(self._QualityBG, template.InitQuality - 1) 
+            end
         else
+            self._QualityBG:SetActive(false)
+
             empty_icon:SetActive(true)
             GUI.SetText(labCount, "")
             self:UpdateCDInfo()
@@ -113,7 +168,10 @@ def.method().UpdateCDInfo = function(self)
 end
 
 -- 开启item界面
-def.method().OpenItemsList = function(self) 
+def.method().OpenItemsList = function(self)
+    local drugList = game._HostPlayer:GetNoEquipedPotions(false)
+    self._ImgSelect:SetActive(#drugList > 0)
+    self:ShowArrow(false)
     if self._DrugItemShowTimer > 0 then
         _G.RemoveGlobalTimer(self._DrugItemShowTimer)
         self._DrugItemShowTimer = 0
@@ -129,6 +187,9 @@ end
 
 -- 关闭item界面
 def.method().CloseItemsList = function(self)
+    local drugList = game._HostPlayer:GetNoEquipedPotions(false)
+    self._ImgSelect:SetActive(false)
+    self:ShowArrow(#drugList > 0)
     self._SkillDoTween:Restart(4)
     if self._DrugItemShowTimer > 0 then
         _G.RemoveGlobalTimer(self._DrugItemShowTimer)
@@ -163,7 +224,8 @@ end
 -- 刷新药品置灰状态
 def.method().UpdateDrugForbiddenState = function(self)
     local enable = game:IsCurMapForbidDrug() or game._HostPlayer:GetForbidDrugState()
-    GameUtil.MakeImageGray(self._DrugBtnIcon, enable)
+    -- GameUtil.MakeImageGray(self._DrugBtnIcon, enable)
+    self._DrugBtn:SetActive(not enable)
 end
 
 def.method().UseDrug = function (self)
@@ -190,9 +252,11 @@ def.method().UseDrug = function (self)
         game._GUIMan:Open("CPanelNpcShop",panelData)
     else
         local drug = normalPack:GetItem(equip_drug_id)
-        if drug ~= nil then
-            drug:Use()
-        end
+        if drug and drug:CanUse() == EnumDef.ItemUseReason.Success  then                     
+            if not hp._CDHdl:IsCoolingDown(drug._CooldownId) then
+                drug:Use()
+            end
+        end 
     end
 end
 

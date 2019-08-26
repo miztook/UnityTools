@@ -58,14 +58,17 @@ def.field("function")._ConnectCB = nil
 
 def.static("=>", CNetAutomicMan).new = function()
     local item = CNetAutomicMan()
-    item._AutomicItems = {}
     item:RegistEvents()
     return item
 end
 
+def.method().Init = function(self)
+    self:RegistEvents()
+    self._AutomicItems = {}
+    self._IsDisconnecting = false
+end
 
 def.method().RegistEvents = function(self)
-    self:UnRegistEvents()
     self._DisconnectCB = function(sender, event)
         if self._AutomicItems == nil then return end
         for i,v in ipairs(self._AutomicItems) do
@@ -138,7 +141,7 @@ def.method("number").UnRegistAutomicHandle = function(self, id)
     end
 end
 
-def.method().Release = function(self)
+def.method().Cleanup = function(self)
     self:UnRegistEvents()
     self._AutomicItems = nil
     self._IsDisconnecting = false

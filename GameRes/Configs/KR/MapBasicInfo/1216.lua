@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 	},
@@ -21,9 +22,9 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[1] = { x = 185.73, y = 46.53, z = 24.27, name = "进入点", worldId = 0, PkMode = 0 },
-			[2] = { x = 186.29, y = 121.94, z = 20.30, name = "更亮", worldId = 0, PkMode = 0 },
-			[3] = { x = 173.80, y = 47.48, z = 1.20, name = "范围", worldId = 0, PkMode = 0 },
+			[1] = { x = 185.73, y = 46.53, z = 24.27, name = "进入点", worldId = 0, PkMode = 1 },
+			[2] = { x = 186.29, y = 121.94, z = 20.30, name = "更亮", worldId = 0, PkMode = 1 },
+			[3] = { x = 173.80, y = 47.48, z = 1.20, name = "范围", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

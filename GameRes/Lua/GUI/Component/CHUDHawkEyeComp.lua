@@ -3,6 +3,7 @@
 local Lplus = require "Lplus"
 local CGame = Lplus.ForwardDeclare("CGame")
 local CElementData = require "Data.CElementData"
+local CHawkeyeEffectMan = require "Main.CHawkeyeEffectMan"
 
 local CHUDHawkEyeComp = Lplus.Class("CHUDHawkEyeComp")
 local def = CHUDHawkEyeComp.define
@@ -59,7 +60,7 @@ def.method().Init = function(self)
     --鹰眼持续时间 秒
     CDTime = tonumber(CElementData.GetSpecialIdTemplate(149).Value) 
     
-    game._HostPlayer:JudgeIsUseHawEye(true)
+    CHawkeyeEffectMan.Instance():JudgeIsUseHawEye(true)
 end
 
 def.method("table").HawkEyeOpen = function (self, params)
@@ -132,7 +133,8 @@ def.method("number").HawkEyeActive = function(self, useTime)
 	if self._EmptyCount == -1 then
 		GameUtil.RemoveCooldownComponent(self._ImgClose,self._LabCD)
 	else
-	    self._EmptyCount = game._HostPlayer._HawkEyeCount
+	    self._EmptyCount = CHawkeyeEffectMan.Instance():GetRemainCount()
+        
 	    if not IsNil(self._LabEmpty) then
 	        GUI.SetText(self._LabEmpty,tostring(self._EmptyCount))
 	    end
@@ -147,6 +149,7 @@ def.method("number").HawkEyeActive = function(self, useTime)
 
     self._ImgOpen:SetActive(false)
     self._ImgClose:SetActive(true)
+
     self._CurHawkEyeState = HawkEyeState.Active
 end
 
@@ -157,18 +160,17 @@ def.method().HawkEyeDeactive = function(self)
     self._CurHawkEyeState = HawkEyeState.Deactive
 end
 
-def.method().OnClick = function(self)
---[[print("11111111111111111111",self._CurHawkEyeState)
-    if self._CurHawkEyeState ~= HawkEyeState.Open then
+def.method().OnClick = function(self)   
+    if game._HostPlayer:IsDead() then
+        game._GUIMan:ShowTipText(StringTable.Get(30103), false)
         return
-    end--]]
-
+    end
 	if self._EyeBtnState == 1 then
 		game._GUIMan:ShowTipText(StringTable.Get(12015), false) 
 	elseif self._EyeBtnState == 2 then
 		game._GUIMan:ShowTipText(StringTable.Get(12016), false) 
 	else
-        game._HostPlayer:SendHawkeyeUseOrStop(self._EmptyCount)
+        CHawkeyeEffectMan.Instance():SendHawkeyeUseOrStop(self._EmptyCount)
     end
 end
 

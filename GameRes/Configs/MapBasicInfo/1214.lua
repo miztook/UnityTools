@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10159] = 
@@ -127,11 +128,11 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[281] = { x = -106.69, y = 66.64, z = 177.94, name = "相位生效区", worldId = 0, PkMode = 0 },
-			[282] = { x = -84.74, y = 63.40, z = 156.05, name = "伐木场外围1", worldId = 0, PkMode = 0 },
-			[287] = { x = -111.33, y = 63.82, z = 185.90, name = "伐木场外围2", worldId = 0, PkMode = 0 },
-			[284] = { x = -112.23, y = 62.56, z = 201.02, name = "1", worldId = 0, PkMode = 0 },
-			[285] = { x = -119.02, y = 62.60, z = 175.13, name = "离开伐木场", worldId = 0, PkMode = 0 },
+			[281] = { x = -106.69, y = 66.64, z = 177.94, name = "相位生效区", worldId = 0, PkMode = 1 },
+			[282] = { x = -84.74, y = 63.40, z = 156.05, name = "伐木场外围1", worldId = 0, PkMode = 1 },
+			[287] = { x = -111.33, y = 63.82, z = 185.90, name = "伐木场外围2", worldId = 0, PkMode = 1 },
+			[284] = { x = -112.23, y = 62.56, z = 201.02, name = "1", worldId = 0, PkMode = 1 },
+			[285] = { x = -119.02, y = 62.60, z = 175.13, name = "离开伐木场", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

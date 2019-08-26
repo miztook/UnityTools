@@ -76,6 +76,7 @@ local cfg = {
     Btn_Plus_Score = -1513795184,
     Btn_Minus_Score = 1858967616,
     Lab_Count = 1187407773,
+    Lab_Tip = 1601249961,
 }
  
 return cfg

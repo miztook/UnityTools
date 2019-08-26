@@ -84,6 +84,10 @@ def.override('string').OnClick = function(self, id)
             if self._IsClosePanel then 
                 game._GUIMan:Close("CPanelMap")
                 game._GUIMan:Close("CPanelUIQuestList")
+                local CPanelCalendar = require "GUI.CPanelCalendar"
+                if CPanelCalendar.Instance():IsShow() then
+                    game._GUIMan:Close("CPanelCalendar")
+                end
             end
             if self._CallBack ~= nil then 
                 self._CallBack()

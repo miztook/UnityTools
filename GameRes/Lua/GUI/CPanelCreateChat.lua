@@ -27,7 +27,7 @@ def.override('string').OnClick = function(self, id)
     if id == "Btn_Ok" then 
         local NameChecker = require "Utility.NameChecker"
         if not NameChecker.CheckRoleNameValid(self._InputField.text) then return end
-        game._CFriendMan:DoSearch(self._InputField.text)
+        game._CFriendMan:DoSearch(self._InputField.text,false)
     elseif id == "Btn_Cancel" or id == "Btn_Close" then 
         game._GUIMan:CloseByScript(self)
     end

@@ -36,7 +36,7 @@ def.method("table").Set = function (self, limits)
 
 end
 
-def.method().Clear = function (self)
+def.method().Reset = function (self)
 	self._LimitReviveInPlace = false
 	self._LimitRescue = false
 	self._LimitReviveSafe = false

@@ -55,7 +55,7 @@ def.method().Update = function(self)
     if member ~= nil then
         self._Btn_Guild_Dismiss:SetActive(0 ~= bit.band(member._Permission, PermissionMask.Dismiss))
     end
-	GUI.SetText(self._Lab_Guild_Member_Num,  guild._MemberNum .. "/" .. guildLevel.MemberNumber)
+	GUI.SetText(self._Lab_Guild_Member_Num,  guild._MemberNum .. "/" .. (guildLevel and guildLevel.MemberNumber or 0))
     GUI.SetText(self._LabOnlineNum,tostring(#guild._OnlineMemberID))
     game._GuildMan:UpdateMemberIdBySort()
 	self._Guild_Member_List:SetItemCount(#guild._MemberID)
@@ -96,7 +96,7 @@ def.method("userdata", "string", "number").OnInitItem = function(self, item, id,
     		baseContent = "<color=white>%s</color>"
     	end
     	local member = _Guild._MemberList[memberID]
-    	game:SetEntityCustomImg(uiTemplate:GetControl(3), member._RoleID, member._CustomImgSet, Profession2Gender[member._ProfessionID], member._ProfessionID)
+    	TeraFuncs.SetEntityCustomImg(uiTemplate:GetControl(3), member._RoleID, member._CustomImgSet, Profession2Gender[member._ProfessionID], member._ProfessionID)
     	GUI.SetText(uiTemplate:GetControl(4), string.format(baseContent, member._RoleName))
         GUI.SetText(uiTemplate:GetControl(5), StringTable.Get(10300 + member._ProfessionID - 1))
     	GUI.SetText(uiTemplate:GetControl(6), member:GetMemberTypeName())
@@ -142,7 +142,8 @@ def.method("userdata", "string", "number").OnSelectItem = function(self, item, i
 			self._Last_Selected = uiTemplate:GetControl(17)
 
 			local EOtherRoleInfoType = require "PB.data".EOtherRoleInfoType
-            game:CheckOtherPlayerInfo(member._RoleID, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.Guild)
+            local PBUtil = require "PB.PBUtil"
+            PBUtil.RequestOtherPlayerInfo(member._RoleID, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.Guild)
 			-- local CGuildMember = require "Guild.CGuildMember"
             --local menuList = CGuildMember.GetMenuList(member)
             --MenuList.Show(menuList, uiTemplate:GetControl(6), EnumDef.AlignType.Bottom)

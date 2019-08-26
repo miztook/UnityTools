@@ -28,6 +28,7 @@ local EGuildIconType = require "PB.data".EGuildIconType
 def.field("table")._ConvoyEntity = nil
 -- 用于小地图信息更新
 def.field("table")._GuildBattleEntity = nil
+def.field("table")._GuildBattleMineInfo = nil
 -- 个人击杀信息缓存.用于断线重连
 def.field("number")._KillNum = 0
 def.field("number")._DeathNum = 0
@@ -42,10 +43,6 @@ def.field("number")._CurMemSortType = 0
 
 -- 公会战场是否报名
 def.field("number")._GuildBFApplySign = -1
-
---公会相关Template数据
---公会徽记
-def.field("table")._GuildIconData = BlankTable
 
 --工会徽记类型
 _G.GuildIconType = 
@@ -63,31 +60,6 @@ end
 def.method().Init = function(self)
 	self:AddGuildRedTimer()
     self._IsInitMoney = true
-end
-
---初始化公会徽记Template数据
-def.method().InitGuildIconData = function (self)
-	if self._GuildIconData ~= nil then return  end
-	self._GuildIconData = {}
-	self._GuildIconData[GuildIconType.BaseColor] = {}
-	self._GuildIconData[GuildIconType.Frame] = {}
-	self._GuildIconData[GuildIconType.Image] = {}
-	local allTid = GameUtil.GetAllTid("GuildIcon")
-    for i = 1, #allTid do
-        local guildIcon = CElementData.GetTemplate("GuildIcon", allTid[i])
-        if guildIcon.Type == EGuildIconType.GuildIcon_BaseColor then
-        	table.insert(self._GuildIconData[GuildIconType.BaseColor] ,guildIcon)
-        elseif guildIcon.Type == EGuildIconType.GuildIcon_Frame then
-        	table.insert(self._GuildIconData[GuildIconType.Frame] ,guildIcon)
-        elseif guildIcon.Type == EGuildIconType.GuildIcon_Image then
-        	table.insert(self._GuildIconData[GuildIconType.Image] ,guildIcon)
-        end
-    end
-end
-
---获取公会徽记data数据
-def.method("=>","table").GetGuildIconData = function (self)
-	return self._GuildIconData
 end
 
 -- 打开公会请求
@@ -330,6 +302,8 @@ end
 
 -- 初始化或刷新公会基础信息
 def.method("table").UpdateGuildBaseInfo = function(self, data)
+	if data == nil then return end
+	
 	local _Guild = game._HostPlayer._Guild
 	if data.guildID ~= _Guild._GuildID then return end
 
@@ -347,7 +321,7 @@ def.method("table").UpdateGuildBaseInfo = function(self, data)
 		_Guild._IsMaxLevel = true
 		for i,v in ipairs(CElementData.GetAllGuildLevel()) do
 			local guild = CElementData.GetTemplate("GuildLevel", v)
-			if guild.Level == data.guildLevel then
+			if guild and guild.Level == data.guildLevel then
 				_Guild._GuildModuleID = v
 				_Guild._MaxMemberNum = guild.MemberNumber
 			end
@@ -392,7 +366,7 @@ def.method("table").UpdateGuildBaseInfo = function(self, data)
 		_Guild._LevelUp = false
 	else
 		local curGuildLevel = CElementData.GetTemplate("GuildLevel", _Guild._GuildModuleID)
-		if _Guild._Exp >= curGuildLevel.NextExperience and _Guild._Fund >= curGuildLevel.Fund then
+		if curGuildLevel and _Guild._Exp >= curGuildLevel.NextExperience and _Guild._Fund >= curGuildLevel.Fund then
 			_Guild._LevelUp = true
 		end
 	end
@@ -687,7 +661,7 @@ end
 -- 公会资金是否达到上限
 def.method("=>", "boolean").IsFundMax = function(self)
 	local guildLevel = CElementData.GetTemplate("GuildLevel", game._HostPlayer._Guild._GuildLevel)
-	if game._HostPlayer._Guild._Fund >= guildLevel.MaxGuildFund then
+	if guildLevel and game._HostPlayer._Guild._Fund >= guildLevel.MaxGuildFund then
 		return true
 	else
 		return false
@@ -697,7 +671,7 @@ end
 -- 公会能源是否达到上限
 def.method("=>", "boolean").IsEnergyMax = function(self)
 	local guildLevel = CElementData.GetTemplate("GuildLevel", game._HostPlayer._Guild._GuildLevel)
-	if game._HostPlayer._Guild._Energy >= guildLevel.MaxGuildEnergy then
+	if guildLevel and game._HostPlayer._Guild._Energy >= guildLevel.MaxGuildEnergy then
 		return true
 	else
 		return false
@@ -778,6 +752,10 @@ def.method().EnterGuildMap = function(self)
 					end
 				end
 				local title, msg, closeType = StringTable.GetMsg(17)
+				if game._DungeonMan:InTowerDungeon() or game._DungeonMan:InGuildDungeon() then
+					-- 爬塔或者公会副本
+					title, msg, closeType = StringTable.GetMsg(140)
+				end
 				MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback)
 			elseif self:IsInGuildScene() then
 				game._GUIMan:ShowTipText(StringTable.Get(8055), true)
@@ -928,7 +906,7 @@ end
 
 -- 参与要塞攻占
 def.method("number", "=>", "boolean").OpenGuildFortressAttack = function(self, tid)
-	local allTid = GameUtil.GetAllTid("Fortress")
+	local allTid = CElementData.GetAllTid("Fortress")
 	for i, v in ipairs(allTid) do
 		local fortress = CElementData.GetTemplate("Fortress", v)
 		if fortress.AttackActivityID == tid then
@@ -1388,6 +1366,31 @@ def.method("table").UpdateBattleEntityInfo = function(self, data)
 	self._GuildBattleEntity = entityInfos
 end
 
+def.method("=>", "table").GetBattleMineInfo = function(self)
+    local mineInfos = self._GuildBattleMineInfo
+    self._GuildBattleMineInfo = nil
+    return mineInfos
+end
+
+def.method("number", "number", "number").UpdateBattleMineInfo = function(self, mineID, status, endTime)
+    local mineInfos = self._GuildBattleMineInfo
+    if mineInfos == nil then
+        mineInfos = {}
+    end
+    if mineInfos[mineID] == nil then
+        local data = {}
+        data.Tid = mineID
+        data.Status = status
+        data.EndTime = endTime
+        mineInfos[mineID] = data
+    else
+        mineInfos[mineID].Tid = mineID
+        mineInfos[mineID].Status = status
+        mineInfos[mineID].EndTime = endTime
+    end
+    self._GuildBattleMineInfo = mineInfos
+end
+
 -- （公会战场）更新左侧击杀与死亡数据
 def.method("table").UpdateBattleDungeon = function(self, data)
 	self._KillNum = data.KillNUM
@@ -1409,6 +1412,7 @@ end
 
 -- 公会战场祭品状态更新
 def.method("table").UpdateBattleMineStatus = function(self, data)
+    self:UpdateBattleMineInfo(data.Tid, data.Status, data.EndTime)
     if CPanelUIGuildBattleMiniMap.Instance():IsShow() then
         CPanelUIGuildBattleMiniMap.Instance():UpdateMineStatus(data.Tid, data.Status, data.EndTime)
     end
@@ -1748,13 +1752,8 @@ end
 -------------------------公会基础系统成员排序-------------------------
 ----------------------------------------------------------------------
 
-def.method().ClearTemplateData = function(self)
-	self._GuildIconData = nil 
-end
-
-def.method().Release = function(self)
+def.method().Cleanup = function(self)
 	self:RemoveGuildRedTimer()
-	self:ClearTemplateData()
     self._IsInitMoney = true
 	-- 清除公会铁匠铺数据
 	CGuildSmithyMan.Instance():Clear()

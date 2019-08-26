@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/city01.png",
 	AssetPath = "Assets/Outputs/Scenes/City01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10123] = 
@@ -38,11 +39,11 @@ local MapInfo =
 	{
 		[1] = 
 		{
-			[1] = { x = -1.18, y = 28.71, z = 204.52, xA = 38.19, yA = 49.34, zA = -221.96, name = "传送至东部领地1", worldId = 120, PkMode = 1 },
-			[2] = { x = -113.82, y = 29.13, z = 142.47, xA = -21.32, yA = 53.58, zA = -242.44, name = "传送至东部领地2", worldId = 120, PkMode = 1 },
+			[1] = { x = -1.18, y = 28.71, z = 204.52, xA = 38.19, yA = 49.34, zA = -221.96, name = "传送至东部领地1", worldId = 120, IsCanFind = 1, PkMode = 1 },
+			[2] = { x = -113.82, y = 29.13, z = 142.47, xA = -21.32, yA = 53.58, zA = -242.44, name = "传送至东部领地2", worldId = 120, IsCanFind = 1, Describe = "东部领地-贪婪溪谷", PkMode = 1 },
 			[4] = { x = 145.58, y = 19.09, z = 219.67, xA = 239.44, yA = 21.91, zA = -224.12, name = "", worldId = 120, PkMode = 1 },
 			[87] = { x = -4.99, y = 179.30, z = -131.70, xA = -4.55, yA = 58.38, zA = -43.17, name = "顶端传送区域", worldId = 110, PkMode = 1 },
-			[91] = { x = -28.68, y = 58.38, z = -36.51, xA = -5.80, yA = 179.30, zA = -138.31, name = "传送阵大堂", worldId = 110, PkMode = 1 },
+			[91] = { x = -28.68, y = 58.38, z = -36.51, xA = -5.80, yA = 179.30, zA = -138.31, name = "传送阵大堂", worldId = 110, IsCanFind = 1, Describe = "天空圣堂", PkMode = 1 },
 		},
 		[2] = 
 		{
@@ -66,11 +67,11 @@ local MapInfo =
 			[129] = { x = 91.38, y = 19.82, z = 216.36, name = "鹰眼区域05", worldId = 0, PkMode = 1 },
 			[186] = { x = 126.02, y = 18.98, z = 225.60, name = "鹰眼区域06", worldId = 0, PkMode = 1 },
 			[195] = { x = -3.56, y = 48.66, z = 21.73, name = "鹰眼任务区域", worldId = 0, PkMode = 1 },
-			[255] = { x = -4.20, y = 54.85, z = 85.30, name = "鹰眼万物志05", worldId = 0, PkMode = 0 },
-			[268] = { x = 130.77, y = 21.84, z = 94.95, name = "抵达区域", worldId = 0, PkMode = 0 },
-			[336] = { x = -16.60, y = 45.12, z = 146.22, name = "暴动相位区域", worldId = 0, PkMode = 0 },
-			[337] = { x = 123.06, y = 18.98, z = 224.61, name = "迷茫的灵魂相位", worldId = 0, PkMode = 0 },
-			[339] = { x = 130.86, y = 20.78, z = 111.80, name = "暗杀市长副手【支线】", worldId = 0, PkMode = 0 },
+			[255] = { x = -4.20, y = 54.85, z = 85.30, name = "鹰眼万物志05", worldId = 0, PkMode = 1 },
+			[268] = { x = 130.77, y = 21.84, z = 94.95, name = "抵达区域", worldId = 0, PkMode = 1 },
+			[336] = { x = -16.60, y = 45.12, z = 146.22, name = "暴动相位区域", worldId = 0, PkMode = 1 },
+			[337] = { x = 123.06, y = 18.98, z = 224.61, name = "迷茫的灵魂相位", worldId = 0, PkMode = 1 },
+			[339] = { x = 122.21, y = 20.78, z = 107.47, name = "暗杀市长副手【支线】", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

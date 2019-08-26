@@ -48,7 +48,7 @@ def.override("dynamic").OnData = function(self, data)
     self._CurBigStepConfig = data
 
     -- 当前大步骤
-    print("self._CurBigStep=",self._CurBigStep)
+    --print("self._CurBigStep=",self._CurBigStep)
     self._BigStepRoot = self:GetUIObject(string.format("Step_%d", self._CurBigStep))
     self._BigStepRoot:SetActive(true)
 
@@ -119,6 +119,12 @@ def.method().ShowStep = function(self)
             GameUtil.SetFxSorting(effect,self:GetSortingLayer(),self:GetSortingOrder() + GUIDE_FX_ORDER_EX,true)
             GameUtil.SetPanelSortingLayerOrder(effect, self:GetSortingLayer(), self:GetSortingOrder() + GUIDE_FX_ORDER_EX)
         end
+
+        if self._CurBigStepConfig.Steps[self._CurSmallStep].Audio ~= nil and self._CurBigStepConfig.Steps[self._CurSmallStep].AudioIsPlay == nil then
+            --print( "=========",self._CurBigStepConfig.Steps[self._CurSmallStep].Audio )
+            self._CurBigStepConfig.Steps[self._CurSmallStep].AudioIsPlay = true
+            CSoundMan.Instance():Play3DVoice(self._CurBigStepConfig.Steps[self._CurSmallStep].Audio, game._HostPlayer:GetPos(), 0)
+        end
     end
 end
 
@@ -135,14 +141,14 @@ def.method().ShowCurSmallStep = function(self)
             self._Btn_Skip:SetActive(true)
             rc.anchorMin = Vector2.New(1,1)
             rc.anchorMax = Vector2.New(1,1)
-            rc.pivot = Vector2.New(0.5,0.5)
-            rc.anchoredPosition = Vector2.New(-89,-41)
+            rc.pivot = Vector2.New(1,1)
+            rc.anchoredPosition = Vector2.New(-68,-38)
         elseif self._CurBigStepConfig.Steps[self._CurSmallStep].IsSkip == 2 then
             self._Btn_Skip:SetActive(true)
             rc.anchorMin = Vector2.New(1,0)
             rc.anchorMax = Vector2.New(1,0)
-            rc.pivot = Vector2.New(0.5,0.5)
-            rc.anchoredPosition = Vector2.New(-89,41)
+            rc.pivot = Vector2.New(1,0)
+            rc.anchoredPosition = Vector2.New(-68,38)
         end
 
         local function ShowStepCallBack()
@@ -172,8 +178,6 @@ def.method().ShowCurSmallStep = function(self)
 
         CGuideMan.UpdateGuideSortingLayerOrder(self)
 
-    --    ------print("self._CurSmallStep=",self._CurSmallStep)
-
         if self._CurBigStepConfig.Steps[self._CurSmallStep].InitCallBack ~= nil then
             self._CurBigStepConfig.Steps[self._CurSmallStep].InitCallBack()
         end
@@ -184,6 +188,7 @@ def.method().ShowCurSmallStep = function(self)
             if OperationFrame ~= nil then
                 GameUtil.PlayUISfx(PATH.UIFX_OperationTips_effect_bg_xinshou, OperationFrame, OperationFrame, -1, 20, -1)
                 GameUtil.PlayUISfx(PATH.UIFX_OperationTips_effect_xinshou, OperationFrame, OperationFrame, -1, 20, 1)
+                CSoundMan.Instance():Play2DAudio(PATH.GUISound_Msg_Unlock, 0)
             end
         end
 
@@ -222,6 +227,8 @@ def.override("string").OnClick = function(self, id)
         
         local function callback( ret )
             if ret then
+                --print( "=========",self._CurBigStepConfig.Steps[self._CurSmallStep].Audio )
+                CSoundMan.Instance():Play3DVoice("",game._HostPlayer:GetPos(),0)
                 game._CGuideMan:JumpCurGuide()
             end
         end
@@ -230,6 +237,16 @@ def.override("string").OnClick = function(self, id)
         local title, msg, closeType = StringTable.GetMsg(137) 
         MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback, nil, nil, MsgBoxPriority.Quit)
     else
+        if self._CurBigStepConfig == nil then
+            warn("self._CurBigStepConfig == nil",self._CurBigStep,self._CurSmallStep)
+            return
+        end
+
+        if self._CurBigStepConfig.Steps[self._CurSmallStep] == nil then
+            warn("self._CurBigStepConfig.Steps[self._CurSmallStep] == nil",self._CurBigStep,self._CurSmallStep)
+            return
+        end
+        
         if self._CurBigStepConfig.Steps[self._CurSmallStep].NextStepTriggerBehaviour == EnumDef.EGuideBehaviourID.OnClickBlackBG then
             local GuideEvent = require "Events.GuideEvent"
             local event = GuideEvent()
@@ -305,7 +322,7 @@ def.method("userdata").EffectAutoPos = function(self, btn)
             print("self._CurSmallStep is nil!!!!!!!!!",self._CurSmallStep)
             return
         end
-        print("self._CurSmallStep is ",self._CurBigStep,self._CurSmallStep)
+        --print("self._CurSmallStep is ",self._CurBigStep,self._CurSmallStep)
         local effect = node:FindChild("Effect")
         if effect ~= nil then
             --更正 锚点为中心，把特效描述放入特效父节点

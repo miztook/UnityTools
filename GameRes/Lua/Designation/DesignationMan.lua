@@ -32,7 +32,7 @@ end
  
 def.method().LoadAllDesignationData = function (self)
 	self._Table_Designations = {}
-	local allDesignation = GameUtil.GetAllTid("Designation")
+	local allDesignation = CElementData.GetAllTid("Designation")
 	--warn("DesignationCount"..#allDesignation.."!!!!!!!!!!!!!!!!!!!!")	
 
 	-- self._Table_Designations[#self._Table_Designations + 1] =
@@ -159,11 +159,13 @@ end
 --排序
 def.method().SortTable = function(self)
 	local function DesignationSort(item1, item2)
-		if item1._lock == item2._lock then
-			return item1._Data.Id < item2._Data.Id
-		else			
-			return item1._lock > item2._lock
-		end
+		if item1._lock and not item2._lock then
+            return true
+        end
+        if not item1._lock and item2._lock then
+            return false
+        end
+		return item1._Data.Id < item2._Data.Id
 	end
 
 	for _,v in pairs(self._Table_Designations) do
@@ -545,7 +547,7 @@ def.method().TakeOffDesignation = function(self)
     PBHelper.Send(protocol)
 end
 
-def.method().Release = function(self)	
+def.method().Cleanup = function(self)	
 	self._CurDesignationID = 0
 	self._Table_Designations = {}
 	self._Table_TalentID = {}

@@ -11,16 +11,17 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12032] = 
 		{
-			[1] = { x = 292.90, y = 37.80, z = 2.80, name = "第三军团剑士", level = 35, IsCanFind = 1, Describe = "Lv.35,第三军团剑士", SortID = 8, DropItemIds = "1001*1109*20100*1108*51*20010*27010*24000*20200*20201*1107*27011*24001*20300*3000*2022*1030*20202*24002*21201" },
+			[1] = { x = 269.60, y = 41.60, z = 6.60, name = "第三军团剑士", level = 35, IsCanFind = 1, Describe = "Lv.35,第三军团剑士", SortID = 8, DropItemIds = "1001*1139*10009*20100*1138*10008*51*20010*27010*24000*1137*10007*27011*24001*20300*3000*8010201*24002*21201" },
 			[2] = { x = 172.21, y = 58.40, z = 63.54, name = "第三军团剑士", level = 35, SortID = 123 },
 		},
 		[12031] = 
 		{
-			[1] = { x = 291.34, y = 38.91, z = -6.53, name = "德法军坦克", level = 37, SortID = 9 },
+			[1] = { x = 306.26, y = 38.91, z = -2.28, name = "德法军坦克", level = 37, SortID = 9 },
 			[2] = { x = 307.43, y = 39.83, z = 36.83, name = "德法军坦克", level = 37, SortID = 121 },
 			[3] = { x = 293.29, y = 39.83, z = 39.63, name = "德法军坦克", level = 37, SortID = 122 },
 		},
@@ -29,15 +30,13 @@ local MapInfo =
 			[1] = { x = 317.76, y = 40.14, z = 37.84, name = "第三军团千夫长", level = 37, SortID = 16 },
 			[2] = { x = 316.82, y = 50.66, z = 146.51, name = "第三军团千夫长", level = 37, SortID = 30 },
 		},
-		[12052] = 
-		{
-			[1] = { x = 241.00, y = 33.18, z = 142.60, name = "丧尸", level = 37, DropItemIds = " " },
-			[2] = { x = 223.62, y = 33.40, z = 118.89, name = "丧尸", level = 37, DropItemIds = " " },
-			[3] = { x = 193.79, y = 36.37, z = 118.55, name = "丧尸", level = 37, IsCanFind = 1, Describe = "Lv.37,丧尸", SortID = 20, DropItemIds = "1001*1109*20100*1108*52*51*20010*27010*24000*20200*20201*1107*27011*24001*20300*3000*2022*1030*20202*24002*54*27200*21001" },
-		},
 		[12053] = 
 		{
 			[1] = { x = 137.23, y = 32.21, z = 131.71, name = "复生的男爵", level = 37, SortID = 19 },
+		},
+		[12052] = 
+		{
+			[1] = { x = 193.79, y = 38.91, z = 118.55, name = "丧尸", level = 37, IsCanFind = 1, Describe = "Lv.37,丧尸", SortID = 20, DropItemIds = "1001*1139*10009*20100*1138*10008*52*51*20010*27010*24000*1137*10007*27011*24001*20300*3000*1030*24002*54*27200*21001" },
 		},
 		[12054] = 
 		{
@@ -50,7 +49,7 @@ local MapInfo =
 		},
 		[12056] = 
 		{
-			[1] = { x = -69.10, y = 91.70, z = 52.40, name = "安农勇士", level = 39, IsCanFind = 1, Describe = "Lv.39,安农勇士", SortID = 23, DropItemIds = "1001*1109*20100*1108*52*51*20010*27010*24000*20200*20201*1107*27011*24001*20300*3000*2022*1030*20202*24002*54*27200*21001" },
+			[1] = { x = -69.10, y = 91.70, z = 52.40, name = "安农勇士", level = 39, IsCanFind = 1, Describe = "Lv.39,安农勇士", SortID = 23, DropItemIds = "1001*1139*10009*20100*1138*10008*52*51*20010*27010*24000*1137*10007*27011*24001*20300*3000*1030*24002*54*27200*21001" },
 		},
 		[12041] = 
 		{
@@ -84,7 +83,7 @@ local MapInfo =
 			[2] = { x = 213.72, y = 57.23, z = -94.00, name = "沙行者勇者", level = 30, SortID = 54 },
 			[3] = { x = 15.51, y = 82.63, z = 6.47, name = "沙行者勇者", level = 30, SortID = 55 },
 			[4] = { x = -125.10, y = 89.89, z = -2.30, name = "沙行者勇者", level = 30, SortID = 56 },
-			[5] = { x = -322.00, y = 123.66, z = 91.83, name = "沙行者勇者", level = 30, SortID = 57 },
+			[5] = { x = -306.60, y = 123.66, z = -9.90, name = "沙行者勇者", level = 30, SortID = 57 },
 		},
 		[35231] = 
 		{
@@ -92,7 +91,7 @@ local MapInfo =
 			[2] = { x = 213.72, y = 57.23, z = -94.00, name = "血法师", level = 30, SortID = 54 },
 			[3] = { x = 15.51, y = 82.63, z = 6.47, name = "血法师", level = 30, SortID = 55 },
 			[4] = { x = -125.10, y = 89.89, z = -2.30, name = "血法师", level = 30, SortID = 56 },
-			[5] = { x = -322.00, y = 123.66, z = 91.83, name = "血法师", level = 30, SortID = 57 },
+			[5] = { x = -306.60, y = 123.66, z = -9.90, name = "血法师", level = 30, SortID = 57 },
 		},
 		[35232] = 
 		{
@@ -100,11 +99,11 @@ local MapInfo =
 			[2] = { x = 213.72, y = 57.23, z = -94.00, name = "复生的男爵", level = 30, SortID = 54 },
 			[3] = { x = 15.51, y = 82.63, z = 6.47, name = "复生的男爵", level = 30, SortID = 55 },
 			[4] = { x = -125.10, y = 89.89, z = -2.30, name = "复生的男爵", level = 30, SortID = 56 },
-			[5] = { x = -322.00, y = 123.66, z = 91.83, name = "复生的男爵", level = 30, SortID = 57 },
+			[5] = { x = -306.60, y = 123.66, z = -9.90, name = "复生的男爵", level = 30, SortID = 57 },
 		},
 		[12059] = 
 		{
-			[1] = { x = -190.76, y = 96.52, z = 82.05, name = "安农勇士", level = 35, SortID = 75 },
+			[1] = { x = -86.40, y = 96.52, z = 4.90, name = "安农勇士", level = 35, SortID = 75 },
 		},
 		[12083] = 
 		{
@@ -141,16 +140,16 @@ local MapInfo =
 		},
 		[12051] = 
 		{
-			[1] = { x = -301.90, y = 124.01, z = 87.95, name = "不死者", level = 37, DropItemIds = " " },
-			[2] = { x = -301.90, y = 124.01, z = 87.95, name = "不死者", level = 37, DropItemIds = " " },
-			[3] = { x = -319.86, y = 111.03, z = 36.85, name = "不死者", level = 37, DropItemIds = " " },
-			[4] = { x = -319.86, y = 111.03, z = 36.85, name = "不死者", level = 37, DropItemIds = " " },
-			[5] = { x = -311.82, y = 119.52, z = 65.40, name = "不死者", level = 37, DropItemIds = " " },
-			[6] = { x = -311.82, y = 119.52, z = 65.40, name = "不死者", level = 37, DropItemIds = " " },
-			[7] = { x = -308.90, y = 124.01, z = -4.30, name = "不死者", level = 37, DropItemIds = " " },
-			[8] = { x = -308.90, y = 124.01, z = -4.30, name = "不死者", level = 37, DropItemIds = " " },
-			[9] = { x = -287.20, y = 95.01, z = -36.20, name = "不死者", level = 37, DropItemIds = " " },
-			[10] = { x = -287.20, y = 95.01, z = -36.20, name = "不死者", level = 37, DropItemIds = " " },
+			[1] = { x = -293.40, y = 101.30, z = -23.12, name = "不死者", level = 37, DropItemIds = " " },
+			[2] = { x = -293.40, y = 101.30, z = -23.12, name = "不死者", level = 37, DropItemIds = " " },
+			[3] = { x = -276.72, y = 92.49, z = -48.76, name = "不死者", level = 37, DropItemIds = " " },
+			[4] = { x = -276.72, y = 92.49, z = -48.76, name = "不死者", level = 37, DropItemIds = " " },
+			[5] = { x = -283.80, y = 92.85, z = -52.84, name = "不死者", level = 37, DropItemIds = " " },
+			[6] = { x = -283.80, y = 92.85, z = -52.84, name = "不死者", level = 37, DropItemIds = " " },
+			[7] = { x = -266.75, y = 91.99, z = -56.03, name = "不死者", level = 37, DropItemIds = " " },
+			[8] = { x = -266.75, y = 91.99, z = -56.03, name = "不死者", level = 37, DropItemIds = " " },
+			[9] = { x = -268.47, y = 91.92, z = -62.12, name = "不死者", level = 37, DropItemIds = " " },
+			[10] = { x = -268.47, y = 91.92, z = -62.12, name = "不死者", level = 37, DropItemIds = " " },
 		},
 		[39003] = 
 		{
@@ -205,7 +204,7 @@ local MapInfo =
 			[2] = { x = 213.72, y = 57.23, z = -94.00, name = "黑翼大主教", level = 35, SortID = 191 },
 			[3] = { x = 15.51, y = 82.63, z = 6.47, name = "黑翼大主教", level = 35, SortID = 192 },
 			[4] = { x = -125.10, y = 89.89, z = -2.30, name = "黑翼大主教", level = 35, SortID = 193 },
-			[5] = { x = -322.00, y = 123.66, z = 91.83, name = "黑翼大主教", level = 35, SortID = 194 },
+			[5] = { x = -306.20, y = 123.66, z = -10.10, name = "黑翼大主教", level = 35, SortID = 194 },
 		},
 		[35246] = 
 		{
@@ -213,7 +212,7 @@ local MapInfo =
 			[2] = { x = 213.72, y = 57.23, z = -94.00, name = "残暴尖刺蜘蛛", level = 35, SortID = 191 },
 			[3] = { x = 15.51, y = 82.63, z = 6.47, name = "残暴尖刺蜘蛛", level = 35, SortID = 192 },
 			[4] = { x = -125.10, y = 89.89, z = -2.30, name = "残暴尖刺蜘蛛", level = 35, SortID = 193 },
-			[5] = { x = -322.00, y = 123.66, z = 91.83, name = "残暴尖刺蜘蛛", level = 35, SortID = 194 },
+			[5] = { x = -306.20, y = 123.66, z = -10.10, name = "残暴尖刺蜘蛛", level = 35, SortID = 194 },
 		},
 		[35247] = 
 		{
@@ -221,7 +220,7 @@ local MapInfo =
 			[2] = { x = 213.72, y = 57.23, z = -94.00, name = "赤金", level = 35, SortID = 191 },
 			[3] = { x = 15.51, y = 82.63, z = 6.47, name = "赤金", level = 35, SortID = 192 },
 			[4] = { x = -125.10, y = 89.89, z = -2.30, name = "赤金", level = 35, SortID = 193 },
-			[5] = { x = -322.00, y = 123.66, z = 91.83, name = "赤金", level = 35, SortID = 194 },
+			[5] = { x = -306.20, y = 123.66, z = -10.10, name = "赤金", level = 35, SortID = 194 },
 		},
 		[35258] = 
 		{
@@ -229,7 +228,7 @@ local MapInfo =
 			[2] = { x = 213.72, y = 57.23, z = -94.00, name = "卡莫·曼·坎迪斯", level = 40, SortID = 198 },
 			[3] = { x = 15.51, y = 82.63, z = 6.47, name = "卡莫·曼·坎迪斯", level = 40, SortID = 197 },
 			[4] = { x = -125.10, y = 89.89, z = -2.30, name = "卡莫·曼·坎迪斯", level = 40, SortID = 196 },
-			[5] = { x = -322.00, y = 123.66, z = 91.83, name = "卡莫·曼·坎迪斯", level = 40, SortID = 195 },
+			[5] = { x = -306.50, y = 123.66, z = -10.30, name = "卡莫·曼·坎迪斯", level = 40, SortID = 195 },
 		},
 		[35259] = 
 		{
@@ -237,7 +236,7 @@ local MapInfo =
 			[2] = { x = 213.72, y = 57.23, z = -94.00, name = "不死骑士", level = 40, SortID = 198 },
 			[3] = { x = 15.51, y = 82.63, z = 6.47, name = "不死骑士", level = 40, SortID = 197 },
 			[4] = { x = -125.10, y = 89.89, z = -2.30, name = "不死骑士", level = 40, SortID = 196 },
-			[5] = { x = -322.00, y = 123.66, z = 91.83, name = "不死骑士", level = 40, SortID = 195 },
+			[5] = { x = -306.50, y = 123.66, z = -10.30, name = "不死骑士", level = 40, SortID = 195 },
 		},
 		[34001] = 
 		{
@@ -245,11 +244,11 @@ local MapInfo =
 		},
 		[34206] = 
 		{
-			[1] = { x = -314.10, y = 108.43, z = 18.90, name = "耶索斯", level = 36, SortID = 13, DropItemIds = " ",IsEliteBoss = true,BossIconPath = "CBT_Map_Tag_018_001" },
+			[1] = { x = 258.34, y = 108.43, z = 43.35, name = "耶索斯", level = 36, SortID = 13, DropItemIds = " ",IsEliteBoss = true,BossIconPath = "CBT_Map_Tag_018_001" },
 		},
 		[34207] = 
 		{
-			[1] = { x = 271.77, y = 39.92, z = 33.77, name = "瑟图尔", level = 38, SortID = 24, DropItemIds = " ",IsEliteBoss = true,BossIconPath = "CBT_Map_Tag_018_001" },
+			[1] = { x = -171.41, y = 97.52, z = 86.49, name = "瑟图尔", level = 38, SortID = 24, DropItemIds = " ",IsEliteBoss = true,BossIconPath = "CBT_Map_Tag_018_001" },
 		},
 		[60045] = 
 		{
@@ -299,11 +298,11 @@ local MapInfo =
 		},
 		[12256] = 
 		{
-			[1] = { x = -309.63, y = 119.79, z = 66.13, name = "德法控尸者", level = 34, DropItemIds = " " },
+			[1] = { x = -309.90, y = 119.79, z = 17.60, name = "德法控尸者", level = 34, DropItemIds = " " },
 		},
 		[12257] = 
 		{
-			[1] = { x = -313.60, y = 122.36, z = 80.49, name = "复生骑士", level = 38, DropItemIds = " " },
+			[1] = { x = -297.60, y = 122.36, z = -28.80, name = "复生骑士", level = 38, DropItemIds = " " },
 		},
 		[12239] = 
 		{
@@ -326,280 +325,284 @@ local MapInfo =
 	{
 		[2048] = 
 		{
-			[1] = { x = 303.86, y = 47.76, z = -65.19, name = "乔纳森", SortID = 3 },
+			[1] = { x = 303.86, y = 47.76, z = -65.19, name = "乔纳森", SortID = 3, IsDoor = 0 },
 		},
 		[2049] = 
 		{
-			[1] = { x = 324.83, y = 47.41, z = -51.09, name = "联盟军", SortID = 4 },
-			[2] = { x = 310.27, y = 47.42, z = -78.91, name = "联盟军", SortID = 5 },
+			[1] = { x = 324.83, y = 47.41, z = -51.09, name = "联盟军", SortID = 4, IsDoor = 0 },
+			[2] = { x = 310.27, y = 47.42, z = -78.91, name = "联盟军", SortID = 5, IsDoor = 0 },
 		},
 		[2104] = 
 		{
-			[1] = { x = 318.80, y = 38.28, z = -14.70, name = "尉官", SortID = 6 },
-			[2] = { x = 271.17, y = 40.42, z = -20.63, name = "尉官", SortID = 7 },
-			[3] = { x = 333.10, y = 40.02, z = 15.90, name = "尉官", SortID = 11 },
-			[4] = { x = 254.35, y = 42.01, z = 8.93, name = "尉官", SortID = 12 },
-			[5] = { x = 287.10, y = 42.45, z = -30.20, name = "尉官", SortID = 104 },
+			[1] = { x = 318.80, y = 38.28, z = -14.70, name = "尉官", SortID = 6, IsDoor = 0 },
+			[2] = { x = 271.17, y = 40.42, z = -20.63, name = "尉官", SortID = 7, IsDoor = 0 },
+			[3] = { x = 333.10, y = 40.02, z = 15.90, name = "尉官", SortID = 11, IsDoor = 0 },
+			[4] = { x = 254.35, y = 42.01, z = 8.93, name = "尉官", SortID = 12, IsDoor = 0 },
+			[5] = { x = 287.10, y = 42.45, z = -30.20, name = "尉官", SortID = 104, IsDoor = 0 },
 		},
 		[2103] = 
 		{
-			[1] = { x = 318.80, y = 38.28, z = -14.70, name = "联盟军", SortID = 6 },
-			[2] = { x = 271.17, y = 40.42, z = -20.63, name = "联盟军", SortID = 7 },
-			[3] = { x = 333.10, y = 40.02, z = 15.90, name = "联盟军", SortID = 11 },
-			[4] = { x = 254.35, y = 42.01, z = 8.93, name = "联盟军", SortID = 12 },
-			[5] = { x = 287.10, y = 42.45, z = -30.20, name = "联盟军", SortID = 104 },
+			[1] = { x = 318.80, y = 38.28, z = -14.70, name = "联盟军", SortID = 6, IsDoor = 0 },
+			[2] = { x = 271.17, y = 40.42, z = -20.63, name = "联盟军", SortID = 7, IsDoor = 0 },
+			[3] = { x = 333.10, y = 40.02, z = 15.90, name = "联盟军", SortID = 11, IsDoor = 0 },
+			[4] = { x = 254.35, y = 42.01, z = 8.93, name = "联盟军", SortID = 12, IsDoor = 0 },
+			[5] = { x = 287.10, y = 42.45, z = -30.20, name = "联盟军", SortID = 104, IsDoor = 0 },
 		},
 		[2053] = 
 		{
-			[1] = { x = 140.30, y = 63.26, z = -52.27, name = "霍斯·塔兰", SortID = 14 },
+			[1] = { x = 140.30, y = 63.26, z = -52.27, name = "霍斯·塔兰", SortID = 14, IsDoor = 0 },
 		},
 		[2052] = 
 		{
-			[1] = { x = 139.13, y = 63.32, z = -49.17, name = "夏洛蒂·塔兰", SortID = 15 },
+			[1] = { x = 139.13, y = 63.32, z = -49.17, name = "夏洛蒂·塔兰", SortID = 15, IsDoor = 0 },
 		},
 		[2062] = 
 		{
-			[1] = { x = -230.66, y = 58.26, z = -139.04, name = "特拉塞", SortID = 26 },
+			[1] = { x = -230.66, y = 58.26, z = -139.04, name = "特拉塞", SortID = 26, IsDoor = 0 },
 		},
 		[2119] = 
 		{
-			[1] = { x = 255.21, y = 42.18, z = 78.51, name = "乔纳森", SortID = 27 },
+			[1] = { x = 255.21, y = 42.18, z = 78.51, name = "乔纳森", SortID = 27, IsDoor = 0 },
 		},
 		[2123] = 
 		{
-			[1] = { x = 122.40, y = 63.92, z = -5.89, name = "乔纳森", SortID = 31 },
+			[1] = { x = 122.40, y = 63.92, z = -5.89, name = "乔纳森", SortID = 31, IsDoor = 0 },
 		},
 		[2059] = 
 		{
-			[1] = { x = 57.26, y = 79.95, z = 67.71, name = "铁骨", SortID = 32 },
+			[1] = { x = 57.26, y = 79.95, z = 67.71, name = "铁骨", SortID = 32, IsDoor = 0 },
 		},
 		[2136] = 
 		{
-			[1] = { x = -167.82, y = 58.79, z = -94.77, name = "塔塞姆", IconPath = "Map_Img_Shop", Describe = "塔塞姆", SortID = 34, FunctionName = "扫荡" },
+			[1] = { x = -167.82, y = 58.79, z = -94.77, name = "塔塞姆", IconPath = "Map_Img_Shop", Describe = "塔塞姆", SortID = 34, FunctionName = "扫荡", IsDoor = 0 },
 		},
 		[2134] = 
 		{
-			[1] = { x = -187.14, y = 58.72, z = -102.44, name = "拉斯卡瑞", Describe = "杂货商", SortID = 35 },
+			[1] = { x = -187.14, y = 58.72, z = -102.44, name = "拉斯卡瑞", Describe = "杂货商", SortID = 35, IsDoor = 0 },
 		},
 		[2131] = 
 		{
-			[1] = { x = -229.33, y = 57.85, z = -137.72, name = "“夜莺”", SortID = 36 },
+			[1] = { x = -229.33, y = 57.85, z = -137.72, name = "“夜莺”", SortID = 36, IsDoor = 0 },
 		},
 		[2142] = 
 		{
-			[1] = { x = -243.18, y = 57.30, z = -129.34, name = "迪波", SortID = 37 },
+			[1] = { x = -243.18, y = 57.30, z = -129.34, name = "迪波", SortID = 37, IsDoor = 0 },
 		},
 		[2138] = 
 		{
-			[1] = { x = -170.92, y = 45.48, z = -151.09, name = "艾丽莎·库贝尔", SortID = 38 },
+			[1] = { x = -170.92, y = 45.48, z = -151.09, name = "艾丽莎·库贝尔", SortID = 38, IsDoor = 0 },
 		},
 		[2139] = 
 		{
-			[1] = { x = -167.94, y = 45.47, z = -153.80, name = "游侠", SortID = 39 },
+			[1] = { x = -167.94, y = 45.47, z = -153.80, name = "游侠", SortID = 39, IsDoor = 0 },
 		},
 		[2141] = 
 		{
-			[1] = { x = -170.79, y = 45.47, z = -145.30, name = "沙摩尔", SortID = 40 },
+			[1] = { x = -170.79, y = 45.47, z = -145.30, name = "沙摩尔", SortID = 40, IsDoor = 0 },
 		},
 		[2140] = 
 		{
-			[1] = { x = -171.80, y = 45.48, z = -142.89, name = "露娜·艾琳", SortID = 41 },
+			[1] = { x = -171.80, y = 45.48, z = -142.89, name = "露娜·艾琳", SortID = 41, IsDoor = 0 },
 		},
 		[2124] = 
 		{
-			[1] = { x = -185.35, y = 84.54, z = 0.21, name = "乔纳森", SortID = 46 },
+			[1] = { x = -185.35, y = 84.54, z = 0.21, name = "乔纳森", SortID = 46, IsDoor = 0 },
 		},
 		[2128] = 
 		{
-			[1] = { x = -179.30, y = 84.51, z = 5.89, name = "联盟军敢死队", SortID = 47 },
+			[1] = { x = -179.30, y = 84.51, z = 5.89, name = "联盟军敢死队", SortID = 47, IsDoor = 0 },
 		},
 		[2086] = 
 		{
-			[1] = { x = -200.69, y = 58.52, z = -96.24, name = "特兰", SortID = 63 },
+			[1] = { x = -200.69, y = 58.52, z = -96.24, name = "特兰", SortID = 63, IsDoor = 0 },
 		},
 		[2087] = 
 		{
-			[1] = { x = -170.92, y = 46.01, z = -126.03, name = "佩里斯", SortID = 64 },
+			[1] = { x = -170.92, y = 46.01, z = -126.03, name = "佩里斯", SortID = 64, IsDoor = 0 },
 		},
 		[2089] = 
 		{
-			[1] = { x = 145.90, y = 62.83, z = -29.00, name = "罗纳德", SortID = 65 },
+			[1] = { x = 145.90, y = 62.83, z = -29.00, name = "罗纳德", SortID = 65, IsDoor = 0 },
 		},
 		[2090] = 
 		{
-			[1] = { x = 137.56, y = 63.61, z = -44.58, name = "书记官", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "书记官", SortID = 66, FunctionName = "声望" },
+			[1] = { x = 137.56, y = 63.61, z = -44.58, name = "书记官", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "书记官", SortID = 66, FunctionName = "声望", IsDoor = 0 },
 		},
 		[2092] = 
 		{
-			[1] = { x = 146.83, y = 63.51, z = -79.80, name = "默森", SortID = 67 },
+			[1] = { x = 146.83, y = 63.51, z = -79.80, name = "默森", SortID = 67, IsDoor = 0 },
 		},
 		[2147] = 
 		{
-			[1] = { x = 141.91, y = 62.84, z = -23.30, name = "茉莉", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "茉莉", SortID = 68, FunctionName = "声望" },
+			[1] = { x = 141.91, y = 62.84, z = -23.30, name = "茉莉", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "茉莉", SortID = 68, FunctionName = "声望", IsDoor = 0 },
 		},
 		[2135] = 
 		{
-			[1] = { x = -182.68, y = 58.59, z = -101.93, name = "斯蒂尔", SortID = 77 },
+			[1] = { x = -182.68, y = 58.59, z = -101.93, name = "斯蒂尔", SortID = 77, IsDoor = 0 },
 		},
 		[2133] = 
 		{
-			[1] = { x = -194.21, y = 58.97, z = -91.62, name = "坦图斯", SortID = 78 },
+			[1] = { x = -194.21, y = 58.97, z = -91.62, name = "坦图斯", SortID = 78, IsDoor = 0 },
 		},
 		[2148] = 
 		{
-			[1] = { x = 141.64, y = 63.58, z = -58.09, name = "坎扎尔", SortID = 82 },
+			[1] = { x = 141.64, y = 63.58, z = -58.09, name = "坎扎尔", SortID = 82, IsDoor = 0 },
 		},
 		[2172] = 
 		{
-			[1] = { x = 123.86, y = 63.81, z = -9.57, name = "夏洛蒂·塔兰", SortID = 111 },
+			[1] = { x = 123.86, y = 63.81, z = -9.57, name = "夏洛蒂·塔兰", SortID = 111, IsDoor = 0 },
 		},
 		[2175] = 
 		{
-			[1] = { x = 258.66, y = 41.48, z = 53.76, name = "夏洛蒂·塔兰", SortID = 112 },
+			[1] = { x = 258.66, y = 41.48, z = 53.76, name = "夏洛蒂·塔兰", SortID = 112, IsDoor = 0 },
 		},
 		[2173] = 
 		{
-			[1] = { x = 265.73, y = 39.42, z = 99.93, name = "夏洛蒂·塔兰", SortID = 113 },
+			[1] = { x = 265.73, y = 39.42, z = 99.93, name = "夏洛蒂·塔兰", SortID = 113, IsDoor = 0 },
 		},
 		[147] = 
 		{
-			[1] = { x = 156.46, y = 63.34, z = -65.88, name = "杂货商", SortID = 136 },
-			[2] = { x = 343.87, y = 47.89, z = -66.40, name = "杂货商", SortID = 137 },
+			[1] = { x = 156.46, y = 63.34, z = -65.88, name = "杂货商", SortID = 136, IsDoor = 0 },
+			[2] = { x = 343.87, y = 47.89, z = -66.40, name = "杂货商", SortID = 137, IsDoor = 0 },
 		},
 		[20] = 
 		{
-			[1] = { x = 344.20, y = 49.54, z = 125.36, name = "劳伦斯", SortID = 79 },
+			[1] = { x = 344.20, y = 49.54, z = 125.36, name = "劳伦斯", SortID = 79, IsDoor = 0 },
 		},
 		[21] = 
 		{
-			[1] = { x = 138.40, y = 32.28, z = 131.00, name = "劳伦斯", SortID = 80 },
+			[1] = { x = 138.40, y = 32.28, z = 131.00, name = "劳伦斯", SortID = 80, IsDoor = 0 },
 		},
 		[22] = 
 		{
-			[1] = { x = -245.30, y = 57.51, z = -116.09, name = "劳伦斯", SortID = 81 },
+			[1] = { x = -245.30, y = 57.51, z = -116.09, name = "劳伦斯", SortID = 81, IsDoor = 0 },
 		},
 		[2226] = 
 		{
-			[1] = { x = -155.59, y = 59.38, z = -77.72, name = "德法商人", SortID = 162 },
-			[2] = { x = -197.62, y = 58.67, z = -95.62, name = "德法商人", SortID = 172 },
+			[1] = { x = -155.59, y = 59.38, z = -77.72, name = "德法商人", SortID = 162, IsDoor = 0 },
+			[2] = { x = -197.62, y = 58.67, z = -95.62, name = "德法商人", SortID = 172, IsDoor = 0 },
 		},
 		[2227] = 
 		{
-			[1] = { x = -158.73, y = 58.87, z = -82.78, name = "第三军团士兵", SortID = 163 },
-			[2] = { x = -182.55, y = 45.48, z = -145.42, name = "第三军团士兵", SortID = 164 },
-			[3] = { x = -178.25, y = 43.74, z = -177.54, name = "第三军团士兵", SortID = 165 },
-			[4] = { x = -229.70, y = 57.07, z = -113.01, name = "第三军团士兵", SortID = 168 },
+			[1] = { x = -158.73, y = 58.87, z = -82.78, name = "第三军团士兵", SortID = 163, IsDoor = 0 },
+			[2] = { x = -182.55, y = 45.48, z = -145.42, name = "第三军团士兵", SortID = 164, IsDoor = 0 },
+			[3] = { x = -178.25, y = 43.74, z = -177.54, name = "第三军团士兵", SortID = 165, IsDoor = 0 },
+			[4] = { x = -229.70, y = 57.07, z = -113.01, name = "第三军团士兵", SortID = 168, IsDoor = 0 },
 		},
 		[2228] = 
 		{
-			[1] = { x = -159.04, y = 45.48, z = -144.89, name = "德法军官", SortID = 166 },
-			[2] = { x = -225.88, y = 57.23, z = -107.40, name = "德法军官", SortID = 167 },
+			[1] = { x = -159.04, y = 45.48, z = -144.89, name = "德法军官", SortID = 166, IsDoor = 0 },
+			[2] = { x = -225.88, y = 57.23, z = -107.40, name = "德法军官", SortID = 167, IsDoor = 0 },
 		},
 		[2230] = 
 		{
-			[1] = { x = -148.58, y = 37.12, z = -201.00, name = "军人", SortID = 169 },
-			[2] = { x = -165.81, y = 45.45, z = -131.88, name = "军人", SortID = 170 },
-			[3] = { x = -162.71, y = 60.46, z = -76.46, name = "军人", SortID = 171 },
+			[1] = { x = -148.58, y = 37.12, z = -201.00, name = "军人", SortID = 169, IsDoor = 0 },
+			[2] = { x = -165.81, y = 45.45, z = -131.88, name = "军人", SortID = 170, IsDoor = 0 },
+			[3] = { x = -162.71, y = 60.46, z = -76.46, name = "军人", SortID = 171, IsDoor = 0 },
 		},
 		[2229] = 
 		{
-			[1] = { x = -201.66, y = 58.44, z = -98.15, name = "卡兰镇居民", SortID = 173 },
-			[2] = { x = -189.59, y = 59.61, z = -83.82, name = "卡兰镇居民", SortID = 174 },
-			[3] = { x = -204.38, y = 49.74, z = -136.85, name = "卡兰镇居民", SortID = 175 },
+			[1] = { x = -201.66, y = 58.44, z = -98.15, name = "卡兰镇居民", SortID = 173, IsDoor = 0 },
+			[2] = { x = -189.59, y = 59.61, z = -83.82, name = "卡兰镇居民", SortID = 174, IsDoor = 0 },
+			[3] = { x = -204.38, y = 49.74, z = -136.85, name = "卡兰镇居民", SortID = 175, IsDoor = 0 },
 		},
 		[2225] = 
 		{
-			[1] = { x = -189.59, y = 59.61, z = -83.82, name = "女孩", SortID = 174 },
-			[2] = { x = -204.38, y = 49.74, z = -136.85, name = "女孩", SortID = 175 },
+			[1] = { x = -189.59, y = 59.61, z = -83.82, name = "女孩", SortID = 174, IsDoor = 0 },
+			[2] = { x = -204.38, y = 49.74, z = -136.85, name = "女孩", SortID = 175, IsDoor = 0 },
 		},
 		[2231] = 
 		{
-			[1] = { x = -131.60, y = 37.12, z = -181.00, name = "码头工人", SortID = 176 },
-			[2] = { x = -140.11, y = 37.12, z = -190.04, name = "码头工人", SortID = 177 },
-			[3] = { x = -173.09, y = 32.11, z = -237.58, name = "码头工人", SortID = 178 },
-			[4] = { x = -178.33, y = 32.11, z = -217.04, name = "码头工人", SortID = 179 },
-			[5] = { x = -197.06, y = 43.74, z = -168.39, name = "码头工人", SortID = 180 },
+			[1] = { x = -131.60, y = 37.12, z = -181.00, name = "码头工人", SortID = 176, IsDoor = 0 },
+			[2] = { x = -140.11, y = 37.12, z = -190.04, name = "码头工人", SortID = 177, IsDoor = 0 },
+			[3] = { x = -173.09, y = 32.11, z = -237.58, name = "码头工人", SortID = 178, IsDoor = 0 },
+			[4] = { x = -178.33, y = 32.11, z = -217.04, name = "码头工人", SortID = 179, IsDoor = 0 },
+			[5] = { x = -197.06, y = 43.74, z = -168.39, name = "码头工人", SortID = 180, IsDoor = 0 },
 		},
 		[2234] = 
 		{
-			[1] = { x = -304.20, y = 122.59, z = 78.00, name = "", SortID = 181 },
+			[1] = { x = -304.20, y = 122.59, z = 78.00, name = "", SortID = 181, IsDoor = 0 },
 		},
 		[2235] = 
 		{
-			[1] = { x = 293.90, y = 39.02, z = -5.90, name = "", SortID = 182 },
+			[1] = { x = 293.90, y = 39.02, z = -5.90, name = "", SortID = 182, IsDoor = 0 },
 		},
 		[2271] = 
 		{
-			[1] = { x = 185.08, y = 58.26, z = -50.72, name = "莫瑞", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "莫瑞子爵", SortID = 87, FunctionName = "声望" },
+			[1] = { x = 185.08, y = 58.26, z = -50.72, name = "莫瑞", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "莫瑞子爵", SortID = 87, FunctionName = "声望", IsDoor = 0 },
 		},
 		[2272] = 
 		{
-			[1] = { x = -189.18, y = 43.74, z = -174.81, name = "塔塞姆", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "塔塞姆", SortID = 88, FunctionName = "声望" },
+			[1] = { x = -189.18, y = 43.74, z = -174.81, name = "塔塞姆", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "塔塞姆", SortID = 88, FunctionName = "声望", IsDoor = 0 },
 		},
 		[2269] = 
 		{
-			[1] = { x = 311.63, y = 47.83, z = -61.40, name = "士官", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "联盟军士官", SortID = 89, FunctionName = "声望" },
+			[1] = { x = 311.63, y = 47.83, z = -61.40, name = "士官", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "联盟军士官", SortID = 89, FunctionName = "声望", IsDoor = 0 },
 		},
 		[2276] = 
 		{
-			[1] = { x = 64.33, y = 79.70, z = 60.29, name = "山地猎户", SortID = 90 },
+			[1] = { x = 64.33, y = 79.70, z = 60.29, name = "山地猎户", SortID = 90, IsDoor = 0 },
 		},
 		[2333] = 
 		{
-			[1] = { x = 110.03, y = 65.00, z = 32.18, name = "莫瑞", FunctionName = " " },
+			[1] = { x = 110.03, y = 65.00, z = 32.18, name = "莫瑞", FunctionName = " ", IsDoor = 0 },
 		},
 		[2334] = 
 		{
-			[1] = { x = 27.00, y = 83.18, z = 51.50, name = "夏洛蒂·塔兰", FunctionName = " " },
+			[1] = { x = 27.00, y = 83.18, z = 51.50, name = "夏洛蒂·塔兰", FunctionName = " ", IsDoor = 0 },
 		},
 		[2338] = 
 		{
-			[1] = { x = 91.28, y = 69.65, z = 27.97, name = "贝里克牧师", FunctionName = " " },
+			[1] = { x = 91.28, y = 69.65, z = 27.97, name = "贝里克牧师", FunctionName = " ", IsDoor = 0 },
 		},
 		[2341] = 
 		{
-			[1] = { x = 140.70, y = 63.15, z = -46.05, name = "露娜·艾琳", FunctionName = " " },
+			[1] = { x = 140.70, y = 63.15, z = -46.05, name = "露娜·艾琳", FunctionName = " ", IsDoor = 0 },
 		},
 		[2357] = 
 		{
-			[1] = { x = -175.78, y = 45.48, z = -142.97, name = "夏洛蒂·塔兰", FunctionName = " " },
+			[1] = { x = -175.78, y = 45.48, z = -142.97, name = "夏洛蒂·塔兰", FunctionName = " ", IsDoor = 0 },
 		},
 		[2342] = 
 		{
-			[1] = { x = -328.59, y = 119.00, z = 63.74, name = "席崁兰尼", FunctionName = " " },
+			[1] = { x = -325.20, y = 119.00, z = 14.40, name = "席崁兰尼", FunctionName = " ", IsDoor = 0 },
 		},
 		[2348] = 
 		{
-			[1] = { x = -174.93, y = 45.48, z = -152.14, name = "迪波", FunctionName = " " },
+			[1] = { x = -174.93, y = 45.48, z = -152.14, name = "迪波", FunctionName = " ", IsDoor = 0 },
 		},
 		[2363] = 
 		{
-			[1] = { x = 184.30, y = 58.26, z = -39.36, name = "安农俘虏", FunctionName = " " },
+			[1] = { x = 184.30, y = 58.26, z = -39.36, name = "安农俘虏", FunctionName = " ", IsDoor = 0 },
 		},
 		[2364] = 
 		{
-			[1] = { x = 99.77, y = 68.59, z = 34.72, name = "史蒂芬队长", FunctionName = " " },
+			[1] = { x = 99.77, y = 68.59, z = 34.72, name = "史蒂芬队长", FunctionName = " ", IsDoor = 0 },
 		},
 		[2365] = 
 		{
-			[1] = { x = 154.80, y = 63.34, z = -72.06, name = "平民", FunctionName = " " },
+			[1] = { x = 154.80, y = 63.34, z = -72.06, name = "平民", FunctionName = " ", IsDoor = 0 },
 		},
 		[2366] = 
 		{
-			[1] = { x = 141.31, y = 64.02, z = -61.28, name = "内政官", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "内政官", FunctionName = "声望" },
+			[1] = { x = 141.31, y = 64.02, z = -61.28, name = "内政官", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "内政官", FunctionName = "声望", IsDoor = 0 },
+		},
+		[26] = 
+		{
+			[1] = { x = 324.08, y = 39.05, z = -4.69, name = "裂隙传送门", IconPath = "CBT_Map_Tag_021", FunctionName = " ", IsDoor = 1 },
 		},
 	},
 	Region = 
 	{
 		[1] = 
 		{
-			[1] = { x = 340.76, y = 47.89, z = -108.46, xA = 53.88, yA = 26.64, zA = 143.21, name = "霍加斯北通往霍加斯南的传送区域", worldId = 140, PkMode = 0 },
-			[282] = { x = -162.49, y = 33.50, z = -212.56, xA = 166.67, yA = 49.24, zA = 276.64, name = "埃塞尼亚传送至霍加斯", worldId = 170, PkMode = 0 },
+			[1] = { x = 340.76, y = 47.89, z = -108.46, xA = 53.88, yA = 26.64, zA = 143.21, name = "霍加斯北通往霍加斯南的传送区域", worldId = 140, IsCanFind = 1, Describe = "霍加斯南", PkMode = 0 },
+			[282] = { x = -162.49, y = 33.50, z = -212.56, xA = 166.67, yA = 49.24, zA = 276.64, name = "埃塞尼亚传送至霍加斯", worldId = 170, IsCanFind = 1, Describe = "艾赛尼亚东", PkMode = 0 },
 		},
 		[2] = 
 		{
 			[209] = { x = 326.53, y = 47.83, z = -69.38, name = "前线营地", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Battle" },
-			[210] = { x = 268.97, y = 42.73, z = -81.04, name = "先锋军码头", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Battle" },
+			[210] = { x = 268.97, y = 42.73, z = -81.04, name = "先锋军码头", isShowName = true, worldId = 0, IsCanFind = 1, XMap = 267.9317, YMap = 41.25945, ZMap = -103.1695, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Battle" },
 			[211] = { x = 272.13, y = 43.23, z = 29.33, name = "前线", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Battle" },
 			[212] = { x = 297.77, y = 31.95, z = 108.27, name = "城垒废墟", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 0 },
 			[213] = { x = 195.43, y = 39.00, z = 116.25, name = "遗弃者墓地", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Canyon" },
@@ -614,20 +617,20 @@ local MapInfo =
 			[244] = { x = 71.65, y = 75.66, z = 40.29, name = "前往安农", worldId = 0, PkMode = 0 },
 			[246] = { x = -171.11, y = 63.01, z = -68.63, name = "前往卡兰", worldId = 0, PkMode = 0, EnvironmentMusic = "Zone_Ambience/Ambience/Harbor" },
 			[253] = { x = 151.15, y = 63.43, z = -78.35, name = "德法间谍埋伏点", worldId = 0, PkMode = 0 },
-			[264] = { x = -190.26, y = 96.98, z = 82.16, name = "支线-丢失的货车-刷怪安农", worldId = 0, PkMode = 0 },
+			[264] = { x = -86.60, y = 96.98, z = 4.50, name = "支线-丢失的货车-刷怪安农", worldId = 0, PkMode = 0 },
 			[265] = { x = 150.49, y = 63.44, z = -79.52, name = "支线-德法刺客", worldId = 0, PkMode = 0 },
 			[365] = { x = 219.69, y = 1.00, z = 104.47, name = "背景音乐-前线", worldId = 0, BackgroundMusic = "BGM_Map_3/Map_3/map_3_zone_6", PkMode = 0 },
 			[366] = { x = 174.95, y = 1.00, z = -2.15, name = "背景音乐-男爵领", worldId = 0, BackgroundMusic = "BGM_Map_3/Map_3/map_3_zone_5", PkMode = 0 },
 			[367] = { x = -137.78, y = 1.00, z = 49.81, name = "背景音乐-雪山雪原", worldId = 0, BackgroundMusic = "BGM_Map_3/Map_3/map_3_zone_4", PkMode = 0 },
 			[384] = { x = 188.24, y = 58.08, z = -42.79, name = "支线-领地故事-地点1", worldId = 0, IsCanFind = 1, PkMode = 0 },
 			[385] = { x = 182.45, y = 60.74, z = -12.20, name = "支线-领地故事-地点2", worldId = 0, PkMode = 0 },
-			[386] = { x = 112.59, y = 64.32, z = 18.75, name = "支线-领地故事-地点3 ", worldId = 0, PkMode = 0 },
+			[386] = { x = 112.59, y = 64.32, z = 18.75, name = "支线-领地故事-地点3", worldId = 0, PkMode = 0 },
 			[387] = { x = 141.87, y = 63.20, z = -42.91, name = "支线-领地故事-地点4", worldId = 0, PkMode = 0 },
 			[388] = { x = 47.50, y = 82.52, z = 61.50, name = "支线-残破的日记【鹰眼】", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {12074} },
 			[399] = { x = 243.30, y = 42.01, z = 50.20, name = "支线-探查托里领地", worldId = 0, PkMode = 0 },
 			[398] = { x = 244.23, y = 40.34, z = 93.64, name = "支线-日记残页1【鹰眼】", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {12076} },
-			[389] = { x = 298.49, y = 43.89, z = 77.42, name = "支线-残页2到达", worldId = 0, PkMode = 0 },
-			[390] = { x = 298.75, y = 44.00, z = 68.67, name = "支线-残页2到达刷怪", worldId = 0, PkMode = 0 },
+			[389] = { x = 298.49, y = 43.89, z = 77.42, name = "支线-雪峰堡到达", worldId = 0, PkMode = 0 },
+			[390] = { x = 298.75, y = 44.00, z = 68.67, name = "支线-雪峰堡到达刷怪", worldId = 0, PkMode = 0 },
 			[391] = { x = 332.94, y = 86.99, z = 135.50, name = "支线-日记残页3【鹰眼】", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {12082} },
 			[392] = { x = 325.74, y = 97.76, z = 46.40, name = "支线-日记残页4【鹰眼】", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {12082} },
 			[397] = { x = 264.89, y = 42.54, z = 103.26, name = "支线-墓园相位进入", worldId = 0, PkMode = 0 },
@@ -642,7 +645,7 @@ local MapInfo =
 			[408] = { x = 327.60, y = 272.79, z = 110.30, name = "神之视界-商人1", worldId = 0, PkMode = 0, IsCanHawkeye = true },
 			[409] = { x = 192.12, y = 364.23, z = 106.41, name = "神之视界-商人2", worldId = 0, PkMode = 0, IsCanHawkeye = true },
 			[410] = { x = -194.54, y = 418.90, z = -93.72, name = "神之视界-商人3", worldId = 0, PkMode = 0, IsCanHawkeye = true },
-			[411] = { x = -169.17, y = 428.71, z = -126.37, name = "神视单人-霍加斯王国史02", worldId = 0, PkMode = 0, IsCanHawkeye = true },
+			[411] = { x = -169.17, y = 428.71, z = -126.37, name = "万物志鹰眼-霍加斯王国史02", worldId = 0, PkMode = 0, IsCanHawkeye = true },
 			[412] = { x = -310.38, y = 226.39, z = 57.76, name = "神视单人-霍加斯王国史05", worldId = 0, PkMode = 0, IsCanHawkeye = true },
 			[413] = { x = -72.00, y = 418.88, z = 62.80, name = "神视单人-霍加斯王国史06", worldId = 0, PkMode = 0, IsCanHawkeye = true },
 			[414] = { x = 188.08, y = 360.48, z = 112.45, name = "神视单人-霍加斯王国史07", worldId = 0, PkMode = 0, IsCanHawkeye = true },
@@ -656,21 +659,22 @@ local MapInfo =
 			[422] = { x = -132.94, y = 411.89, z = -2.00, name = "神视多人-7", worldId = 0, PkMode = 0, IsCanHawkeye = true },
 			[423] = { x = -131.32, y = 413.97, z = 3.85, name = "神视多人-8", worldId = 0, PkMode = 0, IsCanHawkeye = true },
 			[456] = { x = -180.16, y = 60.50, z = -76.96, name = "向特兰复命传送", worldId = 0, PkMode = 0 },
-			[457] = { x = -303.80, y = 122.88, z = 77.81, name = "", worldId = 0, PkMode = 0 },
+			[457] = { x = -303.80, y = 122.88, z = 77.81, name = "雪峰堡进入相位", worldId = 0, PkMode = 0 },
 			[458] = { x = 268.02, y = 50.24, z = -70.75, name = "开坦克进入相位", worldId = 0, PkMode = 0 },
 			[464] = { x = 289.26, y = 39.26, z = 6.17, name = "前线", isShowName = true, worldId = 0, PkMode = 0 },
 			[465] = { x = 193.63, y = 36.67, z = 118.56, name = "遗弃者墓地", isShowName = true, worldId = 0, PkMode = 0 },
 			[466] = { x = -68.28, y = 92.45, z = 52.69, name = "安农村落", isShowName = true, worldId = 0, PkMode = 0 },
 			[467] = { x = -313.10, y = 137.44, z = 69.64, name = "雪峰堡", isShowName = true, worldId = 0, PkMode = 2 },
-			[565] = { x = -314.11, y = 111.83, z = 18.91, name = "雪峰堡", isShowName = true, worldId = 0, PkMode = 0 },
-			[566] = { x = 271.74, y = 42.92, z = 33.68, name = "前线", isShowName = true, worldId = 0, PkMode = 0 },
+			[565] = { x = 257.90, y = 111.83, z = 43.06, name = "前线", isShowName = true, worldId = 0, PkMode = 0 },
+			[566] = { x = -171.60, y = 42.92, z = 86.69, name = "雪峰堡", isShowName = true, worldId = 0, PkMode = 0 },
 			[580] = { x = -295.91, y = 122.26, z = 22.75, name = "最后一战相位", worldId = 0, PkMode = 0 },
 			[581] = { x = -155.79, y = 75.63, z = -46.88, name = "2104刷怪区域", worldId = 0, PkMode = 0 },
 			[582] = { x = -193.58, y = 51.97, z = -158.64, name = "逃离抵达", worldId = 0, PkMode = 0 },
-			[583] = { x = 48.90, y = 82.48, z = 50.23, name = "安农入侵刷怪-主线补充", worldId = 0, PkMode = 0 },
+			[583] = { x = 48.90, y = 82.48, z = 50.23, name = "安农入侵刷怪-主线新增", worldId = 0, PkMode = 0 },
 			[584] = { x = 278.56, y = 45.81, z = 52.74, name = "后顾之忧刷怪-主线补充", worldId = 0, PkMode = 0 },
 			[585] = { x = -177.83, y = 75.23, z = -146.51, name = "卡兰港战斗进入相位-主线补充", worldId = 0, PkMode = 0 },
 			[586] = { x = 25.97, y = 85.03, z = 46.28, name = "赤金复活进入相位-主线补充", worldId = 0, PkMode = 0 },
+			[588] = { x = -76.67, y = 81.87, z = 24.14, name = "pk区域", worldId = 0, PkMode = 4 },
 		},
 	},
 	Mine = 
@@ -699,7 +703,7 @@ local MapInfo =
 		},
 		[280] = 
 		{
-			[1] = { x = -322.00, y = 123.47, z = 87.92 },
+			[1] = { x = -303.70, y = 123.47, z = -14.90 },
 		},
 		[215] = 
 		{
@@ -711,7 +715,7 @@ local MapInfo =
 		},
 		[213] = 
 		{
-			[1] = { x = -183.66, y = 97.38, z = 90.50 },
+			[1] = { x = -85.80, y = 96.52, z = 4.60 },
 		},
 		[375] = 
 		{
@@ -808,7 +812,7 @@ local MapInfo =
 		},
 		[732] = 
 		{
-			[1] = { x = -322.00, y = 123.48, z = 87.92 },
+			[1] = { x = -303.70, y = 123.48, z = -14.90 },
 		},
 		[778] = 
 		{
@@ -828,7 +832,7 @@ local MapInfo =
 		},
 		[782] = 
 		{
-			[1] = { x = -322.00, y = 123.48, z = 87.92 },
+			[1] = { x = -303.71, y = 123.48, z = -15.01 },
 		},
 		[870] = 
 		{
@@ -881,12 +885,16 @@ local MapInfo =
 			[8] = { x = 83.42, y = 72.51, z = 40.42 },
 			[9] = { x = 82.13, y = 72.47, z = 36.29 },
 		},
+		[924] = 
+		{
+			[1] = { x = 323.96, y = 39.06, z = -4.55 },
+		},
 	},
 	Entity = 
 	{
 		[8] = 
 		{
-			x = 292.90, y = 37.80, z = 2.80, Type = 1,
+			x = 269.60, y = 41.60, z = 6.60, Type = 1,
 			Tid = 
 			{
 				[12032] = 25,
@@ -894,7 +902,7 @@ local MapInfo =
 		},
 		[9] = 
 		{
-			x = 291.34, y = 38.91, z = -6.53, Type = 1,
+			x = 306.26, y = 38.91, z = -2.28, Type = 1,
 			Tid = 
 			{
 				[12031] = 1,
@@ -908,22 +916,6 @@ local MapInfo =
 				[12043] = 1,
 			},
 		},
-		[17] = 
-		{
-			x = 241.00, y = 33.18, z = 142.60, Type = 1,
-			Tid = 
-			{
-				[12052] = 4,
-			},
-		},
-		[18] = 
-		{
-			x = 223.62, y = 33.40, z = 118.89, Type = 1,
-			Tid = 
-			{
-				[12052] = 2,
-			},
-		},
 		[19] = 
 		{
 			x = 137.23, y = 32.21, z = 131.71, Type = 1,
@@ -934,7 +926,7 @@ local MapInfo =
 		},
 		[20] = 
 		{
-			x = 193.79, y = 36.37, z = 118.55, Type = 1,
+			x = 193.79, y = 38.91, z = 118.55, Type = 1,
 			Tid = 
 			{
 				[12052] = 25,
@@ -1048,7 +1040,7 @@ local MapInfo =
 		},
 		[57] = 
 		{
-			x = -322.00, y = 123.66, z = 91.83, Type = 1,
+			x = -306.60, y = 123.66, z = -9.90, Type = 1,
 			Tid = 
 			{
 				[35230] = 1,
@@ -1058,7 +1050,7 @@ local MapInfo =
 		},
 		[75] = 
 		{
-			x = -190.76, y = 96.52, z = 82.05, Type = 1,
+			x = -86.40, y = 96.52, z = 4.90, Type = 1,
 			Tid = 
 			{
 				[12059] = 5,
@@ -1224,42 +1216,42 @@ local MapInfo =
 		},
 		[131] = 
 		{
-			x = -301.90, y = 124.01, z = 87.95, Type = 1,
+			x = -293.40, y = 101.30, z = -23.12, Type = 1,
 			Tid = 
 			{
-				[12051] = 8,
+				[12051] = 3,
 			},
 		},
 		[132] = 
 		{
-			x = -319.86, y = 111.03, z = 36.85, Type = 1,
+			x = -276.72, y = 92.49, z = -48.76, Type = 1,
 			Tid = 
 			{
-				[12051] = 8,
+				[12051] = 3,
 			},
 		},
 		[133] = 
 		{
-			x = -311.82, y = 119.52, z = 65.40, Type = 1,
+			x = -283.80, y = 92.85, z = -52.84, Type = 1,
 			Tid = 
 			{
-				[12051] = 8,
+				[12051] = 3,
 			},
 		},
 		[134] = 
 		{
-			x = -308.90, y = 124.01, z = -4.30, Type = 1,
+			x = -266.75, y = 91.99, z = -56.03, Type = 1,
 			Tid = 
 			{
-				[12051] = 8,
+				[12051] = 3,
 			},
 		},
 		[135] = 
 		{
-			x = -287.20, y = 95.01, z = -36.20, Type = 1,
+			x = -268.47, y = 91.92, z = -62.12, Type = 1,
 			Tid = 
 			{
-				[12051] = 8,
+				[12051] = 3,
 			},
 		},
 		[139] = 
@@ -1457,7 +1449,7 @@ local MapInfo =
 		},
 		[194] = 
 		{
-			x = -322.00, y = 123.66, z = 91.83, Type = 1,
+			x = -306.20, y = 123.66, z = -10.10, Type = 1,
 			Tid = 
 			{
 				[35245] = 1,
@@ -1503,7 +1495,7 @@ local MapInfo =
 		},
 		[195] = 
 		{
-			x = -322.00, y = 123.66, z = 91.83, Type = 1,
+			x = -306.50, y = 123.66, z = -10.30, Type = 1,
 			Tid = 
 			{
 				[35258] = 1,
@@ -1520,7 +1512,7 @@ local MapInfo =
 		},
 		[13] = 
 		{
-			x = -314.10, y = 108.43, z = 18.90, Type = 1,
+			x = 258.34, y = 108.43, z = 43.35, Type = 1,
 			Tid = 
 			{
 				[34206] = 1,
@@ -1528,7 +1520,7 @@ local MapInfo =
 		},
 		[24] = 
 		{
-			x = 271.77, y = 39.92, z = 33.77, Type = 1,
+			x = -171.41, y = 97.52, z = 86.49, Type = 1,
 			Tid = 
 			{
 				[34207] = 1,
@@ -1649,7 +1641,7 @@ local MapInfo =
 		},
 		[230] = 
 		{
-			x = -309.63, y = 119.79, z = 66.13, Type = 1,
+			x = -309.90, y = 119.79, z = 17.60, Type = 1,
 			Tid = 
 			{
 				[12256] = 1,
@@ -1657,7 +1649,7 @@ local MapInfo =
 		},
 		[231] = 
 		{
-			x = -313.60, y = 122.36, z = 80.49, Type = 1,
+			x = -297.60, y = 122.36, z = -28.80, Type = 1,
 			Tid = 
 			{
 				[12257] = 1,
@@ -2280,7 +2272,7 @@ local MapInfo =
 		},
 		[232] = 
 		{
-			x = -328.59, y = 119.00, z = 63.74, Type = 2,
+			x = -325.20, y = 119.00, z = 14.40, Type = 2,
 			Tid = 
 			{
 				[2342] = 1,
@@ -2324,6 +2316,14 @@ local MapInfo =
 			Tid = 
 			{
 				[2366] = 1,
+			},
+		},
+		[1] = 
+		{
+			x = 324.08, y = 39.05, z = -4.69, Type = 2,
+			Tid = 
+			{
+				[26] = 1,
 			},
 		},
 		[43] = 
@@ -2384,7 +2384,7 @@ local MapInfo =
 		},
 		[62] = 
 		{
-			x = -322.00, y = 123.47, z = 87.92, Type = 6,
+			x = -303.70, y = 123.47, z = -14.90, Type = 6,
 			Tid = 
 			{
 				[280] = 1,
@@ -2432,7 +2432,7 @@ local MapInfo =
 		},
 		[74] = 
 		{
-			x = -183.66, y = 97.38, z = 90.50, Type = 6,
+			x = -85.80, y = 96.52, z = 4.60, Type = 6,
 			Tid = 
 			{
 				[213] = 1,
@@ -2728,7 +2728,7 @@ local MapInfo =
 		},
 		[200] = 
 		{
-			x = -322.00, y = 123.48, z = 87.92, Type = 6,
+			x = -303.70, y = 123.48, z = -14.90, Type = 6,
 			Tid = 
 			{
 				[732] = 1,
@@ -2768,7 +2768,7 @@ local MapInfo =
 		},
 		[209] = 
 		{
-			x = -322.00, y = 123.48, z = 87.92, Type = 6,
+			x = -303.71, y = 123.48, z = -15.01, Type = 6,
 			Tid = 
 			{
 				[782] = 1,
@@ -2964,6 +2964,14 @@ local MapInfo =
 			Tid = 
 			{
 				[905] = 1,
+			},
+		},
+		[2] = 
+		{
+			x = 323.96, y = 39.06, z = -4.55, Type = 6,
+			Tid = 
+			{
+				[924] = 1,
 			},
 		},
 	},

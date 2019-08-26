@@ -1,55 +1,40 @@
-
---
--- 加载设置
---
-
-
-require "UnityClass.WrapClassID"
-
---
-
---
--- 网络协议定义及处理
---
-require "PB.pb_preload"
-
---
--- 主逻辑预加载
---
-require "Data.ClientDef"
-require "Main.CGame"
-
---
--- 入口点
---
-
-require "Main.EntryPoint"
-require "GUI.BuyOrSellItemMan"
-require "GUI.ItemListMan"
-
-require "Main.CGMan"
-require "GUI.CItemTipMan"
-require "GUI.MsgBox"
-require "GUI.OperationTip"
-require "GUI.MenuList"
-require "GUI.MsgNotify"
-require "GUI.CRedDotMan"
-require "HotFix"
-
-print("load prelaod.lua")
-
--- TODO: 优化 逐块加载
---[[
+-- 分帧加载
 local step = 0
-local function preload()
+
+function _G.preload()
 	step = step + 1
 	if step == 1 then
-		-- TODO: 阶段1
+		require "protobuf.protobuf"
+		require "UnityClass.WrapClassID"
 	elseif step == 2 then
-		-- TODO: 阶段2
+		require "PB.pb_preload"
+	elseif step == 2 then
+		require "Data.ClientDef"
+	elseif step == 3 then
+		require "Main.CGame"
+	elseif step == 4 then
+		require "Main.EntryPoint"
+	elseif step == 5 then
+		require "GUI.BuyOrSellItemMan"
+		require "GUI.ItemListMan"
+		require "Main.CGMan"
+		require "GUI.CItemTipMan"
+		require "GUI.MsgBox"
+		require "GUI.OperationTip"
+		require "GUI.MenuList"
+		require "GUI.MsgNotify"
+		require "GUI.CRedDotMan"
+	elseif step == 6 then
+		if _G.DevelopmentBuild then
+			require "HotFix"
+		end
+		require "System.AppMsgBoxMan"
+		require "System.TeraFuncs"
+		require "System.EventUntil"
+		game:Init()
+	elseif step == 7 then
+		return true
 	end
+
+	return false
 end
-
-return prelaod
-
-]]

@@ -29,10 +29,6 @@ def.field("number")._WorldChatCDTimeID = 96         -- 世界频道说话CD特�
 def.field("number")._NextCanWorldChatTime = 0       -- 下一次可以发送到世界频道的时间戳
 def.field("number")._WorldCharmCDTimer = 0          -- 世界频道说话ui显示timer
 
-local function SendFlashMsg(msg, bUp)
-	game._GUIMan:ShowTipText(msg, bUp)
-end
-
 local instance = nil
 def.static('=>',CPanelUITeamMember).Instance = function ()
 	if not instance then
@@ -148,7 +144,7 @@ end
 -- 刷新 组队申请红点信息
 def.method().UpdateTeamRedDotState = function(self)
 	if instance:IsShow() then
-		local bShow = CTeamMan.Instance():GetTeamApplyRedDotState()
+		local bShow = CRedDotMan.GetModuleDataToUserData("TeamApply") or false
 		local info = self._PanelObject.MemberHideGroup
 		info.TeamApplyRedDotObj:SetActive(bShow)
 	end
@@ -156,8 +152,7 @@ end
 
 def.method().UpdateTeamSetting = function(self)
 	if not self:IsShow() then return end
-
-	local strTitle = self._TeamMan:GetTargetString()
+	local strTitle = self._TeamMan:GetCurTargetString()
 	GUI.SetText(self:GetUIObject('Lab_Setting'), strTitle)
 end
 
@@ -314,10 +309,10 @@ end
 def.method().UpdateInvitingTag = function(self)
 	local memberCnt = #self._TeamMemberList
 	local bIsAutoMatch = CPVEAutoMatch.Instance():IsMatching()
-	local bIsInviting = self._TeamMan:IsInviting()
-	local bShowLoading = bIsAutoMatch or bIsInviting
+	local inviteCount = self._TeamMan:GetInvitingCount()
+	local bShowLoading = bIsAutoMatch or inviteCount > 0
     local is_big_team = self._TeamMan:IsBigTeam()
-	-- warn("UpdateInvitingTag ...", bIsInviting)
+
     if is_big_team then
         local uiTemplate = self._PanelObject.MemberBigGroup:GetComponent(ClassType.UITemplate)
         for i=1,10 do
@@ -327,7 +322,7 @@ def.method().UpdateInvitingTag = function(self)
 		    end
 
 		    local bShow = (i > memberCnt)
-		    obj:FindChild("Lab_Inviting"):SetActive(bShow and bIsInviting)
+		    obj:FindChild("Lab_Inviting"):SetActive(bShow and inviteCount>=i-1)
         end
     else
         for i=1,5 do
@@ -337,7 +332,7 @@ def.method().UpdateInvitingTag = function(self)
 		    end
 
 		    local bShow = (i > memberCnt)
-		    obj:FindChild("Lab_Inviting"):SetActive(bShow and bIsInviting)
+		    obj:FindChild("Lab_Inviting"):SetActive(bShow and inviteCount>=i-1)
 	    end
     end
 end
@@ -371,7 +366,7 @@ def.method("table").UpdateOnLineState = function(self, data)
 	local Img_OffLine = HideGrouproot:FindChild("Img_OffLine")
     -- local Img_OfflineState = HideGrouproot:FindChild("Img_OfflineGroup/Img_OfflineState")
 
-	local memberInfo = self._TeamMan:GetMemberInfoById(data.roleId)
+	local memberInfo = self._TeamMan:GetMember(data.roleId)
 
 	Img_OffLine:SetActive(not memberInfo._IsOnLine)
 	GUI.SetText(pLable_Name, memberInfo._Name)
@@ -398,7 +393,7 @@ def.method("table").UpdateLevel = function(self, data)
 
 	local item = self._PanelObject.TeamMemberItemList[data.roleId]
 	local lab_level = item:FindChild("HideGroup/Lab_LvValues")
-	GUI.SetText(lab_level, tostring(data.level))
+	GUI.SetText(lab_level, string.format(StringTable.Get(10641), data.level))
 end
 
 --更新战斗力
@@ -414,18 +409,17 @@ end
 def.method("table").UpdateMemberName = function(self, data)
 	if self._PanelObject.TeamMemberItemList[data.roleId] == nil then return end
 	
-	local memberInfo = self._TeamMan:GetMemberInfoById(data.roleId)
+	local memberInfo = self._TeamMan:GetMember(data.roleId)
 	local item = self._PanelObject.TeamMemberItemList[data.roleId]
-	local pLable_Name = HideGrouproot:FindChild("Lab_Name")
+	local pLable_Name = item:FindChild("HideGrouproot/Lab_Name")
 	GUI.SetText(pLable_Name, RichTextTools.GetOnlineColorHexText(memberInfo._Name, memberInfo._IsOnLine))
-
-	GUI.SetText(Lab_BattleValues, GUITools.FormatNumber(data.fightScore))
 end
 
 --设置单个UI信息
 def.method("userdata", "table").SetItemInfo = function(self, item, memberInfo)
 	local curItem = nil
 	local leaderId = CTeamMan.Instance()._Team._TeamLeaderId
+	local bIsBigTeam = self._TeamMan:IsBigTeam()
 
 	curItem = item
 	local HideGrouproot = curItem:FindChild("HideGroup")
@@ -451,7 +445,7 @@ def.method("userdata", "table").SetItemInfo = function(self, item, memberInfo)
 	local strIndex = string.sub(item.name, beginIndex, -1)
 
 	local index = tonumber(strIndex)
-	local pModelObj = HideGrouproot:FindChild("Img_Role_"..index)
+	local pModelObj = HideGrouproot:FindChild("Img_Role_"..(bIsBigTeam and 100 + index or index))
 	if not IsNil(pModelObj) then
 		self:SetImageModel(memberInfo, pModelObj)
 		GUITools.RegisterImageModelEventHandler(self._Panel, pModelObj)
@@ -494,21 +488,30 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         local special_value = CElementData.GetSpecialIdTemplate(self._TeamBuffSpecialID + index - 1).Value
         if special_value == nil then warn("error !!! 特殊ID ：", self._TeamBuffSpecialID + index - 1, "没找到") return end
 
+        local MAX_BUFF_COUNT = 5 -- 最大BUFF数
         local team_state_temp = CElementData.GetTemplate("State", tonumber(special_value))
         local team_buff_string = StringTable.Get(22601)
         if team_state_temp ~= nil and team_state_temp.ExecutionUnits ~= nil and #team_state_temp.ExecutionUnits ~= 0 then
             local unit = team_state_temp.ExecutionUnits[1]
             local unit1 = team_state_temp.ExecutionUnits[2]
             if unit.Trigger.Timeline._is_present_in_parent ~= nil then
+            	if index + 1 >= MAX_BUFF_COUNT and CTeamMan.Instance():IsBigTeam() then
+            		-- 大于或等于5人，且是团队队伍
+            		team_buff_string = StringTable.Get(22093)
+            	else
+            		team_buff_string = string.format(StringTable.Get(22092), index+1)
+            	end
                 local property = unit.Event.AddAttachedProperty
                 local property1 = unit1.Event.AddAttachedProperty
                 local attach_temp = CElementData.GetAttachedPropertyTemplate(property.Id)
                 local value = tonumber(property.Value) * 100
                 local value2 = tonumber(property1.Value) * 100
-                team_buff_string = string.format(StringTable.Get(22031), index + 1, value, value2)
+                local buff_content_string = string.format(StringTable.Get(22094), tostring(value), tostring(value2))
+                team_buff_string = team_buff_string .. buff_content_string
             end
         end
-        if index == member_count - 1 then
+        if (index + 1 < MAX_BUFF_COUNT and index == member_count - 1) or
+           (index + 1 >= MAX_BUFF_COUNT and index <= member_count - 1) then
             GUI.SetText(lab_buff_tip, string.format(StringTable.Get(22034), team_buff_string))
         else
             GUI.SetText(lab_buff_tip, team_buff_string)
@@ -546,7 +549,7 @@ end
 --        end
 --        local FilterMgr = require "Utility.BadWordsFilter".Filter
 --		local resultStr = FilterMgr.FilterName(str)
---        CTeamMan.Instance():SendC2SChangeTeamName(resultStr)
+--        TeamUtil.ChangeTeamName(resultStr)
 --    end
 --end
 
@@ -559,13 +562,12 @@ def.override("string").OnClick = function(self,id)
 	elseif id == "Btn_Leave" then
 		local callback = function (ret)
 	        if ret then
-	            CTeamMan.Instance():QuitTeam()
+        		local teamId = CTeamMan.Instance():GetTeamId()
+	        	TeamUtil.QuitTeam(teamId)
 				game._GUIMan:CloseByScript(self)
 	        end
 	    end
-	    local text = ""
-	    local title = ""
-        local closeType = 0
+	    local text, title, closeType = nil, nil, 0
 	    if game._HostPlayer:InDungeon() and CTeamMan.Instance():HaveTeamMemberInSameMap() then
 	    	title, text, closeType = StringTable.GetMsg(37)
 	    	MsgBox.ShowMsgBox(text, title, closeType, MsgBoxType.MBBT_OKCANCEL,callback)
@@ -576,28 +578,26 @@ def.override("string").OnClick = function(self,id)
 	elseif id == "Btn_Disband" then
 		local callback = function (ret)
 	        if ret then
-	            CTeamMan.Instance():DisbandTeam()
+	            TeamUtil.DisbandTeam()
 				game._GUIMan:CloseByScript(self)
 	        end
 	    end
-	    local text = ""
-	    local title = ""
-        local closeType = 0
+	    local text, title, closeType = nil, nil, 0
 	    if game._HostPlayer:InDungeon() or game._HostPlayer:InImmediate() then
-	    	SendFlashMsg(StringTable.Get(22408), false)
+	    	TeraFuncs.SendFlashMsg(StringTable.Get(22408), false)
 	    else
 	    	title, text, closeType = StringTable.GetMsg(120)
 	    	MsgBox.ShowMsgBox(text, title, closeType, MsgBoxType.MBBT_OKCANCEL,callback)
 	    end
     elseif id == "Btn_ChangeToBig" then
         if game._HostPlayer:InDungeon() or game._HostPlayer:InImmediate() then
-            SendFlashMsg(StringTable.Get(22048), false)
+            TeraFuncs.SendFlashMsg(StringTable.Get(22048), false)
         else
             local TeamMode = require "PB.data".TeamMode
             local is_matching = CPVEAutoMatch.Instance():IsMatching()
             local callback = function(val)
                 if val then
-                    CTeamMan.Instance():ChangeTeamMode(TeamMode.Corps)
+                    TeamUtil.ChangeTeamMode(TeamMode.Corps)
                 end
             end
 
@@ -611,18 +611,18 @@ def.override("string").OnClick = function(self,id)
         end
     elseif id == "Btn_ChangeToSmall" then
         if game._HostPlayer:InDungeon() or game._HostPlayer:InImmediate() then
-            SendFlashMsg(StringTable.Get(22048), false)
+            TeraFuncs.SendFlashMsg(StringTable.Get(22048), false)
         else
             local TeamMode = require "PB.data".TeamMode
             local team_mode = CTeamMan.Instance():GetTeamMode()
             local mem_count = CTeamMan.Instance():GetMemberCount()
             if mem_count > smallTeamMaxMemCount then
-                SendFlashMsg(StringTable.Get(22049), false)
+                TeraFuncs.SendFlashMsg(StringTable.Get(22049), false)
             else
                 local is_matching = CPVEAutoMatch.Instance():IsMatching()
                 local callback = function(val)
                     if val then
-                        CTeamMan.Instance():ChangeTeamMode(TeamMode.Group)
+                    	TeamUtil.ChangeTeamMode(TeamMode.Group)
                     end
                 end
 
@@ -637,78 +637,94 @@ def.override("string").OnClick = function(self,id)
         end
 	elseif id == "Btn_ApplyList" then
 		if game._HostPlayer:IsInGlobalZone() then
-			SendFlashMsg(StringTable.Get(15556), false)
+			TeraFuncs.SendFlashMsg(StringTable.Get(15556), false)
 		else
 	        if CPVEAutoMatch.Instance():IsMatching() then
-	            SendFlashMsg(StringTable.Get(22066), false)
+	            TeraFuncs.SendFlashMsg(StringTable.Get(22066), false)
 	        else
 	            game._GUIMan:Open("CPanelUITeamInvite", 4)
 	        end
 	    end
 	elseif id == "Btn_AddMemeber" then --邀请
 --		if game._HostPlayer:InDungeon() and not game._GuildMan:IsGuildBattleScene() then
---			SendFlashMsg(StringTable.Get(22408), false)
+--			TeraFuncs.SendFlashMsg(StringTable.Get(22408), false)
 --		else
 --			game._GUIMan:Open("CPanelUITeamInvite",nil)
 --		end
 		if game._HostPlayer:IsInGlobalZone() then
-			SendFlashMsg(StringTable.Get(15556), false)
+			TeraFuncs.SendFlashMsg(StringTable.Get(15556), false)
 		else
         	game._GUIMan:Open("CPanelUITeamInvite",nil)
         end
 	elseif id == "Btn_Begin" then
         if game._HostPlayer:InDungeon() or game._HostPlayer:InImmediate() then
-            SendFlashMsg(StringTable.Get(22048), false)
+            TeraFuncs.SendFlashMsg(StringTable.Get(22048), false)
         else
-        	local dungeonTid = self._TeamMan:ExchangeToDungeonId(self._TeamMan._Team._Setting.TargetId)
+        	local dungeonTid = TeamUtil.ExchangeToDungeonId(self._TeamMan._Team._Setting.TargetId)
         	local remainderCount = game._DungeonMan:GetRemainderCount(dungeonTid)
         	
         	if remainderCount > 0 then
-            	CTeamMan.Instance():C2SStartParepare(self._TeamMan._Team._Setting.TargetId)
+            	TeamUtil.StartParepare(self._TeamMan._Team._Setting.TargetId)
             else
 	        	local dungeonTemplate = CElementData.GetTemplate("Instance", dungeonTid)
-				game._CCountGroupMan:BuyCountGroup(remainderCount ,dungeonTemplate.CountGroupTid)
+	        	if dungeonTemplate ~= nil then
+					game._CCountGroupMan:BuyCountGroup(remainderCount ,dungeonTemplate.CountGroupTid)
+				end
 			end
         end
 	elseif id == "Btn_Setting" then
 		if game._HostPlayer:IsInGlobalZone() then
-			SendFlashMsg(StringTable.Get(15556), false)
+			TeraFuncs.SendFlashMsg(StringTable.Get(15556), false)
 		else
 	        if CPVEAutoMatch.Instance():IsMatching() then
-	            SendFlashMsg(StringTable.Get(22066), false)
+	            TeraFuncs.SendFlashMsg(StringTable.Get(22066), false)
 	        else
 	            if self._TeamMan:IsTeamLeader() then
 				    game._GUIMan:Open("CPanelUITeamSetting", self._TeamMan._Team._Setting)
 			    else
-				    SendFlashMsg(StringTable.Get(213), false)
+				    TeraFuncs.SendFlashMsg(StringTable.Get(213), false)
 			    end
 	        end
 	    end
 	elseif id == "Btn_Send" then
 		if game._HostPlayer:IsInGlobalZone() then
-			SendFlashMsg(StringTable.Get(15556), false)
+			TeraFuncs.SendFlashMsg(StringTable.Get(15556), false)
 		else
 	        if CPVEAutoMatch.Instance():IsMatching() then
-	            SendFlashMsg(StringTable.Get(22066), false)
+	            TeraFuncs.SendFlashMsg(StringTable.Get(22066), false)
 	        else
 	    		self:ShowSendLinkButtonGroup(not self._IsShowSendLinkButton)
 	        end
 	    end
 	elseif id == "Btn_AutoMatch" then
 		if game._HostPlayer:IsInGlobalZone() then
-			SendFlashMsg(StringTable.Get(15556), false)
+			TeraFuncs.SendFlashMsg(StringTable.Get(15556), false)
 		else
 			self:OnBtnAutoMatch()
 		end
 	elseif string.find(id, "Img_Role_") then
-		local index = tonumber(string.sub(id, -1))
+		local length = string.len(id)
+		local smallLength = string.len("Img_Role_")+1
+
+		local index = 0
+		if length > smallLength then
+			local beginIndex = smallLength+1
+			local strIndex = string.sub(id, beginIndex, -1)
+			index = tonumber(strIndex)
+		else
+			index = tonumber(string.sub(id, -1))
+		end
 		self:OnClickTeamMember(index)
 	elseif id == "Btn_SendGuild" then
-		self:SendLinkMsg(ChatChannel.ChatChannelGuild)
-		-- self:ShowSendLinkButtonGroup(false)
+	    if self._NextCanWorldChatTime > 0 and GameUtil.GetServerTime() < self._NextCanWorldChatTime then
+	    	TeraFuncs.SendFlashMsg(StringTable.Get(13003), false)
+        else
+			self._TeamMan:SendLinkMsg(ChatChannel.ChatChannelGuild, nil)
+			self:MarkCanSendWorldChatTime()
+		end
 	elseif id == "Btn_SendWorld" then
-		self:SendLinkMsg(ChatChannel.ChatChannelRecruit)
-		-- self:ShowSendLinkButtonGroup(false)
+		self._TeamMan:SendLinkMsg(ChatChannel.ChatChannelRecruit, nil)
+		-- self:MarkCanSendWorldChatTime()
     elseif id == "Btn_BuffInfo" then
         self:ShowBuffInfoPanel(true)
     elseif id == "Btn_Follow" then
@@ -721,6 +737,10 @@ def.override("string").OnClick = function(self,id)
     if id ~= "Btn_Send" then
 		self:ShowSendLinkButtonGroup(false)
 	end
+
+	if id == "Img_BG" then return end
+
+	CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
 end
 
 def.method("number").SendLinkMsg = function(self, channelType)
@@ -750,7 +770,7 @@ def.method("number").SendLinkMsg = function(self, channelType)
 	    	self:MarkCanSendWorldChatTime()
 	    end
 	else
-		SendFlashMsg(StringTable.Get(22020), false)
+		TeraFuncs.SendFlashMsg(StringTable.Get(22020), false)
 	end
 end
 
@@ -759,6 +779,7 @@ def.method("boolean").ShowSendLinkButtonGroup = function(self, bShow)
 	
 	self._PanelObject.MemberHideGroup.SendLinkGroup:SetActive(bShow)
 	self._IsShowSendLinkButton = bShow
+--[[
     local uiTemplate = self._PanelObject.MemberHideGroup.SendLinkGroup:GetComponent(ClassType.UITemplate)
     local lab_send_world = uiTemplate:GetControl(1)
     local img_send_world = uiTemplate:GetControl(2)
@@ -771,11 +792,13 @@ def.method("boolean").ShowSendLinkButtonGroup = function(self, bShow)
         if GameUtil.GetServerTime() > self._NextCanWorldChatTime then
             GameUtil.MakeImageGray(img_send_world, false)
             GameUtil.SetButtonInteractable(btn_send_world, true)
+            GUI.SetText(lab_send_world, StringTable.Get(22040))
         else
             GameUtil.MakeImageGray(img_send_world, true)
             GameUtil.SetButtonInteractable(btn_send_world, false)
             local callback = function()
                 local remain_time = (self._NextCanWorldChatTime - GameUtil.GetServerTime())/1000
+                remain_time = math.floor(remain_time)
                 if remain_time <= 0 then
                     _G.RemoveGlobalTimer(self._WorldCharmCDTimer)
                     self._WorldCharmCDTimer = 0
@@ -794,6 +817,7 @@ def.method("boolean").ShowSendLinkButtonGroup = function(self, bShow)
             self._WorldCharmCDTimer = 0
         end
     end
+]]
 end
 
 def.method().MarkCanSendWorldChatTime = function(self)
@@ -817,14 +841,15 @@ def.method("boolean").ShowBuffInfoPanel = function(self, bShow)
             end
         end
         local uiTemplate = self._PanelObject.Frame_BuffInfo:GetComponent(ClassType.UITemplate)
+        local tab_team_buff = uiTemplate:GetControl(0)
         local tab_friend_buff = uiTemplate:GetControl(1)
         local tab_other_buff = uiTemplate:GetControl(2)
         local list_teambuff = uiTemplate:GetControl(3)
-        local list_friendbuff = uiTemplate:GetControl(4)
-        tab_friend_buff:SetActive(friend_count >= 1)
+        -- local list_friendbuff = uiTemplate:GetControl(4)
+        tab_friend_buff:SetActive(false)
         tab_other_buff:SetActive(false)
         list_teambuff:GetComponent(ClassType.GNewList):SetItemCount(4)
-        list_friendbuff:GetComponent(ClassType.GNewList):SetItemCount(0)
+        -- list_friendbuff:GetComponent(ClassType.GNewList):SetItemCount(0)
     end
 end
 
@@ -833,11 +858,11 @@ def.method().OnBtnAutoMatch = function(self)
     local is_matching = CPVEAutoMatch.Instance():IsMatching()
     local is_in_dungeon = game._HostPlayer:InDungeon() or game._HostPlayer:InImmediate()
     -- if not is_leader then
-    --     SendFlashMsg(StringTable.Get(22067), false)
+    --     TeraFuncs.SendFlashMsg(StringTable.Get(22067), false)
     --     return
     -- end
     if is_in_dungeon then
-        SendFlashMsg(StringTable.Get(22048), false)
+        TeraFuncs.SendFlashMsg(StringTable.Get(22048), false)
         return
     end
     if is_matching then
@@ -888,23 +913,12 @@ def.method("number").OnClickTeamMember = function(self, index)
     MenuList.Show(comps, btn_add, EnumDef.AlignType.Center)
 end
 
---def.method().UpdateBeginButton = function(self)
---	if not self:IsShow() then return end
---	local roomTemplate = CElementData.GetTeamRoomTemplate(self._TeamMan._Team._TargetId)
---	if roomTemplate ~= nil then
---		local bShow = self._TeamMan:IsTeamLeader() and (roomTemplate.PlayingLaw == require "PB.Template".TeamRoomConfig.Rule.DUNGEON) and (not game._HostPlayer:InDungeon())
---		self._PanelObject.MemberHideGroup.Btn_Begin:SetActive(bShow)
---	else
---		self._PanelObject.MemberHideGroup.Btn_Begin:SetActive(false)
---    end
---end
-
 def.method().UpdateLeaderBtn = function (self)
     if not self:IsShow() then return end
 	local info = self._PanelObject.MemberHideGroup
 	local bIsLeader = self._TeamMan:IsTeamLeader()
     local bIsBigTeam = self._TeamMan:IsBigTeam()
-    local bIsInDungeon = game._HostPlayer:InDungeon() or game._HostPlayer:InImmediate()
+    local bIsInDungeon = game._HostPlayer:IsInGlobalZone() or game._HostPlayer:InImmediate()
     local bIsMatching = CPVEAutoMatch.Instance():IsMatching()
     local tmpConfig = CElementData.GetTemplate("TeamRoomConfig", self._TeamMan._Team._TargetId)
     self._PanelObject.Btn_LayoutGroupLeader:SetActive(bIsLeader)
@@ -1028,6 +1042,7 @@ end
 def.method("table", "userdata").SetImageModel = function(self, memberInfo, pImgObj)
 	    local memberId = memberInfo._ID
 	    local hostId = game._HostPlayer._ID
+	    local bIsBigTeam = self._TeamMan:IsBigTeam()
 
         local umKey =  self:FindModel(pImgObj)
         if umKey ~= -1 then
@@ -1061,7 +1076,7 @@ def.method("table", "userdata").SetImageModel = function(self, memberInfo, pImgO
 
         model:AddLoadedCallback(function() 
             -- model:SetModelParam(self._PrefabPath, profession)
-            model:SetModelParamEx(self._PrefabPath, 1, profession)
+            model:SetModelParamEx(self._PrefabPath, bIsBigTeam and 101 or 1, profession)
             end)
 
         self._UIModelList[memberId] = model
@@ -1087,6 +1102,7 @@ def.override().OnHide = function(self)
         _G.RemoveGlobalTimer(self._WorldCharmCDTimer)
         self._WorldCharmCDTimer = 0
     end
+    self._IsShowBuffInfo = false
 end
 
 def.override().OnDestroy = function(self)

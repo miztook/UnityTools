@@ -4,6 +4,7 @@
 ]]
 local Lplus = require "Lplus"
 local CPanelBase = require "GUI.CPanelBase"
+local DynamicText = require "Utility.DynamicText"
 local CPanelDungeonNpcTalk = Lplus.Extend(CPanelBase, "CPanelDungeonNpcTalk")
 local def = CPanelDungeonNpcTalk.define
 local CGame = Lplus.ForwardDeclare("CGame")
@@ -75,7 +76,7 @@ def.method().SetDialog = function(self)
 	return end
   self: SetNpcImg(self._Table_NpcDialog[self._Index].Default.ModelId)
 	
-  GUI.SetText(self._Lab_Dialog, self._Table_NpcDialog[self._Index].Default.TextContent)	
+  GUI.SetText(self._Lab_Dialog, DynamicText.ParseDialogueText(self._Table_NpcDialog[self._Index].Default.TextContent))
 
   local sound = self._Table_NpcDialog[self._Index].Default.AudioAssetPath
   

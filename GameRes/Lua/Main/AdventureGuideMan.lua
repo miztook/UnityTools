@@ -11,8 +11,8 @@ local CElementData = require "Data.CElementData"
 local CGame = Lplus.ForwardDeclare("CGame")
 local NotifyActivityEvent = require "Events.NotifyActivityEvent"
 
-def.field("table")._Table_AdventureGuideData = BlankTable
-def.field("table")._Table_OpenTimeByPlayId = BlankTable
+def.field("table")._Table_AdventureGuideData = nil
+def.field("table")._Table_OpenTimeByPlayId = nil
 
 
 def.static("=>", AdventureGuideMan).new = function()
@@ -26,6 +26,8 @@ end
 
 --缓存所有冒险指南数据
 def.method().LoadAllAdventureGuideData = function(self)
+	if self._Table_AdventureGuideData ~= nil then return end
+
     self._Table_AdventureGuideData = {}
     local cfgPath = _G.ConfigsDir.."AdventureGuideBasicInfo.lua"
     local allInfo = _G.ReadConfigTable(cfgPath)
@@ -45,6 +47,9 @@ def.method().LoadAllAdventureGuideData = function(self)
 				if strPlayIds ~= nil then
 					for i=1, #strPlayIds do
 						local keyStr = strPlayIds[i]
+						if self._Table_OpenTimeByPlayId == nil then
+							self._Table_OpenTimeByPlayId = {}
+						end
 						self._Table_OpenTimeByPlayId[keyStr] = v.DateDisplayText
 					end
 				end
@@ -55,6 +60,11 @@ def.method().LoadAllAdventureGuideData = function(self)
 	end
 
 	_G.Unrequire(cfgPath)
+end
+
+def.method().ClearAllAdventureGuideData = function(self)
+    self._Table_AdventureGuideData = nil
+    self._Table_OpenTimeByPlayId = nil
 end
 
 --获取开启时间

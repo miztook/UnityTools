@@ -29,6 +29,7 @@ do
     def.field("number")._GainItemCount = 0
     def.field("number")._GainMoneyID = 0
     def.field("number")._GainMoneyCount = 0
+    def.field("number")._Star = 0               -- 如果是装备的话，装备评分
 
 	local _uniqueID = 1
 	local function uniqueId()
@@ -144,8 +145,9 @@ do
             box._GainMoneyID = setting[MsgBoxAddParam.GainMoneyID] or 0
             box._GainMoneyCount = setting[MsgBoxAddParam.GainMoneyCount] or 0
 		    box._IsNoBtn = (bit.band(box._Type, MsgBoxType.MBBT_NONE) == MsgBoxType.MBBT_NONE)
-		    box._IsNOCloseBtn = (bit.band(box._Type, MsgBoxType.MBT_NOCLOSEBTN) == MsgBoxType.MBT_NOCLOSEBTN)
+		    box._IsNOCloseBtn = setting[MsgBoxAddParam.IsNOCloseBtn] ~= nil and setting[MsgBoxAddParam.IsNOCloseBtn]
             box._NotShowTag = setting[MsgBoxAddParam.NotShowTag] or ""
+            box._Star = setting[MsgBoxAddParam.EquipItemStar] or -1
             return box
         end
 
@@ -156,23 +158,18 @@ do
     	FindNextBox2Show(self)
 	end
 
-	def.method("number", "table", "string", "string", "number", "function", "number", "function", "number", "table").ShowSystemMsgBox = function(self, sysTid, sender, msg, title, msgtype, clickcall, ttl, timercall, priority, setting)
+	def.method("number", "table", "number", "function", "number", "function", "number", "table").ShowSystemMsgBox = function(self, sysTid, sender, msgtype, clickcall, ttl, timercall, priority, setting)
 		local template = CElementData.GetSystemNotifyTemplate(sysTid)
-		local message = msg
-		if message == nil or message == "" then
-			if template == nil then
-				message = "Unkownn message"
-			else
-				message = template.TextContent
-			end
-		end
-		if title == nil or title == "" then
-			title = template.Title
+		local message = ""
+        local title = ""
+		if template == nil then
+			message = "Unkownn message"
+            title = "Unknow Title"
+		else
+			message = template.TextContent
+            title = template.Title
 		end
 		
-		if template and not template.IsShowCloseBtn then
-			msgtype = bit.bor(msgtype, MsgBoxType.MBT_NOCLOSEBTN)
-		end
 		self:ShowMsgBox(sender, message, title, msgtype, clickcall, ttl, timercall, priority, setting)
 	end
 
@@ -200,6 +197,10 @@ do
        end
     end
 
+    def.method("=>", "boolean").IsDisconnectShow = function(self)
+        return self._CurPriority == MsgBoxPriority.Disconnect
+    end
+
     def.method("=>", "number").GetMsgListCount = function(self)
         return #self._BoxList
     end
@@ -224,7 +225,7 @@ do
 		FindNextBox2Show(self)
 	end
 
-	def.method().RemoveAll = function(self)
+	def.method().ClearAllBoxList = function(self)
 		self._BoxList = {}
         self._IsShowingNormalMsg = false
         self._CurPriority = MsgBoxPriority.None
@@ -232,12 +233,12 @@ do
 		--warn("rm all ", debug.traceback())
 	end
 
-    def.method().RemoveAllExceptDisconnect = function(self)
+    def.method().ClearAllExceptDisconnect = function(self)
         local remove_table = {}
         -- 找到需要删除的ids
         for i,v in ipairs(self._BoxList) do
-            if v._Priority == MsgBoxPriority.Disconnect then
-                remove_table[#remove_table + 1] = _MsgboxID
+            if v._Priority ~= MsgBoxPriority.Disconnect then
+                remove_table[#remove_table + 1] = v._MsgboxID
             end
         end
         -- 从后往前删除
@@ -250,11 +251,18 @@ do
         end
         self._IsShowingNormalMsg = false
         self._CurPriority = MsgBoxPriority.None
-        self:ToggleNext()
+        if #self._BoxList> 0 then
+            local msgBox = require "GUI.CMsgBoxPanel".Instance()
+            if self._BoxList[1] ~= msgBox._MsgBoxData then
+                self:ToggleNext()
+            end
+        else
+            self:ToggleNext()
+        end
     end
 
-    def.method().RemoveAllBoxes = function(self)
-        self:RemoveAll()
+    def.method().RemoveAllBoxesData = function(self)
+        self:ClearAllBoxList()
         self._InactiveBox = {}
         self._ChacheBoxData = nil
     end

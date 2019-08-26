@@ -11,14 +11,15 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[39302] = 
 		{
-			[1] = { x = -224.30, y = 28.04, z = -204.80, name = "巴风特", level = 44,IsBoss = true },
-			[2] = { x = -179.55, y = 87.14, z = -84.11, name = "巴风特", level = 44,IsBoss = true },
-			[3] = { x = -69.30, y = 87.14, z = -101.30, name = "巴风特", level = 44,IsBoss = true },
-			[4] = { x = -171.60, y = 87.14, z = -176.50, name = "巴风特", level = 44,IsBoss = true },
+			[1] = { x = -224.30, y = 28.04, z = -204.80, name = "巴风特", level = 43,IsBoss = true },
+			[2] = { x = -179.55, y = 87.14, z = -84.11, name = "巴风特", level = 43,IsBoss = true },
+			[3] = { x = -69.30, y = 87.14, z = -101.30, name = "巴风特", level = 43,IsBoss = true },
+			[4] = { x = -171.60, y = 87.14, z = -176.50, name = "巴风特", level = 43,IsBoss = true },
 		},
 		[39303] = 
 		{

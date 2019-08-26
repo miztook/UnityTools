@@ -210,13 +210,13 @@ def.override("string").OnClick = function(self,id)
         self._NewListComponent:SetItemCount(#self._CurItemData)
     elseif id == "Btn_Ok" then 
         if not self._IsNothing then
+            local itemData = self._CurItemData[self._CurSelectItemIndex]
             if self._ApproachMaterialType == EnumDef.ApproachMaterialType.PetFuse then
                 if self._SelectItemCall(self._Sender, self._CurSelectItem, itemData, true) then
                     game._GUIMan:CloseByScript(self)
                     return
                 end
             else
-                local itemData = self._CurItemData[self._CurSelectItemIndex]
                 if itemData ~= nil then 
                     if self._SelectItemCall(self._Sender, self._CurSelectItem, itemData, true) then
                         game._GUIMan:CloseByScript(self)
@@ -225,7 +225,15 @@ def.override("string").OnClick = function(self,id)
                 end
             end
         end
-        game._GUIMan:ShowTipText(StringTable.Get(28002),false)
+        local strMsg = ""
+        if self._ApproachMaterialType == EnumDef.ApproachMaterialType.PetFuse or
+           self._ApproachMaterialType == EnumDef.ApproachMaterialType.PetAdvance then
+            strMsg = StringTable.Get(28004)
+        else
+            strMsg = StringTable.Get(28002)
+        end
+
+        game._GUIMan:ShowTipText(strMsg,false)
     end
 end
 

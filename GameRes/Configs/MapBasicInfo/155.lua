@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Canyon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12088] = 
@@ -43,11 +44,11 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[213] = { x = 195.43, y = 39.00, z = 116.25, name = "遗弃者墓地", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[393] = { x = 257.33, y = 1.00, z = 135.90, name = "侦查墓园01", worldId = 0, PkMode = 0 },
-			[394] = { x = 229.50, y = 1.00, z = 137.50, name = "侦查墓园02", worldId = 0, PkMode = 0 },
-			[395] = { x = 195.52, y = 37.34, z = 115.72, name = "侦查墓园03", worldId = 0, PkMode = 0 },
-			[396] = { x = 138.14, y = 33.30, z = 117.57, name = "发现男爵", worldId = 0, PkMode = 0 },
+			[213] = { x = 195.43, y = 39.00, z = 116.25, name = "遗弃者墓地", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[393] = { x = 257.33, y = 1.00, z = 135.90, name = "侦查墓园01", worldId = 0, PkMode = 1 },
+			[394] = { x = 229.50, y = 1.00, z = 137.50, name = "侦查墓园02", worldId = 0, PkMode = 1 },
+			[395] = { x = 195.52, y = 37.34, z = 115.72, name = "侦查墓园03", worldId = 0, PkMode = 1 },
+			[396] = { x = 138.14, y = 33.30, z = 117.57, name = "发现男爵", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

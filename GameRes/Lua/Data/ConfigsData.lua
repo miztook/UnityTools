@@ -17,11 +17,6 @@ _G.CommandListTable = ReadConfigTable(_G.ConfigsDir.."CommandList.lua").GetAllCo
 
 -- 用完即丢，无需全局缓存
 --_G.SystemEntranceCfgTable = ReadConfigTable(_G.ConfigsDir.."SystemEntranceCfg.lua")
---[[preCount = collectgarbage("count")
---_G.MapBasicInfoTable = ReadConfigTable(_G.ConfigsDir.."MapBasicInfo.lua")
-_G.MapLinkToSceneTable = ReadConfigTable(_G.ConfigsDir.."/MapBasicInfo/LinkToScene.lua")
-lateCount = collectgarbage("count")
-printInfo(string.format("LinkToScene Memery Used: %0.2f KB", (lateCount - preCount)))--]]
 
 _G.DebugTextTable = ReadConfigTable(_G.ConfigsDir.."debug_text.lua")
 

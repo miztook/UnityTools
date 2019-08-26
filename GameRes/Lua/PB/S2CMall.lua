@@ -78,3 +78,19 @@ local function OnS2CBannerUpdate(sender, protocol)
     CMallMan.Instance():HandleBannerUpdate(protocol)
 end
 PBHelper.AddHandler("S2CBannerUpdate", OnS2CBannerUpdate)
+
+-- 活动商城上线同步的消息
+local function OnS2CAtStoreSync(sender, protocol)
+    CMallMan.Instance():HandleActivitySynData(protocol)
+end
+PBHelper.AddHandler("S2CAtStoreSync", OnS2CAtStoreSync)
+
+-- 购买活动商品的消息
+local function OnS2CAtStoreBuyRes(sender, protocol)
+    if protocol.ResCode == 0 then
+        CMallMan.Instance():HandleBuyActivityGoods(protocol)
+    else
+        game._GUIMan:ShowErrorTipText(protocol.ResCode)
+    end
+end
+PBHelper.AddHandler("S2CAtStoreBuyRes", OnS2CAtStoreBuyRes)

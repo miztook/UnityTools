@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD05.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn05_ElfArch.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[24100] = 
@@ -82,16 +83,16 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[1] = { x = -17.13, y = 82.60, z = -122.75, name = "目标1区域", worldId = 0, PkMode = 0 },
-			[2] = { x = -17.35, y = 81.23, z = -101.80, name = "目标3区域", worldId = 0, PkMode = 0 },
-			[3] = { x = -32.83, y = 80.30, z = -81.04, name = "目标5区域", worldId = 0, PkMode = 0 },
-			[275] = { x = -51.81, y = 77.00, z = -51.01, name = "触发沙行者精英区", worldId = 0, PkMode = 0 },
-			[276] = { x = -50.38, y = 72.10, z = 1.50, name = "目标8_穿过塌陷区域", worldId = 0, PkMode = 0 },
-			[277] = { x = -13.00, y = 62.84, z = 10.42, name = "目标区与包围触发", worldId = 0, PkMode = 0 },
-			[278] = { x = 19.00, y = 40.55, z = -31.97, name = "目标13_前往生命之花", worldId = 0, PkMode = 0 },
-			[281] = { x = 14.15, y = 55.50, z = 13.85, name = "激活对话3", worldId = 0, PkMode = 0 },
-			[282] = { x = -20.19, y = 80.13, z = -81.86, name = "演出怪物移除免死区", worldId = 0, PkMode = 0 },
-			[330] = { x = 13.33, y = 40.50, z = -31.89, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 0 },
+			[1] = { x = -17.13, y = 82.60, z = -122.75, name = "目标1区域", worldId = 0, PkMode = 1 },
+			[2] = { x = -17.35, y = 81.23, z = -101.80, name = "目标3区域", worldId = 0, PkMode = 1 },
+			[3] = { x = -32.83, y = 80.30, z = -81.04, name = "目标5区域", worldId = 0, PkMode = 1 },
+			[275] = { x = -51.81, y = 77.00, z = -51.01, name = "触发沙行者精英区", worldId = 0, PkMode = 1 },
+			[276] = { x = -50.38, y = 72.10, z = 1.50, name = "目标8_穿过塌陷区域", worldId = 0, PkMode = 1 },
+			[277] = { x = -13.00, y = 62.84, z = 10.42, name = "目标区与包围触发", worldId = 0, PkMode = 1 },
+			[278] = { x = 19.00, y = 40.55, z = -31.97, name = "目标13_前往生命之花", worldId = 0, PkMode = 1 },
+			[281] = { x = 14.15, y = 55.50, z = 13.85, name = "激活对话3", worldId = 0, PkMode = 1 },
+			[282] = { x = -20.19, y = 80.13, z = -81.86, name = "演出怪物移除免死区", worldId = 0, PkMode = 1 },
+			[330] = { x = 13.33, y = 40.50, z = -31.89, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1 },
 		},
 	},
 	Mine = 

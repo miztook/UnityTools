@@ -10,7 +10,6 @@ local CPlayerMan = Lplus.Extend(CEntityMan, "CPlayerMan")
 local def = CPlayerMan.define
 
 def.field("userdata")._PlayersRoot = nil
-def.field("number")._UpdateInterval = 0
 
 --由于若干个模块都需要遍历npc列表, 因此用一个timer保存enemy, friend列表，避免重复遍历
 def.field("number")._CheckPlayerListTimer = 0
@@ -18,6 +17,7 @@ def.field("table")._EnemyPlayerList = BlankTable
 def.field("table")._FriendPlayerList = BlankTable
 def.field("table")._ActivePlayerList = BlankTable
 def.field("table")._OrderPlayerList = BlankTable
+def.field("table")._MyCarePlayerList = nil
 
 def.final("=>", CPlayerMan).new = function ()
 	local obj = CPlayerMan()
@@ -83,7 +83,7 @@ def.method("table", "=>", CElsePlayer).CreateElsePlayer = function (self, info)
 		player:AddLoadedCallback(function(p)
 				if p._GameObject ~= nil then
 					p._GameObject.parent = self._PlayersRoot
-				end		
+				end
 			end)
 		player:Init(info)
 		self._ObjMap[id] = player		
@@ -295,6 +295,72 @@ def.override().Update = function (self)
 	end
 end
 
+def.method("number", "=>", "boolean").IsInCaredPlayerList = function(self, playerID)
+    if self._MyCarePlayerList == nil then return false end
+    return self._MyCarePlayerList[playerID] ~= nil
+end
+
+local function GetNewRoleInfoDataByID(list, id)
+    for i,v in ipairs(list) do
+        if v.CreatureInfo.MovableInfo.EntityInfo.EntityId == id then
+            return v
+        end
+    end
+    return nil
+end
+
+-- 更新我关心的玩家
+def.method("dynamic", "dynamic").UpdateCarePlayerList = function(self, playerList, roleInfos)
+    if playerList == nil then return end
+    
+    local maxVisibleCount = game._MaxPlayersInScreen
+    self._MyCarePlayerList = {}
+    for i,v in ipairs(playerList) do
+    	if i > maxVisibleCount then
+    		break
+    	end
+    	self._MyCarePlayerList[v] = v
+    end
+
+    for i,v in ipairs(roleInfos) do
+    	local id = v.CreatureInfo.MovableInfo.EntityInfo.EntityId
+		if self._ObjMap[id] == nil then
+    		self:CreateElsePlayer(v)
+    	else
+    		self._ObjMap[id]:SetRoleInfoData(v)
+    	end
+    end
+
+    local players = self._ObjMap
+    local needRemoveIDs = {}
+    for k,v in pairs(players) do
+        if not v:IsReleased() then
+        	local isInList = self:IsInCaredPlayerList(k)
+            v:AddLoadedCallback(function(p)
+				if p._GameObject ~= nil then
+					p._GameObject.parent = self._PlayersRoot
+				end
+			end)
+            v:OnEnterOrLeaveHostCarePlayerList(isInList, nil)   -- GetNewRoleInfoDataByID(roleInfos, k)
+        end
+        local finded = false
+        for _,id in ipairs(playerList) do
+            if id == k then
+                finded = true
+            end
+        end
+        if not finded then
+            needRemoveIDs[#needRemoveIDs + 1] = k
+        end
+    end
+
+    for i,v in ipairs(needRemoveIDs) do
+		self:Remove(v, EnumDef.SightUpdateType.Unknown)
+    end
+
+    EventUntil.RaiseCarePlayerListChangeEvent()
+end
+
 def.override("boolean").Release = function (self, is_2_release_root)
 	if is_2_release_root then
 		if self._CheckPlayerListTimer ~= 0 then
@@ -307,6 +373,7 @@ def.override("boolean").Release = function (self, is_2_release_root)
 	self._FriendPlayerList = {}
 	self._ActivePlayerList = {}
 	self._OrderPlayerList = {}
+    self._MyCarePlayerList = nil
 
 	CEntityMan.Release(self, is_2_release_root)
 

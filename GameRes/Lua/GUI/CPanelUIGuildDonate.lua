@@ -36,7 +36,7 @@ end
 
 -- 当创建
 def.override().OnCreate = function(self)
-	local allTid = GameUtil.GetAllTid("GuildDonate")
+	local allTid = CElementData.GetAllTid("GuildDonate")
 	for i = 1, #allTid do
 		local donate = CElementData.GetTemplate("GuildDonate", allTid[i])
 		self._Data[#self._Data + 1] = donate

@@ -72,13 +72,25 @@ def.static("=>", CPanelPowerSaving).Instance = function()
 	return instance
 end
 
-local function Sec2Time(time)
-	local s = math.fmod(time, 60)
-	time =(time - s) / 60
-	local m = math.fmod(time, 60)
-	time =(time - m) / 60
+--local function Sec2Time(time)
+--	local s = math.fmod(time, 60)
+--	time =(time - s) / 60
+--	local m = math.fmod(time, 60)
+--	time =(time - m) / 60
+--	local h = math.fmod(time, 24)
 
-	return time, m, s
+--	return h, m, s
+--end
+
+local function Server2LocalTime(time)
+    time = os.date("%H%M", GameUtil.GetServerTime() / 1000)
+    time = tonumber(time)
+
+    local m = math.fmod(time, 100)
+    local h = (time - m) / 100
+    --local h = math.fmod(time, 24)
+
+    return h, m
 end
 
 local function ShowTime(self, txt_time, sec)
@@ -367,8 +379,7 @@ def.method().OnRefresh = function(self)
 	-- end
 
 	-- Update Clock
-	local sec = GameUtil.GetCurrentSecondTime()
-	local h, m, s = Sec2Time(sec)
+	local h,m = Server2LocalTime(GameUtil.GetServerTime()/1000)
 	local is_day = h >= 6 and h < 18
 	if is_day ~= self._IsDay then
 		self._IsDay = is_day

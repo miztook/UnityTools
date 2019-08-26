@@ -1131,31 +1131,6 @@ function string.formatnumberthousands(num)
     return formatted
 end
 
-function AsyncLoadArray(arr, onfinish, ...)
-    local ret = {}
-
-    if #arr == 0 then
-        onfinish(ret)
-    end
-    
-    local count = 0
-    
-    local function _onload (i, obj)
-        ret[i] = obj
-        count = count + 1
-        
-        if count == #arr then
-            onfinish(ret)
-        end
-    end
-
-    for i = 1, #arr do
-        GameUtil.AsyncLoad(arr[i], function(obj)
-            _onload(i, obj)
-        end, ...)
-    end
-end
-
 function printf(format, ...)
     local str = ""  
     for i = 1, n do
@@ -1316,8 +1291,9 @@ _G.table_has_function = function(t)
 end
 
 --fix float精度 输出float
-_G.fixFloat = function(val, digit)
-    local result = val+0.000001
+_G.fixFloat = function(val, digit, isPercentage)
+    local result = isPercentage and val + 0.0001 or val+0.00001
+    -- warn("fixFloat------", val, result, debug.traceback())
     if digit ~= nil then
         if digit > 0 then
             local fmtCntStr = string.format("%%0.%df", digit)
@@ -1325,19 +1301,66 @@ _G.fixFloat = function(val, digit)
         else
             result = math.floor(result)
         end
+    else
+        local product = math.floor(result)
+        if product == 0 and result >= 0.1 then
+            local remainder = 0
+            remainder = val * 100
+            remainder = fixFloat(remainder)
+            remainder = remainder % 10
+
+            local fmtCntStr = ""
+            if remainder < 1 then
+                fmtCntStr = string.format("%%0.%df", 0)
+            else
+                remainder = val * 100
+                remainder = fixFloat(remainder)
+                remainder = remainder % 10
+
+                if remainder < 1 then
+                    fmtCntStr = string.format("%%0.%df", 1)
+                else
+                    fmtCntStr = string.format("%%0.%df", 2)
+                end
+            end
+
+            result = tonumber(string.format(fmtCntStr, result))
+        else
+            result = product
+        end
     end
 
     return result
 end
 
 --fix float精度 输出字符串
-_G.fixFloatStr = function(val, digit)
+_G.fixFloatStr = function(val, digit, isPercentage)
+    val = fixFloat(val, digit, isPercentage)
+
     local result = ""
     if digit ~= nil then
-        local fmtCntStr = string.format("%%0.%df", digit)
-        result = string.format(fmtCntStr, fixFloat(val, digit))
+        local remainder = 0
+        remainder = val * 100
+        remainder = fixFloat(remainder)
+        remainder = remainder % 100
+        local fmtCntStr = ""
+
+        if remainder < 1 then
+            fmtCntStr = string.format("%%0.%df", 0)
+        else
+            remainder = val * 100
+            remainder = fixFloat(remainder)
+            remainder = remainder % 10
+
+            if remainder < 1 or digit == 1 then
+                fmtCntStr = string.format("%%0.%df", 1)
+            else
+                fmtCntStr = string.format("%%0.%df", 2)
+            end
+        end
+        result = string.format(fmtCntStr, val)
     else
-        result = string.format("%0.2f", fixFloat(val, 2))
+        result = string.format("%0.2f", val)
     end
 
     return result
@@ -1354,7 +1377,7 @@ _G.fmtVal2Str = function(val)
     if result < 1 then
         resultStr = string.format("%0.0f", fixVal)
     else
-        result = (fixVal * 1000)
+        result = (fixVal * 100)
         result = fixFloat(result)
         result = result % 10
 
@@ -1369,7 +1392,7 @@ _G.fmtVal2Str = function(val)
 end
 
 _G.fixFloor = function(val, digit)
-    local result = val+0.000001
+    local result = val+0.00001
     if digit ~= nil then
         result = result * (10 ^ digit)
         result = math.floor(result)

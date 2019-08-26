@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/Map_Bg_Start.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn00_EmpireRelicPrologue.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[40002] = 
@@ -35,10 +36,10 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[4] = { x = 10.90, y = 45.66, z = -73.23, name = "摇杆教学", worldId = 0, PkMode = 0 },
-			[5] = { x = 23.12, y = 46.38, z = -58.56, name = "自动任务教学", worldId = 0, PkMode = 0 },
-			[6] = { x = 21.24, y = 55.78, z = -11.80, name = "巴风特平台", worldId = 0, PkMode = 0 },
-			[7] = { x = 2.38, y = 70.33, z = 64.45, name = "巨龙平台", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 0 },
+			[4] = { x = 10.90, y = 45.66, z = -73.23, name = "摇杆教学", worldId = 0, PkMode = 1 },
+			[5] = { x = 23.12, y = 46.38, z = -58.56, name = "自动任务教学", worldId = 0, PkMode = 1 },
+			[6] = { x = 21.24, y = 55.78, z = -11.80, name = "巴风特平台", worldId = 0, PkMode = 1 },
+			[7] = { x = 2.38, y = 70.33, z = 64.45, name = "巨龙平台", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1 },
 		},
 	},
 	Mine = 

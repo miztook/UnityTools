@@ -83,7 +83,7 @@ end
 def.method().InitConfig = function(self)
     if #self._Guild_Icon_1 > 0 then return end
     self._NeedScore = game._HostPlayer._Guild._AddLimit._BattlePower or 0
-    local allTid = GameUtil.GetAllTid("GuildIcon")
+    local allTid = CElementData.GetAllTid("GuildIcon")
     self._Guild_Icon_1 = {}
     self._Guild_Icon_2 = {}
     self._Guild_Icon_3 = {}
@@ -353,6 +353,7 @@ def.method("userdata", "string", "number").OnSelectItem = function(self, item, i
         self._List_Item_1._Index = index + 1
         item:FindChild("Img_U"):SetActive(true)
         self:UpdateCostMoney()
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Pet_Skill, 0)
         GameUtil.PlayUISfx(PATH.UIFX_QiZhiGengHuan, self._Guild_Icon_Image[2], self._Guild_Icon_Image[2], -1)
     elseif id == "Group_List_2" then
         self._List_Item_2._Item:FindChild("Img_U"):SetActive(false)
@@ -360,6 +361,7 @@ def.method("userdata", "string", "number").OnSelectItem = function(self, item, i
         self._List_Item_2._Index = index + 1
         item:FindChild("Img_U"):SetActive(true)
         self:UpdateCostMoney()
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Pet_Skill, 0)
         GameUtil.PlayUISfx(PATH.UIFX_QiZhiGengHuan, self._Guild_Icon_Image[2], self._Guild_Icon_Image[2], -1)
     elseif id == "Group_List_3" then
         self._List_Item_3._Item:FindChild("Img_U"):SetActive(false)
@@ -367,6 +369,7 @@ def.method("userdata", "string", "number").OnSelectItem = function(self, item, i
         self._List_Item_3._Index = index + 1
         item:FindChild("Img_U"):SetActive(true)
         self:UpdateCostMoney()
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Pet_Skill, 0)
         GameUtil.PlayUISfx(PATH.UIFX_QiZhiGengHuan, self._Guild_Icon_Image[2], self._Guild_Icon_Image[2], -1)
     end
     self:Refresh()
@@ -461,6 +464,7 @@ def.method().SaveSettings = function(self)
     if game._HostPlayer:GetBindDiamonds() < self._TotalCostMoney then
         local callback = function(value)
             if value then
+                CSoundMan.Instance():Play2DAudio(PATH.GUISound_Create, 0)
                 local protocol = (require "PB.net".C2SGuildSetDisplayInfo)()
                 protocol.DisplayInfo.AddLimit.battlePower = self._NeedScore
                 protocol.DisplayInfo.Name = name
@@ -493,6 +497,7 @@ def.method().SaveSettings = function(self)
             flag = true
         end
         if flag then
+            CSoundMan.Instance():Play2DAudio(PATH.GUISound_Create, 0)
             local protocol = (require "PB.net".C2SGuildSetDisplayInfo)()
             protocol.DisplayInfo.AddLimit.battlePower = self._NeedScore
             protocol.DisplayInfo.Name = name

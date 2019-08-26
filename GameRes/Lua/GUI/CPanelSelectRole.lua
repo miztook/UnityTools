@@ -46,7 +46,7 @@ def.static("=>", CPanelSelectRole).Instance = function()
         instance._PrefabPath = PATH.Panel_SelectRoleNew
         instance._PanelCloseType = EnumDef.PanelCloseType.None
         instance._DestroyOnHide = true
-        instance._ClickInterval = 1
+        instance._ClickInterval = 2
         instance:SetupSortingParam()
 	end
 	return instance
@@ -159,7 +159,7 @@ def.method().InitUIRoleList = function (self)
 		if hasRole then
 			local roleData = game._AccountInfo._RoleList[i]
 			-- 头像
-			game:SetEntityCustomImg(roleItem.Img_HeadIcon, roleData.Id, roleData.Exterior.CustomImgSet, roleData.Gender, roleData.Profession)
+			TeraFuncs.SetEntityCustomImg(roleItem.Img_HeadIcon, roleData.Id, roleData.Exterior.CustomImgSet, roleData.Gender, roleData.Profession)
 			-- 职业徽记
 			-- local professionTemplate = CElementData.GetProfessionTemplate(roleData.Profession)
 			-- if professionTemplate ~= nil then
@@ -278,11 +278,11 @@ def.method("number").InitUIRoleInfo = function (self, roleIndex)
 	if worldData ~= nil then
 		strLocation = worldData.TextDisplayName
 	end		
-	if roleData.RegionId > 0 then
-		if MapBasicConfig.IsShowRegionNameTips(roleData.MapId, roleData.RegionId) then 
-			strLocation = MapBasicConfig.GetRegionName(roleData.MapId, roleData.RegionId)
-		end
-	end
+	-- if roleData.RegionId > 0 then
+	-- 	if MapBasicConfig.IsShowRegionNameTips(roleData.MapId, roleData.RegionId) then 
+	-- 		strLocation = MapBasicConfig.GetRegionName(roleData.MapId, roleData.RegionId)
+	-- 	end
+	-- end
 	GUI.SetText(self._Lab_Location, strLocation)
 end
 
@@ -346,8 +346,8 @@ def.override("string").OnClick = function(self,id)
 	elseif id == "Btn_Back" then
 		-- 返回
 		game:AddForbidTimer(self._ClickInterval)
-
-		self:OnBtnBack()
+		game:LogoutAccount()
+		game._GUIMan:Close("CPanelSelectRole")
 	elseif string.find(id, "Btn_Recover_")  then
 		-- 恢复角色
 		game:AddForbidTimer(self._ClickInterval)
@@ -366,19 +366,13 @@ def.method().OnBtnEnter = function(self)
 		local roleData = game._AccountInfo._RoleList[curIndex]
 		if roleData ~= nil then
 			game._AccountInfo._CurrentSelectRoleIndex = curIndex
-			game:SendSelectRole(roleData.Id)
+			local PBUtil = require "PB.PBUtil"
+			PBUtil.SendSelectRoleProtocol(roleData.Id)
 		else
-			error("CPanelSelectRole enter game failed, role data got nil, wrong index: " .. tostring(curIndex), 2)
+			warn("CPanelSelectRole enter game failed, role data got nil, wrong index: ", tostring(curIndex))
 		end
 	end
 	StartScreenFade(0, 1, 0.5, callback)
-end
-
---返回登录界面
-def.method().OnBtnBack = function(self)
-	game:LogoutAccount()
-	game:ReturnLoginStage()
-	game._GUIMan:Close("CPanelSelectRole")
 end
 
 --请求恢复角色
@@ -442,6 +436,9 @@ def.method("number").FreshDelRoleShow = function(self, nIdex)
 					GUI.SetText(roleItem.Lab_Recover, strTime)
 				end
 				isRemoveTimer = false
+			else
+				-- 时间到，删除客户端数据
+				game:DeleteRole(roleData.Id, ROLE_VAILD.Invaild, 0)
 			end
 		end
 		if isRemoveTimer then

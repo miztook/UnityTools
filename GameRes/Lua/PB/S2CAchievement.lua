@@ -32,7 +32,7 @@ local function OnS2CAchivementFinish(sender,msg)
 	game._AcheivementMan:FinishAchievement(tid, msg.FinishTime or 0)
 	game._AcheivementMan:UpdateAdvancedGuideInfo()
 	-- 弹出app弹窗
-	game:OnAppMsgBoxStatic(EnumDef.TriggerTag.FinishAchievement, tid)
+	AppMsgBox.StartWork(EnumDef.TriggerTag.FinishAchievement, tid)
 	local CPanelUIManual = require "GUI.CPanelUIManual"
 	if CPanelUIManual.Instance():IsShow() then 
         CPanelUIManual.Instance():FreshAchievementPage()

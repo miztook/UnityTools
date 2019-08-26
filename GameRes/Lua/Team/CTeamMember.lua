@@ -31,7 +31,7 @@ def.static("=>", CTeamMember).new = function ()
 	return obj
 end
 
-def.method().ResetMember = function (self)
+def.method().Reset = function (self)
 	self._ID = 0
 	self._Name = ""
 	self._IsOnLine = false

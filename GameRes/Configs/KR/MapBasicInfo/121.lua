@@ -1,8 +1,8 @@
 local MapInfo = 
 {
 	MapType = 3,
-	Remarks = "동부 가드 전용 던전01",
-	TextDisplayName = "동부 가드 전용 던전01",
+	Remarks = "동부 가드 전용 던전 01",
+	TextDisplayName = "동부 가드 전용 던전 01",
 	Length = 576,
 	Width = 576,
 	NavMeshName = "World01.navmesh",
@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[20000] = 
@@ -25,7 +26,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[50] = { x = 215.05, y = 58.72, z = 127.41, name = "专属相位测试", worldId = 0, PkMode = 0 },
+			[50] = { x = 215.05, y = 58.72, z = 127.41, name = "专属相位测试", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

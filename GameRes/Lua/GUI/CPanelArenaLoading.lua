@@ -29,6 +29,8 @@ def.field("userdata")._FrameContent = nil
 def.field("userdata")._LabPro = nil 
 def.field("number")._BattleLoadingTimeSpecialId = 378
 def.field("table")._3V3PlayerData = nil 
+def.field("number")._PrefabDelayID = 0
+def.field("userdata")._Frame3V3Content = nil 
 
 local instance = nil
 def.static("=>", CPanelArenaLoading).Instance = function()
@@ -53,6 +55,7 @@ def.override().OnCreate = function(self)
     self._ImgFront = self:GetUIObject("Img_Front"):GetComponent(ClassType.Image)
     self._LabPro = self:GetUIObject("Label_Pro")
     self._FrameContent = self:GetUIObject("Frame_Content")
+    self._Frame3V3Content = self:GetUIObject("Frame_Mid")
     for  i = 0,2  do
         self._BlackShows[#self._BlackShows + 1] = 
         {
@@ -120,7 +123,7 @@ local function SetPlayerShow(nType,index,PlayerInfo)
     
     GUI.SetText(uiItem._levelLab, string.format(StringTable.Get(20053),PlayerInfo.Level))
    
-    -- game:SetEntityCustomImg(uiItem._ImgHeadIcon,PlayerInfo.RoleId,PlayerInfo.Exterior.CustomImgSet,Profession2Gender[PlayerInfo.Profession],PlayerInfo.Profession)
+    -- TeraFuncs.SetEntityCustomImg(uiItem._ImgHeadIcon,PlayerInfo.RoleId,PlayerInfo.Exterior.CustomImgSet,Profession2Gender[PlayerInfo.Profession],PlayerInfo.Profession)
     -- if game._HostPlayer._ID == PlayerInfo.RoleId then
     -- 	-- instance._SelfImg:SetParent(uiItem._item)
     -- 	instance._SelfImg.localPosition = Vector3.zero
@@ -197,7 +200,21 @@ end
 def.override("dynamic").OnData = function(self, data)
     self._CurArenaType = data.CurArenaType
     if self._CurArenaType == EnumDef.OpenArenaType.Open3V3 then
-        self:Init3V3Panel(data.Info)
+        self._Frame3V3Content:SetActive(false)
+        if self._PrefabDelayID ~= 0 then 
+            _G.RemoveGlobalTimer(self._PrefabDelayID)
+            self._PrefabDelayID = 0 
+        end
+        local time = 0
+        local callback = function()
+            time = time + 0.5
+            if time == 1 then
+                _G.RemoveGlobalTimer(self._PrefabDelayID)
+                self._PrefabDelayID = 0
+                self:Init3V3Panel(data.Info)
+            end
+        end
+        self._PrefabDelayID = _G.AddGlobalTimer(0.5, false, callback)
         self._3V3PlayerData = data.Info
     elseif self._CurArenaType == EnumDef.OpenArenaType.OpenBattle then 
         self:InitBattlePanel()
@@ -207,6 +224,7 @@ end
 def.method("table").Init3V3Panel = function (self,data)
     self._Frame3V3:SetActive(true)
     self._FrameBattle:SetActive(false)
+    self._Frame3V3Content:SetActive(true)
     self._LoadingTime = tonumber(CElementData.GetSpecialIdTemplate(self._3V3LoadingTimeSpecialId).Value)
     CSoundMan.Instance():Play2DAudio(PATH.GUISound_Arena3V3Loading, 0) 
     -- local rotation = Vector3.New(0, 0, -180)
@@ -334,6 +352,10 @@ def.method().LoadFinishWorld = function (self)
 end
 
 def.override().OnDestroy = function(self)
+    if self._PrefabDelayID ~= 0 then 
+        _G.RemoveGlobalTimer(self._PrefabDelayID)
+        self._PrefabDelayID = 0 
+    end
     if self._LoadWord_Timer ~= 0 then
         _G.RemoveGlobalTimer(self._LoadWord_Timer)
         self._LoadWord_Timer = 0
@@ -362,6 +384,7 @@ def.override().OnDestroy = function(self)
     self._ImgFront = nil
     self._LabPro = nil
     self._FrameContent = nil 
+    self._Frame3V3Content = nil 
 end
 
 CPanelArenaLoading.Commit()

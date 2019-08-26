@@ -6,11 +6,12 @@ local MapInfo =
 	Length = 512,
 	Width = 512,
 	NavMeshName = "World04Part2.navmesh",
-	BackgroundMusic = "",
+	BackgroundMusic = "BGM_Map_4/Map_4/Map_4_phase",
 	BattleMusic = "",
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14243] = 
@@ -24,24 +25,24 @@ local MapInfo =
 		},
 		[14245] = 
 		{
-			[1] = { x = -111.30, y = 74.69, z = -55.10, name = "타락 영혼", level = 57, SortID = 117, DropItemIds = " " },
-			[2] = { x = -106.90, y = 66.30, z = -76.60, name = "타락 영혼", level = 57, SortID = 12, DropItemIds = " " },
-			[3] = { x = -91.40, y = 71.43, z = -67.10, name = "타락 영혼", level = 57, SortID = 13, DropItemIds = " " },
-			[4] = { x = -135.90, y = 61.86, z = -77.20, name = "타락 영혼", level = 57, SortID = 14, DropItemIds = " " },
+			[1] = { x = -111.30, y = 74.69, z = -55.10, name = "타락한 영혼", level = 57, SortID = 117, DropItemIds = " " },
+			[2] = { x = -106.90, y = 66.30, z = -76.60, name = "타락한 영혼", level = 57, SortID = 12, DropItemIds = " " },
+			[3] = { x = -91.40, y = 71.43, z = -67.10, name = "타락한 영혼", level = 57, SortID = 13, DropItemIds = " " },
+			[4] = { x = -135.90, y = 61.86, z = -77.20, name = "타락한 영혼", level = 57, SortID = 14, DropItemIds = " " },
 		},
 		[14248] = 
 		{
-			[1] = { x = -219.29, y = 29.42, z = -159.49, name = "나무 혈사도", level = 57, SortID = 1, DropItemIds = " " },
-			[2] = { x = -227.18, y = 29.42, z = -174.45, name = "나무 혈사도", level = 57, SortID = 2, DropItemIds = " " },
-			[3] = { x = -219.29, y = 29.42, z = -159.49, name = "나무 혈사도", level = 57, SortID = 3, DropItemIds = " " },
-			[4] = { x = -201.70, y = 29.42, z = -167.80, name = "나무 혈사도", level = 57, SortID = 4, DropItemIds = " " },
-			[5] = { x = -190.60, y = 29.42, z = -180.80, name = "나무 혈사도", level = 57, SortID = 5, DropItemIds = " " },
-			[6] = { x = -173.50, y = 29.42, z = -178.70, name = "나무 혈사도", level = 57, SortID = 6, DropItemIds = " " },
-			[7] = { x = -222.60, y = 29.42, z = -191.10, name = "나무 혈사도", level = 57, SortID = 7, DropItemIds = " " },
-			[8] = { x = -191.70, y = 29.42, z = -194.30, name = "나무 혈사도", level = 57, SortID = 8, DropItemIds = " " },
-			[9] = { x = -177.20, y = 29.42, z = -195.80, name = "나무 혈사도", level = 57, SortID = 9, DropItemIds = " " },
-			[10] = { x = -235.79, y = 29.42, z = -167.03, name = "나무 혈사도", level = 57, SortID = 10, DropItemIds = " " },
-			[11] = { x = -208.46, y = 29.42, z = -211.50, name = "나무 혈사도", level = 57, SortID = 17, DropItemIds = " " },
+			[1] = { x = -219.29, y = 29.42, z = -159.49, name = "나무 혈사제", level = 57, SortID = 1, DropItemIds = " " },
+			[2] = { x = -227.18, y = 29.42, z = -174.45, name = "나무 혈사제", level = 57, SortID = 2, DropItemIds = " " },
+			[3] = { x = -219.29, y = 29.42, z = -159.49, name = "나무 혈사제", level = 57, SortID = 3, DropItemIds = " " },
+			[4] = { x = -201.70, y = 29.42, z = -167.80, name = "나무 혈사제", level = 57, SortID = 4, DropItemIds = " " },
+			[5] = { x = -190.60, y = 29.42, z = -180.80, name = "나무 혈사제", level = 57, SortID = 5, DropItemIds = " " },
+			[6] = { x = -173.50, y = 29.42, z = -178.70, name = "나무 혈사제", level = 57, SortID = 6, DropItemIds = " " },
+			[7] = { x = -222.60, y = 29.42, z = -191.10, name = "나무 혈사제", level = 57, SortID = 7, DropItemIds = " " },
+			[8] = { x = -191.70, y = 29.42, z = -194.30, name = "나무 혈사제", level = 57, SortID = 8, DropItemIds = " " },
+			[9] = { x = -177.20, y = 29.42, z = -195.80, name = "나무 혈사제", level = 57, SortID = 9, DropItemIds = " " },
+			[10] = { x = -235.79, y = 29.42, z = -167.03, name = "나무 혈사제", level = 57, SortID = 10, DropItemIds = " " },
+			[11] = { x = -208.46, y = 29.42, z = -211.50, name = "나무 혈사제", level = 57, SortID = 17, DropItemIds = " " },
 		},
 		[14244] = 
 		{
@@ -63,7 +64,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[303] = { x = -162.32, y = 30.19, z = -137.26, name = "그림자 숲", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {4540} },
+			[303] = { x = -162.32, y = 30.19, z = -137.26, name = "그림자 숲", worldId = 0, PkMode = 1, IsCanHawkeye = true, QuestID = {4540} },
 		},
 	},
 	Mine = 

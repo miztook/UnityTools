@@ -49,9 +49,9 @@ end
 -- 当数据
 def.override("dynamic").OnData = function(self, data)
 	self._Data = data
-	GUI.SetText(self._Lab_Kill_Num, tostring(data.KillNum))
-	GUI.SetText(self._Lab_Dead_Num, tostring(data.DeathNum))
-	GUI.SetText(self._Lab_Hp_Num, tostring(data.Dmg))
+	GUI.SetText(self._Lab_Kill_Num, GUITools.FormatNumber(data.KillNum, false))
+	GUI.SetText(self._Lab_Dead_Num, GUITools.FormatNumber(data.DeathNum, false))
+	GUI.SetText(self._Lab_Hp_Num, GUITools.FormatNumber(data.Dmg, false))
 	GUI.SetText(self._Lab_Progress_Num, game._GuildMan:GetTimeNum(data.PassTime))
     GUI.SetText(self._Lab_Tip, tostring( string.format(StringTable.Get(31606), self._LeftTime)))
 	-- 维持与通用显示一致

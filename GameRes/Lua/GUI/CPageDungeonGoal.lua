@@ -137,6 +137,7 @@ def.method().UpdateGuildBattle = function(self)
 end
 
 local textColor = Color.New(1, 1, 1, 1)
+local textColorGreen = Color.New(133/255, 210/255, 24/255, 1)
 def.method("number","table").SetGoalShow = function(self,nIndex,goalData)
 	--[[目标描述
 		EDUNGEONGOAL_KILLMONSTER 			= 1; // 杀怪
@@ -144,7 +145,6 @@ def.method("number","table").SetGoalShow = function(self,nIndex,goalData)
 		EDUNGEONGOAL_ENTERREGION 			= 3; // 进入区域
 		EDUNGEONGOAL_TALK 					= 4; // 交谈
 	]]
-	
 	if IsNil(self._TableGoalItem[nIndex]) then 
 		warn("TableGoalItem的",nIndex,"Is nil")
 		return 
@@ -196,7 +196,11 @@ def.method("number","table").SetGoalShow = function(self,nIndex,goalData)
 	if not IsNil(labNum) then
 		labNum: SetActive(true)
 		GUI.SetText(labNum,strNum)
-		GameUtil.SetTextColor(labNum:GetComponent(ClassType.Text), textColor)
+		local color = textColor
+		if goalData.CurCount >= goalData.MaxCount then 
+			color = textColorGreen
+		end
+		GameUtil.SetTextColor(labNum:GetComponent(ClassType.Text), color)
 	end
 end
 
@@ -228,7 +232,7 @@ def.method().InitDungeonGoalPanel = function (self)
 		local textType = ClassType.Text
 		local labName = dungeonPanel:FindChild("Lab_Name")
 		if(labName ~= nil) then
-			local strName = string.format(StringTable.Get(546) ,dungeonInfo.TextDisplayName)
+			local strName = string.format(StringTable.Get(548) ,dungeonInfo.TextDisplayName)
 			labName :SetActive(true)
 			GUI.SetText(labName, strName)
 		end
@@ -312,7 +316,7 @@ end
 local textColorGot = Color.New(133/255, 210/255, 24/255, 1)
 def.method("number").UpdateDungeonGoalPanel = function(self,nIndex)
  	if self._TableGoalItem == nil then return end  --界面没有初始化完毕。等待show的时候再刷新一次
- 	dungeonGoal = game._DungeonMan: GetDungeonGoalByIndex(nIndex)
+ 	dungeonGoal = game._DungeonMan:GetDungeonGoalByIndex(nIndex)
 	if(dungeonGoal == nil) then
 		warn("副本目标错误！！")
 		local CPanelTracker = require "GUI.CPanelTracker"

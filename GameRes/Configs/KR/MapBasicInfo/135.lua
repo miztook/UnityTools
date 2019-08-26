@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Canyon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world02.png",
 	AssetPath = "Assets/Outputs/Scenes/World02.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[11027] = 
@@ -23,15 +24,15 @@ local MapInfo =
 		},
 		[11053] = 
 		{
-			[1] = { x = 188.00, y = 69.70, z = 210.43, name = "군단 장교", level = 27, SortID = 7 },
+			[1] = { x = 188.00, y = 69.70, z = 210.43, name = "군단 천부장", level = 27, SortID = 7 },
 		},
 		[11051] = 
 		{
-			[1] = { x = 181.32, y = 69.22, z = 210.43, name = "제 1군단 검사", level = 27, SortID = 8 },
+			[1] = { x = 181.32, y = 69.22, z = 210.43, name = "제국 검투사", level = 27, SortID = 8 },
 		},
 		[11052] = 
 		{
-			[1] = { x = 184.12, y = 69.20, z = 210.50, name = "제 1군단 주술사", level = 27, SortID = 9 },
+			[1] = { x = 184.12, y = 69.20, z = 210.50, name = "제1군단 흑마법사", level = 27, SortID = 9 },
 		},
 		[11050] = 
 		{
@@ -81,9 +82,9 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[148] = { x = 203.38, y = 74.90, z = 207.81, name = "库萨大营相位【个人】", worldId = 0, PkMode = 0 },
-			[457] = { x = 174.98, y = 70.08, z = 205.42, name = "第一阶段区域", worldId = 0, PkMode = 0 },
-			[458] = { x = 202.35, y = 69.70, z = 211.23, name = "第二阶段区域", worldId = 0, PkMode = 0 },
+			[148] = { x = 203.38, y = 74.90, z = 207.81, name = "库萨大营相位【个人】", worldId = 0, PkMode = 1 },
+			[457] = { x = 174.98, y = 70.08, z = 205.42, name = "第一阶段区域", worldId = 0, PkMode = 1 },
+			[458] = { x = 202.35, y = 69.70, z = 211.23, name = "第二阶段区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

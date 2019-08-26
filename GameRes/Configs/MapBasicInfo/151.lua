@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Battle",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12033] = 
@@ -116,9 +117,9 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[209] = { x = 330.18, y = 47.72, z = -81.81, name = "前线营地", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[210] = { x = 268.59, y = 42.38, z = -35.23, name = "先锋军码头", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[211] = { x = 253.86, y = 47.72, z = -28.53, name = "前线", worldId = 0, IsCanFind = 1, PkMode = 0 },
+			[209] = { x = 330.18, y = 47.72, z = -81.81, name = "前线营地", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[210] = { x = 268.59, y = 42.38, z = -35.23, name = "先锋军码头", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[211] = { x = 253.86, y = 47.72, z = -28.53, name = "前线", worldId = 0, IsCanFind = 1, PkMode = 1 },
 		},
 	},
 	Mine = 

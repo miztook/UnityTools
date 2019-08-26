@@ -57,7 +57,7 @@ def.field(CPateBase)._TopPate = nil
 def.field(CCooldownHdl)._CDHdl = nil
 def.field(CObjectSkillHdl)._SkillHdl = nil
 def.field(CMagicContolInfo)._MagicControlinfo = nil    -- 魔法控制列表
-
+def.field("boolean")._IsModelLoaded = false
 def.field("boolean")._IsReady = false
 def.field("boolean")._IsReleased = false
 def.field("boolean")._IsCullingVisible = true
@@ -83,7 +83,7 @@ def.field(CHUDText)._HUDText = nil
 
 --技能信息（仅对Palyer和PlayerMirror有效）
 def.field("table")._UserSkillMap = BlankTable
-def.field("number")._CurLogoType = -2
+def.field("number")._CurLogoType = -2 --EnumDef.EntityLogoType.NoSet
 
 -- { LeftHand需要武器， RightHand需要武器，InHand, 左手武器GameObject，右手武器GameObject }
 def.field("table")._CurWeaponInfo = nil
@@ -109,6 +109,8 @@ def.field("number")._CollisionRadius = 0 -- 碰撞体半径
 def.field("table")._StopMovePos = nil   --是否处于stopmove的强制位移中，如果是，则需要在MoveBeahavior结束时同步一下位置
 
 def.field("table")._HitGfxs = BlankTable
+
+def.field("table")._BelongToMeSkillGfxs = BlankTable    -- 属于我的技能特效（用来不再关心列表内隐藏特效的功能）
 
 def.virtual("table").Init = function(self, entityInfo)
 	self._ID = entityInfo.EntityId
@@ -180,6 +182,7 @@ def.method("boolean", "number").AddObjectComponent = function (self, is_host, ra
     end
 
     self._IsReady = true
+    self._IsModelLoaded = true
     GameUtil.AddObjectComponent(self, root, self._ID, self:GetObjectType(), radius)
 end
 
@@ -195,6 +198,7 @@ def.virtual("=>", "table").GetTransformSkills = function(self)
 end
 
 def.virtual().OnModelLoaded = function (self)
+    if not self:IsCullingVisible() then return end
     --默认隐藏头部信息
     if not self:IsNeedHideHpBarAndName() then
         self:CreatePate()
@@ -304,6 +308,7 @@ def.virtual("=>", "number", "number").GetDirXZ = function (self)
 end
 
 def.virtual("table").SetDir = function (self, dir)
+    if not self:IsCullingVisible() then return end
     if dir == nil then
         warn("Setdir's dir is nil", debug.traceback())
     return end
@@ -351,6 +356,7 @@ def.method("table").InitStates = function(self, buffList)
                 Level = v.RuneLevel,
             }
         end
+        info.Attr = v.Attrs or {}
         local buff = CBuff.new(self, v.Id, v.Duration, v.OriginId, info)
         
         if buff ~= nil then                    
@@ -360,6 +366,7 @@ def.method("table").InitStates = function(self, buffList)
 end
 
 def.method().RefreshMagicControl = function (self)
+    if not self:IsCullingVisible() then return end
     -- 更新可能的魔法控制状态, 写死9999, 等服务器刷掉
     if self._MagicControlinfo then
         self._MagicControlinfo:Refresh()
@@ -368,6 +375,7 @@ end
 
 -- 整体初始化
 def.virtual("table").InitMagicControls = function (self, states)
+    if not self:IsCullingVisible() then return end
     if self._MagicControlinfo == nil then
         self._MagicControlinfo = CMagicContolInfo.new(self)
     end
@@ -377,6 +385,7 @@ end
 
 -- 单体更新
 def.virtual("number").AddMagicControl = function (self, state)
+    if not self:IsCullingVisible() then return end
     if self._MagicControlinfo == nil then
         self._MagicControlinfo = CMagicContolInfo.new(self)
     end
@@ -426,6 +435,7 @@ def.virtual().OnLeavePhysicalControled = function(self)
         -- 处于魔法受控 -> 需要刷新魔法表现？（需要根据物理受控vs魔法受控优先级处理）
         -- 处于正常状态 -> Stand
         -- 受伤动画只有在 stand 和 move中才会播放，所以不用考虑
+    if self._SkillHdl == nil then return end 
 
     local isMoving, _ = self:GetNormalMovingInfo()
 
@@ -441,6 +451,8 @@ end
 
 -- 变身
 def.virtual("number").ChangeShape = function (self, monster_id)
+    if not self:IsCullingVisible() then return end
+
     self:AddLoadedCallback(function(entity)
         if self._TransformerModel ~= nil and self._TransformID == monster_id then           --无需重新加载
             warn("same model not need to change")
@@ -537,6 +549,8 @@ end
 
 def.virtual().OnTransformerModelLoaded = function (self)
     if self._IsReleased then return end 
+    if not self:IsCullingVisible() then return end
+    
     local go = self._TransformerModel._GameObject
     if not IsNil(go) then
         go.name = "Transformer"
@@ -607,12 +621,14 @@ def.method("=>", "boolean").IsVisible = function (self)
 end
 
 def.virtual("boolean").EnableCullingVisible = function (self, visible)
-    --if self._IsCullingVisible ~= visible then
-        self._IsCullingVisible = visible
-        if self._Model ~= nil and not self:IsLogicInvisible() then
-            self._Model:SetVisible(visible)
-        end
-    --end
+    self._IsCullingVisible = visible
+    if self._Model ~= nil and not self:IsLogicInvisible() then
+        self._Model:SetVisible(visible)
+    end
+    if self._TransformerModel ~= nil and not self:IsLogicInvisible() then
+        self._TransformerModel:SetVisible(visible)
+    end
+
     self:EnableShadow(self._IsEnableShadow)     --刷新
 end
 
@@ -720,6 +736,10 @@ def.virtual("number").UpdateShield = function(self, val)
     CGame.EventManager:raiseEvent(nil, event)
 end
 
+def.virtual("number").UpdateShield_Simple = function(self, val)
+    self._InfoData._CurShield = val
+end
+
 def.virtual("table", "boolean").UpdateFightProperty = function(self, properties, isNotifyFightScore)
     if self._InfoData == nil then return end
 
@@ -751,7 +771,7 @@ def.method("=>", "number").GetCurrentStamina = function (self)
 end
 
 def.method("=>", "userdata").GetGameObject = function (self)
-    if not self._IsReady or self._IsReleased then
+    if self._IsReleased then
         return nil
     end
     
@@ -780,6 +800,8 @@ end
 
 
 def.method("table", "number").TurnToDir = function (self, dir, speed)
+    if not self:IsCullingVisible() then return end
+    
     dir.y = 0
     dir = dir:Normalize()
     if not self._IsReady then
@@ -817,6 +839,7 @@ local function HUDTextDoPlay(self, hud_type, content)
 end
 
 def.virtual("number", "number", "boolean", "number").OnHurt = function(self, damage, attacker_id, is_critical_hit, elem_type)
+    if not self:IsCullingVisible() then return end
 	if game._HostPlayer._ID == attacker_id then
 		if damage<=-1 or damage>=1 then
 			local hud_type = -1
@@ -851,20 +874,24 @@ def.virtual("number", "number", "boolean", "number").OnHurt = function(self, dam
 end
 
 def.virtual("number", "number").OnHealed = function(self, type, hp_healed)
+    if not self:IsCullingVisible() then return end
     HUDTextDoPlay(self, type, "+"..tostring(hp_healed))
 end
 
 def.virtual().OnAbsorb = function(self)                 --吸收
+    if not self:IsCullingVisible() then return end
     local hud_type = self:IsHostPlayer() and EnumDef.HUDType.under_attack_absorb or EnumDef.HUDType.attack_absorb
     HUDTextDoPlay(self, hud_type, "A")
 end
 
 def.virtual().OnBlock = function(self)                 --格挡
+    if not self:IsCullingVisible() then return end
     local hud_type = (self:IsHostPlayer() and EnumDef.HUDType.under_attack_block or EnumDef.HUDType.attack_block)
     HUDTextDoPlay(self, hud_type, "B")
 end
 
 def.virtual().OnSkillCanceled = function(self)
+    if not self:IsCullingVisible() then return end
 	if self._SkillHdl:IsCastingSkill() then
 		warn("OnSkillCanceled ".. self._ID)            --打断
 		local hud_type = ( self:IsHostPlayer() and EnumDef.HUDType.attacked_skill_canceled or EnumDef.HUDType.skill_canceled)
@@ -911,6 +938,7 @@ def.virtual().StopMovementLogic = function(self)
 end
 
 def.virtual(CEntity, "number", "number", "function", "function").FollowTarget = function (self, target, maxdis, mindis, successcb, failcb)
+    if not self:IsCullingVisible() then return end
     if not self:CanMove() then return end
     local speed =  self:GetMoveSpeed()
     local move = CFSMObjMove.new(self, target, speed, successcb, failcb)
@@ -919,6 +947,7 @@ def.virtual(CEntity, "number", "number", "function", "function").FollowTarget = 
 end
 
 def.virtual().Stand = function (self)
+    --if not self:IsCullingVisible() then return end
     local CFSMObjStand = require "FSM.ObjectFSM.CFSMObjStand"
     local stand = CFSMObjStand.new(self)
     stand._IsAniQueued = false
@@ -1000,7 +1029,7 @@ def.virtual("=>", "string").GetHurtAnimation = function(self)
 end
 
 def.virtual().PlayHurtAnimation = function(self)
-    if not self:IsModelLoaded() or self:IsDead() then return end 
+    if not self:IsModelLoaded() or self:IsDead() or not self:IsCullingVisible() then return end 
     --技能过程中不播受伤动作
     local cur_state = self:GetCurStateType()
     if cur_state ==  FSM_STATE_TYPE.SKILL or cur_state == FSM_STATE_TYPE.BE_CONTROLLED then return end
@@ -1072,7 +1101,7 @@ def.virtual("string","=>","string","boolean").GetAnimationName = function (self,
 end
 
 def.virtual("string", "number", "boolean", "number", "number").PlayAnimation = function(self, aniname, fade_time, is_queued, life_time, aniSpeed)
-    if not self:IsModelLoaded() then return end 
+    if not self:IsModelLoaded() or not self:IsCullingVisible() then return end 
 
     local replaceAnimame ,isReplace = self:GetAnimationName(aniname)
     if isReplace then 
@@ -1117,7 +1146,7 @@ end
 
 -- 播一个半身动作
 def.method("string").PlayPartialAnimation = function (self, aniname) 
-    if not self:IsModelLoaded() then return end 
+    if not self:IsModelLoaded() or not self:IsCullingVisible() then return end 
     if self:IsDead() and aniname ~= EnumDef.CLIP.COMMON_DIE then return end
     local model = self:GetCurModel()
     if model ~= nil then
@@ -1146,7 +1175,7 @@ end
 
 -- 禁掉animation
 def.virtual("boolean").EnableAnimationComponent = function (self, state)
-    if not self:IsModelLoaded() then return end 
+    if not self:IsModelLoaded() or not self:IsCullingVisible() then return end 
     if self:IsDead() then return end
     local model = self:GetCurModel()
     if model ~= nil then
@@ -1175,7 +1204,7 @@ def.virtual("number", "=>", "string").GetAudioResPathByType = function (self, au
 end
 
 def.method("boolean").PlayDieAnimation = function (self, onlyLastFrame)
-    if not self:IsModelLoaded() then return end 
+    if not self:IsModelLoaded() or not self:IsCullingVisible() then return end 
     local model = self:GetCurModel()
     if model ~= nil then
         model:PlayDieAnimation(onlyLastFrame)
@@ -1184,7 +1213,7 @@ def.method("boolean").PlayDieAnimation = function (self, onlyLastFrame)
 end
 
 def.method("string", "number", "boolean", "number").PlayClampForeverAnimation = function(self, aniname, fade_time, is_queued, life_time)
-    if not self:IsModelLoaded() then return end 
+    if not self:IsModelLoaded() or not self:IsCullingVisible() then return end 
     if self:IsDead() and aniname ~= EnumDef.CLIP.COMMON_DIE then return end
     local model = self:GetCurModel()
     if model ~= nil then
@@ -1193,7 +1222,7 @@ def.method("string", "number", "boolean", "number").PlayClampForeverAnimation = 
 end
 
 def.method("number", "boolean", "=>", "number").BluntCurAnimation = function(self, last_time, correct_when_end)
-    if not self:IsModelLoaded() or self:IsDead() or last_time == 0 then return 1 end 
+    if not self:IsModelLoaded() or self:IsDead() or last_time == 0 or not self:IsCullingVisible() then return 1 end 
     local model = self:GetCurModel()
     if model ~= nil then
         return model:BluntCurAnimation(last_time, correct_when_end)
@@ -1264,8 +1293,7 @@ end
 def.virtual().OnClick = function (self)
     if not self:CanBeSelected() then return end
     
-    game:RaiseNotifyClickEvent(self)
-    --self:OnTalkPopTopChange(true, "Hello guy Hello guy Hello guy Hello guy Hello guy")
+    EventUntil.RaiseNotifyClickEvent(self)
 end
 
 def.virtual("=>", "boolean", "table").GetNormalMovingInfo = function(self)
@@ -1277,6 +1305,7 @@ end
 
 -- 爆点特效最低级
 def.virtual(CEntity, "number", "dynamic", "boolean").OnBeHitted = function (self, attacker, hitActorId, hitPos, playHurt)
+    if not self._IsReady or not self:IsCullingVisible() then return end
     -- 击中光效
     if self:IsPlayerType() and self._InfoData._Prof == EnumDef.Profession.Lancer and self:GetChangePoseState() then
         local _, newActorId =  self:GetChangePoseHurtData()
@@ -1459,10 +1488,15 @@ end
 
 def.virtual("table", "number", "function", "function").Move = function (self, pos, offset, successcb, failcb)
     if not self:CanMove() then return end
-    if self._SkillHdl and self._SkillHdl:IsCastingSkill() then
-        self._SkillHdl:DoMove(pos, offset, successcb, failcb)
+
+    if not self:IsCullingVisible() then
+        self:SetPos(pos)
     else
-        self:NormalMove(pos, self:GetMoveSpeed(), offset, successcb, failcb)
+        if self._SkillHdl and self._SkillHdl:IsCastingSkill() then
+            self._SkillHdl:DoMove(pos, offset, successcb, failcb)
+        else
+            self:NormalMove(pos, self:GetMoveSpeed(), offset, successcb, failcb)
+        end
     end
 end
 
@@ -1470,6 +1504,11 @@ def.virtual().CreatePate = function (self)
 end
 
 def.virtual().OnPateCreate = function (self)
+end
+
+def.virtual("boolean").UpdateTopPateName = function (self, isShown)
+    if self._TopPate == nil then return end
+    self._TopPate:UpdateName(isShown)
 end
 
 -- 更新头顶字
@@ -1486,9 +1525,9 @@ def.virtual("boolean").OnBattleTopChange= function(self,isShow)
 end
 
 --  说话气泡头部显示部分更改
-def.virtual("boolean","string","number").OnTalkPopTopChange= function(self,isShow,text,time)
+def.virtual("boolean","string","number").ShowPopText= function(self,isShow,text,time)
     if self._TopPate == nil then return end
-    self._TopPate:TextPop(isShow,text,time)
+    self._TopPate:ChangePopText(isShow,text,time)
 end
 
 def.method("boolean").InterruptSkill = function(self, change2stand)
@@ -1533,11 +1572,6 @@ def.virtual("number", "number", "number", "boolean").OnDie = function (self, kil
     if self._HitEffectInfo ~= nil then
         self._HitEffectInfo:Clear()
     end
-end
-
--- 溶解自己
-def.virtual("number").DissolveSelf = function(self, duration)
-    -- do nothing
 end
 
 -- 复活
@@ -1604,6 +1638,12 @@ def.virtual("boolean", "number", "number", "number", 'table').UpdateState = func
 			end
 		end
     end
+end
+
+def.method().UpdateState_Simple = function(self)   
+    -- buff表现均是外观类，暂时做忽略处理，后续跟进具体反馈进行调整
+    -- 目前仅适用于规则 IsCullingVisible
+    self:ReleaseBuffStates()
 end
 
 def.method("=>", "boolean").HasAnyState = function(self)
@@ -2080,14 +2120,14 @@ end
 def.method("boolean").EnableCastShadows = function (self, on)
     if self._Model ~= nil then
         local go = self._Model:GetGameObject()
-        if go ~= nil and GameUtil.EnableCastShadows then
+        if go ~= nil then
             GameUtil.EnableCastShadows(go, on)
         end
     end
 
     if self._TransformerModel ~= nil then
         local go = self._TransformerModel:GetGameObject()
-        if go ~= nil and GameUtil.EnableCastShadows then
+        if go ~= nil then
             GameUtil.EnableCastShadows(go, on)
         end
     end
@@ -2404,6 +2444,25 @@ def.virtual("table", "table", "number").OnStopMove = function (self, cur_pos, fa
     end
 end
 
+def.virtual("table", "table", "number").OnStopMove_Simple = function (self, cur_pos, facedir, movetype)
+    if not self._IsReady then
+        self._InitPos = cur_pos
+        self._InitDir = facedir
+        return
+    end
+    if self:IsDead() then return end
+
+    self:SetPos(cur_pos)
+    self:SetDir(facedir)
+    self:StopNaviCal()
+    
+    if movetype == ENTITY_MOVE_TYPE.Walking or movetype == ENTITY_MOVE_TYPE.Running then
+        if not self:IsHostPlayer() then
+            self._StopMovePos = Vector3.New(cur_pos.x, cur_pos.y, cur_pos.z)
+        end
+    end
+end
+
 --获取当前Entiy技能
 def.virtual("number", "=>", "table").GetEntitySkill = function(self, skill_id)
     return CElementSkill.Get(skill_id)
@@ -2411,15 +2470,16 @@ end
 
 def.virtual("string", "=>", "userdata").GetHangPoint = function(self, hang_point_name)
     if self._HangPointCache == nil then return nil end
+    if not self:IsCullingVisible() then return nil end
     
-    if self._HangPointCache[hang_point_name] ~= nil then
+    if not IsNil(self._HangPointCache[hang_point_name]) then
         return self._HangPointCache[hang_point_name]
     end
 
     if IsNil(self._GameObject) then return nil end
 
     local model = self:GetCurModel()
-    if string.find(model._GameObject.name, "Empty") ~= nil then return nil end
+    if model == nil or IsNil(model._GameObject) or string.find(model._GameObject.name, "Empty") ~= nil then return self._GameObject end
 
     local result = nil
     local hang_point_id = EnumDef.HangPoint[hang_point_name]
@@ -2434,7 +2494,7 @@ def.virtual("string", "=>", "userdata").GetHangPoint = function(self, hang_point
 
     if IsNil(result) then
         result = self._GameObject
-        print("can not find HangPoint ", hang_point_name, model._GameObject.name)
+        --print("can not find HangPoint ", hang_point_name, model._GameObject.name)
     end
     
     if not self:IsModelChanged() then
@@ -2482,7 +2542,11 @@ end
 
 -- 是否变身状态
 def.virtual("=>", "boolean").IsModelChanged = function(self)
-    return (self._TransformID ~= 0 and (not self._IsModelChanging))
+    return self._TransformID ~= 0 and (not self._IsModelChanging)
+end
+
+def.virtual("=>", "boolean").IsModelChangedInData = function(self)
+    return self._TransformID ~= 0
 end
 
 def.virtual("table").SkillMove = function (self, pos)
@@ -2559,7 +2623,14 @@ end
 def.virtual().BeginIdleState = function(self)
 end
 
+-- 返回角色称号ID 
+def.virtual("=>", "number").GetDesignationId = function(self)
+    return 0
+end
+
 def.virtual().ReleaseBuffStates = function(self)
+    if #self._BuffStates <= 0 then return end
+
     for i, v in ipairs(self._BuffStates) do
         --v:OnEnd()
         v:Release()
@@ -2572,8 +2643,21 @@ def.virtual().ReleaseBuffStates = function(self)
             CGame.EventManager:raiseEvent(nil, event)
         end
     end
-    
+
     self._BuffStates = {}
+end
+
+def.virtual("table").AddToBelongToMeGfxTable = function(self, fxObject)
+    if not self:IsElsePlayer() then
+        return
+    end
+    for i = #self._BelongToMeSkillGfxs, 1, -1 do
+        local v = self._BelongToMeSkillGfxs[i]
+        if v ~= nil and not v:IsPlaying() then
+            table.remove(self._BelongToMeSkillGfxs, i)
+        end
+    end
+    self._BelongToMeSkillGfxs[#self._BelongToMeSkillGfxs + 1] = fxObject
 end
 
 def.virtual().Release = function (self)
@@ -2604,7 +2688,7 @@ def.virtual().Release = function (self)
     end
 
     if self._TopPate ~= nil then 
-        self._TopPate:Release() 
+        self._TopPate:Pool() 
         self._TopPate = nil
     end
 
@@ -2629,6 +2713,10 @@ def.virtual().Release = function (self)
         v:Stop()
     end
     self._HitGfxs = {}
+    for i,v in ipairs(self._BelongToMeSkillGfxs) do
+        v:Stop()
+    end
+    self._BelongToMeSkillGfxs = {}
 
     self:EnableShadow(false)
     self._Shadow = nil
@@ -2653,7 +2741,7 @@ def.virtual().Release = function (self)
     self._HeadInstructionTable = nil 
 
     local ecm = self._Model
-    if ecm ~= nil then        
+    if ecm ~= nil then  
         ecm:Destroy()
     end
     self._Model = nil
@@ -2667,12 +2755,13 @@ def.virtual().Release = function (self)
 
     if self._GameObject ~= nil then
         GameUtil.RecycleEntityBaseRes(self._GameObject)
-    elseif self._IsReady then
-        warn("CEntity must have a GameObject", self._ID)
+    --elseif self._IsReady then
+    --    warn("CEntity must have a GameObject", self._ID)
     end
     self._GameObject = nil
 
     self._IsReady = false
+    self._IsModelLoaded = false
     self._IsReleased = true
 end
 

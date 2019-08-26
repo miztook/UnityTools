@@ -8,6 +8,7 @@ local CUIModel = require "GUI.CUIModel"
 local CCommonBtn = require "GUI.CCommonBtn"
 local CQuest = Lplus.ForwardDeclare("CQuest")
 local CAutoFightMan = require "AutoFight.CAutoFightMan"
+local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
 local CGame = Lplus.ForwardDeclare("CGame")
 local CPanelUIAutoKill = Lplus.Extend(CPanelBase, "CPanelUIAutoKill")
 local def = CPanelUIAutoKill.define
@@ -315,7 +316,7 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
         if not rewardData.IsTokenMoney then
             CItemTipMan.ShowItemTips(rewardData.Data.Id, TipsPopFrom.OTHER_PANEL,button_obj,TipPosition.FIX_POSITION)
         else
-            local panelData = 
+            local panelData =  
                 {
                     _MoneyID = rewardData.Data.Id ,
                     _TipPos = TipPosition.FIX_POSITION ,
@@ -328,10 +329,21 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
         local HangQuestTemp = mapTempArray[index+1]
         local questTemp = CElementData.GetQuestTemplate(HangQuestTemp.QuestId)
         local questData =  CQuest.Instance():GetInProgressQuestModel( HangQuestTemp.QuestId )
-        if questData ~= nil then
+		if questData ~= nil then
+			local isAutoFightOn = CAutoFightMan.Instance():IsOn()
 			CAutoFightMan.Instance():Start()
 			CAutoFightMan.Instance():SetMode(EnumDef.AutoFightType.QuestFight, HangQuestTemp.QuestId, false)
-        	CQuestAutoMan.Instance():Start(questData)
+			CQuestAutoMan.Instance():Start(questData)
+			
+			local cb = function()
+				CAutoFightMan.Instance():Stop()
+				CQuestAutoMan.Instance():Stop()	
+				CDungeonAutoMan.Instance():Stop()
+				CAutoFightMan.Instance():SetMode(EnumDef.AutoFightType.WorldFight, 0, true)
+			end
+			local CTransManage = require "Main.CTransManage"
+			CTransManage.Instance():SetLeaveMsgboxCB(cb)
+
         	questData:DoShortcut()
         	game._GUIMan:CloseByScript(self)
         end
@@ -388,7 +400,7 @@ def.override("string").OnClick = function(self, id)
         game._GUIMan:CloseByScript(self)
     elseif id == "Btn_Info" then
     	local Btn_Item = self:GetUIObject(id)
-    	game._GUIMan:Open("CPanelAutoKillTips", {_Obj = Btn_Item})
+    	--game._GUIMan:Open("CPanelAutoKillTips", {_Obj = Btn_Item})
     end
 end
 

@@ -35,8 +35,9 @@ do
 	def.field("boolean")._Channel_System = true
 	def.field("boolean")._Channel_Team = true
 	def.field("boolean")._Channel_Current = true
-	def.field("boolean")._Channel_Combat= false
-	def.field("boolean")._Channel_Social= true
+	def.field("boolean")._Channel_Combat = false
+	def.field("boolean")._Channel_Social = true
+	def.field("boolean")._Channel_Recruit = true
 
 	local Instance = nil
 	def.static("=>",ChatManager).Instance = function()
@@ -79,24 +80,20 @@ do
 						if #msg.ItemInfo > 0 then
 							-- warn("msg.ItemInfo[linkId].Id ==", msg.ItemInfo[linkId].Id)
 							if msg.ItemInfo[linkId] == nil then return end  
-							local itemTemplate = CElementData.GetItemTemplate(msg.ItemInfo[linkId].Tid)
-							local itemName = " <"..itemTemplate.TextDisplayName..">"
-							if string.find(msg.StrMsg, itemName) then
-								CItemTipMan.ShowChatItemTips(msg.ItemInfo[linkId], TipsPopFrom.CHAT_PANEL)
-							end
+								CItemTipMan.ShowItemDBTips(msg.ItemInfo[linkId], TipsPopFrom.CHAT_PANEL)
 						else
 							-- warn("msg.ItemInfo.Tid ==", msg.ItemInfo.Tid)
 							if msg.ItemInfo == nil then return end  
-							local itemTemplate = CElementData.GetItemTemplate(msg.ItemInfo.Tid)
-							local itemName = "["..itemTemplate.TextDisplayName.."]"
-							if string.find(msg.StrMsg, itemName) then
-								CItemTipMan.ShowChatItemTips(msg.ItemInfo, TipsPopFrom.CHAT_PANEL)
-							end
+							-- local itemTemplate = CElementData.GetItemTemplate(msg.ItemInfo.Tid)
+							-- local itemName = "["..itemTemplate.TextDisplayName.."]"
+							-- if string.find(msg.StrMsg, itemName) then
+								CItemTipMan.ShowItemDBTips(msg.ItemInfo, TipsPopFrom.CHAT_PANEL)
+							-- end
 						end
 					end
 				elseif msg.MsgType == ChatType.ChatTypeLink then
 					if msg.LinkType == ChatLinkType.ChatLinkType_Dungeon then 		--副本链接
-						warn("lidaming ChatLinkType_Dungeon!!!")
+						--warn("lidaming ChatLinkType_Dungeon!!!")
 					elseif msg.LinkType == ChatLinkType.ChatLinkType_Guild then   	--公会链接						
 						if msg.RoleId ~= game._HostPlayer._ID then
 							game._GuildMan:OnClickGuildLink(msg.LinkParam1)
@@ -107,7 +104,7 @@ do
 						if CTeamMan.Instance():InTeam() then
 							game._GUIMan: ShowTipText(string.format(StringTable.Get(13018), StringTable.Get(13016)),true)							
 						else
-							CTeamMan.Instance():ApplyTeam(msg.LinkParam1)
+							TeamUtil.ApplyTeam(msg.LinkParam1)
 						end
 					elseif msg.LinkType == ChatLinkType.ChatLinkType_Path then
 						if game._HostPlayer:IsInGlobalZone() then
@@ -516,12 +513,9 @@ do
 	end
 
 	----------------------------------------------------------------
-	def.method().Toggle = function(self)
-		CPanelChatNew.Instance():Toggle()
-	end
 
 	def.method("function").OpenChatPanel = function(self,callback)
-		CPanelChatNew.Instance():OpenPanel(callback)
+		-- CPanelChatNew.Instance():OpenPanel(callback)
 	end
 
 	def.method().SimpleOpenChatPanel = function(self)
@@ -621,17 +615,17 @@ do
 				if v ~= nil then
 					if v.Type == RewardType.Item then 
 						if RewardMsg == nil then
-							RewardMsg = string.format(StringTable.Get(13045), RichTextTools.GetItemNameRichText(v.Id, 1,true), v.Num)						
+							RewardMsg = string.format(StringTable.Get(13045), RichTextTools.GetItemNameRichText(v.Items.Tid, 1,true), GUITools.FormatMoney(v.Items.Count))						
 						else
-							RewardMsg = RewardMsg .. string.format(StringTable.Get(13045), RichTextTools.GetItemNameRichText(v.Id, 1,true), v.Num)
+							RewardMsg = RewardMsg .. string.format(StringTable.Get(13045), RichTextTools.GetItemNameRichText(v.Items.Tid, 1,true), GUITools.FormatMoney(v.Items.Count))
 						end
-						ItemData[#ItemData + 1] = CElementData.GetItemTemplate(v.Id)
+						ItemData[#ItemData + 1] = v.Items
 					elseif v.Type == RewardType.Resource then 
 						local CTokenMoneyMan = require "Data.CTokenMoneyMan"
 						if RewardMsg == nil then
-							RewardMsg = string.format(StringTable.Get(13045), CTokenMoneyMan.Instance():GetName(v.Id), v.Num)
+							RewardMsg = string.format(StringTable.Get(13045), CTokenMoneyMan.Instance():GetName(v.Id), GUITools.FormatMoney(v.Num))
 						else
-							RewardMsg = RewardMsg .. string.format(StringTable.Get(13045), CTokenMoneyMan.Instance():GetName(v.Id), v.Num)
+							RewardMsg = RewardMsg .. string.format(StringTable.Get(13045), CTokenMoneyMan.Instance():GetName(v.Id), GUITools.FormatMoney(v.Num))
 						end			
 					end
 				end
@@ -661,6 +655,7 @@ do
 		local chatType = msg.MsgType
 		if chatType ~= ChatType.ChatTypeVoice then  --语音聊天
 			local FilterMgr = require "Utility.BadWordsFilter".Filter
+			
 			StrMsg = FilterMgr.FilterChat(msg.StrMsg)
 		end
 		
@@ -672,7 +667,6 @@ do
 		protocol.voiceLength = msg.VoiceLength
 		protocol.Index = msg.ItemBgIndex
 		protocol.bgType = msg.ItemBgType
-		warn("Client TO Server,ChatLink Bug!!! channel = ", channel, "chatType = ", "StrMsg = ", StrMsg, chatType, debug.traceback())
 		if chatType == ChatType.ChatTypeLink then			
 			if channel == CHAT_CHANNEL_ENUM.ChatChannelGuild then --帮派        
 				if not game._GuildMan:IsHostInGuild() then
@@ -771,13 +765,13 @@ do
 					game._GUIMan:ShowTipText(StringTable.Get(13025), false)
 					return
 				end
-				local itemTemplate = CElementData.GetItemTemplate(prtc.itemInfo.Tid)
-				if string.find(StrMsg, itemTemplate.TextDisplayName) then
-					local LinkBefore = "[l]#"..EnumDef.Quality2ColorHexStr[itemTemplate.InitQuality].." <"
-					local LinkAfter = ">[-]"
-					StrMsg = string.gsub(StrMsg, "<", LinkBefore)
-					StrMsg = string.gsub(StrMsg, ">", LinkAfter)
-				end
+				-- local itemTemplate = CElementData.GetItemTemplate(prtc.itemInfo.Tid)
+				-- if string.find(StrMsg, itemTemplate.TextDisplayName) then
+					-- local LinkBefore = "[l]#"..EnumDef.Quality2ColorHexStr[itemTemplate.InitQuality].." <"
+					-- local LinkAfter = ">[-]"
+					-- StrMsg = string.gsub(StrMsg, "<", LinkBefore)
+					-- StrMsg = string.gsub(StrMsg, ">", LinkAfter)
+				-- end
 			end
 		elseif currentType == ChatType.ChatTypeRoleInfo then  --人物链接
 
@@ -801,7 +795,6 @@ do
 			warn("UnKnown Chat Type , Please check!")
 			return
 		end
-		warn("Server TO Client, ChatLink Bug!!! channel = ", prtc.chatChannel, "chatType = ", prtc.chatType, "StrMsg =", StrMsg)
 		--Same Block
 		do
 			msg.RoleId = prtc.senderInfo.Id
@@ -871,6 +864,11 @@ do
 		local Channel_Social = UserData:GetField("Channel_Social")
 		if Channel_Social ~= nil then
 			self._Channel_Social = Channel_Social
+		end
+		
+		local Channel_Recruit = UserData:GetField("Channel_Recruit")
+		if Channel_Recruit ~= nil then
+			self._Channel_Recruit = Channel_Recruit
 		end	
 	end
 end

@@ -16,10 +16,6 @@ local function isAllNumber(name)
 end
 
 local function hasIllegalWord(name)
-	local strMsg = FilterMgr.FilterName(name)
-	if strMsg ~= name then
-		return true
-	end
 	if _G.UserLanguageCode ~= "KR" then
 		if not GameUtil.CheckName_IsValidWord(name) then
 			return true
@@ -41,7 +37,7 @@ def.static("string", "=>", "boolean").CheckRoleNameValidWhenCreate = function (n
 	local title = StringTable.Get(8)
 	if IsNilOrEmptyString(name) then
 		local message = StringTable.Get(34404)
-		MsgBox.ShowMsgBox(message, title, nil, MsgBoxType.MBBT_OK)
+		MsgBox.ShowMsgBox(message, title, 0, MsgBoxType.MBBT_OK)
 		return false
 	end
 	local len = NameChecker.GetNameLength(name)
@@ -49,22 +45,28 @@ def.static("string", "=>", "boolean").CheckRoleNameValidWhenCreate = function (n
 	local max = GlobalDefinition.MaxRoleNameLength
 	if len < min then
 		local message = string.format(StringTable.Get(34401), min)
-		MsgBox.ShowMsgBox(message, title, nil, MsgBoxType.MBBT_OK)
+		MsgBox.ShowMsgBox(message, title, 0, MsgBoxType.MBBT_OK)
 		return false
 	end
 	if len > max then
 		local message = string.format(StringTable.Get(34400), max)
-		MsgBox.ShowMsgBox(message, title, nil, MsgBoxType.MBBT_OK)
+		MsgBox.ShowMsgBox(message, title, 0, MsgBoxType.MBBT_OK)
 		return false
 	end
 	if isAllNumber(name) then
 		local message = StringTable.Get(34402)
-		MsgBox.ShowMsgBox(message, title, nil, MsgBoxType.MBBT_OK)
+		MsgBox.ShowMsgBox(message, title, 0, MsgBoxType.MBBT_OK)
 		return false
 	end
 	if hasIllegalWord(name) then
+		local message = StringTable.Get(34405)
+		MsgBox.ShowMsgBox(message, title, 0, MsgBoxType.MBBT_OK)
+		return false
+	end
+	local strMsg = FilterMgr.FilterName(name)
+	if strMsg ~= name then
 		local message = StringTable.Get(34403)
-		MsgBox.ShowMsgBox(message, title, nil, MsgBoxType.MBBT_OK)
+		MsgBox.ShowMsgBox(message, title, 0, MsgBoxType.MBBT_OK)
 		return false
 	end
 	return true
@@ -92,6 +94,11 @@ def.static("string", "=>", "boolean").CheckRoleNameValid = function (name)
 		return false
 	end
 	if hasIllegalWord(name) then
+		game._GUIMan:ShowTipText(StringTable.Get(34405), false)
+		return false
+	end
+	local strMsg = FilterMgr.FilterName(name)
+	if strMsg ~= name then
 		game._GUIMan:ShowTipText(StringTable.Get(34403), false)
 		return false
 	end
@@ -119,6 +126,11 @@ def.static("string", "=>", "boolean").CheckGuildNameValid = function (name)
 		return false
 	end
 	if hasIllegalWord(name) then
+		game._GUIMan:ShowTipText(StringTable.Get(34415), false)
+		return false
+	end
+	local strMsg = FilterMgr.FilterName(name)
+	if strMsg ~= name then
 		game._GUIMan:ShowTipText(StringTable.Get(34413), false)
 		return false
 	end
@@ -146,6 +158,11 @@ def.static("string", "=>", "boolean").CheckPetNameValid = function (name)
 		return false
 	end
 	if hasIllegalWord(name) then
+		game._GUIMan:ShowTipText(StringTable.Get(34425), false)
+		return false
+	end
+	local strMsg = FilterMgr.FilterName(name)
+	if strMsg ~= name then
 		game._GUIMan:ShowTipText(StringTable.Get(34423), false)
 		return false
 	end
@@ -173,6 +190,11 @@ def.static("string", "=>", "boolean").CheckTeamNameValid = function (name)
 		return false
 	end
 	if hasIllegalWord(name) then
+		game._GUIMan:ShowTipText(StringTable.Get(34435), false)
+		return false
+	end
+	local strMsg = FilterMgr.FilterName(name)
+	if strMsg ~= name then
 		game._GUIMan:ShowTipText(StringTable.Get(34433), false)
 		return false
 	end

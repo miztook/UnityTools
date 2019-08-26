@@ -167,8 +167,9 @@ def.override(CFSMStateBase).UpdateState = function(self, newstate)
 		local curStateWing = self._Host._WingModel ~= nil
 		local curStateRide = self._Host:IsClientMounting()
 		local curStateInCombat = self._Host:IsInCombatState()
+		local inStunState = self._Host:IsPlayingAnimation(EnumDef.CLIP.STUN)
 
-		if curStateWing ~= self._StateHasWing or curStateRide ~= self._StateOnRide or curStateInCombat ~= self._StateInCombat then
+		if curStateWing ~= self._StateHasWing or curStateRide ~= self._StateOnRide or curStateInCombat ~= self._StateInCombat or inStunState then
 			self._Host:UpdateWingAnimation()
 			self:PlayMountStateAnimation(self._Type)
 		end
@@ -180,14 +181,27 @@ def.override(CFSMStateBase).UpdateState = function(self, newstate)
 		local curStateWing = false
 		local curStateRide = self._Host:IsClientMounting()
 		local curStateInCombat = self._Host:IsInCombatState()
+		local inStunState = self._Host:IsPlayingAnimation(EnumDef.CLIP.STUN)
 
-		if curStateWing ~= self._StateHasWing or curStateRide ~= self._StateOnRide or curStateInCombat ~= self._StateInCombat then
+		if curStateWing ~= self._StateHasWing or curStateRide ~= self._StateOnRide or curStateInCombat ~= self._StateInCombat or inStunState then
 			self:PlayStateAnimation(self._Type)	
 		end
 
 		self._StateHasWing = curStateWing
 		self._StateOnRide = curStateRide
 		self._StateInCombat = curStateInCombat
+	end
+end
+
+-- 仅需要播放stand动作
+def.override().UpdateWhenBecomeVisible = function(self)
+	if self._Mountable then		
+		self._Host:UpdateWingAnimation()
+		self:PlayMountStateAnimation(self._Type)
+
+		self._StateHasWing = self._Host._WingModel ~= nil
+		self._StateOnRide = self._Host:IsClientMounting()
+		self._StateInCombat = self._Host:IsInCombatState()
 	end
 end
 

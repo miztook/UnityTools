@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[50020] = 
@@ -35,23 +36,23 @@ local MapInfo =
 		},
 		[50022] = 
 		{
-			[1] = { x = 133.40, y = 45.00, z = -24.40, name = "타락 영혼", level = 10, SortID = 1 },
-			[2] = { x = 90.00, y = 43.10, z = -13.20, name = "타락 영혼", level = 10, SortID = 2 },
-			[3] = { x = 116.20, y = 40.52, z = -52.80, name = "타락 영혼", level = 10, SortID = 3 },
-			[4] = { x = 137.90, y = 45.50, z = -25.30, name = "타락 영혼", level = 10, SortID = 4 },
-			[5] = { x = 118.68, y = 40.29, z = -53.20, name = "타락 영혼", level = 10, SortID = 5 },
-			[6] = { x = 86.60, y = 42.47, z = -15.60, name = "타락 영혼", level = 10, SortID = 6 },
-			[7] = { x = 139.30, y = 43.07, z = -28.10, name = "타락 영혼", level = 10, SortID = 8 },
+			[1] = { x = 133.40, y = 45.00, z = -24.40, name = "타락한 영혼", level = 10, SortID = 1 },
+			[2] = { x = 90.00, y = 43.10, z = -13.20, name = "타락한 영혼", level = 10, SortID = 2 },
+			[3] = { x = 116.20, y = 40.52, z = -52.80, name = "타락한 영혼", level = 10, SortID = 3 },
+			[4] = { x = 137.90, y = 45.50, z = -25.30, name = "타락한 영혼", level = 10, SortID = 4 },
+			[5] = { x = 118.68, y = 40.29, z = -53.20, name = "타락한 영혼", level = 10, SortID = 5 },
+			[6] = { x = 86.60, y = 42.47, z = -15.60, name = "타락한 영혼", level = 10, SortID = 6 },
+			[7] = { x = 139.30, y = 43.07, z = -28.10, name = "타락한 영혼", level = 10, SortID = 8 },
 		},
 		[50023] = 
 		{
-			[1] = { x = 133.40, y = 45.00, z = -24.40, name = "나무 혈사도", level = 10, SortID = 1 },
-			[2] = { x = 90.00, y = 43.10, z = -13.20, name = "나무 혈사도", level = 10, SortID = 2 },
-			[3] = { x = 116.20, y = 40.52, z = -52.80, name = "나무 혈사도", level = 10, SortID = 3 },
-			[4] = { x = 137.90, y = 45.50, z = -25.30, name = "나무 혈사도", level = 10, SortID = 4 },
-			[5] = { x = 118.68, y = 40.29, z = -53.20, name = "나무 혈사도", level = 10, SortID = 5 },
-			[6] = { x = 86.60, y = 42.47, z = -15.60, name = "나무 혈사도", level = 10, SortID = 6 },
-			[7] = { x = 139.30, y = 43.07, z = -28.10, name = "나무 혈사도", level = 10, SortID = 8 },
+			[1] = { x = 133.40, y = 45.00, z = -24.40, name = "나무 혈사제", level = 10, SortID = 1 },
+			[2] = { x = 90.00, y = 43.10, z = -13.20, name = "나무 혈사제", level = 10, SortID = 2 },
+			[3] = { x = 116.20, y = 40.52, z = -52.80, name = "나무 혈사제", level = 10, SortID = 3 },
+			[4] = { x = 137.90, y = 45.50, z = -25.30, name = "나무 혈사제", level = 10, SortID = 4 },
+			[5] = { x = 118.68, y = 40.29, z = -53.20, name = "나무 혈사제", level = 10, SortID = 5 },
+			[6] = { x = 86.60, y = 42.47, z = -15.60, name = "나무 혈사제", level = 10, SortID = 6 },
+			[7] = { x = 139.30, y = 43.07, z = -28.10, name = "나무 혈사제", level = 10, SortID = 8 },
 		},
 		[50024] = 
 		{
@@ -65,7 +66,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[454] = { x = 110.50, y = 43.07, z = -12.74, name = "刷怪区域", worldId = 0, PkMode = 0 },
+			[454] = { x = 110.50, y = 43.07, z = -12.74, name = "刷怪区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

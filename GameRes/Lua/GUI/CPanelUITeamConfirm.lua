@@ -5,6 +5,7 @@ local CCommonBtn = require "GUI.CCommonBtn"
 local CElementData = require "Data.CElementData"
 local CGame = Lplus.ForwardDeclare("CGame")
 local EInstanceTeamType = require "PB.Template".Instance.EInstanceTeamType
+local CPVEAutoMatch = require "ObjHdl.CPVEAutoMatch"
 
 local CPanelUITeamConfirm = Lplus.Extend(CPanelBase, "CPanelUITeamConfirm")
 local def = CPanelUITeamConfirm.define
@@ -67,6 +68,7 @@ end
 local function HideSelf()
     if instance and instance:IsShow() then
         game._GUIMan:CloseByScript(instance)
+        CPVEAutoMatch.Instance():Lock(instance._DungeonID)
     end
 end
 
@@ -74,11 +76,13 @@ end
 local function OnCountGroupUpdateEvent(sender, event)
 	if instance ~= nil and instance:IsShow() then
 		instance:UpdateBuyCountInfo()
-        CTeamMan.Instance():C2SConfirmParepare(true)
+        TeamUtil.ConfirmParepare(true)
 	end
 end
 
 def.override("dynamic").OnData = function (self,data)
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_UI_POPUP, 0)
+    
     if data.MatchList ~= nil then
         self._IsMatchMode = true
         self._MatchList = data.MatchList
@@ -128,9 +132,9 @@ def.override("dynamic").OnData = function (self,data)
 	local event = NotifyPowerSavingEvent()
 	event.Type = "Dungeon"
     if targetDungeon == nil then
-		event.Param1=""
+		event.Param1 = ""
 	else
-		event.Param1=CTeamMan.Instance():GetTeamRoomNameByDungeonId(self._DungeonID)
+		event.Param1 = TeamUtil.GetTeamRoomNameByDungeonId(self._DungeonID)
 	end
 
     self:UpdateBuyCountInfo()
@@ -141,6 +145,18 @@ def.override("dynamic").OnData = function (self,data)
 
     CGame.EventManager:addHandler("CountGroupUpdateEvent", OnCountGroupUpdateEvent)
 	CGame.EventManager:raiseEvent(nil, event)
+
+    self:SyncConfirm()
+end
+
+-- 同步组队跟随状态 自动准备
+def.method().SyncConfirm = function(self)
+    if not self._IsMatchMode then return end
+
+    local bConfirm = self._TeamMan:IsFollowing()
+    if bConfirm then
+        self:DoConfirm()
+    end
 end
 
 def.method().UpdateDungeonTitle = function(self)
@@ -148,11 +164,11 @@ def.method().UpdateDungeonTitle = function(self)
     if targetDungeon == nil then
         GUI.SetText(self._PanelObject.Lab_MsgTitle, StringTable.Get(22007))
     else
-        local roomId = self._TeamMan:ExchangeToRoomId(self._DungeonID)
+        local roomId = TeamUtil.ExchangeToRoomId(self._DungeonID)
         local roomTemplate = CElementData.GetTemplate("TeamRoomConfig", roomId)
         local str = ""
         if roomTemplate == nil then
-            str = string.format(StringTable.Get(22006), CTeamMan.Instance():GetTeamRoomNameByDungeonId(self._DungeonID))
+            str = string.format(StringTable.Get(22006), TeamUtil.GetTeamRoomNameByDungeonId(self._DungeonID))
         else
             str = string.format(StringTable.Get(22006), RichTextTools.GetElsePlayerNameRichText(roomTemplate.DisplayName, false))
         end
@@ -277,7 +293,7 @@ def.method("userdata", "table", "number").SetMatchItemInfo = function(self, item
         GUI.SetText(item:FindChild("Lab_Name"), name)
     end
 
-    game:SetEntityCustomImg(item:FindChild("Img_ItemIcon"),memberInfo.RoleID,memberInfo.CustomImgSet,memberInfo.Gender,memberInfo.Profession)
+    TeraFuncs.SetEntityCustomImg(item:FindChild("Img_ItemIcon"),memberInfo.RoleID,memberInfo.CustomImgSet,memberInfo.Gender,memberInfo.Profession)
 
     if memberInfo.RoleID == game._HostPlayer._ID then
         self._PanelObject.Lab_Sure:SetActive(false)
@@ -287,7 +303,7 @@ def.method("userdata", "table", "number").SetMatchItemInfo = function(self, item
         self._DoTweenPlayerTen:Restart(index)
     end
 
-    item:FindChild("Img_Ready"):SetActive(false)
+    item:FindChild("Img_Ready"):SetActive(memberInfo.IsPlayerMirror)
     local Img_AssistTag = item:FindChild("Img_AssistTag")
     if Img_AssistTag ~= nil then
         Img_AssistTag:SetActive(memberInfo.IsPlayerMirror)
@@ -326,25 +342,29 @@ def.method("userdata", "table", "number").SetItemInfo = function(self, item, mem
             self._DoTweenPlayer:Restart(index)
         end
     end
-
-    item:FindChild("Img_Ready"):SetActive(memberInfo._IsFollow)
+    
+    item:FindChild("Img_Ready"):SetActive(memberInfo._IsFollow or memberInfo._IsAssist)
     local Img_AssistTag = item:FindChild("Img_AssistTag")
     if Img_AssistTag ~= nil then
         Img_AssistTag:SetActive(memberInfo._IsAssist)
     end
 end
 
+def.method().DoConfirm = function(self)
+    if self._CallBack ~= nil then
+        self._CallBack(true)
+    end
+    if self._IsMatchMode then
+        self._PanelObject.Lab_Sure:SetActive(true)
+        self._PanelObject.Btn_Yes:SetActive(false)
+        self._PanelObject.Btn_No:SetActive(false)
+        GUI.SetText(self._PanelObject.Lab_Sure, StringTable.Get(26002))
+    end
+end
+
 def.override("string").OnClick = function(self,id)
 	if id == "Btn_Yes" then
-        if self._CallBack ~= nil then
-            self._CallBack(true)
-        end
-        if self._IsMatchMode then
-            self._PanelObject.Lab_Sure:SetActive(true)
-            self._PanelObject.Btn_Yes:SetActive(false)
-            self._PanelObject.Btn_No:SetActive(false)
-            GUI.SetText(self._PanelObject.Lab_Sure, StringTable.Get(26002))
-        end
+        self:DoConfirm()
 	elseif id == "Btn_No" then
         if self._CallBack ~= nil then
             self._CallBack(false)
@@ -357,7 +377,7 @@ def.override("string").OnClick = function(self,id)
             HideSelf()
         end
     elseif id == "Btn_Buy" then
-        local dungeonTid = self._TeamMan:ExchangeToDungeonId(self._DungeonID)
+        local dungeonTid = TeamUtil.ExchangeToDungeonId(self._DungeonID)
         local remainderCount = game._DungeonMan:GetRemainderCount(self._DungeonID)
         local dungeonTemplate = CElementData.GetTemplate("Instance", self._DungeonID)
         game._CCountGroupMan:BuyCountGroup(remainderCount ,dungeonTemplate.CountGroupTid)

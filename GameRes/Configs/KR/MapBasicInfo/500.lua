@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/city01.png",
 	AssetPath = "Assets/Outputs/Scenes/TestScene.prefab",
+	PKMode= 0,
 	Monster = 
 	{
 	},

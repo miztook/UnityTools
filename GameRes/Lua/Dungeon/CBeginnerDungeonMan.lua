@@ -74,7 +74,7 @@ def.method("number", "string", "number").TriggerBossEnterAnimation = function (s
 			local aniPrefab = self._CameraAnimationPrafab:GetChild(0)
 			local parentObj = aniPrefab:FindChild("CamPos")
 			if IsNil(parentObj) then
-				warn("Error:  <BOSSEnterMapAnimation>----> CamPos is nil")
+				--warn("Error:  <BOSSEnterMapAnimation>----> CamPos is nil")
 				parentObj = self._CameraAnimationPrafab
 			end
 
@@ -111,7 +111,7 @@ def.method("number", "string", "number").TriggerBossEnterAnimation = function (s
 		end)
 	end
 	local strCamAnimationPath = "Assets/Outputs/CGAnimator/" .. aniName
-	GameUtil.AsyncLoad(strCamAnimationPath, cb)
+	GameUtil.AsyncLoad(strCamAnimationPath, cb, false, "cg")
 end
 
 def.method().StartJumpGuide = function (self)
@@ -192,7 +192,7 @@ def.method().CleanUpAnimation = function (self)
 	end
 end
 
-def.method().Release = function (self)
+def.method().Cleanup = function (self)
 	self:CleanUpAnimation()
 end
 

@@ -73,8 +73,8 @@ def.method('userdata', 'string', 'number').InitItem = function(self, item, id, i
 		local btnApply = uiTemplate:GetControl(7)
 		GUI.SetText(labName, data.Name)
         GUI.SetText(lablv, string.format(StringTable.Get(30327),data.Level))
-        game:SetEntityCustomImg(imgHead,data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
-        GUI.SetText(labFight,tostring(data.Fight))
+        TeraFuncs.SetEntityCustomImg(imgHead,data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
+        GUI.SetText(labFight,GUITools.FormatNumber(data.Fight))
         GUI.SetText(labProfession,tostring(StringTable.Get(10300 + data.Profession - 1)))
         btnApply:SetActive(false)
         local time = os.date("%Y-%m-%d",data.BlackOptTime /1000)
@@ -99,8 +99,9 @@ end
 def.method("userdata", "string", "string", "number").SelectItemButton = function(self, button_obj, id, id_btn, index)
 	if id == "List_BlackList"then 
 		-- self._CurSelectItem = self._ItemList[index + 1]
-		if id_btn == "Btn_Border" then 
-			game:CheckOtherPlayerInfo(self._BlackListData[index + 1].RoleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.Friend)
+		if id_btn == "Btn_Border" then
+			local PBUtil = require "PB.PBUtil"
+			PBUtil.RequestOtherPlayerInfo(self._BlackListData[index + 1].RoleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.Friend)
 		elseif id_btn == "Btn_Apply" then 
 			game._CFriendMan:DoApply(self._BlackListData[index + 1].RoleId)
 		elseif id_btn == "Btn_Remove" then

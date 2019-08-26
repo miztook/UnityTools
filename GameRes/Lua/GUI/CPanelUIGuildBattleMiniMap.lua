@@ -220,7 +220,7 @@ local function AddPlayerInfo(self, id, isBoss, color)
 	info.IsBoss = isBoss
     info.IsTeamMember = IsTeamMember(id)
     if isBoss then
-        print("变身 BOSS ,     color : ", color)
+        --print("变身 BOSS ,     color : ", color)
         if color == EBattleColor.Red then
             GameUtil.PlayUISfx(PATH.UIFX_GuildBFBossRed, info.UIObj, info.UIObj, -1)
         elseif color == EBattleColor.Blue then
@@ -279,17 +279,19 @@ def.method().InitAllBuilding = function (self)
 		return
 	end
 
-	local offset = MapBasicConfig.GetMapOffset() or {}
-	if offset[sceneTid] ~= nil then
-		self._MapOffset.A1 = offset[sceneTid].A1
-		self._MapOffset.A2 = offset[sceneTid].A2
-		self._MapOffset.width = offset[sceneTid].width
-		self._MapOffset.height = offset[sceneTid].height
-	end
-
 	local allMonsters = {} -- 所有怪物
 	--local mapInfo = _G.MapBasicInfoTable[sceneTid]
 	local mapInfo = MapBasicConfig.GetMapBasicConfigBySceneID(sceneTid)
+    local start, _ = string.find(mapInfo.NavMeshName, "%.")
+    local navMeshName = string.sub(mapInfo.NavMeshName, 1, start - 1)
+	local offset = MapBasicConfig.GetMapOffset() or {}
+	if offset[navMeshName] ~= nil then
+		self._MapOffset.A1 = offset[navMeshName].A1
+		self._MapOffset.A2 = offset[navMeshName].A2
+		self._MapOffset.width = offset[navMeshName].width
+		self._MapOffset.height = offset[navMeshName].height
+	end
+
 	for tid, data in pairs(mapInfo.Monster) do
 		if #data > 0 then
 			allMonsters[tid] = { x = data[1].x, z = data[1].z }
@@ -503,10 +505,18 @@ def.method().UpdateMapInfo = function (self)
 end
 
 def.method().UpdateAllMinesStatus = function(self)
+    local mineInfo = game._GuildMan:GetBattleMineInfo()
     for tid,v in pairs(self._MineInfos) do
         local mine_type = self._AllNonPlayerType[tid]
-        if mine_type == ENonPlayerType.Altar or mine_type == ENonPlayerType.HighAltar then
-            self:UpdateMineStatus(tid, v.Status, 0)
+        local mine_item = mineInfo ~= nil and mineInfo[tid]
+        if mine_item then
+            if mine_type == ENonPlayerType.Altar or mine_type == ENonPlayerType.HighAltar then
+                self:UpdateMineStatus(tid, mine_item.Status, mine_item.EndTime)
+            end
+        else
+            if mine_type == ENonPlayerType.Altar or mine_type == ENonPlayerType.HighAltar then
+                self:UpdateMineStatus(tid, v.Status, 0)
+            end
         end
     end
 end
@@ -569,23 +579,18 @@ end
 -- 更新队友信息
 def.method().UpdateTeamPlayerInfo = function (self)
 	if CTeamMan.Instance():HaveTeamMember() then
+		local hpId = game._HostPlayer._ID
+		local mapTid = game._CurWorld._WorldInfo.SceneTid
 		local teamList = CTeamMan.Instance():GetMemberList()
 		for _, teamMemeber in ipairs(teamList) do
 			local id = teamMemeber._ID
-			if id ~= game._HostPlayer._ID then
-				if teamMemeber._IsOnLine then 
-					local teamMemPos = CTeamMan.Instance():GetMemberPositionInfo(id)
-					if teamMemPos ~= nil then
-						if teamMemPos.MapId == game._CurWorld._WorldInfo.SceneTid then
-							local curInfo = self._CurAllPlayerInfos[id]
-							if curInfo == nil then
-								curInfo = AddCurPlayerInfo(self, id, false, 0)
-							end
-							curInfo.C_PosX = teamMemPos.Position.x
-							curInfo.C_PosZ = teamMemPos.Position.z
-						end
-					end
+			if id ~= hpId and teamMemeber._IsOnLine and teamMemeber._Position ~= nil and teamMemeber._MapTid == mapTid then
+				local curInfo = self._CurAllPlayerInfos[id]
+				if curInfo == nil then
+					curInfo = AddCurPlayerInfo(self, id, false, 0)
 				end
+				curInfo.C_PosX = teamMemeber._Position.x
+				curInfo.C_PosZ = teamMemeber._Position.z
 			end
 		end
 	end
@@ -689,7 +694,7 @@ def.method("number", "number", "number").UpdateMineStatus = function (self, tid,
                         mineInfo.ProcessTimer = 0
                     end
                     if status == 2 then         -- 如果祭坛是处在充能状态
-                        print("进入充能状态")
+                        --print("进入充能状态")
                         local start_time = GameUtil.GetServerTime()/1000
                         img_comp.fillAmount = 0
                         local callback = function()

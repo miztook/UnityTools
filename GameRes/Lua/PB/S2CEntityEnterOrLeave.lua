@@ -29,7 +29,7 @@ PBHelper.AddHandler("S2CLeaveGame", OnLeaveGame)
 
 local function OnHostEnterMap( sender,msg )
 	warn("HostEnterMap", msg.MapTemplateId, msg.MapInstanceId, msg.MapLine, #msg.Lines)
-	
+	GameUtil.ChangeSceneWeatherByMemory(0)
 	local pos = Vector3.New(msg.Position.x, 0, msg.Position.z)
 	local dir = Vector3.New(msg.Orientation.x, 0, msg.Orientation.z)
 
@@ -43,11 +43,22 @@ local function OnHostEnterMap( sender,msg )
 	-- 切换分线播放镜头效果
 	-- warn("------S2CEnterMap----->>>", msg.MapTemplateId, "oldMapLine ==", oldMapTid)
 	if oldMapTid == msg.MapTemplateId then
+		-- 切换线路之后停止自动任务
+		local CQuestAutoMan = require "Quest.CQuestAutoMan"
+		CQuestAutoMan.Instance():Stop()
+		-- 切换线路之后停止自动战斗
+		local CAutoFightMan = require "AutoFight.CAutoFightMan"
+		CAutoFightMan.Instance():Stop()
 		game:PlayPharseEffect()
+		--打断寻路
+		game._HostPlayer:StopNaviCal()
 	end
 	
 	local hp = game._HostPlayer
 	hp:SetIsInGlobalZone(msg.IsGlobalZone or false)
+
+	-- 切图清空仇恨列表
+	hp._HatedEntityMap = {}
 
 	local event = require("Events.EntityEnterEvent")()
 	event._MapInstanceId = msg.MapInstanceId
@@ -60,27 +71,7 @@ PBHelper.AddHandler("S2CEnterMap", OnHostEnterMap)
 -- S2CLeaveWorld
 --
 local function OnHostLeaveMap( sender,msg )	
-	local sceneTid = 0
-	local mapId = 0
-	if game._CurWorld ~= nil then
-		sceneTid = game._CurWorld._WorldInfo.SceneTid
-		mapId = game._CurWorld._WorldInfo.MapId
-		game._CurWorld:Release(false, false)
-
-		--离开地图，清空副本数据
-		game._DungeonMan:ClearDungeonGoal()
-		local CPanelTracker = require "GUI.CPanelTracker"
-		CPanelTracker.Instance():OpenDungeonUI(false)	
-		local CPageQuest = require "GUI.CPageQuest"
-		CPageQuest.Instance():RemoveSpecialDungeonGoal()
-
-        local event = require("Events.EntityLeaveEvent")()
-	    event._MapInstanceId = sceneTid
-	    CGame.EventManager:raiseEvent(nil, event)
-	end
-	game:SetCurrentMapInfo(0, 0, "")
-	game:SetMapLineInfo(-1, nil)
-	warn("HostLeaveMap", sceneTid, mapId)
+	game:LeaveGameWorld()
 end
 
 PBHelper.AddHandler("S2CLeaveMap", OnHostLeaveMap)
@@ -101,10 +92,10 @@ end
 -- S2CRoleEnterSight
 --
 local function OnRoleEnterSight(sender, msg)
-	local id = msg.RoleInfo.CreatureInfo.MovableInfo.EntityInfo.EntityId
+	--local id = msg.RoleInfo.CreatureInfo.MovableInfo.EntityInfo.EntityId
 	--EntityStatis.Register("Player", id)
-	local player_man = game._CurWorld._PlayerMan
-	player_man:CreateElsePlayer(msg.RoleInfo)
+	--local player_man = game._CurWorld._PlayerMan
+	--player_man:CreateElsePlayer(msg.RoleInfo)
 
 	--SetEntitySkills(msg.RoleInfo.CreatureInfo.MovableInfo.EntityInfo.EntityId, msg.RoleInfo.skillInfoRe.SkillInfoDatas)	
 end
@@ -115,7 +106,7 @@ PBHelper.AddHandler("S2CRoleEnterSight", OnRoleEnterSight)
 -- S2CMonsterEnterSight
 --
 local function OnMonsterEnterSight(sender, msg)
-	local id = msg.MonsterInfo.CreatureInfo.MovableInfo.EntityInfo.EntityId
+	--local id = msg.MonsterInfo.CreatureInfo.MovableInfo.EntityInfo.EntityId
 	--EntityStatis.Register("Monster", id)
 
 	local tid = msg.MonsterInfo.MonsterTid
@@ -140,7 +131,7 @@ PBHelper.AddHandler("S2CMonsterEnterSight",OnMonsterEnterSight)
 -- S2CNpcEnterSight
 --
 local function OnNpcEnterSight(sender, msg)
-	local id = msg.NpcInfo.MonsterInfo.CreatureInfo.MovableInfo.EntityInfo.EntityId
+	--local id = msg.NpcInfo.MonsterInfo.CreatureInfo.MovableInfo.EntityInfo.EntityId
 	--EntityStatis.Register("NPC", id)
 	
 	local createType = Util.CalcSightUpdateType(msg.SightUpdateData.updateType, msg.SightUpdateData.updateReason)
@@ -221,22 +212,24 @@ PBHelper.AddHandler("S2CPetEnterSight", OnS2CPetEnterSight)
 
 local function create_all_entity(sender, msg)
 	--repeated RoleInfo RoleInfoList				= 2;
+	--[[
 	if msg.RoleInfoList ~= nil and #msg.RoleInfoList > 0 then
 		local player_man = game._CurWorld._PlayerMan
 		for i,v in ipairs(msg.RoleInfoList) do
-			local id = v.CreatureInfo.MovableInfo.EntityInfo.EntityId
+			--local id = v.CreatureInfo.MovableInfo.EntityInfo.EntityId
 			--EntityStatis.Register("Player", id)
-			player_man:CreateElsePlayer(v)
+			--player_man:CreateElsePlayer(v)
 			--warn("create_all_entity--", table.getn(game._CurWorld._PlayerMan))
 			--SetEntitySkills(v.CreatureInfo.MovableInfo.EntityInfo.EntityId, v.skillInfoRe.SkillInfoDatas)
 		end
 	end
+	]]
 	--repeated MonsterInfo MonsterInfoList		= 3;
 	local enterType = EnumDef.SightUpdateType.Unknown
 	if msg.MonsterInfoList ~= nil and #msg.MonsterInfoList > 0 then
 		local npc_man = game._CurWorld._NPCMan
 		for i,v in ipairs(msg.MonsterInfoList) do
-			local id = v.CreatureInfo.MovableInfo.EntityInfo.EntityId
+			--local id = v.CreatureInfo.MovableInfo.EntityInfo.EntityId
 			--EntityStatis.Register("Monster", id)
 			npc_man:CreateMonster(v, enterType)
 
@@ -251,7 +244,7 @@ local function create_all_entity(sender, msg)
 	local npc_man = game._CurWorld._NPCMan
 	if msg.NpcInfoList ~= nil and #msg.NpcInfoList > 0 then
 		for i,v in ipairs(msg.NpcInfoList) do
-			local id = v.MonsterInfo.CreatureInfo.MovableInfo.EntityInfo.EntityId
+			--local id = v.MonsterInfo.CreatureInfo.MovableInfo.EntityInfo.EntityId
 			--EntityStatis.Register("NPC", id)
 			npc_man:CreateNpc(v, enterType)
 		end

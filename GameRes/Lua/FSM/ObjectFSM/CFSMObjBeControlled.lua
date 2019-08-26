@@ -179,5 +179,10 @@ def.override(CFSMStateBase).UpdateState = function(self, newstate)
 	end
 end
 
+def.override().UpdateWhenBecomeVisible = function(self)
+	-- 简化处理
+	self._Host:PlayAnimation(EnumDef.CLIP.BATTLE_STAND, EnumDef.SkillFadeTime.MonsterOther, false, 0, 1)
+end
+
 CFSMObjBeControlled.Commit()
 return CFSMObjBeControlled

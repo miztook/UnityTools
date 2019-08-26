@@ -50,17 +50,19 @@ end
 
 --上线发放的福利消息
 local function OnS2CScriptStateSync(sender, msg)
-    for _,v in ipairs(msg.Datas) do          
-        -- -- 脚本ID SystemType = ESystemType.Bonus 时显示      
-        -- local ScriptCalendar = CElementData.GetTemplate("ScriptCalendar", v.ScriptCalendarId)
-        -- if ScriptCalendar == nil then return end        
-        -- if ScriptCalendar.SystemType == ESystemType.Bonus then             
-        -- end  
-        if v.ScriptId > 0 then 
-            -- warn("--------S2CScriptStateSync------->>>", v.ScriptId, v.IsActivity, v.OpenTime, v.CloseTime)   
-            game._CWelfareMan:OnWelfareInfo(v, v.IsActivity)	
-        end	
-    end   
+    local allTid = CElementData.GetAllTid("ScriptCalendar")
+    for _,ScriptCalendarTid in ipairs(allTid) do     
+        local ScriptCalendarTemp = CElementData.GetTemplate("ScriptCalendar", tonumber(ScriptCalendarTid))
+        if ScriptCalendarTemp.SystemType == ESystemType.Bonus then
+            for _,v in ipairs(msg.Datas) do          
+                -- 脚本ID SystemType = ESystemType.Bonus 时显示      
+                if v.ScriptId == ScriptCalendarTemp.ScriptId then
+                    -- warn("--------S2CScriptStateSync------->>>", v.ScriptId, v.IsActivity, v.OpenTime, v.CloseTime)   
+                    game._CWelfareMan:OnWelfareInfo(v, v.IsActivity)
+                end
+            end   
+        end
+    end    
 end
 PBHelper.AddHandler("S2CScriptStateSync", OnS2CScriptStateSync)
 
@@ -68,15 +70,17 @@ PBHelper.AddHandler("S2CScriptStateSync", OnS2CScriptStateSync)
 --请求脚本开启状态
 local function OnS2CScriptEnable(sender,msg)
 	-- -- 返回脚本当前的状态 msg.Data.ScriptCalendarId
-    -- local ScriptCalendar = CElementData.GetTemplate("ScriptCalendar", msg.Data.ScriptCalendarId)
-    -- if ScriptCalendar == nil then return end
-    -- if ScriptCalendar.SystemType == ESystemType.Bonus then        	 
-    -- end  
-    
-    if msg.Data.ScriptId > 0 then       
-        -- warn("--------S2CScriptEnable------->>>", msg.Data.ScriptId, msg.Data.IsActivity, msg.Data.OpenTime, msg.Data.CloseTime) 
-        game._CWelfareMan:OnWelfareInfo(msg.Data, msg.Data.IsActivity)	
-    end 
+    local allTid = CElementData.GetAllTid("ScriptCalendar")
+    for _,ScriptCalendarTid in ipairs(allTid) do     
+        local ScriptCalendarTemp = CElementData.GetTemplate("ScriptCalendar", tonumber(ScriptCalendarTid))
+        if ScriptCalendarTemp.SystemType == ESystemType.Bonus then        
+            -- 脚本ID SystemType = ESystemType.Bonus 时显示      
+            if msg.Data.ScriptId == ScriptCalendarTemp.ScriptId then
+                -- warn("--------S2CScriptEnable------->>>", msg.Data.ScriptId, msg.Data.IsActivity, msg.Data.OpenTime, msg.Data.CloseTime) 
+                game._CWelfareMan:OnWelfareInfo(msg.Data, msg.Data.IsActivity)	
+            end  
+        end
+    end  
 end
 PBHelper.AddHandler("S2CScriptEnable", OnS2CScriptEnable)
 
@@ -91,12 +95,17 @@ PBHelper.AddHandler("S2CScriptDataSync", OnS2CScriptDataSync)
 --执行某事件结果
 local function OnS2CScriptExec(sender,msg)
 	-- 事件结果    
-    warn("msg.ErrorCode == ", msg.ErrorCode)
+    -- warn("msg.ErrorCode == ", msg.ErrorCode)
     if msg.ErrorCode == 0 then
-        game._CWelfareMan:OnWelfareEventType(msg.ScriptId)
+        game._CWelfareMan:OnWelfareEventType(msg)
     else
-        game._GUIMan:ShowErrorCodeMsg(msg.ErrorCode, nil)
-		return
+        if msg.ErrorCode == ServerMessageBase.NotEnoughItem then
+            game._GUIMan: ShowTipText(StringTable.Get(34354), true)    
+            return
+        else
+            game._GUIMan:ShowErrorCodeMsg(msg.ErrorCode, nil)
+            return
+        end
 	end
 end
 PBHelper.AddHandler("S2CScriptExec", OnS2CScriptExec)

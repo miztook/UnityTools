@@ -32,229 +32,232 @@
     <ClCompile Include="ElementJUPGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DCollision.cpp">
-      <Filter>Hoba\Base</Filter>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.cpp">
+      <Filter>Hoba\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DFuncs.cpp">
-      <Filter>Hoba\Base</Filter>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.cpp">
+      <Filter>Hoba\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DGeometry.cpp">
-      <Filter>Hoba\Base</Filter>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinSys.cpp">
+      <Filter>Hoba\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DMatrix.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DQuaternion.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\A3DTrace.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AAssist.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFI.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFile.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFileImage.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFilePackage.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFilePackBase.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFilePackGame.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFilePackMan.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AFramework.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\ALog.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\AString.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\ASys.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\ASysCodeCvt.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Base\ASysThread.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\csshare\Common\CMd5Hash.cpp">
+    <ClCompile Include="..\..\..\Engine\lib_hoba\csshare\Common\CMd5Hash.cpp">
       <Filter>Hoba\Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\csshare\Common\elementpckdir.cpp">
+    <ClCompile Include="..\..\..\Engine\lib_hoba\csshare\Common\elementpckdir.cpp">
       <Filter>Hoba\Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.cpp">
-      <Filter>Hoba\Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.cpp">
-      <Filter>Hoba\Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\source\Platform\Windows\AWinSys.cpp">
-      <Filter>Hoba\Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\updatelib\FileOperate.cpp">
+    <ClCompile Include="..\..\..\Engine\lib_hoba\updatelib\FileOperate.cpp">
       <Filter>Hoba\upatelib</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\updatelib\packfunc_export.cpp">
+    <ClCompile Include="..\..\..\Engine\lib_hoba\updatelib\VersionMan.cpp">
       <Filter>Hoba\upatelib</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Engine\lib_hoba\updatelib\VersionMan.cpp">
+    <ClCompile Include="..\..\..\Engine\lib_hoba\updatelib\packfunc_export.cpp">
       <Filter>Hoba\upatelib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\A3DCollision.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\A3DFuncs.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\A3DGeometry.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\A3DMatrix.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\A3DQuaternion.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\A3DTrace.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\AAssist.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\AFI.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\AFile.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\AFileImage.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\AFilePackage.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\AFilePackBase.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\AFilePackGame.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\AFilePackMan.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\AFramework.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\ALog.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\AString.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\ASys.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\ASysCodeCvt.cpp">
+      <Filter>Hoba\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\ASysThread.cpp">
+      <Filter>Hoba\Base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ElementJUPGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3D.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DCollision.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DFuncs.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DGeometry.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DMacros.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DMatrix.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DQuaternion.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DTrace.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DTypes.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\A3DVector.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AAssist.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ACounter.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\af.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFI.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFile.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFileImage.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFilePackage.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFilePackBase.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFilePackGame.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFilePackMan.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFPI.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AFramework.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ALine.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ALock.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ALog.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\APoint.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ARect.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\AString.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ASys.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ASysCodeCvt.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ASysSync.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ASysThread.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ATempMemBuffer.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\ATypes.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\base.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\compileconfig.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\function.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Base\stringext.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\csshare\Common\CMd5Hash.h">
-      <Filter>Hoba\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\csshare\Common\elementpckdir.h">
-      <Filter>Hoba\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.h">
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.h">
       <Filter>Hoba\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.h">
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.h">
       <Filter>Hoba\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\updatelib\FileOperate.h">
+    <ClInclude Include="..\..\..\Engine\lib_hoba\csshare\Common\CLuaTable.h">
+      <Filter>Hoba\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\csshare\Common\CMd5Hash.h">
+      <Filter>Hoba\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\csshare\Common\elementpckdir.h">
+      <Filter>Hoba\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\updatelib\FileOperate.h">
       <Filter>Hoba\upatelib</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\updatelib\packfunc_export.h">
+    <ClInclude Include="..\..\..\Engine\lib_hoba\updatelib\VersionMan.h">
       <Filter>Hoba\upatelib</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Engine\lib_hoba\updatelib\VersionMan.h">
+    <ClInclude Include="..\..\..\Engine\lib_hoba\updatelib\packfunc_export.h">
       <Filter>Hoba\upatelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\A3D.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\A3DCollision.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\A3DFuncs.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\A3DGeometry.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\A3DMacros.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\A3DMatrix.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\A3DQuaternion.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\A3DTrace.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\A3DTypes.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\A3DVector.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\AAssist.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\ACounter.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\af.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\AFI.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\AFile.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\AFileImage.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\AFilePackage.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\AFilePackBase.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\AFilePackGame.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\AFilePackMan.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\AFPI.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\AFramework.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\ALine.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\ALock.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\ALog.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\APoint.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\ARect.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\AString.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\ASys.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\ASysCodeCvt.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\ASysSync.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\ASysThread.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\ATempMemBuffer.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\ATypes.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\base.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\compileconfig.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\function.h">
+      <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\stringext.h">
+      <Filter>Hoba\Base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

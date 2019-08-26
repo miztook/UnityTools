@@ -244,10 +244,14 @@ local toCode_tables	-- = {}
 local toCode_	-- function toCode_ (t, level, subfix)
 local function toCode_printKeyValue (k, v, level)
 	local indentInner = (' '):rep((level+1)*2)
+
+	local typeK = type(k)
+	local typeV = type(v)
+	if typeK ~= "number" and typeK ~= "boolean" and typeK ~= "string" then return end
+	if typeV ~= "number" and typeV ~= "boolean" and typeV ~= "string" and typeV ~= "table" then return end
+
 	toCode_codes[#toCode_codes+1] = indentInner
 	
-	local typeK = type(k)
-
 	if typeK == "number" or typeK == "boolean" then
 		toCode_codes[#toCode_codes+1] = "["
 		toCode_codes[#toCode_codes+1] = tostring(k)
@@ -262,7 +266,7 @@ local function toCode_printKeyValue (k, v, level)
 		error( "unsupported key type: "..typeK..", for "..tostring(k), 4+2*level )
 	end
 
-	local typeV = type(v)
+	
 	if typeV == "number" or typeV == "boolean" then
 		toCode_codes[#toCode_codes+1] = tostring(v)
 		toCode_codes[#toCode_codes+1] = ";\n"

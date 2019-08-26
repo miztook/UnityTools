@@ -4,12 +4,12 @@ _G.TipsPopFrom =
 {
     ROLE_PANEL = 1,        --自己的角色面板
     BACK_PACK_PANEL  = 2,  --自己的背包界面
-    OTHER_PANEL = 3,		-- 虚拟tip信息
+    OTHER_PANEL = 3,	   -- 虚拟tip信息
     OTHER_PALYER = 4,      --查看其它角色界面
     Equip_Process = 5,     -- 装备加工背包界面
     CHAT_PANEL    = 6,	   -- 聊天界面
-    WithoutButton = 7      -- 没有按钮但是显示详细信息
-
+    WithoutButton = 7,     -- 没有按钮但是显示详细信息
+    ITEM_DBPANEL = 8       --需要显示ItenDB
 
 }
 -- tip的适配方式更改该枚举值无效
@@ -30,7 +30,7 @@ local PackName =
 	PACKBACK_EQUIP = 2,
 	PACKBACK_ITEM_WITH_CERTAIN_FUNCS = 3,
 	OTHER_PANEL = 4,
-	CHAT_PANEL = 5,
+	ITEM_DB = 5,
     CHARM_ITEM = 6,
 }
 --tips位置
@@ -41,6 +41,7 @@ local function _PackbackItemTip(itemCellData, popFrom)
 	local param = 
 	{
 		itemCellData = itemCellData, 
+		compareItemData = nil,
 		withFuncs = false,
 		params = popFrom,
 	}
@@ -60,15 +61,15 @@ local function _PackbackEquipTip(itemCellData,popFrom)
 	CSoundMan.Instance():Play2DAudio(PATH.GUISound_Choose_Press, 0)
 end
 
-local function _PackCharmItemTip(itemCellData, itemEquipData, comps)
+local function _PackCharmItemTip(itemCellData, compareItemData, comps)
     local param = 
 	{
 		itemCellData = itemCellData,
-        itemEquipData = itemEquipData,
+        compareItemData = compareItemData,
 		withFuncs = true,
 		params = comps,
 	}
-	gCurTipPanel = game._GUIMan:Open("CPanelCharmItemHint",param)
+	gCurTipPanel = game._GUIMan:Open("CPanelItemHint",param)
 	CSoundMan.Instance():Play2DAudio(PATH.GUISound_Choose_Press, 0)
 end
 
@@ -79,7 +80,7 @@ local function _PackbackItemTipWithCertainFunc(itemCellData, comps)
 		withFuncs = true,
 		params = comps,
 	}
-	gCurTipPanel = game._GUIMan:Open("CPanelCharmItemHint",param)
+	gCurTipPanel = game._GUIMan:Open("CPanelItemHint",param)
 	CSoundMan.Instance():Play2DAudio(PATH.GUISound_Choose_Press, 0)
 end
 
@@ -179,7 +180,7 @@ local function _PopupTipEx(_type)
 			end
 			
 		end
-	elseif _type == PackName.CHAT_PANEL then 
+	elseif _type == PackName.ITEM_DB then 
 		return function(itemDB, popFrom,pos,obj,itemObj)
 			if gCurTipPanel and gCurTipPanel:IsShow() then
 				gCurTipPanel:Hide()
@@ -292,7 +293,7 @@ _G.CItemTipMan =
 	ShowPackbackEquipTip = _PopupTipEx(PackName.PACKBACK_EQUIP),
 	ShowItemTips       = _PopupTipEx(PackName.OTHER_PANEL),
     ShowCharmItemTips  = _PopupTipEx(PackName.CHARM_ITEM),
-	ShowChatItemTips   = _PopupTipEx(PackName.CHAT_PANEL),       -- 聊天中的Item（装备和物品）
+	ShowItemDBTips   = _PopupTipEx(PackName.ITEM_DB),       -- 传进去ItemDB的Item（装备和物品）
 	ShowItemTipWithCertainFunc = _PopupTipEx(PackName.PACKBACK_ITEM_WITH_CERTAIN_FUNCS),
 	ShowMoneyTips = _CreatMoneyTips,
 	ShowPetTips = _CreatPetTips,

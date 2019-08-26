@@ -113,6 +113,7 @@ def.override().OnCreate = function(self)
         SelectItem = self:GetUIObject('SelectItem'),
         Reinforce = {},
         Property = {},
+        PVP_Property = {},
         Lab_Next = self:GetUIObject("Lab_Next"),
         Btn_OK = self:GetUIObject('Btn_OK'),
     }
@@ -133,6 +134,15 @@ def.override().OnCreate = function(self)
         Property.Old = self:GetUIObject("Lab_InheritedPropertyOldValue")
         Property.New = self:GetUIObject("Lab_InheritedPropertyNewValue")
         Property.Img_UpOrDown = self:GetUIObject('Img_Property_UpOrDown')
+    end
+
+    do
+        local PVP_Property = self._PanelObject.PVP_Property
+        PVP_Property.Root = self:GetUIObject('Img_Inherit_PVPProperty')
+        PVP_Property.Name = self:GetUIObject("Lab_InheritedPVPPropertyName")
+        PVP_Property.Old = self:GetUIObject("Lab_InheritedPVPPropertyOldValue")
+        PVP_Property.New = self:GetUIObject("Lab_InheritedPVPPropertyNewValue")
+        PVP_Property.Img_UpOrDown = self:GetUIObject('Img_PVPProperty_UpOrDown')
     end
 end
 
@@ -202,6 +212,7 @@ def.method().UpdateUI = function(self)
     {
         [EItemIconTag.StrengthLv] = self._ItemDataNew.InforceLevel,
         [EItemIconTag.Bind] = self._ItemDataNew.IsBind,
+        [EItemIconTag.Grade] = self._ItemDataNew.FightProperty.star or -1,
     }
     IconTools.InitItemIconNew(root.SelectItem, self._ItemDataNew.Tid, setting)
 
@@ -222,49 +233,83 @@ def.method().UpdateUI = function(self)
     end
 
     do
+        local bHasPVP = self._ItemDataNew.PVPFightProperty.index > 0
         local Property = self._PanelObject.Property
+        local PVP_Property = self._PanelObject.PVP_Property
         local propertyGeneratorElement = CElementData.GetAttachedPropertyGeneratorTemplate( self._ItemDataOld.FightProperty.index )
         local fightElement = CElementData.GetAttachedPropertyTemplate( propertyGeneratorElement.FightPropertyId )
-
         GUI.SetText(Property.Name, fightElement.TextDisplayName)
+        PVP_Property.Root:SetActive( bHasPVP )
+
+        if bHasPVP then
+            local pvpGenData = CElementData.GetAttachedPropertyGeneratorTemplate( self._ItemDataNew.PVPFightProperty.index )
+            local pvpData = CElementData.GetAttachedPropertyTemplate( pvpGenData.FightPropertyId )
+            GUI.SetText(PVP_Property.Name, pvpData.TextDisplayName)
+        end
 
         local oldVal = 0
         local newVal = 0
+        local oldPVPVal = 0
+        local newPVPVal = 0
         do
         -- 旧属性
             local itemData = self._ItemDataOld
             local template = CElementData.GetTemplate("Item", itemData.Tid)
             local baseVal = itemData.FightProperty.value
+            local basePVPVal = bHasPVP and itemData.PVPFightProperty.value or 0
             local curVal = baseVal
+            local curPVPVal = basePVPVal
+
             local lv = itemData.InforceLevel
             if lv > 0 then
                 local InforceInfo = CEquipUtility.GetInforceInfoByLevel(template.ReinforceConfigId, lv)
                 local fixedIncVal = math.ceil(baseVal * InforceInfo.InforeValue / 100)
+                local fixedPVPIncVal = bHasPVP and math.ceil(basePVPVal * InforceInfo.InforeValue / 100)
                 curVal = baseVal + math.max(fixedIncVal, lv)
+                curPVPVal = bHasPVP and basePVPVal + math.max(fixedPVPIncVal, lv)
             end
-            GUI.SetText(Property.Old, GUITools.FormatNumber(curVal))
             oldVal = curVal
+            oldPVPVal = curPVPVal
+            GUI.SetText(Property.Old, GUITools.FormatNumber(curVal))
+            if bHasPVP then
+                GUI.SetText(PVP_Property.Old, GUITools.FormatNumber(curPVPVal))
+            end
         end
         do
         -- 新属性
             local itemData = self._ItemDataNew
             local template = CElementData.GetTemplate("Item", itemData.Tid)
             local baseVal = itemData.FightProperty.value
+            local basePVPVal = bHasPVP and itemData.PVPFightProperty.value or 0
+
             local curVal = baseVal
+            local curPVPVal = basePVPVal
+
             local lv = itemData.InforceLevel
             if lv > 0 then
                 local InforceInfo = CEquipUtility.GetInforceInfoByLevel(template.ReinforceConfigId, lv)
                 local fixedIncVal = math.ceil(baseVal * InforceInfo.InforeValue / 100)
+                local fixedPVPIncVal = bHasPVP and math.ceil(basePVPVal * InforceInfo.InforeValue / 100)
                 curVal = baseVal + math.max(fixedIncVal, lv)
+                curPVPVal = bHasPVP and basePVPVal + math.max(fixedIncVal, lv) or 0
             end
-            GUI.SetText(Property.New, GUITools.FormatNumber(curVal))
             newVal = curVal
+            newPVPVal = curPVPVal
+            GUI.SetText(Property.New, GUITools.FormatNumber(curVal))
+            if bHasPVP then
+                GUI.SetText(PVP_Property.New, GUITools.FormatNumber(curPVPVal))
+            end
         end
 
         local bShow = newVal ~= oldVal
+        local bPVPShow = bHasPVP and (newPVPVal ~= oldPVPVal)
         Property.Img_UpOrDown:SetActive( bShow )
+        PVP_Property.Img_UpOrDown:SetActive( bPVPShow )
         if bShow then
             GUITools.SetGroupImg(Property.Img_UpOrDown, newVal > oldVal and 1 or 0)
+        end
+        if bPVPShow then
+            GUITools.SetGroupImg(PVP_Property.Img_UpOrDown, newPVPVal > oldPVPVal and 1 or 0)
         end
     end
 end

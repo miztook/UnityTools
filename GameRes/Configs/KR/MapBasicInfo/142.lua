@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/city01.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12004] = 
@@ -24,9 +25,9 @@ local MapInfo =
 		},
 		[12009] = 
 		{
-			[1] = { x = -383.29, y = -0.01, z = 24.87, name = "타락 영혼", level = 30, SortID = 7 },
-			[2] = { x = -366.40, y = -0.41, z = 35.77, name = "타락 영혼", level = 30, SortID = 8 },
-			[3] = { x = -375.99, y = -0.21, z = 32.57, name = "타락 영혼", level = 30, SortID = 9 },
+			[1] = { x = -383.29, y = -0.01, z = 24.87, name = "타락한 영혼", level = 30, SortID = 7 },
+			[2] = { x = -366.40, y = -0.41, z = 35.77, name = "타락한 영혼", level = 30, SortID = 8 },
+			[3] = { x = -375.99, y = -0.21, z = 32.57, name = "타락한 영혼", level = 30, SortID = 9 },
 		},
 	},
 	Npc = 
@@ -56,7 +57,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[195] = { x = -369.51, y = 2.10, z = 6.43, name = "아룬의 샘", worldId = 0, PkMode = 0 },
+			[195] = { x = -369.51, y = 2.10, z = 6.43, name = "아룬의 샘", worldId = 0, IsCanFind = 1, PkMode = 1 },
 		},
 	},
 	Mine = 

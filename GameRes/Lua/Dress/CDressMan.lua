@@ -30,10 +30,6 @@ end
 ----------------------------------------------------------------------
 --							Client::Dress Funcs
 ----------------------------------------------------------------------
-local function SendFlashMsg(msg, bUp)
-	game._GUIMan:ShowTipText(msg, bUp)
-end
-
 -- @param updateType 更新类型 0:列表初始化 1:添加时装 2:时装过期 3:时装分解 4:时装穿戴或卸下 5:时装染色
 local function RefreshPanel(updateType)
 	local CPanelUIExterior = require "GUI.CPanelUIExterior"
@@ -90,7 +86,7 @@ local function UpdateDressDyeInfo(dressData, dyeId1, dyeId2)
 end
 
 -- 清空数据
-def.method().Clear = function(self)
+def.method().Cleanup = function(self)
 	self._LocalDressInfo = {}
 	self._InitDressList = false
 	self._AllDressList = {}
@@ -117,7 +113,7 @@ def.method().PreloadAllDress = function(self)
 		end
 	end
 
-	local allTids = GameUtil.GetAllTid("Dress")
+	local allTids = CElementData.GetAllTid("Dress")
 	local profMask = EnumDef.Profession2Mask[game._HostPlayer._InfoData._Prof]
 	for i=1, #allTids do
 		local dressTid = allTids[i]
@@ -267,12 +263,12 @@ def.method("table", "number").UpdateDressInfo = function(self, dressInfo, update
 		-- 时装到期
 		RemoveDress(self, dressInfo)
 		local namStr = RichTextTools.GetQualityText(template.ShowName, template.Quality)
-		SendFlashMsg(string.format(StringTable.Get(20709), namStr), false)
+		TeraFuncs.SendFlashMsg(string.format(StringTable.Get(20709), namStr), false)
 		RefreshPanel(2)
 	elseif updateType == EUpdateType.Decompose then
 		-- 时装分解
 		RemoveDress(self, dressInfo)
-		SendFlashMsg(StringTable.Get(20710), false)
+		TeraFuncs.SendFlashMsg(StringTable.Get(20710), false)
 		RefreshPanel(3)
 	elseif updateType == EUpdateType.Add then
 		-- 获得时装
@@ -328,7 +324,7 @@ def.method("table").OnHostPlayerDressTint = function(self, dressInfo)
 
 	if isSucceeded then
 		-- 染色成功
-		SendFlashMsg(StringTable.Get(20705), false)
+		TeraFuncs.SendFlashMsg(StringTable.Get(20705), false)
 		RefreshPanel(5)
 	end
 end

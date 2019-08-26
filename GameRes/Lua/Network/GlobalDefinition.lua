@@ -12,7 +12,7 @@ _G.GlobalDefinition = {}
 	GlobalDefinition.KeyExchangeNonceSize		= 16 
 	
 	GlobalDefinition.MinRoleNameLength		= 2
-	GlobalDefinition.MaxRoleNameLength		= 7
+	GlobalDefinition.MaxRoleNameLength		= 10
 	GlobalDefinition.MaxRoleCount				= 4
 
 	GlobalDefinition.ProfessionCount			= 5

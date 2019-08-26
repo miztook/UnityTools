@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Battle",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12025] = 
@@ -46,28 +47,16 @@ local MapInfo =
 		{
 			[1] = { x = 157.76, y = 39.88, z = 10.10, name = "夜莺", SortID = 1 },
 		},
-		[2111] = 
-		{
-			[1] = { x = -51.81, y = 40.46, z = 59.97, name = "“夜莺”", SortID = 7 },
-		},
-		[2054] = 
-		{
-			[1] = { x = -51.81, y = 40.46, z = 59.97, name = "沙摩尔", SortID = 7 },
-		},
-		[2055] = 
-		{
-			[1] = { x = -51.81, y = 40.46, z = 59.97, name = "露娜·艾琳", SortID = 7 },
-		},
 	},
 	Region = 
 	{
 		[1] = 
 		{
-			[223] = { x = 0.58, y = 21.37, z = 31.35, xA = -30.71, yA = 38.34, zA = 51.38, name = "上山", worldId = 143, PkMode = 0 },
+			[223] = { x = 0.58, y = 21.37, z = 31.35, xA = -30.71, yA = 38.34, zA = 51.38, name = "", worldId = 143, PkMode = 1 },
 		},
 		[2] = 
 		{
-			[222] = { x = 62.95, y = 33.65, z = 55.32, name = "罗琳镇相位入口", worldId = 0, PkMode = 0 },
+			[222] = { x = 62.95, y = 33.65, z = 55.32, name = "罗琳镇相位入口", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 
@@ -128,16 +117,6 @@ local MapInfo =
 			Tid = 
 			{
 				[2039] = 1,
-			},
-		},
-		[7] = 
-		{
-			x = -51.81, y = 40.46, z = 59.97, Type = 2,
-			Tid = 
-			{
-				[2111] = 1,
-				[2054] = 1,
-				[2055] = 1,
 			},
 		},
 		[4] = 

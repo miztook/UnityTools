@@ -45,6 +45,10 @@ local function GetInProcessQuest(id)
 end
 
 local function GetInProcessOrNotRecvQuest(id)
+	if id == nil then
+		warn("error: id == nil")
+		return nil
+	end
 	local model = CQuest.Instance():FetchQuestModel(id)
 	if model.QuestStatus == QuestDef.Status.Completed then
 		warn("error: Quest Status is Completed", id)
@@ -122,11 +126,6 @@ end
 
 --添加单个任务
 local function QuestAdd(questId)
---[[	local onelimit = table.indexof(instance._QuestCurrent, questId )
-	if onelimit then
-		print("onelimit=====",questId,debug.traceback())
-		return
-	end--]]
 	local index = GetInsertIndex(questId)
 	table.insert(instance._QuestCurrent, index, questId)
 	--如果界面还没显示，只更新数据
@@ -155,7 +154,7 @@ local function QuestRemove(quest_id)
 		end
 		--instance._Queue:Push(CListRemoveOpera.new({}, instance._List, index - 1))
 		instance._List:RemoveItem(index - 1)
-		print("RemoveItem",index - 1)
+		--print("RemoveItem",index - 1)
 	end
 end
 
@@ -218,6 +217,7 @@ local function UpdateFristRecieveQuest( NextQuestId )
 
 	--print("isShowFristRecieveQuest====",isShowFristRecieveQuest)
 	local RecieveBranchQuestIDS = {}
+	CQuest.Instance()._QuestsCanRecievedTalbe = {}
 	for k,v in pairs( CQuest.Instance()._CompletedMap ) do
 		local finishedQuestTmp = CElementData.GetQuestTemplate( k )
 		if finishedQuestTmp ~= nil then
@@ -226,6 +226,9 @@ local function UpdateFristRecieveQuest( NextQuestId )
 			local index = table.indexof(instance._QuestCurrent, finishedQuestTmp.DeliverRelated.NextQuestId )
 			if result and not index then
 				RecieveBranchQuestIDS[#RecieveBranchQuestIDS+1] = tonumber(finishedQuestTmp.DeliverRelated.NextQuestId)
+			end
+			if result then
+				CQuest.Instance()._QuestsCanRecievedTalbe[tonumber(finishedQuestTmp.DeliverRelated.NextQuestId)] = 1
 			end
 
 			--添加可以接的新支线
@@ -238,10 +241,14 @@ local function UpdateFristRecieveQuest( NextQuestId )
 					if result and not index and CQuest.Instance():GetQuestType( tonumber(v1) ) == QuestDef.QuestType.Branch then
 						RecieveBranchQuestIDS[#RecieveBranchQuestIDS+1] = tonumber(v1)
 					end
+					if result then
+						CQuest.Instance()._QuestsCanRecievedTalbe[tonumber(v1)] = 1
+					end
 				end
 			end
 		end
 	end
+
 	--print_r( RecieveBranchQuestIDS )
 	local function SortFunc(left, right)
 		if left == nil or right == nil or left == right then
@@ -352,7 +359,10 @@ local function OnQuestData(data)
 				end
 
 				if isShowNextQuest then
-					table.insert(instance._QuestCurrent, #instance._QuestCurrent + 1, next_quest_id)
+					local model = CQuest.Instance():FetchQuestModel(next_quest_id)
+					if model.QuestStatus ~= QuestDef.Status.Completed then
+						table.insert(instance._QuestCurrent, #instance._QuestCurrent + 1, next_quest_id)
+					end
 				end
 			end
 		end
@@ -389,7 +399,7 @@ end
 local function QuestChangeCount(quest_id, objective_id, count)
 	local model = GetInProcessQuest(quest_id)
 	if model == nil then
-		warn("任务面板更新出现错误1=",quest_id,objective_id,count)
+		--warn("任务面板更新出现错误1=",quest_id,objective_id,count)
 		return
 	end
 	--TERA-2941 判断次目标有没有完成 原先没有判断是否是单挑目标完成
@@ -430,7 +440,7 @@ local function QuestChangeCount(quest_id, objective_id, count)
 		--如果界面还没显示，只更新数据
 		if instance._IsShow then
 			if item == nil then
-				warn("任务面板更新出现错误2=",quest_id,objective_id,count)
+				--warn("任务面板更新出现错误2=",quest_id,objective_id,count)
 				return
 			end
             --完成任务特效 
@@ -447,7 +457,7 @@ local function QuestChangeCount(quest_id, objective_id, count)
 		--如果界面还没显示，只更新数据
 		if instance._IsShow then
 			if item == nil then
-				warn("任务面板更新出现错误3=",quest_id,objective_id,count)
+				--warn("任务面板更新出现错误3=",quest_id,objective_id,count)
 				return
 			end
             instance:ShowQuestUIFX(QuestDef.UIFxEventType.ObjectCountChange, item)
@@ -643,7 +653,6 @@ def.method().Init = function(self)
 	CGame.EventManager:addHandler('DebugModeEvent', OnOpenDebugModeEvent)
 	CGame.EventManager:addHandler('PlayerGuidLevelUp', OnHostPlayerLevelChangeEvent)
 	CGame.EventManager:addHandler(EntityEnterEvent, OnEntityEnterEvent)  
-	
 end
 
 def.method().Update = function (self)
@@ -957,10 +966,17 @@ def.method("userdata", "number").OnInitItem = function(self, item, index)
 		end
 	end
 
+    if CQuest.Instance():IsFristQuest( data.Id ) and data:GetStatus() == QuestDef.Status.NotRecieved and data:GetTemplate().Type == QuestDef.QuestType.Branch then
+    	local ChapterTemplate = CElementData.GetTemplate("QuestChapter", CQuest.Instance():GetQuestChapter( data.Id ) )
+        name = ChapterTemplate.TextDisplayName
+    else
+        name = data:GetTemplate().TextDisplayName
+    end
+
 	if game._IsOpenDebugMode == true then
-		name = "(".. data:GetTemplate().Id ..")" .. data:GetTemplate().TextDisplayName..repeatCount
+		name = "(".. data:GetTemplate().Id ..")" .. name ..repeatCount
 	else
-		name = data:GetTemplate().TextDisplayName..repeatCount
+		name = name..repeatCount
 	end
 	GUI.SetText(lab_name, RichTextTools.GetQuestTypeColorText(name, data:GetTemplate().Type))
 
@@ -1025,16 +1041,20 @@ def.method("userdata", "number").OnInitItem = function(self, item, index)
 			end
 		elseif status == QuestDef.Status.ReadyToDeliver and data:IsDeliverViaNpc() then
 			obj_Receive:SetActive(false)
+			if not obj_Finish.activeSelf then
 			obj_Finish:SetActive(true)
 			instance:ShowQuestUIFX(QuestDef.UIFxEventType.Finish, item)
+			end
 			if obj_Prop ~= nil then
 				obj_Prop:SetActive(false)
 				btn_Prop:SetActive(false)
 			end
 		elseif status == QuestDef.Status.ReadyToDeliver and data:IsDeliverReceive() then
 			obj_Receive:SetActive(false)
+			if not obj_Finish.activeSelf then
 			obj_Finish:SetActive(true)
 			instance:ShowQuestUIFX(QuestDef.UIFxEventType.Finish, item)
+			end
 			if obj_Prop ~= nil then
 				obj_Prop:SetActive(false)
 				btn_Prop:SetActive(false)
@@ -1100,7 +1120,7 @@ def.method("userdata", "number").OnSelectItem = function(self, item, index)
 			local function AutoLogic()
 				hp:Stand()
 				CAutoFightMan.Instance():Start()
-				if self._QuestCurrent ~= nil then
+				if self._QuestCurrent ~= nil and self._QuestCurrent[index] ~= nil then
 					CAutoFightMan.Instance():SetMode(EnumDef.AutoFightType.QuestFight, self._QuestCurrent[index], false)
 				end
 				local questAutoMan = CQuestAutoMan.Instance()
@@ -1110,7 +1130,7 @@ def.method("userdata", "number").OnSelectItem = function(self, item, index)
 					data:DoShortcut()
 				--end
 			end
-			if hp:IsInCanNotInterruptSkill() then   -- 技能状态
+			if hp:IsInCanNotInterruptSkill() and not hp:GetTransPortalState() then   -- 技能状态
 				hp:AddCachedAction(AutoLogic)
 			else
 				AutoLogic()
@@ -1121,7 +1141,7 @@ end
 
 def.method("userdata", "string", "number").OnSelectItemButton = function(self, item, button, index)
 	local data = GetInProcessOrNotRecvQuest(self._QuestCurrent[index])
-	if button == "Btn_ItemIcon" then
+	if button == "Btn_ItemIcon" and data ~= nil then
 		local rewards = GUITools.GetRewardList(data:GetTemplate().RewardId, false)
 		local prop = nil
 		for i,v in ipairs(rewards) do
@@ -1274,7 +1294,13 @@ def.method("userdata").OnInitItemSpecialDungeonGoal = function(self,item)
 
     self:ShowQuestUIFX(QuestDef.UIFxEventType.InProgress, item)
 
-
+    local obj_Receive = item:FindChild("Img_Receive")
+    local obj_Finish = item:FindChild("Img_Finish")
+    if obj_Receive ~= nil then
+	    obj_Receive:SetActive(false)
+	    obj_Finish:SetActive(false)
+	end
+    
 	local frame_targets = item:FindChild("Lyout_Content/Fram_Targets")
 	local Lab_TimeTips = item:FindChild("Lyout_Content/Lab_TimeTips")
 	if Lab_TimeTips ~= nil then
@@ -1383,7 +1409,7 @@ def.method().Hide = function(self)
 	self._SelectQuestID = 0
 end
 
-def.method().Release = function(self)
+def.method().Cleanup = function(self)
 	self:Hide()
 
 	for k,v in pairs(self._QuestTimer) do
@@ -1412,14 +1438,12 @@ def.method().Release = function(self)
 end
 
 def.method().Destroy = function(self)
-	self:Release()
-
+	self:Cleanup()
 	self._Panel = nil
 	self._List = nil
 	self._ListObject = nil
 
 	isShowFristRecieveQuest = -1
-	instance = nil
 end
 
 CPageQuest.Commit()

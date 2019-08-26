@@ -17,12 +17,12 @@ local CPanelUIActivity = require "GUI.CPanelUIActivity"
 local CPanelRoleInfo = require "GUI.CPanelRoleInfo"
 
 --成就数据链表
-def.field("table")._Table_Achievements = BlankTable
+def.field("table")._Table_Achievements = nil
 def.field("boolean")._IsShowRed = false
 def.field("boolean")._HasGotAchieveDatas = false
-def.field("table")._AchievementsTIDtoValue = BlankTable
+def.field("table")._AchievementsTIDtoValue = nil
 
-def.field("table")._AdvancedGuideInfo            = BlankTable           -- 成就引导、业绩信息
+def.field("table")._AdvancedGuideInfo = BlankTable           -- 成就引导、业绩信息
 
 def.static("=>", AchievementMan).new = function()
     local obj = AchievementMan()
@@ -36,10 +36,10 @@ def.method().RequestAchieveDatas = function(self)
 end
 
 --加载所有副本数据
-def.method().LoadAllAchievementData = function(self)
+def.method().Init = function(self)
 	self._Table_Achievements = {}
 	self._AchievementsTIDtoValue = {}
-	local allAchievement = GameUtil.GetAllTid("Achievement")
+	local allAchievement = CElementData.GetAllTid("Achievement")
 	
 	for _,v in ipairs(allAchievement) do
         repeat
@@ -92,19 +92,7 @@ def.method().LoadAllAchievementData = function(self)
 				warn("成就数据错误ID："..v)
 			end	
         until true;
-		
 	end
-
-	--warn("kdkdkkdkd"..#table_Achievements)
-	--[[
-	for _,v in pairs(self._Table_Achievements) do
-		for _,k in pairs(v._NodeList) do
-			for _,m in ipairs(k._CellList) do
-				warn("RootName::",v._RootName,"__NodeName:",k._NodeName,"_Tid",m._Tid)
-			end
-		end
-	end	
-]]
 end
 
 --获取所有成就
@@ -765,15 +753,12 @@ def.method("table").RevBatchGetReward = function(self, achievementIDs)
     end
 end
 
-def.method().Clear = function(self)
+def.method().Cleanup = function(self)
 	self._Table_Achievements = {}
 	self._IsShowRed = false
 	self._HasGotAchieveDatas = false
 	self._AdvancedGuideInfo = {}
-end
-
-def.method().Release = function(self)
-	self: Clear()
+	self._AchievementsTIDtoValue = {}
 end
 
 ------------------C2S----------------------------

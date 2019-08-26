@@ -10,7 +10,7 @@ def.field("number")._FinalMapID = -1
 
 def.static("=>", CLinkedMapTrans).new = function()
     local obj = CLinkedMapTrans()
-    print("创建 CLinkedMapTrans")
+    --print("创建 CLinkedMapTrans")
     return obj
 end
 
@@ -51,7 +51,7 @@ def.override().StartTransLogic = function(self)
     		    --寻路自动上马逻辑
 				    hp:NavMountHorseLogic(self._TargetPosition)
     		    end  
-				game:NavigatToPos(regionPos, 0, nil, nil)
+				TeraFuncs.NavigatToPos(regionPos, 0, nil, nil)
 			else
 				warn("相位传送错误当前地图ID："..nCurMapID..",目标地图ID：",self._MapID)
 			end					
@@ -75,7 +75,7 @@ def.override().StartTransLogic = function(self)
             local function successCb()
                 self:ReachTarget() 
             end
-            game:NavigatToPos(regionPos, offset, successCb, nil)
+            TeraFuncs.NavigatToPos(regionPos, offset, successCb, nil)
 		else--不同地图，传送，踩点
 			local isNonstop, regionPos = CTransDataHandler.Instance():GetTransLinkDataByMapAndPosition(RegionData.sceneId,nil)
 			if isNonstop then
@@ -83,7 +83,7 @@ def.override().StartTransLogic = function(self)
                 if hp:CheckAutoHorse(regionPos) then 
 				    hp:NavMountHorseLogic(regionPos)
     		    end  
-				game:NavigatToPos(regionPos, offset, nil, nil)
+				TeraFuncs.NavigatToPos(regionPos, offset, nil, nil)
             else
                 warn("error !!! 传送联通策略里面的数据确是不连通")
 			end
@@ -103,7 +103,7 @@ def.override().StartTransLogic = function(self)
     	    --寻路自动上马逻辑
 			    hp:NavMountHorseLogic(self._TargetPosition)
     	    end
-            game:NavigatToPos(regionPos, offset, nil, nil)
+            TeraFuncs.NavigatToPos(regionPos, offset, nil, nil)
         else
             warn("error !!! 传送联通策略里面的数据确是不连通(非相位情况)")
 	    end
@@ -146,7 +146,7 @@ def.override().ContinueTrans = function(self)
     		--寻路自动上马逻辑
 				hp:NavMountHorseLogic(self._TargetPosition)
     		end  
-			game:NavigatToPos(self._TargetPosition, 0, function() self:ReachTarget() end, nil)
+			TeraFuncs.NavigatToPos(self._TargetPosition, 0, function() self:ReachTarget() end, nil)
         else
             --连通的情况下走原来逻辑，不连通走新的传送逻辑
 		    if CTransDataHandler.Instance():CanMoveToTargetPosAtOtherMap(self._MapID, self._TargetPosition) then
@@ -160,7 +160,7 @@ def.override().ContinueTrans = function(self)
                 if hp:CheckAutoHorse(self._TargetPosition) then 
 		            hp:NavMountHorseLogic(self._TargetPosition)
                 end
-	            game:NavigatToPos(self._TargetPosition, offset, on_reach, nil)
+	            TeraFuncs.NavigatToPos(self._TargetPosition, offset, on_reach, nil)
 	            --需要在地图上显示
 	            local cMap = require "GUI.CPanelMap"	      
                 cMap.Instance(): TransMapShow(self._TargetPosition)
@@ -186,7 +186,7 @@ def.override().ContinueTrans = function(self)
     			    --寻路自动上马逻辑
 				    hp:NavMountHorseLogic(movePos)
     		    end   			
-        	    game:NavigatToPos(movePos, 0, nil, nil)
+        	    TeraFuncs.NavigatToPos(movePos, 0, nil, nil)
 		    end
         end
 	else

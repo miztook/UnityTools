@@ -92,9 +92,9 @@ def.override("dynamic").OnData = function(self, data)
 					[EItemIconTag.Refine] = refineLv,
 					[EItemIconTag.ArrowUp] = bShowArrowUp,
 					[EItemIconTag.Enchant] = self._EquipData._EnchantAttr ~= nil and self._EquipData._EnchantAttr.index ~= 0,
+					[EItemIconTag.Grade] = self._EquipData._BaseAttrs.Star or -1,
 		        }
 	IconTools.InitItemIconNew(frame_item_icon, self._EquipData._Tid, icon_setting, EItemLimitCheck.AllCheck)
-	IconTools.SetLimit(frame_item_icon, self._EquipData._Tid, EItemLimitCheck.AllCheck)
 end
 
 def.override('string').OnClick = function(self, id)	

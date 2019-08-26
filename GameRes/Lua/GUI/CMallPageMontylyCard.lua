@@ -78,7 +78,6 @@ def.override().RefreshPage = function(self)
 end
 
 def.override("table").OnBuySuccess = function(self, data)
-    print("data.MonthlyExpired", data.Monthly.ExpiredTime)
     --CMallMan.Instance()._MallRoleInfo.RoleStoreData.MonthlyCardData.ExpiredTime = data.Monthly.ExpiredTime
     self:OnData(self._PageData)
     self:PlayItemFX(ItemTweenType.Buy)
@@ -206,8 +205,9 @@ def.method("table").UpdatePanelByTemp = function(self, temp)
         btn_buy:SetActive(true)
         btn_get_reward:SetActive(false)
         GUI.SetText(lab_end_time, StringTable.Get(31054))
+        local cash_cost = CMallMan.Instance():GetGoodsDataCashCost(self._MonthlyCardData)
         local setting = {
-            [EnumDef.CommonBtnParam.BtnTip] = string.format(StringTable.Get(31000), GUITools.FormatNumber(self._MonthlyCardData.CashCount, false)),
+            [EnumDef.CommonBtnParam.BtnTip] = string.format(StringTable.Get(31000), GUITools.FormatNumber(cash_cost, false)),
         }
         self._BuyBtn:ResetSetting(setting)
         local setting1 = {

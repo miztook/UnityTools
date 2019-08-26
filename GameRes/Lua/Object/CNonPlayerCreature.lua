@@ -32,7 +32,7 @@ def.override("table").Init = function(self, info)
 	self._InfoData._MaxStamina = creature_info.MaxStamina
 	self._InfoData._CurrentStamina = creature_info.CurrentStamina
 	self._CampId = creature_info.CampId
-
+    self._DeathState = creature_info.DeathState
 	if info.OwnerName ~= nil then
 		self._InfoData._OwnerName = info.OwnerName
 	end
@@ -107,7 +107,10 @@ def.override("boolean").Stealth = function(self, on)
     CEntity.Stealth(self, on)  
     self:AddLoadedCallback(function()   
 		    if not on then
-		    	self:GetCurModel()._GameObject:SetActive(true)
+		    	local go = self:GetCurModel()._GameObject
+		    	if go then
+		    		go:SetActive(true)
+		    	end
 		    	self:Stand()
 		    end
     	end)
@@ -188,29 +191,29 @@ end
 def.override().CreatePate = function (self)
 	local CNPCTopPate = require "GUI.CPate".CNPCTopPate
 	local pate = CNPCTopPate.new()
+
 	self._TopPate = pate
---	local callback = function()
---		self:OnPateCreate()
---		--self._TopPate:OnTitleNameChange(true,"测试头衔牛不牛")
---	end
 
 	pate:Init(self, nil, false)
 	self:OnPateCreate()
 end
 
 def.override().OnPateCreate = function(self)
-	CEntity.OnPateCreate(self)
-	if self._TopPate == nil then return end
+    if self._TopPate == nil then return end
 
-	self._TopPate:MarkAsValid(true)
-	if not self:IsVisible() then 
-		self._TopPate:SetVisible(false)
-	end
-	self._TopPate:UpdateName(true)
-	local titleStr = self:GetTitle()
-	if titleStr ~= "" then
-		self._TopPate:OnTitleNameChange(true, titleStr) 
-	end
+    self._TopPate:MarkAsValid(true)
+    self._TopPate:UpdateName(true)
+    self:UpdateTopPateTitleName()
+end
+
+def.virtual().UpdateTopPateTitleName = function(self)
+    if self._TopPate == nil then return end
+    local titleStr = self:GetTitle()
+    if titleStr ~= "" then
+        self._TopPate:OnTitleNameChange(true, titleStr)
+    else
+        self._TopPate:OnTitleNameChange(false, titleStr)
+    end
 end
 
 def.virtual("=>", "string").GetTitle = function(self)

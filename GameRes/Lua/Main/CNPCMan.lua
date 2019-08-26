@@ -8,6 +8,7 @@ local CPlayerMirror =  require "Object.CPlayerMirror"
 local CNpc = require "Object.CNpc"
 local CElementData = require "Data.CElementData"
 local OBJ_TYPE = require "Main.CSharpEnum".OBJ_TYPE
+local EDEATH_STATE = require "PB.net".DEATH_STATE    --死亡状态类型
 local SqrDistanceH = Vector3.SqrDistanceH_XZ
 
 local CNPCMan = Lplus.Extend(CEntityMan, "CNPCMan")
@@ -86,12 +87,15 @@ def.method("table", "number", "=>", CNonPlayerCreature).CreateMonster = function
 	local monster = nil
 	monster = CMonster.new()
 	monster:Init(info)
-	monster:AddLoadedCallback(function(p)
-			if p._GameObject ~= nil then
-				p._GameObject.parent = self._NPCsRoot
-			end
-		end)
-	monster:Load(enterType)
+    -- 如果已经死亡不需要加载了，只是留一个lua对象，在服务器发送destroy的时候移除。（暂时做法是先不显示）
+    if info.CreatureInfo.DeathState ~= EDEATH_STATE.DEATH then
+	    monster:AddLoadedCallback(function(p)
+			    if p._GameObject ~= nil then
+				    p._GameObject.parent = self._NPCsRoot
+			    end
+		    end)
+	    monster:Load(enterType)
+    end
 	self._ObjMap[id] = monster
 	return monster
 end

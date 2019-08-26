@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Desert",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13032] = 
@@ -45,8 +46,8 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[287] = { x = -50.34, y = 40.90, z = -107.05, name = "단물 캠프", worldId = 0, PkMode = 0 },
-			[316] = { x = -77.06, y = 31.81, z = -104.68, name = "抵达区域", worldId = 0, PkMode = 0 },
+			[287] = { x = -50.34, y = 40.90, z = -107.05, name = "단물 캠프", worldId = 0, PkMode = 1 },
+			[316] = { x = -77.06, y = 31.81, z = -104.68, name = "抵达区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

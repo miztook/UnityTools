@@ -35,20 +35,6 @@
 			<d1 name = "" content = "你知道你终于可以摆脱逼仄而不停摇晃的小舱室，重新踏上坚实的土地。" show = "9" close = "12"/>			
 		</Dialogue>
 	</Quest3000>
-<!--Quest4039-->
-	<Quest4039>
-		<Dialogue>
-			<d1 name = "" content = "西首的山巅上，巨人遗迹间的古代大炮运转起来，突然发射出一道紫色的光。" show = "0" close = "3"/>			
-			<d1 name = "" content = "光束由远及近，朝眼前的卡斯塔仑城逼去……一声巨响，大地颤动起来。" show = "3" close = "6"/>	
-		</Dialogue>
-	</Quest4039>
-<!--Quest4046-->
-	<Quest4046>
-		<Dialogue>
-			<d1 name = "" content = "就在焰晶准备告诉你去支援卡塔娅的时，周围响起了慌乱的叫声。" show = "0" close = "3"/>			
-			<d1 name = "卡斯塔尼克市民" content = "广场失陷了！到处都是丧尸！" show = "3" close = "6"/>	
-		</Dialogue>
-	</Quest4046>
 <!--Quest4059-->
 	<Quest4059>
 		<Dialogue>
@@ -83,12 +69,6 @@
 			<d1 name = "" content = "迪波的剑锋刺入了温妮莎的身体，她立刻瘫软下来" show = "0" close = "3"/>			
 		</Dialogue>
 	</Quest4311-1>
-<!--Quest4311-2-->
-	<Quest4311-2>
-		<Dialogue>
-			<d1 name = "" content = "尼古拉斯轻轻抬了抬了手，原本已经失去供能的巨炮重新运转起来，炮口对向战场的方向，射出深紫色的光束。" show = "0" close = "3"/>			
-		</Dialogue>
-	</Quest4311-2>
 <!--Quest3258-->
 	<Quest3258>
 		<Dialogue>
@@ -101,12 +81,6 @@
 			<d1 name = "" content = "击溃了演武场最后的守军，箭雨终于停止，周围响起了传送门开启的声音。" show = "0" close = "3"/>			
 		</Dialogue>
 	</Quest3320>
-<!--Quest3330-->
-	<Quest3330>
-		<Dialogue>
-			<d1 name = "" content = "坎帕索站在悬崖边缘，他最后看了一眼包围自己的高等精灵，张开双手，向后跃下。" show = "0" close = "3"/>			
-		</Dialogue>
-	</Quest3330>
 	<!--精灵献礼-->
 	<Mall_CG01>
 		<CGMask mask = "false" />

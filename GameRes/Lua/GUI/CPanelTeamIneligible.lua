@@ -101,8 +101,8 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
             local data = self._ListData[idx]
             local memberInfo = data.MemberInfo
             local memberId = memberInfo.RoleId
-
-            self._TeamMan:KickMemberDirectly( memberId )
+            local teamId = self._TeamMan:GetTeamId()
+            TeamUtil.KickMemberDirectly(teamId, memberId)
             table.remove(self._ListData, idx)
             self:UpdateItemList()
         end

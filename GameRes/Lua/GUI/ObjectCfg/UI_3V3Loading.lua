@@ -154,6 +154,7 @@ local cfg = {
     Lab_SanLevel3 = 283718845,
     Lab_SanLevel4 = 283718846,
     Lab_SanLevel5 = 283718847,
+    Frame_Mid = -1745573834,
 }
  
 return cfg

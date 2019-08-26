@@ -15,6 +15,11 @@ local cfg = {
     Lab_Next = -1901040987,
     SelectItem = 337191503,
     Btn_OK = 2000023231,
+    PVP_Property = -1856469110,
+    Lab_PVPAttributeName = -61618961,
+    Lab_PVPPropertyOld = 1864052666,
+    Lab_PVPPropertyNew = 1864051507,
+    Base_Property = 2044376963,
 }
  
 return cfg

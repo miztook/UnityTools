@@ -111,6 +111,7 @@ def.method("userdata", "string", "number").OnPanelInitItem = function(self, item
                 if bPlayFx then
                     -- 需要播放解锁特效
                     self:PlayUnlockSfx(uiTemplate)
+                    CSoundMan.Instance():Play2DAudio(PATH.GUISound_DungeonListUnlock, 0)
                 else
                     local frame_lock = uiTemplate:GetControl(1)
                     frame_lock:SetActive(not dungeonData.IsOpen)
@@ -159,6 +160,7 @@ end
 def.method("number").UpdateLockStatus = function (self, unlockTid)
     local uiTemplate = self._UITemplateMap[unlockTid]
     self:PlayUnlockSfx(uiTemplate)
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_DungeonListUnlock, 0)
     game._DungeonMan:SaveUIFxStatusToUserData(unlockTid, false)
 end
 

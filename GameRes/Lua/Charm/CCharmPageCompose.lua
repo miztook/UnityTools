@@ -407,7 +407,7 @@ def.method().UpdateComposeInfoUI1 = function(self)
                 local propTemp1 = CElementData.GetAttachedPropertyTemplate(inlayTemp.PropID1)
                 GUI.SetText(self._PanelObject._Tab_AttrInfo1:FindChild("Lab_AttrName1"), propTemp1.TextDisplayName)
                 if inlayTemp.PropType1 == 1 then
-                    GUI.SetText(self._PanelObject._Tab_AttrInfo1:FindChild("Lab_OldValue1"), inlayTemp.PropValue1.."")
+                    GUI.SetText(self._PanelObject._Tab_AttrInfo1:FindChild("Lab_OldValue1"), GUITools.FormatNumber(inlayTemp.PropValue1, false))
                 elseif inlayTemp.PropType1 == 2 then
                     local value = inlayTemp.PropValue1/100
                     GUI.SetText(self._PanelObject._Tab_AttrInfo1:FindChild("Lab_OldValue1"), string.format(StringTable.Get(21703), value))
@@ -420,7 +420,7 @@ def.method().UpdateComposeInfoUI1 = function(self)
                 local propTemp2 = CElementData.GetAttachedPropertyTemplate(inlayTemp.PropID2)
                 GUI.SetText(self._PanelObject._Tab_AttrInfo2:FindChild("Lab_AttrName2"), propTemp2.TextDisplayName)
                 if inlayTemp.PropType2 == 1 then
-                    GUI.SetText(self._PanelObject._Tab_AttrInfo2:FindChild("Lab_OldValue2"), inlayTemp.PropValue2.."")
+                    GUI.SetText(self._PanelObject._Tab_AttrInfo2:FindChild("Lab_OldValue2"), GUITools.FormatNumber(inlayTemp.PropValue2, false))
                 elseif inlayTemp.PropType2 == 2 then
                     local value = inlayTemp.PropValue2/100
                     GUI.SetText(self._PanelObject._Tab_AttrInfo2:FindChild("Lab_OldValue2"), string.format(StringTable.Get(21703), value))
@@ -428,14 +428,14 @@ def.method().UpdateComposeInfoUI1 = function(self)
             else
                 self._PanelObject._Tab_AttrInfo2:SetActive(false)
             end
-            GUI.SetText(self._PanelObject._Tab_ComposeLevelInfo:FindChild("Lab_OldLevel"), inlayTemp.Level.."")
+            GUI.SetText(self._PanelObject._Tab_ComposeLevelInfo:FindChild("Lab_OldLevel"), GUITools.FormatNumber(inlayTemp.Level, false))
         end
         if targetTemp ~= nil then
             if targetTemp.PropID1 and targetTemp.PropID1 > 0 then
                 local lab_newvalue1 = self._PanelObject._Tab_AttrInfo1:FindChild("Lab_NewValue1")
                 lab_newvalue1:SetActive(true)
                 if targetTemp.PropType1 == 1 then
-                    GUI.SetText(lab_newvalue1, targetTemp.PropValue1.."")
+                    GUI.SetText(lab_newvalue1, GUITools.FormatNumber(targetTemp.PropValue1, false))
                 elseif targetTemp.PropType1 == 2 then
                     local value = targetTemp.PropValue1/100
                     GUI.SetText(lab_newvalue1, string.format(StringTable.Get(21703), value))
@@ -447,7 +447,7 @@ def.method().UpdateComposeInfoUI1 = function(self)
                 local lab_newvalue2 = self._PanelObject._Tab_AttrInfo2:FindChild("Lab_NewValue2")
                 lab_newvalue2:SetActive(true)
                 if targetTemp.PropType2 == 1 then
-                    GUI.SetText(lab_newvalue2, targetTemp.PropValue2.."")
+                    GUI.SetText(lab_newvalue2, GUITools.FormatNumber(targetTemp.PropValue2, false))
                 elseif targetTemp.PropType2 == 2 then
                     local value = targetTemp.PropValue2/100
                     GUI.SetText(lab_newvalue2, string.format(StringTable.Get(21703), value))
@@ -455,7 +455,7 @@ def.method().UpdateComposeInfoUI1 = function(self)
             else
                 self._PanelObject._Tab_AttrInfo2:FindChild("Lab_NewValue2"):SetActive(false)
             end
-            GUI.SetText(self._PanelObject._Tab_ComposeLevelInfo:FindChild("Lab_NewLevel"), targetTemp.Level.."")
+            GUI.SetText(self._PanelObject._Tab_ComposeLevelInfo:FindChild("Lab_NewLevel"), GUITools.FormatNumber(targetTemp.Level, false))
         else
             self._PanelObject._Tab_AttrInfo1:FindChild("Lab_NewValue1"):SetActive(false)
             self._PanelObject._Tab_AttrInfo2:FindChild("Lab_NewValue2"):SetActive(false)
@@ -562,7 +562,7 @@ def.override("table").HandleOption = function(self, event)
                     have_count = item_value.Count
                 end
             end
-            self._CurComposeNum = item_value and math.max(1, math.min(getCanComposeCountByMat(item_value.Tid), math.floor(have_count/3))) or 0
+            self._CurComposeNum = item_value and math.max(1, math.min(getCanComposeCountByMat(item_value.Tid), math.floor(have_count/3))) or 1
         end
     elseif event._Option == "FieldCompose" then
         self:ResetComposeUIFXGOActive()
@@ -586,7 +586,7 @@ def.override("table").HandleOption = function(self, event)
                     have_count = item_value.Count
                 end
             end
-            self._CurComposeNum = item_value and math.max(1, math.min(getCanComposeCountByMat(item_value.Tid), math.floor(have_count/3))) or 0
+            self._CurComposeNum = item_value and math.max(1, math.min(getCanComposeCountByMat(item_value.Tid), math.floor(have_count/3))) or 1
         end
     end
 end
@@ -703,6 +703,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
             [EItemIconTag.CanUse] = true
         }
         IconTools.InitItemIconNew(GUITools.GetChild(item, 0), charm_item.Tid, setting)
+        IconTools.SetFrameIconTags(GUITools.GetChild(item, 0), { [EFrameIconTag.Select] = false })
     end
 end
 

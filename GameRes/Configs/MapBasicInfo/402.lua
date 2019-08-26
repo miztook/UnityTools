@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/modaoshi.png",
 	AssetPath = "Assets/Outputs/Scenes/Dn_env02_MagePlatform.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[33000] = 
@@ -381,12 +382,12 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[1] = { x = 9.97, y = -35.57, z = 119.30, name = "", worldId = 0, PkMode = 0 },
-			[2] = { x = -51.35, y = -64.57, z = -37.52, name = "", worldId = 0, PkMode = 0 },
-			[3] = { x = 112.26, y = -6.38, z = -9.94, name = "", worldId = 0, PkMode = 0 },
-			[255] = { x = 63.50, y = -36.09, z = 141.35, name = "第一层", worldId = 0, PkMode = 0 },
-			[256] = { x = -91.34, y = -65.18, z = 13.31, name = "第二层", worldId = 0, PkMode = 0 },
-			[257] = { x = 142.20, y = -6.68, z = 34.04, name = "第三层", worldId = 0, PkMode = 0 },
+			[1] = { x = 9.97, y = -35.57, z = 119.30, name = "", worldId = 0, PkMode = 1 },
+			[2] = { x = -51.35, y = -64.57, z = -37.52, name = "", worldId = 0, PkMode = 1 },
+			[3] = { x = 112.26, y = -6.38, z = -9.94, name = "", worldId = 0, PkMode = 1 },
+			[255] = { x = 63.50, y = -36.09, z = 141.35, name = "第一层", worldId = 0, PkMode = 1 },
+			[256] = { x = -91.34, y = -65.18, z = 13.31, name = "第二层", worldId = 0, PkMode = 1 },
+			[257] = { x = 142.20, y = -6.68, z = 34.04, name = "第三层", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

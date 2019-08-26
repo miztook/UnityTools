@@ -364,7 +364,7 @@ def.method().SetDownText = function(self)
          	end
         end
 
-        self._DownTipsTimer = _G.AddGlobalTimer(1, false, callback)
+        self._DownTipsTimer = _G.AddGlobalTimer(2, false, callback)
 	end
 end
 
@@ -487,7 +487,7 @@ local function AddMoveObj(MoveData)
 					obj:SetActive(false)
 				return end
 
-				local itemName = "<color=#" .. EnumDef.Quality2ColorHexStr[itemData.InitQuality] ..">" .. itemData.TextDisplayName .." x "..tostring(MoveData._Count).."</color>"
+				local itemName = "<color=#" .. EnumDef.Quality2ColorHexStr[itemData.InitQuality] ..">" .. itemData.TextDisplayName .." x "..GUITools.FormatMoney(MoveData._Count).."</color>"
 	 			strTips  = string.format(StringTable.Get(507),itemName)
 			else
 				if MoveData._Count == nil then
@@ -497,7 +497,7 @@ local function AddMoveObj(MoveData)
 				return end
 
 				local CTokenMoneyMan = require "Data.CTokenMoneyMan"
-				local itemName = CTokenMoneyMan.Instance():GetName(MoveData._ItemID).." x "..tostring(MoveData._Count)
+				local itemName = CTokenMoneyMan.Instance():GetName(MoveData._ItemID).." x "..GUITools.FormatMoney(MoveData._Count)
 				strTips = string.format(StringTable.Get(507),itemName)
 			end
 			
@@ -559,7 +559,7 @@ local function EnumMoveTextObjs(self)
                 -- warn("MoveTextTimer done")
                 return
             end
-
+			CSoundMan.Instance():Play2DAudio(PATH.GUISound_Msg_Get, 0)
             AddMoveObj(self._TableMoveText[1])
             table.remove(self._TableMoveText, 1)
 
@@ -631,6 +631,7 @@ def.method('string', 'function').ShowQuestChapterOpen = function(self, str, on_f
 	        	self._QuestOpen_timer_id = _G.AddGlobalTimer(3, true, callback)
 	        	self._QuestChapterOpen_TweenPlayer:Restart(1)
 	        	GameUtil.PlayUISfx(PATH.UIFX_XINZHANGJIEKAIQI, self._QuestChapterOpen, self._QuestChapterOpen, -1)
+	        	CSoundMan.Instance():Play2DAudio(PATH.GUISound_Chapter_Open, 0)
 	    	end
 		end
 end
@@ -640,10 +641,11 @@ def.method().ShowItemShortcut = function(self)
 end
 
 local function ShowKillInfo(self,data,item)
+	if data == nil then return end
 	local uiTemplate = item:GetComponent(ClassType.UITemplate)
 	local imgHead = uiTemplate:GetControl(1)
 	local labName = uiTemplate:GetControl(3)
-	game:SetEntityCustomImg(imgHead,data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
+	TeraFuncs.SetEntityCustomImg(imgHead,data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
 	GUI.SetText(labName,data.Name)
 end
 
@@ -681,7 +683,16 @@ def.override('string').OnClick = function(self, id)
 	if id == 'Btn_Goto' then
 		--game._GUIMan:Open("CPanelManual",)
 		game._CManualMan._ManualOpenEId = self._ManualCurEId
-		game._GUIMan:Open("CPanelUIManual", nil)
+		local data = 
+		{
+			_type = 2, 
+			_info = 
+			{
+				_Tid = self._ManualCurEId
+			}
+		}
+		game._GUIMan:Open("CPanelUIManual", data)
+		--game._GUIMan:Open("CPanelUIManual", nil)
 		--game._CManualMan:SendC2SManualDataSync()
 	elseif id == "Btn_CheckAchieve" then
 		local data = 
@@ -890,7 +901,7 @@ def.method("number", "number", "boolean").ShowFightScore = function(self, oldVal
 		GUI.SetText(self._FightScoreDownLab, GUITools.FormatNumber(increaseValue))
 		self._DoTweenPlayer_Scoredown:Restart(_DT_GRP_FS_Show)
 
-		GameUtil.PlayUISfx(PATH.UIFX_FS_DOWN_2, self._FightScoreDown, self._FightScoreDown, -1)
+		--GameUtil.PlayUISfx(PATH.UIFX_FS_DOWN_2, self._FightScoreDown, self._FightScoreDown, -1)
 		self:AddEvt_PlayFx(EvtGroupName_FS_DETAIL, 0.6, PATH.UIFX_FS_DOWN, self._FightScoreDown, self._FightScoreDown, 1, 1)
 	end
 end

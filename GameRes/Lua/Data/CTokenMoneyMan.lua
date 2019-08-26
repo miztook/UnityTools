@@ -10,11 +10,6 @@ local EResourceType = require "PB.data".EResourceType
 
 local def = CTokenMoneyMan.define
 
-local function SendFlashMsg(msg, bUp)
-	game._GUIMan:ShowTipText(msg, bUp)
-end
-
-
 local instance = nil
 def.static('=>', CTokenMoneyMan).Instance = function()
 	if not instance then
@@ -71,7 +66,7 @@ def.method("table", "=>", "boolean").CheckMoneyEnough = function(self, info)
 	if iHave < info.MoneyNeed then
 		bRet = false
 		local str = string.format(StringTable.Get(268), StringTable.Get(400+info.MoneyType))
-		SendFlashMsg(str, false)
+		TeraFuncs.SendFlashMsg(str, false)
 	end
 
 	return bRet

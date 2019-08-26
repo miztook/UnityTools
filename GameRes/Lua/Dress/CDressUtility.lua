@@ -152,7 +152,7 @@ end
 -- 返回时装评分列表
 def.static("=>", "table").GetChramScoreList = function()
 	local scoreList = {}
-	local allScoreTids = GameUtil.GetAllTid("DressScore")
+	local allScoreTids = CElementData.GetAllTid("DressScore")
 	for _, tid in ipairs(allScoreTids) do
 		local template = CElementData.GetTemplate("DressScore", tid)
 		if template ~= nil then

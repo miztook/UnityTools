@@ -11,11 +11,12 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world05.png",
 	AssetPath = "Assets/Outputs/Scenes/World05.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14040] = 
 		{
-			[1] = { x = -29.28, y = 52.35, z = -105.13, name = "제국 검투사", level = 57, SortID = 3 },
+			[1] = { x = -29.28, y = 52.35, z = -105.13, name = "제국 검투사", level = 51, SortID = 3 },
 		},
 		[14038] = 
 		{
@@ -27,7 +28,7 @@ local MapInfo =
 		},
 		[14003] = 
 		{
-			[1] = { x = -29.28, y = 52.35, z = -105.13, name = "불사자", level = 53, SortID = 4 },
+			[1] = { x = -29.28, y = 52.35, z = -105.13, name = "언데드", level = 53, SortID = 4 },
 		},
 		[14042] = 
 		{
@@ -57,7 +58,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[343] = { x = -33.79, y = 52.36, z = -97.81, name = "매복지", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {4040} },
+			[343] = { x = -33.79, y = 52.36, z = -97.81, name = "매복지", worldId = 0, IsCanFind = 1, PkMode = 1, IsCanHawkeye = true, QuestID = {4040} },
 		},
 	},
 	Mine = 

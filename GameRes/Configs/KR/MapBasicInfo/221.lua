@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD02.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn02_Cave01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[21000] = 
@@ -19,12 +20,12 @@ local MapInfo =
 		},
 		[21100] = 
 		{
-			[1] = { x = 19.46, y = 69.76, z = 4.30, name = "뼈먹는 굴라", level = 20 },
-			[2] = { x = -7.85, y = 81.93, z = 3.04, name = "뼈먹는 굴라", level = 20 },
-			[3] = { x = 47.93, y = 52.63, z = -21.58, name = "뼈먹는 굴라", level = 20 },
-			[4] = { x = 15.48, y = 67.56, z = -15.56, name = "뼈먹는 굴라", level = 20 },
-			[5] = { x = 46.20, y = 52.63, z = -63.70, name = "뼈먹는 굴라", level = 20 },
-			[6] = { x = 15.50, y = 67.10, z = -14.90, name = "뼈먹는 굴라", level = 20 },
+			[1] = { x = 19.46, y = 69.76, z = 4.30, name = "뼈 먹는 굴라", level = 20 },
+			[2] = { x = -7.85, y = 81.93, z = 3.04, name = "뼈 먹는 굴라", level = 20 },
+			[3] = { x = 47.93, y = 52.63, z = -21.58, name = "뼈 먹는 굴라", level = 20 },
+			[4] = { x = 15.48, y = 67.56, z = -15.56, name = "뼈 먹는 굴라", level = 20 },
+			[5] = { x = 46.20, y = 52.63, z = -63.70, name = "뼈 먹는 굴라", level = 20 },
+			[6] = { x = 15.50, y = 67.10, z = -14.90, name = "뼈 먹는 굴라", level = 20 },
 		},
 		[21101] = 
 		{
@@ -72,7 +73,7 @@ local MapInfo =
 		},
 		[21104] = 
 		{
-			[1] = { x = -7.28, y = 81.95, z = 3.45, name = "뼈먹는 굴라", level = 20 },
+			[1] = { x = -7.28, y = 81.95, z = 3.45, name = "뼈 먹는 굴라", level = 20 },
 		},
 		[21001] = 
 		{
@@ -110,7 +111,7 @@ local MapInfo =
 		},
 		[21110] = 
 		{
-			[1] = { x = 61.93, y = 70.34, z = 40.65, name = "뼈먹는 굴라", level = 20 },
+			[1] = { x = 61.93, y = 70.34, z = 40.65, name = "뼈 먹는 굴라", level = 20 },
 		},
 		[21111] = 
 		{
@@ -140,28 +141,28 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[4] = { x = 95.41, y = 71.53, z = 5.86, name = "毒蜂刷新触发", worldId = 0, PkMode = 0 },
-			[5] = { x = 38.99, y = 71.97, z = 17.79, name = "追击德法部队", worldId = 0, PkMode = 0 },
-			[6] = { x = -15.34, y = 82.08, z = -9.65, name = "平台区域判定", worldId = 0, PkMode = 0 },
-			[131] = { x = 80.89, y = 72.01, z = 19.15, name = "探索洞穴判定", worldId = 0, PkMode = 0 },
-			[133] = { x = 45.09, y = 52.63, z = -62.23, name = "洞穴最深处", worldId = 0, PkMode = 0 },
-			[134] = { x = 105.97, y = 59.53, z = -121.08, name = "宝藏判定区域", worldId = 0, PkMode = 0 },
-			[137] = { x = 103.96, y = 70.74, z = -0.69, name = "巴拉卡人刷新", worldId = 0, PkMode = 0 },
-			[140] = { x = 46.02, y = 54.44, z = -46.47, name = "激活看守窟拉人", worldId = 0, PkMode = 0 },
-			[168] = { x = 105.92, y = 57.67, z = -109.78, name = "石门CG触发区域", worldId = 0, PkMode = 0 },
-			[175] = { x = -9.56, y = 82.30, z = -5.78, name = "德法埋伏", worldId = 0, PkMode = 0 },
-			[177] = { x = 26.94, y = 67.55, z = -56.05, name = "楼梯下方", worldId = 0, PkMode = 0 },
-			[178] = { x = -6.49, y = 76.33, z = -22.80, name = "平台怪物对战", worldId = 0, PkMode = 0 },
-			[179] = { x = 80.74, y = 57.98, z = -63.62, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 0 },
-			[180] = { x = 48.69, y = 71.98, z = 25.76, name = "点火", worldId = 0, PkMode = 0 },
-			[181] = { x = 53.05, y = 72.16, z = 31.83, name = "信号区域", worldId = 0, PkMode = 0 },
+			[4] = { x = 95.41, y = 71.53, z = 5.86, name = "毒蜂刷新触发", worldId = 0, PkMode = 1 },
+			[5] = { x = 38.99, y = 71.97, z = 17.79, name = "追击德法部队", worldId = 0, PkMode = 1 },
+			[6] = { x = -15.34, y = 82.08, z = -9.65, name = "平台区域判定", worldId = 0, PkMode = 1 },
+			[131] = { x = 80.89, y = 72.01, z = 19.15, name = "探索洞穴判定", worldId = 0, PkMode = 1 },
+			[133] = { x = 45.09, y = 52.63, z = -62.23, name = "洞穴最深处", worldId = 0, PkMode = 1 },
+			[134] = { x = 105.97, y = 59.53, z = -121.08, name = "宝藏判定区域", worldId = 0, PkMode = 1 },
+			[137] = { x = 103.96, y = 70.74, z = -0.69, name = "巴拉卡人刷新", worldId = 0, PkMode = 1 },
+			[140] = { x = 46.02, y = 54.44, z = -46.47, name = "激活看守窟拉人", worldId = 0, PkMode = 1 },
+			[168] = { x = 105.92, y = 57.67, z = -109.78, name = "石门CG触发区域", worldId = 0, PkMode = 1 },
+			[175] = { x = -9.56, y = 82.30, z = -5.78, name = "德法埋伏", worldId = 0, PkMode = 1 },
+			[177] = { x = 26.94, y = 67.55, z = -56.05, name = "楼梯下方", worldId = 0, PkMode = 1 },
+			[178] = { x = -6.49, y = 76.33, z = -22.80, name = "平台怪物对战", worldId = 0, PkMode = 1 },
+			[179] = { x = 80.74, y = 57.98, z = -63.62, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1 },
+			[180] = { x = 48.69, y = 71.98, z = 25.76, name = "点火", worldId = 0, PkMode = 1 },
+			[181] = { x = 53.05, y = 72.16, z = 31.83, name = "信号区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 
 	{
 		[47] = 
 		{
-			[1] = { x = -8.85, y = 82.02, z = -9.50 },
+			[1] = { x = -8.85, y = 82.02, z = -7.00 },
 		},
 		[104] = 
 		{
@@ -571,7 +572,7 @@ local MapInfo =
 		},
 		[13] = 
 		{
-			x = -8.85, y = 82.02, z = -9.50, Type = 6,
+			x = -8.85, y = 82.02, z = -7.00, Type = 6,
 			Tid = 
 			{
 				[47] = 1,

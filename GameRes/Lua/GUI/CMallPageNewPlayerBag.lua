@@ -63,7 +63,7 @@ def.method("number", "table").UpdateNewPlayerBagPanel = function(self, buyCount,
     else
         img_buyBG:SetActive(true)
         local tip_str = ""
-        if good_temp.LimitType == ELimitType.Cycle then
+        if good_temp.LimitType == ELimitType.Cycle or good_temp.LimitType == ELimitType.WeekLimit or good_temp.LimitType == ELimitType.MonthLimit then
             tip_str = StringTable.Get(31020)
         elseif good_temp.LimitType == ELimitType.Forever then
             tip_str = StringTable.Get(31021)
@@ -75,6 +75,7 @@ def.method("number", "table").UpdateNewPlayerBagPanel = function(self, buyCount,
 end
 
 def.override().RefreshPage = function(self)
+    CMallPageBase.RefreshPage(self)
     if self._PageData == nil then
         warn(string.format("MallPanel.RefreshPage error, _PageData is nil"))
         return
@@ -112,7 +113,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                 img_money_icon:SetActive(true)
                 GUITools.SetTokenMoneyIcon(img_money_icon, reward.Data.Id)
                 local money_temp = CElementData.GetMoneyTemplate(reward.Data.Id)
-                GUI.SetText(lab_item_name, string.format(StringTable.Get(13045), money_temp.TextDisplayName, reward.Data.Count))
+                GUI.SetText(lab_item_name, string.format(StringTable.Get(13045), money_temp.TextDisplayName, GUITools.FormatMoney(reward.Data.Count)))
             else
                 item_icon:SetActive(true)
                 img_money_icon:SetActive(false)

@@ -64,8 +64,8 @@ local function InitShow(iPanel, strImg, strLab, nType)
     elseif strLab ~= nil then
         if not IsNil(iPanel._Text_Obj) then
             iPanel._Text_Obj:SetActive(true)
-            local textColor
-            if nType == EPkMode.EPkMode_Peace then
+            -- local textColor
+            if nType == EPkMode.EPkMode_Peace or nType == EPkMode.EPkMode_Invalid then
                 GUITools.SetGroupImg(iPanel._ImgRegionType, 0)
             elseif nType == EPkMode.EPkMode_Massacre or nType == EPkMode.EPkMode_Guild then
                 GUITools.SetGroupImg(iPanel._ImgRegionType, 1)
@@ -118,18 +118,18 @@ local function SetRegionNameDataByID(self, nRegionID)
     --local scendData = _G.MapBasicInfoTable[nSceneID]
     local scendData = MapBasicConfig.GetMapBasicConfigBySceneID(nSceneID)
 
-    local nType = 0
+    local nType = game._HostPlayer:GetCurRegionPKMode()
     -- 默认
-    if scendData ~= nil and scendData.Region ~= nil then
-        for _, v in pairs(scendData.Region) do
-            for j, w in pairs(v) do
-                if j == nRegionID then
-                    nType = w.PkMode
-                    break
-                end
-            end
-        end
-    end
+    -- if scendData ~= nil and scendData.Region ~= nil then
+    --     for _, v in pairs(scendData.Region) do
+    --         for j, w in pairs(v) do
+    --             if j == nRegionID then
+    --                 nType = w.PkMode
+    --                 break
+    --             end
+    --         end
+    --     end
+    -- end
 
     local regionName = MapBasicConfig.GetRegionName(nMapID, nRegionID)
 
@@ -179,7 +179,7 @@ def.override("string", "string").OnDOTComplete = function(self, go_name, dot_id)
         if not IsNil(self._Img_Obj) then
             self._Img_Obj:SetActive(false)
         end
-    elseif go_name == "Img_RegionType" then
+    elseif go_name == "Frame_Area" then
         if not IsNil(self._Text_Obj) then
             self._Text_Obj:SetActive(false)
         end
@@ -196,7 +196,7 @@ def.method("string").OnTipFinish = function(self, key)
     if self._OnFinishType==1 then
         test_key = (key=="Lab_Map")
     else
-        test_key = (key=="Img_RegionType")
+        test_key = (key=="Frame_Area")
     end
 
     if test_key then

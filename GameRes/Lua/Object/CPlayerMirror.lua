@@ -68,7 +68,7 @@ local function PlayerComponentInit(self, info)
 	pc._InfoData._TitleName = game._DesignationMan:GetColorDesignationNameByTID(info.Exterior.DesignationId)
 	pc._TeamId = info.TeamId or 0
 	pc._IsInCombatState = creature_info.CombatState
-
+	pc._InfoData._DesignationId = info.Exterior.DesignationId
 	if info.Exterior.guildName ~= nil then
 		pc._Guild._GuildName = info.Exterior.guildName
 		if info.Exterior.guildIcon ~= nil then
@@ -76,7 +76,6 @@ local function PlayerComponentInit(self, info)
 			pc._Guild._GuildIconInfo._FrameID = info.Exterior.guildIcon.FrameID
 			pc._Guild._GuildIconInfo._ImageID = info.Exterior.guildIcon.ImageID
 		end
-		self:UpdateTopPate(EnumDef.PateChangeType.GuildName)
 	end
 
 	pc._IsReady = false
@@ -182,11 +181,6 @@ def.method().OnLoad = function (self)
 		
 		self:Stand()
 		self._CombatStateChangeComp:ChangeState(true, self._IsInCombatState, 0, 0)
-
-		--self:EnableShadow(true)
-		self:UpdateTopPateHpLine()
-		self:UpdateTopPateGuildName()
-		self:UpdateTopPateTitleName()
 	end
 	
 	if self._IsReleased then
@@ -330,9 +324,6 @@ def.override().CreatePate = function (self)
 	local CPlayerTopPate = require "GUI.CPate".CPlayerTopPate
 	local pate = CPlayerTopPate.new()
 	self._TopPate = pate
---	local callback = function()
---		self:OnPateCreate()
---	end
 	pate._IsMirrorPlayer = true
 	pate:Init(self, nil, true)
 	self:OnPateCreate()
@@ -342,7 +333,10 @@ def.override().OnPateCreate = function(self)
 	CNonPlayerCreature.OnPateCreate(self)
 	if self._TopPate == nil then return end
 
-	self._TopPate:OnTitleNameChange(true,self:GetTitle())
+	--self._TopPate:OnTitleNameChange(true,self:GetTitle())
+	self:UpdateTopPateHpLine()
+	self:UpdateTopPateGuildName()
+
 	self:OnBattleTopChange(false)
 end
 
@@ -402,7 +396,7 @@ def.method().UpdateTopPateGuildName = function(self)
 	end
 end
 
-def.method().UpdateTopPateTitleName = function(self)
+def.override().UpdateTopPateTitleName = function(self)
 	if self._TopPate == nil then return end
 	if self._PlayerComponent._InfoData._TitleName == "" then
 		self._TopPate:OnTitleNameChange(false,self._PlayerComponent._InfoData._TitleName)
@@ -664,6 +658,11 @@ def.override("string", "number", "boolean", "number", "number", "boolean").PlayW
 end
 
 def.method().UpdatePetName = function(self)
+end
+
+-- 返回角色称号ID 
+def.override("=>", "number").GetDesignationId = function(self)
+	return self._PlayerComponent._InfoData._DesignationId
 end
 
 def.override().Release = function (self)

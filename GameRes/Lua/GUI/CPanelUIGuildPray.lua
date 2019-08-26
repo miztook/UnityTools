@@ -96,6 +96,13 @@ def.static("=>", CPanelUIGuildPray).Instance = function()
 	return instance
 end
 
+local OnGainNewItemEvent = function(sender, event)
+    if instance ~= nil and instance:IsShow() then
+        instance:UpdateBagPrayInfo()
+	    instance:UpdateUIRewardInfo()
+    end
+end
+
 -- 当创建
 def.override().OnCreate = function(self)
 	self:InitUIObject()
@@ -133,7 +140,7 @@ end
 -- 当数据
 def.override("dynamic").OnData = function(self, data)
 	self._HelpUrlType = HelpPageUrlType.Pray
-	local allTid = GameUtil.GetAllTid("GuildPrayPool")
+	local allTid = CElementData.GetAllTid("GuildPrayPool")
 	local buildingLevel = self._Building_Info._BuildingLevel
 	self._Pray_Data = { }
 	for i = 1, #allTid do
@@ -289,6 +296,7 @@ def.method().OnInit = function(self)
 
 	self:UpdateBagPrayInfo()
 	self:UpdateUIRewardInfo()
+    CGame.EventManager:addHandler("GainNewItemEvent", OnGainNewItemEvent)
 end
 
 local function GetCorrespondItemTid(prayItemTid)
@@ -324,7 +332,7 @@ def.method().UpdateBagPrayInfo = function(self)
 	self._OwnedPrayItems = { }
 
 	local normalPack = game._HostPlayer._Package._NormalPack
-	local allTid = GameUtil.GetAllTid("GuildPrayItem")
+	local allTid = CElementData.GetAllTid("GuildPrayItem")
 
 	for k, v in ipairs(allTid) do
 		local tid = GetCorrespondItemTid(v)
@@ -732,7 +740,7 @@ def.method("table").InitPrayDataOther = function(self, data)
 	if not self:IsShow() then return end
 	self:ResetTimerID()
 	self._Member_Other = game._HostPlayer._Guild._MemberList[data._MemberInfo.roleID]
-	local allTid = GameUtil.GetAllTid("GuildPrayPool")
+	local allTid = CElementData.GetAllTid("GuildPrayPool")
 	local buildingLevel = self._Building_Info._BuildingLevel
 	self._Pray_Data_Other = { }
 	for i = 1, #allTid do
@@ -935,9 +943,9 @@ end
 def.method("table").OnS2CGuildPrayHelpPray = function(self, pray_item)
 	if self:IsShow() then
         self:OnUpdatePrayDataOther(pray_item)
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_PrayAcc, 0)
 		if not self._IsShownSelfPool then
 			self:PlayUIPoolSpeedFX(pray_item.PoolIndex)
-
 			self:ShowUIPoolSpeedBtn(pray_item.PoolIndex, false)
 		end
 	end
@@ -947,7 +955,7 @@ end
 def.method("table").OnS2CGuildPrayReduceTime = function(self, pray_item)
 	if self:IsShow() then
 		self:UpdatePrayData(pray_item)
-
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_PrayAcc, 0)
 		if self._IsShownSelfPool then
 			self:PlayUIPoolSpeedFX(pray_item.PoolIndex)
 		end
@@ -967,6 +975,7 @@ def.override().OnDestroy = function(self)
 		self._Frame_Money:Destroy()
 		self._Frame_Money = nil
 	end
+    CGame.EventManager:removeHandler("GainNewItemEvent", OnGainNewItemEvent)
 	instance = nil
 end
 

@@ -19,7 +19,7 @@ def.field("userdata")._List_ApplyList = nil
 def.field('table')._CurrentList = BlankTable
 def.field("table")._ApplicationList = BlankTable
 def.field("table")._InviteCounts = nil
-def.field("string")._CurrentSelectGroup = "Rdo_Nearby"
+def.field("string")._CurrentSelectGroup = ""
 def.field("number")._LastSortIndex = 0
 def.field("boolean")._LastSortUp = false
 def.field("table")._PanelObject = nil
@@ -71,13 +71,14 @@ def.override("dynamic").OnData = function(self, data)
     self:RequestTabDataByScript()
     GUI.SetGroupToggleOn(self._PanelObject._ToggleGroup_Tags, self._CurPageType)
     self:UpdatePanel()
+    TeamUtil.RequestTeamDisplayCount()
 end
 
 def.method().UpdatePanel = function(self)
-    if self._CurPageType > InvitePageType.Guild then
+    if self._CurPageType == InvitePageType.Apply then
         self._PanelObject._Lab_InviteNone:SetActive(false)
         self._PanelObject._Tab_Player:SetActive(false)
-        self._PanelObject._Tab_Apply:SetActive(true)
+
         if self._ApplicationList == nil or #self._ApplicationList == 0 then
             self._PanelObject._List_ApplyListObj:SetActive(false)
             self._PanelObject._Lab_ApplyNone:SetActive(true)
@@ -90,12 +91,13 @@ def.method().UpdatePanel = function(self)
             self._PanelObject._Img_BtnRefuseAllBG:SetActive(true)
             self._List_ApplyList:SetItemCount(#self._ApplicationList)
         end
+        self._PanelObject._Tab_Apply:SetActive(true)
     else
         self._PanelObject._Lab_ApplyNone:SetActive(false)
-        self._PanelObject._Tab_Player:SetActive(true)
         self._PanelObject._Tab_Apply:SetActive(false)
         self._PanelObject._Btn_RefuseAll:SetActive(false)
         self._PanelObject._Img_BtnRefuseAllBG:SetActive(false)
+
         if self._CurrentList == nil or #self._CurrentList == 0 then
             self._PanelObject._List_PlayerListObj:SetActive(false)
             self._PanelObject._Lab_InviteNone:SetActive(true)
@@ -104,6 +106,7 @@ def.method().UpdatePanel = function(self)
             self._PanelObject._Lab_InviteNone:SetActive(false)
             self._List_PlayerList:SetItemCount(#self._CurrentList)
         end
+        self._PanelObject._Tab_Player:SetActive(true)
     end
 end
 
@@ -165,11 +168,14 @@ end
 
 def.method("table").UpdateInviteList = function(self, dataList)
 	self._CurrentList = {}
-	for i, roleInfo in ipairs(dataList) do
-		table.insert(self._CurrentList, roleInfo)
-	end
-
-    table.sort(self._CurrentList, SortOffLine)
+    if dataList ~= nil then
+    	for i, roleInfo in ipairs(dataList) do
+    		table.insert(self._CurrentList, roleInfo)
+    	end
+        if #self._CurrentList > 0 then
+            table.sort(self._CurrentList, SortOffLine)
+        end
+    end
 
 	if self:IsShow() then
 		self:UpdatePanel()
@@ -178,10 +184,11 @@ end
 
 def.method("table").UpdateApplyList = function(self, dataList)
     self._ApplicationList = {}
-
-	for i, roleInfo in ipairs(dataList) do
-		table.insert(self._ApplicationList, roleInfo)
-	end
+    if dataList ~= nil then
+    	for i, roleInfo in ipairs(dataList) do
+    		table.insert(self._ApplicationList, roleInfo)
+    	end
+    end
 
 	if self:IsShow() then
 		self:UpdatePanel()
@@ -306,8 +313,6 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
 	        else
                 GUI.SetText(Lab_Prof, profTemplate.Name)
 	        end
-        else
-            print("这是什么情况")
         end
 	end
 end
@@ -317,9 +322,10 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
 	if id == "List_TeamList" and id_btn == "Btn_Invite" then
 		local roleInfo = self._CurrentList[lua_index]
         local bInvited = CTeamMan.Instance():HasInvited(roleInfo.roleId)
+        local teamId = CTeamMan.Instance():GetTeamId()
         local function callback( ret )
             if ret then
-                CTeamMan.Instance():InvitateMember(roleInfo.roleId)
+                TeamUtil.InviteMember(teamId, roleInfo.roleId)
             end
         end
 
@@ -327,21 +333,24 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
             local title, msg, closeType = StringTable.GetMsg(103)
             MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback)    
         else
-            CTeamMan.Instance():InvitateMember(roleInfo.roleId)
+            TeamUtil.InviteMember(teamId, roleInfo.roleId)
             CTeamMan.Instance():AddInvitedCache(roleInfo.roleId)
             GUI.SetText(item:FindChild("Img_Bg/Lab_Apply"), StringTable.Get(22404))
         end
     elseif id == "List_ApplyList" and id_btn == "Btn_Apply" then
-		CTeamMan.Instance():ApproveJoinTeam(self._ApplicationList[lua_index].roleID)
+        local teamId = CTeamMan.Instance():GetTeamId()
+		TeamUtil.ApproveJoinTeam(teamId, self._ApplicationList[lua_index].roleID)
 		self:PopLocalApplicationList(self._ApplicationList[lua_index].roleID)
         self._InviteCounts.ApplyCount = self._InviteCounts.ApplyCount -1
         self:UpdateCountUI()
 	elseif id == "List_ApplyList" and id_btn == "Btn_Refuse" then
-		CTeamMan.Instance():RefuseJoinTeam(self._ApplicationList[lua_index].roleID)
+        local teamId = CTeamMan.Instance():GetTeamId()
+		TeamUtil.RefuseJoinTeam(teamId, self._ApplicationList[lua_index].roleID)
 		self:PopLocalApplicationList(self._ApplicationList[lua_index].roleID)
         self._InviteCounts.ApplyCount = self._InviteCounts.ApplyCount -1
         self:UpdateCountUI()
 	end
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
 end
 
 def.method("number").PopLocalApplicationList = function(self, id)
@@ -367,37 +376,38 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
 	if self._CurrentSelectGroup == id then return end
 	
 	if id == "Rdo_Nearby" then
-		self:UpdateNearbyList()
         self._CurPageType = InvitePageType.Near
+		self:UpdateNearbyList()
 	elseif id == "Rdo_Friend" then
     -- warn("OnToggle 好友")
 		-- 1 好友 2 公会
         self._CurPageType = InvitePageType.Friend
-        self:UpdateInviteList({})
-		CTeamMan.Instance():SendGetInviteList(1)
-        CTeamMan.Instance():SendC2SGetCount()
+        -- self:UpdateInviteList({})
+		TeamUtil.RequestInviteList(1)
+        TeamUtil.RequestTeamDisplayCount()
 	elseif id == "Rdo_Guild" then
     -- warn("OnToggle 公会")
 		-- 1 好友 2 公会
         self._CurPageType = InvitePageType.Guild
-        self:UpdateInviteList({})
-		CTeamMan.Instance():SendGetInviteList(2)
-        CTeamMan.Instance():SendC2SGetCount()
+        -- self:UpdateInviteList({})
+		TeamUtil.RequestInviteList(2)
+        TeamUtil.RequestTeamDisplayCount()
     elseif id == "Rdo_Apply" then
         self._CurPageType = InvitePageType.Apply
-        self:UpdateApplyList({})
-        CTeamMan.Instance():GetApplicationList()
-        CTeamMan.Instance():SendC2SGetCount()
+        local teamId = CTeamMan.Instance():GetTeamId()
+        TeamUtil.RequestApplyInfo(teamId)
+        TeamUtil.RequestTeamDisplayCount()
 	end
 
 	self._CurrentSelectGroup = id
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
 end
 
 def.override("string").OnClick = function(self,id)
 	if id == "Btn_Back" then
 		game._GUIMan:CloseByScript(self)
 	elseif id == "Btn_Refresh" then
-		self:OnClickRefresh(self._CurrentSelectGroup)
+		self:OnClickRefresh()
 	elseif string.find(id, "Lab_Tips") then
         local index = tonumber(string.sub(id, -1))
         self:OnClickSortIndex(index)
@@ -407,39 +417,42 @@ def.override("string").OnClick = function(self,id)
         SendProtocol(protocol)
         game._GUIMan:CloseByScript(self)
 	end
+
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
 end
 
-def.method("string").OnClickRefresh = function(self, id)
-	if id == "Rdo_Nearby" then
+def.method().OnClickRefresh = function(self)
+	if self._CurPageType == InvitePageType.Near then
 		self:UpdateNearbyList()
-	elseif id == "Rdo_Friend" then
+	elseif self._CurPageType == InvitePageType.Friend then
 		-- 1 好友 2 公会
-		CTeamMan.Instance():SendGetInviteList(1)
-        CTeamMan.Instance():SendC2SGetCount()
-	elseif id == "Rdo_Guild" then
+		TeamUtil.RequestInviteList(1)
+	elseif self._CurPageType == InvitePageType.Guild then
 		-- 1 好友 2 公会
-		CTeamMan.Instance():SendGetInviteList(2)
-        CTeamMan.Instance():SendC2SGetCount()
-    elseif id == "Rdo_Apply" then
-        CTeamMan.Instance():GetApplicationList()
-        CTeamMan.Instance():SendC2SGetCount()
+		TeamUtil.RequestInviteList(2)
+    elseif self._CurPageType == InvitePageType.Apply then
+        local teamId = CTeamMan.Instance():GetTeamId()
+        TeamUtil.RequestApplyInfo(teamId)
 	end
+    
+    TeamUtil.RequestTeamDisplayCount()
 end
 
 -- 根据当前的pageType请求数据和所有页签个数显示
 def.method().RequestTabDataByScript = function(self)
     if self._CurPageType == InvitePageType.Near then
     	self:UpdateNearbyList()
-        CTeamMan.Instance():SendC2SGetCount()
+        self:UpdateCountUI()
     elseif self._CurPageType == InvitePageType.Friend then
-        CTeamMan.Instance():SendGetInviteList(1)
-        CTeamMan.Instance():SendC2SGetCount()
+        TeamUtil.RequestInviteList(1)
+        TeamUtil.RequestTeamDisplayCount()
     elseif self._CurPageType == InvitePageType.Guild then
-        CTeamMan.Instance():SendGetInviteList(2)
-        CTeamMan.Instance():SendC2SGetCount()
+        TeamUtil.RequestInviteList(2)
+        TeamUtil.RequestTeamDisplayCount()
     elseif self._CurPageType == InvitePageType.Apply then
-        CTeamMan.Instance():GetApplicationList()
-        CTeamMan.Instance():SendC2SGetCount()
+        local teamId = CTeamMan.Instance():GetTeamId()
+        TeamUtil.RequestApplyInfo(teamId)
+        TeamUtil.RequestTeamDisplayCount()
     end
 end
 

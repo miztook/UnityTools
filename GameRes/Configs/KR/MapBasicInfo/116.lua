@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/city01.png",
 	AssetPath = "Assets/Outputs/Scenes/City01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14051] = 
@@ -19,8 +20,8 @@ local MapInfo =
 		},
 		[14050] = 
 		{
-			[1] = { x = -3.46, y = 32.83, z = 123.00, name = "희망항 반역군", level = 52, SortID = 3 },
-			[2] = { x = -63.72, y = 31.41, z = 125.86, name = "희망항 반역군", level = 52, SortID = 4 },
+			[1] = { x = -3.46, y = 32.83, z = 123.00, name = "희망항 반란군", level = 52, SortID = 3 },
+			[2] = { x = -63.72, y = 31.41, z = 125.86, name = "희망항 반란군", level = 52, SortID = 4 },
 		},
 		[14052] = 
 		{
@@ -54,16 +55,16 @@ local MapInfo =
 	{
 		[1] = 
 		{
-			[1] = { x = -1.18, y = 28.71, z = 204.52, xA = 38.19, yA = 49.34, zA = -221.96, name = "传送至东部领地1", worldId = 120, PkMode = 1 },
-			[2] = { x = -113.82, y = 29.13, z = 142.47, xA = -21.32, yA = 53.58, zA = -242.44, name = "传送至东部领地2", worldId = 120, PkMode = 1 },
-			[4] = { x = 145.58, y = 19.09, z = 219.67, xA = 239.44, yA = 21.91, zA = -224.12, name = "", worldId = 120, PkMode = 1 },
-			[87] = { x = -4.99, y = 179.30, z = -131.70, xA = -4.55, yA = 58.38, zA = -43.17, name = "顶端传送区域", worldId = 110, PkMode = 1 },
-			[91] = { x = -28.68, y = 58.38, z = -36.51, xA = -5.80, yA = 179.30, zA = -138.31, name = "传送阵大堂", worldId = 110, PkMode = 1 },
-			[384] = { x = 133.11, y = 20.78, z = 118.90, xA = -133.07, yA = 17.74, zA = -330.56, name = "至帝国边境", worldId = 190, PkMode = 0 },
+			[1] = { x = -1.18, y = 28.71, z = 204.52, xA = 38.19, yA = 49.34, zA = -221.96, name = "区域", worldId = 120, IsCanFind = 1, PkMode = 1 },
+			[2] = { x = -113.82, y = 29.13, z = 142.47, xA = -21.32, yA = 53.58, zA = -242.44, name = "传送2", worldId = 120, IsCanFind = 1, Describe = "동부 가드 - 탐욕의 골짜기", PkMode = 1 },
+			[4] = { x = 145.58, y = 19.09, z = 219.67, xA = 239.44, yA = 21.91, zA = -224.12, name = "传送3", worldId = 120, PkMode = 1 },
+			[87] = { x = -4.99, y = 179.30, z = -131.70, xA = -4.55, yA = 58.38, zA = -43.17, name = "区域", worldId = 110, PkMode = 1 },
+			[91] = { x = -28.68, y = 58.38, z = -36.51, xA = -5.80, yA = 179.30, zA = -138.31, name = "区域", worldId = 110, IsCanFind = 1, Describe = "천공 신전", PkMode = 1 },
+			[384] = { x = 133.11, y = 20.78, z = 118.90, xA = -133.07, yA = 17.74, zA = -330.56, name = "至帝国边境", worldId = 190, IsCanFind = 1, Describe = "제국 국경 지대", PkMode = 1 },
 		},
 		[2] = 
 		{
-			[86] = { x = 118.73, y = 21.86, z = 89.05, name = "码头附近", worldId = 0, PkMode = 1 },
+			[86] = { x = 118.73, y = 21.86, z = 89.05, name = "区域", worldId = 0, PkMode = 1 },
 			[108] = { x = -109.81, y = 48.94, z = 44.56, name = "군사 구역", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[109] = { x = -78.81, y = 31.17, z = 131.60, name = "일몰의 길", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[110] = { x = -34.01, y = 28.93, z = 188.25, name = "빈민가", worldId = 0, IsCanFind = 1, PkMode = 1 },
@@ -74,7 +75,7 @@ local MapInfo =
 			[115] = { x = -6.01, y = 32.83, z = 114.01, name = "축복의 광장", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[116] = { x = -3.06, y = 48.66, z = 31.26, name = "심사숙고의 길", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[117] = { x = -6.37, y = 58.38, z = -52.79, name = "벨릭의 신전", worldId = 0, IsCanFind = 1, PkMode = 1 },
-			[118] = { x = -7.01, y = 185.32, z = -201.91, name = "천공의 궁전", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[118] = { x = -7.01, y = 185.32, z = -201.91, name = "천공 신전", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[124] = { x = 22.82, y = 25.45, z = 159.87, name = "难民抢劫【任务】", worldId = 0, PkMode = 1 },
 			[125] = { x = 60.56, y = 23.37, z = 56.09, name = "鹰眼区域01", worldId = 0, PkMode = 1 },
 			[126] = { x = -23.25, y = 29.33, z = 199.72, name = "鹰眼区域02", worldId = 0, PkMode = 1 },
@@ -83,13 +84,13 @@ local MapInfo =
 			[129] = { x = 91.38, y = 19.82, z = 216.36, name = "鹰眼区域05", worldId = 0, PkMode = 1 },
 			[186] = { x = 126.02, y = 18.98, z = 225.60, name = "鹰眼区域06", worldId = 0, PkMode = 1 },
 			[195] = { x = -3.56, y = 48.66, z = 21.73, name = "鹰眼任务区域", worldId = 0, PkMode = 1 },
-			[255] = { x = -4.20, y = 54.85, z = 85.30, name = "鹰眼万物志05", worldId = 0, PkMode = 0 },
-			[268] = { x = 130.77, y = 21.84, z = 94.95, name = "抵达区域", worldId = 0, PkMode = 0 },
-			[336] = { x = -16.60, y = 45.12, z = 146.22, name = "暴动相位区域", worldId = 0, PkMode = 0 },
-			[337] = { x = 122.43, y = 18.98, z = 221.85, name = "迷茫的灵魂相位", worldId = 0, PkMode = 0 },
-			[338] = { x = 130.86, y = 20.78, z = 111.80, name = "暗杀市长副手【支线】", worldId = 0, PkMode = 0 },
-			[385] = { x = 21.51, y = 25.45, z = 171.64, name = "", worldId = 0, PkMode = 0 },
-			[386] = { x = -96.82, y = 44.27, z = 59.43, name = "德法暗杀者刷出支线", worldId = 0, PkMode = 0 },
+			[255] = { x = -4.20, y = 54.85, z = 85.30, name = "鹰眼万物志05", worldId = 0, PkMode = 1 },
+			[268] = { x = 130.77, y = 21.84, z = 94.95, name = "抵达区域", worldId = 0, PkMode = 1 },
+			[336] = { x = -16.60, y = 45.12, z = 146.22, name = "暴动相位区域", worldId = 0, PkMode = 1 },
+			[337] = { x = 122.43, y = 18.98, z = 221.85, name = "迷茫的灵魂相位", worldId = 0, PkMode = 1 },
+			[338] = { x = 130.86, y = 20.78, z = 111.80, name = "暗杀市长副手相位", worldId = 0, PkMode = 1 },
+			[385] = { x = 21.51, y = 25.45, z = 171.64, name = "", worldId = 0, PkMode = 1 },
+			[386] = { x = -96.82, y = 44.27, z = 59.43, name = "德法暗杀者刷出", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 
@@ -188,14 +189,6 @@ local MapInfo =
 		[2] = 
 		{
 			x = -93.87, y = 31.11, z = 141.32, Type = 4,
-			Tid = 
-			{
-				[13] = 0,
-			},
-		},
-		[36] = 
-		{
-			x = -54.72, y = 31.11, z = 132.10, Type = 4,
 			Tid = 
 			{
 				[13] = 0,

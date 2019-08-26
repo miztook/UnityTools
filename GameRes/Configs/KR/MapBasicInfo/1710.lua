@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[39000] = 
@@ -39,11 +40,11 @@ local MapInfo =
 		},
 		[39003] = 
 		{
-			[1] = { x = -130.10, y = 72.10, z = 206.60, name = "타락 영혼", level = 10 },
-			[2] = { x = 56.40, y = 60.44, z = 10.90, name = "타락 영혼", level = 10 },
-			[3] = { x = -90.50, y = 60.40, z = -25.60, name = "타락 영혼", level = 10 },
-			[4] = { x = -25.20, y = 18.00, z = -212.30, name = "타락 영혼", level = 10 },
-			[5] = { x = -201.40, y = 26.40, z = -172.00, name = "타락 영혼", level = 10 },
+			[1] = { x = -130.10, y = 72.10, z = 206.60, name = "타락한 영혼", level = 10 },
+			[2] = { x = 56.40, y = 60.44, z = 10.90, name = "타락한 영혼", level = 10 },
+			[3] = { x = -90.50, y = 60.40, z = -25.60, name = "타락한 영혼", level = 10 },
+			[4] = { x = -25.20, y = 18.00, z = -212.30, name = "타락한 영혼", level = 10 },
+			[5] = { x = -201.40, y = 26.40, z = -172.00, name = "타락한 영혼", level = 10 },
 		},
 		[39004] = 
 		{
@@ -69,17 +70,17 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[464] = { x = -119.36, y = 76.60, z = 200.39, name = "神之单人-1", worldId = 0, PkMode = 0 },
-			[465] = { x = 72.30, y = 88.02, z = 59.52, name = "神之单人-2", worldId = 0, PkMode = 0 },
-			[466] = { x = -66.83, y = 55.90, z = -14.69, name = "神之单人-3", worldId = 0, PkMode = 0 },
-			[467] = { x = -64.70, y = 24.39, z = -194.59, name = "神之单人-4", worldId = 0, PkMode = 0 },
-			[468] = { x = -208.45, y = 34.82, z = -134.56, name = "神之单人-5", worldId = 0, PkMode = 0 },
-			[469] = { x = -25.51, y = 66.49, z = 210.94, name = "神之单人-神之眼1", worldId = 0, PkMode = 0 },
-			[470] = { x = -138.75, y = 71.23, z = 120.29, name = "神之单人-神之眼4", worldId = 0, PkMode = 0 },
-			[471] = { x = -82.96, y = 42.89, z = -75.06, name = "神之单人-神之眼5", worldId = 0, PkMode = 0 },
-			[472] = { x = -209.80, y = 41.35, z = -137.14, name = "神之单人-神之眼6", worldId = 0, PkMode = 0 },
-			[473] = { x = 71.38, y = 90.03, z = 59.56, name = "神之单人-商人1", worldId = 0, PkMode = 0 },
-			[474] = { x = -221.87, y = 33.34, z = 194.14, name = "神之单人-商人2", worldId = 0, PkMode = 0 },
+			[464] = { x = -119.36, y = 76.60, z = 200.39, name = "神之单人-1", worldId = 0, PkMode = 1 },
+			[465] = { x = 72.30, y = 88.02, z = 59.52, name = "神之单人-2", worldId = 0, PkMode = 1 },
+			[466] = { x = -66.83, y = 55.90, z = -14.69, name = "神之单人-3", worldId = 0, PkMode = 1 },
+			[467] = { x = -64.70, y = 24.39, z = -194.59, name = "神之单人-4", worldId = 0, PkMode = 1 },
+			[468] = { x = -208.45, y = 34.82, z = -134.56, name = "神之单人-5", worldId = 0, PkMode = 1 },
+			[469] = { x = -25.51, y = 66.49, z = 210.94, name = "神之单人-神之眼1", worldId = 0, PkMode = 1 },
+			[470] = { x = -138.75, y = 71.23, z = 120.29, name = "神之单人-神之眼4", worldId = 0, PkMode = 1 },
+			[471] = { x = -82.96, y = 42.89, z = -75.06, name = "神之单人-神之眼5", worldId = 0, PkMode = 1 },
+			[472] = { x = -209.80, y = 41.35, z = -137.14, name = "神之单人-神之眼6", worldId = 0, PkMode = 1 },
+			[473] = { x = 71.38, y = 90.03, z = 59.56, name = "神之单人-商人1", worldId = 0, PkMode = 1 },
+			[474] = { x = -221.87, y = 33.34, z = 194.14, name = "神之单人-商人2", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

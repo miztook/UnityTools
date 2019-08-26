@@ -42,6 +42,7 @@ def.method().Init = function(self)
     {
         FortifyInfo = {},
         AttributeInfo = {},
+        PVPAttributeInfo = {},
         Item_FortifyMaterialGroup = {},
         Btn_Drop_FortifyMaterialGroup = {},
         Btn_AddFortifyMaterialGroup = {},
@@ -113,13 +114,20 @@ def.method().Init = function(self)
         AttributeInfo.NewVal = self._Parent:GetUIObject('Lab_PropertyNew')
         AttributeInfo.OldVal = self._Parent:GetUIObject('Lab_PropertyOld')
     end
+    --PVP属性信息
+    do
+        local PVPAttributeInfo = root.PVPAttributeInfo
+        PVPAttributeInfo.Root = self._Parent:GetUIObject('Img_PVP_AttributeBG')
+        PVPAttributeInfo.Name = self._Parent:GetUIObject('Lab_PVP_AttributeName')
+        PVPAttributeInfo.NewVal = self._Parent:GetUIObject('Lab_PVP_PropertyNew')
+        PVPAttributeInfo.OldVal = self._Parent:GetUIObject('Lab_PVP_PropertyOld')
+    end
     -- 成功概率信息
     do
         local SuccessRateInfo = root.SuccessRateInfo
         SuccessRateInfo.Root = self._Parent:GetUIObject('Success_Rate_Fortify')
         SuccessRateInfo.Lab_Success_Rate = self._Parent:GetUIObject('Lab_Success_Rate_Fortify')
     end
-
     -- 显示特效隐藏的组件
     do
         local HideGroup = root.HideGroup
@@ -286,6 +294,9 @@ def.method("dynamic").Show = function(self, data)
         self:ClearSelectMaterialList()
     end
 
+    local root = self._PanelObject
+    GUI.SetText(root.Lab_None_Selection, StringTable.Get(10970))
+    
     --更新是否显示分界面
     self:UpdateFrame()
 
@@ -359,6 +370,7 @@ def.method().UpdateSelectItem = function(self)
             [EItemIconTag.Bind] = self._ItemData.ItemData:IsBind(),
             [EItemIconTag.StrengthLv] = self._ItemData.ItemData:GetInforceLevel(),
             [EItemIconTag.Equip] = (self._ItemData.PackageType == BAGTYPE.ROLE_EQUIP),
+            [EItemIconTag.Grade] = self._ItemData.ItemData:GetGrade(),
         }
         IconTools.InitItemIconNew(root.SelectItem, self._ItemData.ItemData._Tid, setting)
     end
@@ -376,16 +388,22 @@ def.method().UpdateProperty = function(self)
     local bShow = self._ItemData ~= nil
     local bCanFortity = (bShow and self._ItemData.ItemData:CanFortity())
     local bHasSaveStore = self:HasSaveStore()
+    local bHasPvp = bShow and self._ItemData.ItemData:HasPVPProperty()
 
     root.Group_Fortify:SetActive( bCanFortity )
-    -- root.Lab_Fortify_Desc:SetActive( bShow and bCanFortity and not bHasSaveStore )
     root.Lab_Fortify_Desc:SetActive( bShow and bCanFortity)
+    root.PVPAttributeInfo.Root:SetActive( bHasPvp )
 
     if bCanFortity then
         local itemData = self._ItemData.ItemData
         local lv = itemData._InforceLevel
         local fightElement = CElementData.GetAttachedPropertyTemplate(itemData._BaseAttrs.ID)
         GUI.SetText(root.AttributeInfo.Name, fightElement.TextDisplayName)
+
+        if bHasPvp then
+            local pvpData = CElementData.GetAttachedPropertyTemplate(itemData._PVPFightProperty.ID)
+            GUI.SetText(root.PVPAttributeInfo.Name, pvpData.TextDisplayName)
+        end
 
         local EquipInforceData = CElementData.GetEquipInforceInfoMap(itemData._ReinforceConfigId)
         local safeLv = EquipInforceData.SafeLevel
@@ -405,6 +423,10 @@ def.method().UpdateProperty = function(self)
         if bIsMaxLevel then
             GUI.SetText(root.FortifyInfo.NewVal, StringTable.Get(10908))
             GUI.SetText(root.AttributeInfo.NewVal, StringTable.Get(10908))
+            if bHasPvp then
+                GUI.SetText(root.PVPAttributeInfo.NewVal, StringTable.Get(10908))
+            end
+
             local setting = {
                 [EnumDef.CommonBtnParam.MoneyCost] = 0   
             }
@@ -412,20 +434,30 @@ def.method().UpdateProperty = function(self)
         else
             local nextLv = ReinforceInfo.Next
             local nextVal = GUITools.FormatNumber(ReinforceInfo.NextValue)
+            local nextPVPVal = GUITools.FormatNumber(ReinforceInfo.NextPVPValue)
+
             local nextMaxLv = ReinforceInfo.NextMaxLv
             local nextMaxVal = GUITools.FormatNumber(ReinforceInfo.NextMaxValue)
+            local nextPVPMaxVal = GUITools.FormatNumber(ReinforceInfo.NextPVPMaxValue)
 
             local strNextLv = ""
             local strNextVal = ""
+            local strNextPVPVal = ""
+
             if nextMaxLv > nextLv then
                 strNextLv = string.format("%s ~ %s", nextLv, nextMaxLv)
                 strNextVal = string.format("%s ~ %s", nextVal, nextMaxVal)
+                strNextPVPVal = string.format("%s ~ %s", nextPVPVal, nextPVPMaxVal)
             else
                 strNextLv = tostring(nextLv)
                 strNextVal = tostring(nextVal)
+                strNextPVPVal = tostring(nextPVPVal)
             end
             GUI.SetText(root.FortifyInfo.NewVal, strNextLv)
             GUI.SetText(root.AttributeInfo.NewVal, strNextVal)
+            if bHasPvp then
+                GUI.SetText(root.PVPAttributeInfo.NewVal, strNextPVPVal)
+            end
             -- 成功率
             local rate = self:CalcSuccessRate()
             -- root.Lab_Fortify_Desc:SetActive( not bSafe and rate < 100 and not bHasSaveStore )
@@ -436,9 +468,11 @@ def.method().UpdateProperty = function(self)
         end
         GUI.SetText(root.AttributeInfo.OldVal, GUITools.FormatNumber(ReinforceInfo.Value))
         GUI.SetText(root.FortifyInfo.OldVal, tostring(lv))
+
+        if bHasPvp then
+            GUI.SetText(root.PVPAttributeInfo.OldVal, GUITools.FormatNumber(ReinforceInfo.PVPValue))
+        end
     end
-
-
 end
 
 def.method("boolean", "=>", "string").GetFortifyDesc = function(self, bSafe)
@@ -591,6 +625,8 @@ def.method("=>", "table").CalcReinforceInfo = function(self)
     end
 
     local itemData = self._ItemData.ItemData
+    local bHasPvp = itemData:HasPVPProperty()
+
     local maxLv = itemData:GetMaxInforceLevel()
     local curLv = itemData:GetInforceLevel()
     local addLv = 1
@@ -605,23 +641,34 @@ def.method("=>", "table").CalcReinforceInfo = function(self)
     end
 
     local curVal = itemData._BaseAttrs.Value
+    local curPVPVal = bHasPvp and itemData._PVPFightProperty.Value or 0
+
     if curLv > 0 then
         local InforceInfoOld = CEquipUtility.GetInforceInfoByLevel(itemData._ReinforceConfigId, curLv)
         local fixedIncVal = math.ceil(curVal * InforceInfoOld.InforeValue / 100)
         curVal = itemData._BaseAttrs.Value + math.max(fixedIncVal, curLv)
+        curPVPVal = bHasPvp and itemData._PVPFightProperty.Value + math.max(fixedIncVal, curLv) or 0
     end
 
     local nextLv = math.clamp(curLv+addLv, curLv, maxLv)
     local InforceInfoNew = CEquipUtility.GetInforceInfoByLevel(itemData._ReinforceConfigId, nextLv)
     local fixedIncVal1 = math.ceil(itemData._BaseAttrs.Value * InforceInfoNew.InforeValue / 100)
+    local fixedPVPIncVal1 = bHasPvp and math.ceil(itemData._PVPFightProperty.Value * InforceInfoNew.InforeValue / 100) or 0
+
     local nextVal = itemData._BaseAttrs.Value + math.max(fixedIncVal1, nextLv)
+    local nextPVPVal = bHasPvp and itemData._PVPFightProperty.Value + math.max(fixedPVPIncVal1, nextLv) or 0
 
     local nextMaxValue = nextVal
+    local nextPVPMaxValue = bHasPvp and nextPVPVal or 0
+
     local nextMaxLv = math.clamp(curLv+addMaxLv, curLv, maxLv)
     if nextMaxLv > nextLv then
         local InforceInfoMaxNew = CEquipUtility.GetInforceInfoByLevel(itemData._ReinforceConfigId, nextMaxLv)
         local fixedIncVal2 = math.ceil(itemData._BaseAttrs.Value * InforceInfoMaxNew.InforeValue / 100)
+        local fixedPVPIncVal2 = bHasPvp and math.ceil(itemData._PVPFightProperty.Value * InforceInfoMaxNew.InforeValue / 100) or 0
+
         nextMaxValue = itemData._BaseAttrs.Value + math.max(fixedIncVal2, nextMaxLv)
+        nextPVPMaxValue = bHasPvp and itemData._PVPFightProperty.Value + math.max(fixedIncVal2, nextMaxLv) or 0
     end
 
     return {    
@@ -632,8 +679,11 @@ def.method("=>", "table").CalcReinforceInfo = function(self)
                 Next = nextLv,
                 NextMaxLv = nextMaxLv,
                 Value = curVal,
+                PVPValue = curPVPVal,
                 NextValue = nextVal,
+                NextPVPValue = nextPVPVal,
                 NextMaxValue = nextMaxValue,
+                NextPVPMaxValue = nextPVPMaxValue,
             }
 end
 
@@ -971,6 +1021,7 @@ def.method("userdata", "number", "table").OnInitItem = function(self, item, inde
             [EItemIconTag.Bind] = itemData.ItemData:IsBind(),
             [EItemIconTag.StrengthLv] = itemData.ItemData:GetInforceLevel(),
             [EItemIconTag.Equip] = (itemData.PackageType == BAGTYPE.ROLE_EQUIP),
+            [EItemIconTag.Grade] = itemData.ItemData:GetGrade(),
         }
         IconTools.InitItemIconNew(ItemIconNew, itemData.ItemData._Tid, setting)
         Img_UnableClick:SetActive(false)

@@ -106,7 +106,7 @@ end
 local OnNotifyGuildEvent = function(sender, event)
     if event.Type == "GuildBFInfo" then
         if instance._CurrentRankMainDataType == ERankDataType.BATTLE_WINCOUNT or instance._CurrentRankMainDataType == ERankDataType.BATTLE_SCORE then
-            print("接收到事件")
+            --print("接收到事件")
             instance:ShowHostPlayerInfo(instance._MyRank, instance._IsSelf)
         end
     end
@@ -144,6 +144,7 @@ def.override().OnCreate = function(self)
     self._Lab_SanName = self:GetUIObject("Lab_SanName")
     self._Img_San = self:GetUIObject("Img_San")
     self._LabGuildNumber:SetActive(false)
+    self._Frame_HostPlayer:SetActive(false)
     CGame.EventManager:removeHandler("NotifyGuildEvent", OnNotifyGuildEvent)
 end
 
@@ -174,7 +175,7 @@ def.override("dynamic").OnData = function(self, data)
     self._List:SetItemCount(#self._RankMainType)
     -- self._MenuRanking:Open(#self._RankMainType)
     self._IsTabOpen = false
-    local index = data
+    local index = data or 1
     --添加排行榜时间解锁功能（注意策划说会能够所以得index没有时间限制）
     local currentData = self._RankSubType[index]
     self._CurrentSelectRankID = currentData.id
@@ -220,12 +221,15 @@ def.method("=>", "table").GetMyGuildRankData = function(self)
     return nil
 end
 
-def.method("table","number").UpdateListItem = function(self,data,rankId)
+def.method("table","number","number").UpdateListItem = function(self,data,rankId,myRank)
     local IsSelf = false
     self._RankData = data
-    local myRank = 0 
     if self._CurrentSelectRankID == rankId then
-        for _,v in pairs(self._RankData) do
+        local rank = CElementData.GetRankTemplate(rankId)
+        if rank then
+            self._StatisticsType = rank.StatisticsType   
+        end
+       --[[ for _,v in pairs(self._RankData) do
             local rank = CElementData.GetRankTemplate(rankId)
             self._StatisticsType = rank.StatisticsType   
             if self._StatisticsType <= EStatisticsType.LANCER then 
@@ -240,8 +244,10 @@ def.method("table","number").UpdateListItem = function(self,data,rankId)
                 end
                 --todo (小队)
             end
+        end--]]
+        if myRank > 0 then
+            IsSelf = true
         end
-        self._Frame_HostPlayer:SetActive(true)
         self:ShowHostPlayerInfo(myRank,IsSelf)
         if #self._RankData > 0 then
             self._ListGuildListGO:SetActive(true)
@@ -279,6 +285,7 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
     local InfoData = hp._InfoData
     self._MyRank = myRank
     self._IsSelf = isSelf
+    self._Frame_HostPlayer:SetActive(true)
     local my_data_from_server = self:GetMyRankData()
     if isSelf then
         if myRank > 3 then
@@ -318,9 +325,9 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
             warn("设置职业徽记时 读取模板错误：profession:",InfoData._Prof)
         else
             GUI.SetText(self._LabJob1, tostring(StringTable.Get(10300 + InfoData._Prof - 1)))
-            game:SetEntityCustomImg(self._ImgHead,game._HostPlayer._ID,ECustomSet.ECustomSet_Defualt,Profession2Gender[InfoData._Prof],InfoData._Prof)
+            TeraFuncs.SetEntityCustomImg(self._ImgHead,game._HostPlayer._ID,ECustomSet.ECustomSet_Defualt,Profession2Gender[InfoData._Prof],InfoData._Prof)
         end
-        if self._CurrentRankMainDataType == ERankDataType.FIGHT then 
+        if self._CurrentRankMainDataType == ERankDataType.FIGHT then
             if self._StatisticsType >= EStatisticsType.WARRIOR and self._StatisticsType <= EStatisticsType.LANCER then
                 if self._StatisticsType ~= game._HostPlayer._InfoData._Prof then
                     self._Frame_HostPlayer:SetActive(false)
@@ -367,14 +374,14 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
                 GUITools.SetGroupImg(self._Img_San, data_temp.StageType - 1)
                 GUI.SetText(self._Lab_SanName, data_temp.Name)
                 if game._HostPlayer._InfoData._Arena3V3Stage == 16 then 
-			        img_level:SetActive(false)
-			        lab_level:SetActive(true)
-			        GUI.SetText(lab_level,GUITools.FormatNumber(game._HostPlayer._InfoData._Arena3V3Star, false))
-		        else
+                    img_level:SetActive(false)
+                    lab_level:SetActive(true)
+                    GUI.SetText(lab_level,GUITools.FormatNumber(game._HostPlayer._InfoData._Arena3V3Star, false))
+                else
                     img_level:SetActive(true)
-			        lab_level:SetActive(false)
-			        GUITools.SetGroupImg(img_level,data_temp.StageLevel - 1)
-		        end
+                    lab_level:SetActive(false)
+                    GUITools.SetGroupImg(img_level,data_temp.StageLevel - 1)
+                end
             else
                 warn("error !!!! 角斗场段位数据错误，段位等级为：", game._HostPlayer._InfoData._Arena3V3Stage)
             end
@@ -406,7 +413,7 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
             GUI.SetText(self._LabName2,InfoData._Name)
             if self._CurrentRankMainDataType == ERankDataType.GUILD_CONTRIBUTE then
                 GUI.SetText(lab_battle_tip, StringTable.Get(20109))
-                GUI.SetText(lab_num_tip, StringTable.Get(12019))
+                GUI.SetText(lab_num_tip, StringTable.Get(20115))
             else
                 GUI.SetText(lab_battle_tip, StringTable.Get(20113))
                 GUI.SetText(lab_num_tip, StringTable.Get(20110))
@@ -426,7 +433,7 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
             GUI.SetText(labGuildName,myGuildData._GuildName)
             if self._CurrentRankMainDataType == ERankDataType.GUILD_CONTRIBUTE then
                 GUI.SetText(lab_battle_tip, StringTable.Get(20109))
-                GUI.SetText(lab_num_tip, StringTable.Get(12019))
+                GUI.SetText(lab_num_tip, StringTable.Get(20115))
                 GUI.SetText(labGuildNum,tostring(myGuildData._MemberNum.."/"..myGuildData._MaxMemberNum))
                 GUI.SetText(labGuildAchi, GUITools.FormatNumber(my_data_from_server ~= nil and my_data_from_server.MainData or myGuildData._GuildLiveness, false))
             else
@@ -451,7 +458,7 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
         else
             --GUITools.SetProfSymbolIcon(self._ImgJob2, professionTemplate.SymbolAtlasPath)
             GUI.SetText(self._LabJob1, tostring(StringTable.Get(10300 + InfoData._Prof - 1)))
-            game:SetEntityCustomImg(self._ImgHead,game._HostPlayer._ID,ECustomSet.ECustomSet_Defualt,Profession2Gender[InfoData._Prof],InfoData._Prof)
+            TeraFuncs.SetEntityCustomImg(self._ImgHead,game._HostPlayer._ID,ECustomSet.ECustomSet_Defualt,Profession2Gender[InfoData._Prof],InfoData._Prof)
         end
         -- 判断是否在工会
         if not game._GuildMan:IsHostInGuild() then 
@@ -478,7 +485,7 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
         else
             --GUITools.SetProfSymbolIcon(self._ImgJob2, professionTemplate.SymbolAtlasPath)
             GUI.SetText(self._LabJob1, tostring(StringTable.Get(10300 + InfoData._Prof - 1)))
-            game:SetEntityCustomImg(self._ImgHead,game._HostPlayer._ID,ECustomSet.ECustomSet_Defualt,Profession2Gender[InfoData._Prof],InfoData._Prof)
+            TeraFuncs.SetEntityCustomImg(self._ImgHead,game._HostPlayer._ID,ECustomSet.ECustomSet_Defualt,Profession2Gender[InfoData._Prof],InfoData._Prof)
         end
         GUI.SetText(self._LabMainData1,GUITools.FormatNumber(my_data_from_server ~= nil and my_data_from_server.MainData or game._HostPlayer._InfoData._EliminateScore, false))
         GUI.SetText(self._LabLevel,tostring(InfoData._Level))
@@ -501,7 +508,7 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
             warn("设置职业徽记时 读取模板错误：profession:",InfoData._Prof)
         else
             GUI.SetText(self._LabJob1, tostring(StringTable.Get(10300 + InfoData._Prof - 1)))
-            game:SetEntityCustomImg(self._ImgHead,game._HostPlayer._ID,ECustomSet.ECustomSet_Defualt,Profession2Gender[InfoData._Prof],InfoData._Prof)
+            TeraFuncs.SetEntityCustomImg(self._ImgHead,game._HostPlayer._ID,ECustomSet.ECustomSet_Defualt,Profession2Gender[InfoData._Prof],InfoData._Prof)
         end
         GUI.SetText(self._LabMainData1, GUITools.FormatTimeSpanFromSeconds(my_data_from_server ~= nil and my_data_from_server.SubData or nTime))
         GUI.SetText(self._MyMainDataTip, StringTable.Get(20111))
@@ -511,7 +518,7 @@ def.method("number","boolean").ShowHostPlayerInfo = function (self,myRank,isSelf
 end
 -- 获得排行List的所有Item
 def.method().GetAllRankingIDs = function ( self )
-    local allIds = GameUtil.GetAllTid("Rank")
+    local allIds = CElementData.GetAllTid("Rank")
     for i,v in pairs(allIds) do 
         local rank = CElementData.GetTemplate("Rank", v)
         repeat
@@ -522,25 +529,26 @@ def.method().GetAllRankingIDs = function ( self )
                     warn("Lack LimitTime")
                     break
                 end
-                local startSec = GUITools.FormatTimeFromGmtToSeconds(startTimeStr)
-                local endSec = GUITools.FormatTimeFromGmtToSeconds(endTimeStr)
+                local startSec = GUITools.FormatTimeFromGmtToSeconds(startTimeStr) or 0
+                local endSec = GUITools.FormatTimeFromGmtToSeconds(endTimeStr) or 4070966340   -- 2099/1/1 23:59
+
                 if GameUtil.GetServerTime()/1000 < startSec or GameUtil.GetServerTime()/1000 > endSec then 
                     break
                 end
             end
-            self._RankMainType[rank.MainTypeId] = rank.MainTypeName
             self._RankMainType[rank.MainTypeId] = {}
             self._RankMainType[rank.MainTypeId].mainTypeName = rank.MainTypeName
             self._RankMainType[rank.MainTypeId].id = rank.Id
             self._RankMainType[rank.MainTypeId].count = rank.RankCount
-            self._RankSubType[i] = {}
-            self._RankSubType[i].type = rank.MainTypeId 
-            self._RankSubType[i].id = rank.Id
-            self._RankSubType[i].name = rank.SubTypeName
-            self._RankSubType[i].subTypeId = rank.SubTypeId
-            self._RankSubType[i].rankCount = rank.RankCount
-            self._RankSubType[i].panelId = rank.PanelId
-            self._RankSubType[i].mainDataType = rank.MainDataType
+
+            self._RankSubType[rank.Id] = {}
+            self._RankSubType[rank.Id].type = rank.MainTypeId 
+            self._RankSubType[rank.Id].id = rank.Id
+            self._RankSubType[rank.Id].name = rank.SubTypeName
+            self._RankSubType[rank.Id].subTypeId = rank.SubTypeId
+            self._RankSubType[rank.Id].rankCount = rank.RankCount
+            self._RankSubType[rank.Id].panelId = rank.PanelId
+            self._RankSubType[rank.Id].mainDataType = rank.MainDataType
         until true 
     end
 end
@@ -563,7 +571,7 @@ def.override('userdata', 'string','number').OnSelectItem = function(self, item, 
     if memberId == 6 then
         --TODO 在公会选项里面的东西。
     else
-        if v.SubjectId ~= game._HostPlayer._ID then
+        if v and v.SubjectId ~= game._HostPlayer._ID then
             comps = {
                 MenuComponents.SeePlayerInfoComponent.new(v.SubjectId),
                 MenuComponents.ChatComponent.new(v.SubjectId),
@@ -644,10 +652,11 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         end
         --GUITools.SetProfSymbolIcon(subData, professionTemplate.SymbolAtlasPath)
         GUI.SetText(lab_job, tostring(StringTable.Get(10300 + prof - 1)))
-        game:SetEntityCustomImg(img_Head,v.SubjectId,ECustomSet.ECustomSet_Defualt,Profession2Gender[prof],prof)
+        TeraFuncs.SetEntityCustomImg(img_Head,v.SubjectId,ECustomSet.ECustomSet_Defualt,Profession2Gender[prof],prof)
         local data_temp = CElementData.GetPVP3v3Template(v.MainData)
         if data_temp ~= nil then
             GUITools.SetGroupImg(img_san, data_temp.StageType - 1)
+            GUI.SetText(lab_san_name, data_temp.Name)
             if v.MainData == 16 then
                 img_level:SetActive(false)
                 lab_level:SetActive(true)
@@ -656,7 +665,6 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                 img_level:SetActive(true)
                 lab_level:SetActive(false)
                 GUITools.SetGroupImg(img_level,data_temp.StageLevel - 1)
-                GUI.SetText(lab_san_name, data_temp.Name)
             end
         end
     elseif memberId <= 5 then
@@ -670,7 +678,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         end
         --GUITools.SetProfSymbolIcon(subData, professionTemplate.SymbolAtlasPath)    
         GUI.SetText(lab_job, tostring(StringTable.Get(10300 + prof - 1)))
-        game:SetEntityCustomImg(img_Head,v.SubjectId,ECustomSet.ECustomSet_Defualt,Profession2Gender[prof],prof)
+        TeraFuncs.SetEntityCustomImg(img_Head,v.SubjectId,ECustomSet.ECustomSet_Defualt,Profession2Gender[prof],prof)
         GUI.SetText(MainData, GUITools.FormatMoney(v.MainData))
         ----设置主数据的tip
         --GUI.SetText(lab_mainDataTip, StringTable.Get(RankingTips[memberId]))
@@ -715,7 +723,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         end
         if self._CurrentRankMainDataType == ERankDataType.GUILD_CONTRIBUTE then
             GUI.SetText(lab_battle_tip, StringTable.Get(20109))
-            GUI.SetText(lab_num_tip, StringTable.Get(12019))
+            GUI.SetText(lab_num_tip, StringTable.Get(20115))
             GUI.SetText(labNums,guildMember)
             GUI.SetText(labGuildAchi, mainData)
         elseif self._CurrentRankMainDataType == ERankDataType.BATTLE_WINCOUNT then
@@ -744,7 +752,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
             end
         end
         baseData2 = tostring(v.MainData)
-        game:SetEntityCustomImg(img_Head,v.SubjectId,ECustomSet.ECustomSet_Defualt,Profession2Gender[prof],prof)
+        TeraFuncs.SetEntityCustomImg(img_Head,v.SubjectId,ECustomSet.ECustomSet_Defualt,Profession2Gender[prof],prof)
         --设置主数据的tip
         GUI.SetText(lab_mainDataTip, StringTable.Get(20107))
     elseif memberId == 8 then
@@ -766,7 +774,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
             return
         end
         GUI.SetText(lab_job, tostring(StringTable.Get(10300 + prof - 1)))
-        game:SetEntityCustomImg(img_Head,v.SubjectId,ECustomSet.ECustomSet_Defualt,Profession2Gender[prof],prof)
+        TeraFuncs.SetEntityCustomImg(img_Head,v.SubjectId,ECustomSet.ECustomSet_Defualt,Profession2Gender[prof],prof)
         local lab_floor_count = uiTemplate:GetControl(16)
         GUI.SetText(lab_floor_count, GUITools.FormatMoney(v.MainData))
         mainData = GUITools.FormatTimeSpanFromSeconds(v.SubData) --tostring(v.SubData)
@@ -889,6 +897,7 @@ def.method('userdata','number','number').OnClickTabListDeep2 = function(self,lis
      for _,v in pairs(self._RankSubType) do
         if v.type == bigTypeIndex and v.subTypeId == smallTypeIndex then
             self._TitleObj:SetActive(false)
+            self._Frame_Empty:SetActive(false)
             self:UpdataPanelTitle(v)       
             self._CurrentSelectRankID = v.id
             self._CurrentSelectRankCount = v.rankCount
@@ -911,9 +920,9 @@ def.method("number","number").SendC2SRankData = function (self,rankId,count)
     PBHelper.Send(protocol)
 end
 --S2C获取排行榜数据
-def.method("table","number").LoadRankDataFromSer = function (self, data, id)
+def.method("table","number","number").LoadRankDataFromSer = function (self, data, id,myRank)
     if data == nil and id == 0 then return end
-    self:UpdateListItem(data,id)
+    self:UpdateListItem(data,id,myRank)
 end
 
 def.method().Clear = function (self)

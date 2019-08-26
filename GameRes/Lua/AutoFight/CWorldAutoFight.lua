@@ -139,8 +139,6 @@ def.override("number").Start = function(self, _)
         return 
     end
 
-    --print("CWorldAutoFight Start", self._Paused, debug.traceback())
-
     self._Paused = false
 
     if self._TimerId <= 0 then               

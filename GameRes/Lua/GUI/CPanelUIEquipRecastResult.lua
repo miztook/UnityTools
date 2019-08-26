@@ -203,6 +203,7 @@ def.method().UpdateUI = function(self)
     {
         [EItemIconTag.StrengthLv] = self._ItemData:GetInforceLevel(),
         [EItemIconTag.Bind] = self._ItemData:IsBind(),
+        [EItemIconTag.Grade] = self._ItemData:GetGrade(),
     }
     IconTools.InitItemIconNew(root.SelectItem, self._ItemData._Tid, setting)
 

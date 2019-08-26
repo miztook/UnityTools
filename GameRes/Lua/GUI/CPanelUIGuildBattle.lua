@@ -13,6 +13,7 @@ local PBHelper = require "Network.PBHelper"
 local CGame = Lplus.ForwardDeclare("CGame")
 local CGuildIconInfo = require "Guild.CGuildIconInfo"
 local MemberType = require "PB.data".GuildMemberType
+local ETimeType = require"PB.Template".Rank.ETimeType
 
 local CPanelUIGuildBattle = Lplus.Extend(CPanelBase, "CPanelUIGuildBattle")
 local def = CPanelUIGuildBattle.define
@@ -52,6 +53,7 @@ def.field("userdata")._Close = nil
 def.field("userdata")._Open = nil
 def.field("userdata")._Lab_Need_Score = nil
 def.field("userdata")._Lab_Have_Score = nil
+def.field("number")._ReqTimer = 0
 
 local instance = nil
 def.static("=>", CPanelUIGuildBattle).Instance = function()
@@ -79,6 +81,10 @@ end
 
 -- 当摧毁
 def.override().OnDestroy = function(self)
+    if self._ReqTimer > 0 then
+        _G.RemoveGlobalTimer(self._ReqTimer)
+        self._ReqTimer = 0
+    end
 	instance = nil
 end
 
@@ -98,9 +104,40 @@ def.override("string").OnClick = function(self, id)
 	elseif id == "Btn_Show" then
 		self:OnBtnShow()
     elseif id == "Btn_Rank" then
-        game._GUIMan:Open("CPanelRanking", 12)
+        local rank = CElementData.GetTemplate("Rank", 12)
+        if rank then
+            if rank.TimeType == ETimeType.TIME_INTERVAL then
+                local startTimeStr = rank.ShowStartTime 
+                local endTimeStr = rank.ShowStopTime
+                local is_open = true
+                if startTimeStr == nil and endTimeStr == nil then 
+                    is_open = false
+                end
+                local startSec = GUITools.FormatTimeFromGmtToSeconds(startTimeStr) or 0
+                local endSec = GUITools.FormatTimeFromGmtToSeconds(endTimeStr) or 4070966340   -- 2099/1/1 23:59
+
+                if GameUtil.GetServerTime()/1000 < startSec or GameUtil.GetServerTime()/1000 > endSec then 
+                    is_open = false
+                end
+                if is_open then
+                    game._GUIMan:Open("CPanelRanking", 12)
+                else
+                    game._GUIMan:ShowTipText(StringTable.Get(21613), false)        
+                end
+            else
+                game._GUIMan:Open("CPanelRanking", 12)
+            end
+        else
+            game._GUIMan:ShowTipText(StringTable.Get(21613), false)
+        end
     elseif id == "Btn_BattleRule" then
         game._GUIMan:Open("CPanelRuleDescription",7)
+    elseif id == "Btn_ShowReward" then
+    	local panelData = 
+    	{
+    		_IsGuild = true,
+    	}
+    	game._GUIMan:Open("CPanelRewardShow",panelData)
 	end
 end
 
@@ -317,7 +354,11 @@ def.method("table").InitData = function(self, data)
         end
 	end
 	local guildBattle = CElementData.GetTemplate("GuildBattle", self._Battle_Tid)
-	GUI.SetText(self._Lab_Level_Num, string.format(StringTable.Get(8104), data.PlayerNum, guildBattle.MaxMember))
+    if data.PlayerNum < guildBattle.MaxMember then
+	    GUI.SetText(self._Lab_Level_Num, string.format(StringTable.Get(8104), data.PlayerNum, guildBattle.MaxMember))
+    else
+        GUI.SetText(self._Lab_Level_Num, string.format(StringTable.Get(8114), data.PlayerNum, guildBattle.MaxMember))
+    end
 	-- 不是公会会长,不可见设置按钮
 	if not self._Is_Leader then
 		self._Btn_Member_Set:SetActive(false)
@@ -327,6 +368,34 @@ def.method("table").InitData = function(self, data)
 			GUI.SetText(self._Lab_Remind, StringTable.Get(8103))
 		end
 	end
+    -- 如果是已开启并且可进入的时候每秒请求一次人数，做实时更新
+    if data.OpenStatus == 2 and data.Retcode == 1 then
+        self:AddPlayerNumRequestTimer()
+    end
+end
+
+def.method("number").UpdatePlayerNum = function(self, num)
+    local guildBattle = CElementData.GetTemplate("GuildBattle", self._Battle_Tid)
+    if guildBattle then
+        if num < guildBattle.MaxMember then
+	        GUI.SetText(self._Lab_Level_Num, string.format(StringTable.Get(8104), num, guildBattle.MaxMember))
+        else
+            GUI.SetText(self._Lab_Level_Num, string.format(StringTable.Get(8114), num, guildBattle.MaxMember))
+        end
+    end
+end
+
+def.method().AddPlayerNumRequestTimer = function(self)
+    if self._ReqTimer > 0 then
+        _G.RemoveGlobalTimer(self._ReqTimer)
+    end
+    local callback = function()
+        local protocol = (require "PB.net".C2SGuildBattleFieldOperate)()
+	    protocol.OpType = 4
+	    protocol.Position = 0
+	    PBHelper.Send(protocol)
+    end
+    self._ReqTimer = _G.AddGlobalTimer(1, false, callback)
 end
 
 -- 设置准入人员
@@ -367,7 +436,7 @@ def.method().OnBtnStart = function(self)
 	protocol.OpType = 2
 	protocol.Position = 5 - self._Show_Index
 	PBHelper.Send(protocol)
-    game._GUIMan:CloseSubPanelLayer()
+--    game._GUIMan:CloseSubPanelLayer()
 end
 
 def.method().OnBtnShow = function(self)

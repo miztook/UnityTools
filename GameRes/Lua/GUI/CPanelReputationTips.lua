@@ -39,13 +39,13 @@ def.override("dynamic").OnData = function(self, data)
     --     GUI.SetText(self._Lab_ReputationLvValues[i],name)
     -- end
     local template = CElementData.GetTemplate("Reputation", data._RepID)
-    GUI.SetText(self._Lab_ReputationLvValues[1],tostring(template.ReputationLevelExp1))
-    GUI.SetText(self._Lab_ReputationLvValues[2],tostring(template.ReputationLevelExp2))
-    GUI.SetText(self._Lab_ReputationLvValues[3],tostring(template.ReputationLevelExp3))
-    GUI.SetText(self._Lab_ReputationLvValues[4],tostring(template.ReputationLevelExp4))
-    GUI.SetText(self._Lab_ReputationLvValues[5],tostring(template.ReputationLevelExp5))
+    GUI.SetText(self._Lab_ReputationLvValues[1],tostring(GUITools.FormatNumber(template.ReputationLevelExp1)))
+    GUI.SetText(self._Lab_ReputationLvValues[2],tostring(GUITools.FormatNumber(template.ReputationLevelExp2)))
+    GUI.SetText(self._Lab_ReputationLvValues[3],tostring(GUITools.FormatNumber(template.ReputationLevelExp3)))
+    GUI.SetText(self._Lab_ReputationLvValues[4],tostring(GUITools.FormatNumber(template.ReputationLevelExp4)))
+    GUI.SetText(self._Lab_ReputationLvValues[5],tostring(GUITools.FormatNumber(template.ReputationLevelExp5)))
 
-    GameUtil.SetTipsPosition(data._Obj,self._FramePosition)
+    --GameUtil.SetTipsPosition(data._Obj,self._FramePosition)
 end
 
 def.method().Hide = function(self)

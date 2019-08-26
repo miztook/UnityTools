@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13146] = 
@@ -26,7 +27,7 @@ local MapInfo =
 	{
 		[3323] = 
 		{
-			[1] = { x = -68.43, y = 78.13, z = -99.54, name = "악령에 씌인 사마엘", SortID = 7, FunctionName = " " },
+			[1] = { x = -68.43, y = 78.13, z = -99.54, name = "악령에 씐 사마엘", SortID = 7, FunctionName = " " },
 		},
 		[3324] = 
 		{
@@ -41,14 +42,14 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[520] = { x = 176.69, y = 1.00, z = -194.40, name = "背景音乐-绝境要塞", worldId = 0, PkMode = 0 },
-			[521] = { x = 116.27, y = 42.82, z = -28.21, name = "背景音乐-蜘蛛洞", worldId = 0, PkMode = 0 },
-			[522] = { x = -113.81, y = 1.00, z = 108.33, name = "背景音乐-风之壁垒", worldId = 0, PkMode = 0 },
-			[523] = { x = -151.63, y = 1.00, z = -126.86, name = "背景音乐-森林地带", worldId = 0, PkMode = 0 },
-			[453] = { x = 8.65, y = 52.21, z = -144.37, name = "风精灵士兵殿后刷出", worldId = 0, PkMode = 0 },
-			[490] = { x = 21.58, y = 53.36, z = -108.40, name = "断桥抵达", worldId = 0, PkMode = 0 },
-			[524] = { x = 34.60, y = 54.80, z = -99.16, name = "186离开区域", worldId = 0, PkMode = 0 },
-			[525] = { x = -54.64, y = 78.13, z = -107.93, name = "洛克的诅咒-魔化沙摩尔离开相位区域", worldId = 0, PkMode = 0 },
+			[520] = { x = 176.69, y = 1.00, z = -194.40, name = "背景音乐-绝境要塞", worldId = 0, PkMode = 1 },
+			[521] = { x = 116.27, y = 42.82, z = -28.21, name = "背景音乐-蜘蛛洞", worldId = 0, PkMode = 1 },
+			[522] = { x = -113.81, y = 1.00, z = 108.33, name = "背景音乐-风之壁垒", worldId = 0, PkMode = 1 },
+			[523] = { x = -151.63, y = 1.00, z = -126.86, name = "背景音乐-森林地带", worldId = 0, PkMode = 1 },
+			[453] = { x = 8.65, y = 52.21, z = -144.37, name = "风精灵士兵殿后刷出", worldId = 0, PkMode = 1 },
+			[490] = { x = 21.58, y = 53.36, z = -108.40, name = "断桥抵达", worldId = 0, PkMode = 1 },
+			[524] = { x = 34.60, y = 54.80, z = -99.16, name = "186离开区域", worldId = 0, PkMode = 1 },
+			[525] = { x = -54.64, y = 78.13, z = -107.93, name = "洛克的诅咒-魔化沙摩尔离开相位区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

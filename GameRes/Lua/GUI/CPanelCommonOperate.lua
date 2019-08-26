@@ -148,20 +148,20 @@ def.override('string').OnClick = function (self,id)
         game._GUIMan:CloseByScript(self)
     elseif id == "Btn_Ok" or id == "Btn_OkWithGold" then
         if self._IsCost then
-            local moneyHave = game._HostPlayer:GetMoneyCountByType(self._CommonBuyInfo._CostMoneyID)
-            if self._CostCount > moneyHave then
-                local money = CElementData.GetTemplate("Money", self._CommonBuyInfo._CostMoneyID)
-			    game._GUIMan:ShowTipText(string.format(StringTable.Get(893), money.TextDisplayName), true)
-                if self._CommonBuyInfo._FailCallBack ~= nil then
-                    self._CommonBuyInfo._FailCallBack(self._ItemCount)
-                    game._GUIMan:CloseByScript(self)
-                end
-            else
-    	        if self._CommonBuyInfo._OkCallBack ~= nil then
-                    self._CommonBuyInfo._OkCallBack(self._ItemCount)
+            local function Callback( ret )
+                if ret then
+                    if self._CommonBuyInfo._OkCallBack ~= nil then
+                        self._CommonBuyInfo._OkCallBack(self._ItemCount)
+                    end
+                else
+                    if self._CommonBuyInfo._FailCallBack ~= nil then
+                        self._CommonBuyInfo._FailCallBack(self._ItemCount)
+                    end
                 end
                 game._GUIMan:CloseByScript(self)
             end
+
+            MsgBox.ShowQuickBuyBox(self._CommonBuyInfo._CostMoneyID, self._CostCount, Callback)
         else
             if self._CommonBuyInfo._OkCallBack ~= nil then
                 self._CommonBuyInfo._OkCallBack(self._ItemCount)
@@ -184,6 +184,7 @@ def.override('string').OnClick = function (self,id)
         self:UpdatePanel()
     elseif id == "Btn_Input" then
         local function callback(count)
+            if not self:IsShow() then return end
     		self._ItemCount = count
             self._CostCount = self._ItemCount * self._CommonBuyInfo._Price
             if self._ItemCount > self._CommonBuyInfo._MaxValue then self._ItemCount = self._CommonBuyInfo._MaxValue end
@@ -228,6 +229,16 @@ end
 
 local Item_Count_Change_Buy = function(self, itemCount)
     self._IsCost = true
+    self._PanelObject._Frame_Items:SetActive(true)
+    local uiTemplate = self._PanelObject._Frame_Items:GetComponent(ClassType.UITemplate)
+    local item_cost = uiTemplate:GetControl(0)
+    local img_arr = uiTemplate:GetControl(1)
+    local item_get = uiTemplate:GetControl(2)
+    local money_get = uiTemplate:GetControl(3)
+    item_cost:SetActive(false)
+    img_arr:SetActive(false)
+    item_get:SetActive(false)
+    money_get:SetActive(true)
 end
 
 local Item_Count_Change_Sell = function(self, itemCount)

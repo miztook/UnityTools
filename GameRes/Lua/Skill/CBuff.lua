@@ -153,7 +153,7 @@ def.method("=>","string").GetDesc = function(self)
 end
 
 def.method().Load = function(self)
-    if self._Host == nil or self._Host:IsReleased() or self._IsReleased then return end
+    if self._Host == nil or self._Host:IsReleased() or self._IsReleased or not self._Host:IsCullingVisible() then return end
 
     local actor_template = CElementData.GetActorTemplate(self._GfxId)
     if actor_template == nil then return end
@@ -235,7 +235,7 @@ def.method().Release = function(self)
         v:OnRelease()
     end
     self._ActiveActorEvents = {}
-    self._BuffInfo = {}
+    self._BuffInfo = nil
 
     self._Host = nil
 end

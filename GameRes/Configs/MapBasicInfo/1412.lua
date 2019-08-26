@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[50201] = 
@@ -49,7 +50,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[3] = { x = 318.94, y = 48.81, z = -81.63, name = "相位区域", worldId = 0, PkMode = 0 },
+			[3] = { x = 318.94, y = 48.81, z = -81.63, name = "相位区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

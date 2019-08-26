@@ -33,6 +33,10 @@ end
 def.virtual("number").PlayMountStateAnimation = function(self, oldstate)
 end
 
+-- elseplayer由不可见到可见时，需要刷新动作 位置点
+def.virtual().UpdateWhenBecomeVisible = function(self)
+end
+
 def.method().CheckMountable = function (self)
 	if self._Host == nil then
 		self._Mountable = false

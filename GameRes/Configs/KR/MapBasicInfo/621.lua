@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 2,
 	Remarks = "",
-	TextDisplayName = "군주의 망령",
+	TextDisplayName = "망령의 군주",
 	Length = 800,
 	Width = 800,
 	NavMeshName = "Dn_evn03_Killerparty.navmesh",
@@ -11,11 +11,12 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/qilien.png",
 	AssetPath = "Assets/Outputs/Scenes/Dn_evn03_Killerparty.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[36021] = 
 		{
-			[1] = { x = 2.30, y = 0.00, z = 20.50, name = "불사의 기사", level = 52,IsBoss = true },
+			[1] = { x = 2.30, y = 0.00, z = 20.50, name = "은빛 칼날", level = 52,IsBoss = true },
 		},
 	},
 	Npc = 

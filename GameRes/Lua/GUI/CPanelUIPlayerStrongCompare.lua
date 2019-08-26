@@ -146,11 +146,11 @@ def.override("dynamic").OnData = function(self, playerData)
 		if not IsNil(self._Lab_RedCurFight1) then
 			GUI.SetText(self._Lab_RedCurFight1, GUITools.FormatMoney(redCurFight))
 		end
-		game:SetEntityCustomImg(self._Img_RedHead1, hp._ID, hp._InfoData._CustomImgSet, hp._InfoData._Gender, hp._InfoData._Prof)
+		TeraFuncs.SetEntityCustomImg(self._Img_RedHead1, hp._ID, hp._InfoData._CustomImgSet, hp._InfoData._Gender, hp._InfoData._Prof)
 		if not IsNil(self._Lab_BlueCurFight) then
 			GUI.SetText(self._Lab_BlueCurFight, GUITools.FormatMoney(basicValue))
 		end
-		game:SetEntityCustomImg(self._Img_BlueHead, self._OtherRoleInfo.OtherRoleId, self._OtherRoleInfo.CustomImgSet, self._OtherRoleInfo.Gender, self._OtherRoleInfo.Profession)
+		TeraFuncs.SetEntityCustomImg(self._Img_BlueHead, self._OtherRoleInfo.OtherRoleId, self._OtherRoleInfo.CustomImgSet, self._OtherRoleInfo.Gender, self._OtherRoleInfo.Profession)
 		GameUtil.PlayUISfx(PATH.UIFX_Compare_WIN, self._Img_RedHead1, self._Img_RedHead1, -1)
 		GameUtil.StopUISfx(PATH.UIFX_Compare_WIN,self._Img_BlueHead1)
 	else
@@ -161,11 +161,11 @@ def.override("dynamic").OnData = function(self, playerData)
 		if not IsNil(self._Lab_RedCurFight) then
 			GUI.SetText(self._Lab_RedCurFight, GUITools.FormatMoney(redCurFight))
 		end
-		game:SetEntityCustomImg(self._Img_RedHead, hp._ID, hp._InfoData._CustomImgSet, hp._InfoData._Gender, hp._InfoData._Prof)
+		TeraFuncs.SetEntityCustomImg(self._Img_RedHead, hp._ID, hp._InfoData._CustomImgSet, hp._InfoData._Gender, hp._InfoData._Prof)
 		if not IsNil(self._Lab_BlueCurFight1) then
 			GUI.SetText(self._Lab_BlueCurFight1, GUITools.FormatMoney(basicValue))
 		end
-		game:SetEntityCustomImg(self._Img_BlueHead1, self._OtherRoleInfo.OtherRoleId, self._OtherRoleInfo.CustomImgSet, self._OtherRoleInfo.Gender, self._OtherRoleInfo.Profession)
+		TeraFuncs.SetEntityCustomImg(self._Img_BlueHead1, self._OtherRoleInfo.OtherRoleId, self._OtherRoleInfo.CustomImgSet, self._OtherRoleInfo.Gender, self._OtherRoleInfo.Profession)
 		GameUtil.PlayUISfx(PATH.UIFX_Compare_WIN, self._Img_BlueHead1, self._Img_BlueHead1, -1)
 		GameUtil.StopUISfx(PATH.UIFX_Compare_WIN,self._Img_RedHead1)
 	end
@@ -286,12 +286,12 @@ def.method("userdata","number").OnInitTabListDeep1 = function(self, item, index)
 	-- warn("hhhhhhh------------------>>>", data.Id , value)
 	local labRedFightScore = GUITools.GetChild(item, 5)
 	if not IsNil(labRedFightScore) then
-		GUI.SetText(labRedFightScore, tostring(value))
+		GUI.SetText(labRedFightScore, GUITools.FormatMoney(value))
 	end
 
 	local labBlueFightScore = GUITools.GetChild(item, 6)
 	if not IsNil(labBlueFightScore) then
-		GUI.SetText(labBlueFightScore, tostring(basicValue))
+		GUI.SetText(labBlueFightScore, GUITools.FormatMoney(basicValue))
 	end
 
 	local slider = GUITools.GetChild(item, 4):GetComponent(ClassType.Image)
@@ -406,12 +406,12 @@ def.method("userdata","number","number").OnInitTabListDeep2 = function(self, ite
 
 	local labRedFightScore = GUITools.GetChild(item, 2)
 	if not IsNil(labRedFightScore) then
-		GUI.SetText(labRedFightScore, tostring(value))
+		GUI.SetText(labRedFightScore, GUITools.FormatMoney(value))
 	end
 
 	local labBlueFightScore = GUITools.GetChild(item, 3)
 	if not IsNil(labBlueFightScore) then
-		GUI.SetText(labBlueFightScore, tostring(basicValue))
+		GUI.SetText(labBlueFightScore, GUITools.FormatMoney(basicValue))
 	end
 
 	local slider = GUITools.GetChild(item, 1):GetComponent(ClassType.Image)

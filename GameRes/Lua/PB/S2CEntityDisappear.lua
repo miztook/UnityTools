@@ -20,12 +20,16 @@ end
 local function OnEntityDisappear( sender,msg )
 	if msg.EntityIdList ~= nil and #msg.EntityIdList > 0 then	
 		local npcMan = game._CurWorld._NPCMan
-
+        local EntityType = EnumDef.EntityType
 		for i,v in ipairs(msg.EntityIdList) do
-			local man = game._CurWorld:DispatchManager(v)
+            local entityType = IDMan.GetEntityType(v)            
+    		local man = game._CurWorld:DispatchManager(v)
 			if man ~= nil then
-				local leaveType = Util.CalcSightUpdateType(msg.SightUpdateData.updateType, msg.SightUpdateData.updateReason)
-				man:Remove(v, leaveType)
+                -- PlayerMan里面会做特殊处理（carelist）
+                if entityType ~= EntityType.Role then
+    				local leaveType = Util.CalcSightUpdateType(msg.SightUpdateData.updateType, msg.SightUpdateData.updateReason)
+				    man:Remove(v, leaveType)
+                end
 				FireEvent(v)
 			end
 

@@ -48,6 +48,7 @@ def.field("table")._InheritTargetItemData = nil             --
 def.field("number")._InheritDotweenTimeDelay = 2
 def.field("number")._InheritTimerId = 0
 def.field("boolean")._ShowGfx = false
+def.field("number")._fristSortItemID = -1
 
 local listQuality = 
 {   
@@ -83,13 +84,11 @@ def.static('=>', CPanelUIEquipProcess).Instance = function ()
     return instance
 end
 
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
-
 local RemoveInheritTimer = function()
-    if instance._InheritTimerId > 0 then
-        _G.RemoveGlobalTimer(instance._InheritTimerId)
+    if instance and instance:IsShow() then
+        if instance._InheritTimerId > 0 then
+            _G.RemoveGlobalTimer(instance._InheritTimerId)
+        end
     end
 end
 
@@ -278,10 +277,25 @@ def.override().OnCreate = function(self)
 
     self._PanelObject = {}
     self._PanelObject.CheckBox_ShowGfx = self:GetUIObject('CheckBox_ShowGfx'):GetComponent(ClassType.Toggle)
+    self._PanelObject.DropDown_Up = self:GetUIObject('DropDown_Up')
 end
 
 def.override("dynamic").OnData = function(self,data)
     self._HelpUrlType = HelpPageUrlType.Fortify
+
+    -- 教学特殊处理
+    if game._CGuideMan._CurGuideTrigger ~= nil then
+        local CGuideMan = require "Guide.CGuideMan"
+        local guideConfig = CGuideMan.GetGuideTrigger()
+        local BigStepConfig = guideConfig[game._CGuideMan._CurGuideTrigger._ID]
+        --local SmallStepConfig = BigStepConfig.Steps[game._CGuideMan._CurGuideTrigger._Step]
+        if BigStepConfig ~= nil and BigStepConfig.fristSortItemIDs ~= nil then
+            local hpProf = game._HostPlayer._InfoData._Prof
+            self._fristSortItemID = BigStepConfig.fristSortItemIDs[hpProf]
+        end
+    end
+
+
     if instance:IsShow() then
 --[[
 Parameters
@@ -380,9 +394,9 @@ def.method().QualityFilter = function(self)
             end
         end
         for i, item in ipairs(self._AllLocalItemList[EnumDef.ItemCategory.EquipProcessMaterial]) do
-            if item.ItemData._Quality == quality then
-                table.insert(map[EnumDef.ItemCategory.EquipProcessMaterial], item)
-            end
+            -- if item.ItemData._Quality == quality then
+            table.insert(map[EnumDef.ItemCategory.EquipProcessMaterial], item)
+            -- end
         end
 
         self._LocalItemList = map
@@ -546,6 +560,7 @@ def.method("dynamic").SyncPackageData = function(self, page)
     self._LocalItemList = self._AllLocalItemList
     self:UpdateSortList()
     self:QualityFilter()
+    self:UpdateCategoryCount()
 end
 
 -- 模拟点击事件
@@ -614,6 +629,12 @@ end
 -- 刷新背包 排序规则
 def.method().UpdateSortList = function(self)
     local function sortfunction(item1, item2)
+        if item1.ItemData._Tid == self._fristSortItemID then
+            return true
+        end
+        if item2.ItemData._Tid == self._fristSortItemID then
+            return false
+        end
         if item1.PackageType ~= item2.PackageType then
             return item1.PackageType == BAGTYPE.ROLE_EQUIP and true or false
         end
@@ -693,11 +714,13 @@ def.method("number").ChangeCategory = function(self, categoryIndex)
     if self._CurrentCategory == categoryIndex then return end
 
     self._CurrentCategory = categoryIndex
-
+    local bIsMaterialCategory = self._CurrentCategory == EnumDef.ItemCategory.EquipProcessMaterial
     local bShowNoneMaterial = self._CurrentPage == EnumDef.UIEquipPageState.PageFortify and
-                              self._CurrentCategory == EnumDef.ItemCategory.EquipProcessMaterial and
+                              bIsMaterialCategory and
                               self:GetCurrentCategoryCount() == 0
 
+    
+    self._PanelObject.DropDown_Up:SetActive(not bIsMaterialCategory)
     self:GetUIObject('List_Item'):SetActive( not bShowNoneMaterial )
     self._Tab_NoneMaterial:SetActive( bShowNoneMaterial )
     if bShowNoneMaterial then
@@ -791,14 +814,14 @@ end
 
 def.override("userdata", "string", "number").OnSelectItem = function(self, item, id, index)
     if self:IsGfxShowing() then return end
-
+    
     local idx = index + 1
     if id == "List_Item" then
         -- 选装备，换装备 限制
         if self._CurrentCategory == EnumDef.ItemCategory.EquipProcessMaterial then
             --warn("OnSelectItem 材料")
             if self._ItemData == nil then
-                SendFlashMsg(StringTable.Get(31301), false)
+                TeraFuncs.SendFlashMsg(StringTable.Get(31301), false)
                 return
             else
                 self:GetCurrentPage():OnSelectItem(item, index, self:GetItemDataByIndex(idx))
@@ -829,7 +852,7 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
                     local dataSelect = self:GetItemDataByIndex(idx)
 
                     if not dataSelect.ItemData:CanInherit() then
-                        SendFlashMsg(StringTable.Get(31333), false)
+                        TeraFuncs.SendFlashMsg(StringTable.Get(31333), false)
                         return
                     end
                 end
@@ -850,12 +873,16 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
                     if self._InheritTargetItemData == nil then
                         -- 继承需要两个装备位置
                         if self._ItemData.ItemData._EquipSlot == newInheritTargetItemData.ItemData._EquipSlot then
-                            self._InheritTargetItemData = newInheritTargetItemData
+                            if newInheritTargetItemData.ItemData:GetInforceLevel() >= self._ItemData.ItemData:GetInforceLevel() then
+                                TeraFuncs.SendFlashMsg(StringTable.Get(31347), false)
+                            else
+                                self._InheritTargetItemData = newInheritTargetItemData
 
-                            self:GetCurrentPage():OnSelectItem(item, index, self._InheritTargetItemData)
-                            bSelected = true
+                                self:GetCurrentPage():OnSelectItem(item, index, self._InheritTargetItemData)
+                                bSelected = true
+                            end
                         else
-                            SendFlashMsg(StringTable.Get(31335), false)
+                            TeraFuncs.SendFlashMsg(StringTable.Get(31335), false)
                         end
                     elseif self._InheritTargetItemData == newInheritTargetItemData then
                         -- 目标装备相同 卸下
@@ -863,7 +890,7 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
                         self:GetCurrentPage():ResetTarget()
                         self:UpdateItemList()
                     else
-                        SendFlashMsg(StringTable.Get(31335), false)
+                        TeraFuncs.SendFlashMsg(StringTable.Get(31335), false)
                         return
                     end
 
@@ -899,7 +926,7 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
                 return
             elseif self._CurrentPage == EnumDef.UIEquipPageState.PageFortify then
                 -- 强化则必须取消原选中物品，因优化无法提高使用效率。故不做处理
-                -- SendFlashMsg(StringTable.Get(31300), false)
+                -- TeraFuncs.SendFlashMsg(StringTable.Get(31300), false)
                 -- return
                 self:ResetSelectList()
                 self:UpdateFrameShow()
@@ -923,6 +950,7 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
     elseif id == "List_NoneMaterial" then
         local info = self._InforceStoreFromInfo[idx]
         game._AcheivementMan:DrumpToRightPanel(info.ID,0)
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
     end
 
     -- 操作完材料后，需要强制刷新 材料背包， 自维护的个数和可点击状态需要重新计算
@@ -1032,28 +1060,41 @@ def.override('string').OnClick = function(self, id)
         self:UpdateFrameShow()
         self:UpdateItemList()
         self:TurnToEquipProcessWeaponPage()
+
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_UnEquipProcessing, 0)
+        return
     elseif id == "Btn_Drop_Recast" then
         self:ResetSelectList()
         self:UpdateFrameShow()
         self:UpdateItemList()
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_UnEquipProcessing, 0)
+        return
     elseif id == "Btn_Drop_Refine" then
         self:ResetSelectList()
         self:UpdateFrameShow()
         self:UpdateItemList()
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_UnEquipProcessing, 0)
+        return
     elseif id == "Btn_Drop_Legend" then
         self:ResetSelectList()
         self:UpdateFrameShow()
         self:UpdateItemList()
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_UnEquipProcessing, 0)
+        return
     elseif id == "Btn_Drop_OrignItem" then
         self:ResetSelectList()
         self:ResetTargetSelect()
         self:GetCurrentPage():ResetTarget()
         self:UpdateFrameShow()
         self:UpdateItemList()
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_UnEquipProcessing, 0)
+        return
     elseif id == "Btn_Drop_TargetItem" then
         self:ResetTargetSelect()
         self:GetCurrentPage():ResetTarget()
         self:UpdateItemList()
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_UnEquipProcessing, 0)
+        return
     elseif string.find(id, "Btn_AddFortifyMaterial") then
         self:TurnToEquipProcessMaterialPage()
     elseif id == "Btn_AddFortifyItem" then
@@ -1080,12 +1121,14 @@ def.override('string').OnClick = function(self, id)
         self:GetCurrentPage():OnClick(id)
         -- 操作完材料后，需要强制刷新 材料背包， 自维护的个数和可点击状态需要重新计算
         self:UpdateItemList()
-    -- elseif string.find(id, "FortifyMaterialIcon") then
-    --     self:GetCurrentPage():OnClick(id)
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_UnEquipProcessing, 0)
+        return
     else
         self:GetCurrentPage():OnClick(id)
     end
     CPanelBase.OnClick(self, id)
+
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
 end
 
 def.override("string", "boolean").OnToggle = function(self,id, checked)
@@ -1111,6 +1154,7 @@ def.override("string", "boolean").OnToggle = function(self,id, checked)
     elseif id == "CheckBox_ShowGfx" then
         self:SetLocalSkipGfxState(checked)
         self:UpdateSkipGfxToggle(false)
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Tab_Press, 0)
     end
 end
 
@@ -1124,9 +1168,14 @@ def.override("string", "number").OnDropDown = function(self, id, index)
         if quality == self._CurrentSortQuality then return end
 
         self._CurrentSortQuality = quality
+
+        self:ResetSelectList()
+        self:UpdateFrameShow()
         self:QualityFilter()
-        self:FixSelectInfo()
+        self:UpdateCategoryCount()
         self:UpdateItemList()
+
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
     end
 end
 
@@ -1187,7 +1236,7 @@ end
 def.override().OnHide = function(self)
     local hp = game._HostPlayer
     hp._ShowFightScoreBoard = true
-
+    self._fristSortItemID = -1
     self:HideAllFrames()
     CPanelBase.OnHide(self)
 end

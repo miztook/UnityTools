@@ -23,7 +23,7 @@ def.field("userdata")._Lab_Position = nil
 def.field("boolean")._IsSendPosLink = false
 def.field("table")._ConsumableTypes = BlankTable
 def.field("number")._ProfMask = 0
-
+def.field("number")._CurSelectToggle = 0
 
 local instance = nil
 def.static("=>", CPanelEmotions).Instance = function() 
@@ -148,7 +148,7 @@ def.override("dynamic").OnData = function(self, data)
 		table.insert(self._ConsumableTypes,tonumber(v))
 	end
 	InitPanelPosition(self)
-
+	self._CurSelectToggle = 1
 	self._FrameEmotions:SetActive(true)
 	self._FrameItems:SetActive(false)
 	self._Frame_MapPos:SetActive(false)
@@ -164,6 +164,7 @@ end
 
 def.override("string", "boolean").OnToggle = function(self, id, checked)
 	if id == "Rdo_Item" then 
+		self._CurSelectToggle = 2
 		self._IsSendPosLink = false
 		self._FrameItems:SetActive(true)
 		self._FrameEmotions:SetActive(false)
@@ -197,9 +198,56 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
 		self._FrameEmotions:SetActive(true)
 		self._ListEmotion:ScrollToStep(0)
 		self._Frame_MapPos:SetActive(false)
+		self._CurSelectToggle = 1
 	elseif id == "Rdo_Position" then 
 		if not game._HostPlayer:InWorld() then
 			game._GUIMan:ShowTipText(StringTable.Get(13060), false)
+			if self._CurSelectToggle == 1 then
+				self._FrameEmotions:SetActive(true)
+				self._FrameItems:SetActive(false)
+				self._Frame_MapPos:SetActive(false)
+				self._RdoItem:FindChild("Img_D"):SetActive(false)
+				self._RdoEmotion:FindChild("Img_D"):SetActive(true)
+				self._RdoItem:GetComponent(ClassType.Toggle).isOn = false
+				self._RdoEmotion:GetComponent(ClassType.Toggle).isOn = true
+				self._ListEmotion:SetItemCount(GameUtil.GetEmojiCount())
+				self._ListEmotion:ScrollToStep(0)
+			elseif self._CurSelectToggle == 2 then
+				self._IsSendPosLink = false
+				self._FrameItems:SetActive(true)
+				self._FrameEmotions:SetActive(false)
+				self._Frame_MapPos:SetActive(false)
+
+				self._RdoItem:FindChild("Img_D"):SetActive(true)
+				self._RdoEmotion:FindChild("Img_D"):SetActive(false)
+				self._RdoItem:GetComponent(ClassType.Toggle).isOn = true
+				self._RdoEmotion:GetComponent(ClassType.Toggle).isOn = false
+
+				if self._ListItemData == nil or table.nums(self._ListItemData) == 0 then 
+					self._ListItemData = {}
+					if game._HostPlayer._Package._EquipPack._ItemSet ~= nil then 
+						for i = 1 ,#game._HostPlayer._Package._EquipPack._ItemSet do
+							if game._HostPlayer._Package._EquipPack._ItemSet[i]._Tid > 0 then	
+								self._ListItemData[#self._ListItemData + 1] = game._HostPlayer._Package._EquipPack._ItemSet[i]
+							end
+						end
+					end
+					if game._HostPlayer._Package._NormalPack._ItemSet ~= nil then 
+						local itemSets = GetItemSets(self,game._HostPlayer._Package._NormalPack._ItemSet)
+						for _,items in ipairs(itemSets) do
+							if items ~= nil and #items > 0 then 
+								for i = 1,#items do
+									self._ListItemData[#self._ListItemData + 1] = items[i]
+								end
+							end 
+						end
+					end
+					if #self._ListItemData == 0 then return end
+					self._ListItem:SetItemCount(#self._ListItemData)
+				end
+				self._ListItem:ScrollToStep(0)
+				
+			end
 			return
 		end
 		self._FrameItems:SetActive(false)
@@ -207,6 +255,7 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
 		self._ListEmotion:ScrollToStep(0)
 		self._Frame_MapPos:SetActive(true)
 		self:OnInitHostPosition()		
+		self._CurSelectToggle = 3
 	end
 end
 
@@ -332,6 +381,7 @@ def.override().OnDestroy = function(self)
 	self._PositionObj = nil  
 	self._ListItemData = nil 
 	self._CurSelectItem = nil 
+	self._CurSelectToggle = 0
 	instance = nil 
 end
 

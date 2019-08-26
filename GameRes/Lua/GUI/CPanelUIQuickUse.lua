@@ -251,12 +251,13 @@ def.method().QuickUseListRefresh = function(self)
 			end
 		
 			local useStr = nil
+			local IsShowArrowTag = false
 			if itemData:IsEquip() then
 				useStr = StringTable.Get(11100)
-				-- self._Img_Tag_Arrow:SetActive(true)
+				IsShowArrowTag = true
 			else
 				useStr = StringTable.Get(11105)
-				-- self._Img_Tag_Arrow:SetActive(false)
+				IsShowArrowTag = false
 			end
 			GUI.SetText(self._Lab_Use, useStr)
 		
@@ -269,7 +270,8 @@ def.method().QuickUseListRefresh = function(self)
 			{
 				[EItemIconTag.Bind] = itemData:IsBind(),
 				[EItemIconTag.Number] = item.Count,
-				[EItemIconTag.ArrowUp] = true,
+				[EItemIconTag.ArrowUp] = IsShowArrowTag,
+				[EItemIconTag.Grade] = itemData:IsEquip() and itemData._BaseAttrs.Star or nil,
 			}
 			IconTools.InitItemIconNew(itemObj, item.ItemId, setting)
 			GUI.SetText(self._Lab_ItemName, itemData._Template.TextDisplayName)

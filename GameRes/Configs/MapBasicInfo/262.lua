@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD06.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn06_EmpireRelic.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[25117] = 
@@ -124,8 +125,8 @@ local MapInfo =
 			[331] = { x = 67.02, y = 38.67, z = -58.65, name = "遗址的宝藏区域", worldId = 0, PkMode = 1, IsCanHawkeye = true },
 			[332] = { x = 26.49, y = 58.36, z = -26.04, name = "进入军备平台", worldId = 0, PkMode = 1 },
 			[333] = { x = -8.26, y = 71.37, z = 99.27, name = "神圣广场", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1 },
-			[384] = { x = 21.10, y = 41.92, z = -60.98, name = "进入石碑区域", worldId = 0, PkMode = 0 },
-			[385] = { x = 2.04, y = 70.59, z = 64.38, name = "激活尼古拉斯技能区", worldId = 0, PkMode = 0 },
+			[384] = { x = 21.10, y = 41.92, z = -60.98, name = "进入石碑区域", worldId = 0, PkMode = 1 },
+			[385] = { x = 2.04, y = 70.59, z = 64.38, name = "激活尼古拉斯技能区", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

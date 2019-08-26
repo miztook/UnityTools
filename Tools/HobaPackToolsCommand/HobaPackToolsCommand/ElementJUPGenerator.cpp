@@ -61,8 +61,8 @@ void CElementJUPGenerator::SetPlatform(const std::string& strPlatformType)
 		m_PlatformType = EPlatformType::Android;
 	else
 	{
-		printf("Unknown Platform! %s\r\n", strPlatformType.c_str());
-		g_pAFramework->Printf("Unknown Platform! %s\r\n", strPlatformType.c_str());
+		printf("Unknown Platform! %s\r\n", (const char*)strPlatformType.c_str());
+		g_pAFramework->Printf("Unknown Platform! %s\r\n", (const char*)strPlatformType.c_str());
 	}
 }
 
@@ -188,7 +188,7 @@ bool CElementJUPGenerator::GenerateUpdateList(const SVersion& sversion, SJupCont
 		{
 			ASSERT(false);
 			printf("计算md5错误! %s \r\n", strNewFile.c_str());
-			g_pAFramework->Printf("计算md5错误! %s \r\n", strNewFile);
+			g_pAFramework->Printf("计算md5错误! %s \r\n", strNewFile.c_str());
 
 			return;
 		}
@@ -211,7 +211,7 @@ bool CElementJUPGenerator::GenerateUpdateList(const SVersion& sversion, SJupCont
 			{
 				ASSERT(false);
 				printf("计算md5错误! %s \r\n", strOldFile.c_str());
-				g_pAFramework->Printf("计算md5错误! %s \r\n", strOldFile);
+				g_pAFramework->Printf("计算md5错误! %s \r\n", strOldFile.c_str());
 
 				return;
 			}
@@ -223,7 +223,7 @@ bool CElementJUPGenerator::GenerateUpdateList(const SVersion& sversion, SJupCont
 
 			if (bAddToUpdateList)		//添加到更新列表
 			{
-				int originSize = FileOperate::GetFileSize(strNewFile.c_str());
+				int64_t originSize = (int64_t)FileOperate::GetFileSize(strNewFile.c_str());
 
 				const char* tmpFileName = "./tmp.compressed";
 				if (!MakeCompressedFile(strNewFile.c_str(), tmpFileName, bNoCompress))
@@ -248,6 +248,7 @@ bool CElementJUPGenerator::GenerateUpdateList(const SVersion& sversion, SJupCont
 				entry.strMd5 = md5;
 				entry.strFileName = filename;
 				entry.nSize = (int64_t)FileOperate::GetFileSize(tmpFileName);
+				entry.nOriginSize = originSize;
 
 				jupContent.UpdateList.push_back(entry);
 
@@ -257,7 +258,7 @@ bool CElementJUPGenerator::GenerateUpdateList(const SVersion& sversion, SJupCont
 		}
 		else   //添加到更新列表
 		{
-			int originSize = FileOperate::GetFileSize(strNewFile.c_str());
+			int64_t originSize = (int64_t)FileOperate::GetFileSize(strNewFile.c_str());
 
 			const char* tmpFileName = "./tmp.compressed";
 			if (!MakeCompressedFile(strNewFile.c_str(), tmpFileName, bNoCompress))
@@ -282,14 +283,14 @@ bool CElementJUPGenerator::GenerateUpdateList(const SVersion& sversion, SJupCont
 			entry.strMd5 = md5;
 			entry.strFileName = filename;
 			entry.nSize = (int64_t)FileOperate::GetFileSize(tmpFileName);
+			entry.nOriginSize = originSize;
 			
 			jupContent.UpdateList.push_back(entry);
 
 			printf("filename: %s, size: %lld, MD5: %s\r\n", entry.strFileName.c_str(), entry.nSize, entry.strMd5.c_str());
 			g_pAFramework->Printf("filename: %s, size: %lld, MD5: %s", entry.strFileName.c_str(), entry.nSize, entry.strMd5.c_str());
 		}
-	},
-	strNextPath.c_str());
+	}, strNextPath.c_str());
 
 	std::sort(jupContent.UpdateList.begin(), jupContent.UpdateList.end());
 
@@ -303,7 +304,7 @@ void CElementJUPGenerator::PrintUpdateList(const SJupContent& jupContent) const
 {
 	for (const auto& entry : jupContent.UpdateList)
 	{
-		if (entry.strFileName.find("AssetBundles") != std::string::npos)
+		if (strstr(entry.strFileName.c_str(), "AssetBundles") != 0)
 		{
 			printf("%s\r\n", entry.strFileName.c_str());
 			g_pAFramework->Printf("%s\r\n", entry.strFileName.c_str());
@@ -322,15 +323,17 @@ void CElementJUPGenerator::GenerateIncFileString(const SJupContent& jupContent, 
 		nTotalSize += entry.nSize;
 	}
 
-	std_string_format(strTmp, g_incHeader,			//"# %d.%d.%d.%d %d.%d.%d.%d %s %lld"
+	strTmp = std_string_format(g_incHeader,			//"# %d.%d.%d.%d.%d %d.%d.%d.%d.%d %s %lld"
 		jupContent.verOld.iVer0,
 		jupContent.verOld.iVer1,
 		jupContent.verOld.iVer2,
 		jupContent.verOld.iVer3,
+		jupContent.verOld.iVer4,
 		jupContent.verNew.iVer0,
 		jupContent.verNew.iVer1,
 		jupContent.verNew.iVer2,
 		jupContent.verNew.iVer3,
+		jupContent.verNew.iVer4,
 		PROJECT_NAME,
 		nTotalSize);
 
@@ -338,7 +341,7 @@ void CElementJUPGenerator::GenerateIncFileString(const SJupContent& jupContent, 
 
 	for (const auto& entry : jupContent.UpdateList)
 	{
-		std_string_format(strTmp, "%s %s",
+		strTmp = std_string_format("%s %s",
 			entry.strMd5.c_str(),
 			entry.strFileName.c_str());
 		strInc.push_back(strTmp);
@@ -350,12 +353,10 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 	std::string strJupFile = m_SConfig.JupGeneratePath;
 	normalizeDirName(strJupFile);
 
-	std::string strOld, strNew;
-	jupContent.verOld.ToString(strOld);
-	jupContent.verNew.ToString(strNew);
+	std::string strOld = jupContent.verOld.ToString();
+	std::string strNew = jupContent.verNew.ToString();
 
-	std::string strFile;
-	std_string_format(strFile, "%s-%s.jup", strOld.c_str(), strNew.c_str());
+	std::string strFile = std_string_format("%s-%s.jup", strOld.c_str(), strNew.c_str());
 	strJupFile += strFile;
 
 	printf("GenerateJup %s......\r\n", strJupFile.c_str());
@@ -366,6 +367,7 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 		FileOperate::UDeleteFile(strJupFile.c_str());
 	}
 
+	/*
 	if (jupContent.UpdateList.empty())
 	{
 		printf("要升级的内容为空，不能生成jup文件!\r\n");
@@ -373,11 +375,11 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 
 		return false;
 	}
-
+	*/
 	
 	std::set<std::string>	 mapFileList;			//排序的文件列表
 	mapFileList.insert("inc");
-	for (SUpdateFileEntry entry : jupContent.UpdateList)
+	for (const auto& entry : jupContent.UpdateList)
 	{
 		mapFileList.insert(entry.strFileName);
 	}
@@ -408,7 +410,7 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 
 	std::string strTmpDir = "compress/";
 	//重新生成更新内容到 compress 目录
-	if (!ReGenerateJupContentToDir(jupContent, m_strCompressDir))
+	if (!ReGenerateJupContentToDir(jupContent, m_strCompressDir.c_str()))
 	{
 		printf("无法生成更新内容到 %s!\r\n", m_strCompressDir.c_str());
 		g_pAFramework->Printf("无法生成更新内容到 %s!\r\n", m_strCompressDir.c_str());
@@ -422,7 +424,8 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 
 	//生成listfile.txt
 	{
-		FILE* file = fopen((m_strWorkDir + "listfile.txt").c_str(), "wt");
+		std::string path = m_strWorkDir + "listfile.txt";
+		FILE* file = fopen(path.c_str(), "wt");
 		if (!file)
 		{
 			printf("无法创建listfile.txt文件!\r\n");
@@ -444,7 +447,8 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 	//生成jup7z.bat
 	std::string strJup7zBat = "jup7z.bat";
 	{
-		FILE* file = fopen((m_strWorkDir + strJup7zBat).c_str(), "wt");
+		std::string path = m_strWorkDir + strJup7zBat;
+		FILE* file = fopen(path.c_str(), "wt");
 		if (!file)
 		{
 			printf("无法创建jup7z.txt文件!\r\n");
@@ -461,7 +465,7 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 		fprintf(file, "cd %s", strTmpDir.c_str());
 		fprintf(file, "\n");
 		
-		std_string_format(strCommand, R"("%s7z.exe" a "%s" @"%s")", m_strWorkDir.c_str(), strJupFile.c_str(), strListFile.c_str());
+		strCommand = std_string_format("\"%s7z.exe\" a \"%s\" @\"%s\"", m_strWorkDir.c_str(), strJupFile.c_str(), strListFile.c_str());
 		fprintf(file, strCommand.c_str());
 		fprintf(file, "\n");
 
@@ -494,16 +498,17 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 
 }
 
-bool CElementJUPGenerator::ReGenerateJupContentToDir(const SJupContent& jupContent, const std::string& strDir) const 
+bool CElementJUPGenerator::ReGenerateJupContentToDir(const SJupContent& jupContent, const char* strDir) const 
 {
-	FileOperate::DeleteDir(strDir.c_str());
-	FileOperate::MakeDir(strDir.c_str());
+	FileOperate::DeleteDir(strDir);
+	FileOperate::MakeDir(strDir);
 
 	//生成更新内容到 compress 目录
 	//重新生成inc文件
 	std::string strIncFile = "inc";
 	{
-		FILE* file = fopen((strDir + strIncFile).c_str(), "wt");
+		std::string path = std::string(strDir) + strIncFile;
+		FILE* file = fopen(path.c_str(), "wt");
 		if (!file)
 		{
 			printf("无法创建inc文件!\r\n");
@@ -527,6 +532,7 @@ bool CElementJUPGenerator::ReGenerateJupContentToDir(const SJupContent& jupConte
 	std::string strSrc, strDest;
 	for (const auto& entry : jupContent.UpdateList)
 	{
+		std::string filename = entry.strFileName;
 		bool bNoCompress = true;
 
 		//只对Lua, Configs目录下的文件使用zlib压缩，因为在解压时大文件需要额外的大内存，且assetbundle文件压缩率本就不高
@@ -535,8 +541,8 @@ bool CElementJUPGenerator::ReGenerateJupContentToDir(const SJupContent& jupConte
 // 			bNoCompress = false;
 // 		}
 
-		strSrc = strUpdateBase + entry.strFileName;
-		strDest = strDir + entry.strFileName;
+		strSrc = strUpdateBase + filename;
+		strDest = std::string(strDir) + filename;
 
 		FileOperate::MakeDir(strDest.c_str());
 
@@ -560,7 +566,7 @@ bool CElementJUPGenerator::CompareDir(const std::string& leftDir, const std::str
 	std::string strRightDir = rightDir;
 	normalizeDirName(strRightDir);
 
-	for (const auto& strFile : fileList)
+	for (const std::string& strFile : fileList)
 	{
 		std::string strLeftFile = strLeftDir + strFile;
 		std::string strRightFile = strRightDir + strFile;
@@ -583,31 +589,31 @@ bool CElementJUPGenerator::CompareDir(const std::string& leftDir, const std::str
 
 bool CElementJUPGenerator::GenerateVersionTxt(const SVersion& sversion) const
 {
-	std::string strJupDir = m_SConfig.JupGeneratePath;
+	return GenerateVersionTxt(sversion.BaseVersion, sversion.NextVersion, m_SConfig.JupGeneratePath);
+}
+
+bool CElementJUPGenerator::GenerateVersionTxt(const std::string& baseVersion, const std::string& nextVersion, const std::string& jupDir)
+{
+	std::string strJupDir = jupDir;
 	normalizeDirName(strJupDir);
 
 	std::set<ELEMENT_VER> versionSet;
 	std::vector<SJupFileEntry> updateFileList;
 
 	ELEMENT_VER vBase;
-	if (!vBase.Parse(sversion.BaseVersion))
+	if (!vBase.Parse(baseVersion))
 	{
 		ASSERT(false);
 		return false;
 	}
-	ELEMENT_VER vLast;
-	if (!vLast.Parse(sversion.LastVersion))
-	{
-		ASSERT(false);
-		return false;
-	}
+
 	ELEMENT_VER vNext;
-	if (!vNext.Parse(sversion.NextVersion))
+	if (!vNext.Parse(nextVersion))
 	{
 		ASSERT(false);
 		return false;
 	}
-	
+
 	printf("收集Jup文件: %s\r\n", strJupDir.c_str());
 	g_pAFramework->Printf("收集Jup文件: %s\r\n", strJupDir.c_str());
 
@@ -618,9 +624,9 @@ bool CElementJUPGenerator::GenerateVersionTxt(const SVersion& sversion) const
 		if (!hasFileExtensionA(filename, "jup"))
 			return;
 
-// 		if (6 != sscanf(filename, "%d.%d.%d-%d.%d.%d.jup", &verOld[0], &verOld[1], &verOld[2], &verNew[0], &verNew[1], &verNew[2]))
-// 			return;
- 
+		// 		if (6 != sscanf(filename, "%d.%d.%d-%d.%d.%d.jup", &verOld[0], &verOld[1], &verOld[2], &verNew[0], &verNew[1], &verNew[2]))
+		// 			return;
+
 		SJupFileEntry entry;
 		//解析版本号
 		{
@@ -639,32 +645,31 @@ bool CElementJUPGenerator::GenerateVersionTxt(const SVersion& sversion) const
 			}
 		}
 
-		if (entry.vOld < vBase)		
+		if (entry.vOld < vBase)
 			return;
 
 		versionSet.insert(entry.vOld);
 		versionSet.insert(entry.vNew);
 
 		updateFileList.push_back(entry);
-		
+
 	},
 		strJupDir.c_str());
 
 	std::sort(updateFileList.begin(), updateFileList.end());
-	
+
 	if (updateFileList.empty() || versionSet.empty())
 	{
 		printf("要更新的jup文件数量为0, 生成基础version.txt!\r\n");
 		g_pAFramework->Printf("要更新的jup文件数量为0, 生成基础version.txt!\r\n");
 
-		GenerateBaseVersionTxt(sversion.BaseVersion, strJupDir);
+		GenerateBaseVersionTxt(baseVersion, strJupDir);
 		return true;
 	}
 
 	for (auto ver : versionSet)
 	{
-		std::string str;
-		ver.ToString(str);
+		std::string str = ver.ToString();
 		printf("version: %s\r\n", str.c_str());
 		g_pAFramework->Printf("version: %s\r\n", str.c_str());
 	}
@@ -673,36 +678,40 @@ bool CElementJUPGenerator::GenerateVersionTxt(const SVersion& sversion) const
 	{
 		if ((*versionSet.begin()) != vBase)
 		{
-			std::string strBegin;
-			std::string strBase;
-			(*versionSet.begin()).ToString(strBegin);
-			vBase.ToString(strBase);
+			std::string strBegin = (*versionSet.begin()).ToString();
+			std::string strBase = vBase.ToString();
 
 			printf("jup不包括BaseVersion! versionSetBegin: %s , vBase: %s\r\n", strBegin.c_str(), strBase.c_str());
 			g_pAFramework->Printf("jup不包括BaseVersion! versionSetBegin: %s , vBase: %s\r\n", strBegin.c_str(), strBase.c_str());
 			return false;
 		}
 
-		auto itr = std::find(versionSet.begin(), versionSet.end(), vLast);
-		if (itr == versionSet.end())
+		//中间版本必须包含
+		/*
+		for (int i = vBase.iVer2 + 1; i < vNext.iVer2; ++i)
 		{
-			std::string strLast;
-			vLast.ToString(strLast);
+			ELEMENT_VER ver(vBase.iVer0, vBase.iVer1, vBase.iVer2, i, 0);
 
-			printf("jup不包括LastVersion! vLast: %s\r\n", strLast.c_str());
-			g_pAFramework->Printf("jup不包括LastVersion! vLast: %s\r\n", strLast.c_str());
-			return false;
+			auto itr = std::find(versionSet.begin(), versionSet.end(), ver);
+			if (itr == versionSet.end())
+			{
+				std::string strVer = ver.ToString();
+
+				printf("jup不包括中间Version! ver: %s\r\n", strVer.c_str());
+				g_pAFramework->Printf("jup不包括中间Version! ver: %s\r\n", strVer.c_str());
+				return false;
+			}
 		}
+		*/
 
 		if ((*versionSet.rbegin()) != vNext)
 		{
-			std::string strNext;
-			vNext.ToString(strNext);
+			std::string strNext = vNext.ToString();
 
 			printf("jup不包括NextVersion! vNext: %s\r\n", strNext.c_str());
 			g_pAFramework->Printf("jup不包括NextVersion! vNext: %s\r\n", strNext.c_str());
 			return false;
-		}	
+		}
 	}
 
 	//检查VersionPair的完整性，是否能从base升级到latest
@@ -719,8 +728,7 @@ bool CElementJUPGenerator::GenerateVersionTxt(const SVersion& sversion) const
 				bool bFound = FindVersionPair(updateFileList, vBase, vNext, curVer, pair);
 				if (!bFound)
 				{
-					std::string strVer;
-					curVer.ToString(strVer);
+					std::string strVer = curVer.ToString();
 					printf("无法找到版本对应的升级jup! curVer: %s\r\n", strVer.c_str());
 					g_pAFramework->Printf("无法找到版本对应的升级jup! curVer: %s\r\n", strVer.c_str());
 					return false;
@@ -740,17 +748,15 @@ bool CElementJUPGenerator::GenerateVersionTxt(const SVersion& sversion) const
 		return false;
 	}
 
-	fprintf(file, "Version:\t%s/%s\n", sversion.NextVersion.c_str(), sversion.BaseVersion.c_str());
+	fprintf(file, "Version:\t%s/%s\n", nextVersion.c_str(), baseVersion.c_str());
 
 	fprintf(file, "Project:\t%s\n", PROJECT_NAME);
 
 	for (const SJupFileEntry& entry : updateFileList)
 	{
-		std::string strOld, strNew;
-		entry.vOld.ToString(strOld);
-		entry.vNew.ToString(strNew);
-		std::string strFile;
-		std_string_format(strFile, "%s-%s.jup", strOld.c_str(), strNew.c_str());
+		std::string strOld = entry.vOld.ToString();
+		std::string strNew = entry.vNew.ToString();
+		std::string strFile = std_string_format("%s-%s.jup", strOld.c_str(), strNew.c_str());
 		std::string strJupFile = strJupDir + strFile;
 
 		char md5String[64];
@@ -810,6 +816,8 @@ bool CElementJUPGenerator::SplitJup(const SJupContent& jupContent, std::vector<S
 
 	jupContentSplitList.clear();
 	int64_t nCurrentSize = 0;
+	int64_t nLastOriginSize = INT_MAX;
+	int64_t nOriginSize = 0;
 	std::vector<SUpdateFileEntry>  updateFileEntries;
 
 	for (const SUpdateFileEntry& entry : jupContent.UpdateList)
@@ -822,28 +830,11 @@ bool CElementJUPGenerator::SplitJup(const SJupContent& jupContent, std::vector<S
 		}
 		else
 		{
-			//添加一个jupContent
-			ELEMENT_VER vStart;
-			ELEMENT_VER vEnd;
-			if (jupContentSplitList.empty())
-			{
-				vStart = vOrigOld;
-				vEnd.Set(vStart.iVer0, vStart.iVer1, vStart.iVer2, vStart.iVer3 + 1);
-			}
-			else
-			{
-				vStart = jupContentSplitList.back().verNew;
-				vEnd.Set(vStart.iVer0, vStart.iVer1, vStart.iVer2, vStart.iVer3 + 1);			   //末位加1
-			}
-
 			if (!updateFileEntries.empty())			//已有文件列表，结束本split
 			{
 				SJupContent content;
-				content.verOld = vStart;
-				content.verNew = vEnd;
 				content.UpdateList = updateFileEntries;
-				GenerateIncFileString(content, content.IncString);
-
+				
 				jupContentSplitList.emplace_back(content);					//添加到SplitList
 			}
 
@@ -860,29 +851,50 @@ bool CElementJUPGenerator::SplitJup(const SJupContent& jupContent, std::vector<S
 		}
 	}
 
-	if (!updateFileEntries.empty())		   //最后一个
+	//if (!updateFileEntries.empty())		   //最后一个
 	{
-		//添加一个jupContent
+		SJupContent content;
+		content.UpdateList = updateFileEntries;
+
+		jupContentSplitList.emplace_back(content);					//添加到SplitList
+	}
+
+	//按解压后的size从大到小排序
+	std::sort(jupContentSplitList.begin(), jupContentSplitList.end(),
+		[](const SJupContent& v1, const SJupContent& v2)
+		{
+		return v1.GetTotalOriginSize() > v2.GetTotalOriginSize();
+		}
+	);
+
+	//分配verOld, verNew，并重新生成inc文件
+	for (size_t i = 0; i < jupContentSplitList.size(); ++i)
+	{
 		ELEMENT_VER vStart;
 		ELEMENT_VER vEnd;
-		if (jupContentSplitList.empty())
+		if (i == 0)
 		{
 			vStart = vOrigOld;
-			vEnd = vOrigNew;
+
+			if (i + 1 == jupContentSplitList.size())
+				vEnd = vOrigNew;
+			else
+				vEnd.Set(vStart.iVer0, vStart.iVer1, vStart.iVer2, vStart.iVer3, vStart.iVer4 + 1);
 		}
 		else
 		{
-			vStart = jupContentSplitList.back().verNew;
-			vEnd = vOrigNew;			   //末位加1
+			vStart = jupContentSplitList[i - 1].verNew;
+
+			if (i + 1 == jupContentSplitList.size())
+				vEnd = vOrigNew;
+			else
+				vEnd.Set(vStart.iVer0, vStart.iVer1, vStart.iVer2, vStart.iVer3, vStart.iVer4 + 1);
 		}
+		jupContentSplitList[i].verOld = vStart;
+		jupContentSplitList[i].verNew = vEnd;
 
-		SJupContent content;
-		content.verOld = vStart;
-		content.verNew = vEnd;
-		content.UpdateList = updateFileEntries;
-		GenerateIncFileString(content, content.IncString);
-
-		jupContentSplitList.emplace_back(content);					//添加到SplitList
+		//生成inc文件
+		GenerateIncFileString(jupContentSplitList[i], jupContentSplitList[i].IncString);
 	}
 
 	return true;
@@ -894,9 +906,9 @@ bool CElementJUPGenerator::GenerateJupUpdateText(const std::vector<SJupContent>&
 	normalizeDirName(strJupDir);
 
 	ATIME time;
-	ASys::GetCurLocalTime(time, nullptr);
+	ASys::GetCurLocalTime(time, NULL);
 	std::string strDate;
-	std_string_format(strDate, "%04d-%02d-%02d_%02d_%02d_%02d",
+	strDate = std_string_format("%04d-%02d-%02d_%02d_%02d_%02d",
 		time.year + 1900, time.month + 1, time.day, time.hour, time.minute, time.second);
 
 	std::string strTxtFile = strJupDir + "JupUpdateContent_" + strDate + ".txt";
@@ -914,9 +926,8 @@ bool CElementJUPGenerator::GenerateJupUpdateText(const std::vector<SJupContent>&
 	{
 		updateEntryList.clear();
 
-		std::string verOld, verNew;
-		jupContent.verOld.ToString(verOld);
-		jupContent.verNew.ToString(verNew);
+		std::string verOld = jupContent.verOld.ToString();
+		std::string verNew = jupContent.verNew.ToString();
 
 		fprintf(file, "[%s-%s.jup]\n", verOld.c_str(), verNew.c_str());
 		
@@ -941,12 +952,12 @@ bool CElementJUPGenerator::GenerateJupUpdateText(const std::vector<SJupContent>&
 	return true;
 }
 
-bool CElementJUPGenerator::FindVersionPair(const std::vector<SJupFileEntry>& pairList, const ELEMENT_VER& vBase, const ELEMENT_VER& vLatest, const ELEMENT_VER& curVer, SJupFileEntry& verPair) const
+bool CElementJUPGenerator::FindVersionPair(const std::vector<SJupFileEntry>& pairList, const ELEMENT_VER& vBase, const ELEMENT_VER& vLatest, const ELEMENT_VER& curVer, SJupFileEntry& verPair)
 {
 	if (pairList.empty() || curVer == vLatest || curVer > vLatest || curVer < vBase)
 		return false;
 
-	ELEMENT_VER vOld(-1, 0, 0, 0);
+	ELEMENT_VER vOld(-1, 0, 0, 0, 0);
 	for (const auto& pair : pairList)
 	{
 		if (curVer == pair.vOld)
@@ -962,7 +973,7 @@ bool CElementJUPGenerator::FindVersionPair(const std::vector<SJupFileEntry>& pai
 	//找最高的目标版本
 	int iVer = -1;
 	ELEMENT_VER verNew = vBase;
-	for (size_t i = 0; i < pairList.size(); ++i)
+	for (int i = 0; i < (int)pairList.size(); ++i)
 	{
 		if (pairList[i].vOld != vOld)
 			continue;
@@ -1005,12 +1016,12 @@ bool CElementJUPGenerator::GenerateBaseVersionTxt(const std::string& strBaseVers
 	return true;
 }
 
-bool CElementJUPGenerator::ReadVersionText(const std::string& strFileName, std::vector<SUpdateFileEntry>& entries) const
+bool CElementJUPGenerator::ReadVersionText(const char* strFileName, std::vector<SUpdateFileEntry>& entries) const
 {
 	entries.clear();
 
 	AFileImage File;
-	if (!File.Open("", strFileName.c_str(), AFILE_OPENEXIST | AFILE_TEXT))
+	if (!File.Open("", strFileName, AFILE_OPENEXIST | AFILE_TEXT))
 		return false;
 	
 	auint32 dwReadLen;

@@ -471,7 +471,7 @@
     <BrightnessContrastGammaConfig Brightness="0" Contrast="0" />
     <ShadowsMidtonesHighlightsConfig Amount="1" Shadows="#FFFFFF80" Midtones="#FFFFFF80" Highlights="#FFFFFF80" />
     <PlayerLightConfig LightColor="#00000000" Intensity="0" BounceIntensity="0" RotationX="0" RotationY="0" RotationZ="0" Strength="0" Bias="0" NormalBias="0" ShadowNearPlane="0" />
-    <EnvConifg EquatorColor="#C7DFF0FF" GroundColor="#FBBD9BFF" SkyColor="#FFF4C5FF" AmbientIntensity="0" />
+    <EnvConifg EquatorColor="#9FB2BF" GroundColor="#BF9076" SkyColor="#BFB794" AmbientIntensity="0" />
     <FogConfig FogColor="#00000000" IsFogOn="False" FogBeginDis="0" FogEndDis="0" FogMode="0" />
     <PostEffectConfig>
       <Fog FogColor="#00000000" FogEnabled="False" FogParamterX="0" FogParamterY="0" FogParamterZ="0" FogParamterW="0" />

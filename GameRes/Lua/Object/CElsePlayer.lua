@@ -3,6 +3,7 @@ local CEntity = require "Object.CEntity"
 local CPlayer = require "Object.CPlayer"
 local CStateMachine = require "FSM.CStateMachine"
 local CModel = require "Object.CModel"
+local CFSMStateBase = require "FSM.CFSMStateBase"
 local CGame = Lplus.ForwardDeclare("CGame")
 local CObjectSkillHdl = require "Skill.CObjectSkillHdl"
 local ObjectInfoList = require "Object.ObjectInfoList"
@@ -20,10 +21,7 @@ local CElsePlayer = Lplus.Extend(CPlayer, "CElsePlayer")
 local def = CElsePlayer.define
 
 def.field("boolean")._IsForbidRescue = false	--所在场景是否禁止救援复活
-
-local function SendFlashMsg(msg, bUp)
-	game._GUIMan:ShowTipText(msg, bUp)
-end
+def.field("boolean")._IsUsingEmptyModelFirst = true   -- 开始时是否使用空模型
 
 def.static("=>", CElsePlayer).new = function ()
 	local obj = CElsePlayer()
@@ -39,7 +37,22 @@ def.static("=>", CElsePlayer).new = function ()
 end
 
 def.override("table").Init = function (self, info)
-	self._ID = info.CreatureInfo.MovableInfo.EntityInfo.EntityId
+	self:SetRoleInfoData(info)
+    
+	local player_man = game._CurWorld._PlayerMan
+    if player_man:IsInCaredPlayerList(self._ID) then
+        self._IsCullingVisible = true
+        self._IsUsingEmptyModelFirst = false
+	    self:Load()
+    else
+    	self._IsCullingVisible = false
+        self._IsUsingEmptyModelFirst = true
+        self:CreateEmptyBodyWithTopPate()
+    end
+end
+
+def.method("table").SetRoleInfoData = function(self, info)
+    self._ID = info.CreatureInfo.MovableInfo.EntityInfo.EntityId
 	self._ProfessionTemplate = CElementData.GetProfessionTemplate(info.Profession)
 	
 	self._TeamId = info.TeamId
@@ -51,7 +64,7 @@ def.override("table").Init = function (self, info)
 	self._InitDir = creature_info.MovableInfo.EntityInfo.Orientation
 
 	self._InfoData = ObjectInfoList.CPlayerInfo()
-
+    self._InfoData._MoveSpeed = creature_info.MovableInfo.MoveSpeed
 	self._InfoData._Prof = info.Profession
 	self._InfoData._Gender = Profession2Gender[info.Profession]
 
@@ -60,11 +73,13 @@ def.override("table").Init = function (self, info)
 	self._CampId = creature_info.CampId
 	self._InfoData._FactionId = creature_info.FactionId
 	self._InfoData._MaxHp = creature_info.MaxHp
+    self._InfoData._MaxStamina = creature_info.MaxStamina
 	self._InfoData._CurrentHp = creature_info.CurrentHp
 	self:SetCurrentTargetId(creature_info.CurrentTargetId)
 	self._IsRedName = info.IsRedName
 	self._InfoData._CurShield = creature_info.ShieldValue
 	self._InfoData._PkMode = info.PkMode
+    self._InfoData._EvilNum = info.Exterior.EvilNum
 	self._IsForbidRescue = info.ForbidRescue == true
 	self._InfoData._CustomImgSet = info.Exterior.CustomImgSet
 	self._InfoData._DesignationId = info.DesignationId
@@ -87,7 +102,7 @@ def.override("table").Init = function (self, info)
 	end
 
 	local ENUM = require "PB.data".ENUM_FIGHTPROPERTY
---	warn("creature_info.MaxMana = ", creature_info.MaxMana , "creature_info.CurrentMana = ", creature_info.CurrentMana)
+	--	warn("creature_info.MaxMana = ", creature_info.MaxMana , "creature_info.CurrentMana = ", creature_info.CurrentMana)
 	self._InfoData._FightProperty[ENUM.CURRENTMANA] = {creature_info.CurrentMana, 0}
 	self._InfoData._FightProperty[ENUM.MAXMANA] = {creature_info.MaxMana, 0}
 	self._InfoData._FightProperty[ENUM.FIGHTSCORE] = {creature_info.FightScore, 0}
@@ -108,19 +123,107 @@ def.override("table").Init = function (self, info)
 
 	-- 设置影响外观的模型参数，在加载模型前
 	self:SetOutwardDatas(info.Exterior)
-	self:Load()
-	
 	self:InitStates(creature_info.BuffStates)
 	self:UpdateSealInfo(info.CreatureInfo.BaseStates)
+    self:OnHPChange(self._InfoData._CurrentHp, self._InfoData._MaxHp)
+end
+
+--def.method("userdata").AddEmptyGameObjectBoxCollider = function(self, go)
+--    if self._InfoData._Prof == EnumDef.Profession.Warrior then
+--        GameUtil.ResizeCollider(go, 0.8, 5, 0.8)
+--    elseif self._InfoData._Prof == EnumDef.Profession.Aileen then
+--        GameUtil.ResizeCollider(go, 0.8, 4, 0.8)
+--    elseif self._InfoData._Prof == EnumDef.Profession.Assassin then
+--        GameUtil.ResizeCollider(go, 0.8, 5, 0.8)
+--    elseif self._InfoData._Prof == EnumDef.Profession.Archer then
+--        GameUtil.ResizeCollider(go, 0.8, 5, 0.8)
+--    elseif self._InfoData._Prof == EnumDef.Profession.Lancer then
+--        GameUtil.ResizeCollider(go, 0.8, 4, 0.8)
+--    else
+--        GameUtil.ResizeCollider(go, 0.8, 4, 0.8)
+--    end
+--end
+
+def.method().CreateEmptyBodyWithTopPate = function(self)
+    local m = CModel.new()
+	m._ModelFxPriority = self:GetModelCfxPriority()
+    m._GameObject = GameObject.New("EmptyModel")
+    m._Status = ModelStatus.NORMAL
+    GameUtil.ResizeCollider(m._GameObject, 0.8, 4, 0.8)
+	self._Model = m
+
+    self:AddObjectComponent(false, 0.5)
+	GameUtil.SetLayerRecursively(self._GameObject, EnumDef.RenderLayer.Player)
+    self:EnableShadow(false)
+
+    self._IsCullingVisible = false
+    self._IsReady = false
+    self._IsModelLoaded = false
+
+    if self._OnLoadedCallbacks then
+        for i,v in ipairs(self._OnLoadedCallbacks) do
+            v(self)
+        end
+        self._OnLoadedCallbacks = nil
+    end
+
+    --默认隐藏头部信息
+    if not self:IsNeedHideHpBarAndName() then
+        if self._TopPate ~= nil then 
+            self._TopPate:Pool() 
+            self._TopPate = nil
+        end
+        self:SetPateOffsetH(0--[[self:GetEmptyGameObjectTopPateOffset()]])
+
+	    local CPlayerTopPate = require "GUI.CPate".CPlayerTopPate
+	    local pate = CPlayerTopPate.new()
+	    self._TopPate = pate
+        self._TopPate:SetOffsetH(self._PateOffsetH)
+	    pate:Init(self, nil, true)
+        self._TopPate:SetMini(true)
+	    self:OnPateCreate()
+    end
+end
+
+def.override().CreatePate = function (self)
+	local CPlayerTopPate = require "GUI.CPate".CPlayerTopPate
+	local pate = CPlayerTopPate.new()
+	self._TopPate = pate
+    self._TopPate:SetOffsetH(self._PateOffsetH)
+	pate:Init(self, nil, true)
+    self._TopPate:SetMini(game._IsInWorldBoss)
+	self:OnPateCreate()
 end
 
 def.method().Load = function (self)
-	--self._IsEquipReady = false
-	self._OutwardParams = self:GetModelParams()
+	if self:IsModelLoaded() then return end
+	
+	self._IsReady = false
+    self._IsModelLoaded = false
 
-	local m = CModel.new()
+    if self._IsUsingEmptyModelFirst then
+    	if self._Model ~= nil then
+			local m = self._Model
+	    	if m._GameObject ~= nil then
+	       		GameObject.Destroy(m._GameObject)
+	       		m._GameObject = nil
+	       	end
+	       self._Model:Destroy()
+	       self._Model = nil
+	    end
+
+	    if self._TopPate ~= nil then 
+	        self._TopPate:Pool() 
+	        self._TopPate = nil
+	    end
+    end
+
+    local m = CModel.new()
 	m._ModelFxPriority = self:GetModelCfxPriority()
+
 	self._Model = m
+	self._OutwardParams = self:GetModelParams()
+	self._IsReady = false
 	m:LoadWithModelParams(self._OutwardParams, function()
 		self:OnLoad()
 	end)
@@ -130,7 +233,11 @@ def.method().OnLoad = function (self)
 	local function _onload(self)
 		if self._Model == nil then return end
 		self._Model._GameObject.name = "Model"
-		self:AddObjectComponent(false, 0.5)
+		if self._IsUsingEmptyModelFirst then
+			self:UpdateObjectComponent(false, 0)
+		else
+        	self:AddObjectComponent(false, 0.5)
+        end
 
 		GameUtil.SetLayerRecursively(self._GameObject, EnumDef.RenderLayer.Player)
 
@@ -145,60 +252,219 @@ def.method().OnLoad = function (self)
 		--坐骑状态
 		self._IsMountEnterSight = self:IsServerMounting()
 		self:MountOn(self:IsServerMounting())
-		if self:IsDead() then
-			self:Dead()
-		else
-			self:StopNaviCal()
-		end
-
-		--self:EnableShadow(true)
 
 		local go = self._Model._GameObject
 		self._CombatStateChangeComp = go:GetComponent(ClassType.CombatStateChangeBehaviour)
 		if self._CombatStateChangeComp == nil then
 			self._CombatStateChangeComp = go:AddComponent(ClassType.CombatStateChangeBehaviour)
 		end
-		self._CombatStateChangeComp:ChangeState(true, self._IsInCombatState, 0, 0)
+		self._CombatStateChangeComp:ChangeState(true, self:IsInServerCombatState(), 0, 0)
 
-		--if not self:IsVisible() then
-		--	self._Model:SetVisible(false)
-		--end
+		if self._FSM ~= nil and not self._FSM:UpdateCurStateWhenBecomeVisible() then
+        	if self:IsDead() then
+        		self:Dead()
+        	else
+        		self:Stand()
+        	end
+        end
+
+        if not self:IsCullingVisible() then
+			self:EnableCullingVisible(false)
+		end
 	end
 	
 	if self._IsReleased then
-		self._Model:Destroy()
+        if self._Model ~= nil then
+		    self._Model:Destroy()
+        end
 	else
 		_onload(self)
 	end
+end
+
+def.method("boolean", "number").UpdateObjectComponent = function (self, is_host, radius)
+    local root = self._GameObject
+
+    if root == nil then 
+    	warn("can not call UpdateObjectComponent when self._GameObject is nil")
+    	return
+    end
+
+    local mainModelGo = self._Model._GameObject
+    if mainModelGo ~= nil then
+        mainModelGo.parent = root
+        mainModelGo.localPosition = Vector3.zero
+        mainModelGo.localRotation = Vector3.zero
+    end
+
+    --self._GameObject = root
+
+    self._IsModelLoaded = true
+    GameUtil.AddObjectComponent(self, root, self._ID, self:GetObjectType(), radius)
+end
+
+def.method("boolean", "dynamic").OnEnterOrLeaveHostCarePlayerList = function(self, isEnter, roleInfo)
+    -- 如果是新进入careList的玩家需要更新下RoleInfo信息
+    if roleInfo ~= nil then
+        self:SetRoleInfoData(roleInfo)
+    end
+
+    if isEnter then
+    	if not self._IsCullingVisible then
+	        if not self._IsModelLoaded then  -- 模型尚未加载
+	            if self._Model ~= nil and not self._Model:IsInLoading() then 
+	            --if self._Model ~= nil and self._Model._Status ~= ModelStatus.LOADING then
+	            	self._IsCullingVisible = true
+	            	self:Load()
+	            end
+	        else
+	            self:EnableCullingVisible(true)
+	        end
+	    end
+    else
+    	if not self._IsModelLoaded then
+    		return
+    	end
+
+        if self._IsCullingVisible then
+            self:EnableCullingVisible(false)
+        end
+    end
 end
 
 def.override("=>", "number").GetObjectType = function (self)
     return OBJ_TYPE.ELSEPLAYER
 end
 
-def.override("boolean").EnableCullingVisible = function (self, visible)
-	--if self._IsCullingVisible == visible then return end
+def.override(CFSMStateBase, "=>", "boolean").ChangeState = function(self, state)
+    -- 这里不需要判断是否_IsReady, 以为角移动也需要ChangeState，如果只有头顶字也是需要移动的。
+    -- 但是如果是正在加载中的模型并且没有空物体的不需要ChangeState，否则移动组件target会为空。
+    if self._IsCullingVisible and not self._IsReady then return true end
+    if self._FSM ~= nil then
+        self:SyncPosWhenStateChange(self._FSM:GetCurrentState(), state)
+        self._FSM:ChangeState(state)
+    end
 
-	--warn(self._ID, self._IsCullingVisible, "--->", visible, debug.traceback())
+    return true
+end
+
+def.override("boolean").EnableCullingVisible = function (self, visible)
+	if self._IsCullingVisible == visible then
+		return
+	end
+
+	-- 处于model切换中，直接忽略，不做处理
+	-- 可能存在的问题：该Player在下次同步前的战斗不同步
+	if self._IsModelChanging then
+		return
+	end
+
+	if not visible then
+		self:DestroyHeadEffectObject()
+	    	
+    	-- 清理伤害字
+        if self._HUDText ~= nil then
+            self._HUDText:Release()
+            self._HUDText = nil
+        end
+        -- 设置头顶字为Mini类型的
+        if self._TopPate ~= nil then
+            self._TopPate:SetMini(true)
+        end
+        --清理Buff状态
+        self:ReleaseBuffStates()
+
+        -- 移除坐骑出生动作计时器
+        if self._MountBornAniTimer ~= 0 then
+			self:RemoveTimer(self._MountBornAniTimer)
+			self._MountBornAniTimer = 0
+		end
+		-- 进驻视野骑马状态
+		self._IsMountEnterSight = false
+		-- 特效清理
+		for i,v in ipairs(self._HitGfxs) do
+        v:Stop()
+	    end
+	    self._HitGfxs = {}
+	    for i,v in ipairs(self._BelongToMeSkillGfxs) do
+	        v:Stop()
+	    end
+	    self._BelongToMeSkillGfxs = {}
+
+	    --技能相关处理
+	    if self._SkillHdl ~= nil then
+	    	self._SkillHdl:Cleanup()
+	    end
+
+	    if self._LvUpFx ~= nil then
+			self._LvUpFx:Stop()
+			self._LvUpFx = nil
+		end
+		if self._FightFx ~= nil then
+			self._FightFx:Stop()
+			self._FightFx = nil
+		end
+		if self._MountHorseFx ~= nil then
+			self._MountHorseFx:Stop()
+			self._MountHorseFx = nil
+		end
+		if self._ResurrectFx ~= nil then
+			self._ResurrectFx:Stop()
+			self._ResurrectFx = nil
+		end
+        if self._FSM ~= nil then
+            self._FSM:Release()
+        end
+	else
+    	if self._CombatStateChangeComp ~= nil then
+	    	self._CombatStateChangeComp:ChangeState(true, self:IsInServerCombatState(), 0, 0)
+		end
+        --更新头顶字信息如果有的话
+        if self._TopPate ~= nil then
+            self._TopPate:SetMini(false)
+        end
+	end
+
+    --控制播放头顶特效
+    self:PlayEntityHeadEffect()
+    --加载后是否立刻显示
+    self:SetActive(self._LoadedIsShow)
+    --更新头顶字信息如果有的话
+    self:OnPateCreate()
+    
+    if self._MagicControlinfo ~= nil then
+        self._MagicControlinfo:Refresh()
+    end
+
+    self._HangPointCache ={}
+
+    self._IsCullingVisible = visible
 
 	if self._TransformerModel then
-		self._TransformerModel:SetVisible(visible and not self:IsLogicInvisible())
-	elseif self._MountModel then
-		self._MountModel:SetVisible(visible and not self:IsLogicInvisible())
-	elseif self._Model ~= nil then
-		self._Model:SetVisible(visible and not self:IsLogicInvisible())
+		self._TransformerModel:SetVisible(self:IsVisible())
 	end
-
-	if visible and not self._IsCullingVisible and not self:IsLogicInvisible() and self:GetCurStateType() == FSM_STATE_TYPE.IDLE then
-		self:Stand()
+    if self._MountModel then
+		self._MountModel:SetVisible(self:IsVisible())
 	end
-
+    if self._Model ~= nil then
+		self._Model:SetVisible(self:IsVisible())
+	end
     if visible and self._WingModel ~= nil and not self._IsWingModelVisible then 
 		self._WingModel:SetVisible(false)
 	end
 
-    self._IsCullingVisible = visible
-    self:EnableShadow(self._IsEnableShadow)     --刷新
+    self:EnableShadow(visible)     --刷新
+
+    -- 需要重新判断骑马、翅膀、外观
+    self:SyncAllExterior()
+
+    if self._FSM ~= nil and not self._FSM:UpdateCurStateWhenBecomeVisible() then
+        if self:IsDead() then
+        	self:Dead()
+        else
+        	self:Stand()
+        end
+    end
 end
 
 def.override().OnClick = function (self)
@@ -218,7 +484,7 @@ def.override().OnClick = function (self)
 			if self:IsFriendly() then
 				--战斗状态不能救援
 				if hostplayer:IsInServerCombatState() then
-    				SendFlashMsg( StringTable.Get(1108), false)
+    				TeraFuncs.SendFlashMsg( StringTable.Get(1108), false)
     			else
 					local CSpecialIdMan = require  "Data.CSpecialIdMan"
 					local  skill_id = CSpecialIdMan.Get("ResurrentSkillId")
@@ -411,6 +677,7 @@ end
 
 -- 模型加载完成后刷新脚底光圈
 def.override().OnModelLoaded = function (self)
+    self:SetPateOffsetH(0)
 	CPlayer.OnModelLoaded(self)	
 
 	self:EnableShadow(true)
@@ -493,6 +760,16 @@ def.override("number").SetCampId = function(self, campId)
 	self:UpdatePetName()
 end
 
+--Host Camp ID Changed
+def.method().OnHostCampUpdate = function(self)
+    if self._TopPate ~= nil then
+        self._TopPate:UpdateName(true)
+        self:UpdatePetName()
+        self:UpdateTopPate(EnumDef.PateChangeType.Rescue)
+    end
+end
+
+
 -- 返回角色称号ID 
 def.override("=>", "number").GetDesignationId = function(self)
 	return self._InfoData._DesignationId
@@ -571,6 +848,8 @@ end
 
 def.override("number", "number", "number", "number").OnLevelUp = function (self, currentLevel, currentExp, currentParagonLevel, currentParagonExp)
 	CPlayer.OnLevelUp(self, currentLevel, currentExp, currentParagonLevel, currentParagonExp)
+    
+    if not self:IsCullingVisible() then return end
 
 	local ElsePlayerLevelChangeEvent = require "Events.ElsePlayerLevelChangeEvent"
 	local event = ElsePlayerLevelChangeEvent()
@@ -586,12 +865,31 @@ def.override().OnResurrect = function(self)
 	end
 end
 
+def.override("table").SetPos = function (self, pos)
+    if pos == nil then
+        warn("SetPos's pos is nil", debug.traceback())
+        return
+    end
+    
+    if self._IsCullingVisible and not self._IsReady then
+        self._InitPos = pos
+        return
+    end
+
+    pos.y = GameUtil.GetMapHeight(pos) + self._HeightOffsetY
+
+    self._GameObject.position = pos
+end
+
 def.override("table", "table", "number", "table", "number", "boolean", "table").OnMove = function (self, curStepPos, facedir, movetype, movedir, speed, useDest, finalDstPos)
     self._StopMovePos = nil
-
     if not self._IsReady then
         self._InitPos = curStepPos
         self._InitDir = facedir  
+    end
+
+    if self._IsCullingVisible and not self._IsReady then
+        -- 如果是以在关注列表里面创建的玩家，模型还没有加载好。它的self._GameObject是空，因此不能移动
         return
     end
 
@@ -600,7 +898,14 @@ def.override("table", "table", "number", "table", "number", "boolean", "table").
 
     self:SetMoveSpeed(speed)
     self._MoveType = movetype
-    
+
+    local game = game
+	local hp = game._HostPlayer
+	if not self._IsCullingVisible and Vector3.DistanceH(hp:GetPos(), self:GetPos()) > 15 then
+		self:SetPos(curStepPos)
+    	return
+	end
+
     local ENTITY_MOVE_TYPE = require "PB.net".ENTITY_MOVE_TYPE
     if movetype == ENTITY_MOVE_TYPE.ForceSync then
         self:SetPos(curStepPos)

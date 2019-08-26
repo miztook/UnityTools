@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Canyon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world02.png",
 	AssetPath = "Assets/Outputs/Scenes/World02.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[11046] = 
@@ -77,10 +78,10 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[147] = { x = 73.55, y = 75.39, z = 106.05, name = "诅咒战场相位【个人】", worldId = 0, PkMode = 0 },
-			[282] = { x = 58.58, y = 62.99, z = 131.70, name = "汇合区域1", worldId = 0, PkMode = 0 },
-			[283] = { x = 116.95, y = 62.51, z = 94.01, name = "汇合区域2", worldId = 0, PkMode = 0 },
-			[455] = { x = 19.28, y = 65.52, z = 137.23, name = "支援沙摩尔", worldId = 0, PkMode = 0 },
+			[147] = { x = 73.55, y = 75.39, z = 106.05, name = "诅咒战场相位【个人】", worldId = 0, PkMode = 1 },
+			[282] = { x = 58.58, y = 62.99, z = 131.70, name = "汇合区域1", worldId = 0, PkMode = 1 },
+			[283] = { x = 116.95, y = 62.51, z = 94.01, name = "汇合区域2", worldId = 0, PkMode = 1 },
+			[455] = { x = 19.28, y = 65.52, z = 137.23, name = "支援沙摩尔", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

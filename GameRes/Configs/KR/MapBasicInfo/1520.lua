@@ -6,11 +6,12 @@ local MapInfo =
 	Length = 800,
 	Width = 800,
 	NavMeshName = "World03Part2.navmesh",
-	BackgroundMusic = "",
+	BackgroundMusic = "BGM_Map_3/Map_3/Map_3_phase",
 	BattleMusic = "",
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14232] = 
@@ -31,7 +32,7 @@ local MapInfo =
 		},
 		[14234] = 
 		{
-			[1] = { x = -312.20, y = 120.70, z = 71.90, name = "타락한 창기사", level = 10, SortID = 9, DropItemIds = " " },
+			[1] = { x = -312.20, y = 120.70, z = 71.90, name = "타락한 창기사", level = 55, SortID = 9, DropItemIds = " " },
 		},
 	},
 	Npc = 
@@ -49,8 +50,8 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[219] = { x = -295.29, y = 123.86, z = 21.96, name = "눈의 성", worldId = 0, IsCanFind = 1, PkMode = 0, IsCanHawkeye = true, QuestID = {4527} },
-			[243] = { x = -246.25, y = 119.10, z = 37.41, name = "雪峰相位", worldId = 0, PkMode = 0 },
+			[219] = { x = -295.29, y = 123.86, z = 21.96, name = "눈의 성", worldId = 0, IsCanFind = 1, PkMode = 1, IsCanHawkeye = true, QuestID = {4527} },
+			[243] = { x = -246.25, y = 119.10, z = 37.41, name = "雪峰相位", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

@@ -85,7 +85,7 @@ def.method().Start = function(self)
     CGame.EventManager:addHandler('BaseStateChangeEvent', OnBaseStateChangeEvent)
     CGame.EventManager:addHandler('DisconnectEvent', OnDisconnect)  
 
-    print("CAutoFightMan Start", debug.traceback())
+    --print("CAutoFightMan Start", debug.traceback())
 end
 
 def.method("number", "number", "boolean").SetMode = function(self, fightType, questTid, needDelay)
@@ -197,7 +197,7 @@ def.method("number").Pause = function(self, reason)
     self._PauseMask = bit.bor(self._PauseMask, reason)
 
     if reason ~= _G.PauseMask.ManualControl then
-        print("CAutoFightMan Pause", self._PauseMask, debug.traceback())
+        --print("CAutoFightMan Pause", self._PauseMask, debug.traceback())
     end
 
     if self._InDelayCallback then
@@ -219,7 +219,7 @@ def.method("number").Restart = function(self, reason)
     self._PauseMask = bit.band(self._PauseMask,  bit.bnot(reason))
 
     if reason ~= _G.PauseMask.ManualControl then
-        print("CAutoFightMan Restart", self._PauseMask, debug.traceback())
+        --print("CAutoFightMan Restart", self._PauseMask, debug.traceback())
     end
 
     if self._PauseMask ~= 0 then return end
@@ -321,7 +321,7 @@ def.method().Stop = function(self)
         game._HostPlayer:StopNaviCal()
     end
 
-    print("CAutoFightMan Stop", debug.traceback())
+    --print("CAutoFightMan Stop", debug.traceback())
 end
 
 def.method().Debug = function(self)

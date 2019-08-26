@@ -11,7 +11,6 @@ def.field('userdata')._Lab_Tip = nil
 def.field('userdata')._Pro_Loading = nil
 def.field('userdata')._Img_BG = nil
 def.field('userdata')._Label = nil
-def.field('function')._OnMapImageReady = nil
 def.field('function')._OnHideCallback = nil
 
 def.field("number")._DetectTimerID = 0
@@ -25,7 +24,7 @@ def.static("=>",CPanelLoading).Instance = function ()
 	        instance._PrefabPath = PATH.Panel_Loading
                 instance._PanelCloseType = EnumDef.PanelCloseType.None
                 instance._DestroyOnHide = false
-	        instance._ForbidESC = true
+	            instance._ForbidESC = true
                 instance:SetupSortingParam()
 
                 local ret, msg, result = pcall(dofile, "Configs/LoadingCfg.lua")
@@ -57,9 +56,14 @@ end
 
 def.override('dynamic').OnData = function(self, data)
     GameUtil.OnLoadingShow(true)
+    game._IsPanelLoadingShow = not game:IsInBeginnerDungeon()       --新手副本认为Loading不显示，特殊逻辑
+    game:CheckProtcolPaused()
+
 	self._NumCount = 0
     self._IsRealLoadFinish = false
-    _G.RemoveGlobalTimer(self._DetectTimerID)
+    if self._DetectTimerID > 0 then
+        _G.RemoveGlobalTimer(self._DetectTimerID)
+    end
     local waitTime = 0
     self._DetectTimerID = _G.AddGlobalTimer(0.2, false, function()
                     self:NumCountAdd()
@@ -81,9 +85,7 @@ def.override('dynamic').OnData = function(self, data)
                     end
                 end)
     math.random(1, 100) -- 第一次使用随机函数会永远都是1，先调一次
-    if data.OnMapImageReady then
-        data.OnMapImageReady()
-    end
+
     self:UpdateLogoBG(data) 
     self:UpdateLoadInfo()
 end
@@ -174,9 +176,13 @@ def.override().OnHide = function(self)
 
     game._CGuideMan:TriggerDelayCallBack()
     GameUtil.OnLoadingShow(false)
+    game._IsPanelLoadingShow = false
+    game:CheckProtcolPaused()
 end
 
 def.override().OnDestroy = function(self)
+    game._IsPanelLoadingShow = false
+    game:CheckProtcolPaused()
     self._Lab_Tip = nil
     self._Pro_Loading = nil
     self._Img_BG = nil

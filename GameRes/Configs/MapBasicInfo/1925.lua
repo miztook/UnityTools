@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/Map_Bg_Start.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn00_EmpireRelicPrologue.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14205] = 
@@ -48,7 +49,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[1] = { x = -5.00, y = 71.02, z = 111.21, name = "", worldId = 0, PkMode = 0 },
+			[1] = { x = -5.00, y = 71.02, z = 111.21, name = "", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[39000] = 
@@ -86,47 +87,8 @@ local MapInfo =
 	},
 	Region = 
 	{
-		[1] = 
-		{
-			[284] = { x = 254.96, y = 36.32, z = -185.33, xA = -198.64, yA = 31.32, zA = -223.06, name = "传送区域-埃塞尼亚东", worldId = 170, PkMode = 0 },
-		},
 		[2] = 
 		{
-			[302] = { x = 180.65, y = 16.20, z = -184.83, name = "绝境要塞", worldId = 0, PkMode = 1 },
-			[303] = { x = -170.01, y = 30.19, z = -167.81, name = "暗影森林", worldId = 0, PkMode = 0 },
-			[304] = { x = -95.07, y = 59.18, z = -107.47, name = "洛克祭坛", worldId = 0, PkMode = 0 },
-			[305] = { x = 100.48, y = 49.38, z = -28.56, name = "蛛丝洞", worldId = 0, PkMode = 0 },
-			[306] = { x = -60.94, y = 105.04, z = 174.47, name = "风之壁垒", worldId = 0, PkMode = 0 },
-			[307] = { x = -50.31, y = 95.43, z = 88.57, name = "中庭", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[308] = { x = -29.30, y = 99.22, z = 171.42, name = "主堡", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[309] = { x = -209.19, y = 84.24, z = 65.71, name = "魔法圆环", worldId = 0, IsCanFind = 1, PkMode = 1 },
-			[310] = { x = 1.71, y = 21.45, z = 226.93, name = "演武场", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[311] = { x = -155.03, y = 133.91, z = 224.19, name = "先贤祠", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[323] = { x = -108.63, y = 38.30, z = -208.32, name = "前往黑区", worldId = 0, PkMode = 0 },
-			[324] = { x = -207.22, y = 44.63, z = -106.05, name = "黑魂刷新区域", worldId = 0, PkMode = 0 },
-			[325] = { x = 19.57, y = 37.88, z = -187.18, name = "追踪风之精灵", worldId = 0, PkMode = 0 },
-			[326] = { x = 57.19, y = 60.15, z = -115.53, name = "追到风之精灵", worldId = 0, PkMode = 0 },
-			[327] = { x = 8.00, y = 46.42, z = -162.08, name = "风之精灵脚印鹰眼区域", worldId = 0, PkMode = 0 },
-			[328] = { x = -51.44, y = 79.55, z = 31.22, name = "营地到达", worldId = 0, PkMode = 0 },
-			[329] = { x = -66.78, y = 1.00, z = -185.39, name = "神陨地任务到达", worldId = 0, PkMode = 0 },
-			[330] = { x = 113.34, y = 31.76, z = -190.88, name = "支线任务失火", worldId = 0, PkMode = 0 },
-			[331] = { x = -167.63, y = 41.80, z = -184.33, name = "支线洛克的气息2刷怪", worldId = 0, PkMode = 0 },
-			[332] = { x = -202.91, y = 29.10, z = -164.33, name = "支线洛克的气息3刷怪", worldId = 0, PkMode = 0 },
-			[333] = { x = 142.95, y = 43.55, z = -91.57, name = "夏坎的造物鹰眼", worldId = 0, PkMode = 0 },
-			[336] = { x = -27.93, y = 84.33, z = -99.33, name = "公会任务鹰眼-神隐居民1", worldId = 0, PkMode = 0 },
-			[337] = { x = -21.28, y = 84.35, z = -115.35, name = "公会任务鹰眼-神隐居民2", worldId = 0, PkMode = 0 },
-			[338] = { x = -95.10, y = 1.00, z = -200.00, name = "公会任务 护送-暗影森林【到达】", worldId = 0, PkMode = 0 },
-			[339] = { x = 59.78, y = 59.93, z = -105.11, name = "公会任务 神隐居民【到达】", worldId = 0, PkMode = 0 },
-			[340] = { x = -53.12, y = 273.71, z = 33.95, name = "公会任务 侦查风之壁垒01", worldId = 0, PkMode = 0 },
-			[341] = { x = -20.60, y = 98.22, z = 178.20, name = "公会任务 侦查风之壁垒02", worldId = 0, PkMode = 0 },
-			[342] = { x = -123.70, y = 290.01, z = 152.70, name = "公会任务 侦查风之壁垒03", worldId = 0, PkMode = 0 },
-			[371] = { x = 176.69, y = 1.00, z = -194.40, name = "背景音乐-绝境要塞", worldId = 0, PkMode = 0 },
-			[372] = { x = 116.27, y = 42.82, z = -28.21, name = "背景音乐-蜘蛛洞", worldId = 0, PkMode = 0 },
-			[373] = { x = -113.81, y = 1.00, z = 108.33, name = "背景音乐-风之壁垒", worldId = 0, PkMode = 0 },
-			[374] = { x = -151.63, y = 1.00, z = -126.86, name = "背景音乐-森林地带", worldId = 0, PkMode = 0 },
-			[386] = { x = -110.24, y = 39.12, z = -210.30, name = "暗影森林复活点", worldId = 0, PkMode = 0 },
-			[387] = { x = -26.66, y = 83.75, z = 35.99, name = "风精灵营地", worldId = 0, PkMode = 1 },
-			[390] = { x = -184.08, y = 44.69, z = -109.47, name = "祭坛复活点", worldId = 0, PkMode = 1 },
 			[391] = { x = -77.01, y = 131.28, z = -87.13, name = "神视单人-1", worldId = 0, PkMode = 1 },
 			[392] = { x = -207.20, y = 108.61, z = -142.07, name = "神视单人-2", worldId = 0, PkMode = 1 },
 			[393] = { x = -106.57, y = 114.70, z = -179.29, name = "神视单人-3", worldId = 0, PkMode = 1 },

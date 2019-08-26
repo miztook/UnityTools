@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Village",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13008] = 
@@ -143,7 +144,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[308] = { x = -29.04, y = 99.22, z = 162.43, name = "主堡", worldId = 0, IsCanFind = 1, PkMode = 0 },
+			[308] = { x = -29.04, y = 99.22, z = 162.43, name = "主堡", worldId = 0, IsCanFind = 1, PkMode = 1 },
 		},
 	},
 	Mine = 

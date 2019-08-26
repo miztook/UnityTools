@@ -24,6 +24,11 @@ def.method("table").CreateSubobject = function(self, msg)
 	-- 已经创建, 客户端预先创建机制已经移除, 属于异常情况
 	if self._ObjMap[id] ~= nil then return end
 
+	local world = game._CurWorld
+	local owner = world:FindObject(msg.BelongerId)
+	-- 不可见玩家的子物体隐藏
+	if owner ~= nil and owner:IsElsePlayer() and (not owner:IsCullingVisible() and math.random(1,10) < 6) then return end
+
 	local so = CSubobject.new()
 	so:Init(msg)
 

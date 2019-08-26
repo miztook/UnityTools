@@ -11,21 +11,22 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Battle",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12025] = 
 		{
-			[1] = { x = 142.45, y = 36.93, z = 24.63, name = "제 3군단 주술사", level = 35, SortID = 2 },
-			[2] = { x = 24.84, y = 21.04, z = 42.35, name = "제 3군단 주술사", level = 35, SortID = 5 },
+			[1] = { x = 142.45, y = 36.93, z = 24.63, name = "제3군단 흑마법사", level = 35, SortID = 2 },
+			[2] = { x = 24.84, y = 21.04, z = 42.35, name = "제3군단 흑마법사", level = 35, SortID = 5 },
 		},
 		[12024] = 
 		{
-			[1] = { x = 142.45, y = 36.93, z = 24.63, name = "제 3군단 검사", level = 35, SortID = 2 },
-			[2] = { x = 64.34, y = 21.03, z = -1.36, name = "제 3군단 검사", level = 35, SortID = 3 },
+			[1] = { x = 142.45, y = 36.93, z = 24.63, name = "제3군단 검사", level = 35, SortID = 2 },
+			[2] = { x = 64.34, y = 21.03, z = -1.36, name = "제3군단 검사", level = 35, SortID = 3 },
 		},
 		[12026] = 
 		{
-			[1] = { x = 64.34, y = 21.03, z = -1.36, name = "제 3군단 장교", level = 35, SortID = 3 },
+			[1] = { x = 64.34, y = 21.03, z = -1.36, name = "제3군단 천부장", level = 35, SortID = 3 },
 		},
 		[12028] = 
 		{
@@ -46,28 +47,16 @@ local MapInfo =
 		{
 			[1] = { x = 157.76, y = 39.88, z = 10.10, name = "나이팅게일", SortID = 1 },
 		},
-		[2111] = 
-		{
-			[1] = { x = -51.81, y = 40.46, z = 59.97, name = "나이팅게일", SortID = 7 },
-		},
-		[2054] = 
-		{
-			[1] = { x = -51.81, y = 40.46, z = 59.97, name = "사마엘", SortID = 7 },
-		},
-		[2055] = 
-		{
-			[1] = { x = -51.81, y = 40.46, z = 59.97, name = "루나 엘린", SortID = 7 },
-		},
 	},
 	Region = 
 	{
 		[1] = 
 		{
-			[223] = { x = 0.58, y = 21.37, z = 31.35, xA = -30.71, yA = 38.34, zA = 51.38, name = "上山", worldId = 143, PkMode = 0 },
+			[223] = { x = 0.58, y = 21.37, z = 31.35, xA = -30.71, yA = 38.34, zA = 51.38, name = "", worldId = 143, PkMode = 1 },
 		},
 		[2] = 
 		{
-			[222] = { x = 62.95, y = 33.65, z = 55.32, name = "罗琳镇相位入口", worldId = 0, PkMode = 0 },
+			[222] = { x = 62.95, y = 33.65, z = 55.32, name = "罗琳镇相位入口", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 
@@ -128,16 +117,6 @@ local MapInfo =
 			Tid = 
 			{
 				[2039] = 1,
-			},
-		},
-		[7] = 
-		{
-			x = -51.81, y = 40.46, z = 59.97, Type = 2,
-			Tid = 
-			{
-				[2111] = 1,
-				[2054] = 1,
-				[2055] = 1,
 			},
 		},
 		[4] = 

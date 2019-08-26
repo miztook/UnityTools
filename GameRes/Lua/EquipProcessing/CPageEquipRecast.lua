@@ -11,9 +11,6 @@ local CElementData = require "Data.CElementData"
 local CEquipUtility = require "EquipProcessing.CEquipUtility"
 local NotifyMoneyChangeEvent = require "Events.NotifyMoneyChangeEvent"
 local CCommonBtn = require "GUI.CCommonBtn"
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
 
 --存储UI的集合，便于OnHide()时置空
 def.field("table")._PanelObject = BlankTable
@@ -192,7 +189,9 @@ def.method("dynamic").Show = function(self, data)
     if data then
         self._ItemData = data
     end
-
+    local root = self._PanelObject
+    GUI.SetText(root.Lab_None_Selection, StringTable.Get(10970))
+    
     --更新是否显示分界面
     self:UpdateFrame()
 
@@ -248,6 +247,7 @@ def.method().UpdateSelectItem = function(self)
             [EItemIconTag.Bind] = self._ItemData.ItemData:IsBind(),
             [EItemIconTag.StrengthLv] = self._ItemData.ItemData:GetInforceLevel(),
             [EItemIconTag.Equip] = (self._ItemData.PackageType == BAGTYPE.ROLE_EQUIP),
+            [EItemIconTag.Grade] = self._ItemData.ItemData:GetGrade(),
         }
         IconTools.InitItemIconNew(root.SelectItem, self._ItemData.ItemData._Tid, setting)
     end
@@ -313,6 +313,7 @@ def.method().UpdateProperty = function(self)
                 if bActive then
                     Lab_Increase:GetComponent(ClassType.DOTweenPlayer):Restart(111)
                     GameUtil.PlayUISfx(PATH.UIFX_DEV_Fortify_Inc, sld, sld, -1)
+                    CSoundMan.Instance():Play2DAudio(PATH.GUISound_SkillCommon, 0)
                 end
             else
                 Sld_Attr.value = attrValue/attrMaxValue
@@ -529,6 +530,7 @@ def.method("userdata", "number", "table").OnInitItem = function(self, item, inde
             [EItemIconTag.Bind] = itemData.ItemData:IsBind(),
             [EItemIconTag.StrengthLv] = itemData.ItemData:GetInforceLevel(),
             [EItemIconTag.Equip] = (itemData.PackageType == BAGTYPE.ROLE_EQUIP),
+            [EItemIconTag.Grade] = itemData.ItemData:GetGrade(),
         }
         IconTools.InitItemIconNew(ItemIconNew, itemData.ItemData._Tid, setting)
         Img_UnableClick:SetActive(false)
@@ -700,7 +702,7 @@ def.method("boolean", "=>", "boolean").CheckCanRecast = function(self, bShowReas
     local bRet = true
     local function ShowReason(msg)
         if bShowReason then
-            SendFlashMsg(msg, false)
+            TeraFuncs.SendFlashMsg(msg, false)
         end
     end
 
@@ -749,7 +751,7 @@ def.method("boolean", "=>", "boolean").CheckCanQuenchOrSurmount = function(self,
 
     local function ShowReason(msg)
         if bShowReason then
-            SendFlashMsg(msg, false)
+            TeraFuncs.SendFlashMsg(msg, false)
         end
     end
 

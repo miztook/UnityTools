@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD03.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn03_QXGJ01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[22101] = 
@@ -74,11 +75,11 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[1] = { x = -8.98, y = 57.71, z = -34.15, name = "", worldId = 0, PkMode = 0 },
-			[2] = { x = -8.65, y = 57.95, z = -84.66, name = "", worldId = 0, PkMode = 0 },
-			[3] = { x = -7.10, y = 67.21, z = 9.66, name = "", worldId = 0, BackgroundMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 0 },
-			[4] = { x = 44.20, y = 67.96, z = -88.30, name = "", worldId = 0, PkMode = 0 },
-			[5] = { x = -8.33, y = 62.93, z = 16.54, name = "", worldId = 0, PkMode = 0 },
+			[1] = { x = -8.98, y = 57.71, z = -34.15, name = "", worldId = 0, PkMode = 1 },
+			[2] = { x = -8.65, y = 57.95, z = -84.66, name = "", worldId = 0, PkMode = 1 },
+			[3] = { x = -7.10, y = 67.21, z = 9.66, name = "", worldId = 0, BackgroundMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1 },
+			[4] = { x = 44.20, y = 67.96, z = -88.30, name = "", worldId = 0, PkMode = 1 },
+			[5] = { x = -8.33, y = 62.93, z = 16.54, name = "", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

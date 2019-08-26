@@ -11,35 +11,36 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD03.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn03_QXGJ01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[22111] = 
 		{
-			[1] = { x = 68.34, y = 63.33, z = -87.15, name = "獠牙剑齿虎", level = 30 },
+			[1] = { x = 68.34, y = 63.33, z = -87.15, name = "獠牙剑齿虎", level = 28 },
 		},
 		[22110] = 
 		{
-			[1] = { x = 37.95, y = 67.96, z = -87.94, name = "暴熊", level = 30 },
+			[1] = { x = 37.95, y = 67.96, z = -87.94, name = "暴熊", level = 28 },
 		},
 		[22010] = 
 		{
-			[1] = { x = 37.15, y = 64.99, z = -34.84, name = "紫毛鸵鸟", level = 30 },
+			[1] = { x = 37.15, y = 64.99, z = -34.84, name = "紫毛鸵鸟", level = 28 },
 		},
 		[22210] = 
 		{
-			[1] = { x = -9.21, y = 57.71, z = -30.33, name = "枯萎树精", level = 30 },
+			[1] = { x = -9.21, y = 57.71, z = -30.33, name = "枯萎树精", level = 28 },
 		},
 		[22113] = 
 		{
-			[1] = { x = -9.21, y = 57.71, z = -30.33, name = "暗黑小精灵", level = 30 },
+			[1] = { x = -9.21, y = 57.71, z = -30.33, name = "暗黑小精灵", level = 28 },
 		},
 		[22211] = 
 		{
-			[1] = { x = -9.04, y = 57.66, z = -86.77, name = "残暴尖刺蜘蛛", level = 30 },
+			[1] = { x = -9.04, y = 57.66, z = -86.77, name = "残暴尖刺蜘蛛", level = 28 },
 		},
 		[22112] = 
 		{
-			[1] = { x = -9.04, y = 57.66, z = -86.77, name = "被腐蚀的独角兽", level = 30 },
+			[1] = { x = -9.04, y = 57.66, z = -86.77, name = "被腐蚀的独角兽", level = 28 },
 		},
 		[22103] = 
 		{
@@ -47,15 +48,15 @@ local MapInfo =
 		},
 		[22214] = 
 		{
-			[1] = { x = -8.57, y = 57.71, z = -27.50, name = "暴熊", level = 30 },
+			[1] = { x = -8.57, y = 57.71, z = -27.50, name = "暴熊", level = 28 },
 		},
 		[22215] = 
 		{
-			[1] = { x = -8.57, y = 57.71, z = -27.50, name = "紫毛鸵鸟", level = 30 },
+			[1] = { x = -8.57, y = 57.71, z = -27.50, name = "紫毛鸵鸟", level = 28 },
 		},
 		[22310] = 
 		{
-			[1] = { x = -9.00, y = 62.93, z = 12.48, name = "嗜血杀戮者", level = 30,IsBoss = true },
+			[1] = { x = -9.00, y = 62.93, z = 12.48, name = "嗜血杀戮者", level = 28,IsBoss = true },
 		},
 		[22203] = 
 		{
@@ -67,9 +68,9 @@ local MapInfo =
 		},
 		[22311] = 
 		{
-			[1] = { x = -8.51, y = 62.93, z = 10.44, name = "幻影", level = 30 },
-			[2] = { x = -8.51, y = 62.93, z = 10.44, name = "幻影", level = 30 },
-			[3] = { x = -8.51, y = 62.93, z = 10.44, name = "幻影", level = 30 },
+			[1] = { x = -8.51, y = 62.93, z = 10.44, name = "幻影", level = 28 },
+			[2] = { x = -8.51, y = 62.93, z = 10.44, name = "幻影", level = 28 },
+			[3] = { x = -8.51, y = 62.93, z = 10.44, name = "幻影", level = 28 },
 		},
 	},
 	Npc = 
@@ -83,11 +84,11 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[1] = { x = -8.98, y = 57.71, z = -34.15, name = "", worldId = 0, PkMode = 0 },
-			[2] = { x = -8.65, y = 57.95, z = -84.66, name = "", worldId = 0, PkMode = 0 },
-			[3] = { x = -7.10, y = 67.21, z = 9.66, name = "", worldId = 0, BackgroundMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 0 },
-			[4] = { x = 44.20, y = 67.96, z = -88.30, name = "", worldId = 0, PkMode = 0 },
-			[5] = { x = -8.33, y = 62.93, z = 18.20, name = "", worldId = 0, PkMode = 0 },
+			[1] = { x = -8.98, y = 57.71, z = -34.15, name = "", worldId = 0, PkMode = 1 },
+			[2] = { x = -8.65, y = 57.95, z = -84.66, name = "", worldId = 0, PkMode = 1 },
+			[3] = { x = -7.10, y = 67.21, z = 9.66, name = "", worldId = 0, BackgroundMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1 },
+			[4] = { x = 44.20, y = 67.96, z = -88.30, name = "", worldId = 0, PkMode = 1 },
+			[5] = { x = -8.33, y = 62.93, z = 18.20, name = "", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

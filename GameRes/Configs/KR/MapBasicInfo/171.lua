@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Military",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13019] = 
@@ -53,9 +54,9 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[285] = { x = 48.83, y = 63.51, z = 30.17, name = "타란로스 요새", worldId = 0, PkMode = 0 },
-			[292] = { x = 22.21, y = 61.53, z = 38.89, name = "抵达区域1-塔兰罗斯要塞", worldId = 0, PkMode = 0 },
-			[293] = { x = 71.50, y = 60.40, z = 8.80, name = "抵达区域2-塔兰罗斯要塞", worldId = 0, PkMode = 0 },
+			[285] = { x = 48.83, y = 63.51, z = 30.17, name = "타란로스 요새", worldId = 0, PkMode = 1 },
+			[292] = { x = 22.21, y = 61.53, z = 38.89, name = "抵达区域1-塔兰罗斯要塞", worldId = 0, PkMode = 1 },
+			[293] = { x = 71.50, y = 60.40, z = 8.80, name = "抵达区域2-塔兰罗斯要塞", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

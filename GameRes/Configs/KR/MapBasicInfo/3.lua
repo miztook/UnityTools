@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/gonghuijidi.png",
 	AssetPath = "Assets/Outputs/Scenes/Dn_pvp01_Guildbase.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[37000] = 
@@ -35,7 +36,7 @@ local MapInfo =
 		},
 		[37005] = 
 		{
-			[1] = { x = -0.30, y = 0.92, z = -3.70, name = "바바후카인", level = 21, SortID = 31 },
+			[1] = { x = -0.30, y = 0.92, z = -3.70, name = "바바 후카족", level = 21, SortID = 31 },
 		},
 		[37006] = 
 		{
@@ -79,7 +80,7 @@ local MapInfo =
 		},
 		[37016] = 
 		{
-			[1] = { x = -0.30, y = 0.92, z = -3.70, name = "타락 영혼", level = 29, SortID = 42 },
+			[1] = { x = -0.30, y = 0.92, z = -3.70, name = "타락한 영혼", level = 29, SortID = 42 },
 		},
 		[37017] = 
 		{
@@ -95,7 +96,7 @@ local MapInfo =
 		},
 		[37020] = 
 		{
-			[1] = { x = -0.30, y = 0.92, z = -3.70, name = "쉐도우 쿠거", level = 37, SortID = 46 },
+			[1] = { x = -0.30, y = 0.92, z = -3.70, name = "그림자 쿠거", level = 37, SortID = 46 },
 		},
 		[37021] = 
 		{
@@ -122,6 +123,14 @@ local MapInfo =
 			[1] = { x = 0.00, y = 0.54, z = -29.90, name = "", level = 30, SortID = 19, DropItemIds = " " },
 			[2] = { x = 31.20, y = 0.72, z = 5.81, name = "", level = 30, SortID = 22, DropItemIds = " " },
 			[3] = { x = -31.41, y = 0.80, z = 5.54, name = "", level = 30, SortID = 23, DropItemIds = " " },
+		},
+		[37201] = 
+		{
+			[1] = { x = 0.00, y = 0.92, z = 0.00, name = "에너지 코어", level = 35, DropItemIds = " " },
+		},
+		[37202] = 
+		{
+			[1] = { x = 0.00, y = 0.92, z = 0.00, name = "에너지 코어", level = 35, DropItemIds = " " },
 		},
 	},
 	Npc = 
@@ -156,7 +165,7 @@ local MapInfo =
 		},
 		[20006] = 
 		{
-			[1] = { x = 0.05, y = 9.44, z = -73.65, name = "벨릭 목사", SortID = 10 },
+			[1] = { x = 0.05, y = 9.44, z = -73.65, name = "벨릭 신부", SortID = 10 },
 		},
 		[20008] = 
 		{
@@ -183,11 +192,11 @@ local MapInfo =
 	{
 		[1] = 
 		{
-			[192] = { x = 0.08, y = 8.80, z = 71.68, xA = -71.82, yA = 30.68, zA = 177.99, name = "传送区域", worldId = 110, PkMode = 0 },
+			[192] = { x = 0.08, y = 8.80, z = 71.68, xA = -71.82, yA = 30.68, zA = 177.99, name = "传送区域", worldId = 110, PkMode = 1 },
 		},
 		[2] = 
 		{
-			[400] = { x = 0.10, y = 0.92, z = 4.23, name = "公会宝藏任务发放", worldId = 0, PkMode = 0 },
+			[400] = { x = 0.10, y = 0.92, z = 4.23, name = "公会宝藏任务发放", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 
@@ -435,6 +444,22 @@ local MapInfo =
 				[37025] = 1,
 			},
 		},
+		[24] = 
+		{
+			x = 0.00, y = 0.92, z = 0.00, Type = 1,
+			Tid = 
+			{
+				[37201] = 1,
+			},
+		},
+		[25] = 
+		{
+			x = 0.00, y = 0.92, z = 0.00, Type = 1,
+			Tid = 
+			{
+				[37202] = 1,
+			},
+		},
 		[1] = 
 		{
 			x = 0.00, y = 0.92, z = 0.00, Type = 2,
@@ -561,6 +586,70 @@ local MapInfo =
 			Tid = 
 			{
 				[21002] = 1,
+			},
+		},
+		[51] = 
+		{
+			x = 0.01, y = 0.92, z = -1.75, Type = 4,
+			Tid = 
+			{
+				[32] = 0,
+			},
+		},
+		[52] = 
+		{
+			x = 1.06, y = 0.92, z = -1.29, Type = 4,
+			Tid = 
+			{
+				[32] = 0,
+			},
+		},
+		[53] = 
+		{
+			x = 1.61, y = 0.92, z = 0.08, Type = 4,
+			Tid = 
+			{
+				[32] = 0,
+			},
+		},
+		[54] = 
+		{
+			x = 1.02, y = 0.92, z = 1.26, Type = 4,
+			Tid = 
+			{
+				[32] = 0,
+			},
+		},
+		[55] = 
+		{
+			x = -0.05, y = 0.92, z = 1.70, Type = 4,
+			Tid = 
+			{
+				[32] = 0,
+			},
+		},
+		[56] = 
+		{
+			x = -1.22, y = 0.92, z = 1.11, Type = 4,
+			Tid = 
+			{
+				[32] = 0,
+			},
+		},
+		[57] = 
+		{
+			x = -1.58, y = 0.92, z = 0.03, Type = 4,
+			Tid = 
+			{
+				[32] = 0,
+			},
+		},
+		[58] = 
+		{
+			x = -1.11, y = 0.92, z = -1.08, Type = 4,
+			Tid = 
+			{
+				[32] = 0,
 			},
 		},
 		[7] = 

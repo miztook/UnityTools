@@ -28,7 +28,6 @@ def.static("number","=>","table").GetMapBasicConfigBySceneID = function(sceneID)
 	if lastSceneID == sceneID then
 		return mapBasicInfo
 	end
-	print("GetMapBasicConfigBySceneID",sceneID)
 	lastSceneID = sceneID
 	local ret, msg, result = pcall(dofile, _G.ConfigsDir.."MapBasicInfo/"..sceneID..".lua")
 	if ret then

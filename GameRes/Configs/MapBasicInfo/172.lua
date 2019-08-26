@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Forest",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13029] = 
@@ -91,10 +92,10 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[286] = { x = -178.08, y = 69.80, z = 156.68, name = "卡玛伊村落", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[296] = { x = -161.13, y = 74.12, z = 147.50, name = "卡玛伊相位区域", worldId = 0, PkMode = 0 },
-			[313] = { x = -244.15, y = 52.94, z = 193.64, name = "第一次抵达区域", worldId = 0, PkMode = 0 },
-			[314] = { x = -234.41, y = 49.29, z = 149.67, name = "护送抵达区域", worldId = 0, PkMode = 0 },
+			[286] = { x = -178.08, y = 69.80, z = 156.68, name = "卡玛伊村落", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[296] = { x = -161.13, y = 74.12, z = 147.50, name = "卡玛伊相位区域", worldId = 0, PkMode = 1 },
+			[313] = { x = -244.15, y = 52.94, z = 193.64, name = "第一次抵达区域", worldId = 0, PkMode = 1 },
+			[314] = { x = -234.41, y = 49.29, z = 149.67, name = "护送抵达区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

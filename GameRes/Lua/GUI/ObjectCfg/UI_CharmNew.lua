@@ -5,8 +5,6 @@ local cfg = {
     Btn_PrePage = -1503344465,
     Btn_NextPage = -920616219,
     Tab_CharmPage1 = -2084661995,
-    Tab_CharmPage2 = -2084661994,
-    Tab_CharmPage3 = -2084661993,
     Lab_CharmPageName = -1173975233,
     Tab_CombatDetail = 807008527,
     List_AllAttribute = -71478276,
@@ -45,6 +43,11 @@ local cfg = {
     Item_New_Charm_Fly = 348090304,
     Tab_NewCharm = -824761407,
     BlurTex = 1649181216,
+    Btn_Dungeon1 = -151351430,
+    Btn_Dungeon2 = -151351429,
+    Btn_Dungeon3 = -151351428,
+    PageView_Charms = -1028416441,
+    Lab_NoCharmTip = -1310736297,
 }
  
 return cfg

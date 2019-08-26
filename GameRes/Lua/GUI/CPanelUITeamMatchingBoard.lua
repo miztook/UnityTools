@@ -7,6 +7,7 @@ local CTeamMan = require "Team.CTeamMan"
 local CGame = Lplus.ForwardDeclare("CGame")
 local CElementData = require "Data.CElementData"
 local CPVEAutoMatch = require "ObjHdl.CPVEAutoMatch"
+local CountGroupUpdateEvent = require "Events.CountGroupUpdateEvent"
 
 local CPanelUITeamMatchingBoard = Lplus.Extend(CPanelBase, "CPanelUITeamMatchingBoard")
 local def = CPanelUITeamMatchingBoard.define
@@ -28,14 +29,24 @@ def.field("table")._TimesGroup = BlankTable
 def.field("table")._AllowCountGroup = BlankTable
 def.field("table")._SettingData = nil
 def.field("table")._PanelObject = nil
-
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
+def.field("boolean")._Inited = false
 
 local function OnHandleMatchEvent(sender, event)
     if instance and instance:IsShow() then
         instance:UpdateMatchingList()
+    end
+end
+
+-- 监听购买次数组事件
+local function OnCountGroupUpdateEvent(sender, event)
+    if instance ~= nil and instance:IsShow() then
+        local current_data = instance._RoomDataList[instance._LeftSelectIndex]
+        local sub_count = 0
+        if current_data.ListData ~= nil then
+            sub_count = #current_data.ListData
+        end
+        instance._List_Right:SetItemCount( sub_count )
+        instance:UpdateDungeonTimes()
     end
 end
 
@@ -77,9 +88,9 @@ end
 def.override("dynamic").OnData = function (self,data)
     self._HelpUrlType = HelpPageUrlType.TeamMatchingBoard
     -- 初始化房间数据状态
-    self._RoomDataList = self._TeamMan:GetAllTeamDungeOnRoomData()
+    self._RoomDataList = TeamUtil.LoadValidTeamRoomData(true)
     if #self._RoomDataList == 0 then
-        SendFlashMsg(StringTable.Get(22072), true)
+        TeraFuncs.SendFlashMsg(StringTable.Get(22072), true)
         game._GUIMan:CloseByScript(self)
         
         return
@@ -103,9 +114,10 @@ def.override("dynamic").OnData = function (self,data)
         end
     else
         self._SettingData.TargetId = data.TargetId
-        local dungeon_id = self._TeamMan:ExchangeToDungeonId( self._SettingData.TargetId )
+        local dungeon_id = TeamUtil.ExchangeToDungeonId( self._SettingData.TargetId )
         local dungeon_temp = CElementData.GetTemplate("Instance", dungeon_id)
-        if dungeon_temp and dungeon_temp.PlayingLaw == ERule.DUNGEON then
+
+        if dungeon_temp then
             CPVEAutoMatch.Instance():SendC2SMatching(self._SettingData.TargetId)
         end        
     end
@@ -120,8 +132,11 @@ def.override("dynamic").OnData = function (self,data)
     self:UpdatePanel()
 
     CPVEAutoMatch.Instance():SendC2SMatchList()
+    CGame.EventManager:addHandler("CountGroupUpdateEvent", OnCountGroupUpdateEvent)
 
     CPanelBase.OnData(self,data)
+
+    self._Inited = true
 end
 
 def.method().RemoveAllTimers = function(self)
@@ -241,7 +256,7 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
         local is_in_team = self._TeamMan:InTeam()
         local is_leader = self._TeamMan:IsTeamLeader()
         local room_data = self._MatchingList[idx]
-        local dungeon_id = self._TeamMan:ExchangeToDungeonId(room_data.TargetId)
+        local dungeon_id = TeamUtil.ExchangeToDungeonId(room_data.TargetId)
         local dungeon_temp = CElementData.GetTemplate("Instance", dungeon_id)
 
         local uiTemplate = item:GetComponent(ClassType.UITemplate)
@@ -264,7 +279,7 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
                 _G.RemoveGlobalTimer(self._Timers[room_data.TargetId])
             end
             local callback = function()
-                local cost_time = GameUtil.GetServerTime()/1000 - room_data.StartTime
+                local cost_time = math.max(0, GameUtil.GetServerTime()/1000 - room_data.StartTime)
                 GUI.SetText(lab_timer, GUITools.FormatTimeFromSecondsToZero(true,cost_time))
             end
             self._Timers[room_data.TargetId] = _G.AddGlobalTimer(1, false, callback)
@@ -305,9 +320,10 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
         local Lab_TargetName = item:FindChild("Lab_TargetName")
         local Btn_Enter = item:FindChild("Btn_Enter")
         local Btn_Cancel = item:FindChild("Btn_Cancel")
-        local Lab_TimeCounter = item:FindChild("Lab_TimeCounter")
-                
+        local Lab_TimeCounter = item:FindChild("Lab_TimeCounter")            
     end
+
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
 end
 
 def.override("userdata", "string", "string", "number").OnSelectItemButton = function(self, item, id, id_btn, index)
@@ -317,15 +333,17 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
     if id_btn == "Btn_Enter" then
         -- 进入此项目副本 C2S...
         if self._TeamMan:InTeam() then
-            self._TeamMan:C2SStartParepare(room_data.TargetId)
+            TeamUtil.StartParepare(room_data.TargetId)
         else
-            local dungeon_id = self._TeamMan:ExchangeToDungeonId(room_data.TargetId)
+            local dungeon_id = TeamUtil.ExchangeToDungeonId(room_data.TargetId)
             game._DungeonMan:TryEnterDungeon(dungeon_id)
         end
     elseif id_btn == "Btn_Cancel" then
         -- 取消 此项目匹配 C2S...
         CPVEAutoMatch.Instance():SendC2SMatchRemove(room_data.TargetId)
     end
+
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
 end
 
 def.override("string").OnClick = function(self,id)
@@ -339,52 +357,67 @@ def.override("string").OnClick = function(self,id)
     elseif id == "Btn_JoinMatch" then
         self:OnClick_JoinMatch()
     end
+
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
 end
 
 def.method().OnSelectLeft = function(self)
-    -- warn("OnSelectLeft...")
     local current_data = self._RoomDataList[self._LeftSelectIndex]
     local sub_count = 0
-    if current_data.ListData ~= nil then
+    if current_data ~= nil and current_data.ListData ~= nil then
         sub_count = #current_data.ListData
     end
 
+    self._List_Right:SetItemCount(sub_count)
     -- 右侧页签 如果有数据，则默认第一项
-    self._RightSelectIndex = sub_count > 0 and 1 or 0
-    self._List_Right:SetItemCount( sub_count )
+    if self._Inited then 
+        self._RightSelectIndex = (sub_count > 0 and 1 or 0)
+    end
+    
 
     if sub_count > 0 then
         -- 默认开启 二级页签的位置
         self:OnSelectRight()
     else
-        self._SettingData.TargetId = current_data.Data.Id
+        if current_data ~= nil and current_data.Data ~= nil then
+            self._SettingData.TargetId = current_data.Data.Id
+        end
         self:UpdatePanel()
     end
 end
 
 def.method().OnSelectRight = function(self)
-    -- warn("OnSelectRight...")
     local current_data = self._RoomDataList[self._LeftSelectIndex]
-    self._SettingData.TargetId = current_data.ListData[self._RightSelectIndex].Data.Id
+    if current_data ~= nil 
+        and current_data.ListData ~= nil 
+        and current_data.ListData[self._RightSelectIndex] ~= nil 
+        and current_data.ListData[self._RightSelectIndex].Data ~= nil then
+            self._SettingData.TargetId = current_data.ListData[self._RightSelectIndex].Data.Id
+    end
+    
     self:UpdatePanel()
 end
 
 def.method().OnClick_JoinMatch = function(self)
     local is_matching = CPVEAutoMatch.Instance():IsRoomMatching(self._SettingData.TargetId)
     if is_matching then
-        SendFlashMsg(StringTable.Get(22070), false)
+        TeraFuncs.SendFlashMsg(StringTable.Get(22070), false)
         return
     end
 
     if self._SettingData.TargetId > 1 then
-        local dungeonTid = self._TeamMan:ExchangeToDungeonId( self._SettingData.TargetId )
+        local dungeonTid = TeamUtil.ExchangeToDungeonId( self._SettingData.TargetId )
+        if CPVEAutoMatch.Instance():IsBlocking(dungeonTid) then return end
+
         local remainderCount = game._DungeonMan:GetRemainderCount( dungeonTid )
         local dungeonTemplate = CElementData.GetTemplate("Instance", dungeonTid)
 
         if remainderCount > 0 then
             CPVEAutoMatch.Instance():SendC2SMatching(self._SettingData.TargetId)
         else
-            game._CCountGroupMan:BuyCountGroup(remainderCount ,dungeonTemplate.CountGroupTid)
+            if dungeonTemplate ~= nil then
+                game._CCountGroupMan:BuyCountGroup(remainderCount ,dungeonTemplate.CountGroupTid)
+            end
         end
     end
 end
@@ -446,7 +479,9 @@ def.method().UpdateDungeonTimes = function(self)
 end
 
 def.override().OnDestroy = function (self)
+    self._Inited = false
     self:RemoveAllTimers()
+    CGame.EventManager:removeHandler("CountGroupUpdateEvent", OnCountGroupUpdateEvent)
     CGame.EventManager:removeHandler('PVEMatchEvent', OnHandleMatchEvent)
     instance = nil
 end

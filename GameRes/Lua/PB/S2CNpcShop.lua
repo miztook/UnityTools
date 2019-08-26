@@ -19,7 +19,7 @@ local function OnS2CNpcSaleBuyRes(sender,msg)
 		CPanelNpcShop.Instance():LoadReFreshItems(msg)
 	end
     local item_id = 0
-    local allIDs = GameUtil.GetAllTid("NpcSale")
+    local allIDs = CElementData.GetAllTid("NpcSale")
 	for i,v in pairs(allIDs) do
 		repeat
 			local shopItem = CElementData.GetTemplate("NpcSale", v) 

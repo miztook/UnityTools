@@ -233,7 +233,7 @@ def.method("number").InitCurMachiningData = function (self, itemId)
 	local itemTemplate = CElementData.GetItemTemplate(itemId)
 	if itemMachining ~= nil and itemTemplate ~= nil then
 		local propInfo = CElementData.GetPropertyInfoById(itemTemplate.AttachedPropertyGeneratorId)
-		local baseAttriStr = propInfo.MinValue .. "~" .. propInfo.MaxValue
+		local baseAttriStr = GUITools.FormatNumber(propInfo.MinValue, false, 7) .. "~" .. GUITools.FormatNumber(propInfo.MaxValue, false, 7)
 
 		local fixedPorpGroupTemp = CElementData.GetAttachedPropertyGroupGeneratorTemplateMap(itemTemplate.AttachedPropertyGroupGeneratorId)		
 		local fixedPorpCountInfo = fixedPorpGroupTemp.CountData.GenerateCounts
@@ -616,8 +616,10 @@ def.method("userdata", "number").OnInitRightList = function (self, item, index)
 	local lab_attri = uiTemplate:GetControl(4)
 	GUI.SetText(lab_attri, propInfo.Name)
 	-- 基础属性值
+	local minStr = GUITools.FormatNumber(propInfo.MinValue, false, 7)
+	local maxStr = GUITools.FormatNumber(propInfo.MaxValue, false, 7)
 	local lab_attri_value = uiTemplate:GetControl(5)
-	GUI.SetText(lab_attri_value, propInfo.MinValue .. "~" .. propInfo.MaxValue)
+	GUI.SetText(lab_attri_value, minStr .. "~" .. maxStr)
 	-- 是否被选中
 	IconTools.SetFrameIconTags(frame_item, { [EFrameIconTag.Select] = false } )
 	-- 红点
@@ -835,7 +837,7 @@ def.method("table").SetEquipPosLab = function (self, machiningData)
 
 	local slotStr = StringTable.Get(10400 + machiningData.DestItemSlot)
 	slotStr = RichTextTools.GetQualityText(slotStr, machiningData.DestItemQuality)
-	local posStr = machiningData.DestItemLevel .. StringTable.Get(6) .. slotStr
+	local posStr = machiningData.DestItemLevel .. StringTable.Get(6) .. " " .. slotStr
 	-- if machiningData.DestItemLevel > game._HostPlayer._InfoData._Level then
 	-- 	-- 玩家等级低于装备等级
 	-- 	posStr = RichTextTools.GetUnavailableColorText(posStr)

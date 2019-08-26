@@ -119,6 +119,7 @@ end
 def.method().OnClickInput1 = function(self)
     if CPanelAuction.Instance()._CurrentRightToggle == CPanelAuction.Instance()._RightToggleType.EXCHANGE then
         local function callback(count)
+            if not self:IsShow() then return end
     		if count == nil or count <= 0 then 
     			self._Value1 = 1 
     		else
@@ -137,6 +138,7 @@ def.method().OnClickInput1 = function(self)
     	game._GUIMan:OpenNumberKeyboard(self._InputObj1,nil,0,self._MaxValue1,callback, nil)
     elseif CPanelAuction.Instance()._CurrentRightToggle == CPanelAuction.Instance()._RightToggleType.TREASURE then
         local function callback(count)
+            if not self:IsShow() then return end
     		if count == nil or count <= 0  then 
     			self._Value1 = self._MinValue1
     		else
@@ -160,7 +162,8 @@ end
 def.method().OnClickInput2 = function(self)
     if CPanelAuction.Instance()._CurrentRightToggle == CPanelAuction.Instance()._RightToggleType.EXCHANGE then
         local function callback(count)
-    		if count == nil or count <= 0  then 
+            if not self:IsShow() then return end
+    		if count == nil or count <= 0 then 
     			self._Value2 = self._ItemData.MinPrice
     		else
     			self._Value2 = count
@@ -178,6 +181,7 @@ def.method().OnClickInput2 = function(self)
     	game._GUIMan:OpenNumberKeyboard(self._InputObj2,nil,0,self._MaxValue2,callback, nil)
     elseif CPanelAuction.Instance()._CurrentRightToggle == CPanelAuction.Instance()._RightToggleType.TREASURE then
         local function callback(count)
+            if not self:IsShow() then return end
     		if count == nil or count <= 0 or self._InputObj2:GetComponent(ClassType.Text).text == StringTable.Get(20405) then 
     			self._Value2 = 0
                 self._IsOnClickZero = true
@@ -316,7 +320,15 @@ def.method().UpdataSellUIShow = function (self)
     if CPanelAuction.Instance()._CurrentRightToggle == CPanelAuction.Instance()._RightToggleType.EXCHANGE then       
         self._ExchangeSell:SetActive(true)
         self._TreasureSell:SetActive(false)
-        IconTools.InitItemIconNew(self:GetUIObject("ExItemIcon"), self._ItemData._Tid, nil, EItemLimitCheck.AllCheck)
+        local count = 0
+        if itemData ~= nil then
+            count = game._CCountGroupMan:OnCurUseCount(itemData.ItemUseCountGroupId)
+        end
+        local setting = {
+            [EItemIconTag.Activated] = count > 0,
+            [EItemIconTag.Grade] = self._ItemData._Star,
+        }
+        IconTools.InitItemIconNew(self:GetUIObject("ExItemIcon"), self._ItemData._Tid, setting, EItemLimitCheck.AllCheck)
         local labItemCount = self:GetUIObject("Lab_Number1")
         GUI.SetText(labItemCount, GUITools.FormatNumber(self._ItemData._NormalCount, false))
         local colorname = RichTextTools.GetItemNameRichText(self._ItemData._Tid, 1, false)
@@ -335,7 +347,15 @@ def.method().UpdataSellUIShow = function (self)
     else 
         self._ExchangeSell:SetActive(false)
         self._TreasureSell:SetActive(true)
-        IconTools.InitItemIconNew(self:GetUIObject("TrItemIcon"), self._ItemData._Tid, nil, EItemLimitCheck.AllCheck)
+        local count = 0
+        if itemData ~= nil then
+            count = game._CCountGroupMan:OnCurUseCount(itemData.ItemUseCountGroupId)
+        end
+        local setting = {
+            [EItemIconTag.Activated] = count > 0,
+            [EItemIconTag.Grade] = self._ItemData._Star,
+        }
+        IconTools.InitItemIconNew(self:GetUIObject("TrItemIcon"), self._ItemData._Tid, setting, EItemLimitCheck.AllCheck)
         local colorname = RichTextTools.GetItemNameRichText(self._ItemData._Tid, 1, false)
         local itemNameObj0 = self:GetUIObject("Lab_ItemName0"):GetComponent(ClassType.Text)
         local lab_level = self:GetUIObject("Lab_Level")

@@ -6,11 +6,12 @@ local MapInfo =
 	Length = 512,
 	Width = 512,
 	NavMeshName = "World04Part1.navmesh",
-	BackgroundMusic = "",
+	BackgroundMusic = "BGM_Map_4/Map_4/Map_4_phase",
 	BattleMusic = "",
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14241] = 
@@ -46,7 +47,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[288] = { x = -90.03, y = 67.22, z = 87.30, name = "죽음의 왕좌", worldId = 0, IsCanFind = 1, Describe = "죽음의 왕좌", PkMode = 0, IsCanHawkeye = true, QuestID = {4533} },
+			[288] = { x = -90.03, y = 67.22, z = 87.30, name = "죽음의 왕좌", worldId = 0, IsCanFind = 1, Describe = "죽음의 왕좌", PkMode = 1, IsCanHawkeye = true, QuestID = {4533} },
 		},
 	},
 	Mine = 

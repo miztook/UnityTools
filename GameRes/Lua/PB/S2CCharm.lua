@@ -7,10 +7,6 @@ local CElementData = require "Data.CElementData"
 local CCharmMan = require "Charm.CCharmMan"
 local ServerMessageCharm = require "PB.data".ServerMessageCharm
 
-local function SendFlashMsg(msg, bUp)
-	game._GUIMan:ShowTipText(msg, bUp)
-end
-
 --上线同步列表 神符列表
 local function OnS2CCharmList(sender,protocol)
 --warn("=============OnS2CCharmList=============")

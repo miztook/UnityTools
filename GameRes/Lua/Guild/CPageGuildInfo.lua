@@ -145,7 +145,8 @@ def.method().Update = function(self)
 		self._Info_Guild_Announce:GetComponent(ClassType.InputField).enabled = 0 ~= bit.band(member._Permission, PermissionMask.SetAnnounce)
 		self._Info_Guild_Announce:FindChild("Placeholder"):SetActive(0 ~= bit.band(member._Permission, PermissionMask.SetAnnounce))
 		self._Btn_Set_Guild_Announce:SetActive(0 ~= bit.band(member._Permission, PermissionMask.SetAnnounce))
-		self._Btn_Info_Guild_Name:SetActive(0 ~= bit.band(member._Permission, PermissionMask.SetDisplayInfo))
+		--self._Btn_Info_Guild_Name:SetActive(0 ~= bit.band(member._Permission, PermissionMask.SetDisplayInfo))
+        self._Btn_Info_Guild_Name:SetActive(false)
 	end
 end
 
@@ -155,7 +156,7 @@ end
 -- 当点击
 def.method("string").OnClick = function(self, id)
 	if id == "Tab_Guild_Announce" then
-		print("Tab_Guild_Announce")
+		--print("Tab_Guild_Announce")
 		self:OnTabGuildAnnounce()
 	-- elseif id == "Tab_Guild_Event" then
 	-- 	print("Tab_Guild_Event")
@@ -185,18 +186,19 @@ def.method("string", "string").OnEndEdit = function(self, id, str)
 		end
 		local Filter = require "Utility.BadWordsFilter".Filter
 		local filterStr = Filter.FilterChat(str)
-		if filterStr ~= str then
-			self._Info_Guild_Announce:GetComponent(ClassType.InputField).text = curAnnounce
-			game._GUIMan:ShowTipText(StringTable.Get(8056), true)
-			return
-		end
-		if GameUtil.GetStringLength(str) < GlobalDefinition.MinGuildAnnounceLength then
+--		if filterStr ~= str then
+--			self._Info_Guild_Announce:GetComponent(ClassType.InputField).text = curAnnounce
+--			game._GUIMan:ShowTipText(StringTable.Get(8056), true)
+--			return
+--		end
+        self._Info_Guild_Announce:GetComponent(ClassType.InputField).text = filterStr
+		if GameUtil.GetStringLength(filterStr) < GlobalDefinition.MinGuildAnnounceLength then
             game._GUIMan:ShowTipText(string.format(StringTable.Get(860), GlobalDefinition.MinGuildAnnounceLength), true)
-        elseif GameUtil.GetStringLength(str) > GlobalDefinition.MaxGuildAnnounceLength then
+        elseif GameUtil.GetStringLength(filterStr) > GlobalDefinition.MaxGuildAnnounceLength then
             game._GUIMan:ShowTipText(string.format(StringTable.Get(861), GlobalDefinition.MaxGuildAnnounceLength), true)
         else
             local protocol = (require "PB.net".C2SGuildSetAnnounce)()
-            protocol.announce = str
+            protocol.announce = filterStr
             PBHelper.Send(protocol)
         end
 	end
@@ -308,8 +310,10 @@ def.method("userdata", "number").OnInitEventItem = function(self, item, index)
 	elseif data.RecordType == RecordType.RecordType_BuffOpen then 
 		GUI.SetText(labEvent, string.format(StringTable.Get(8132)))
 	elseif data.RecordType == RecordType.RecordType_WorldBossKilled then 
-		local bossData = game._CWorldBossMan:GetWorldBossByID(data.WorldBossId)
-		GUI.SetText(labEvent, string.format(StringTable.Get(8133),bossData._Data.Name))	
+		local _, bossData = game._CWorldBossMan:GetWorldBossByID(game._CurWorld._WorldInfo.CurMapLineId, data.WorldBossId)
+		if bossData ~= nil then
+			GUI.SetText(labEvent, string.format(StringTable.Get(8133),bossData.Name))	
+		end
 	elseif data.RecordType == RecordType.RecordType_GuildActionPutaway then 
 		local ItemTemp = CElementData.GetItemTemplate(data.ItemId)
         local name = RichTextTools.GetQualityText(ItemTemp.TextDisplayName, ItemTemp.InitQuality)

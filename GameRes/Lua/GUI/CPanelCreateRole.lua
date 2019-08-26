@@ -50,7 +50,6 @@ def.field("number")._HairColorId = 1
 def.field("boolean")._IsUIMove = false --是否播放UI动画
 def.field("table")._JobLeftPos = nil --选择职业界面左半部分坐标
 def.field("table")._JobRightPos = nil --选择职业界面右半部分坐标
-def.field("number")._AutoReturnLoginTimer = 0
 -- 静态数据
 def.field("table")._UI_TIME = BlankTable
 def.field("table")._JobLeftOutPos = nil
@@ -59,7 +58,6 @@ def.field("table")._JobRightOutPos = nil
 local JOB_MOVE_DISTANCE = 360  -- 职业界面动效移动距离
 local CHOICE_NUM = 8 		-- 自定义选择数量
 local TEMP_LIMIT_NUM = 8    -- 限制数量（临时）
-local AUTO_RETURN_LOGIN_TIME = 900 -- 自动返回登录时间，15分钟
 -- 界面类型
 local EPanelType =
 {
@@ -117,7 +115,8 @@ def.override().OnCreate = function (self)
 
 		if i == EnumDef.Profession.Lancer then
 			-- 设置枪骑士显隐
-			GUITools.SetUIActive(rdo, not game._IsHideLancer)
+			local options = GameConfig.Get("FuncOpenOption")
+			GUITools.SetUIActive(rdo, not options.HideLancer)
 		end
 	end
 	for i=1, CHOICE_NUM do
@@ -217,7 +216,6 @@ def.method("number").OnSelectProf = function (self, profId)
 
 	-- 重置界面相关
 	self:InitUI(profId)
-	self:AddAutoReturnLoginTimer()
 
 	-- 需要在CG期间展开界面
 	if self._SelectProfTimer ~= 0 then
@@ -271,7 +269,6 @@ def.override("string").OnClick = function(self,id)
 			if #role_list <= 0 then
 				-- 返回登录界面
 				game:LogoutAccount()
-				game:ReturnLoginStage()
 			else
 				game._RoleSceneMan:EnterRoleSelectStage(1)
 			end
@@ -283,7 +280,6 @@ def.override("string").OnClick = function(self,id)
 			self._SkinColorId = 1
 			self._HairColorId = 1
 
-			self:AddAutoReturnLoginTimer()
 			game._RoleSceneMan:ResetRoleCreateScene()
 			-- 界面
 			-- GameUtil.EnableRotate(model, false)
@@ -299,7 +295,6 @@ def.override("string").OnClick = function(self,id)
 		self._PanelType = EPanelType.Custom
 		self._CustomType = ECustomType.Face
 
-		self:RemoveAutoReturnLoginTimer()
 		game._RoleSceneMan:FocusModel()
 		-- 界面
 		GameUtil.EnableBlockCanvas(true)
@@ -578,34 +573,12 @@ def.method().SetRandomName = function(self)
 	roleRandomName = ""
 end
 
-def.method().RemoveAutoReturnLoginTimer = function(self)
-	if self._AutoReturnLoginTimer ~= 0 then
-		_G.RemoveGlobalTimer(self._AutoReturnLoginTimer)
-		self._AutoReturnLoginTimer = 0
-	end
-end
-
-def.method().AddAutoReturnLoginTimer = function(self)
-	self:RemoveAutoReturnLoginTimer()
-	self._AutoReturnLoginTimer = _G.AddGlobalTimer(AUTO_RETURN_LOGIN_TIME, true, function()
-		if not self:IsShow() then return end
-		-- 闲置超时，返回登录界面
-		warn("====CreateRole AutoReturnLogin")
-		game:LogoutAccount()
-		game:ReturnLoginStage()
-		
-		local title, msg, closeType = StringTable.GetMsg(134)
-		MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OK)
-	end)
-end
-
 def.override().OnDestroy = function(self)
 	self._UI_TIME = {}
 	if self._SelectProfTimer ~= 0 then
 		_G.RemoveGlobalTimer(self._SelectProfTimer)
 		self._SelectProfTimer = 0
 	end
-	self:RemoveAutoReturnLoginTimer()
 
 	self._Btn_Screen = nil  	--全屏按钮
 	self._Btn_Skip = nil  --跳过动画

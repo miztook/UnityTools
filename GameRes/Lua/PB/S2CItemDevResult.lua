@@ -13,13 +13,9 @@ local EEquipmentSlot = require "PB.Template".Item.EquipmentSlot
 local EItemDev = require "PB.data".ItemDev
 local CElementData = require "Data.CElementData"
 
-local function SendFlashMsg(msg)
-	game._GUIMan:ShowTipText(msg, false)
-end
-
 local function SendEquipProcessResult(devTpye, bSuccess)
     local str = string.format("%s%s", StringTable.Get(31350+devTpye-1), StringTable.Get(bSuccess and 10914 or 10915))
-    SendFlashMsg(str)
+    TeraFuncs.SendFlashMsg(str)
 end
 
 local function SendMsgToSysteamChannel(msg)

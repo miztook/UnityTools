@@ -41,8 +41,7 @@ def.override().OnCreate = function(self)
 end
 
 def.override("dynamic").OnData = function(self,data)
-    if data == nil then return end
-    -- warn("lidaming !!!", debug.traceback())
+    if data == nil then return end    
     if self._Lab_MsgTitle ~= nil then
         GUI.SetText(self._Lab_MsgTitle , tostring(data.AppMsgBoxCfg.Title))
     end
@@ -72,10 +71,10 @@ end
 def.method().ShowMarket = function(self)
     local url = ""
     if _G.IsIOS() then
-        local appleId = 1073000645
+        local appleId = 1471095711
         url = string.format(StringTable.Get(33000), appleId)
     elseif _G.IsAndroid() then
-        local packageName = "com.longtugame.xxaxc"
+        local packageName = "com.kakaogames.tera"
         url = string.format(StringTable.Get(33001), packageName)
     end
     warn("ShowMarket url = ", url)

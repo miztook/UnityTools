@@ -43,6 +43,7 @@ def.override().OnCreate = function(self)
 end
 
 def.override("dynamic").OnData = function(self, data)
+	self._HelpUrlType = HelpPageUrlType.Expedition
 	if not IsNil(self._ObjTime) then
 		self._ObjTime:SetActive(false)
 	end

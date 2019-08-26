@@ -10,7 +10,7 @@
 	额外的显示，不要放在进子节点，可以加在 ItemIconNew 同一级或上一级
 使用示例：
 	1、初始化并同时设置多个tag（不设置的默认禁用）
-		IconTools.InitItemIconNew(frame_item_icon, itemId,
+		IconTools.InitItemIconNew(frame_item_icon, itemTid,
 		{
 			[EItemIconTag.Bind] = true,
 			[EItemIconTag.Number] = 11,
@@ -38,7 +38,7 @@
 			[EItemIconTag.Number] = 0,
 		})
 	4、单独设置限制Tag
-		IconTools.SetLimit(frame_item_icon, itemId, EItemLimitCheck.AllCheck)
+		IconTools.SetLimitNew(frame_item_icon, itemTid, EItemLimitCheck.AllCheck)
 	5、设置多个FrameIconTag（没有默认状态，显隐完全自己控制）
 		local setting =
 		{
@@ -61,9 +61,9 @@
 	额外的显示，不要放在进子节点，可以加在 MaterialIcon 同一级或上一级
 使用示例：
 	1、初始化并设置数量
-		IconTools.InitMaterialIconNew(frame_material_icon, itemId, needNum)
+		IconTools.InitMaterialIconNew(frame_material_icon, itemTid, needNum)
 	2、更新数量
-		IconTools.SetMaterialNum(frame_material_icon, itemId, needNum)
+		IconTools.SetMaterialNum(frame_material_icon, itemTid, needNum)
 --]]
 ---------------------------------------------------------------------------------
 
@@ -131,9 +131,9 @@ local function _Log(logType, tag, isItemIcon, param1, param2)
 end
 
 -- 初始化图标，两种图标都需要
-local function _InitItemIcon(obj, itemId)
+local function _InitItemIcon(obj, itemTid)
 	local CElementData = require "Data.CElementData"
-	local itemTemplate = CElementData.GetItemTemplate(itemId)
+	local itemTemplate = CElementData.GetItemTemplate(itemTid)
 	if itemTemplate == nil then return end
 
 	local img_icon = GUITools.GetChild(obj, 3)
@@ -167,6 +167,105 @@ local function _InitTokenMoneyIcon(obj, moenyId)
 	if not IsNil(img_quality) then
 		GUITools.SetGroupImg(img_quality, moneyTemplate.Quality)
 	end
+end
+
+local function _SetUpBoolean(obj, enable)
+	GUITools.SetUIActive(obj, enable)
+end
+
+local function _SetUpItemLimit(obj, itemTid, limitType)
+	local frame_limit = GUITools.GetChild(obj, 14)
+	local lab_limit_level = GUITools.GetChild(obj, 15)
+	local lab_limit_prof = GUITools.GetChild(obj, 16)
+	if IsNil(frame_limit) or IsNil(lab_limit_level) or IsNil(lab_limit_prof) then
+		warn("SetLimit failed, ItemIcon GameObject not using the sample", debug.traceback())
+		return
+	end
+
+	local limitStr = "Unknown Limit"
+	local bShow = true
+	local showType = 0
+
+	local CElementData = require "Data.CElementData"
+	local itemTemplate = CElementData.GetItemTemplate(itemTid)
+	if itemTemplate ~= nil then
+		-- 检查职业限制
+		local function checkProfLimit()
+			local str = "Unknown Limit"
+			local profMask = EnumDef.Profession2Mask[game._HostPlayer._InfoData._Prof]
+			local ret = profMask ~= bit.band(itemTemplate.ProfessionLimitMask, profMask)
+			if ret then
+				local limitProf = -1
+				if itemTemplate.ProfessionLimitMask == 1 then
+					limitProf = EnumDef.Profession.Warrior
+				elseif itemTemplate.ProfessionLimitMask == 2 then
+					limitProf = EnumDef.Profession.Aileen
+				elseif itemTemplate.ProfessionLimitMask == 4 then
+					limitProf = EnumDef.Profession.Assassin
+				elseif itemTemplate.ProfessionLimitMask == 8 then
+					limitProf = EnumDef.Profession.Archer
+				elseif itemTemplate.ProfessionLimitMask == 16 then
+					limitProf = EnumDef.Profession.Lancer
+				else
+					warn("Profession limit more than one, wrong itemTid:" .. itemTid, debug.traceback())
+				end
+				if limitProf ~= -1 then
+					str = StringTable.Get(10300 + limitProf - 1)
+				end
+			end
+			return ret, str
+		end
+
+		-- 检查等级限制
+		local function checkLevelLimit()
+			local str = "Unknown Limit"
+			local level = game._HostPlayer._InfoData._Level
+			local ret = level < itemTemplate.MinLevelLimit
+			if ret then
+				str = string.format(StringTable.Get(10714), itemTemplate.MinLevelLimit)
+			else
+				ret = level > itemTemplate.MaxLevelLimit
+				if ret then
+					str = StringTable.Get(314)
+				end
+			end
+			return ret, str
+		end
+
+		if limitType == ENUM_ITEM_LIMIT_CHECK_TYPE.Prof then
+			-- 只检查职业限制
+			bShow, limitStr = checkProfLimit()
+			showType = 1
+		elseif limitType == ENUM_ITEM_LIMIT_CHECK_TYPE.Level then
+			-- 只检查等级限制
+			bShow, limitStr = checkLevelLimit()
+			showType = 2
+		elseif limitType == ENUM_ITEM_LIMIT_CHECK_TYPE.AllCheck then
+			-- 先检查职业限制，在检查等级限制
+			bShow, limitStr = checkProfLimit()
+			showType = 1
+			if not bShow then
+				bShow, limitStr = checkLevelLimit()
+				showType = 2
+			end
+		else
+			warn("Invalid limit type:", limitType, debug.traceback())
+		end
+	end
+
+	GUITools.SetUIActive(frame_limit, bShow)
+	if bShow then
+		GUITools.SetUIActive(lab_limit_prof, showType == 1)
+		GUITools.SetUIActive(lab_limit_level, showType ~= 1)
+		if showType == 1 then
+			GUI.SetText(lab_limit_prof, limitStr)
+		else
+			GUI.SetText(lab_limit_level, limitStr)
+		end
+	end
+end
+
+local function _InitItemDB(obj, itemId)
 end
 
 -- 检查Tag对应的参数类型
@@ -274,104 +373,8 @@ local function _GetItemIconTagIndex(tag)
 	return index, root_index
 end
 
-local function _SetUpBoolean(obj, enable)
-	GUITools.SetUIActive(obj, enable)
-end
-
-local function _SetUpItemLimit(obj, itemId, limitType)
-	local frame_limit = GUITools.GetChild(obj, 14)
-	local lab_limit_level = GUITools.GetChild(obj, 15)
-	local lab_limit_prof = GUITools.GetChild(obj, 16)
-	if IsNil(frame_limit) or IsNil(lab_limit_level) or IsNil(lab_limit_prof) then
-		warn("SetLimit failed, ItemIcon GameObject not using the sample", debug.traceback())
-		return
-	end
-
-	local limitStr = "Unknown Limit"
-	local bShow = true
-	local showType = 0
-
-	local CElementData = require "Data.CElementData"
-	local itemTemplate = CElementData.GetItemTemplate(itemId)
-	if itemTemplate ~= nil then
-		-- 检查职业限制
-		local function checkProfLimit()
-			local str = "Unknown Limit"
-			local profMask = EnumDef.Profession2Mask[game._HostPlayer._InfoData._Prof]
-			local ret = profMask ~= bit.band(itemTemplate.ProfessionLimitMask, profMask)
-			if ret then
-				local limitProf = -1
-				if itemTemplate.ProfessionLimitMask == 1 then
-					limitProf = EnumDef.Profession.Warrior
-				elseif itemTemplate.ProfessionLimitMask == 2 then
-					limitProf = EnumDef.Profession.Aileen
-				elseif itemTemplate.ProfessionLimitMask == 4 then
-					limitProf = EnumDef.Profession.Assassin
-				elseif itemTemplate.ProfessionLimitMask == 8 then
-					limitProf = EnumDef.Profession.Archer
-				elseif itemTemplate.ProfessionLimitMask == 16 then
-					limitProf = EnumDef.Profession.Lancer
-				else
-					warn("Profession limit more than one, wrong itemId:" .. itemId, debug.traceback())
-				end
-				if limitProf ~= -1 then
-					str = StringTable.Get(10300 + limitProf - 1)
-				end
-			end
-			return ret, str
-		end
-
-		-- 检查等级限制
-		local function checkLevelLimit()
-			local str = "Unknown Limit"
-			local level = game._HostPlayer._InfoData._Level
-			local ret = level < itemTemplate.MinLevelLimit
-			if ret then
-				str = string.format(StringTable.Get(10714), itemTemplate.MinLevelLimit)
-			else
-				ret = level > itemTemplate.MaxLevelLimit
-				if ret then
-					str = StringTable.Get(314)
-				end
-			end
-			return ret, str
-		end
-
-		if limitType == ENUM_ITEM_LIMIT_CHECK_TYPE.Prof then
-			-- 只检查职业限制
-			bShow, limitStr = checkProfLimit()
-			showType = 1
-		elseif limitType == ENUM_ITEM_LIMIT_CHECK_TYPE.Level then
-			-- 只检查等级限制
-			bShow, limitStr = checkLevelLimit()
-			showType = 2
-		elseif limitType == ENUM_ITEM_LIMIT_CHECK_TYPE.AllCheck then
-			-- 先检查职业限制，在检查等级限制
-			bShow, limitStr = checkProfLimit()
-			showType = 1
-			if not bShow then
-				bShow, limitStr = checkLevelLimit()
-				showType = 2
-			end
-		else
-			warn("Invalid limit type:", limitType, debug.traceback())
-		end
-	end
-
-	GUITools.SetUIActive(frame_limit, bShow)
-	if bShow then
-		GUITools.SetUIActive(lab_limit_prof, showType == 1)
-		GUITools.SetUIActive(lab_limit_level, showType ~= 1)
-		if showType == 1 then
-			GUI.SetText(lab_limit_prof, limitStr)
-		else
-			GUI.SetText(lab_limit_level, limitStr)
-		end
-	end
-end
-
 local function _GetItemIconTagGameObject(obj, tag, isComponent)
-	local tagObj, rootObj = nil , nil
+	local tagObj, rootObj = nil, nil
 	if not IsNil(obj) then
 		local index, root_index = _GetItemIconTagIndex(tag)
 		if index >= 0 then
@@ -426,7 +429,7 @@ local function _SetItemIconTagGameObject(tagObj, rootObj, tag, param)
 		local bShow = param > 1 -- 数量大于1才显示
 		GUITools.SetUIActive(tagObj, bShow)
 		if bShow then
-			GUI.SetText(tagObj, GUITools.FormatNumber(param))
+			GUI.SetText(tagObj, GUITools.FormatMoney(param))
 		end
 	elseif tag == ENUM_ITEM_ICON_TAG.StrengthLv then
 		local bShow = param > 0
@@ -482,14 +485,14 @@ end
 
 -- 数量不足时，图标置灰，隐藏品质框，显示加号
 -- 所需数量大于1时，显示所需数量
-local function _SetMaterialNum(obj, itemId, needNum)
+local function _SetMaterialNum(obj, itemTid, needNum)
 	local uiTemplate = obj:GetComponent(ClassType.UITemplate)
 	if uiTemplate == nil then
 		warn("MaterialIcon GameObject not using the sample", debug.traceback())
 		return
 	end
 
-	local packageNum = game._HostPlayer._Package._NormalPack:GetItemCount(itemId)
+	local packageNum = game._HostPlayer._Package._NormalPack:GetItemCount(itemTid)
 	local isMaterialEnough = needNum <= packageNum -- 材料是否足够
 
 	local lab_need = uiTemplate:GetControl(4)
@@ -645,8 +648,8 @@ end
 --        key   EItemIconTag
 --        value 对应类型参数
 --        例如 { [EItemIconTag.Bind] = false, ... }
-local function initItemIconNew(obj, itemId, setting, limitType)
-	if IsNil(obj) or itemId < 0 then return end
+local function initItemIconNew(obj, itemTid, setting, limitType)
+	if IsNil(obj) or itemTid < 0 then return end
 
 	local item_icon_index = _GetFrameIconTagIndex(ENUM_FRAME_ICON_TAG.ItemIcon)
 	local itemObj = GUITools.GetChild(obj, item_icon_index)
@@ -661,7 +664,7 @@ local function initItemIconNew(obj, itemId, setting, limitType)
 		return
 	end
 
-	_InitItemIcon(itemObj, itemId)
+	_InitItemIcon(itemObj, itemTid)
 	local temp = {} -- 记录设置过的Tag
 	if type(setting) == "table" then
 		for tag, param in pairs(setting) do
@@ -692,7 +695,7 @@ local function initItemIconNew(obj, itemId, setting, limitType)
 	end
 
 	if type(limitType) == "number" and limitType > 0 then
-		_SetUpItemLimit(itemObj, itemId, limitType)
+		_SetUpItemLimit(itemObj, itemTid, limitType)
 	else
 		-- 隐藏限制
 		local frame_limit = uiTemplate:GetControl(14)
@@ -797,18 +800,10 @@ local function setTags(obj, setting)
 	end
 end
 
--- 更新道具图标的限制状态
--- @param limitType EItemLimitCheck
-local function setLimit(obj, itemId, limitType)
-	if IsNil(obj) or itemId < 0 then return end
-
-	_SetUpItemLimit(obj, itemId, limitType)
-end
-
 -- （新版）更新道具图标的限制状态
 -- @param limitType EItemLimitCheck
-local function setLimitNew(obj, itemId, limitType)
-	if IsNil(obj) or itemId < 0 then return end
+local function setLimitNew(obj, itemTid, limitType)
+	if IsNil(obj) or itemTid < 0 then return end
 
 	local item_icon_index = _GetFrameIconTagIndex(ENUM_FRAME_ICON_TAG.ItemIcon)
 	local itemObj = GUITools.GetChild(obj, item_icon_index)
@@ -816,22 +811,22 @@ local function setLimitNew(obj, itemId, limitType)
 		warn("SetLimitNew failed, Frame_ItemIcon got nil", debug.traceback())
 		return
 	end
-	_SetUpItemLimit(itemObj, itemId, limitType)
+	_SetUpItemLimit(itemObj, itemTid, limitType)
 end
 
 -- （新版）初始化材料图标
-local function initMaterialIconNew(obj, itemId, needNum)
-	if IsNil(obj) or itemId <= 0 then return end
+local function initMaterialIconNew(obj, itemTid, needNum)
+	if IsNil(obj) or itemTid <= 0 then return end
 
-	_InitItemIcon(obj, itemId)
-	_SetMaterialNum(obj, itemId, needNum)
+	_InitItemIcon(obj, itemTid)
+	_SetMaterialNum(obj, itemTid, needNum)
 end
 
 -- 设置材料图标数量
-local function setMaterialNum(obj, itemId, needNum)
-	if IsNil(obj) or itemId <= 0 then return end
+local function setMaterialNum(obj, itemTid, needNum)
+	if IsNil(obj) or itemTid <= 0 then return end
 
-	_SetMaterialNum(obj, itemId, needNum)
+	_SetMaterialNum(obj, itemTid, needNum)
 end
 
 -- 设置图标的多个Tag功能
@@ -856,7 +851,6 @@ _G.IconTools =
 	InitTokenMoneyIcon = initTokenMoneyIcon,			-- 初始化货币图标并设置数量
 	-- SetSingleTag = setSingleTag,						-- 设置道具图标的单个Tag功能（废弃，请使用多个Tag设置）
 	SetTags = setTags,									-- 设置道具图标的多个Tag功能
-	SetLimit = setLimit,								-- 更新道具图标的限制状态
 	SetLimitNew = setLimitNew,							-- （新版）更新道具图标的限制状态
 	InitMaterialIconNew = initMaterialIconNew,				-- （新版）初始化材料图标
 	SetMaterialNum = setMaterialNum,					-- 设置材料图标数量

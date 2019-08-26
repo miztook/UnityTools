@@ -12,6 +12,7 @@ def.field("table")._Parent = nil
 def.field("userdata")._Panel = nil
 -- 界面
 def.field("userdata")._Frame_Festival = nil 
+def.field("userdata")._Img_FestivalBg = nil
 def.field('userdata')._List_Festival = nil
 def.field("userdata")._Lab_FestivalActivityTime = nil        -- 活动时间
 
@@ -32,7 +33,7 @@ def.method().Init = function(self)
     self._List_Festival = self._Parent:GetUIObject('List_Festival'):GetComponent(ClassType.GNewList)
 
     self._Lab_FestivalActivityTime = self._Parent:GetUIObject("Lab_FestivalActivityTime")
-
+    self._Img_FestivalBg = self._Frame_Festival:FindChild("Img_FestivalBg")
 end
 
 --------------------------------------------------------------------------------
@@ -41,8 +42,15 @@ def.method().Show = function(self)
     self._Panel:SetActive(true)
     self._FestivalInfo = {}    
     self._FestivalInfo = game._CWelfareMan:GetFestivalInfos()
-    self._MaterialList = self._FestivalInfo[game._CWelfareMan._CurFestivalId]._Data.ExchangeRewards
+    self._MaterialList = self._FestivalInfo[1]._Data.ExchangeRewards
     self._List_Festival:SetItemCount(#self._MaterialList)
+    if self._Lab_FestivalActivityTime ~= nil then
+        GUI.SetText(self._Lab_FestivalActivityTime , self._FestivalInfo[1]._Data.TimeContent)
+    end
+
+    if self._Img_FestivalBg ~= nil and self._FestivalInfo[1]._Data.BackImage ~= "" then
+        GUITools.SetSprite(self._Img_FestivalBg, self._FestivalInfo[1]._Data.BackImage)
+    end
 
 end
 
@@ -53,7 +61,7 @@ def.method("string").OnClick = function(self, id)
         {
             Title = StringTable.Get(34305),
             Name = StringTable.Get(34200),
-            Desc = StringTable.Get(34306),
+            Desc = self._FestivalInfo[1]._Data.Content,
         }
         game._GUIMan:Open("CPanelUICommonNotice", data)
     end
@@ -70,6 +78,9 @@ def.method("userdata", "number").OnInitFestivalInfo = function(self, item, index
     local Lab_ExchangeNum = GUITools.GetChild(item , 8)
     local ItemID = {}
     local ItemNum = {}
+    local isMaterialEnough1 = true
+    local isMaterialEnough2 = true
+    local isMaterialEnough3 = true
     local MaterialData = self._MaterialList[index]
 
     local curLimitNum = 0
@@ -79,15 +90,7 @@ def.method("userdata", "number").OnInitFestivalInfo = function(self, item, index
        end
     end
     if curLimitNum == nil then curLimitNum = 0 end
-    if curLimitNum <= 0 then
-        curLimitNum = RichTextTools.GetUnavailableColorText(tostring(curLimitNum))
-        -- Btn_Exchange:MakeGray(true) 
-        GUITools.SetBtnGray(Btn_Exchange, true)
-    else
-        curLimitNum = RichTextTools.GetAvailableColorText(tostring(curLimitNum))
-        -- Btn_Exchange:MakeGray(false) 
-        GUITools.SetBtnGray(Btn_Exchange, false)
-    end
+    
     GUI.SetText(Lab_ExchangeNum , string.format(StringTable.Get(34304), (curLimitNum .. "/" .. MaterialData.ExchangeLimit)))   
     string.gsub(MaterialData.ItemIds, '[^*]+', function(w) table.insert(ItemID, w) end )
     string.gsub(MaterialData.ItemNums, '[^*]+', function(w) table.insert(ItemNum, w) end )
@@ -98,15 +101,22 @@ def.method("userdata", "number").OnInitFestivalInfo = function(self, item, index
         ItemIcon3:SetActive(true)
         if ItemID[1] ~= nil and ItemNum[1] ~= nil then
             IconTools.InitMaterialIconNew(ItemIcon1, tonumber(ItemID[1]), tonumber(ItemNum[1]))
+            local packageNum = game._HostPlayer._Package._NormalPack:GetItemCount(tonumber(ItemID[1]))
+            isMaterialEnough1 = tonumber(ItemNum[1]) <= packageNum -- 材料是否足够
+
         end
         if ItemID[2] ~= nil and ItemNum[2] ~= nil then
             IconTools.InitMaterialIconNew(ItemIcon2, tonumber(ItemID[2]), tonumber(ItemNum[2]))
+            local packageNum = game._HostPlayer._Package._NormalPack:GetItemCount(tonumber(ItemID[2]))
+            isMaterialEnough2 = tonumber(ItemNum[2]) <= packageNum -- 材料是否足够
         else
             Img_Add1:SetActive(false)
             ItemIcon2:SetActive(false)
         end
         if ItemID[3] ~= nil and ItemNum[3] ~= nil then
             IconTools.InitMaterialIconNew(ItemIcon3, tonumber(ItemID[3]), tonumber(ItemNum[3]))
+            local packageNum = game._HostPlayer._Package._NormalPack:GetItemCount(tonumber(ItemID[3]))
+            isMaterialEnough3 = tonumber(ItemNum[3]) <= packageNum -- 材料是否足够
         else
             Img_Add2:SetActive(false)
             ItemIcon3:SetActive(false)
@@ -123,12 +133,22 @@ def.method("userdata", "number").OnInitFestivalInfo = function(self, item, index
         local setting = {
             [EItemIconTag.Number] = rewardList[1].Data.Count,
         }
-        IconTools.InitItemIconNew(ItemIconReward, rewardList[1].Data.Id, setting, EItemLimitCheck.AllCheck)
+        IconTools.InitItemIconNew(ItemIconReward, rewardList[1].Data.Id, setting)
+    end
+    if not isMaterialEnough1 or not isMaterialEnough2 or not isMaterialEnough3 or (curLimitNum <= 0) then
+        GUITools.SetBtnGray(Btn_Exchange, true)
+    else
+        GUITools.SetBtnGray(Btn_Exchange, false)
+    end
+
+    if curLimitNum <= 0 then
+        curLimitNum = RichTextTools.GetUnavailableColorText(tostring(curLimitNum))
+    else
+        curLimitNum = RichTextTools.GetAvailableColorText(tostring(curLimitNum))
     end
 end
 
 def.method("number").OnSelectFestivalInfoButton = function(self, index)
-    -- self._FestivalInfo[index]
     local ItemID = {}
     local ItemNum = {}
     local MaterialData = self._MaterialList[index]
@@ -181,7 +201,7 @@ def.method("userdata", "string", "number").OnSelectMaterial = function(self, but
         if reward_template ~= nil then 
             if not reward_template[1].IsTokenMoney then
                 local RewardId = reward_template[1].Data.Id
-                CItemTipMan.ShowItemTips(RewardId, TipsPopFrom.OTHER_PANEL , ItenBtn, TipPosition.FIX_POSITION) 
+                CItemTipMan.ShowItemTips(RewardId, TipsPopFrom.OTHER_PANEL , button_obj, TipPosition.FIX_POSITION) 
             else
                 -- TODO("货币不是 Item了,统一UE时记得改！")
                 local panelData = {}
@@ -189,7 +209,7 @@ def.method("userdata", "string", "number").OnSelectMaterial = function(self, but
                 {
                     _MoneyID = reward_template[1].Data.Id ,
                     _TipPos = TipPosition.FIX_POSITION ,
-                    _TargetObj = ItenBtn ,   
+                    _TargetObj = button_obj ,   
                 }
                 CItemTipMan.ShowMoneyTips(panelData)
             end 

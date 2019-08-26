@@ -55,10 +55,10 @@ local DeviceLevel =
         ["Xiaomi%pMI%p8"]       = 4, -- 小米8
         ["Xiaomi%pMI%p9"]       = 4, -- 小米9
         ["SM%pG960"]            = 4,      --Galaxy S9、Galaxy S9+
-        ["SM%pN960"]            = 4,      --Galaxy Note 9
-        ["SM%pG950"]            = 4,      --Galaxy S8
+        ["SM%pN960"]            = 3,      --Galaxy Note 9
+        ["SM%pG950"]            = 3,      --Galaxy S8
         ["SM%pG955"]            = 4,      --Galaxy S8 Plus
-        ["SM%pN950"]            = 4,      --Galaxy Note 8
+        ["SM%pN950"]            = 3,      --Galaxy Note 8
       
         -- ["F7 LG870"] = 4,   --LG Optimus G7
 
@@ -73,32 +73,45 @@ local DeviceLevel =
         ["SM%pG925"]            = 2,      --Galaxy S6 Edge
         ["SM%pN920"]            = 2,      --Galaxy Note 5
 
-        ["SHV%pE330"]           = 1,     --Galaxy S4
-        ["SHV%pE210"]           = 1,     --Galaxy S3
-        ["SHW%pM250"]           = 1,     --Galaxy S2
-        ["SM%pG900"]            = 1,     --Galaxy S5
-        ["SM%J700"]             = 1,     --Galaxy J7
-        ["SM%N900"]             = 1,     --Galaxy Note 3
-        ["SM%N910"]             = 1,     --Galaxy Note 4
-        ["SM%T230"]             = 1,     --Galaxy Note Tab 4
-
+        ["SHV%pE330"]           = 2,     --Galaxy S4
+        ["SHV%pE210"]           = 2,     --Galaxy S3
+        ["SHW%pM250"]           = 2,     --Galaxy S2
+        ["SM%pG900"]            = 2,     --Galaxy S5
+        ["SM%pJ700"]             = 2,     --Galaxy J7
+        ["SM%pN900"]             = 2,     --Galaxy Note 3
+        ["SM%pN910"]             = 2,     --Galaxy Note 4
+        ["SM%pT230"]             = 2,     --Galaxy Note Tab 4
+        -- 后续添加
+        ["SM%pG920"]             = 2,      --Galaxy S6
+        ["SM%pG973"]             = 4,      --Galaxy S10
+        ["SM%pA9100"]            = 4,      --Galaxy A9 Pro
+        ["SM%pG611L"]            = 2,      --Galaxy On7 Prime
+        ["SM%pA530"]             = 3,      --Galaxy A8(2018)
+        ["SM%pA810F"]            = 2,      --Galaxy A8(2016)
+        ["SM%pN935S"]            = 2,      --Galaxy Note Fan Edition
 
         -- LG
         ["V405"]                = 4,     --LG Optimus V40
         ["LM%pV405"]            = 4,
         ["LM%pV409"]            = 4,
-        ["V30%pH930"]           = 4,     --LG Optimus V30
-        ["V30%pV300"]           = 4,  
-        ["V30%pV300"]           = 4,  
+        ["V30%pH930"]           = 3,     --LG Optimus V30
+        ["V30%pV300"]           = 3,   
         ["LM%pG710"]            = 4,     --G7
 
         ["V20%pF800"]           = 3,     --LG V20 
         ["V20%pH990"]           = 3,
         ["G600"]                = 3,     --LG G6
-        ["G5%H840"]             = 3,     --LG G5
+        ["G5%H840"]             = 2,     --LG G5
 
         ["V10%pF600"]           = 2,     --LG V10
         ["V10%pH968"]           = 2,
+        -- 后续添加
+        ["LG%pG7%pThinQ"]       = 3,
+        ["LG%pH810"]             = 2,      --LG G4 
+        ["LG%pH811"]             = 2 ,          --LG V10
+        ["LM%pV500"]             = 3,     --LG V50 ThinQ
+
+
     },
  
 }

@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Viper_Arena",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10078] = 
@@ -23,7 +24,7 @@ local MapInfo =
 		},
 		[10080] = 
 		{
-			[1] = { x = 192.96, y = 20.98, z = -166.03, name = "쉐도우 쿠거", level = 12, SortID = 17 },
+			[1] = { x = 192.96, y = 20.98, z = -166.03, name = "그림자 쿠거", level = 12, SortID = 17 },
 		},
 	},
 	Npc = 
@@ -31,10 +32,14 @@ local MapInfo =
 	},
 	Region = 
 	{
+		[1] = 
+		{
+			[131] = { x = 169.08, y = 27.69, z = -197.19, xA = 183.17, yA = 20.90, zA = -180.27, name = "进入传送区域", worldId = 127, PkMode = 1 },
+		},
 		[2] = 
 		{
-			[85] = { x = 172.31, y = 43.92, z = -144.51, name = "", worldId = 0, PkMode = 0 },
-			[130] = { x = 190.17, y = 20.85, z = -174.95, name = "竞技场内环", worldId = 0, PkMode = 0 },
+			[85] = { x = 172.31, y = 43.92, z = -144.51, name = "", worldId = 0, PkMode = 1 },
+			[130] = { x = 190.17, y = 20.85, z = -174.95, name = "竞技场内环", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 
@@ -70,6 +75,7 @@ local MapInfo =
 	TargetPoint = 
 	{
 		[1] = { posx = 181.68, posy = 20.85, posz = -181.26, rotx = 0.00, roty = 0.00, rotz = 0.00 },
+		[2] = { posx = 183.17, posy = 20.90, posz = -180.27, rotx = 0.00, roty = 55.86, rotz = 0.00 },
 	},
 
 }

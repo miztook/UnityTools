@@ -32,6 +32,22 @@ def.static("number", "=>", "string").GetRemainStringByEndTime = function(endTime
     end
 end
 
+-- 获得活动商品的剩余时间字符串
+def.static("number", "=>", "string").GetActivityGoodsEndTime = function(endTime)
+    local remain_sec = math.max((endTime - GameUtil.GetServerTime())/1000, 0 )
+    if remain_sec > 86400 * 31 then
+        return StringTable.Get(31080)
+    elseif remain_sec > 86400 then
+        return string.format(StringTable.Get(31078), math.ceil(remain_sec/86400))
+    else
+        if remain_sec > 3600 then
+            return GUITools.FormatTimeFromSecondsToZero(true, remain_sec)
+        else
+            return string.format(StringTable.Get(10634), GUITools.FormatTimeFromSecondsToZero(true, remain_sec))
+        end
+    end
+end
+
 -- 获得月卡剩余时间
 def.static("number", "=>", "string").GetRemainStringForMonthlyCard = function(endTime)
     local remain_sec = math.max((endTime - GameUtil.GetServerTime())/1000, 0 )
@@ -46,7 +62,7 @@ end
 
 -- 获得快速购买的模板
 def.static("number", "boolean", "=>", "table").GetQuickBuyTemp = function(moneyID, isMoney)
-    local IDs = GameUtil.GetAllTid("QuickStore")
+    local IDs = CElementData.GetAllTid("QuickStore")
     if IDs == nil then return nil end
     local EItemType = require "PB.Template".QuickStore.EItemType
     for _,v in ipairs(IDs) do
@@ -66,7 +82,7 @@ end
 
 -- 根据消耗货币或者item的ID，获得快速购买的Tid
 def.static("number", "boolean", "=>", "number").GetQuickBuyTid = function(moneyOrItemID, isMoney)
-    local IDs = GameUtil.GetAllTid("QuickStore")
+    local IDs = CElementData.GetAllTid("QuickStore")
     local EItemType = require "PB.Template".QuickStore.EItemType
     for k,v in ipairs(IDs) do
         local temp = CElementData.GetTemplate("QuickStore", v)
@@ -203,10 +219,10 @@ def.static("table", "=>", "boolean").CanBuyWhenNotEnough = function(itemOrMoneyT
     local pre_cost_money_table = {}
 
     local insert_to_table = function(ID, Count)
-        print("Count ", Count)
+        --print("Count ", Count)
         local finded = false
         for i,v in ipairs(pre_cost_money_table) do
-            print("i,v ", i,v.MoneyID, v.Count )
+            --print("i,v ", i,v.MoneyID, v.Count )
             if v.MoneyID == ID then
                 v.Count = v.Count + Count
                 finded = true
@@ -436,6 +452,14 @@ local function getDropLibraryMoneyList(dropLibrary)
     for i,v in ipairs(temp.DropMoneyExps.DropMoneyExps) do
         MoneyList[#MoneyList + 1] = v
     end
+    for i,v in ipairs(temp.DropItems.DropItems) do
+        if v.ItemType == EDropItemType.DROPGROUP then 
+			local listData = getDropLibraryMoneyList(v.ItemId)
+			for j,w in ipairs(listData) do
+				MoneyList[#MoneyList+1] = w
+			end
+		end
+	end
 	return MoneyList
 end
 
@@ -503,6 +527,35 @@ def.static("number", "number", "=>", "table").GetItemsShowDataByItemID = functio
         }
     end
     return rewards
+end
+
+local InsertToSelfTable = function(selfTable, targetTable)
+    if selfTable == nil or targetTable == nil then return end
+    for _,v in ipairs(targetTable) do
+        selfTable[#selfTable + 1] = v
+    end
+end
+
+-- 根据金币ID和数量生成一个reward的结构
+local GetMoneyItemsDataByMoneyID = function(moneyID, count)
+    if moneyID <= 0 then return nil end
+    return {
+             {   IsTokenMoney = true,
+				Data = 
+				{
+					Id = moneyID, 
+					Count = count
+				}
+              }
+            }
+end
+
+-- 根据赠送的物品ID和数量 以及 赠送的货币ID和数量，返回一个table
+def.static("number", "number", "number", "number", "=>", "table").GetGiftItemsByGoodsData = function(giftItemID, giftItemCount, giftMoneyID, giftMoneyCount)
+    local items = {}
+    InsertToSelfTable(items, CMallUtility.GetItemsShowDataByItemID(giftItemID, giftItemCount))
+    InsertToSelfTable(items, GetMoneyItemsDataByMoneyID(giftMoneyID, giftMoneyCount))
+    return items
 end
 
 -- 通过物品ID获得必得奖励列表
@@ -673,7 +726,7 @@ def.static("=>", "boolean").CanExtractElf = function()
     local DropRuleId = tonumber(CElementData.GetSpecialIdTemplate(441).Value)
     local elfUseDropRuleTemp = CElementData.GetTemplate("DropRule",DropRuleId)
     if elfUseDropRuleTemp == nil then
-        warn("error !! CMallPageElf.InitElfData 精灵献礼使用的掉落模板数据为空")
+        warn("error !! CSummonPageElf.InitElfData 精灵献礼使用的掉落模板数据为空")
         return false
     end
     local flower_count = game._HostPlayer._Package._NormalPack:GetItemCount(elfUseDropRuleTemp.CostItemId2)
@@ -761,7 +814,7 @@ end
 
 -- 设置是否跳过动画的偏好
 def.static("string", "boolean").SetShowGfx = function(defID, bShow)
-    print("SetShowGfx ", defID, bShow)
+    --print("SetShowGfx ", defID, bShow)
     local oldShow = CMallUtility.IsShowGfx(defID)
     if oldShow == bShow then
         --print("怎么会被return")

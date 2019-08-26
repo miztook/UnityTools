@@ -58,6 +58,26 @@ bool CLplusChecker::BuildLuaClasses()
 	},
 		m_strLuaDir.c_str());
 
+	//添加 m_GlobalClassList
+	for (auto kv : m_mapLuaClass)
+	{
+		const SLuaClass& luaClass = kv.second;
+		bool bContains = false;
+		for (const auto& func : luaClass.functionDefList)
+		{
+			if (func.bIsStatic && func.token == "Instance")
+			{
+				bContains = true;
+				break;
+			}
+		}
+		if (bContains)
+		{
+			std::tuple<std::string, std::string> entry = { luaClass.strName + ".Instance()", luaClass.strName };
+			m_GlobalClassList.push_back(entry);
+		}
+	}
+
 	return true;
 }
 
@@ -70,7 +90,10 @@ bool CLplusChecker::BuildLuaFiles()
 			stricmp(filename, "Enum.lua") == 0 ||
 			stricmp(filename, "PBHelper.lua") == 0 ||
 			stricmp(filename, "Test.lua") == 0 ||
-			stricmp(filename, "Utility/BadWordsFilter.lua") == 0)
+			strstr(filename, "Utility/") != NULL ||
+			strstr(filename, "UnityClass/") != NULL ||
+			strstr(filename, "test/") != NULL ||
+			strstr(filename, "protobuf/") != NULL)
 			return;
 
 		if (!hasFileExtensionA(filename, "lua"))
@@ -89,7 +112,7 @@ bool CLplusChecker::BuildLuaFiles()
 			return;
 		}
 
-		BuildLuaFile(&File);
+		BuildLuaFile(&File, filename);
 
 		File.Close();
 	},
@@ -266,14 +289,11 @@ bool CLplusChecker::BuildLuaClass(AFile* pFile)
 	return true;
 }
 
-bool CLplusChecker::BuildLuaFile(AFile* pFile)
+bool CLplusChecker::BuildLuaFile(AFile* pFile, const char* fileName)
 {
 	pFile->Seek(0, AFILE_SEEK_SET);
 
 	auint32 dwReadLen;
-
-	char shortFileName[256];
-	getFileNameA(pFile->GetFileName(), shortFileName, 256);
 
 	bool isClass = false;
 
@@ -314,9 +334,58 @@ bool CLplusChecker::BuildLuaFile(AFile* pFile)
 		}
 	}
 
-	if (!isClass)
-	{
+	if (isClass)
+		return false;
 
+	//添加 SLuaFile
+	SLuaFile* luaFile = GetLuaFile(fileName);
+	if (!luaFile)
+	{
+		luaFile = AddLuaFile(fileName);
+		luaFile->strName = fileName;
+	}
+	
+	nLine = 0;
+	bComment = false;
+	pFile->Seek(0, AFILE_SEEK_SET);
+	while (pFile->ReadLine(szLine, AFILE_LINEMAXLEN, &dwReadLen))
+	{
+		++nLine;
+
+		//comment
+		if (strstr(szLine, "--[[") != NULL)
+		{
+			bComment = true;
+		}
+
+		if (strstr(szLine, "]]") != NULL)
+		{
+			bComment = false;
+		}
+
+		if (bComment)
+			continue;
+
+		char* pComment = strstr(szLine, "--");
+		if (pComment)
+			*pComment = '\0';
+
+		if (strstr(szLine, "StringTable.Get(") != NULL)
+		{
+			HandleLine_StringTableUse(szLine, nLine, luaFile);
+		}
+
+		//收集所有间接方法使用
+		Get_AllMethodUsedIndirect(szLine, nLine, luaFile);
+
+		//收集所有特殊方法使用
+		Get_AllSpecialMethodUsedIndirect(szLine, nLine, luaFile);
+
+		//收集全局字段使用
+		Get_GlobalFieldUsed(szLine, nLine, luaFile);
+
+		//收集全局方法使用
+		Get_GlobalMethodUsed(szLine, nLine, luaFile);
 	}
 
 	return true;
@@ -1305,7 +1374,7 @@ bool CLplusChecker::CheckLuaClassesToFile(const char* strFileName)
 	fprintf(pFile, "全部方法参数检查:\n");
 
 	{
-		std::set<SOutputEntry7> entryParamSet;
+		std::set<SOutputEntry5_SISII> entryParamSet;
 		for (const auto& entry : m_mapLuaClass)
 		{
 			const auto& luaClass = entry.second;
@@ -1316,12 +1385,33 @@ bool CLplusChecker::CheckLuaClassesToFile(const char* strFileName)
 		for (const auto& entry : entryParamSet)
 		{
 			fprintf(pFile,
-				"incorrect method params number used %s (param count=%d), class %s, at line %d, col %d\n",
+				"incorrect method params number used %s (param count=%d), class: %s, at line %d, col %d\n",
 				std::get<0>(entry).c_str(),
-				std::get<2>(entry),
-				std::get<4>(entry).c_str(),
-				std::get<5>(entry),
-				std::get<6>(entry));
+				std::get<1>(entry),
+				std::get<2>(entry).c_str(),
+				std::get<3>(entry),
+				std::get<4>(entry));
+		}
+	}
+
+	{
+		std::set<SOutputEntry5_SISII> entryParamSet;
+		for (const auto& entry : m_mapLuaFile)
+		{
+			const auto& luaFile = entry.second;
+
+			Check_AllMethodusedIndirectToFile(pFile, luaFile, entryParamSet);
+		}
+
+		for (const auto& entry : entryParamSet)
+		{
+			fprintf(pFile,
+				"incorrect method params number used %s (param count=%d), file: %s, at line %d, col %d\n",
+				std::get<0>(entry).c_str(),
+				std::get<1>(entry),
+				std::get<2>(entry).c_str(),
+				std::get<3>(entry),
+				std::get<4>(entry));
 		}
 	}
 
@@ -1330,7 +1420,7 @@ bool CLplusChecker::CheckLuaClassesToFile(const char* strFileName)
 	fprintf(pFile, "特殊方法参数检查:\n");
 
 	{
-		std::set<SOutputEntry7> entryParamSet;
+		std::set<SOutputEntry5_SISII> entryParamSet;
 		for (const auto& entry : m_mapLuaClass)
 		{
 			const auto& luaClass = entry.second;
@@ -1341,12 +1431,33 @@ bool CLplusChecker::CheckLuaClassesToFile(const char* strFileName)
 		for (const auto& entry : entryParamSet)
 		{
 			fprintf(pFile,
-				"incorrect special method params number used %s (param count=%d), class %s, at line %d, col %d\n",
+				"incorrect special method params number used %s (param count=%d), class: %s, at line %d, col %d\n",
 				std::get<0>(entry).c_str(),
-				std::get<2>(entry),
-				std::get<4>(entry).c_str(),
-				std::get<5>(entry),
-				std::get<6>(entry));
+				std::get<1>(entry),
+				std::get<2>(entry).c_str(),
+				std::get<3>(entry),
+				std::get<4>(entry));
+		}
+	}
+
+	{
+		std::set<SOutputEntry5_SISII> entryParamSet;
+		for (const auto& entry : m_mapLuaFile)
+		{
+			const auto& luaFile = entry.second;
+
+			Check_AllSpecialMethodusedIndirectToFile(pFile, luaFile, entryParamSet);
+		}
+
+		for (const auto& entry : entryParamSet)
+		{
+			fprintf(pFile,
+				"incorrect special method params number used %s (param count=%d), file: %s, at line %d, col %d\n",
+				std::get<0>(entry).c_str(),
+				std::get<1>(entry),
+				std::get<2>(entry).c_str(),
+				std::get<3>(entry),
+				std::get<4>(entry));
 		}
 	}
 
@@ -1362,10 +1473,32 @@ bool CLplusChecker::CheckLuaClassesToFile(const char* strFileName)
 
 			Check_AllGlobalFieldUsedToFile(pFile, luaClass, entrySet);
 		}
+
 		for (const auto& entry : entrySet)
 		{
 			fprintf(pFile,
-				"undefined token global field used %s (%s), in class %s, at line %d, col %d\n",
+				"undefined token global field used %s (%s), in class: %s, at line %d, col %d\n",
+				std::get<0>(entry).c_str(),
+				std::get<1>(entry).c_str(),
+				std::get<2>(entry).c_str(),
+				std::get<3>(entry),
+				std::get<4>(entry));
+		}
+	}
+
+	{
+		std::set<SOutputEntry5> entrySet;
+		for (const auto& entry : m_mapLuaFile)
+		{
+			const auto& luaFile = entry.second;
+
+			Check_AllGlobalFieldUsedToFile(pFile, luaFile, entrySet);
+		}
+
+		for (const auto& entry : entrySet)
+		{
+			fprintf(pFile,
+				"undefined token global field used %s (%s), in file: %s, at line %d, col %d\n",
 				std::get<0>(entry).c_str(),
 				std::get<1>(entry).c_str(),
 				std::get<2>(entry).c_str(),
@@ -1390,7 +1523,7 @@ bool CLplusChecker::CheckLuaClassesToFile(const char* strFileName)
 		for (const auto& entry : entrySet)
 		{
 			fprintf(pFile,
-				"undefined token global method used %s (%s), in class %s, at line %d, col %d\n",
+				"undefined token global method used %s (%s), in class: %s, at line %d, col %d\n",
 				std::get<0>(entry).c_str(),
 				std::get<1>(entry).c_str(),
 				std::get<2>(entry).c_str(),
@@ -1401,7 +1534,41 @@ bool CLplusChecker::CheckLuaClassesToFile(const char* strFileName)
 		for (const auto& entry : entryParamSet)
 		{
 			fprintf(pFile,
-				"incorrect token global method params used %s (%s) (param count=%d, required=%d), class %s, at line %d, col %d\n",
+				"incorrect token global method params used %s (%s) (param count=%d, required=%d), class: %s, at line %d, col %d\n",
+				std::get<0>(entry).c_str(),
+				std::get<1>(entry).c_str(),
+				std::get<2>(entry),
+				std::get<3>(entry),
+				std::get<4>(entry).c_str(),
+				std::get<5>(entry),
+				std::get<6>(entry));
+		}
+	}
+
+	{
+		std::set<SOutputEntry5> entrySet;
+		std::set<SOutputEntry7> entryParamSet;
+		for (const auto& entry : m_mapLuaFile)
+		{
+			const auto& luaFile = entry.second;
+
+			Check_AllGlobalMethodUsedToFile(pFile, luaFile, entrySet, entryParamSet);
+		}
+		for (const auto& entry : entrySet)
+		{
+			fprintf(pFile,
+				"undefined token global method used %s (%s), in file: %s, at line %d, col %d\n",
+				std::get<0>(entry).c_str(),
+				std::get<1>(entry).c_str(),
+				std::get<2>(entry).c_str(),
+				std::get<3>(entry),
+				std::get<4>(entry));
+		}
+
+		for (const auto& entry : entryParamSet)
+		{
+			fprintf(pFile,
+				"incorrect token global method params used %s (%s) (param count=%d, required=%d), file: %s, at line %d, col %d\n",
 				std::get<0>(entry).c_str(),
 				std::get<1>(entry).c_str(),
 				std::get<2>(entry),
@@ -1476,22 +1643,44 @@ bool CLplusChecker::CheckLuaClassesToFile(const char* strFileName)
 
 	fprintf(pFile, "StringTable.Get错误id在game_text找不到:\n");
 
-	std::set<SStringTableToken> stringTableToken;
-	for (const auto& entry : m_mapLuaClass)
 	{
-		const auto& luaClass = entry.second;
+		std::set<SStringTableToken> stringTableToken;
+		for (const auto& entry : m_mapLuaClass)
+		{
+			const auto& luaClass = entry.second;
 
-		Check_GameTextUsedToFile(luaClass, stringTableToken);
+			Check_GameTextUsedToFile(luaClass, stringTableToken);
+		}
+
+		for (const auto& entry : stringTableToken)
+		{
+			fprintf(pFile,
+				"cannot find CStringTable.Get() %d class: %s, at line %d, col %d\n",
+				entry.text_id,
+				entry.classOrFileName.c_str(),
+				entry.location.line,
+				entry.location.col);
+		}
 	}
 
-	for (const auto& entry : stringTableToken)
 	{
-		fprintf(pFile,
-			"cannot find CStringTable.Get() %d class %s, at line %d, col %d\n",
-			entry.text_id,
-			entry.className.c_str(),
-			entry.location.line,
-			entry.location.col);
+		std::set<SStringTableToken> stringTableToken;
+		for (const auto& entry : m_mapLuaFile)
+		{
+			const auto& luaFile = entry.second;
+
+			Check_GameTextUsedToFile(luaFile, stringTableToken);
+		}
+
+		for (const auto& entry : stringTableToken)
+		{
+			fprintf(pFile,
+				"cannot find CStringTable.Get() %d file: %s, at line %d, col %d\n",
+				entry.text_id,
+				entry.classOrFileName.c_str(),
+				entry.location.line,
+				entry.location.col);
+		}
 	}
 
 	fprintf(pFile, "\n");
@@ -1617,6 +1806,25 @@ SLuaClass* CLplusChecker::AddLuaClass(const char* szName)
 	m_mapLuaClass[szName] = SLuaClass();
 	auto itr = m_mapLuaClass.find(szName);
 	if (itr != m_mapLuaClass.end())
+		return &itr->second;
+	else
+		return NULL;
+}
+
+SLuaFile * CLplusChecker::GetLuaFile(const char * szName)
+{
+	auto itr = m_mapLuaFile.find(szName);
+	if (itr != m_mapLuaFile.end())
+		return &itr->second;
+
+	return NULL;
+}
+
+SLuaFile * CLplusChecker::AddLuaFile(const char * szName)
+{
+	m_mapLuaFile[szName] = SLuaFile();
+	auto itr = m_mapLuaFile.find(szName);
+	if (itr != m_mapLuaFile.end())
 		return &itr->second;
 	else
 		return NULL;

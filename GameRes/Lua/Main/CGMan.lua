@@ -90,13 +90,18 @@ local function _PlayCG(path, cb, priority, canSkip)
 		end
 	end
 
-	if path == nil then
+	if path == nil or type(path) ~= "string" then
 		return 
 	end
 
 	if _CurCgPath == path or _CurCgPriority > priority then
 		return
 	end
+
+	local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
+	CPlatformSDKMan.Instance():SetPipelineBreakPoint(
+		PlatformSDKDef.PipelinePointType.PlayCG,
+		cgId)
 
 	-- 其他cg正在播放，先停掉
 	if _CurCgPath ~= nil then
@@ -131,7 +136,7 @@ local function _StopCG()
 end
 
 -- 断线重连清空缓存
-local function _Release()
+local function _Reset()
 	GameUtil.StopCG()
 	_CurCgId = 0
 	_CurCgPath = nil
@@ -148,5 +153,5 @@ _G.CGMan =
 	OnStart = _OnStart,
 	OnFinish = _OnFinish,
 
-	Release = _Release,
+	Reset = _Reset,
 }

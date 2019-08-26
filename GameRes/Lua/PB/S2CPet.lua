@@ -5,9 +5,6 @@
 local PBHelper = require "Network.PBHelper"
 local CElementData = require "Data.CElementData"
 
-local function SendFlashMsg(msg)
-	game._GUIMan:ShowTipText(msg, false)
-end
 local function SendMsgToSysteamChannel(msg)
 	local ECHAT_CHANNEL_ENUM = require "PB.data".ChatChannel
 	local ChatManager = require "Chat.ChatManager"
@@ -17,7 +14,7 @@ local function SendMsgToTeamChannel(msg)
 	local ECHAT_CHANNEL_ENUM = require "PB.data".ChatChannel
 	local ChatManager = require "Chat.ChatManager"
 
-	SendFlashMsg(msg)
+	TeraFuncs.SendFlashMsg(msg)
 	ChatManager.Instance():ClientSendMsg(ECHAT_CHANNEL_ENUM.ChatChannelTeam, msg, false, 0, nil,nil)
 end
 
@@ -158,7 +155,7 @@ local function OnS2CPetUpdate(sender,protocol)
             	str = string.format(StringTable.Get(19068), name, talentName1, talentName2)
 			end
 
-			SendFlashMsg(str)
+			TeraFuncs.SendFlashMsg(str)
 			SendMsgToSysteamChannel(str)
 			pet:InitSkill(protocol.talent.petSkillDatas)
 			pet:UpdateFightScore(protocol.talent.fightScore)
@@ -179,7 +176,7 @@ local function OnS2CPetUpdate(sender,protocol)
 			return
 		else
 			local str = StringTable.Get(19087)
-			SendFlashMsg(str)
+			TeraFuncs.SendFlashMsg(str)
 			SendMsgToSysteamChannel(str)
 			pet:InitSkill(protocol.takedown.petSkillDatas)
 			pet:UpdateFightScore(protocol.takedown.fightScore)
@@ -204,7 +201,7 @@ local function OnS2CPetUpdate(sender,protocol)
 			local skill_field_count = pet:GetSkillFieldCount()
 			pet:UpdateAll(protocol.confirmRecast.petDetail)
             if pet:GetSkillFieldCount() > skill_field_count then
-                SendFlashMsg(StringTable.Get(19076))
+                TeraFuncs.SendFlashMsg(StringTable.Get(19076))
             end
 			SentUpdateEvnet(curType)
 			CSoundMan.Instance():Play2DAudio(PATH.GUISound_SkillCommon, 0)
@@ -213,12 +210,11 @@ local function OnS2CPetUpdate(sender,protocol)
 			-- 	local name = RichTextTools.GetQualityText(pet:GetNickName(), pet._Quality)
 			-- 	local str = string.format(StringTable.Get(19064), name)
 			-- 	SendMsgToSysteamChannel(str)
-			-- 	-- SendFlashMsg(str)
 			-- end
    --          
 			-- pet:UpdateAll(protocol.confirmRecast.petDetail)
    --          if pet:GetSkillFieldCount() > skill_field_count then
-   --              SendFlashMsg(StringTable.Get(19076))
+   --              TeraFuncs.TeraFuncs.SendFlashMsg(StringTable.Get(19076))
    --          end
 			-- SentUpdateEvnet(curType)
 
@@ -245,15 +241,14 @@ local function OnS2CPetUpdate(sender,protocol)
 			warn("Error Can not find in client cache petId : ", protocol.levelUp.petDetails.petId)
 			return
 		else
-			-- SendFlashMsg(string.format(StringTable.Get(19049), protocol.levelUp.petDetails.level))
 			local name = RichTextTools.GetQualityText(pet:GetNickName(), pet._Quality)
 			local str = string.format(StringTable.Get(19063), name, protocol.levelUp.petDetails.level)
             local skill_field_count = pet:GetSkillFieldCount()
 			SendMsgToSysteamChannel(str)
-			SendFlashMsg(str)
+			TeraFuncs.SendFlashMsg(str)
 			pet:UpdateAll(protocol.levelUp.petDetails)
             if pet:GetSkillFieldCount() > skill_field_count then
-                SendFlashMsg(StringTable.Get(19076))
+                TeraFuncs.SendFlashMsg(StringTable.Get(19076))
             end
 			SentUpdateEvnet(curType)
 
@@ -282,12 +277,11 @@ local function OnS2CPetUpdate(sender,protocol)
 			return
 		else
             local skill_field_count = pet:GetSkillFieldCount()
-			-- SendFlashMsg(string.format(StringTable.Get(19050), protocol.advance.petDetails.stage))
 			SendMsgToSysteamChannel(string.format(StringTable.Get(19065)))
 			pet:UpdateAll(protocol.advance.petDetails)
 			petPackage:UpdatePetList(false, protocol.advance.deletePetId)
             if pet:GetSkillFieldCount() > skill_field_count then
-                SendFlashMsg(StringTable.Get(19076))
+                TeraFuncs.SendFlashMsg(StringTable.Get(19076))
             end
 			SentUpdateEvnet(curType)
 			local CPanelCommonCultivae = require"GUI.CPanelCommonCultivate"
@@ -331,6 +325,8 @@ local function OnS2CPetUpdate(sender,protocol)
 			return
 		else
 			pet:UpdateExp(protocol.petUpdateExp.exp)
+			local str = string.format(StringTable.Get(19015), GUITools.FormatNumber(protocol.petUpdateExp.addTotalExp))
+			TeraFuncs.SendFlashMsg(str)
 			SentUpdateEvnet(curType)
 		end
 	elseif curType == EPetOptType.EPetOptType_ResetRecastCount then
@@ -350,7 +346,7 @@ local function OnS2CPetUpdate(sender,protocol)
 		local name = RichTextTools.GetQualityText(pet:GetNickName(), pet._Quality)
 		local str = string.format(StringTable.Get(19066), name)
 		SendMsgToSysteamChannel(str)
-		SendFlashMsg(str)
+		TeraFuncs.SendFlashMsg(str)
 		SentUpdateEvnet(curType)
 	elseif curType == EPetOptType.EPetOptType_TotalFightSocre then
 		-- warn("宠物 宠物提供人物战斗力")
@@ -371,9 +367,13 @@ local function OnS2CPetUpdate(sender,protocol)
             local skill_field_count = pet:GetSkillFieldCount()
 			SendMsgToSysteamChannel(string.format(StringTable.Get(19086)))
 			pet:UpdateAll(protocol.fuse.petDetails)
-			petPackage:UpdatePetList(false, protocol.fuse.deletePetId)
+
+			for i,deletePetId in ipairs(protocol.fuse.deletePetIds) do
+				petPackage:UpdatePetList(false, deletePetId)
+			end
+			
             if pet:GetSkillFieldCount() > skill_field_count then
-                SendFlashMsg(StringTable.Get(19076))
+                TeraFuncs.SendFlashMsg(StringTable.Get(19076))
             end
 			SentUpdateEvnet(curType)
 			local CPanelCommonCultivae = require"GUI.CPanelCommonCultivate"
@@ -385,7 +385,7 @@ local function OnS2CPetUpdate(sender,protocol)
 			}
 	        game._GUIMan:Open("CPanelCommonCultivate", PanelData)
 	        
-	        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Pet_Advance, 0)
+	        CSoundMan.Instance():Play2DAudio(PATH.GUISound_PetProcessing, 0)
 		end
 	elseif curType == EPetOptType.EPetOptType_star then
 		-- warn("升星")
@@ -404,7 +404,7 @@ local function OnS2CPetUpdate(sender,protocol)
 			pet:UpdateAll(protocol.star.petDetails)
 			petPackage:UpdatePetList(false, protocol.star.deletePetId)
             if pet:GetSkillFieldCount() > skill_field_count then
-                SendFlashMsg(StringTable.Get(19076))
+                TeraFuncs.SendFlashMsg(StringTable.Get(19076))
             end
 			SentUpdateEvnet(curType)
 			local CPanelCommonCultivae = require"GUI.CPanelCommonCultivate"

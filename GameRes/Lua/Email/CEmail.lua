@@ -16,6 +16,7 @@ def.field("table")._Reward = nil   --奖励金钱
 def.field("number")._RewardId = 0 ;-- 奖励模板id
 def.field("boolean")._IsHaveReward = false -- 是否为有附件的邮件
 def.field("number")._Level = 0
+def.field("number")._DurationSecond = 0
 
 def.static("=>",CEmail).new = function ()
 	local obj = CEmail()

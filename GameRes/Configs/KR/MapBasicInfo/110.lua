@@ -11,19 +11,24 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/city01.png",
 	AssetPath = "Assets/Outputs/Scenes/City01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[60048] = 
 		{
-			[1] = { x = 74.60, y = 18.52, z = 188.18, name = "난동 부리는 술 손님", level = 13, SortID = 193, DropItemIds = " " },
+			[1] = { x = 74.60, y = 18.52, z = 188.18, name = "난동 부리는 술꾼", level = 13, SortID = 193, DropItemIds = " " },
 		},
 		[10193] = 
 		{
-			[1] = { x = 117.36, y = 18.98, z = 224.04, name = "密特拉护卫", level = 14, DropItemIds = " " },
+			[1] = { x = 117.36, y = 18.98, z = 224.04, name = "미트라 호위", level = 14, DropItemIds = " " },
 		},
 		[10194] = 
 		{
 			[1] = { x = -65.74, y = 31.11, z = 166.19, name = "난민 반대자", level = 14, DropItemIds = " " },
+		},
+		[10202] = 
+		{
+			[1] = { x = 121.00, y = 18.89, z = 155.80, name = "암거래 경호원", level = 14, DropItemIds = " " },
 		},
 	},
 	Npc = 
@@ -43,7 +48,7 @@ local MapInfo =
 		},
 		[82] = 
 		{
-			[1] = { x = 53.96, y = 25.45, z = 69.93, name = "수비대장 스탈링", SortID = 16 },
+			[1] = { x = 53.96, y = 25.45, z = 69.93, name = "수비군 대장 스탈링", SortID = 16 },
 		},
 		[73] = 
 		{
@@ -51,7 +56,7 @@ local MapInfo =
 		},
 		[77] = 
 		{
-			[1] = { x = 84.63, y = 23.39, z = 122.66, name = "취객", SortID = 14 },
+			[1] = { x = 84.63, y = 23.39, z = 122.66, name = "취객", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "취객", SortID = 14, FunctionName = "명성" },
 		},
 		[78] = 
 		{
@@ -62,7 +67,7 @@ local MapInfo =
 		},
 		[99] = 
 		{
-			[1] = { x = 79.66, y = 18.52, z = 171.98, name = "여관 여주인", SortID = 8 },
+			[1] = { x = 79.66, y = 18.52, z = 171.98, name = "여관 주인", SortID = 8 },
 		},
 		[102] = 
 		{
@@ -158,7 +163,7 @@ local MapInfo =
 		},
 		[145] = 
 		{
-			[1] = { x = 11.04, y = 32.81, z = 132.36, name = "카레도", IsCanFind = 1, IconPath = "Map_Img_Shop", Describe = "잡화상인", SortID = 44 },
+			[1] = { x = 11.04, y = 32.81, z = 132.36, name = "카레토", IsCanFind = 1, IconPath = "Map_Img_Shop", Describe = "잡화 상인", SortID = 44 },
 		},
 		[198] = 
 		{
@@ -191,7 +196,7 @@ local MapInfo =
 		},
 		[148] = 
 		{
-			[1] = { x = -87.71, y = 31.11, z = 148.08, name = "수송 장교", SortID = 61 },
+			[1] = { x = -87.71, y = 31.11, z = 148.08, name = "군수관", SortID = 61 },
 		},
 		[153] = 
 		{
@@ -382,7 +387,7 @@ local MapInfo =
 		},
 		[769] = 
 		{
-			[1] = { x = -105.40, y = 44.22, z = 67.34, name = "칼 상위", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "칼 상위", SortID = 156, FunctionName = "명성" },
+			[1] = { x = -105.40, y = 44.22, z = 67.34, name = "칼 대위", IsCanFind = 1, IconPath = "Common_Npc_013", Describe = "칼 대위", SortID = 156, FunctionName = "명성" },
 		},
 		[561] = 
 		{
@@ -462,15 +467,15 @@ local MapInfo =
 		},
 		[838] = 
 		{
-			[1] = { x = 62.92, y = 23.42, z = 160.40, name = "교회 목사", SortID = 190 },
+			[1] = { x = 62.92, y = 23.42, z = 160.40, name = "신부", SortID = 190 },
 		},
 		[862] = 
 		{
-			[1] = { x = 72.88, y = 18.52, z = 187.87, name = "성격이 안좋는 술객", SortID = 192, FunctionName = " " },
+			[1] = { x = 72.88, y = 18.52, z = 187.87, name = "성격 더러운 술꾼", SortID = 192, FunctionName = " " },
 		},
 		[863] = 
 		{
-			[1] = { x = 76.10, y = 18.52, z = 188.52, name = "취한 술객", SortID = 194, FunctionName = " " },
+			[1] = { x = 76.10, y = 18.52, z = 188.52, name = "취한 술꾼", SortID = 194, FunctionName = " " },
 		},
 		[857] = 
 		{
@@ -482,35 +487,39 @@ local MapInfo =
 		},
 		[864] = 
 		{
-			[1] = { x = 34.25, y = 25.45, z = 154.85, name = "富商", FunctionName = " " },
+			[1] = { x = 34.25, y = 25.45, z = 154.85, name = "거상", FunctionName = " " },
 		},
 		[865] = 
 		{
-			[1] = { x = -89.54, y = 44.22, z = 35.97, name = "健壮的士兵", FunctionName = " " },
+			[1] = { x = -89.54, y = 44.22, z = 35.97, name = "건장한 병사", FunctionName = " " },
 		},
 		[866] = 
 		{
-			[1] = { x = -15.82, y = 48.70, z = 37.74, name = "无家可归的孤儿", FunctionName = " " },
+			[1] = { x = -15.82, y = 48.70, z = 37.74, name = "오갈 데 없는 고아", FunctionName = " " },
 		},
 		[867] = 
 		{
-			[1] = { x = 9.31, y = 48.66, z = 48.39, name = "遇袭的官员", FunctionName = " " },
+			[1] = { x = 9.31, y = 48.66, z = 48.39, name = "습격당한 사무관", FunctionName = " " },
 		},
 		[868] = 
 		{
-			[1] = { x = -24.91, y = 28.93, z = 187.72, name = "케스타닉 난민", FunctionName = " " },
+			[1] = { x = -24.91, y = 28.93, z = 187.94, name = "케스타닉 난민", FunctionName = " " },
+		},
+		[869] = 
+		{
+			[1] = { x = -6.83, y = 28.93, z = 158.26, name = "깨고소해하는 시민", FunctionName = " " },
 		},
 	},
 	Region = 
 	{
 		[1] = 
 		{
-			[1] = { x = -1.18, y = 29.19, z = 204.52, xA = 38.19, yA = 49.34, zA = -221.96, name = "传送至东部领地1", worldId = 120, BattleMusic = "BGM_Maincastle/Music/maincastle_zone_07_the_slums_battle", PkMode = 1 },
-			[2] = { x = -113.82, y = 29.13, z = 142.47, xA = -21.32, yA = 53.58, zA = -242.44, name = "传送至东部领地2", worldId = 120, PkMode = 1 },
-			[4] = { x = 145.58, y = 21.67, z = 219.67, xA = 239.44, yA = 21.91, zA = -224.12, name = "", worldId = 120, PkMode = 1 },
+			[1] = { x = -1.18, y = 29.19, z = 204.52, xA = 38.19, yA = 49.34, zA = -221.96, name = "传送至东部领地1", worldId = 120, IsCanFind = 1, Describe = "동부 가드 - 정문", BattleMusic = "BGM_Maincastle/Music/maincastle_zone_07_the_slums_battle", PkMode = 1 },
+			[2] = { x = -113.82, y = 29.13, z = 142.47, xA = -21.32, yA = 53.58, zA = -242.44, name = "传送至东部领地2", worldId = 120, IsCanFind = 1, Describe = "동부 가드 - 탐욕의 골짜기", PkMode = 1 },
+			[4] = { x = 145.58, y = 21.67, z = 219.67, xA = 239.44, yA = 21.91, zA = -224.12, name = "", worldId = 120, IsCanFind = 1, Describe = "동부 가드 - 수도", PkMode = 1 },
 			[87] = { x = -4.99, y = 179.30, z = -131.70, xA = -4.55, yA = 58.38, zA = -43.17, name = "顶端传送区域", worldId = 110, PkMode = 1 },
-			[91] = { x = -28.68, y = 58.38, z = -36.51, xA = -5.80, yA = 179.30, zA = -138.31, name = "传送阵大堂", worldId = 110, PkMode = 1 },
-			[384] = { x = 133.11, y = 20.78, z = 118.90, xA = -133.07, yA = 17.74, zA = -330.56, name = "至帝国边境", worldId = 190, PkMode = 0 },
+			[91] = { x = -28.68, y = 58.38, z = -36.51, xA = -5.80, yA = 179.30, zA = -138.31, name = "传送阵大堂", worldId = 110, IsCanFind = 1, Describe = "천공 신전", PkMode = 1 },
+			[384] = { x = 133.11, y = 20.78, z = 118.90, xA = -133.07, yA = 17.74, zA = -330.56, name = "至帝国边境", worldId = 190, IsCanFind = 1, Describe = "제국 국경 지대", PkMode = 1 },
 		},
 		[2] = 
 		{
@@ -525,29 +534,30 @@ local MapInfo =
 			[115] = { x = -6.01, y = 32.83, z = 114.01, name = "축복의 광장", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 1, EnvironmentMusic = "Zone_Ambience/Ambience/Square" },
 			[116] = { x = -3.06, y = 48.66, z = 31.26, name = "심사숙고의 길", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 1, EnvironmentMusic = "Zone_Ambience/Ambience/Castle" },
 			[117] = { x = -6.37, y = 58.38, z = -52.79, name = "벨릭의 신전", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 1, EnvironmentMusic = "Zone_Ambience/Ambience/Castle" },
-			[118] = { x = -7.01, y = 185.32, z = -201.91, name = "천공의 궁전", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 1, EnvironmentMusic = "Zone_Ambience/Ambience/Castle" },
+			[118] = { x = -7.01, y = 185.32, z = -201.91, name = "천공 신전", isShowName = true, worldId = 0, IsCanFind = 1, PkMode = 1, EnvironmentMusic = "Zone_Ambience/Ambience/Castle" },
 			[124] = { x = 22.82, y = 25.45, z = 159.87, name = "难民抢劫【任务】", worldId = 0, PkMode = 1 },
 			[195] = { x = -3.56, y = 48.66, z = 21.73, name = "鹰眼任务区域", worldId = 0, PkMode = 1, QuestID = {175} },
-			[268] = { x = 130.77, y = 21.84, z = 94.95, name = "抵达区域", worldId = 0, PkMode = 0 },
-			[336] = { x = -13.91, y = 45.12, z = 146.41, name = "暴动相位区域", worldId = 0, PkMode = 0 },
-			[337] = { x = 122.43, y = 18.98, z = 221.85, name = "迷茫的灵魂相位", worldId = 0, PkMode = 0 },
-			[338] = { x = 130.86, y = 20.78, z = 111.80, name = "暗杀市长副手【支线】", worldId = 0, PkMode = 0 },
-			[385] = { x = 21.51, y = 25.45, z = 171.64, name = "", worldId = 0, PkMode = 0 },
-			[386] = { x = 42.48, y = 25.45, z = 135.37, name = "声望-好望港密信", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {61121} },
-			[387] = { x = 125.72, y = 18.98, z = 224.86, name = "迷茫的灵魂支线鹰眼", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {10115} },
-			[388] = { x = -72.19, y = 31.41, z = 179.72, name = "引导传送任务抵达区域", worldId = 0, PkMode = 0 },
-			[389] = { x = -70.34, y = 31.41, z = 174.55, name = "引导任务抵达区域", worldId = 0, PkMode = 0 },
-			[406] = { x = -5.12, y = 58.58, z = -19.36, name = "对峙相位", worldId = 0, PkMode = 0 },
-			[431] = { x = -36.13, y = 28.93, z = 194.31, name = "发放补给区域", worldId = 0, PkMode = 0 },
-			[432] = { x = -22.10, y = 28.93, z = 173.89, name = "发放补给区域2", worldId = 0, PkMode = 0 },
-			[433] = { x = -33.97, y = 28.93, z = 171.82, name = "发放补给区域3", worldId = 0, PkMode = 0 },
-			[434] = { x = -73.71, y = 31.11, z = 168.78, name = "绑架鹰眼区域", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {44} },
-			[435] = { x = -18.21, y = 35.66, z = 13.41, name = "神殿对峙相位", worldId = 0, PkMode = 0 },
-			[436] = { x = 110.20, y = 19.59, z = 111.63, name = "乘船前抵达区域", worldId = 0, PkMode = 0 },
-			[581] = { x = 75.03, y = 18.52, z = 182.99, name = "声望-码头闹事", worldId = 0, PkMode = 0 },
-			[582] = { x = -5.26, y = 58.58, z = -22.83, name = "声望对峙", worldId = 0, PkMode = 0 },
-			[583] = { x = 117.00, y = 18.99, z = 222.81, name = "声望-密特拉藏宝刷怪", worldId = 0, PkMode = 0 },
-			[584] = { x = -65.29, y = 31.18, z = 165.06, name = "声望-鹰徽怪物", worldId = 0, PkMode = 0 },
+			[268] = { x = 130.77, y = 21.84, z = 94.95, name = "抵达区域", worldId = 0, PkMode = 1 },
+			[336] = { x = -13.91, y = 45.12, z = 146.41, name = "暴动相位区域", worldId = 0, PkMode = 1 },
+			[337] = { x = 122.43, y = 18.98, z = 221.85, name = "迷茫的灵魂相位", worldId = 0, PkMode = 1 },
+			[338] = { x = 130.86, y = 20.78, z = 111.80, name = "暗杀市长副手【支线】", worldId = 0, PkMode = 1 },
+			[385] = { x = 21.51, y = 25.45, z = 171.64, name = "", worldId = 0, PkMode = 1 },
+			[386] = { x = 42.48, y = 25.45, z = 135.37, name = "声望-好望港密信", worldId = 0, PkMode = 1, IsCanHawkeye = true, QuestID = {61121} },
+			[387] = { x = 125.72, y = 18.98, z = 224.86, name = "迷茫的灵魂支线鹰眼", worldId = 0, PkMode = 1, IsCanHawkeye = true, QuestID = {10115} },
+			[388] = { x = -72.19, y = 31.41, z = 179.72, name = "引导传送任务抵达区域", worldId = 0, PkMode = 1 },
+			[389] = { x = -70.34, y = 31.41, z = 174.55, name = "引导任务抵达区域", worldId = 0, PkMode = 1 },
+			[406] = { x = -5.12, y = 58.58, z = -19.36, name = "对峙相位", worldId = 0, PkMode = 1 },
+			[431] = { x = -36.13, y = 28.93, z = 194.31, name = "发放补给区域", worldId = 0, PkMode = 1 },
+			[432] = { x = -22.10, y = 28.93, z = 173.89, name = "发放补给区域2", worldId = 0, PkMode = 1 },
+			[433] = { x = -33.97, y = 28.93, z = 171.82, name = "发放补给区域3", worldId = 0, PkMode = 1 },
+			[434] = { x = -73.71, y = 31.11, z = 168.78, name = "绑架鹰眼区域", worldId = 0, PkMode = 1, IsCanHawkeye = true, QuestID = {44} },
+			[435] = { x = -18.21, y = 35.66, z = 13.41, name = "神殿对峙相位", worldId = 0, PkMode = 1 },
+			[436] = { x = 110.20, y = 19.59, z = 111.63, name = "乘船前抵达区域", worldId = 0, PkMode = 1 },
+			[581] = { x = 75.03, y = 18.52, z = 182.99, name = "声望-码头闹事", worldId = 0, PkMode = 1 },
+			[582] = { x = -5.26, y = 58.58, z = -22.83, name = "声望对峙", worldId = 0, PkMode = 1 },
+			[583] = { x = 117.00, y = 18.99, z = 222.81, name = "声望-密特拉藏宝刷怪", worldId = 0, PkMode = 1 },
+			[584] = { x = -65.29, y = 31.18, z = 165.06, name = "声望-鹰徽怪物", worldId = 0, PkMode = 1 },
+			[585] = { x = 122.92, y = 19.56, z = 155.45, name = "声望走私刷怪", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 
@@ -715,6 +725,14 @@ local MapInfo =
 			Tid = 
 			{
 				[10194] = 3,
+			},
+		},
+		[208] = 
+		{
+			x = 121.00, y = 18.89, z = 155.80, Type = 1,
+			Tid = 
+			{
+				[10202] = 3,
 			},
 		},
 		[20] = 
@@ -2001,10 +2019,18 @@ local MapInfo =
 		},
 		[205] = 
 		{
-			x = -24.91, y = 28.93, z = 187.72, Type = 2,
+			x = -24.91, y = 28.93, z = 187.94, Type = 2,
 			Tid = 
 			{
 				[868] = 1,
+			},
+		},
+		[207] = 
+		{
+			x = -6.83, y = 28.93, z = 158.26, Type = 2,
+			Tid = 
+			{
+				[869] = 1,
 			},
 		},
 		[106] = 

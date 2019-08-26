@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 4,
 	Remarks = "",
-	TextDisplayName = "지하 메인【스토리 던전】",
+	TextDisplayName = "지하 메인[시나리오 던전]",
 	Length = 512,
 	Width = 512,
 	NavMeshName = "Dungn05_ElfArch.navmesh",
@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD05.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn05_ElfArch.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13081] = 
@@ -100,17 +101,17 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[306] = { x = 11.29, y = 62.80, z = 14.20, name = "区域-窃听", worldId = 0, PkMode = 0 },
-			[307] = { x = 30.50, y = 40.51, z = -42.50, name = "抵达生命之花", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[438] = { x = -17.82, y = 82.40, z = -111.05, name = "区域-相位进入点", worldId = 0, PkMode = 0 },
-			[439] = { x = -53.01, y = 75.52, z = -75.63, name = "区域-沙穴刷怪点01", worldId = 0, PkMode = 0 },
-			[440] = { x = -54.11, y = 77.04, z = -51.87, name = "区域-沙穴刷怪点02", worldId = 0, PkMode = 0 },
-			[441] = { x = -54.02, y = 76.92, z = -32.78, name = "区域-沙穴刷怪点03", worldId = 0, PkMode = 0 },
-			[442] = { x = -51.43, y = 71.90, z = -3.71, name = "区域-沙穴刷怪点04", worldId = 0, PkMode = 0 },
-			[443] = { x = -18.34, y = 84.74, z = -86.95, name = "区域-探查刷怪", worldId = 0, PkMode = 0 },
-			[444] = { x = 27.45, y = 55.40, z = 14.84, name = "区域-风之小队", worldId = 0, PkMode = 0 },
-			[445] = { x = -0.70, y = 40.56, z = -27.48, name = "区域-塞利恩刷怪", worldId = 0, PkMode = 0 },
-			[446] = { x = -15.00, y = 80.10, z = -87.30, name = "区域-到达点", worldId = 0, PkMode = 0 },
+			[306] = { x = 11.29, y = 62.80, z = 14.20, name = "区域-窃听", worldId = 0, PkMode = 1 },
+			[307] = { x = 30.50, y = 40.51, z = -42.50, name = "抵达生命之花", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[438] = { x = -17.82, y = 82.40, z = -111.05, name = "区域-相位进入点", worldId = 0, PkMode = 1 },
+			[439] = { x = -53.01, y = 75.52, z = -75.63, name = "区域-沙穴刷怪点01", worldId = 0, PkMode = 1 },
+			[440] = { x = -54.11, y = 77.04, z = -51.87, name = "区域-沙穴刷怪点02", worldId = 0, PkMode = 1 },
+			[441] = { x = -54.02, y = 76.92, z = -32.78, name = "区域-沙穴刷怪点03", worldId = 0, PkMode = 1 },
+			[442] = { x = -51.43, y = 71.90, z = -3.71, name = "区域-沙穴刷怪点04", worldId = 0, PkMode = 1 },
+			[443] = { x = -18.34, y = 84.74, z = -86.95, name = "区域-探查刷怪", worldId = 0, PkMode = 1 },
+			[444] = { x = 27.45, y = 55.40, z = 14.84, name = "区域-风之小队", worldId = 0, PkMode = 1 },
+			[445] = { x = -0.70, y = 40.56, z = -27.48, name = "区域-塞利恩刷怪", worldId = 0, PkMode = 1 },
+			[446] = { x = -15.00, y = 80.10, z = -87.30, name = "区域-到达点", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

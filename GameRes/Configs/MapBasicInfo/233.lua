@@ -11,27 +11,28 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD03.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn03_QXGJ01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[22400] = 
 		{
-			[1] = { x = -9.00, y = 76.02, z = 86.58, name = "伊斯莲试炼者", level = 42,IsBoss = true },
+			[1] = { x = -9.08, y = 76.02, z = 74.70, name = "伊斯莲试炼者", level = 40,IsBoss = true },
 		},
 		[22401] = 
 		{
-			[1] = { x = -9.10, y = 76.02, z = 73.25, name = "幻影", level = 42 },
-			[2] = { x = -9.10, y = 76.02, z = 73.25, name = "幻影", level = 42 },
-			[3] = { x = -9.10, y = 76.02, z = 73.25, name = "幻影", level = 42 },
-			[4] = { x = -9.10, y = 76.02, z = 67.30, name = "幻影", level = 42 },
-			[5] = { x = -9.10, y = 76.02, z = 69.29, name = "幻影", level = 42 },
+			[1] = { x = -9.10, y = 76.02, z = 73.25, name = "幻影", level = 40 },
+			[2] = { x = -9.10, y = 76.02, z = 73.25, name = "幻影", level = 40 },
+			[3] = { x = -9.10, y = 76.02, z = 73.25, name = "幻影", level = 40 },
+			[4] = { x = -9.10, y = 76.02, z = 67.30, name = "幻影", level = 40 },
+			[5] = { x = -9.10, y = 76.02, z = 69.29, name = "幻影", level = 40 },
 		},
 		[22403] = 
 		{
-			[1] = { x = 36.88, y = 64.99, z = -40.07, name = "幻影", level = 42 },
+			[1] = { x = 36.88, y = 64.99, z = -40.07, name = "幻影", level = 40 },
 		},
 		[22404] = 
 		{
-			[1] = { x = 36.88, y = 64.99, z = -40.07, name = "幻影", level = 42 },
+			[1] = { x = 36.88, y = 64.99, z = -40.07, name = "幻影", level = 40 },
 		},
 		[22405] = 
 		{
@@ -39,11 +40,11 @@ local MapInfo =
 		},
 		[22406] = 
 		{
-			[1] = { x = -8.80, y = 57.66, z = -90.69, name = "腐化精灵", level = 42 },
+			[1] = { x = -8.80, y = 57.66, z = -90.69, name = "腐化精灵", level = 40 },
 		},
 		[22402] = 
 		{
-			[1] = { x = -8.60, y = 76.02, z = 70.70, name = "幻影", level = 42 },
+			[1] = { x = -8.60, y = 76.02, z = 70.70, name = "幻影", level = 40 },
 		},
 	},
 	Npc = 
@@ -53,7 +54,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[193] = { x = -8.88, y = 76.02, z = 71.14, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 0 },
+			[193] = { x = -8.88, y = 76.02, z = 71.14, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1 },
 		},
 	},
 	Mine = 
@@ -67,7 +68,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			x = -9.00, y = 76.02, z = 86.58, Type = 1,
+			x = -9.08, y = 76.02, z = 74.70, Type = 1,
 			Tid = 
 			{
 				[22400] = 1,

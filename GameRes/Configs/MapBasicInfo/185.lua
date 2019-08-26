@@ -6,11 +6,12 @@ local MapInfo =
 	Length = 512,
 	Width = 512,
 	NavMeshName = "World04Part2.navmesh",
-	BackgroundMusic = "",
+	BackgroundMusic = "BGM_Map_4/Map_4/Map_4_phase",
 	BattleMusic = "",
-	EnvironmentMusic = "",
+	EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13122] = 
@@ -42,7 +43,7 @@ local MapInfo =
 		},
 		[13128] = 
 		{
-			[1] = { x = 170.54, y = 38.06, z = -190.95, name = "哈里坎·怒风", level = 46 },
+			[1] = { x = 170.54, y = 38.06, z = -190.95, name = "风精灵首领", level = 46 },
 		},
 		[13134] = 
 		{
@@ -140,15 +141,15 @@ local MapInfo =
 	{
 		[1] = 
 		{
-			[452] = { x = 254.96, y = 36.32, z = -185.33, xA = -198.64, yA = 31.32, zA = -223.06, name = "传送区域-埃塞尼亚东", worldId = 170, PkMode = 0 },
+			[452] = { x = 254.96, y = 36.32, z = -185.33, xA = -198.64, yA = 31.32, zA = -223.06, name = "传送区域-埃塞尼亚东", worldId = 170, PkMode = 1 },
 		},
 		[2] = 
 		{
-			[414] = { x = 178.00, y = 37.85, z = -193.58, name = "沙摩尔协战", worldId = 0, PkMode = 0 },
-			[451] = { x = 119.84, y = 33.04, z = -190.57, name = "抵达第三处结界", worldId = 0, PkMode = 0 },
-			[453] = { x = 184.09, y = 37.85, z = -193.15, name = "185离开区域", worldId = 0, PkMode = 0 },
-			[454] = { x = 179.40, y = 37.85, z = -188.51, name = "副本刷怪触发区域", worldId = 0, PkMode = 0 },
-			[455] = { x = 140.59, y = 37.94, z = -190.82, name = "后门抵达区域", worldId = 0, PkMode = 0 },
+			[414] = { x = 178.00, y = 37.85, z = -193.58, name = "沙摩尔协战", worldId = 0, PkMode = 1 },
+			[451] = { x = 119.84, y = 33.04, z = -190.57, name = "抵达第三处结界", worldId = 0, PkMode = 1 },
+			[453] = { x = 184.09, y = 37.85, z = -193.15, name = "185离开区域", worldId = 0, PkMode = 1 },
+			[454] = { x = 179.40, y = 37.85, z = -188.51, name = "副本刷怪触发区域", worldId = 0, PkMode = 1 },
+			[455] = { x = 140.59, y = 37.94, z = -190.82, name = "后门抵达区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

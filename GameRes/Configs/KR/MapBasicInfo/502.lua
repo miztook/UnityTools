@@ -2,15 +2,16 @@ local MapInfo =
 {
 	MapType = 2,
 	Remarks = "",
-	TextDisplayName = "기드 천공 아레나",
+	TextDisplayName = "기드의 천공 아레나",
 	Length = 512,
 	Width = 512,
 	NavMeshName = "Dn_pvp03_SkyArena.navmesh",
-	BackgroundMusic = "BGM_Dunjeon/Dunjeon/Guild_Battle_bpm150",
+	BackgroundMusic = "BGM_Dunjeon/Dunjeon/Guild_Battle",
 	BattleMusic = "",
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/city01.png",
 	AssetPath = "Assets/Outputs/Scenes/DN_pvp03_Skyarena.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[38000] = 
@@ -53,9 +54,9 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[401] = { x = -133.92, y = 96.55, z = 160.91, name = "蓝方初始传送", worldId = 0, PkMode = 0 },
-			[402] = { x = 129.89, y = 96.55, z = -162.92, name = "红方初始传送", worldId = 0, PkMode = 0 },
-			[403] = { x = -6.68, y = 8.94, z = 8.18, name = "摄像机区域", worldId = 0, PkMode = 0, CameraDistance = 15 },
+			[401] = { x = -133.92, y = 96.55, z = 160.91, name = "蓝方初始传送", worldId = 0, PkMode = 1 },
+			[402] = { x = 129.89, y = 96.55, z = -162.92, name = "红方初始传送", worldId = 0, PkMode = 1 },
+			[403] = { x = -6.68, y = 8.94, z = 8.18, name = "摄像机区域", worldId = 0, PkMode = 1, CameraDistance = 15 },
 		},
 	},
 	Mine = 

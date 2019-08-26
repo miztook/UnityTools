@@ -22,7 +22,7 @@ def.static("=>", CPanelCircle).Instance = function()
 		instance = CPanelCircle()
 		instance._PrefabPath = PATH.Panel_Circle
 		instance._PanelCloseType = EnumDef.PanelCloseType.None
-		instance._DestroyOnHide = true
+		instance._DestroyOnHide = false
 		instance._ForbidESC = true
 
         instance:SetupSortingParam()
@@ -37,6 +37,7 @@ def.override("dynamic").OnData = function(self, data)
 	local lab = self._Panel:FindChild("Lab")
 	if data.show then
 		circle:SetActive(true)
+        circle.rotation = Quaternion.Euler(0, 0, 0)
 		bg:GetComponent(ClassType.RectTransform).sizeDelta = Vector2.zero
 		lab:GetComponent(ClassType.RectTransform).anchoredPosition = Vector3.New(0, -45, 0)
 		GameUtil.DoLoopRotate(circle, rotation, rotationTime)

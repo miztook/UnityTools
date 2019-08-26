@@ -62,8 +62,17 @@ local function OnUpdateItemInfo(sender, protocol)
 				local item = CInventory.CreateItem(v.UpdateItem)
 				-- 弹出app弹窗
 				if v.UpdateItem.ItemData ~= nil then 
-					game:OnAppMsgBoxStatic(EnumDef.TriggerTag.GetIDItem, v.UpdateItem.ItemData.Tid)
-					game:OnAppMsgBoxStatic(EnumDef.TriggerTag.GetQualityItem, item._Quality)
+					for i,j in pairs(_G.AppMsgBoxTable) do
+						local qualificationTable = {}
+						string.gsub(j.Qualification, '[^*]+', function(w) table.insert(qualificationTable, w) end )
+						for _,k in pairs(qualificationTable) do
+							if tonumber(k) == v.UpdateItem.ItemData.Tid and j.TriggerConditions == EnumDef.TriggerTag.GetIDItem then
+								AppMsgBox.StartWork(EnumDef.TriggerTag.GetIDItem, v.UpdateItem.ItemData.Tid)
+							elseif tonumber(k) == item._Quality and j.TriggerConditions == EnumDef.TriggerTag.GetQualityItem then
+								AppMsgBox.StartWork(EnumDef.TriggerTag.GetQualityItem, item._Quality)
+							end
+						end
+					end
 				end
 				if  v.Cause == Data.EItemConsumeCause.ItemConsumeItemDecompose then 
 					table.insert(decomposedSlots,v.UpdateItem.Index)
@@ -82,7 +91,8 @@ local function OnUpdateItemInfo(sender, protocol)
 						if data[i].Src ~=  Data.ENUM_ITEM_SRC.SPRINTGIFT and 
 						data[i].Src ~=  Data.ENUM_ITEM_SRC.PETDROP and
 						data[i].Src ~=  Data.ENUM_ITEM_SRC.CHARM_COMPOSE and
-						data[i].Src ~=  Data.ENUM_ITEM_SRC.INFORCEREFUND then
+						data[i].Src ~=  Data.ENUM_ITEM_SRC.INFORCEREFUND and
+						data[i].Src ~= Data.ENUM_ITEM_SRC.BONUS_DICE then
 							game._GUIMan:ShowMoveItemTextTips(v.UpdateItem.ItemData.Tid,false,nDelta, true)
 						end
 						-- 获得物品发送系统消息提示
@@ -127,7 +137,10 @@ local function OnUpdateItemInfo(sender, protocol)
 					end
 					
 					if index > 0 and normalPack._ItemSet[index] and item._Tid == 0 then
-						if normalPack._ItemSet[index]._Tid == hp:GetEquipedPotion()	then
+						local tid = normalPack._ItemSet[index]._Tid
+						normalPack:UpdateItem(item)
+						normalPack:SortItemList()
+						if tid == hp:GetEquipedPotion() and normalPack:GetItemCount(tid) <= 0 then
 							hp:Try2EquipDrug()
 						end
 					end
@@ -138,7 +151,7 @@ local function OnUpdateItemInfo(sender, protocol)
 
 				normalPack:UpdateItem(item)
 				normalPack:SortItemList()
-
+				
 				-- 药品自动装备
 				if item._Tid ~= 0 and item:IsPotion() then
 					-- 药水功能开启					
@@ -161,9 +174,9 @@ local function OnUpdateItemInfo(sender, protocol)
 			end
 		end
 
-		if have_new_got and game._CurWorld ~= nil and game._CurWorld._IsReady then
-			CSoundMan.Instance():Play2DAudio(PATH.GUISound_Msg_Get, 0)
-		end
+		-- if have_new_got and game._CurWorld ~= nil and game._CurWorld._IsReady then
+			
+		-- end
 		
 		do
 			local Lplus = require "Lplus"

@@ -14,10 +14,11 @@ local GuildMemberType = require "PB.data".GuildMemberType
 local NotifyGuildEvent = require "Events.NotifyGuildEvent"
 local CGame = Lplus.ForwardDeclare("CGame")
 local GuildBuildingType = require "PB.data".GuildBuildingType
-local DynamicText = require "Utility.DynamicText"
+local CElementSkill = require "Data.CElementSkill"
 local ChatManager = require "Chat.ChatManager"
 local ECHAT_CHANNEL_ENUM = require "PB.data".ChatChannel
 local CFrameCurrency = require "GUI.CFrameCurrency"
+
 local CPanelUIGuildSkill = Lplus.Extend(CPanelBase, "CPanelUIGuildSkill")
 local def = CPanelUIGuildSkill.define
 
@@ -48,6 +49,7 @@ def.field("userdata")._Lab_Diamond_Lock = nil]]
 def.field("userdata")._Skill_List = nil
 def.field("userdata")._Buff_List = nil
 def.field("userdata")._Buff_ListGO = nil
+def.field("userdata")._BuffMask = nil 
 
 local instance = nil
 def.static("=>", CPanelUIGuildSkill).Instance = function()
@@ -154,8 +156,8 @@ def.method("userdata", "number").OnSetSingleSkill = function(self, item, index)
 	uiTemplate:GetControl(7):SetActive(not needLearn)
 	GUI.SetText(uiTemplate:GetControl(8), tostring(data._Level))
 	uiTemplate:GetControl(9):SetActive(data._Level == 0)
-	local value = DynamicText.GetSkillLevelUpValue(guildSkill.SkillId, 1, data._Level, true)
-	GUI.SetText(uiTemplate:GetControl(11), guildSkill.Description .. "+" .. value)
+	local value = CElementSkill.GetSkillLevelUpValue(guildSkill.SkillId, 1, data._Level, true)
+	GUI.SetText(uiTemplate:GetControl(11), guildSkill.Description .. "+" .. GUITools.FormatNumber( value))
 	uiTemplate:GetControl(12):SetActive((not needLearn) and (not data._IsMax))
 	uiTemplate:GetControl(15):SetActive(needLearn)
 	uiTemplate:GetControl(18):SetActive(not data._IsOwn)
@@ -183,8 +185,8 @@ def.method("userdata", "number").OnSetSingleBuff = function(self, item, index)
 	GUITools.SetSkillIcon(uiTemplate:GetControl(7), talent.Icon)
 	GUI.SetText(uiTemplate:GetControl(9), guildBuff.Name)
 	GUI.SetText(uiTemplate:GetControl(12), tostring(data._Level))
-	local value = DynamicText.GetSkillLevelUpValue(guildBuff.BuffId, 1, data._Level, true)
-	GUI.SetText(uiTemplate:GetControl(13), guildBuff.Description .. "+" .. value)
+	local value = CElementSkill.GetSkillLevelUpValue(guildBuff.BuffId, 1, data._Level, true)
+	GUI.SetText(uiTemplate:GetControl(13), guildBuff.Description .. "+" .. GUITools.FormatNumber(value))
 end
 
 -- 选中列表
@@ -215,7 +217,7 @@ end
 
 -- 初始化模板信息等
 def.method().OnInit = function(self)
-	local allSkill = GameUtil.GetAllTid("GuildSkill")
+	local allSkill = CElementData.GetAllTid("GuildSkill")
 	self._Building_Info = game._HostPlayer._Guild._BuildingList[GuildBuildingType.Laboratory]
 	self._Skill_Data = {}
 	local buildingLevel = self._Building_Info._BuildingLevel
@@ -232,7 +234,7 @@ def.method().OnInit = function(self)
 		self._Skill_Data[i]._CanLearn = true
 		self._Skill_Data[i]._IsMax = false
 	end
-	local allBuff = GameUtil.GetAllTid("GuildBuff")
+	local allBuff = CElementData.GetAllTid("GuildBuff")
 	self._Buff_Data = {}
 	for i = 1, #allBuff do
 		self._Buff_Data[i] = {}
@@ -245,6 +247,10 @@ def.method().OnInit = function(self)
 
 	local data = game._HostPlayer._Guild._GuildSkill
 	local buildingLevel = self._Building_Info._BuildingLevel
+    if data == nil or data._SkillData == nil or data._BuffData == nil then
+        game._GUIMan:CloseByScript(self)
+        return
+    end
 	for i = 1, #data._SkillData do
 		for j = 1, #self._Skill_Data do	
 			if data._SkillData[i].SkillId == self._Skill_Data[j]._Data.SkillId then
@@ -282,6 +288,7 @@ def.method().OnInitUIObject = function(self)
     self._Buff_ListGO = self:GetUIObject("Buff_List")
 	self._Skill_List = self:GetUIObject("Skill_List"):GetComponent(self._List_Type)
 	self._Buff_List = self:GetUIObject("Buff_List"):GetComponent(self._List_Type)
+	self._BuffMask = self:GetUIObject("Buff_List_Type")
 
 	local member = game._GuildMan:GetHostGuildMemberInfo()
 	self._Is_Leader = (member ~= nil and member._RoleType == GuildMemberType.GuildLeader)
@@ -326,7 +333,7 @@ end
 def.method("userdata", "boolean").ShowGuildBuffUIFX = function(self, img_bg, isShow)
     if isShow then
         GameUtil.StopUISfx(PATH.UIFX_GuildSkillBuffOn, img_bg)
-        GameUtil.PlayUISfxClipped(PATH.UIFX_GuildSkillBuffOn, img_bg, img_bg, self._Buff_ListGO)
+        GameUtil.PlayUISfxClipped(PATH.UIFX_GuildSkillBuffOn, img_bg, img_bg, self._BuffMask)
     else
         GameUtil.StopUISfx(PATH.UIFX_GuildSkillBuffOn, img_bg)
     end

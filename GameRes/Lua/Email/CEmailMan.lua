@@ -145,6 +145,12 @@ def.method("table").EmailViewList = function(self, emailInfo)
                 elseif EInfo.EmailType == EMAIL_TYPE_ENUM.EmailType_GuildBFSeason then  -- 44、公会战场赛季奖励
                     local ETextParam = EInfo.TextParam          
                     emailStr = string.format(template_email.Content, tostring(ETextParam.BFRankId))
+                elseif EInfo.EmailType == EMAIL_TYPE_ENUM.EmailType_GuildLivenessRank then  -- 48、公会工资
+                    local ETextParam = EInfo.TextParam          
+                    emailStr = string.format(template_email.Content, ETextParam.GuildName, tostring(ETextParam.LivenessRank), GUITools.FormatMoney(ETextParam.GuildLevelDiamond))
+                elseif EInfo.EmailType == EMAIL_TYPE_ENUM.EmailType_RefuseApply then  -- 58、拒绝申请
+                    local ETextParam = EInfo.TextParam          
+                    emailStr = string.format(template_email.Content, tostring(ETextParam.GuildName))
                 else  -- 一条邮件提示
                     -- if EInfo.EmailType == EMAIL_TYPE_ENUM.EmailType_System  --1、系统
                     -- or EInfo.EmailType == EMAIL_TYPE_ENUM.EmailType_GuildAssign    --2、公会分配奖励
@@ -173,6 +179,8 @@ def.method("table").EmailViewList = function(self, emailInfo)
             email._RewardItem = EInfo.ItemInstance
             email._Reward = EInfo.Reward   
             email._RewardId = EInfo.RewardId
+            email._DurationSecond = EInfo.DurationSecond
+
             if EInfo.RewardLevel == 0 then
                 email._Level = 1
             else
@@ -287,20 +295,22 @@ def.method().OnEmailListData = function(self)
     else
         game._GUIMan:Open("CPanelMail", nil)
     end
+    --warn("=================>>>", self:OnEmailRedPoint())
     CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Mail, self:OnEmailRedPoint())
 end
 
 --刷新邮件红点。
 def.method("=>", "boolean").OnEmailRedPoint = function(self)
     local emailRedPoint = false
-
-    for _,k in ipairs(self._EmailList) do
-        -- warn("lidaming idread = ", k._IsRead, k._IsHaveReward, "k._IsDraw ==", k._IsDraw)
-        if k._IsRead == false then
-            return true
-        elseif k._IsRead == true then
-            if k._IsHaveReward == true and k._IsDraw == false then
+    if #self._EmailList > 0 then
+        for _,k in ipairs(self._EmailList) do
+            -- warn("lidaming idread = ", k._IsRead, k._IsHaveReward, "k._IsDraw ==", k._IsDraw)
+            if k._IsRead == false then
                 return true
+            elseif k._IsRead == true then
+                if k._IsHaveReward == true and k._IsDraw == false then
+                    return true
+                end
             end
         end
     end

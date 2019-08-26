@@ -149,7 +149,7 @@ end
 -- 初始化公会建筑信息(用于解锁显示)
 def.method().OnInitGuildBuildings = function(self)
 	self._BuildingList = {}
-	local allTid = GameUtil.GetAllTid("GuildBuildLevel")
+	local allTid = CElementData.GetAllTid("GuildBuildLevel")
 	for i, v in ipairs(allTid) do
 		local guildBuild = CElementData.GetTemplate("GuildBuildLevel", v)
 		if guildBuild.BuildLevel == 1 then

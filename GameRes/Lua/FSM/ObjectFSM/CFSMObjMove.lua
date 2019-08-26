@@ -191,5 +191,41 @@ def.method().Update = function ( self )
 	end
 end
 
+def.override().UpdateWhenBecomeVisible = function(self)
+	local go = self._Host:GetGameObject()
+
+	--状态变化后才更新动画
+	if self._Mountable then		
+		self._Host:UpdateWingAnimation()
+		self:PlayMountStateAnimation(self._Type)
+
+		self._StateHasWing = self._Host._WingModel ~= nil
+		self._StateOnRide = self._Host:IsClientMounting()
+		self._StateInCombat = self._Host:IsInCombatState()
+	else
+		self:PlayStateAnimation(self._Type)
+
+		self._StateHasWing = false
+		self._StateOnRide = self._Host:IsClientMounting()
+		self._StateInCombat = self._Host:IsInCombatState()
+	end
+
+	local cb = function(ret)
+		callbackMove(ret, self)
+	end
+
+	local speed = self._Speed
+	if self._TargetPos ~= nil then
+		GameUtil.AddMoveBehavior(go, self._TargetPos, speed, cb, true)
+	elseif self._TargetId ~= 0 then
+		local target = game._CurWorld:FindObject(self._TargetId)
+		if target ~= nil and target:GetGameObject() ~= nil then
+			GameUtil.AddFollowBehavior(go, target:GetGameObject(), speed, self._FollowParams.MaxDis, self._FollowParams.MinDis, true, cb)
+		else
+			warn("AddFollowBehavior param is nil")
+		end
+	end
+end
+
 CFSMObjMove.Commit()
 return CFSMObjMove

@@ -194,6 +194,7 @@ local function GetBetterFightEquipFromBag(self,curFight,itemData)
                 equipItem._Tid = bagItem._Tid
                 equipItem._IsBind = bagItem:IsBind()
                 equipItem._PackageType = bagItem._PackageType
+                equipItem._BaseAttrs = bagItem._BaseAttrs 
             end
         end
     end
@@ -300,6 +301,7 @@ def.override().OnCreate = function(self)
     do
         local info = self._PanelObject.Frame_Bag
         info.root = self._Page_Bag
+        info._StroageMask = self:GetUIObject("StorageMask")
         info._ImgBg = self:GetUIObject("Img_BG")
         info._Frame_Bag = self:GetUIObject("Frame_BagItemList")
         info._FrameModel = self:GetUIObject("Frame_Model")
@@ -333,6 +335,7 @@ def.override().OnCreate = function(self)
         info._BagEquipTipsPosition = self:GetUIObject("EquipPositionBag")
         info._BagItemTipsPosition = self:GetUIObject("ItemPositionBag")
         info._RoleTipPosition = self:GetUIObject("RoleEquipTipPosition")
+        info._BtnStorage = self:GetUIObject("Btn_Storage")
     end
     -- --养成
     -- do
@@ -347,6 +350,9 @@ end
 
 
 def.override("dynamic").OnData = function(self,data)
+    -- send receipt cache
+    CPlatformSDKMan.Instance():ProcessPurchaseCache()
+
     CGame.EventManager:addHandler("EntityCustomImgChangeEvent", OnCustomImgChangeEvent)
     CGame.EventManager:addHandler(NotifyPropEvent, OnNotifyPropEvent)
     CGame.EventManager:addHandler(ExpUpdateEvent,OnExpUpdateEvent)
@@ -475,6 +481,7 @@ def.method().UpdateEquipmenAndFight = function(self)
                 [EItemIconTag.Refine] = item:GetRefineLevel(),
                 [EItemIconTag.StrengthLv] = item:GetInforceLevel(),
                 [EItemIconTag.Enchant] = item._EnchantAttr ~= nil and item._EnchantAttr.index ~= 0,
+                [EItemIconTag.Grade] = item._BaseAttrs.Star,
             }
             IconTools.InitItemIconNew(frame_item_icon, item._Tid, setting)
         end
@@ -610,7 +617,7 @@ def.override("string").OnClick = function(self,id)
             local ui_equip = self:GetUIObject(id)
             -- local ui_equip = self._Equipment:FindChild(id)
             itemData:ShowTipWithFuncBtns(TipsPopFrom.ROLE_PANEL,TipPosition.DEFAULT_POSITION,self:GetUIObject("RoleEquipTipPosition"),ui_equip)
-            MsgBox.CloseAll()
+            MsgBox.ClearAllBoxes()
             self:CleanBorder()
             self._CurrentSelectedItem = ui_equip
             self:ShowBorder(ui_equip)

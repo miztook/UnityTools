@@ -18,7 +18,7 @@ end
 
 --通过地图ID获取传送门ID
 def.static("number", "=>", "number").GetPortalIDByMapID = function(nMapID)
-	local allTransData = GameUtil.GetAllTid("Trans")
+	local allTransData = CElementData.GetAllTid("Trans")
 	for _,v in pairs(allTransData) do
 		local transData = CElementData.GetTemplate("Trans", v)    
 		if transData ~= nil and transData.MapId ~= nil then

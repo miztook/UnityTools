@@ -75,7 +75,23 @@ def.virtual().InitFrameMoney = function(self)
     self._PanelMall:InitFrameMoney(EnumDef.MoneyStyleType.None)
 end
 
+local goods_sort_func = function(item1, item2)
+    if item1.IsRemainCount ~= item2.IsRemainCount then
+        return item1.IsRemainCount
+    else
+        return item1.Id < item2.Id
+    end
+    return false
+end
+
 def.virtual().RefreshPage = function(self)
+    if self._PageData ~= nil and self._PageData.Goods ~= nil then
+        for i,v in ipairs(self._PageData.Goods) do
+            local buy_count = CMallMan.Instance():GetItemHasBuyCountByID(self._PageData.StoreId, v.Id)
+            v.IsRemainCount = v.Stock > 0 and v.Stock > buy_count or v.Stock <= 0
+        end
+        table.sort(self._PageData.Goods, goods_sort_func)
+    end
 end
 
 def.virtual("table").OnBuySuccess = function(self, datas)
@@ -118,6 +134,10 @@ def.virtual('userdata', 'string', 'number').OnSelectItem = function(self, item, 
 end
 
 def.virtual("userdata", "string", "string", "number").OnSelectItemButton = function(self, button_obj, id, id_btn, index)
+end
+
+def.virtual("=>", "boolean").HandleEscapeKey = function(self)
+    return false
 end
 
 def.virtual().Hide = function(self)

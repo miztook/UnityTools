@@ -6,16 +6,17 @@ local MapInfo =
 	Length = 600,
 	Width = 600,
 	NavMeshName = "World02.navmesh",
-	BackgroundMusic = "",
+	BackgroundMusic = "BGM_Map_2/Map_2/Map_2_phase",
 	BattleMusic = "",
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world02.png",
 	AssetPath = "Assets/Outputs/Scenes/World02.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14227] = 
 		{
-			[1] = { x = -27.72, y = 65.49, z = -240.77, name = "타락한 쿠모스", level = 53, SortID = 1, DropItemIds = " " },
+			[1] = { x = -27.72, y = 65.49, z = -240.77, name = "타락한 쿠마스", level = 53, SortID = 1, DropItemIds = " " },
 		},
 		[14225] = 
 		{
@@ -37,15 +38,15 @@ local MapInfo =
 		},
 		[1039] = 
 		{
-			[1] = { x = -43.71, y = 64.94, z = -158.07, name = "망치 후카 병사", SortID = 2, FunctionName = " " },
+			[1] = { x = -43.71, y = 64.94, z = -158.07, name = "망치 수비병", SortID = 2, FunctionName = " " },
 		},
 	},
 	Region = 
 	{
 		[2] = 
 		{
-			[149] = { x = -35.91, y = 72.23, z = -204.61, name = "库摩斯相位【个人】", worldId = 0, PkMode = 0 },
-			[559] = { x = -35.35, y = 68.35, z = -245.95, name = "鹰眼", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {4512} },
+			[149] = { x = -35.91, y = 72.23, z = -204.61, name = "库摩斯相位【个人】", worldId = 0, PkMode = 1 },
+			[559] = { x = -35.35, y = 68.35, z = -245.95, name = "鹰眼", worldId = 0, PkMode = 1, IsCanHawkeye = true, QuestID = {4512} },
 		},
 	},
 	Mine = 

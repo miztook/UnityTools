@@ -11,11 +11,12 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world02.png",
 	AssetPath = "Assets/Outputs/Scenes/World02.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14315] = 
 		{
-			[1] = { x = 145.07, y = 64.06, z = 92.93, name = "铁门", level = 30, DropItemIds = " " },
+			[1] = { x = 145.07, y = 64.06, z = 92.93, name = "炸药桶", level = 30, DropItemIds = " " },
 		},
 		[12235] = 
 		{
@@ -140,11 +141,11 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[147] = { x = 150.65, y = 68.44, z = 94.19, name = "诅咒战场相位【个人】", worldId = 0, PkMode = 0 },
-			[456] = { x = 141.69, y = 64.35, z = 90.86, name = "抵达区域", worldId = 0, PkMode = 0 },
-			[457] = { x = 171.76, y = 66.41, z = 113.69, name = "抵达区域1", worldId = 0, PkMode = 0 },
-			[458] = { x = 187.75, y = 71.48, z = 85.87, name = "抵达区域2", worldId = 0, PkMode = 0 },
-			[459] = { x = 222.42, y = 72.69, z = 81.70, name = "鹰眼", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {2252} },
+			[147] = { x = 150.65, y = 68.44, z = 94.19, name = "诅咒战场相位【个人】", worldId = 0, PkMode = 1 },
+			[456] = { x = 141.69, y = 64.35, z = 90.86, name = "抵达区域", worldId = 0, PkMode = 1 },
+			[457] = { x = 171.76, y = 66.41, z = 113.69, name = "抵达区域1", worldId = 0, PkMode = 1 },
+			[458] = { x = 187.75, y = 71.48, z = 85.87, name = "抵达区域2", worldId = 0, PkMode = 1 },
+			[459] = { x = 222.42, y = 72.69, z = 81.70, name = "鹰眼", worldId = 0, PkMode = 1, IsCanHawkeye = true, QuestID = {2252} },
 		},
 	},
 	Mine = 

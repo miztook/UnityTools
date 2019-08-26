@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 3,
 	Remarks = "雪峰堡战役相位",
-	TextDisplayName = "눈의 성 전투2",
+	TextDisplayName = "눈의 성 전투 2",
 	Length = 800,
 	Width = 800,
 	NavMeshName = "World03Part2.navmesh",
@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12098] = 
@@ -51,13 +52,13 @@ local MapInfo =
 		},
 		[12063] = 
 		{
-			[1] = { x = -210.00, y = 57.41, z = -105.00, name = "불사자", level = 20, SortID = 35 },
-			[2] = { x = -285.00, y = 93.06, z = -40.00, name = "불사자", level = 20, SortID = 30 },
-			[3] = { x = -320.00, y = 109.97, z = 30.00, name = "불사자", level = 20, SortID = 23 },
-			[4] = { x = -300.00, y = 100.06, z = -20.00, name = "불사자", level = 20, SortID = 32 },
-			[5] = { x = -225.00, y = 88.08, z = -45.00, name = "불사자", level = 20, SortID = 37 },
-			[6] = { x = -185.00, y = 90.00, z = 10.00, name = "불사자", level = 20, SortID = 41 },
-			[7] = { x = -160.00, y = 72.40, z = -38.00, name = "불사자", level = 20, SortID = 42 },
+			[1] = { x = -210.00, y = 57.41, z = -105.00, name = "언데드", level = 20, SortID = 35 },
+			[2] = { x = -285.00, y = 93.06, z = -40.00, name = "언데드", level = 20, SortID = 30 },
+			[3] = { x = -320.00, y = 109.97, z = 30.00, name = "언데드", level = 20, SortID = 23 },
+			[4] = { x = -300.00, y = 100.06, z = -20.00, name = "언데드", level = 20, SortID = 32 },
+			[5] = { x = -225.00, y = 88.08, z = -45.00, name = "언데드", level = 20, SortID = 37 },
+			[6] = { x = -185.00, y = 90.00, z = 10.00, name = "언데드", level = 20, SortID = 41 },
+			[7] = { x = -160.00, y = 72.40, z = -38.00, name = "언데드", level = 20, SortID = 42 },
 		},
 		[12092] = 
 		{
@@ -106,16 +107,16 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[219] = { x = -232.35, y = 124.30, z = 12.05, name = "눈의 성", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[435] = { x = -320.62, y = 113.42, z = 48.29, name = "1-0", worldId = 0, PkMode = 0 },
-			[330] = { x = -315.89, y = 105.83, z = 27.51, name = "1-1", worldId = 0, PkMode = 0 },
-			[331] = { x = -301.51, y = 97.92, z = -20.94, name = "1-2", worldId = 0, PkMode = 0 },
-			[332] = { x = -199.31, y = 110.04, z = -14.66, name = "2-1", worldId = 0, PkMode = 0 },
-			[433] = { x = -168.46, y = 60.96, z = -65.36, name = "3-1", worldId = 0, PkMode = 0 },
-			[334] = { x = -216.97, y = 48.85, z = -104.95, name = "4-1", worldId = 0, PkMode = 0 },
-			[431] = { x = -228.19, y = 88.24, z = -46.38, name = "假追1", worldId = 0, PkMode = 0 },
-			[432] = { x = -95.76, y = 92.80, z = 29.63, name = "假追2", worldId = 0, PkMode = 0 },
-			[434] = { x = -307.22, y = 123.52, z = 80.53, name = "出生离开区域", worldId = 0, PkMode = 0 },
+			[219] = { x = -232.35, y = 124.30, z = 12.05, name = "눈의 성", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[435] = { x = -320.62, y = 113.42, z = 48.29, name = "1-0", worldId = 0, PkMode = 1 },
+			[330] = { x = -315.89, y = 105.83, z = 27.51, name = "1-1", worldId = 0, PkMode = 1 },
+			[331] = { x = -301.51, y = 97.92, z = -20.94, name = "1-2", worldId = 0, PkMode = 1 },
+			[332] = { x = -199.31, y = 110.04, z = -14.66, name = "2-1", worldId = 0, PkMode = 1 },
+			[433] = { x = -168.46, y = 60.96, z = -65.36, name = "3-1", worldId = 0, PkMode = 1 },
+			[334] = { x = -216.97, y = 48.85, z = -104.95, name = "4-1", worldId = 0, PkMode = 1 },
+			[431] = { x = -228.19, y = 88.24, z = -46.38, name = "假追1", worldId = 0, PkMode = 1 },
+			[432] = { x = -95.76, y = 92.80, z = 29.63, name = "假追2", worldId = 0, PkMode = 1 },
+			[434] = { x = -307.22, y = 123.52, z = 80.53, name = "出生离开区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

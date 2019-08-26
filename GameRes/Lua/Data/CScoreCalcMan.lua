@@ -8,7 +8,7 @@ local Lplus = require "Lplus"
 local CGame = Lplus.ForwardDeclare("CGame")
 local CScoreCalcMan = Lplus.Class("CScoreCalcMan")
 local CElementData = require "Data.CElementData"
-local DynamicText = require "Utility.DynamicText"
+local CElementSkill = require "Data.CElementSkill"
 
 local def = CScoreCalcMan.define
 
@@ -199,7 +199,6 @@ end
 def.method( "=>", "number").CalcSkillRuneScore = function(self)
 	local userSkillMap = game._HostPlayer._UserSkillMap
 	local score = 0 
-	local CElementSkill = require "Data.CElementSkill"
 	for i, v in ipairs(userSkillMap) do	
 		for k, x in ipairs(v.SkillRuneInfoDatas) do
 			local rune = CElementSkill.GetRune(x.runeId)
@@ -233,7 +232,7 @@ def.method("number", "number", "number","=>", "number").CalcTalentSkillScore = f
 			local attachedProperty = v.Event.AddAttachedProperty
 			local propertyValue = attachedProperty.Value
 			if tonumber(propertyValue) == nil then
-				propertyValue = DynamicText.GetSkillLevelUpValue(talentId, 1, level, true)
+				propertyValue = CElementSkill.GetSkillLevelUpValue(talentId, 1, level, true)
 			end
 			local temp =
 			{
@@ -371,12 +370,6 @@ def.method("number", "table", "boolean", "=>", "table").CalcEquipFightScore = fu
 				[EnumDef.EquipFightScoreType.Talent] = talentVal,
 				[EnumDef.EquipFightScoreType.Enchant] = enchantVal,
 			}	
-end
-
-def.method("table", "=>", "number").CalcFightScoreByItemDB = function(self, itemDB)
-	local nRet = 0
-
-	return nRet
 end
 
 -- 专精战力计算

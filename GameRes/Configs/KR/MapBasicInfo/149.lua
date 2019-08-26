@@ -11,23 +11,24 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12124] = 
 		{
-			[1] = { x = 139.29, y = 12.21, z = -81.16, name = "공국 선봉군", level = 31, SortID = 7 },
-			[2] = { x = 139.29, y = 12.21, z = -81.16, name = "공국 선봉군", level = 31, SortID = 8 },
+			[1] = { x = 139.29, y = 12.21, z = -81.16, name = "호가스 선봉군", level = 31, SortID = 7 },
+			[2] = { x = 139.29, y = 12.21, z = -81.16, name = "호가스 선봉군", level = 31, SortID = 8 },
 		},
 		[12125] = 
 		{
-			[1] = { x = 164.42, y = 16.31, z = -105.55, name = "공국 병사", level = 32, SortID = 9 },
-			[2] = { x = 203.22, y = 29.56, z = -83.65, name = "공국 병사", level = 32, SortID = 10 },
-			[3] = { x = 179.05, y = 20.18, z = -85.60, name = "공국 병사", level = 32, SortID = 11 },
-			[4] = { x = 118.03, y = 10.07, z = -103.10, name = "공국 병사", level = 32, SortID = 12 },
+			[1] = { x = 164.42, y = 16.31, z = -105.55, name = "호가스 병사", level = 32, SortID = 9 },
+			[2] = { x = 203.22, y = 29.56, z = -83.65, name = "호가스 병사", level = 32, SortID = 10 },
+			[3] = { x = 179.05, y = 20.18, z = -85.60, name = "호가스 병사", level = 32, SortID = 11 },
+			[4] = { x = 118.03, y = 10.07, z = -103.10, name = "호가스 병사", level = 32, SortID = 12 },
 		},
 		[12126] = 
 		{
-			[1] = { x = 208.41, y = 34.35, z = -116.48, name = "공국 병사", level = 32, SortID = 13 },
+			[1] = { x = 208.41, y = 34.35, z = -116.48, name = "호가스 병사", level = 32, SortID = 13 },
 		},
 		[12128] = 
 		{
@@ -109,11 +110,11 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[460] = { x = 161.46, y = 15.09, z = -91.12, name = "第一个区域", worldId = 0, PkMode = 0 },
-			[461] = { x = 208.06, y = 34.39, z = -104.42, name = "第二个区域", worldId = 0, PkMode = 0 },
-			[462] = { x = 288.49, y = 44.63, z = -122.88, name = "村落区域1", worldId = 0, PkMode = 0 },
-			[463] = { x = 301.58, y = 48.81, z = -98.24, name = "村落区域2", worldId = 0, PkMode = 0 },
-			[464] = { x = 204.59, y = 64.70, z = -96.57, name = "시칸레니의 기억", worldId = 0, PkMode = 0 },
+			[460] = { x = 161.46, y = 15.09, z = -91.12, name = "第一个区域", worldId = 0, PkMode = 1 },
+			[461] = { x = 208.06, y = 34.39, z = -104.42, name = "第二个区域", worldId = 0, PkMode = 1 },
+			[462] = { x = 288.49, y = 44.63, z = -122.88, name = "村落区域1", worldId = 0, PkMode = 1 },
+			[463] = { x = 301.58, y = 48.81, z = -98.24, name = "村落区域2", worldId = 0, PkMode = 1 },
+			[464] = { x = 204.59, y = 64.70, z = -96.57, name = "시칸레니의 기억", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

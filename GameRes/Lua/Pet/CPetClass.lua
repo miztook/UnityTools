@@ -288,7 +288,7 @@ end
 --[[ Property ]]
 --宠物属性初始化
 def.method("table").InitProperty = function(self, propertyDBList)
-	--warn("宠物属性初始化")
+	-- warn("宠物属性初始化")
 	self._PropertyList = {}
 	for i, propertyDB in ipairs(propertyDBList) do
 		local propertyInfo = self:GetPropertyInfoByPropertyDB(propertyDB)
@@ -312,9 +312,12 @@ def.method("table", "=>", "table").GetPropertyInfoByPropertyDB = function(self, 
 	local CPetUtility = require "Pet.CPetUtility"
 	local Aptitude = self:GetAptitudeInfoByPropertyId( data.ID )
     local coefficient = CPetUtility.GetPetAptitudeIncFixCoefficientById( Aptitude.FightPropertyId )
-    local val = Aptitude.Value * coefficient
-    local addValue = math.clamp(val, 1, val)
-	data.Value = math.floor(propertyDB.value + addValue * (self:GetLevel()-1))
+    local addValue = Aptitude.Value * coefficient
+    -- warn(" val  ",val)
+    -- local addValue = math.clamp(val, 1, val)
+    -- warn(" data.IDpropertyDB.value + addValue * (self:GetLevel()-1)   ",self._ID,propertyDB.value , addValue,self:GetLevel())
+	-- 对计算结果最终取整
+	data.Value = math.floor(propertyDB.value + addValue * self:GetLevel())
 
 	return data
 end
@@ -644,6 +647,22 @@ end
 --能否洗练
 def.method("=>", "boolean").CanRecast = function(self)
 	return self._RecastCount > 0
+end
+
+def.method("=>", "boolean").AllAptitudeMax = function(self)
+	local bRet = true
+
+	for i=1, #self._AptitudeList do
+        local aptitudeInfo = self._AptitudeList[i]
+        local aptitudeMax = aptitudeInfo.MaxValue
+
+        if aptitudeInfo.Value < aptitudeMax then 
+            bRet = false
+            break
+        end
+    end
+
+    return bRet
 end
 
 def.method().Reset = function (self)

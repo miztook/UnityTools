@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD04.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn04_Zuras01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[23100] = 
@@ -20,9 +21,9 @@ local MapInfo =
 		},
 		[23102] = 
 		{
-			[1] = { x = 26.01, y = 0.93, z = -83.42, name = "시칸 병사", level = 40 },
-			[2] = { x = 21.87, y = 0.93, z = -86.46, name = "시칸 병사", level = 40 },
-			[3] = { x = 0.53, y = 1.87, z = -22.97, name = "시칸 병사", level = 40 },
+			[1] = { x = 26.01, y = 0.93, z = -83.42, name = "검은 날개 병사", level = 40 },
+			[2] = { x = 21.87, y = 0.93, z = -86.46, name = "검은 날개 병사", level = 40 },
+			[3] = { x = 0.53, y = 1.87, z = -22.97, name = "검은 날개 병사", level = 40 },
 		},
 		[23104] = 
 		{
@@ -35,14 +36,14 @@ local MapInfo =
 		},
 		[23107] = 
 		{
-			[1] = { x = 0.36, y = 5.77, z = -58.42, name = "시칸 병사", level = 40 },
-			[2] = { x = 2.86, y = 5.77, z = -58.09, name = "시칸 병사", level = 40 },
+			[1] = { x = 0.36, y = 5.77, z = -58.42, name = "검은 날개 병사", level = 40 },
+			[2] = { x = 2.86, y = 5.77, z = -58.09, name = "검은 날개 병사", level = 40 },
 		},
 		[23103] = 
 		{
-			[1] = { x = 0.55, y = 1.87, z = -34.39, name = "시칸 사제", level = 40 },
-			[2] = { x = 0.53, y = 1.87, z = -29.51, name = "시칸 사제", level = 40 },
-			[3] = { x = 0.53, y = 1.87, z = -24.13, name = "시칸 사제", level = 40 },
+			[1] = { x = 0.55, y = 1.87, z = -34.39, name = "검은 날개 사제", level = 40 },
+			[2] = { x = 0.53, y = 1.87, z = -29.51, name = "검은 날개 사제", level = 40 },
+			[3] = { x = 0.53, y = 1.87, z = -24.13, name = "검은 날개 사제", level = 40 },
 		},
 		[23105] = 
 		{
@@ -50,7 +51,7 @@ local MapInfo =
 		},
 		[23200] = 
 		{
-			[1] = { x = 0.45, y = 1.87, z = -18.80, name = "시칸 대주교", level = 40 },
+			[1] = { x = 0.45, y = 1.87, z = -18.80, name = "검은 날개 대주교", level = 40 },
 		},
 		[23201] = 
 		{
@@ -80,9 +81,9 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[250] = { x = 0.18, y = 5.73, z = 22.55, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 0 },
-			[251] = { x = 18.06, y = 4.07, z = -103.10, name = "对话1", worldId = 0, PkMode = 0 },
-			[252] = { x = 19.49, y = 4.71, z = -62.74, name = "对话2", worldId = 0, PkMode = 0 },
+			[250] = { x = 0.18, y = 5.73, z = 22.55, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1 },
+			[251] = { x = 18.06, y = 4.07, z = -103.10, name = "对话1", worldId = 0, PkMode = 1 },
+			[252] = { x = 19.49, y = 4.71, z = -62.74, name = "对话2", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

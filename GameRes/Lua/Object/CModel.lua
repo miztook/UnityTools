@@ -238,35 +238,9 @@ def.static(CModel, "string", "number", "function").AttachHeadwearModel = functio
 	end
 end
 
-local instantiate_count_per_frame = 4
-local instantiate_count = 0
-local loaded_result_list = {}
 local model_orignal_local_params = {}
 
-def.static("boolean").UpdateLoadedResult = function (is_to_update_all)
-	local count = #loaded_result_list
-	if count == 0 then
-		instantiate_count = 0
-		return
-	end
-	
-	if is_to_update_all then
-		for i = 1, count do
-			loaded_result_list[i]()
-		end
-		loaded_result_list = {}
-		instantiate_count = 0
-	else
-		local cur_count = math.min(instantiate_count_per_frame, count)
-		for i = 1, cur_count do
-			loaded_result_list[1]()
-			table.remove(loaded_result_list, 1)
-		end
-		instantiate_count = cur_count
-	end
-end
-
-def.method("=>", "boolean").IsAllModelReady = function (self)
+def.method("=>", "boolean").IsReady = function (self)
 	if self._Status ~= ModelStatus.NORMAL then
 		return false
 	end
@@ -280,6 +254,22 @@ def.method("=>", "boolean").IsAllModelReady = function (self)
 	end
 
 	return true
+end
+
+def.method("=>", "boolean").IsInLoading = function (self)
+	if self._Status == ModelStatus.LOADING then
+		return true
+	end
+
+	if self._ModelReadyFlags ~= nil then
+		for k,v in pairs(self._ModelReadyFlags) do
+			if not v then 
+				return true
+			end
+		end
+	end
+
+	return false
 end
 
 def.method("userdata", "dynamic", "function").OnModelLoadResult = function (self, go, res, cb)
@@ -299,7 +289,10 @@ def.method("userdata", "dynamic", "function").OnModelLoadResult = function (self
 		if IsNil(self._Animation) then
 			self._Animation = m:AddComponent(ClassType.AnimationUnit)
 		end
+	--else
+	--	print("model doesn't have AnimationComp", go.name)
 	end
+
 	self._Status = ModelStatus.NORMAL
 
 	--self._Renderers = m:GetRenderersInChildren()
@@ -321,17 +314,14 @@ def.method("dynamic","function").Load = function (self, res, cb)
 		self._ResName = res
 	end
 
-	--self:Destroy()
-
 	local g = GameUtil.FetchResFromCache(res)
-
 	if g ~= nil then
 		self:OnModelLoadResult(g, res, cb)	
 	else
 		self._Status = ModelStatus.LOADING
 		if type(res) == "string" then
 			local function loaded(obj)
-				if self._Status == ModelStatus.DESTROY then
+				if self._Status == ModelStatus.DESTROY then			
 					return 
 				end
 
@@ -339,31 +329,18 @@ def.method("dynamic","function").Load = function (self, res, cb)
 					cb(false)
 					return 
 				end
-
-				local function on_instantiate()
-					if self._Status == ModelStatus.DESTROY then
-						return
-					end
-					
-					if obj.localPosition ~= Vector3.zero or obj.localScale ~= Vector3.zero or obj.localRotation ~= Quaternion.identity then
-						model_orignal_local_params[res] = {obj.localPosition, obj.localScale, obj.localRotation}
-					end
-
-					local go = GameObject.Instantiate(obj)
-					self:OnModelLoadResult(go, res, cb)
+				
+				if obj.localPosition ~= Vector3.zero or obj.localScale ~= Vector3.zero or obj.localRotation ~= Quaternion.identity then
+					model_orignal_local_params[res] = {obj.localPosition, obj.localScale, obj.localRotation}
 				end
 
-				if instantiate_count < instantiate_count_per_frame then
-					instantiate_count = instantiate_count + 1
-					on_instantiate()
-				else
-					loaded_result_list[#loaded_result_list+1] = on_instantiate
-				end
+				local go = GameObject.Instantiate(obj)
+				self:OnModelLoadResult(go, res, cb)
 			end
-			GameUtil.AsyncLoad(res, loaded)
+			GameUtil.AsyncLoad(res, loaded, false, "characters")
 		else
 			self._Status = ModelStatus.DESTROY
-			warn("cannot load by id: ", res)
+			--warn("cannot load by id: ", res)
 		end
 	end
 end
@@ -373,11 +350,17 @@ def.method(ModelParams,"function").LoadWithModelParams = function (self, params,
 		local asset_path = params._ModelAssetPath
 		if asset_path ~= nil and asset_path ~= "" then
 			local function cb()
+				--self._Status = ModelStatus.LOADING  -- 后面会有换装需求，此时重置状态为Loading
 				self._Params = ModelParams.new()
 				self._Params._Prof = params._Prof
 				self:UpdateWithModelParams(params, callback)
 			end
 			self:Load(asset_path, function(ret)
+				if self._Status == ModelStatus.DESTROY then
+					self:Destroy()
+					return
+				end
+
 				if ret then
 					cb()
 				else
@@ -412,15 +395,17 @@ def.method(ModelParams,"function").UpdateWithModelParams = function (self, param
 			-- self._Params:PrintModelParams("UpdateWithModelParams after")
 		end
 		-- 提前记录，之后的异步过程有可能是同步的，防止二次调用
-		local isAllReady = self:IsAllModelReady()
+		local isAllReady = self:IsReady()
 
 		local go = self:GetGameObject()
 		local function allReadyCallback()
-			if not self:IsAllModelReady() then
+			if not self:IsReady() then
 				-- print_r(self._ModelReadyFlags)
 				-- print(debug.traceback())
 				return
 			end
+			
+			GameUtil.OnEntityModelChanged(go)
 			-- 肤色
 			if params._SkinColorId > 0 then
 				OutwardUtil.ChangeSkinColor(go, params._Prof, params._SkinColorId)
@@ -541,21 +526,22 @@ def.method(ModelParams,"function").UpdateWithModelParams = function (self, param
 				CombatStateChangeComp:EnableWeaponStateSwtichable(isLancer)
 			end
 			
+
+			self._Status = ModelStatus.NORMAL
+			self._ModelReadyFlags = nil		
+
 			if callback ~= nil then
 				callback()
 			end
-			self._ModelReadyFlags = nil		
 		end
 
 		-- 衣服
 		if params._ArmorAssetPath ~= "" then
 			GameUtil.ChangeOutward(go, EnumDef.EntityPart.Body, params._ArmorAssetPath, function()
 					if self._Status == ModelStatus.DESTROY then
-						self:Destroy()
 						return  
 					end
-					GameUtil.OnEntityModelChanged(go)
-
+					
 					if self._ModelReadyFlags ~= nil then
 						self._ModelReadyFlags.ArmorReady = true
 					end
@@ -567,10 +553,8 @@ def.method(ModelParams,"function").UpdateWithModelParams = function (self, param
 		if params._FacialAssetPath ~= "" then
 			GameUtil.ChangeOutward(go, EnumDef.EntityPart.Face, params._FacialAssetPath, function()
 					if self._Status == ModelStatus.DESTROY then
-						self:Destroy()
 						return
 					end
-					GameUtil.OnEntityModelChanged(go)
 
 					if self._ModelReadyFlags ~= nil then
 						self._ModelReadyFlags.FacialReady = true
@@ -584,11 +568,8 @@ def.method(ModelParams,"function").UpdateWithModelParams = function (self, param
 		if params._HairstyleAssetPath ~= "" then
 			GameUtil.ChangeOutward(go, EnumDef.EntityPart.Hair, params._HairstyleAssetPath, function()
 					if self._Status == ModelStatus.DESTROY then
-						self:Destroy()
 						return  
 					end
-
-					GameUtil.OnEntityModelChanged(go)
 
 					if self._ModelReadyFlags ~= nil then
 						self._ModelReadyFlags.HairstyleReady = true
@@ -602,10 +583,8 @@ def.method(ModelParams,"function").UpdateWithModelParams = function (self, param
 			if params._HeadwearAssetPath ~= "" then
 				CModel.AttachHeadwearModel(self, params._HeadwearAssetPath, params._Prof, function()
 						if self._Status == ModelStatus.DESTROY then
-							self:Destroy()
 							return
 						end
-						GameUtil.OnEntityModelChanged(go)
 
 						if self._ModelReadyFlags ~= nil then
 							self._ModelReadyFlags.HeadwearReady = true
@@ -625,10 +604,8 @@ def.method(ModelParams,"function").UpdateWithModelParams = function (self, param
 		if params._WeaponAssetPathL ~= "" or params._WeaponAssetPathR ~= "" then
 			CModel.AttachWeaponModel(self, params._WeaponAssetPathL, params._WeaponAssetPathR, params._IsWeaponInHand, function()
 					if self._Status == ModelStatus.DESTROY then
-						self:Destroy()
 						return
 					end
-					GameUtil.OnEntityModelChanged(go)
 
 					allReadyCallback()
 				end)
@@ -638,7 +615,9 @@ def.method(ModelParams,"function").UpdateWithModelParams = function (self, param
 		if params._IsChangeWing then
 			if params._WingAssetPath ~= "" then
 				CModel.AttachWingModel(self, params._WingAssetPath, function()
-							GameUtil.OnEntityModelChanged(go)
+							if self._Status == ModelStatus.DESTROY then
+								return
+							end
 
 							allReadyCallback()
 						end)
@@ -934,6 +913,8 @@ def.method().Destroy = function (self)
 
 	self._ModelReadyFlags = nil
 	self._Params = nil
+	self._ModelFxPriority = -1
+	self._HasAnimationComp = true
 
 	-- 回池之前 再激活animation animator
 	self:EnableAnimationComponent(true)

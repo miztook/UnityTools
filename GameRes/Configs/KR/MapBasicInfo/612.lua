@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 2,
 	Remarks = "",
-	TextDisplayName = "바람의 엘프 지도자",
+	TextDisplayName = "구속되지 않는 바람",
 	Length = 800,
 	Width = 800,
 	NavMeshName = "Dungn04_Zuras01.navmesh",
@@ -11,11 +11,12 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD04.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn04_Zuras01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[36012] = 
 		{
-			[1] = { x = 0.00, y = 5.67, z = 35.00, name = "바람의 엘프 지도자", level = 44,IsBoss = true },
+			[1] = { x = 0.00, y = 5.67, z = 35.00, name = "신트레앙", level = 44,IsBoss = true },
 		},
 	},
 	Npc = 

@@ -19,20 +19,20 @@ def.field("number")._ManualOpenEId = 0 --要打开的条目ID
 def.field("number")._ManualActiveCount = 0 --要打开的条目ID
 def.field("boolean")._ManualServerRedPoint = false --服务器红点
 def.field("function")._ManualIsEyesShowCallBack = nil
+
 def.static("=>", CManualMan).new = function ()
-    local Instance = CManualMan()
-    Instance:Init()
-    return Instance
-end
-
-def.method().Init = function(self)
-
+    local obj = CManualMan()
+    return obj
 end
 
 def.method().CleanData = function(self)
 	self._DataTable = nil
 	self._TotleRewardIds = nil
 	self._ManualActiveCount = 0
+end
+
+def.method().Cleanup = function (self)
+	self._ManualServerRedPoint = false
 end
 
 --获取所有万物志配置
@@ -206,7 +206,7 @@ end
 def.method("=>","boolean").NodeShowTotleRewardRedPoint = function(self)
 	local isShow = false
 
-    local tids = GameUtil.GetAllTid("ManualTotalReward")
+    local tids = CElementData.GetAllTid("ManualTotalReward")
     for i,v in ipairs(tids) do
     	local template = CElementData.GetManualTotalRewardTemplate(v)
     	if self._ManualActiveCount >= template.TotalCount and (self._TotleRewardIds == nil or #self._TotleRewardIds == 0 or self._TotleRewardIds[v] == nil) then
@@ -346,6 +346,130 @@ def.method("=>","table").GetAddPropertys = function (self)
 	return AddPropertys
 end
 
+def.method().AddAllEntrieByClient = function(self)
+	local allIds = CElementData.GetAllTid("ManualAnecdote")
+	for i, tid in ipairs(allIds) do
+		local data = CElementData.GetTemplate("ManualAnecdote", tid)
+		for _, smallData in ipairs(data.SmallDatas) do
+			local EntrieIDs = string.split(smallData.Entries, "*")
+--[[			print("======================",tid,smallData.SmallTypeId)
+			print( EntrieIDs )--]]
+			for i=1, #EntrieIDs do
+				local EntrieID = tonumber( EntrieIDs[i] )
+				if EntrieID ~= nil then
+					self:AddOneEntrieByClient(EntrieID,data.Id,smallData.SmallTypeId,data.MaType)
+				end
+			end
+
+		end
+	end
+end
+
+
+--添加条目 --模板、大类型、小类型
+def.method("number","number","number","number").AddOneEntrieByClient = function(self,EntrieID,BigTypeId,SmallTypeId,MaType)
+	local v = CElementData.GetTemplate("ManualEntrie", EntrieID) 
+	if not v.IsOpen then
+		return
+	end
+	--条目数据内容
+	local tmpDetails = {}
+	for k2,v2 in ipairs(v.Details) do
+		--if v2 and v2.Id then
+			tmpDetails[#tmpDetails+1] 		= 
+			{
+				DetailId 		= v2.DetailId,
+				IsUnlock 		= false,--v2.isUnlock,	-- 是否已解锁
+				UnlockParam 	= 0,--v2.UnlockParam	-- 解锁参数
+			}
+
+			-- print("------------------------------------------",v.EntrieId,k2)
+			-- print_r(tmpDetails)
+
+			-- print("endendendendendendend000000000")
+		--end
+	end
+
+	--	已解锁的排序
+	local function sortfunction(value1, value2)
+		if value1 == nil or value2 == nil then
+			return false
+		end
+
+--[[		if value1.IsUnlock and not value2.IsUnlock then
+	        return true
+	    elseif not value1.IsUnlock and value2.IsUnlock then
+	    	return false
+	    else--]]
+	    if value1.DetailId < value2.DetailId then
+	    	return true
+	    else
+	        return false
+	    end
+		--return value1.isUnlock and not value2.isUnlock
+	end
+	table.sort(tmpDetails, sortfunction)
+	--条目数据
+	local data = 
+	{
+		EntrieId		= EntrieID, --v.EntrieId,	-- 条目ID
+		BigTypeId 		= BigTypeId, --v.BigTypeId,	-- 大分类ID
+		SmallTypeId		= SmallTypeId, --v.SmallTypeId,	-- 小分类ID
+		MaType 			= MaType,--v.MaType,	-- 类型 Data.EManualAnecdoteType
+		IsShow 			= false,--v.isShow,	-- 是否已显示
+		ShowParam 		= 0,--v.ShowParam,	-- 可显示参数
+		IsDrawReward	= false, --v.isDrawReward,	-- 是否已领取条目奖励
+		Details         = tmpDetails
+	}
+
+
+	if self._DataTable[MaType] == nil then
+		self._DataTable[MaType] = {}
+	end
+	-------------------------------遍历大类型数组------------------------------------
+
+	local bigTypedataArray = self._DataTable[MaType]
+	local smallTypedataArray = nil
+	--如果 数组里面有这个类型
+	for i2,bigTypedata in ipairs(bigTypedataArray) do
+		if bigTypedata.BigTypeId == BigTypeId then
+			smallTypedataArray = bigTypedata.BigTypeDatas
+			break
+		end
+	end
+
+	--如果 数组里面没有这个类型
+	if smallTypedataArray == nil then
+		--先创建这个类型
+		local bigTypedata = {}
+		bigTypedata.BigTypeId = BigTypeId
+		bigTypedata.BigTypeDatas = {}
+		bigTypedataArray[#bigTypedataArray+1] = bigTypedata
+
+		smallTypedataArray = bigTypedata.BigTypeDatas
+	end
+
+	-------------------------------遍历小类型数组------------------------------------
+	local smallisHave = false
+	for i3,smallTypedata in ipairs(smallTypedataArray) do
+		if smallTypedata.SmallTypeId == SmallTypeId then
+			smallTypedata.SmallTypeDatas[#smallTypedata.SmallTypeDatas+1] = data
+			smallisHave = true
+		end
+	end
+
+	--如果 数组里面没有这个类型
+	if smallisHave == false then
+		--先创建这个类型
+		local smallTypedata = {}
+		smallTypedata.SmallTypeId = SmallTypeId
+		smallTypedata.SmallTypeDatas = {}
+		smallTypedataArray[#smallTypedataArray+1] = smallTypedata
+		--再将此类型放入数据
+		smallTypedata.SmallTypeDatas[#smallTypedata.SmallTypeDatas+1] = data --smallTypedata
+	end
+end
+
 --添加条目
 def.method("table").AddOneEntrie = function(self,v)
 	--条目数据内容
@@ -437,7 +561,20 @@ def.method("table").AddOneEntrie = function(self,v)
 		local smallisHave = false
 		for i3,smallTypedata in ipairs(smallTypedataArray) do
 			if smallTypedata.SmallTypeId == v.SmallTypeId then
-				smallTypedata.SmallTypeDatas[#smallTypedata.SmallTypeDatas+1] = data
+
+				local dataisHave = false
+				-- 如果有数据 则 覆盖
+				for i4,SmallTypeData in ipairs(smallTypedata.SmallTypeDatas) do
+					if SmallTypeData.EntrieId == data.EntrieId then
+						smallTypedata.SmallTypeDatas[i4] = data
+						dataisHave = true
+						break
+					end
+				end
+
+				if dataisHave == false then
+					smallTypedata.SmallTypeDatas[#smallTypedata.SmallTypeDatas+1] = data
+				end
 				smallisHave = true
 			end
 		end
@@ -477,6 +614,9 @@ def.method("table").OnS2CManualData = function(self,srcdata)
 	self._DataTable = {}
 	self._TotleRewardIds = {}
 	self._ManualActiveCount = 0
+
+	self:AddAllEntrieByClient()
+
 	for k,v in ipairs(srcdata.Mas) do
 		--显示的添加
 		if v.isShow then
@@ -631,6 +771,7 @@ def.method("table").OnS2CManualUpdate = function(self,srcdata)
 			--print("警告：更新中没有这条数据",v.MaType,v.EntrieId)
 			break
 		end
+		entrieData.IsShow = true
 		if fristdata == nil then
 			fristdata = entrieData
 		end

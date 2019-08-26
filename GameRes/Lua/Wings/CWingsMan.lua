@@ -258,27 +258,6 @@ def.method("number", "=>", "dynamic").GetWingGradeUpData = function(self, id)
 	return data
 end
 
--- 获取职业默认的天赋页Id
-def.method("number", "=>", "number").GetDefaultTalentPageId = function (self, prof)
-	local all_ids = GameUtil.GetAllTid("WingTalent")
-	if all_ids == nil then return 0 end
-	local pageId = 0
-	for _, id in ipairs(all_ids) do
-		local template = CElementData.GetTemplate("WingTalent", id)
-		if template ~= nil then
-			if EnumDef.Profession2Mask[prof] == bit.band(EnumDef.Profession2Mask[prof], template.ProfessionId)then
-				-- 默认的天赋页是第一个
-				local prof_page = template.TalentPageIds[1]
-				if prof_page ~= nil then
-					pageId = prof_page.PageId
-				end
-				break
-			end
-		end
-	end
-	return pageId
-end
-
 -- 获取相关职业翅膀信息
 -- 	TalentPageId
 -- 	{
@@ -653,13 +632,14 @@ end
 -- 加点有变化
 def.method("number", "=>", "boolean").WingSoulChanged = function(self, talentPageIndex)
 	local isDataChanged = false
-	local static_data = self._TalentData[talentPageIndex].WingTalents
-	local tmp_data = self._SkillNumTemp[talentPageIndex].WingTalents
-	
-	for i = 1, #tmp_data do 
-		if tmp_data[i].AddPoint ~= static_data[i].AddPoint then							
-			isDataChanged = true
-			break
+	local static_data = self._TalentData[talentPageIndex]
+	local tmp_data = self._SkillNumTemp[talentPageIndex]
+	if static_data ~= nil and tmp_data ~= nil then
+		for i = 1, #tmp_data.WingTalents do 
+			if tmp_data.WingTalents[i].AddPoint ~= static_data.WingTalents[i].AddPoint then
+				isDataChanged = true
+				break
+			end
 		end
 	end
 	return isDataChanged
@@ -762,7 +742,7 @@ def.method("number", "=>", "dynamic").GetWingPageData = function(self, page_id)
 end
 
 -- 清楚数据
-def.method().Clear = function(self)
+def.method().Cleanup = function(self)
 	self._AllWingsList = {}
 	self._ServerWingsList = {}
 	self._TalentData = {}
@@ -775,7 +755,7 @@ def.method().PreloadAllWings = function(self)
 	if self._HasPreloaded then return end
 
 	self._AllWingsList = {}
-	local all_ids = GameUtil.GetAllTid("Wing")
+	local all_ids = CElementData.GetAllTid("Wing")
 	local prof = game._HostPlayer._InfoData._Prof
 	for i = 1, #all_ids do
 		local template = self:GetWingData(all_ids[i])

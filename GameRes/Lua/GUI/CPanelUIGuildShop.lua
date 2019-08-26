@@ -46,6 +46,7 @@ def.field("userdata")._Guild_Honor_List = nil
 def.field("userdata")._Frame_Guild_Fund = nil
 def.field("userdata")._Guild_Fund_List = nil
 def.field("userdata")._Lab_Refresh = nil
+def.field("userdata")._LabTip = nil 
 
 local instance = nil
 def.static("=>", CPanelUIGuildShop).Instance = function()
@@ -296,7 +297,7 @@ def.method().OnInit = function(self)
 	self._Fund_Template = CElementData.GetTemplate("GuildShop", self._Fund_Tid)
     self._TabList:SetItemCount(1)
     self._TabList:SetSelection(0,0)
---	GUI.SetText(self._Lab_List1, self._Honor_Template.Name)
+	GUI.SetText(self._LabTip, StringTable.Get(8139))
 --	GUI.SetText(self._Lab_List2, self._Fund_Template.Name)
 
 	-- self:OnShowMoney()
@@ -318,6 +319,7 @@ def.method().OnInitUIObject = function(self)
 	self._Guild_Honor_List = self:GetUIObject("Guild_Honor_List"):GetComponent(self._List_Type)
 	self._Frame_Guild_Fund = self:GetUIObject("Frame_Guild_Fund")
 	self._Guild_Fund_List = self:GetUIObject("Guild_Fund_List"):GetComponent(self._List_Type)
+	self._LabTip = self:GetUIObject("Lab_Tips")
 end
 
 -- 展示货币

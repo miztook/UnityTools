@@ -13,20 +13,21 @@ def.field(CSelectRoleSceneUnit)._SelectRoleScene = nil
 def.field("number")._CurProfId = 0
 def.field("number")._CameraType = 0 -- 当前相机类型
 def.field("boolean")._IsSkipCG = false
+def.field("number")._AutoReturnLoginTimer = 0
+def.field("boolean")._Is2ReturnLogin = false
 -- cfg
-def.field("table")._BGMPathCfg = BlankTable
-def.field("table")._SkillAudioPathCfg = BlankTable
+def.field("table")._BGMPathCfg = nil
+def.field("table")._SkillAudioPathCfg = nil
 -- 开关
 def.field("boolean")._IsSplitProfScene = true -- 是否拆分职业场景
 
 def.static("=>", CRoleSceneMan).new = function ()
 	local obj = CRoleSceneMan()
-	obj:InitConstValue()
 	return obj
 end
 
 -- 初始化静态数据
-def.method().InitConstValue = function (self)
+def.method().Init = function (self)
 	self._BGMPathCfg = 
 	{
 		"Lobby_Character/Character/Warrior", --PATH.BGM_Warrior_Theme, 
@@ -49,12 +50,17 @@ end
 ------------------------------ 创建角色相关 start -----------------------------
 -- 进入创建角色
 def.method().EnterRoleCreateStage = function (self)
-	self:CleanUp()
+	self:Cleanup()
 	self._CurProfId = 0
 
+	-- 初始化敏感字
+	local FilterMgr = require "Utility.BadWordsFilter".Filter
+	FilterMgr.Init()
+
 	local randomList = {}
+    local options = GameConfig.Get("FuncOpenOption")
 	for _, prof in pairs(EnumDef.Profession) do
-		if prof ~= EnumDef.Profession.Lancer or not game._IsHideLancer then
+		if prof ~= EnumDef.Profession.Lancer or not options.HideLancer then
 			table.insert(randomList, prof)
 		end
 	end
@@ -78,7 +84,12 @@ def.method().EnterRoleCreateStage = function (self)
 		game._GUIMan:Close("CPanelLogin")
 		game._GUIMan:CloseCircle()
 		game._GUIMan:Open("CPanelCreateRole", profession)
+
+		local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
+		CPlatformSDKMan.Instance():SetBreakPoint(PlatformSDKDef.PointState.Game_Start_Create_Role)
 	end)
+
+	game._CurGameStage = _G.GameStage.CreateRoleStage
 end
 
 def.method("=>", "number").GetCurProfId = function (self)
@@ -132,9 +143,10 @@ def.method("number", "function").StartRoleCreateScene = function (self, profId, 
 	self._IsSkipCG = false
 	CGMan.StopCG()
 	local function OnCGFinish()
+		if self._CreateRoleScene == nil then return end
 		if self._IsSkipCG then return end
 
-		CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.CreateRole, false)
+		-- CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.CreateRole, false)
 		self._CreateRoleScene:EnableModelRotate(true)
 		if callback ~= nil then
 			callback()
@@ -149,7 +161,7 @@ def.method("number", "function").StartRoleCreateScene = function (self, profId, 
 	end
 	CGMan.PlayCG(cgPath, OnCGFinish, 0, true)
 	--播放角色主题音乐
-	CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.CreateRole, true)
+	-- CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.CreateRole, true)
 	CSoundMan.Instance():PlayBackgroundMusic(self._BGMPathCfg[profId], 0)
 	CSoundMan.Instance():Play2DAudio(self._SkillAudioPathCfg[profId], 0)
 
@@ -168,7 +180,7 @@ def.method().SkipCG = function (self)
 	self._CreateRoleScene:ResetCamera()
 	--停止技能音乐
 	CSoundMan.Instance():Stop2DAudio(self._SkillAudioPathCfg[self._CurProfId], "")
-	CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.CreateRole, false)
+	-- CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.CreateRole, false)
 end
 
 local function SetCreateCamera(self, curCamType, destCamType)
@@ -323,9 +335,14 @@ end
 
 ------------------------------ 选择角色相关 start -----------------------------
 def.method("number").EnterRoleSelectStage = function (self, roleIndex)
+	if game._AccountInfo == nil then
+		warn("EnterRoleSelectStage failed, account info got nil", debug.traceback())
+		return
+	end
+
 	local length = #game._AccountInfo._RoleList
 	if length > 0 then
-		self:CleanUp()
+		self:Cleanup()
 
 		self._SelectRoleScene = CSelectRoleSceneUnit.new()
 		self._SelectRoleScene:LoadScene(PATH.LoginSceneNew, function()
@@ -337,6 +354,8 @@ def.method("number").EnterRoleSelectStage = function (self, roleIndex)
 			game._GUIMan:CloseCircle()
 			game._GUIMan:Open("CPanelSelectRole", roleIndex)
 		end)
+		self:AddAutoReturnLoginTimer()
+		game._CurGameStage = _G.GameStage.SelectRoleStage
 	else
 		self:EnterRoleCreateStage()
 	end
@@ -359,9 +378,30 @@ def.method("number").ResetRoleSelectScene = function (self, roleIndex)
 	self._SelectRoleScene:DestroyAllModels()
 	self._SelectRoleScene:ResetCamera(roleIndex)
 end
+
+def.method().RemoveAutoReturnLoginTimer = function(self)
+	if self._AutoReturnLoginTimer ~= 0 then
+		_G.RemoveGlobalTimer(self._AutoReturnLoginTimer)
+		self._AutoReturnLoginTimer = 0
+	end
+end
+
+def.method().AddAutoReturnLoginTimer = function(self)
+	self:RemoveAutoReturnLoginTimer()
+	local autoReturnLoginTime = 900 -- 自动返回登录时间，15分钟
+	self._AutoReturnLoginTimer = _G.AddGlobalTimer(autoReturnLoginTime, true, function()
+		-- 闲置超时，返回登录界面
+		game._GUIMan:Close("CPanelSelectRole")
+		game:LogoutAccount()
+		self._Is2ReturnLogin = true
+	end)
+end
 ------------------------------ 选择角色相关 end -----------------------------
 
-def.method().CleanUp = function(self)
+def.method().Cleanup = function(self)
+	self:RemoveAutoReturnLoginTimer()
+	self._Is2ReturnLogin = false
+
 	-- CPanelCreateRole/CPanelSelectRole 必须和下面的 _CreateRoleScene / _CreateRoleScene 配对销毁
 	-- 否则，界面中动态加载的角色模型就不会走正常的缓冲逻辑
 	game._GUIMan:Close("CPanelCreateRole")

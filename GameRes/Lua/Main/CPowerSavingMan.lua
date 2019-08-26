@@ -1,18 +1,9 @@
 local Lplus = require "Lplus"
 local CGame = Lplus.ForwardDeclare("CGame")
 local UserData = require "Data.UserData".Instance()
+
 local CPowerSavingMan = Lplus.Class("CPowerSavingMan")
 local def = CPowerSavingMan.define
-
-def.static("=>", CPowerSavingMan).new = function()
-	local obj = CPowerSavingMan()
-	obj:LoadUserData()
-	obj:CleanUp()
-	return obj
-end
-
--- Interval 1sec
--- TopCounts=30sec
 
 def.field("boolean")._IsEnabled = true
 def.field("number")._TimeCD = 0
@@ -25,6 +16,32 @@ def.field("table")._DropItems = nil
 def.field("number")._CurBgm = 0
 def.field("number")._CurSfx = 0
 
+def.static("=>", CPowerSavingMan).new = function()
+	local obj = CPowerSavingMan()
+	obj:LoadUserData()
+	obj:Cleanup()
+	return obj
+end
+
+def.method().LoadUserData = function(self)
+	local ev = UserData:GetField(EnumDef.LocalFields.PowerSaving)
+	if ev == nil or type(ev) ~= "boolean" then
+		self._IsEnabled = true
+	else
+		self._IsEnabled = ev
+	end
+
+	ev = UserData:GetField(EnumDef.LocalFields.PowerSavingTime)
+	if ev == nil or type(ev) ~= "number" then
+		self._IsEnabled = false
+	else
+		self:SetSleepingTime(ev)
+	end
+
+	-- warn("***LoadUserData: "..tostring(ev == nil or type(isClickGroundMove) ~= "boolean"))
+end
+-- Interval 1sec
+-- TopCounts=30sec
 -- local instance = nil
 
 -- def.static("=>", CPowerSavingMan).Instance = function()
@@ -49,32 +66,17 @@ def.method().SaveToUserData = function(self)
 	UserData:SetField(EnumDef.LocalFields.PowerSavingTime, self._TimeCD)
 end
 
-def.method().LoadUserData = function(self)
-	local ev = UserData:GetField(EnumDef.LocalFields.PowerSaving)
-	if ev == nil or type(ev) ~= "boolean" then
-		self._IsEnabled = true
-	else
-		self._IsEnabled = ev
-	end
-
-	ev = UserData:GetField(EnumDef.LocalFields.PowerSavingTime)
-	if ev == nil or type(ev) ~= "number" then
-		self._IsEnabled = false
-	else
-		self:SetSleepingTime(ev)
-	end
-
-	-- warn("***LoadUserData: "..tostring(ev == nil or type(isClickGroundMove) ~= "boolean"))
-end
-
 def.method("number").SetSleepingTime = function(self, cd)
-	self._TimeCD = cd
-	GameUtil.SetSleepingCD(self._TimeCD)
+	if cd > 0 then
+		self._TimeCD = cd
+		GameUtil.SetSleepingCD(self._TimeCD)
+	end
 end
 
 def.method().StartPlaying = function(self)
 	--warn("PowerSaving StartPlaying")
-
+	if self._TimeCD <= 0 then return end
+	
 	self._IsPlaying = true
 	self:UpdateCDState()
 end
@@ -190,7 +192,7 @@ def.method().ShowRewards = function(self)
 		else
 			local count = #msg.Items + 1
 			msg.Items[count] = { }
-			msg.Items[count].ItemId = v.Id
+			msg.Items[count].Tid = v.Id
 			msg.Items[count].Count = v.Count
 		end
 	end
@@ -210,7 +212,7 @@ def.method().ShowRewards = function(self)
 	end
 end
 
-def.method().CleanUp = function(self)
+def.method().Cleanup = function(self)
 	self:StopPlaying()
 
 	GameUtil.ResetSleepingCD()

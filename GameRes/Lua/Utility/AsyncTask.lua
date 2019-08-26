@@ -37,26 +37,6 @@ do
 			end
 		end, function () return "stop" end)
 	end
-	
-	--[[
-		加载资源
-	]]
-	def.static("dynamic", "=>", Task).LoadResource = function (path)
-		return Task.createOneStep(function (task)
-			return function (task, resumeEntry)
-				if type(path) == "string" then
-					GameUtil.AsyncLoad(path, function (asset)
-						if task:isActive() then
-							task:setResult(asset)
-							resumeEntry()
-						end
-					end)
-				elseif type(path) == "number" then
-					warn("can not load by id: ", path)
-				end
-			end
-		end, function () return "stop" end)
-	end
 end
 return AsyncTask.Commit()
 

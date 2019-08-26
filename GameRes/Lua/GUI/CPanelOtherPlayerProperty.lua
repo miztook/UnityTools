@@ -97,11 +97,14 @@ local function SetEquipmentPanelShow(equips, fightScore)
 			[EFrameIconTag.ItemIcon] = bGotEquip,
 		}
 		IconTools.SetFrameIconTags(ui_equip, frame_setting)
+		-- warn(" item.ItemData.FightProperty.Star ",item.ItemData.FightProperty.star)
 		if bGotEquip then
 			local setting =
 			{
 				[EItemIconTag.StrengthLv] = item.ItemData.InforceLevel,
+				[EItemIconTag.Grade] = item.ItemData.FightProperty.star,
 			}
+
 			IconTools.InitItemIconNew(ui_equip, item.ItemData.Tid, setting)
 		end
 	end
@@ -155,7 +158,7 @@ local function ShowGrade(self,PvpStage,PvpStageStar)
 	end 
 	local DataTemp = CElementData.GetPVP3v3Template(PvpStage)
 	if DataTemp ~= nil then		
-		GUITools.SetGroupImg(self._ImgSan,PvpStage - 1)
+		GUITools.SetGroupImg(self._ImgSan,DataTemp.StageType - 1)
 		GUITools.SetGroupImg(self._ImgSanNum,DataTemp.StageLevel - 1)
 		local StarItem = self._GroupStars[DataTemp.CountUpLimit]
 		if StarItem == nil then return end
@@ -226,7 +229,7 @@ def.override('dynamic').OnData = function(self, data)
 
 	self._IsShowBaseInfo = true
 	self._Profession = Info.Profession
-	game: SetEntityCustomImg(self._Img_Head,data.RoleId,iExteriorData.CustomImgSet,Info.Gender,Info.Profession)
+	TeraFuncs.SetEntityCustomImg(self._Img_Head,data.RoleId,iExteriorData.CustomImgSet,Info.Gender,Info.Profession)
 	GUI.SetText(self._LabEvilValue,tostring(iExteriorData.EvilNum))
 	if self._Model4ImgRender1 == nil then
        local ModelParams = require "Object.ModelParams"
@@ -463,10 +466,6 @@ def.method("table","userdata","boolean").SetPropertyData = function(self, nameLi
 				else
 					GUITools.SetGroupImg(Img_Arrow, 0)
 				end
-
-				if string.sub(data.ValueFormat, -1) == "%" then
-					valueTotal = valueTotal * 100
-				end
 				local strTotal = ""
 				if string.sub(data.ValueFormat, -1) == "%" then
 					valueTotal = valueTotal * 100
@@ -545,7 +544,6 @@ def.method("number").ShowPropertyTip = function(self, index)
 	local info_data = self._ListAttrs
 	local value = info_data[exchangeIndex1].Value
 	if value == nil then return end
-
 	if exchangeIndex2 == 0 then
 		local ModuleProfDiffConfig = require "Data.ModuleProfDiffConfig" 
 		local config = ModuleProfDiffConfig.GetModuleInfo("FightProperty")
@@ -556,7 +554,6 @@ def.method("number").ShowPropertyTip = function(self, index)
 			if string.sub(exchangeData.ValueFormat, -1) == "%" then
 				value = math.ceil(value * 100)
 			end
-			
 			strDesc = string.format(data.DetailDesc, value)
 		end		
 	else

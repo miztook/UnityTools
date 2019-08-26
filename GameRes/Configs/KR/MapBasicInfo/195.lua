@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/Map_Bg_019.png",
 	AssetPath = "Assets/Outputs/Scenes/World05.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14036] = 
@@ -42,16 +43,16 @@ local MapInfo =
 		},
 		[4032] = 
 		{
-			[1] = { x = 136.61, y = 21.25, z = 231.27, name = "엘리언 쿠벨", SortID = 6 },
+			[1] = { x = 136.61, y = 21.25, z = 231.27, name = "엘리온 쿠벨", SortID = 6 },
 		},
 	},
 	Region = 
 	{
 		[2] = 
 		{
-			[338] = { x = 133.88, y = 22.53, z = 285.72, name = "제3군단 주둔지", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {4106} },
-			[379] = { x = 114.72, y = 24.70, z = 315.17, name = "抵达1", worldId = 0, PkMode = 0 },
-			[382] = { x = 136.79, y = 21.25, z = 274.30, name = "抵达2", worldId = 0, PkMode = 0 },
+			[338] = { x = 133.88, y = 22.53, z = 285.72, name = "제3군단 주둔지", worldId = 0, IsCanFind = 1, PkMode = 1, IsCanHawkeye = true, QuestID = {4106} },
+			[379] = { x = 114.72, y = 24.70, z = 315.17, name = "抵达1", worldId = 0, PkMode = 1 },
+			[382] = { x = 136.79, y = 21.25, z = 274.30, name = "抵达2", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

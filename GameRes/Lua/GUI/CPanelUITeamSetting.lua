@@ -44,10 +44,6 @@ def.field("userdata")._ApplySwitch = nil
 def.field("table")._CheckBox_Friends = BlankTable
 def.field("table")._CheckBox_Guild = BlankTable
 
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
-
 def.static("=>", CPanelUITeamSetting).Instance = function()
 	if not instance then
 		instance = CPanelUITeamSetting()
@@ -115,7 +111,7 @@ end
 
 def.override("dynamic").OnData = function (self,data)
     -- 初始化房间数据状态
-    self._RoomDataList = self._TeamMan:GetAllTeamRoomData()
+    self._RoomDataList = TeamUtil.LoadValidTeamRoomData(false)
 
     --数据
     if self._SettingData == nil then
@@ -134,8 +130,6 @@ def.override("dynamic").OnData = function (self,data)
 
     -- 计算初始界面 选中位置
     self:InitSelectIndex()
-    -- warn("self._SettingData.TargetId = ", self._SettingData.TargetId)
-    -- warn("InitSelectIndex :", self._LeftSelectIndex, self._RightSelectIndex)
 
     -- 刷新选中状态
     self:UpdateSelectState()
@@ -170,8 +164,7 @@ end
 def.method().InitSelectIndex = function(self)
     if self._SettingData.TargetId > 1 then
         -- 有目标情况 计算位置
-        self._LeftSelectIndex, self._RightSelectIndex = self._TeamMan:GetRoomIndexByID( self._SettingData.TargetId )
-        -- warn("InitSelectIndex = ", self._LeftSelectIndex, self._RightSelectIndex)
+        self._LeftSelectIndex, self._RightSelectIndex = TeamUtil.GetRoomIndexByID(self._RoomDataList, self._SettingData.TargetId)
     else
         -- 无目标选中 附近
         self._LeftSelectIndex = 1
@@ -236,7 +229,7 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
     local idx = index + 1
     if id == "List_Left" or id == "List_Right" then
         if game._HostPlayer:InDungeon() or game._HostPlayer:InImmediate() then
-            SendFlashMsg(StringTable.Get(22069), false)
+            TeraFuncs.SendFlashMsg(StringTable.Get(22069), false)
             return
         end
     end
@@ -264,6 +257,7 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
         -- 点击右侧页签 
         self:OnSelectRight()
     end
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
 end
 
 def.override("string").OnClick = function(self,id)
@@ -291,11 +285,14 @@ def.override("string").OnClick = function(self,id)
     elseif id == "Btn_NumFightScoreInput" then
         self:OnClickFightScoreInput()
     end
+
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
 end
 
 -- 限制等级
 def.method().OnClickLimitLevelInput = function(self)
     local function callback()
+        if not self:IsShow() then return end
         local objText = self._Lab_Level:GetComponent(ClassType.Text)
         local lv = tonumber(objText.text) or 0
         self._SettingData.Level = lv
@@ -324,7 +321,7 @@ def.override("string", "string").OnEndEdit = function(self, id, str)
             self._Input_TeamName.text = self._TeamMan:GetTeamName()
             return
         end
-        self._TeamMan:SendC2SChangeTeamName(str)
+        TeamUtil.ChangeTeamName(str)
     end
 end
 
@@ -363,28 +360,33 @@ def.method().OnClick_Btn_OK = function(self)
     local mem_count = self._TeamMan:GetMemberCount()
     local callback = function(val)
         if val then
-            self._TeamMan:C2SModifyMatchSetting(self._SettingData.TargetId, self._SettingData.Level, self._SettingData.CombatPower, self._LocalAutoApprove, self._SettingData.GuildOnly, self._SettingData.FriendOnly)
+            TeamUtil.ModifyMatchSetting(self._SettingData.TargetId, self._SettingData.Level, self._SettingData.CombatPower, self._LocalAutoApprove, self._SettingData.GuildOnly, self._SettingData.FriendOnly)
             -- 发送队伍招募信息
             if self:GetLocalSendMsgState() then
-                self._TeamMan:SendLinkMsg(ChatChannel.ChatChannelWorld)
+                local param = {
+                    TargetId = self._SettingData.TargetId,
+                    Level = self._SettingData.Level,
+                    CombatPower = self._SettingData.CombatPower,
+                }
+                self._TeamMan:SendLinkMsg(ChatChannel.ChatChannelRecruit, param)
             end
         end
     end
 
     if self._SettingData.TargetId > 1 then
-        local dungeonId = self._TeamMan:ExchangeToDungeonId(self._SettingData.TargetId)
+        local dungeonId = TeamUtil.ExchangeToDungeonId(self._SettingData.TargetId)
         local dungeon_temp = CElementData.GetTemplate("Instance", dungeonId)
         if dungeon_temp ~= nil then
             if is_big_team then
                 if dungeon_temp.InstanceTeamType ~= EInstanceTeamType.EInstanceTeam_Corps then
                     if mem_count > smallTeamMaxMemCount then
-                        SendFlashMsg(StringTable.Get(22068), false)
+                        TeraFuncs.SendFlashMsg(StringTable.Get(22068), false)
                         return
                     else
                         local title, msg, closeType = StringTable.GetMsg(125)
                         local callback1 = function(val)
                             if val then
-                                self._TeamMan:ChangeTeamMode(TeamMode.Group)
+                                TeamUtil.ChangeTeamMode(TeamMode.Group)
                                 callback(true)
                             end
                         end
@@ -397,7 +399,7 @@ def.method().OnClick_Btn_OK = function(self)
                     local title, msg, closeType = StringTable.GetMsg(126)
                     local callback1 = function(val)
                         if val then
-                            self._TeamMan:ChangeTeamMode(TeamMode.Corps)
+                            TeamUtil.ChangeTeamMode(TeamMode.Corps)
                             callback(true)
                         end
                     end
@@ -515,18 +517,14 @@ end
 -- 设置 本地默认发送世界招募信息 变量
 def.method("boolean").SetLocalSendMsgState = function(self, bState)
     local account = game._NetMan._UserName
-    local oldState = self:GetLocalSendMsgState()
-
-    if oldState == nil or oldState == bState then
-        return
-    end
     UserData.Instance():SetCfg(local_send_msg_tag, account, bState)
 end
 
 -- 获取 本地默认发送世界招募信息 变量
 def.method("=>", "boolean").GetLocalSendMsgState = function(self)
     local account = game._NetMan._UserName
-    return UserData.Instance():GetCfg(local_send_msg_tag, account) or false
+    local ret = UserData.Instance():GetCfg(local_send_msg_tag, account)
+    return ret == nil and true or ret
 end
 
 --1.最低等级

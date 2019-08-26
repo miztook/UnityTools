@@ -27,7 +27,6 @@ local def = CPlayer.define
 def.field("table")._ProfessionTemplate = nil
 def.field("table")._Equipments = nil
 def.field("table")._WingData = nil
-def.field("function")._AllModelReadyCallback = nil
 def.field("boolean")._IsModelHidden = false
 def.field("number")._TeamId = 0
 def.field(CGuild)._Guild = nil
@@ -55,6 +54,7 @@ def.field("table")._CurPartialShapes = nil
 --def.field("table")._EquipCellInfo = BlankTable 	--装备位信息存储
 def.field(ModelParams)._OutwardParams = nil 	--模型参数
 def.field("number")._PetId = 0					--当前出站宠物ID
+def.field("number")._PateOffsetH = 0            --Pate离自己头顶的高度offset
 def.field(CFxObject)._LvUpFx = nil				--升级特效
 def.field(CFxObject)._FightFx = nil 			--进战/出战特效
 def.field(CFxObject)._MountHorseFx = nil 		--上下马特效
@@ -209,12 +209,12 @@ end
 
 -- 清空上马后设置的状态
 local function cleanup_player_mount_status(self)
-	self:PlayMountFx()
 	if self._MountModel ~= nil then
+		self:PlayMountFx()
 		self:ResetModelWhenRide(self._MountModel)
 
 		local mount = self._MountModel:GetGameObject()
-		if mount then GameUtil.RemoveFootStepTouch(mount) end
+		if not IsNil(mount) then GameUtil.RemoveFootStepTouch(mount) end
 
 		self._MountModel:Destroy()
 		self._MountModel = nil
@@ -236,7 +236,11 @@ local function cleanup_player_mount_status(self)
 		end
 	end
 
-	GameUtil.EnableDressUnderSfx(self:GetOriModel():GetGameObject(), true) -- 恢复时装脚底特效
+	local go = self:GetOriModel():GetGameObject()
+	if not IsNil(go) then
+		-- 恢复时装脚底特效
+		GameUtil.EnableDressUnderSfx(go, true)
+	end
 end
 
 -- 移除坐骑出生动作计时器
@@ -250,11 +254,10 @@ end
 -- 上马（纯客户端表现）
 def.override("number", "boolean").Ride = function (self, tid, isPlayBornAnim)
 	if tid <= 0 then return end
-
-	--重置客户端技能状态
-	self:LeaveClientCombatState(true)
+    if not self:IsCullingVisible() then return end
 
 	if self._MountModel ~= nil and self._MountTid == tid then		--无需重新加载
+		self:LeaveClientCombatState(true) --重置客户端技能状态
 		self:UpdateMountState()			--更新状态
 		if isPlayBornAnim then
 			self:StartMountBorn()
@@ -285,6 +288,16 @@ def.override("number", "boolean").Ride = function (self, tid, isPlayBornAnim)
 					return
 				end
 
+				if self:IsHostPlayer() then
+					local curState = self:GetCurStateType()
+					if curState == FSM_STATE_TYPE.SKILL and self:IsServerMounting() then
+						-- 服务器上马后若在放技能，则通知下马
+						SendHorseSetProtocol(-1, false)
+						model:Destroy()
+						return
+					end
+				end
+
 				--释放原来的坐骑
 				if self._MountModel ~= nil then
 					--删除原来的mount model
@@ -312,9 +325,18 @@ def.override("number", "boolean").Ride = function (self, tid, isPlayBornAnim)
 
 					self:OnLoadMount(self._MountModel)
 					self:SetWingVisiState(not horseData.IsHideWing)
+					self:LeaveClientCombatState(true) --重置客户端技能状态
 					self:UpdateMountState()  		--更新状态
 					if isPlayBornAnim then
 						self:StartMountBorn()
+					else
+						if self:IsHostPlayer() then
+							if game._HostPlayer._CanNotifyErrorMountHorse then
+								-- 点击摇杆上马，播音效
+								CSoundMan.Instance():Play3DAudio(horseData.MountMusic, self:GetPos(), 0)
+								game._HostPlayer._CanNotifyErrorMountHorse = false
+							end
+						end
 					end
 
 					-- 加载过程有可能下马
@@ -331,6 +353,7 @@ def.override("number", "boolean").Ride = function (self, tid, isPlayBornAnim)
 end
 
 def.method().PlayMountFx = function(self)
+    if not self:IsCullingVisible() then return end
 	if self._MountHorseFx ~= nil then
 		self._MountHorseFx:Stop()
 	end
@@ -342,10 +365,15 @@ def.method(CModel).OnLoadMount = function (self, mountModel)
 		error("Mount Model got nil On Load Mount")
 		return
 	end
+    if not self:IsCullingVisible() then return end
 
     local mount = mountModel:GetGameObject()
     GameUtil.SetLayerRecursively(mount, self:GetRenderLayer())
     GameUtil.AddFootStepTouch(mount)
+
+	if mount ~= nil then
+        GameUtil.EnableCastShadows(mount, self:IsHostPlayer())
+    end
 
     --读取scale, 挂点配置
 	local desInfo = ModuleProfDiffConfig.GetModuleInfo("HorseScale")
@@ -433,13 +461,20 @@ def.method(CModel).OnLoadMount = function (self, mountModel)
 	--	mountModel:SetVisible(self:IsCullingVisible())
 	end
 
-	GameUtil.EnableDressUnderSfx(self:GetOriModel():GetGameObject(), false) -- 隐藏时装脚底特效
+
+	local go = self:GetOriModel():GetGameObject()
+	if not IsNil(go) then
+		-- 隐藏时装脚底特效
+		GameUtil.EnableDressUnderSfx(go, false)
+	end
 end
 
 def.override().UnRide = function (self)
     if self._MountTid <= 0 then 
     	return 
     end
+
+    if not self:IsCullingVisible() then return end
 
 	local oldTid = self._MountTid
 	self._MountTid = 0
@@ -463,6 +498,7 @@ def.override().UnRide = function (self)
 end
 
 def.method().UpdateMountState = function (self)
+    if not self:IsCullingVisible() then return end
    local bRide = self:IsOnRide()				--这时必须保证骑乘状态被正确设置
 
    --动作
@@ -496,6 +532,7 @@ end
 
 -- 骑马时重置玩家模型，方便直接切换坐骑模型
 def.method(CModel).ResetModelWhenRide = function (self, mountModel)
+    if not self:IsCullingVisible() then return end
 	local desInfo = ModuleProfDiffConfig.GetModuleInfo("HorseScale")
     --挂点
     local attachName = "HangPoint_Ride"
@@ -559,6 +596,7 @@ end
 
 def.method().StartMountBorn = function (self)
 	if self._MountTid <= 0 or self._MountModel == nil then return end
+    if not self:IsCullingVisible() then return end
 
 	local comp = self:GetHorseStandBehaviourComp()
 	if comp ~= nil then
@@ -612,6 +650,8 @@ def.method("boolean").SetDressEnable = function(self, bShow)
 	-- 	self._EnableDress = true
 	-- 	return
 	-- end
+    if not self:IsCullingVisible() then return end
+
 	local oldSet = self._EnableDress
 	self._EnableDress = bShow
 
@@ -695,6 +735,7 @@ end
 --人物时装更新
 def.method(CDress, "boolean").UpdateDressModel = function (self, dressInfo, bIsPuton)
 	if self._IsModelHidden or self:IsBodyPartChanged() or dressInfo == nil then return end
+    if not self:IsCullingVisible() then return end
 
 	local slot = dressInfo._DressSlot
 	local updateParam = ModelParams.new()
@@ -824,6 +865,7 @@ end
 -- @param dyeIdList 染色Id列表，按照部位一到部位二排序，不需要染的补0
 def.method("number", "table").UpdateDressColors = function (self, dressSlot, dyeIdList)
 	if self:IsBodyPartChanged() or dyeIdList == nil then return end
+    if not self:IsCullingVisible() then return end
 
 	local bShow = self:GetDressEnable() or self:IsInExterior()
 	if not bShow then return end
@@ -920,6 +962,8 @@ end
 
 def.method("table").ShowEquipments = function (self, equips)
 	--warn("ShowEquipments", debug.traceback())
+    if not self:IsCullingVisible() then return end
+
 	if self._Equipments == nil then
 		warn("Can not update equipment because equipment has not inited")
 		return
@@ -1019,9 +1063,21 @@ def.method("=>", ModelParams).GetModelParams = function(self)
 	return param
 end
 
+def.override().OnModelLoaded = function(self)
+    if not self:IsCullingVisible() then return end
+
+	CEntity.OnModelLoaded(self)
+
+	--关闭castShadow
+	self:EnableCastShadows(false)
+
+	self:EnableShadow(true)
+end
+
 -- 根据参数更新外观
 def.method(ModelParams, "function").UpdateOutward = function (self, updateParam, callback)
 	if updateParam == nil then return end
+    if not self:IsCullingVisible() then return end
 
 	-- updateParam:PrintModelParams("UpdateOutward updateParam")
 	self:AddLoadedCallback(function(player)
@@ -1127,6 +1183,8 @@ end
 
 def.override("function").ResetPartShape = function(self, callback)
 	-- 整体变身 不存在切换部分的情况
+    if not self:IsCullingVisible() then return end
+
     if self:IsModelChanged() then
 		warn("why total shape changed, still want to change part? ")
 		return
@@ -1186,6 +1244,7 @@ local function GetWeaponHangPoint(isInHand)
 end
 
 def.method("number", "boolean","number").ChangeWeapon = function (self, tid, change, weaponInforceLv)
+    if not self:IsCullingVisible() then return end
 	if self._IsModelHidden or tid < 0 then return end
 
 	if not change then
@@ -1263,6 +1322,8 @@ end
 
 -- 更新武器特效
 def.method().UpdateWeaponFx = function(self)
+    if not self:IsCullingVisible() then return end
+
 	local left_back_fx_path, right_back_fx_path, left_hand_fx_path, right_hand_fx_path = Util.GetWeaponFxPaths(self._Equipments.WeaponTid, self._Equipments.WeaponInforceLv)
 	-- if left_hand_fx_path == self._OutwardParams._WeaponFxPathLeftBack and right_hand_fx_path == self._OutwardParams._WeaponFxPathRightBack then
 	-- 	-- 特效参数没有改变
@@ -1312,6 +1373,8 @@ local function GetWingHangPoint(isInHand)
 end
 
 def.method("number", "number", "number").UpdateWingModel = function (self, wingId, wingLv, wingPageId)
+    if not self:IsCullingVisible() then return end
+	
 	-- if wingId > 0 then
 		-- 更换翅膀
 		if self._IsModelHidden then return end
@@ -1346,9 +1409,39 @@ def.method().SetCurWingModel = function (self)
 	end
 end
 
+-- 与服务器同步所有外观信息 Add by Yao
+def.method().SyncAllExterior = function (self)
+	-- 坐骑
+	local horseId = self:GetCurrentHorseId()
+	if self:IsServerMounting() and horseId > 0 then
+		if self:CanRide() then
+			self:Ride(horseId, false)
+		end
+	elseif self:IsOnRide() then
+		-- 服务器没上马，但表现是上了马
+		if self:IsHostPlayer() and game._RegionLimit._LimitRide then
+			-- 场景限制
+			game._GUIMan:ShowTipText(StringTable.Get(15551), false)
+		end
+		self:UnRide()
+	end
+	self:UpdateCombatState(self:IsInServerCombatState(), true, 0, true, false)
+
+	local ModelParams = require "Object.ModelParams"
+	local curParam = self:GetModelParams()
+	local updateParam = ModelParams.GetUpdateParams(self._OutwardParams, curParam)
+	self:UpdateOutward(updateParam, function ()
+		self:SetCurWeaponInfo()
+		self:SetCurWingModel()
+		GameUtil.SetLayerRecursively(self:GetOriModel():GetGameObject(), self:GetRenderLayer())
+	end)
+end
+
+
 -- 更新翅膀动画
 def.override().UpdateWingAnimation = function (self)
 	if self._WingModel == nil then return end
+    if not self:IsCullingVisible() then return end
 
 	local aniName = ""
 	if self:IsClientMounting() then
@@ -1381,6 +1474,7 @@ def.override().UpdateWingAnimation = function (self)
 end
 
 def.override("string", "number", "boolean", "number", "number", "boolean").PlayWingAnimation = function (self, aniname, fade_time, is_queued, life_time, aniSpeed, is_lock_rotation)
+    if not self:IsCullingVisible() then return end
 	if self._WingModel == nil or IsNilOrEmptyString(aniname) then return end
 
 	-- warn("PlayWingAnimation id:"..self._ID.." aniname:"..aniname.." fade_time:"..fade_time.." is_queued:"..tostring(is_queued).." life_time:"..life_time.." aniSpeed:"..aniSpeed.." is_lock_rotation:"..tostring(is_lock_rotation), debug.traceback())
@@ -1454,6 +1548,7 @@ end
 
 def.method("boolean").EnterClientCombatState = function(self, ignoreLerp)
 	-- 服务器战斗状态有效，忽略客户端状态
+    if not self:IsCullingVisible() then return end
 	if self._IgnoreClientStateChange then return end
 
 	self:CheckMountState()
@@ -1486,6 +1581,7 @@ end
 
 def.method("boolean").LeaveClientCombatState = function(self, ignoreLerp)
 	-- 服务器战斗状态有效，忽略客户端状态
+    if not self:IsCullingVisible() then return end
 	if self._IgnoreClientStateChange then return end
 
 	-- fight pose
@@ -1522,6 +1618,7 @@ def.method("boolean").LeaveClientCombatState = function(self, ignoreLerp)
 end
 
 def.method().DelayLeaveClientCombatState = function(self)
+    if not self:IsCullingVisible() then return end
 	if not self._IsInCombatState then return end
 	self:RemoveCombatClearTimer()
     self._CombatStateClearTimerId = self:AddTimer(5, true, function()
@@ -1536,6 +1633,7 @@ def.method().DelayLeaveClientCombatState = function(self)
 end
 
 def.method("boolean").ChangeWeaponHangpoint = function(self, isOnBack)
+    if not self:IsCullingVisible() then return end
 	self:RemoveCombatClearTimer()
 	if not self._IgnoreClientStateChange then 
 		self._IsInCombatState = not isOnBack
@@ -1551,6 +1649,7 @@ def.method("boolean").EnterServerCombatState = function(self, ignoreLerp)
 	self._IgnoreClientStateChange = true
     self._IsInCombatState = true
 
+    if not self:IsCullingVisible() then return end
     self:CheckMountState()
     -- 进战不下马 武器不切换
     if self:IsOnRide() then
@@ -1579,12 +1678,13 @@ end
 
 def.method().LeaveServerCombatState = function(self)
 	self._IgnoreClientStateChange = false
+    if not self:IsCullingVisible() then return end
 	-- 延时5s后 清理战斗表现
 	self:DelayLeaveClientCombatState()
 end
 
 def.override("boolean", "boolean", "number", "boolean", "boolean").UpdateCombatState = function(self, is_in_combat_state, is_client_state, origin_id, ignoreLerp, delay)
-	if not self._IsReady then
+	if not self._IsReady or not self:IsCullingVisible() then
 		self._IsInCombatState = is_in_combat_state
 		self._IgnoreClientStateChange = (not is_client_state and is_in_combat_state)
 		return
@@ -1654,17 +1754,20 @@ local function EnterDeadState(self)
 end
 
 def.override("number", "number", "number", "boolean").OnDie = function (self, killer_id, element_type, hit_type, play_ani)
+    --if not self:IsCullingVisible() then return end
 	CEntity.OnDie(self, killer_id, element_type, hit_type, play_ani)
 	EnterDeadState(self)
 end
 
 def.override().Dead = function (self)
+    --if not self:IsCullingVisible() then return end
 	CEntity.Dead(self)
 	EnterDeadState(self)
 end
 
 def.override().OnTransformerModelLoaded = function (self)
 	if self._IsReleased then return end
+    if not self:IsCullingVisible() then return end
 
 	CEntity.OnTransformerModelLoaded(self)
 
@@ -1691,6 +1794,7 @@ def.override().ResetModelShape = function (self)
         warn("shape is original , not need to reset")
         return
     end 
+    if not self:IsCullingVisible() then return end
 
     CEntity.ResetModelShape(self)
 
@@ -1739,6 +1843,7 @@ def.override("table", "boolean").UpdateFightProperty_Simple = function(self, pro
 end
 
 def.method("number").ChangeArmor = function(self, tid)	
+    if not self:IsCullingVisible() then return end
 	if self._IsModelHidden or tid < 0 then return end
 	
 	self._Equipments.ArmorTid = tid
@@ -1761,6 +1866,11 @@ def.method("number").ChangeArmor = function(self, tid)
 end
 
 def.override("table", "number", "function", "function").Move = function (self, pos, offset, successcb, failcb)
+    if not self:IsCullingVisible() then
+    	self:SetPos(pos) 
+    	return 
+    end
+
 	if self._SkillHdl:IsCastingSkill() then
 		local skill_id, perform_idx = self._SkillHdl:GetCurSkillInfo()
 		if skill_id > 0 and perform_idx > 0 then
@@ -1829,6 +1939,8 @@ end
 def.virtual("number", "number", "number", "number").OnLevelUp = function (self, currentLevel, currentExp, currentParagonLevel, currentParagonExp)	
 	self._InfoData._Level = currentLevel
 	self._InfoData._ParagonLevel = currentParagonLevel
+
+    if not self:IsCullingVisible() then return end
 	-- local localPos =Vector3.New(0,GetLevelUpGfxH(self._InfoData._Prof),0)
 	local localPos = Vector3.zero -- 新的升级特效不修改高度
 	if self._LvUpFx ~= nil then
@@ -1883,7 +1995,6 @@ end
 
 def.virtual().UpdateTopPatePKIcon= function(self)
 	if self._TopPate == nil then return end
-	--self._TopPate:SetPKIconIsShow( self:GetPkMode() == EPkMode.EPkMode_Massacre )
 	self._TopPate:SetPKIconIsShow()
 end
 
@@ -1897,11 +2008,6 @@ def.virtual("=>", "boolean").IsFriendly = function(self)
 	return false
 end
 
--- 返回角色称号ID 
-def.virtual("=>", "number").GetDesignationId = function(self)
-	return 0
-end
-
 def.override().OnPateCreate = function(self)
 	CEntity.OnPateCreate(self)
 	if self._TopPate == nil then return end
@@ -1913,43 +2019,51 @@ def.override().OnPateCreate = function(self)
 	end
 	self._TopPate:UpdateName(true)
 
-	self:UpdateTopPateTitleName()
-	self:UpdateTopPateGuildName()
-	self:UpdateTopPateGuildConvoy()
-	self:UpdateTopPateRescue()
-	self:UpdateTopPateHpLine()
-	--self:UpdateTopPatePKIcon()
-	self:UpdatePetName()
+    if not self._TopPate:IsMini() then
+	    self:UpdateTopPateTitleName()
+	    self:UpdateTopPateGuildName()
+	    self:UpdateTopPateGuildConvoy()
+	    self:UpdateTopPateRescue()
+	    self:UpdateTopPateHpLine()
+	    --self:UpdateTopPatePKIcon()
+	    self:UpdatePetName()
+    end
+end
+
+def.method("number").SetPateOffsetH = function(self, offsetPate)
+    self._PateOffsetH = offsetPate
 end
 
 def.override().CreatePate = function (self)
 	local CPlayerTopPate = require "GUI.CPate".CPlayerTopPate
 	local pate = CPlayerTopPate.new()
 	self._TopPate = pate
-	--local callback = function()
-	--	self:OnPateCreate()
-	--end
+    self._TopPate:SetOffsetH(self._PateOffsetH)
 	pate:Init(self, nil, true)
+    self._TopPate:SetMini(false)
 	self:OnPateCreate()
 end
 
 def.override("number").UpdateTopPate = function (self, updateType)
-	CEntity.UpdateTopPate(self, updateType)
-	if self._TopPate == nil then return end
+	    CEntity.UpdateTopPate(self, updateType)
+	    if self._TopPate == nil then return end
 
-	if updateType == EnumDef.PateChangeType.TitleName then
-		self:UpdateTopPateTitleName()
-	elseif updateType == EnumDef.PateChangeType.GuildName then
-		self:UpdateTopPateGuildName()
-	elseif updateType == EnumDef.PateChangeType.GuildConvoy then
-		self:UpdateTopPateGuildConvoy()
-	elseif updateType == EnumDef.PateChangeType.Rescue then
-		self:UpdateTopPateRescue()
-	elseif updateType == EnumDef.PateChangeType.HPLine then
-		self:UpdateTopPateHpLine()
-	elseif updateType == EnumDef.PateChangeType.PKIcon then
-		self:UpdateTopPatePKIcon()
-	end
+        if not self._TopPate:IsMini() then
+	            if updateType == EnumDef.PateChangeType.TitleName then
+		            self:UpdateTopPateTitleName()
+	            elseif updateType == EnumDef.PateChangeType.GuildName then
+		            self:UpdateTopPateGuildName()
+	            elseif updateType == EnumDef.PateChangeType.GuildConvoy then
+		            self:UpdateTopPateGuildConvoy()
+	            elseif updateType == EnumDef.PateChangeType.Rescue then
+		            self:UpdateTopPateRescue()
+	            elseif updateType == EnumDef.PateChangeType.HPLine then
+		            self:UpdateTopPateHpLine()
+	            elseif updateType == EnumDef.PateChangeType.PKIcon then
+		            self:UpdateTopPatePKIcon()
+	            end
+        
+        end
 end
 
 def.override("=>", "boolean").IsRole = function (self)
@@ -2218,6 +2332,7 @@ def.virtual("number").SetTeamId = function(self, teamId)
 	self._TeamId = teamId
 end
 
+--[[
 def.override("boolean").EnableShadow = function(self, on)
 	self._IsEnableShadow = on
 	if not self._IsReady then return end
@@ -2229,15 +2344,19 @@ def.override("boolean").EnableShadow = function(self, on)
     	CEntity.DoEnableShadow(self, false)
     end
 end
+]]
 
 def.override().OnResurrect = function(self)
 	local EDEATH_STATE = require "PB.net".DEATH_STATE    --死亡状态类型
 	self._DeathState = EDEATH_STATE.LIVE
 	self:ChangeWeaponHangpoint(true)
 	self:Stand()
+
+    if not self:IsCullingVisible() then return end
+
 	self:SetWingVisiState(true)
 
-	self:EnableShadow(self._IsEnableShadow)     --刷新
+	self:EnableShadow(true)     --刷新
 	
 	if self._ResurrectFx ~= nil then
 		self._ResurrectFx:Stop()
@@ -2246,7 +2365,6 @@ def.override().OnResurrect = function(self)
 end
 
 def.override().Release = function (self)
-	self._AllModelReadyCallback = nil
 	self._IsMountEnterSight = false
 
 	if self._LvUpFx ~= nil then

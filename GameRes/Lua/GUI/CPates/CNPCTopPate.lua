@@ -11,6 +11,8 @@ local CNPCTopPate = Lplus.Extend(CPateBase, "CNPCTopPate")
 do
 	local def = CNPCTopPate.define
 	
+    local CONST_CACHE_AMOUNT = 80
+
 	def.field('userdata')._Go_Name = nil
 --	def.field('userdata')._Frame_ActionTip = nil
 --	def.field('userdata')._Frame_QuestTalk = nil
@@ -29,7 +31,7 @@ do
 	def.field('userdata')._GB_HP = nil
 	def.field('userdata')._GB_STA = nil
 
-	def.field('boolean')._IsShowHP = true
+	def.field('boolean')._IsShowHP = false
 	def.field('boolean')._IsShowSTA = false
 	def.field('dynamic')._ODName = nil		--强制Name
 	def.field('number')._TimerId = -1
@@ -38,25 +40,34 @@ do
 	--def.field('number')._TextPopTimerId = -1
 
 	def.final("=>", CNPCTopPate).new = function ()
-		local obj = CNPCTopPate()
-		obj._VOffset = 2.5
-
+        local cache, limit = CNPCTopPate.GetPateCache()
+        local obj = CPateBase.CreateNewInternal("GUI.CPates.CNPCTopPate", cache, limit) --CNPCTopPate()
+        obj._VOffset = 0
 		--local data=CPateBase.StaticData()
 		--table.insert(data._AllCreated,obj)
+
+--        if obj._Data ~= nil then
+--			obj._Data._HPType = nil
+--			obj._Data._HP = nil
+--         obj._Data._GuardP = nil
+--			obj._Data._STA = nil
+--			obj._Data._LogoType = nil
+--			obj._Data._TitleName = nil
+--			obj._Data._IsShowTitle = nil
+--			obj._Data._IsShowName = nil
+--        end
+
+	    obj._IsShowHP = false
+	    obj._IsShowSTA = false
+	    obj._ODName = nil		--强制Name
+	    obj._TimerId = -1
+	    obj._CurTipType = -1
+	    obj._NextTipType  = -1
 
 		return obj
 	end
 
---	def.method(CEntity,"function").Create = function (self, obj, cb)
---		self._Owner = obj
---		local attachObj, offsetH = self:GetPateAttachInfo(obj._GameObject, 2.5)
---		local pate = self:CreateFromCacheInternal(attachObj, _NPCPateCache, _NPCPatePrefab, offsetH, 1)
---		--self:UpdateName(true)
---		if cb ~= nil then cb() end
---	end 
-
-	def.override().Release = function(self)
-
+	def.method().Pool = function (self)
 		_G.RemoveGlobalTimer(self._TimerId)
 		--_G.RemoveGlobalTimer(self._TextPopTimerId)
 
@@ -68,13 +79,11 @@ do
 			self._GB_STA:MakeInvalid()
 		end
 
-		CPateBase.Release(self)
-
-		--self._Go_Name = nil
+		self._Go_Name = nil
 		self._Frame_QuestTalk = nil
 		self._Frame_ActionTip = nil
 		self._Go_ActionTip = nil
-		--self._Go_TitleName = nil
+		self._Go_TitleName = nil
 		--self._Frame_Title = nil
 		self._Go_HP = nil
 		self._Go_STA = nil
@@ -88,26 +97,25 @@ do
 		self._GB_HP = nil
 		self._GB_STA = nil
 
-		self._IsShowHP = true
-		self._IsShowSTA = true
-		self._ODName = nil		--强制Name
-		self._TimerId = -1
-		self._CurTipType = -1
-		self._NextTipType  = -1
-
 		--local data=CPateBase.StaticData()
 		--table.remove(data._AllCreated,obj)
 
+		local cache, limit = CNPCTopPate.GetPateCache()
+		CPateBase.PoolInternal(self, cache, limit) --CNPCTopPate()
 	end
 
 --	def.override("=>", "userdata").GetCacheRoot = function (self)
 --		return _NPCPateCache
 --	end
 
-	--returns a cache table, and its limit in count
-	def.override("=>", "table", "number","userdata").GetGoCache = function (self)
+	def.static("=>", "table", "number").GetPateCache = function ()
 		local data = CPateBase.StaticData()
-		return data._NPCPateCache, 50, data._NPCPatePrefab
+		return data._NPCPateCache, CONST_CACHE_AMOUNT
+	end
+
+	def.override("=>", "table", "number", "userdata").GetGoCache = function (self)
+		local data = CPateBase.StaticData()
+		return data._NPCPateGOCache, CONST_CACHE_AMOUNT, data._NPCPatePrefab
 	end
 
 	def.override().UIFind = function(self)
@@ -169,7 +177,7 @@ do
 	end
 
 	def.method("boolean","number").SetHPLineIsShow = function (self,isShow,curType)
-		if self._IsReleased then return end
+		if self._IsPooled then return end
 		self._IsShowHP = isShow
 
 		if self:IsObjCreated() then
@@ -188,27 +196,38 @@ do
 	end
 
 	def.method("boolean").SetStaLineIsShow = function (self,isShow)
-		if self._IsReleased then return end
+		if self._IsPooled then return end
 		self._IsShowSTA = isShow
 		if self:IsObjCreated() then
 			SyncSTAStyle(self, isShow)
 		end
 	end
 
-	local function SyncHP(self, num)
+	local function SyncHP(self, hp, guard)
 		if self._PateObj ~= nil then
-			if self._IsShowHP then
-				self._GB_HP:SetValue(num)
+			if self._IsShowHP and self._GB_HP then
+                if guard == nil then guard = 0 end
+                if hp == nil then hp = 0 end
+
+                local hp_rate, gd_rate = self:CalcHpGuard(hp, guard)
+                self._GB_HP:SetValue(hp_rate)
+                self._GB_HP:SetGuardValue(gd_rate)
 			end
 		end
 	end
 
-	def.override("number").OnHPChange = function (self, num)
-		if self._IsReleased then return end
+	def.override("number").OnHPChange = function (self, hp)
+		if self._IsPooled then return end
+        local guard = 0
+        if self._Owner ~= nil and self._Owner._InfoData ~= nil then
+            guard  = self._Owner._InfoData._CurShield / self._Owner._InfoData._MaxHp
+        end
+
 		if self:IsObjCreated() then
-			SyncHP(self, num)
+			SyncHP(self, hp, guard)
 		else
-			self._Data._HP = num
+			self._Data._HP = hp
+			self._Data._GuardP = guard
 		end
 	end
 
@@ -221,7 +240,7 @@ do
 	end
 
 	def.override("number").OnStaChange = function (self, num)
-		if self._IsReleased then return end
+		if self._IsPooled then return end
 		if self:IsObjCreated() then
 			SyncSTA(self, num)
 		else
@@ -244,8 +263,8 @@ do
 	end
 
 	def.override("number").OnLogoChange = function (self, curType)
-		self._Owner._CurLogoType = curType
-		if self._IsReleased then return end
+		self._Owner._CurLogoType = curType      --It's confusing Why do it here? It was not me who put it here.
+		if self._IsPooled then return end
 		if self:IsObjCreated() then
 			SyncLogo(self, curType)
 		end
@@ -268,11 +287,10 @@ do
 	end
 
 	def.override("boolean","string").OnTitleNameChange = function (self, isShow, name)
-	    if self._PateObj == nil then return end
 		if name == "" then
 			isShow=false
 		end
-		if self._IsReleased then return end
+		if self._IsPooled then return end
 		if self:IsObjCreated() then
 			SyncTitle(self, isShow,name)
 		else
@@ -312,7 +330,7 @@ do
 
 	--更改名称
 	def.override("boolean").UpdateName = function(self,isShow)
-		if self._IsReleased then return end
+		if self._IsPooled then return end
 		if self:IsObjCreated() then
 			SyncName(self, isShow)
 		else
@@ -322,10 +340,10 @@ do
 	
 	--设置名称，暂时只用于宠物???
 	def.override("string").SetName = function(self, name)
-		if self._IsReleased then return end
+		if self._IsPooled then return end
 		self._ODName = name
 		if self:IsObjCreated() then
-			if self._PateObj == nil then return end
+			--if self._PateObj == nil then return end
 			if self._Txt_Name ~= nil then
 				self._Txt_Name.text = name
 			end
@@ -364,9 +382,9 @@ do
 
 
 	def.method("number","number").CombatTipChange = function (self,actionType,time)
-		if self._IsReleased then return end
+		if self._IsPooled then return end
 		if self:IsObjCreated() then
-			if self._PateObj == nil then return end
+			--if self._PateObj == nil then return end
 			if actionType ~= EnumDef.EntityFightType.None and not self._Owner:IsDead() then
 				GUITools.SetUIActive(self._Go_ActionTip, true)
 				GUITools.SetGroupImg(self._Go_ActionTip,self:GetFristTipType(actionType-1))
@@ -385,7 +403,7 @@ do
 	end
 
 	def.method().ActionTipHideTest = function (self)
-		if self._IsReleased then return end
+		if self._IsPooled then return end
 		if self:IsObjCreated() then
     		if self._NextTipType ~= -1 then
     			GUITools.SetUIActive(self._Go_ActionTip, true)
@@ -399,52 +417,16 @@ do
 		end
 	end
 
---	def.override("boolean","string","number").TextPop = function (self,isShow,text,time)
---		if self._PateObj == nil then return end
-
---    	--GUITools.SetUIActive(self._Go_QuestTalk, isShow)
---		if isShow then
---			_G.RemoveGlobalTimer(self._TextPopTimerId)
-
---    		GUITools.SetUIActive(self._Frame_ActionTip, false)
---			if time == 0 then
---				time = 3
---			end
-
---			GUI.SetText(self._Go_Talk,text)
-
---			local ctext = self._Go_Talk:GetComponent(ClassType.Text)
---			local line = ctext.preferredHeight / 21
---			local width = 0
---			if line > 1 then
---				width = GUITools.GetUiSize(self._Go_Talk).Width
---			else
---				width = ctext.preferredWidth
---			end
---			GUITools.UIResize(self._Go_QuestTalk, width+20, ctext.preferredHeight+35)
-
---			self._Go_QuestTalk:SetActive(true)
---			GUITools.SetUIActive(self._Go_QuestTalk, true)
-
---	        self._TextPopTimerId = _G.AddGlobalTimer(time, true, function()
---	        	GUITools.SetUIActive(self._Go_QuestTalk, false)
---	        	GUITools.SetUIActive(self._Frame_ActionTip, true)
---		    end)
---		else
---        	GUITools.SetUIActive(self._Go_QuestTalk, false)
---        	GUITools.SetUIActive(self._Frame_ActionTip, true)
---		end
---	end
-
 	def.override().SyncDataToUI = function (self)
-		if not self._IsReleased and self:IsObjCreated() then
+		if not self._IsPooled and self:IsObjCreated() then
 			if self._Data._HPType ~= nil then
 				SyncHPStyle(self, self._IsShowHP, self._Data._HPType)
 				self._Data._HPType = nil
 			end
 			if self._Data._HP ~= nil then
-				SyncHP(self, self._Data._HP)
+				SyncHP(self, self._Data._HP, self._Data._GuardP)
 				self._Data._HP = nil
+                self._Data._GuardP = nil
 			end
 			SyncSTAStyle(self, self._IsShowSTA)
 

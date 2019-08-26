@@ -48,6 +48,7 @@
 	-- { 
 	--     --高亮按钮名称
 	-- 	ShowHighLightButtonName = "Btn_SkillNormalAttack",
+	--  ShowHighLightButtonDynamicName = 1,
 	       --路径
 	--	ShowHighLightButtonPath = ShowHighLightButtonPath = "Panel_Main_MiniMap(Clone)/",
 	-- 	--后弹出的界面一点要配置
@@ -131,7 +132,7 @@ local GuideCfg =
 				[1] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -150,7 +151,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--点击商城图标引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_1_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn1",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -173,7 +176,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_1_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -196,84 +201,19 @@ local GuideCfg =
 		--声望任务引导
 		{ 
 			Id = 2,
-			TriggerBehaviour = 2,
-			TriggerParam = 12,
-			--LimitFinishQuestID = 12,
+			TriggerBehaviour = 23,
+			TriggerParam = 6,
+			LimitFinishQuestID = 12,
 
 			--步骤
 			Steps = 
 			{
 				[1] = 
 				{
-					--指引对话--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "",
-					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
-					--是否强制
-					IsClickLimit = true,
-					--是否黑屏
-					IsShowBlackBG = true,
-					MinShowTime = 2.4,
-	    			--触发标准--------------------------------
-	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = -1,
-	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = -1,
-					IsSkip = 1,  -- 1右上  2右下
-				},
-				[2] = 
-				{
-					--点击菜单引导--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "Btn_Open",
-					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
-					RegisterUI = "",
-					RegisterUIPath = "",
-					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "CPanelSystemEntrance",
-					--是否强制
-					IsClickLimit = true,
-					--是否黑屏
-					IsShowBlackBG = true,
-
-	    			--触发标准--------------------------------
-	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 6,
-	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = -1,
-	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "",
-					IsSkip = 2,  -- 1右上  2右下
-				},
-				[3] = 
-				{
-					--打开生涯界面引导--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "Btn_F2",
-					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Panel/FrameFloat/",
-					RegisterUI = "",
-					RegisterUIPath = "",
-					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "CPanelSystemEntrance",
-					--是否强制
-					IsClickLimit = true,
-					--是否黑屏
-					IsShowBlackBG = true,
-
-	    			--触发标准--------------------------------
-	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 6,
-	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = -1,
-	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "",
-					IsSkip = 1,  -- 1右上  2右下
-				},
-				[4] = 
-				{
 					--打开任务界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_2_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Rdo_4",
 					ShowHighLightButtonPath = "UI_QuestList(Clone)/Frame_TopTabs/",
 					RegisterUI = "",
@@ -285,7 +225,7 @@ local GuideCfg =
 					--是否黑屏
 					IsShowBlackBG = true,
 					--是否自适应触发延迟
-					IsAutoEffectDelay = true,
+					----IsAutoEffectDelay = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 6,
@@ -295,10 +235,12 @@ local GuideCfg =
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				[5] = 
+				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_2_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -315,10 +257,12 @@ local GuideCfg =
 	    			NextStepTriggerParam = -1,
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				[6] = 
+				[3] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_2_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -335,10 +279,12 @@ local GuideCfg =
 	    			NextStepTriggerParam = -1,
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				[7] = 
+				[4] = 
 				{
 					--打开任务界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_2_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_GoReputationNpc",
 					ShowHighLightButtonPath = "UI_QuestList(Clone)/Frame_Center/Frame_ElementReputation/Img_BG/",
 					RegisterUI = "",
@@ -359,10 +305,12 @@ local GuideCfg =
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				[8] = 
+				[5] = 
 				{
 					--打开任务界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_2_8",
+					--高亮按钮名称
 					ShowHighLightButtonName = "item-0",
 					ShowHighLightButtonPath = "UI_Map(Clone)/Frame_Map/Frame_L/Frame_List/Mask2D/Viewport/NodeItem1/",
 					RegisterUI = "NodeItem1",
@@ -383,10 +331,12 @@ local GuideCfg =
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				[9] = 
+				[6] = 
 				{
 					--打开任务界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_2_9",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Yes",
 					ShowHighLightButtonPath = "UI_ReputationIntroduction(Clone)/Img_MsgBG/",
 					RegisterUI = "",
@@ -423,10 +373,12 @@ local GuideCfg =
 				[1] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_3_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIGuildList",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -456,10 +408,12 @@ local GuideCfg =
 				[1] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_4_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIGuild",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -476,7 +430,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_4_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -496,7 +452,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--打开公会界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_4_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Tab_Guild_Member",
 					ShowHighLightButtonPath = "UI_Guild(Clone)/TabGroup/",
 					RegisterUI = "",
@@ -520,7 +478,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_4_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -540,7 +500,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--打开公会界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_4_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Tab_Guild_Bonus",
 					ShowHighLightButtonPath = "UI_Guild(Clone)/TabGroup/",
 					RegisterUI = "",
@@ -564,7 +526,9 @@ local GuideCfg =
 				[6] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_4_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -584,7 +548,9 @@ local GuideCfg =
 				[7] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_4_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -604,7 +570,9 @@ local GuideCfg =
 				[8] = 
 				{
 					--打开公会界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_4_8",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Tab_Guild_Building",
 					ShowHighLightButtonPath = "UI_Guild(Clone)/TabGroup/",
 					RegisterUI = "",
@@ -628,7 +596,9 @@ local GuideCfg =
 				[9] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_4_9",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -648,7 +618,9 @@ local GuideCfg =
 				[10] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_4_10",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -674,12 +646,15 @@ local GuideCfg =
 			TriggerBehaviour = 13,
 			TriggerParam = 0.80,
 			TriggerParamSymbol = false,
+			OpenPagePath = "Panel_Main_SkillNew(Clone)/Frame_Skill/",
 			--步骤
 			Steps = 
 			{
 				[1] = 
 				{
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_5_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Item",
 					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/",
 					RegisterUI = "",
@@ -842,7 +817,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--点击福利引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_1_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn1",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -865,7 +842,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--打开荣耀之路引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_7_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "item-1",
 					ShowHighLightButtonPath = "UI_Welfare(Clone)/Frame_Center/Frame_Content/Frame_L/Frame_WelfareList/List_Type/List_MenuType/",
 					--列表相关
@@ -891,7 +870,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_7_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -911,7 +892,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_7_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -944,10 +927,12 @@ local GuideCfg =
 				[1] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_8_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIGuildSkill",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -965,7 +950,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_8_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -998,10 +985,12 @@ local GuideCfg =
 				[1] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_9_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIGuildDungeon",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -1018,7 +1007,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_9_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -1038,7 +1029,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_9_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -1058,7 +1051,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_9_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -1112,7 +1107,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--点击菜单引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_2_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Open",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -1136,8 +1133,10 @@ local GuideCfg =
 				[3] = 
 				{
 					--打开生涯界面引导--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "Btn_F10",
+				    --配音
+					Audio="guide_10_3",
+					--高亮按钮名称
+					ShowHighLightButtonName = "Btn_F13",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Panel/FrameFloat/",
 					RegisterUI = "",
 					RegisterUIPath = "",
@@ -1160,7 +1159,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--打开万物志界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_10_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Rdo_2",
 					ShowHighLightButtonPath = "UI_Manual(Clone)/Frame_Center/Frame_TopTabs/",
 					RegisterUI = "",
@@ -1172,7 +1173,7 @@ local GuideCfg =
 					--是否黑屏
 					IsShowBlackBG = true,
 					--是否自适应触发延迟
-					IsAutoEffectDelay = true,
+					----IsAutoEffectDelay = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 6,
@@ -1186,7 +1187,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_10_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -1206,6 +1209,8 @@ local GuideCfg =
 				[6] = 
 				{
 					--选择知识分类-----------------------------
+					--配音
+					Audio="guide_10_6",
 					ShowHighLightButtonName = "item-2",
 					ShowHighLightButtonPath = "UI_Manual(Clone)/Frame_Center/FrameGroup/Frame_2/Frame_L/List_Manual/Viewport/Content/",
 
@@ -1230,7 +1235,9 @@ local GuideCfg =
 				[7] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_10_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -1251,7 +1258,9 @@ local GuideCfg =
 				[8] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_10_8",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -1271,7 +1280,9 @@ local GuideCfg =
 				[9] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_10_9",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -1301,6 +1312,8 @@ local GuideCfg =
 			{
 				[1] = 
 				{
+					--配音
+					Audio="guide_11_1",
 					--技能UE引导--------------------------------
 				    --高亮按钮名称
 					ShowHighLightButtonName = "Chk_Eye",
@@ -1359,7 +1372,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--点击菜单引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_2_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Open",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -1383,7 +1398,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--打开技能界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_12_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_F3",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Panel/FrameFloat/",
 					RegisterUI = "",
@@ -1407,7 +1424,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--选择天赋页签引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_12_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Tab_Soul",
 					ShowHighLightButtonPath = "UI_Skill(Clone)/Frame_TopTabs/",
 					RegisterUI = "",
@@ -1418,7 +1437,7 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-					IsAutoEffectDelay = true,
+					----IsAutoEffectDelay = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 6,
@@ -1432,7 +1451,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_12_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -1452,7 +1473,9 @@ local GuideCfg =
 				[6] = 
 				{
 					--选择升级技能按钮--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_12_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Icon1",
 					ShowHighLightButtonPath = "UI_Skill(Clone)/Frame_All/Frame_Center/Frame_Soul_C/Frame_Gift/Frame_Gift1/",
 					RegisterUI = "",
@@ -1476,7 +1499,9 @@ local GuideCfg =
 				[7] = 
 				{
 					--点击天赋升级引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_12_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_PointUp",
 					ShowHighLightButtonPath = "UI_Skill(Clone)/Frame_All/Frame_R/Frame_SoulInfo/Frame_Adjust/",
 					RegisterUI = "",
@@ -1500,7 +1525,9 @@ local GuideCfg =
 				[8] = 
 				{
 					--点击天赋保存引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_12_8",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Save",
 					ShowHighLightButtonPath = "UI_Skill(Clone)/Frame_All/Frame_R/Frame_SoulInfo/",
 					RegisterUI = "",
@@ -1525,7 +1552,9 @@ local GuideCfg =
 				[9] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_12_9",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -1546,7 +1575,9 @@ local GuideCfg =
 				[10] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_12_10",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -1567,7 +1598,9 @@ local GuideCfg =
 				[11] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_12_11",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -1654,7 +1687,9 @@ local GuideCfg =
 				[1] = 
 				{
 					--背包按钮引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_14_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Bag",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -1678,7 +1713,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--打开分解引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_14_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Decompose",
 					ShowHighLightButtonPath = "UI_RoleInfoNew(Clone)/Frame_All/Frame_Center/Frame_AllInfo/Page_Bag/Frame_BagBottom/",
 					RegisterUI = "",
@@ -1703,7 +1740,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_14_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -1724,7 +1763,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_14_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -1745,7 +1786,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_14_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -1766,7 +1809,9 @@ local GuideCfg =
 				[6] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_14_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Filter",
 					ShowHighLightButtonPath = "UI_RoleInfoNew(Clone)/Frame_All/Frame_Center/Frame_AllInfo/Page_Bag/Frame_DecomposeBottom/",
 					RegisterUI = "",
@@ -1790,7 +1835,9 @@ local GuideCfg =
 				[7] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_14_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -2058,10 +2105,12 @@ local GuideCfg =
 				[1] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_18_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIGuildPray",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -2078,7 +2127,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_18_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -2098,7 +2149,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--打开公会界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_18_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Help",
 					ShowHighLightButtonPath = "UI_Guild_Pray(Clone)/Frame_Center/Frame_Right/Img_BG/Frame_Icon/",
 					RegisterUI = "",
@@ -2117,12 +2170,14 @@ local GuideCfg =
 	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
 	    			AutoShowElement = "",
-					IsSkip = 1,  -- 1右上  2右下
+					IsSkip = 2,  -- 1右上  2右下
 				},
 				[4] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_18_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -2203,7 +2258,7 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-					IsAutoEffectDelay = true,
+					--IsAutoEffectDelay = true,
 		    		--是否是记录点
 					--IsSave = true,
 	    			--触发标准--------------------------------
@@ -2474,14 +2529,16 @@ local GuideCfg =
 		{
 			Id = 21,
 			TriggerBehaviour = 2,
-			TriggerParam = 32030,
+			TriggerParam = 1001,
 			--步骤
 			Steps = 
 			{
 				[1] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_21_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -2500,7 +2557,9 @@ local GuideCfg =
 				},
 				[2] = 
 				{
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_21_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Mask_Map",
 					ShowHighLightButtonPath = "Panel_Main_MiniMap(Clone)/Frame_Main/Img_MapBG/Frame_MiniMap/",
 					RegisterUI = "",
@@ -2526,27 +2585,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "",
-					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
-					--是否强制
-					IsClickLimit = true,
-					--是否黑屏
-					IsShowBlackBG = true,
-					--是否高亮
-					IsHighLight = true,
-	    			--触发标准--------------------------------
-	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 9,
-	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = -1,
-					IsSkip = 1,  -- 1右上  2右下
-				},
-				[4] = 
-				{
-					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_21_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_EyeRegionCount",
 					ShowHighLightButtonPath = "UI_Map(Clone)/Frame_Map/Frame_Tip/",
 					RegisterUI = "",
@@ -2557,7 +2598,7 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-					--IsAutoEffectDelay = true,
+					----IsAutoEffectDelay = true,
 					--是否界面有动画延迟
 					--IsAnimationDelay = true,
 	    			--触发标准--------------------------------
@@ -2570,10 +2611,12 @@ local GuideCfg =
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				[5] = 
+				[4] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_21_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -2590,10 +2633,12 @@ local GuideCfg =
 	    			NextStepTriggerParam = -1,
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				[6] = 
+				[5] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_21_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Close",
 					ShowHighLightButtonPath = "UI_EyeRegionIntroduction(Clone)/Img_BG/",
 					RegisterUI = "",
@@ -2616,10 +2661,12 @@ local GuideCfg =
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				[7] = 
+				[6] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_21_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_EyeEntrance414",
 					ShowHighLightButtonPath = "UI_Map(Clone)/Frame_Map/Img_Map/Icon/",
 					RegisterUI = "",
@@ -2663,13 +2710,15 @@ local GuideCfg =
 				[1] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_22_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 					RegisterUI = "",
 					RegisterUIPath = "",
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelMirrorArena",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -2687,7 +2736,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--竞技商店按钮引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_22_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Shop",
 					ShowHighLightButtonPath = "UI_MirrorArena(Clone)/Frame_All/Frame_Center/Frame_Bottom/",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
@@ -2720,11 +2771,14 @@ local GuideCfg =
 			TriggerParam = 0.9,
 			TriggerParamSymbol = true,
 			IsCloseAll = false,
+			IsNotJumpGuide = true,
 			--步骤
 			Steps = 
 			{
 				[1] = 
 				{
+					--配音
+					Audio="guide_23_1",
 					--竞技商店按钮引导--------------------------------
 				    --高亮按钮名称
 					ShowHighLightButtonName = "Btn_Bag",
@@ -2760,13 +2814,15 @@ local GuideCfg =
 				[1] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_24_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
 					RegisterUIPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelFriendFight",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -2783,7 +2839,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_24_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -2806,7 +2864,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_24_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -2840,13 +2900,15 @@ local GuideCfg =
 				[1] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_25_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
 					RegisterUIPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelStrong",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -2863,13 +2925,15 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_25_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
 					RegisterUIPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelStrong",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -2886,13 +2950,15 @@ local GuideCfg =
 				[3] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_25_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
 					RegisterUIPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelStrong",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -2956,10 +3022,12 @@ local GuideCfg =
 				[1] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_27_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIAutoKill",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -2976,7 +3044,7 @@ local GuideCfg =
 			}
 		},
 		[28] = 
-		--教学第27步 风暴试炼提示
+		--教学第28步 风暴试炼提示
 		{ 
 			Id = 28,
 			TriggerBehaviour = 23,--7,
@@ -2990,10 +3058,12 @@ local GuideCfg =
 				[1] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_28_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIDungeon",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -3010,10 +3080,12 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_28_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIDungeon",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -3044,10 +3116,12 @@ local GuideCfg =
 				[1] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_29_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIGuildSmithy",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -3064,7 +3138,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--点击装备图标引导--------------------------------
-				    --高亮按钮名
+				    --配音
+					Audio="guide_29_2",
+					--高亮按钮名
 					ShowHighLightButtonName = "item-0",
 					ShowHighLightButtonPath = "UI_Guild_Smithy(Clone)/Frame_Content/Frame_Right/View_Right/Viewport/List_Right/",
 					RegisterUI = "List_Right",
@@ -3089,10 +3165,12 @@ local GuideCfg =
 				[3] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_29_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIGuildSmithy",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -3157,7 +3235,9 @@ local GuideCfg =
 				[1] = 
 				{
 					--点击重铸页签--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_31_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Rdo_Recast",
 					ShowHighLightButtonPath = "UI_EquipProcess(Clone)/Frame_TopTabs/",
 					RegisterUI = "",
@@ -3169,7 +3249,7 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-					IsAutoEffectDelay = true,
+					--IsAutoEffectDelay = true,
 					--MinShowTime = 1,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
@@ -3183,10 +3263,12 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_31_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIEquipProcess",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -3295,7 +3377,9 @@ local GuideCfg =
 			{
 				[1] = 
 				{
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_34_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Img_SkillIcon",
 					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional4/Img_Bg/",
 					RegisterUI = "Btn_SkillConventional4",
@@ -3318,7 +3402,9 @@ local GuideCfg =
 				},
 				[2] = 
 				{
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_34_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Img_SkillIcon",
 					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional3/Img_Bg/",
 					RegisterUI = "Btn_SkillConventional3",
@@ -3355,7 +3441,9 @@ local GuideCfg =
 			{
 				[1] = 
 				{
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_34_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Img_SkillIcon",
 					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional4/Img_Bg/",
 					RegisterUI = "Btn_SkillConventional4",
@@ -3378,7 +3466,9 @@ local GuideCfg =
 				},
 				[2] = 
 				{
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_34_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Img_SkillIcon",
 					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional3/Img_Bg/",
 					RegisterUI = "Btn_SkillConventional3",
@@ -3415,7 +3505,9 @@ local GuideCfg =
 			{
 				[1] = 
 				{
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_36_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Img_SkillIcon",
 					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional2/Img_Bg/",
 					RegisterUI = "Btn_SkillConventional2",
@@ -3438,7 +3530,9 @@ local GuideCfg =
 				},
 				[2] = 
 				{
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_34_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Img_SkillIcon",
 					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional2/Img_Bg/",
 					RegisterUI = "Btn_SkillConventional2",
@@ -3475,7 +3569,9 @@ local GuideCfg =
 			{
 				[1] = 
 				{
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_36_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Img_SkillIcon",
 					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional1/Img_Bg/",
 					RegisterUI = "Btn_SkillConventional1",
@@ -3498,7 +3594,9 @@ local GuideCfg =
 				},
 				[2] = 
 				{
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_34_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Img_SkillIcon",
 					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional1/Img_Bg/",
 					RegisterUI = "Btn_SkillConventional1",
@@ -3535,7 +3633,9 @@ local GuideCfg =
 			{
 				[1] = 
 				{
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_34_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Img_SkillIcon",
 					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional4/Img_Bg/",
 					RegisterUI = "Btn_SkillConventional4",
@@ -3558,7 +3658,9 @@ local GuideCfg =
 				},
 				[2] = 
 				{
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_34_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Img_SkillIcon",
 					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillConventional2/Img_Bg/",
 					RegisterUI = "Btn_SkillConventional2",
@@ -3595,6 +3697,8 @@ local GuideCfg =
 			{
 				[1] = 
 				{
+					--配音
+					Audio="guide_39_1",
 					--快捷使用引导--------------------------------
 				    --高亮按钮名称
 					ShowHighLightButtonName = "Btn_Use",
@@ -3624,16 +3728,18 @@ local GuideCfg =
 		--教学第1步 移动引导
 		{ 
 			Id = 101,
-			TriggerBehaviour = 18,
-			TriggerParam = 1,
+			TriggerBehaviour = 10,--18,
+			TriggerParam = 2,--1,
 			LimitMapID = 1208,
 			--步骤
 			Steps = 
 			{
 				[1] = 
 				{
+					--配音
+					Audio="guide_101_1",
 					--场景位置引导--------------------------------
-				    --高亮按钮名称
+					--高亮按钮名称
 					ShowHighLightButtonName = "Joystick",
 					ShowHighLightButtonPath = "Panel_Main_Move(Clone)/Panel_Main_Move/",
 					RegisterUI = "",
@@ -3666,8 +3772,10 @@ local GuideCfg =
 			{
 				[1] = 
 				{
+					--配音
+					Audio="guide_102_1",
 					--普攻UE引导--------------------------------
-				    --高亮按钮名称
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_SkillNormalAttack",
 					ShowHighLightButtonPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
@@ -3704,8 +3812,10 @@ local GuideCfg =
 			{
 				[1] = 
 				{
+					--配音
+					Audio="guide_103_1",
 					--技能UE引导--------------------------------
-				    --高亮按钮名称
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_SkillConventional1",
 					ShowHighLightButtonPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
@@ -3743,8 +3853,10 @@ local GuideCfg =
 			{
 				[1] = 
 				{
+					--配音
+					Audio="guide_104_1",
 					--任务UE引导--------------------------------
-				    --高亮按钮名称
+					--高亮按钮名称
 					ShowHighLightButtonName = "Item",
 					ShowHighLightButtonPath = "Panel_Main_QuestN(Clone)/Frame_Main/Frame_Lists/List_Dungeon/",
 					RegisterUI = "",
@@ -3782,8 +3894,10 @@ local GuideCfg =
 			{
 				[1] = 
 				{
+					--配音
+					Audio="guide_105_1",
 					--闪避UE引导--------------------------------
-				    --高亮按钮名称
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_JumpSkill",
 					ShowHighLightButtonPath = "UI_BeginnerDungeonBoss(Clone)/Frame_JumpGuide/GUIPanel/",
 					RegisterUI = "",
@@ -3900,7 +4014,9 @@ local GuideCfg =
 				[1] = 
 				{
 					--闪避UE引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_105_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Jump",
 					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/",
 					RegisterUI = "",
@@ -3939,7 +4055,9 @@ local GuideCfg =
 			{
 				[1] = 
 				{
-								    --高亮按钮名称
+					--配音
+					Audio="guide_109_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Img_Pozhan",
 					ShowHighLightButtonPath = "UI_Head(Clone)/Frame_HeadGroup/Frame_MonsterHead/Frame_EliteHead/Img_HeadBG/",
 					RegisterUI = "",
@@ -3977,7 +4095,9 @@ local GuideCfg =
 			{
 				[1] = 
 				{
-								    --高亮按钮名称
+					--配音
+					Audio="guide_110_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Img_SkillIcon",
 					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/Frame_Skill/Btn_SkillUnique/Img_Bg/",
 					RegisterUI = "Btn_SkillUnique",
@@ -4006,13 +4126,15 @@ local GuideCfg =
 		--点击任务导航
 		{
 			Id = 111,
-			TriggerBehaviour = 7,
-			TriggerParam = 390,
+			TriggerBehaviour = 10,--7,
+			TriggerParam = 32,--390,
 			--步骤
 			Steps = 
 			{
 				[1] = 
 				{
+					--配音
+					Audio="guide_104_1",
 					--任务UE引导--------------------------------
 				    --高亮按钮名称
 					ShowHighLightButtonName = "item-0",
@@ -4053,7 +4175,9 @@ local GuideCfg =
 				[1] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_112_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
@@ -4064,7 +4188,6 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 9,
@@ -4075,7 +4198,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--背包按钮引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_14_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Bag",
 					ShowHighLightButtonPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
@@ -4086,7 +4211,6 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 6,
@@ -4099,7 +4223,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--背包物品选中--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_112_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "item-0",
 					ShowHighLightButtonPath = "UI_RoleInfoNew(Clone)/Frame_All/Frame_Center/Frame_AllInfo/Page_Bag/Frame_BagItemList/View_Item1/RectMask/List_Item1/",
 					RegisterUI = "List_Item1",
@@ -4124,7 +4250,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--装备穿戴--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_112_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Item",
 					ShowHighLightButtonPath = "UI_EquipHint(Clone)/Scroll/Lay_Button/List_Buttons/item-0/",
 					RegisterUI = "List_Buttons",
@@ -4150,7 +4278,9 @@ local GuideCfg =
 			    [5] = 
 				{
 					--返回主界面--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_112_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Back",
 					ShowHighLightButtonPath = "UI_RoleInfoNew(Clone)/Frame_All/Frame_Title_2/",
 					RegisterUI = "",
@@ -4177,13 +4307,15 @@ local GuideCfg =
 		--追踪引导
 		{
 			Id = 113,
-			TriggerBehaviour = 12,
-			TriggerParam = 225,
+			TriggerBehaviour = 27,
+			TriggerParam = 64,
 			--步骤
 			Steps = 
 			{
 				[1] = 
 				{
+					--配音
+					Audio="guide_104_1",
 					--任务UE引导--------------------------------
 				    --高亮按钮名称
 					ShowHighLightButtonName = "item-0",
@@ -4208,7 +4340,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam2 = 225,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			--AutoShowElement = "Content/item-0",
+	    			AutoShowElement = "",
 				}
 			}
 		},
@@ -4246,7 +4378,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_114_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -4268,7 +4402,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--点击展开菜单引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_2_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Open",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -4292,7 +4428,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--打开技能界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_12_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_F3",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Panel/FrameFloat/",
 					RegisterUI = "",
@@ -4316,7 +4454,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--选择技能引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_114_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Rdo_Skill2",
 					ShowHighLightButtonPath = "UI_Skill(Clone)/Frame_All/Frame_Center/Frame_Skill/SkillGroup/",
 					RegisterUI = "",
@@ -4340,7 +4480,9 @@ local GuideCfg =
 				[6] = 
 				{
 					--升级技能引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_114_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_UpgradeSkill",
 					ShowHighLightButtonPath = "UI_Skill(Clone)/Frame_All/Frame_R/Frame_SkillInfo/",
 					RegisterUI = "",
@@ -4374,6 +4516,8 @@ local GuideCfg =
 			{
 				[1] = 
 				{
+					--配音
+					Audio="guide_115_1",
 					--高亮按钮名称
 					ShowHighLightButtonName = "Tog_AutoFight",
 					ShowHighLightButtonPath = "Panel_Main_SkillNew(Clone)/",
@@ -4436,7 +4580,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_116_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -4458,7 +4604,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--系统功能菜单引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_2_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Open",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -4481,7 +4629,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--坐骑UE引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_116_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_F4",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Panel/FrameFloat/",
 					RegisterUI = "",
@@ -4504,7 +4654,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--坐骑UE引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_116_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "item-0",
 					ShowHighLightButtonPath = "UI_Exterior(Clone)/Frame_TweenMan/Frame_Center/Frame_1/Frame_Left_Ride/View_Ride/ViewPort/List_Ride/",
 					RegisterUI = "List_Ride",
@@ -4530,7 +4682,9 @@ local GuideCfg =
 				[6] = 
 				{
 					--坐骑UE引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_116_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Launch",
 					ShowHighLightButtonPath = "UI_Exterior(Clone)/Frame_TweenMan/Frame_Center/Frame_1/Frame_Right_Ride/",
 					RegisterUI = "",
@@ -4557,7 +4711,9 @@ local GuideCfg =
 				[7] = 
 				{
 					--坐骑UE引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_21_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Back",
 					ShowHighLightButtonPath = "UI_Exterior(Clone)/Frame_TweenMan/Frame_Title_1/",
 					RegisterUI = "",
@@ -4582,7 +4738,9 @@ local GuideCfg =
 				[8] = 
 				{
 					--坐骑UE引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_116_8",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Img_Pole",
 					ShowHighLightButtonPath = "Panel_Main_Move(Clone)/Panel_Main_Move/Joystick/Img_BG/",
 					RegisterUI = "Btn_Ride",
@@ -4647,7 +4805,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_117_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -4669,7 +4829,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--点击展开菜单引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_2_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Open",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -4693,7 +4855,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--打开技能界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_12_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_F3",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Panel/FrameFloat/",
 					RegisterUI = "",
@@ -4704,7 +4868,7 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-					IsAutoEffectDelay = true,
+					--IsAutoEffectDelay = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 6,
@@ -4717,7 +4881,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--选择专精页签引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_117_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Tab_Prof",
 					ShowHighLightButtonPath = "UI_Skill(Clone)/Frame_TopTabs/",
 					RegisterUI = "",
@@ -4728,7 +4894,7 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-					IsAutoEffectDelay = true,
+					--IsAutoEffectDelay = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 6,
@@ -4741,7 +4907,9 @@ local GuideCfg =
 				[6] = 
 				{
 					--选择专精引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_117_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "SkillProf_1",
 					ShowHighLightButtonPath = "UI_Skill(Clone)/Frame_All/Frame_Center/Frame_Prof/",
 					RegisterUI = "",
@@ -4765,7 +4933,9 @@ local GuideCfg =
 				[7] = 
 				{
 					--升级引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_117_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_UpgradeProf",
 					ShowHighLightButtonPath = "UI_Skill(Clone)/Frame_All/Frame_R/Frame_ProfInfo/",
 					RegisterUI = "",
@@ -4823,7 +4993,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_118_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -4845,7 +5017,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--冒险日历引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_118_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn3",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -4870,7 +5044,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--参加遗迹引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_118_4",
+					--高亮按钮名称
 	    			ShowHighLightButtonName = "item-0",
 					ShowHighLightButtonPath = "UI_Calendar(Clone)/Frame_Center/Frame_TimesActivity/Img_TimesActivityBG/List_Activity/List_TimesActivityMenu/",
 
@@ -4897,7 +5073,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--参加遗迹按钮引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_118_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Jion",
 					ShowHighLightButtonPath = "UI_Calendar(Clone)/Frame_Center/Frame_ActivityRightDesc/Lay_Right/",
 					RegisterUI = "",
@@ -4924,7 +5102,9 @@ local GuideCfg =
 				},
 				[6] = 
 				{
-	    			ShowHighLightButtonName = "item-0",
+	    			--配音
+					Audio="guide_118_6",
+					ShowHighLightButtonName = "item-0",
 					ShowHighLightButtonPath = "UI_Dungeon(Clone)/Frame_Content/Frame_Center/Frame_DungeonList/View_Dungeon/ViewPort/List_Dungeon/",
 
 					--列表相关
@@ -4950,7 +5130,9 @@ local GuideCfg =
 				[7] = 
 				{
 					--进入遗迹按钮引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_118_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Enter",
 					ShowHighLightButtonPath = "UI_Dungeon(Clone)/Frame_Content/Frame_Center/Frame_Right/",
 					RegisterUI = "",
@@ -4981,6 +5163,7 @@ local GuideCfg =
 			TriggerParam = 130,
 			--是否是记录点
 			IsSave = true,
+			fristSortItemIDs = {1002010,3002010,2002010,4002010,5002010},
 			--IsTriggerDelay = true,
 			--步骤
 			Steps = 
@@ -5012,7 +5195,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_119_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -5034,33 +5219,10 @@ local GuideCfg =
 				},
 				[3] = 
 				{
-					--快捷使用引导--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "Btn_Use",
-					ShowHighLightButtonPath = "UI_QuickUse(Clone)/Frame_Tween/Frame_QuickUse/",
-					RegisterUI = "",
-					RegisterUIPath = "",
-					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "CPanelUIQuickUse",
-					--是否强制
-					IsClickLimit = true,
-					--是否黑屏
-					IsShowBlackBG = true,
-		    		--是否是记录点
-					IsSave = true,
-	    			--触发标准--------------------------------
-	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 6,
-	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = -1,
-	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "",
-					IsSkip = 1,  -- 1右上  2右下
-				},	
-				[4] = 
-				{
 					--系统功能菜单引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_119_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Open",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -5080,10 +5242,12 @@ local GuideCfg =
 	    			AutoShowElement = "",
 					IsSkip = 2,  -- 1右上  2右下
 				},	
-				[5] = 
+				[4] = 
 				{
 					--点击加工图标引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_119_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_F5",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Panel/FrameFloat/",
 					RegisterUI = "",
@@ -5103,10 +5267,12 @@ local GuideCfg =
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				[6] = 
+				[5] = 
 				{
 					--点击装备图标引导--------------------------------
-				    --高亮按钮名
+				    --配音
+					Audio="guide_119_6",
+					--高亮按钮名
 					ShowHighLightButtonName = "item-0",
 					ShowHighLightButtonPath = "UI_EquipProcess(Clone)/Frame_Center/Frame_R/Frame_Package /View_Package/RectMask/List_Item/",
 					RegisterUI = "List_Item",
@@ -5128,10 +5294,12 @@ local GuideCfg =
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				[7] = 
+				[6] = 
 				{
 					--点击材料图标引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_119_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "item-0",
 					ShowHighLightButtonPath = "UI_EquipProcess(Clone)/Frame_Center/Frame_R/Frame_Package /View_Package/RectMask/List_Item/",
 					RegisterUI = "List_Item",
@@ -5152,10 +5320,12 @@ local GuideCfg =
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				[8] = 
+				[7] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_119_8",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -5175,10 +5345,12 @@ local GuideCfg =
 	    			NextStepTriggerParam = -1,
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				[9] = 
+				[8] = 
 				{
 					--点击强化按钮引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_119_9",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Fortify",
 					ShowHighLightButtonPath = "UI_EquipProcess(Clone)/Frame_Center_Ignore_IPX/Frame_Fortify/Frame_B/",
 					RegisterUI = "",
@@ -5237,7 +5409,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_120_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -5259,7 +5433,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--系统功能菜单引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_2_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Open",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -5282,7 +5458,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--点击外观引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_120_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_F6",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Panel/FrameFloat/",
 					RegisterUI = "",
@@ -5305,7 +5483,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_120_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -5329,7 +5509,9 @@ local GuideCfg =
 				[6] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_120_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -5352,7 +5534,9 @@ local GuideCfg =
 				[7] = 
 				{
 					--点击加成引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_120_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Attribute",
 					ShowHighLightButtonPath = "UI_Wing(Clone)/Frame_Develop/Frame_MidR_Develop/",
 					RegisterUI = "",
@@ -5375,7 +5559,9 @@ local GuideCfg =
 				[8] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_120_8",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -5432,7 +5618,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_121_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -5452,9 +5640,11 @@ local GuideCfg =
 				},
 				[3] = 
 				{
-					--点击商城图标引导--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "Btn4",
+					--点击系统菜单--------------------------------
+				    --配音
+					Audio="guide_2_2",
+					--高亮按钮名称
+					ShowHighLightButtonName = "Btn_Open",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
 					RegisterUIPath = "",
@@ -5464,7 +5654,6 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 6,
 	    			--触发行为参数(无参数默认为-1)
@@ -5476,23 +5665,26 @@ local GuideCfg =
 				[4] =
 				{
 					--选择召唤页签引导--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "item-3",
-					ShowHighLightButtonPath = "UI_Mall(Clone)/Frame_TopMenu/Src_MenuList/Viewport/List_BigMenu/",
-					RegisterUI = "List_BigMenu",
-					RegisterUIPath = "UI_Mall(Clone)/Frame_TopMenu/Src_MenuList/Viewport/",
+				    --配音
+					Audio="guide_121_4",
+					--高亮按钮名称
+					--高亮按钮名称
+					ShowHighLightButtonName = "Btn_F10",
+					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Panel/FrameFloat/",
+					RegisterUI = "",
+					RegisterUIPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "CPanelMall",
+	    			ShowUIPanelName = "CPanelSystemEntrance",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-					IsAnimationDelay = true,
+
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 8,
+	    			NextStepTriggerBehaviour = 6,
 	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = 3,
+	    			NextStepTriggerParam = -1,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
@@ -5500,7 +5692,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_121_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
@@ -5520,18 +5714,19 @@ local GuideCfg =
 				[6] = 
 				{
 					--点击单抽一次引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_121_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_ElfOne",
-					ShowHighLightButtonPath = "UI_Mall(Clone)/Frame_Center/Frame_Content/Page_MallElf(Clone)/Frame_Elf/Frame_Summon/Frame_One/",
+					ShowHighLightButtonPath = "UI_Summon(Clone)/Frame_Center/Frame_Content/Page_MallElf/Frame_Elf/Frame_Summon/Frame_One/",
 					RegisterUI = "",
 					RegisterUIPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "CPanelMall",
+	    			ShowUIPanelName = "CPanelSummon",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-					--IsAnimationDelay = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 6,
@@ -5543,7 +5738,9 @@ local GuideCfg =
 				},				
 				[7] = 
 				{
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_121_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Item0",
 					ShowHighLightButtonPath = "UI_MallLottery(Clone)/Frame_Center/List_Item/",
 					--列表相关
@@ -5603,7 +5800,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_122_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -5625,7 +5824,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--点击展开菜单引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_2_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Open",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -5649,7 +5850,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--打开技能界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_12_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_F3",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Panel/FrameFloat/",
 					RegisterUI = "",
@@ -5673,7 +5876,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--选择纹章页签引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_122_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Tab_Rune",
 					ShowHighLightButtonPath = "UI_Skill(Clone)/Frame_TopTabs/",
 					RegisterUI = "",
@@ -5685,7 +5890,7 @@ local GuideCfg =
 					--是否黑屏
 					IsShowBlackBG = true,
 					--是否自适应触发延迟
-					IsAutoEffectDelay = true,
+					--IsAutoEffectDelay = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 6,
@@ -5698,7 +5903,9 @@ local GuideCfg =
 				[6] = 
 				{
 					--选择技能引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_122_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Rdo_Skill1",
 					ShowHighLightButtonPath = "UI_Skill(Clone)/Frame_All/Frame_Center/Frame_Skill/SkillGroup/",
 					RegisterUI = "",
@@ -5722,7 +5929,9 @@ local GuideCfg =
 				[7] = 
 				{
 					--选择纹章页签引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_122_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Rdo_Rune1",
 					ShowHighLightButtonPath = "UI_Skill(Clone)/Frame_All/Frame_R/Frame_RuneInfo/RuneGroup/",
 					RegisterUI = "",
@@ -5746,7 +5955,9 @@ local GuideCfg =
 				[8] = 
 				{
 					--装配引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_122_8",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_UnLock",
 					ShowHighLightButtonPath = "UI_Skill(Clone)/Frame_All/Frame_R/Frame_RuneInfo/",
 					RegisterUI = "",
@@ -5770,7 +5981,9 @@ local GuideCfg =
 				[9] = 
 				{
 					--装配引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_122_9",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_ConfigRune",
 					ShowHighLightButtonPath = "UI_Skill(Clone)/Frame_All/Frame_R/Frame_RuneInfo/",
 					RegisterUI = "",
@@ -5805,6 +6018,8 @@ local GuideCfg =
 			{
 				[1] = 
 				{
+					--配音
+					Audio="guide_123_1",
 					--指引对话--------------------------------
 				    --高亮按钮名称
 					ShowHighLightButtonName = "",
@@ -5828,7 +6043,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--点击小地图引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_123_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Mask_Map",
 					ShowHighLightButtonPath = "Panel_Main_MiniMap(Clone)/Frame_Main/Img_MapBG/Frame_MiniMap/",
 					RegisterUI = "",
@@ -5851,7 +6068,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--点击世界地图引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_123_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Toggle",
 					ShowHighLightButtonPath = "UI_Map(Clone)/",
 					RegisterUI = "",
@@ -5874,7 +6093,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--点击好望港图标--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_123_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_City110",
 					ShowHighLightButtonPath = "UI_Map(Clone)/Frame_WorldMap/CityGroup/",
 					RegisterUI = "",
@@ -5952,7 +6173,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_124_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -5974,7 +6197,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--点击展开菜单引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_2_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Open",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -5998,7 +6223,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--打开加工界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_119_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_F5",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Panel/FrameFloat/",
 					RegisterUI = "",
@@ -6022,7 +6249,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--点击重铸页签--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_31_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Rdo_Recast",
 					ShowHighLightButtonPath = "UI_EquipProcess(Clone)/Frame_TopTabs/",
 					RegisterUI = "",
@@ -6034,7 +6263,7 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-					IsAutoEffectDelay = true,
+					--IsAutoEffectDelay = true,
 					--MinShowTime = 1,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
@@ -6048,7 +6277,9 @@ local GuideCfg =
 				[6] = 
 				{
 					--点击装备图标引导--------------------------------
-				    --高亮按钮名
+				    --配音
+					Audio="guide_124_6",
+					--高亮按钮名
 					ShowHighLightButtonName = "item-0",
 					ShowHighLightButtonPath = "UI_EquipProcess(Clone)/Frame_Center/Frame_R/Frame_Package /View_Package/RectMask/List_Item/",
 					RegisterUI = "List_Item",
@@ -6072,7 +6303,9 @@ local GuideCfg =
 				[7] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_124_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -6096,7 +6329,9 @@ local GuideCfg =
 				[8] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_124_8",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -6155,7 +6390,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_125_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -6177,8 +6414,10 @@ local GuideCfg =
 				[3] = 
 				{
 					--点击商城图标引导--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "Btn4",
+				    --配音
+					Audio="guide_2_2",
+					--高亮按钮名称
+					ShowHighLightButtonName = "Btn_Open",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
 					RegisterUIPath = "",
@@ -6188,7 +6427,6 @@ local GuideCfg =
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 6,
 	    			--触发行为参数(无参数默认为-1)
@@ -6200,65 +6438,21 @@ local GuideCfg =
 				[4] =
 				{
 					--选择召唤页签引导--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "item-3",
-					ShowHighLightButtonPath = "UI_Mall(Clone)/Frame_TopMenu/Src_MenuList/Viewport/List_BigMenu/",
-					RegisterUI = "List_BigMenu",
-					RegisterUIPath = "UI_Mall(Clone)/Frame_TopMenu/Src_MenuList/Viewport/",
-					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "CPanelMall",
-					--是否强制
-					IsClickLimit = true,
-					--是否黑屏
-					IsShowBlackBG = true,
-					IsAnimationDelay = true,
-	    			--触发标准--------------------------------
-	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 8,
-	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = 3,
-	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "",
-					IsSkip = 1,  -- 1右上  2右下
-				},
-				[5] = 
-				{
-					--选择召唤页签引导--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "item-1",
-					ShowHighLightButtonPath = "UI_Mall(Clone)/Frame_Center/Frame_MenuBG/TabList/Viewport/Content/",
-					RegisterUI = "TabList",
-					RegisterUIPath = "UI_Mall(Clone)/Frame_Center/Frame_MenuBG/",
-					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "CPanelMall",
-					--是否强制
-					IsClickLimit = true,
-					--是否黑屏
-					IsShowBlackBG = true,
-	    			--触发标准--------------------------------
-	    			--下一步的触发行为
-	    			NextStepTriggerBehaviour = 8,
-	    			--触发行为参数(无参数默认为-1)
-	    			NextStepTriggerParam = 1,
-	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
-	    			AutoShowElement = "",
-					IsSkip = 1,  -- 1右上  2右下
-				},
-				[6] = 
-				{
-					--点击单抽一次引导--------------------------------
-				    --高亮按钮名称
-					ShowHighLightButtonName = "Btn_PetOne",
-					ShowHighLightButtonPath = "UI_Mall(Clone)/Frame_Center/Frame_Content/Page_MallPetEgg(Clone)/Frame_Pet/Frame_Click/Frame_One/",
+				    --配音
+					Audio="guide_121_4",
+					--高亮按钮名称
+					--高亮按钮名称
+					ShowHighLightButtonName = "Btn_F10",
+					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Panel/FrameFloat/",
 					RegisterUI = "",
 					RegisterUIPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "CPanelMall",
+	    			ShowUIPanelName = "CPanelSystemEntrance",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
 					IsShowBlackBG = true,
-					IsAnimationDelay = true,
+
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 6,
@@ -6268,9 +6462,36 @@ local GuideCfg =
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},
-				[7] = 
+				[5] = 
 				{
-				    --高亮按钮名称
+					--点击单抽一次引导--------------------------------
+				    --配音
+					Audio="guide_121_6",
+					--高亮按钮名称
+					ShowHighLightButtonName = "Btn_PetOne",
+					ShowHighLightButtonPath = "UI_Summon(Clone)/Frame_Center/Frame_Content/Page_MallPetEgg/Frame_Pet/Frame_Click/Frame_One/",
+					RegisterUI = "",
+					RegisterUIPath = "",
+					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
+	    			ShowUIPanelName = "CPanelSummon",
+					--是否强制
+					IsClickLimit = true,
+					--是否黑屏
+					IsShowBlackBG = true,
+	    			--触发标准--------------------------------
+	    			--下一步的触发行为
+	    			NextStepTriggerBehaviour = 6,
+	    			--触发行为参数(无参数默认为-1)
+	    			NextStepTriggerParam = -1,
+	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
+	    			AutoShowElement = "",
+					IsSkip = 1,  -- 1右上  2右下
+				},
+				[6] = 
+				{
+				    --配音
+					Audio="guide_121_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Item0",
 					ShowHighLightButtonPath = "UI_MallLottery(Clone)/Frame_Center/List_Item/",
 					--列表相关
@@ -6293,10 +6514,12 @@ local GuideCfg =
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
 				},	
-				[8] = 
+				[7] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_125_8",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -6317,16 +6540,18 @@ local GuideCfg =
 	    			NextStepTriggerParam = -1,
 					IsSkip = 1,  -- 1右上  2右下
 	    		},
-				[9] = 
+				[8] = 
 				{
 					--点击返回按钮引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_21_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Back",
-					ShowHighLightButtonPath = "UI_Mall(Clone)/Frame_Title/",
+					ShowHighLightButtonPath = "UI_Summon(Clone)/Frame_Title/",
 					RegisterUI = "",
 					RegisterUIPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "CPanelMall",
+	    			ShowUIPanelName = "CPanelSummon",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -6354,7 +6579,9 @@ local GuideCfg =
 				[1] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_126_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -6376,7 +6603,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--点击展开菜单引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_2_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Open",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -6400,7 +6629,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--打开技能界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_126_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_F7",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Panel/FrameFloat/",
 					RegisterUI = "",
@@ -6424,7 +6655,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_126_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -6448,7 +6681,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_126_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -6472,7 +6707,7 @@ local GuideCfg =
 				[6] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -6496,7 +6731,9 @@ local GuideCfg =
 				[7] = 
 				{
 					--打开宠物培养引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_126_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Rdo_Cultivate",
 					ShowHighLightButtonPath = "UI_PetProcess(Clone)/Frame_TopTabs/",
 					RegisterUI = "",
@@ -6520,7 +6757,9 @@ local GuideCfg =
 				[8] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_126_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -6544,7 +6783,9 @@ local GuideCfg =
 				[9] = 
 				{
 					--打开宠物培养引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_126_9",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Rdo_Fuse",
 					ShowHighLightButtonPath = "UI_PetProcess(Clone)/Frame_TopTabs/",
 					RegisterUI = "",
@@ -6568,7 +6809,9 @@ local GuideCfg =
 				[10] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_126_10",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					RegisterUI = "",
 					RegisterUIPath = "",
@@ -6591,7 +6834,9 @@ local GuideCfg =
 				[11] = 
 				{
 					--打开宠物重置引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_126_11",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Rdo_Advance",
 					ShowHighLightButtonPath = "UI_PetProcess(Clone)/Frame_TopTabs/",
 					RegisterUI = "",
@@ -6615,7 +6860,9 @@ local GuideCfg =
 				[12] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_126_8",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -6639,7 +6886,9 @@ local GuideCfg =
 				[13] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_126_13",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -6697,7 +6946,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_127_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -6719,7 +6970,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--点击展开菜单引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_2_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Open",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -6743,7 +6996,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--打开神符界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_127_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_F8",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Panel/FrameFloat/",
 					RegisterUI = "",
@@ -6767,7 +7022,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_127_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -6791,9 +7048,11 @@ local GuideCfg =
 				[6] = 
 				{
 					--选择神符引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_127_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Rdo_Charm_0",
-					ShowHighLightButtonPath = "UI_CharmNew(Clone)/Frame_Center/Frame_CC/Frame_Charm/Tab_Left/Tab_CharmPages/Tab_CharmPage1/",
+					ShowHighLightButtonPath = "UI_CharmNew(Clone)/Frame_Center/Frame_CC/Frame_Charm/Tab_Left/Tab_CharmPages/ViewPoint/PageView_Charms/page_item_0/",
 					RegisterUI = "",
 					RegisterUIPath = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
@@ -6815,7 +7074,9 @@ local GuideCfg =
 				[7] = 
 				{
 					--选择专精引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_127_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "item-0",
 					ShowHighLightButtonPath = "UI_CharmNew(Clone)/Frame_Center/Frame_R/Tab_HaveCharm/Frame_Package/View_Package/RectMask/List_CharmList/",
 					RegisterUI = "List_CharmList",
@@ -6839,13 +7100,15 @@ local GuideCfg =
 				[8] = 
 				{
 					--镶嵌引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_127_8",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Item",
-					ShowHighLightButtonPath = "UI_CharmItemHint(Clone)/Scroll/Lay_Button/List_Buttons/item-0/",
+					ShowHighLightButtonPath = "UI_ItemHint(Clone)/Scroll1/Lay_Button/List_Buttons/item-0/",
 					RegisterUI = "List_Buttons",
-					RegisterUIPath = "UI_CharmItemHint(Clone)/Scroll/Lay_Button/",
+					RegisterUIPath = "UI_ItemHint(Clone)/Scroll1/Lay_Button/",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "CPanelCharmItemHint",
+	    			ShowUIPanelName = "CPanelItemHint",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -6863,7 +7126,9 @@ local GuideCfg =
 				[9] = 
 				{
 					--点击吞噬引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_127_9",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Rdo_BtnCompose",
 					ShowHighLightButtonPath = "UI_CharmNew(Clone)/Frame_Tabs/",
 					RegisterUI = "",
@@ -6887,7 +7152,9 @@ local GuideCfg =
 				[10] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_127_10",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -6909,7 +7176,9 @@ local GuideCfg =
 				[11] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_127_11",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -6965,7 +7234,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--活动菜单引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_128_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn2",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -6990,7 +7261,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_128_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -7010,7 +7283,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_128_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -7030,7 +7305,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_128_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -7081,7 +7358,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--活动菜单引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_128_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn2",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -7105,7 +7384,9 @@ local GuideCfg =
 				},	
 				[3] = 
 				{
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_129_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "MenuBtn2",
 					ShowHighLightButtonPath = "UI_Activity(Clone)/Window/MenuRoot/",
 					RegisterUI = "",
@@ -7117,7 +7398,7 @@ local GuideCfg =
 					--是否黑屏
 					IsShowBlackBG = true,
 					--是否自适应触发延迟
-					IsAutoEffectDelay = true,
+					--IsAutoEffectDelay = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 6,
@@ -7130,7 +7411,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_129_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -7150,7 +7433,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_129_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -7182,7 +7467,9 @@ local GuideCfg =
 				[1] = 
 				{
 					--选择时装页签引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_130_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Rdo_Main_2",
 					ShowHighLightButtonPath = "UI_Exterior(Clone)/Frame_TweenMan/Frame_Center/Rdo_MainGroup/",
 					RegisterUI = "",
@@ -7207,10 +7494,12 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_130_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIExterior",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -7226,7 +7515,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--穿戴UE引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_130_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Addition",
 					ShowHighLightButtonPath = "UI_Exterior(Clone)/Frame_TweenMan/Frame_Center/Frame_2/",
 					RegisterUI = "",
@@ -7251,10 +7542,12 @@ local GuideCfg =
 				[4] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_130_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIExterior",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -7282,7 +7575,9 @@ local GuideCfg =
 			{
 				[1] = 
 				{
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_131_1",
+					--高亮按钮名称
 					ShowHighLightButtonName = "MenuBtn3",
 					ShowHighLightButtonPath = "UI_Activity(Clone)/Window/MenuRoot/",
 					RegisterUI = "",
@@ -7294,7 +7589,7 @@ local GuideCfg =
 					--是否黑屏
 					IsShowBlackBG = true,
 					--是否自适应触发延迟
-					IsAutoEffectDelay = true,
+					--IsAutoEffectDelay = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 6,
@@ -7307,10 +7602,12 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_131_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIActivity",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -7327,10 +7624,12 @@ local GuideCfg =
 				[3] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_131_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIActivity",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -7347,10 +7646,12 @@ local GuideCfg =
 				[4] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_131_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIActivity",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -7367,10 +7668,12 @@ local GuideCfg =
 				[5] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_131_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
-	    			ShowUIPanelName = "",
+	    			ShowUIPanelName = "CPanelUIActivity",
 					--是否强制
 					IsClickLimit = true,
 					--是否黑屏
@@ -7416,6 +7719,8 @@ local GuideCfg =
 				},
 				[2] = 
 				{
+					--配音
+					Audio="guide_132_2",
 					--指引对话--------------------------------
 				    --高亮按钮名称
 					ShowHighLightButtonName = "",
@@ -7437,7 +7742,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--系统功能菜单引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_2_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Open",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -7462,7 +7769,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--点击宠物引导--------------------------------
-				    --高亮按钮名称
+					--配音
+					Audio="guide_126_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_F7",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Panel/FrameFloat/",
 					RegisterUI = "",
@@ -7485,7 +7794,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--打开宠物技能引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_132_5",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Rdo_Skill",
 					ShowHighLightButtonPath = "UI_PetProcess(Clone)/Frame_TopTabs/",
 					RegisterUI = "",
@@ -7503,7 +7814,7 @@ local GuideCfg =
 	    			--触发行为参数(无参数默认为-1)
 	    			NextStepTriggerParam = -1,
 					--是否自适应触发延迟
-					IsAutoEffectDelay = true,
+					--IsAutoEffectDelay = true,
 	    			--为""是默认按钮自适应，有内容为自适应的子元素，没有此字段则不自适应
 	    			AutoShowElement = "",
 					IsSkip = 1,  -- 1右上  2右下
@@ -7511,7 +7822,9 @@ local GuideCfg =
 				[6] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_132_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -7531,7 +7844,9 @@ local GuideCfg =
 				[7] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_132_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -7551,7 +7866,9 @@ local GuideCfg =
 				[8] = 
 				{
 					--打开宠物技能选择界面--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_132_8",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_AddSkillBook",
 					ShowHighLightButtonPath = "UI_PetProcess(Clone)/Frame_Group/Frame_Skill/Group_SkillBook/SelectItemGroup/",
 					RegisterUI = "",
@@ -7575,7 +7892,9 @@ local GuideCfg =
 				[9] = 
 				{
 					--点技能书--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_132_9",
+					--高亮按钮名称
 					ShowHighLightButtonName = "item-0",
 					ShowHighLightButtonPath = "UI_ItemList(Clone)/Frame_Content/Frame_Item/RectMask/List_Item/",
 					RegisterUI = "List_Item",
@@ -7599,7 +7918,9 @@ local GuideCfg =
 				[10] = 
 				{
 					--点技能书--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_132_10",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Ok",
 					ShowHighLightButtonPath = "UI_ItemList(Clone)/Frame_Content/Frame_Left/",
 					RegisterUI = "",
@@ -7623,7 +7944,9 @@ local GuideCfg =
 				[11] = 
 				{
 					--点学习技能书--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_132_11",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_SkillLearn",
 					ShowHighLightButtonPath = "UI_PetProcess(Clone)/Frame_Group/Frame_Skill/Group_SkillBook/",
 					RegisterUI = "",
@@ -7647,7 +7970,9 @@ local GuideCfg =
 				[12] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_132_12",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					--显示的UI界面 all 全显示，“” 全隐藏， name 单独显示的名称
 	    			ShowUIPanelName = "",
@@ -7700,7 +8025,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_134_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -7723,7 +8050,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--冒险日历引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_118_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn3",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -7748,7 +8077,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--打开日常活动界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_134_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Rdo_4",
 					ShowHighLightButtonPath = "UI_Calendar(Clone)/Frame_TopTabs/",
 					RegisterUI = "",
@@ -7760,7 +8091,7 @@ local GuideCfg =
 					--是否黑屏
 					IsShowBlackBG = true,
 					--是否自适应触发延迟
-					IsAutoEffectDelay = true,
+					--IsAutoEffectDelay = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 6,
@@ -7773,7 +8104,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--参加狩猎按钮引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_134_5",
+					--高亮按钮名称
 	    			ShowHighLightButtonName = "item-1",
 					ShowHighLightButtonPath = "UI_Calendar(Clone)/Frame_Center/Frame_TimesActivity/Img_TimesActivityBG/List_Activity/List_TimesActivityMenu/",
 
@@ -7799,7 +8132,9 @@ local GuideCfg =
 				[6] = 
 				{
 					--参加狩猎按钮引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_134_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Jion",
 					ShowHighLightButtonPath = "UI_Calendar(Clone)/Frame_Center/Frame_ActivityRightDesc/Lay_Right/",
 					RegisterUI = "",
@@ -7826,7 +8161,9 @@ local GuideCfg =
 				[7] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_134_7",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -7851,7 +8188,9 @@ local GuideCfg =
 				[8] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_134_8",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -7874,7 +8213,9 @@ local GuideCfg =
 				[9] = 
 				{
 					--参加狩猎按钮引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_134_9",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_FindBoss",
 					ShowHighLightButtonPath = "UI_WorldBoss(Clone)/Frame_Content/Frame_R/Frame_BossInfo/",
 					RegisterUI = "",
@@ -7934,7 +8275,9 @@ local GuideCfg =
 				[2] = 
 				{
 					--指引对话--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_135_2",
+					--高亮按钮名称
 					ShowHighLightButtonName = "",
 					ShowHighLightButtonPath = "",
 					RegisterUI = "",
@@ -7955,7 +8298,9 @@ local GuideCfg =
 				[3] = 
 				{
 					--冒险日历引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_118_3",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn3",
 					ShowHighLightButtonPath = "UI_SystemEntrance(Clone)/Frame_Main/",
 					RegisterUI = "",
@@ -7980,7 +8325,9 @@ local GuideCfg =
 				[4] = 
 				{
 					--打开日常活动界面引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_134_4",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Rdo_4",
 					ShowHighLightButtonPath = "UI_Calendar(Clone)/Frame_TopTabs/",
 					RegisterUI = "",
@@ -7992,7 +8339,7 @@ local GuideCfg =
 					--是否黑屏
 					IsShowBlackBG = true,
 					--是否自适应触发延迟
-					IsAutoEffectDelay = true,
+					--IsAutoEffectDelay = true,
 	    			--触发标准--------------------------------
 	    			--下一步的触发行为
 	    			NextStepTriggerBehaviour = 6,
@@ -8005,7 +8352,9 @@ local GuideCfg =
 				[5] = 
 				{
 					--参加狩猎按钮引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_135_5",
+					--高亮按钮名称
 	    			ShowHighLightButtonName = "item-4",
 					ShowHighLightButtonPath = "UI_Calendar(Clone)/Frame_Center/Frame_TimesActivity/Img_TimesActivityBG/List_Activity/List_TimesActivityMenu/",
 
@@ -8031,7 +8380,9 @@ local GuideCfg =
 				[6] = 
 				{
 					--参加狩猎按钮引导--------------------------------
-				    --高亮按钮名称
+				    --配音
+					Audio="guide_135_6",
+					--高亮按钮名称
 					ShowHighLightButtonName = "Btn_Jion",
 					ShowHighLightButtonPath = "UI_Calendar(Clone)/Frame_Center/Frame_ActivityRightDesc/Lay_Right/",
 					RegisterUI = "",

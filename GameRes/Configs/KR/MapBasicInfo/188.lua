@@ -11,17 +11,18 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13100] = 
 		{
-			[1] = { x = -215.76, y = 106.31, z = 165.11, name = "쉐도우 쿠거", level = 46, SortID = 1 },
+			[1] = { x = -215.76, y = 106.31, z = 165.11, name = "그림자 쿠거", level = 46, SortID = 1 },
 		},
 		[13099] = 
 		{
-			[1] = { x = -203.23, y = 106.58, z = 164.21, name = "쉐도우 쿠거", level = 45, SortID = 2 },
-			[2] = { x = -224.40, y = 106.19, z = 157.90, name = "쉐도우 쿠거", level = 45, SortID = 3 },
-			[3] = { x = -103.34, y = 112.18, z = 169.15, name = "쉐도우 쿠거", level = 45, SortID = 4 },
+			[1] = { x = -203.23, y = 106.58, z = 164.21, name = "그림자 쿠거", level = 45, SortID = 2 },
+			[2] = { x = -224.40, y = 106.19, z = 157.90, name = "그림자 쿠거", level = 45, SortID = 3 },
+			[3] = { x = -103.34, y = 112.18, z = 169.15, name = "그림자 쿠거", level = 45, SortID = 4 },
 		},
 		[13093] = 
 		{
@@ -61,7 +62,7 @@ local MapInfo =
 		},
 		[13103] = 
 		{
-			[1] = { x = 7.10, y = 122.30, z = 225.90, name = "여왕거미 수비병", level = 48, SortID = 18 },
+			[1] = { x = 7.10, y = 122.30, z = 225.90, name = "여왕 거미 수비병", level = 48, SortID = 18 },
 		},
 		[13104] = 
 		{
@@ -111,24 +112,24 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[306] = { x = -60.94, y = 105.04, z = 174.47, name = "바람의 성루", worldId = 0, PkMode = 0 },
-			[307] = { x = -50.31, y = 95.43, z = 88.57, name = "정원", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[308] = { x = -29.30, y = 99.22, z = 171.42, name = "성루", worldId = 0, IsCanFind = 1, PkMode = 0 },
+			[306] = { x = -60.94, y = 105.04, z = 174.47, name = "바람의 성루", worldId = 0, PkMode = 1 },
+			[307] = { x = -50.31, y = 95.43, z = 88.57, name = "정원", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[308] = { x = -29.30, y = 99.22, z = 171.42, name = "성루", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[309] = { x = -209.19, y = 84.24, z = 65.71, name = "마법 서클", worldId = 0, IsCanFind = 1, PkMode = 1 },
-			[310] = { x = 1.71, y = 21.45, z = 226.93, name = "훈련장", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[311] = { x = -155.03, y = 133.91, z = 224.19, name = "현자 기념관", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[419] = { x = -108.70, y = 165.08, z = 193.42, name = "风中悲歌【剧情相位】", worldId = 0, PkMode = 0 },
-			[420] = { x = -146.70, y = 107.57, z = 154.80, name = "发现哨岗", worldId = 0, PkMode = 0 },
-			[421] = { x = -63.11, y = 121.92, z = 174.69, name = "区域-哨岗2", worldId = 0, PkMode = 0 },
-			[422] = { x = -15.46, y = 121.99, z = 225.40, name = "演武堂到达", worldId = 0, PkMode = 0 },
-			[423] = { x = -204.75, y = 89.10, z = 92.22, name = "区域-相位进入点", worldId = 0, PkMode = 0 },
-			[446] = { x = -130.48, y = 107.69, z = 152.81, name = "区域-哨兵1刷新", worldId = 0, PkMode = 0 },
-			[447] = { x = -55.12, y = 125.19, z = 191.29, name = "区域-哨兵2刷新", worldId = 0, PkMode = 0 },
-			[448] = { x = -58.41, y = 125.35, z = 188.96, name = "区域-炼金炸弹02", worldId = 0, PkMode = 0 },
-			[449] = { x = -122.80, y = 107.55, z = 150.85, name = "区域-炼金炸弹01", worldId = 0, PkMode = 0 },
-			[450] = { x = -164.98, y = 135.44, z = 224.23, name = "区域-BOSS刷新", worldId = 0, PkMode = 0 },
-			[454] = { x = -183.71, y = 135.20, z = 239.47, name = "区域-离开相位", worldId = 0, PkMode = 0 },
-			[455] = { x = -152.58, y = 135.20, z = 224.56, name = "区域-先贤祠到达", worldId = 0, PkMode = 0 },
+			[310] = { x = 1.71, y = 21.45, z = 226.93, name = "훈련장", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[311] = { x = -155.03, y = 133.91, z = 224.19, name = "현자 기념관", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[419] = { x = -108.70, y = 165.08, z = 193.42, name = "风中悲歌【剧情相位】", worldId = 0, PkMode = 1 },
+			[420] = { x = -146.70, y = 107.57, z = 154.80, name = "发现哨岗", worldId = 0, PkMode = 1 },
+			[421] = { x = -63.11, y = 121.92, z = 174.69, name = "区域-哨岗2", worldId = 0, PkMode = 1 },
+			[422] = { x = -15.46, y = 121.99, z = 225.40, name = "演武堂到达", worldId = 0, PkMode = 1 },
+			[423] = { x = -204.75, y = 89.10, z = 92.22, name = "区域-相位进入点", worldId = 0, PkMode = 1 },
+			[446] = { x = -130.48, y = 107.69, z = 152.81, name = "区域-哨兵1刷新", worldId = 0, PkMode = 1 },
+			[447] = { x = -55.12, y = 125.19, z = 191.29, name = "区域-哨兵2刷新", worldId = 0, PkMode = 1 },
+			[448] = { x = -58.41, y = 125.35, z = 188.96, name = "区域-炼金炸弹02", worldId = 0, PkMode = 1 },
+			[449] = { x = -122.80, y = 107.55, z = 150.85, name = "区域-炼金炸弹01", worldId = 0, PkMode = 1 },
+			[450] = { x = -164.98, y = 135.44, z = 224.23, name = "区域-BOSS刷新", worldId = 0, PkMode = 1 },
+			[454] = { x = -183.71, y = 135.20, z = 239.47, name = "区域-离开相位", worldId = 0, PkMode = 1 },
+			[455] = { x = -152.58, y = 135.20, z = 224.56, name = "区域-先贤祠到达", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

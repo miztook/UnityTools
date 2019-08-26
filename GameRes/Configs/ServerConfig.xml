@@ -4,4 +4,5 @@
 	<DynamicAccountRole url="http://10.35.49.168:5000/api/Zones/getRoleZones?accountId="/>
 	<CustomPicUploadUrl value="http://10.35.49.168:11111/portrait?guid={0}" />
 	<CustomPicDownloadUrl value="http://10.35.49.168:11111/portrait?guid={0}&amp;md5={1}" /> 
+	<PurchaseVerifyUrl url="http://10.35.49.168:5000" /> 
 </ServerConfig>

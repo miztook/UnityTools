@@ -28,14 +28,6 @@
 	TODO: 增加其他规则描述
 ]]
 
-
-KEYWORDS_LEVELUP={
-	'levelup',
-	'talentlevelup',
-	'runelevelup',
-}
-
-
 local Lplus = require "Lplus"
 local CElementData = require "Data.CElementData"
 local CElementSkill = require "Data.CElementSkill"
@@ -91,291 +83,80 @@ do
 		return parsedText
 	end
 
-	--[[获取技能&被动技能的描述]]
-	def.static("number", "boolean", "=>", "string").GetSkillDesc = function(skillId, bIsTalent)
-		local desc = ""
-
-		if bIsTalent then
-			local TalentTemplate = CElementData.GetTemplate("Talent", skillId)
-			if TalentTemplate then
-				desc = TalentTemplate.TalentDescribtion
-			end
-		else
-			local SkillTemplate = CElementData.GetTemplate("Skill", skillId)
-			if SkillTemplate then
-				desc = SkillTemplate.SkillDescription
-			end
-		end
-
-		return desc
+	local function WholeWordMatch(words, key)
+		return (string.find(words, key) and string.sub(words,1,string.len(key)) == key)
 	end
 
-	--[[获取技能ID 升级等级的数值， 需要遍历]]
-	def.static("number", "number", "number", "boolean", "=>", "number").GetSkillLevelUpValue = function(skillId, levelupId, skillLevel, bIsTalent)
-		--warn("GetSkillLevelUpValue = ", skillId, levelupId, skillLevel, bIsTalent)
-		local result = 0
-		local allSkillLevelUp =  CElementData.GetAllTalentOrSkillLevelUpTemplateSimple(bIsTalent)
-		local Tid = 0
-		for tid, temp in ipairs( allSkillLevelUp ) do
-			if temp.SkillId == skillId and temp.LevelUpId == levelupId then
-				Tid = tid
-				break
+	def.static("string", "string", "=>", "table").ParseDescKeys = function (parsedText, keyword)
+		local keysMap = {}
+		
+		if parsedText ~= "" then
+			--整数处理
+			do
+				local keys = {}
+				for k,v in string.gmatch(parsedText, _G.Regexp4Int) do
+					local isFloat = string.find(parsedText, k .. "%%")
+					if (not isFloat) and WholeWordMatch(k, keyword) then
+						table.insert(keys, k)
+					end
+				end
+				keysMap.IntegerKeys = keys
 			end
-		end
-		if Tid > 0 then 
-			local templateName = "TalentLevelUp"
-			if not bIsTalent then 
-				templateName = "SkillLevelUp"
+			--浮点数 至多保留两位 显示：【乘以100，并且加上% 字符】
+			do
+				local keys = {}
+				for k,v in string.gmatch(parsedText, _G.Regexp4Percent) do
+					if WholeWordMatch(k, keyword) then
+						table.insert(keys, k)
+					end
+				end
+				keysMap.PercentageKeys = keys
 			end
-			local temp = CElementData.GetTemplate( templateName,Tid)
-			if temp ~= nil and temp.LevelDatas[skillLevel] ~= nil  then 
-				result = temp.LevelDatas[skillLevel].Value
-			end
+		else
+			keysMap.IntegerKeys = {}
+			keysMap.PercentageKeys = {}
 		end
 
-		if result == 0 then
-			-- warn("-----缺少正确的技能升级数据以支撑UI显示")
-		end
-
-		return result
+		return keysMap
 	end
 
 	--[[技能描述动态字符串解析]]
 	def.static("number", "number", "boolean", "=>", "string").ParseSkillDescText = function (skillId, skillLevel, bIsTalent)
-		local SkillLevelupKey = "levelup"
-		local TalentLevelupKey = "talentlevelup"
-		local SkillLevelupTemplateKey = "SkillLevelUp"
-		local TalentLevelupTemplateKey = "TalentLevelUp"
-
-		local parsedText = DynamicText.GetSkillDesc(skillId, bIsTalent)
-
-		if parsedText ~= "" then
-			local curSkillKeyword = ""
-			local curSkillTemplateKey = ""
-			if bIsTalent then
-				curSkillKeyword = TalentLevelupKey
-				curSkillTemplateKey = TalentLevelupTemplateKey
-			else
-				curSkillKeyword = SkillLevelupKey
-				curSkillTemplateKey = SkillLevelupTemplateKey
-			end
-
-			--整数处理
-			do
-				local keys = {}
-				for k,v in string.gmatch(parsedText, "([a-zA-Z]+[0-9]+)") do
-					if string.find(k, curSkillKeyword) then
-						table.insert(keys, k)
-					end
-				end
-
-				for k,v in pairs(keys) do
-					local levelupId = tonumber( string.match(v, "[0-9]+") )
-					local val = DynamicText.GetSkillLevelUpValue(skillId, levelupId, skillLevel, bIsTalent)
-					val = math.abs(val)
-					local replStr = fmtVal2Str( val )
-					parsedText = Match(parsedText, v, replStr)
-				end
-			end
-			--浮点数 至多保留两位 显示：【乘以100，并且加上% 字符】
-			do
-				local keys = {}
-				for k,v in string.gmatch(parsedText, "([a-zA-Z]+[0-9]+\%%)") do
-					if string.find(k, curSkillKeyword) then
-						table.insert(keys, k)
-					end
-				end
-
-				for k,v in pairs(keys) do
-					local levelupId = tonumber( string.match(v, "[0-9]+") )
-					local val = DynamicText.GetSkillLevelUpValue(skillId, levelupId, skillLevel, bIsTalent) * 100
-					val = math.abs(val)
-					local replStr = fmtVal2Str(tonumber(fmtVal2Str(val)))
-					replStr = string.format("%s%%", replStr)
-					parsedText = Match(parsedText, v, replStr)
-				end
-			end
-		end
-
-		return parsedText
-	end
-
-	--[[技能描述动态字符串解析 -- 返回 数据类型-索引数据]]
-	def.static("number", "number", "boolean", "=>", "table").GetParseSkillDescTextKeyValue = function (skillId, skillLevel, bIsTalent)
-		local reslutTable = { Integer={}, Percentage={}}
-
-		local SkillLevelupKey = "levelup"
-		local TalentLevelupKey = "talentlevelup"
-		local SkillLevelupTemplateKey = "SkillLevelUp"
-		local TalentLevelupTemplateKey = "TalentLevelUp"
-
-		local parsedText = DynamicText.GetSkillDesc(skillId, bIsTalent)
-
-		if parsedText ~= "" then
-			local curSkillKeyword = ""
-			local curSkillTemplateKey = ""
-			if bIsTalent then
-				curSkillKeyword = TalentLevelupKey
-				curSkillTemplateKey = TalentLevelupTemplateKey
-			else
-				curSkillKeyword = SkillLevelupKey
-				curSkillTemplateKey = SkillLevelupTemplateKey
-			end
-
-			--整数处理
-			do
-				local keys = {}
-				for k,v in string.gmatch(parsedText, "([a-zA-Z]+[0-9]+)") do
-					if string.find(k, curSkillKeyword) then
-						table.insert(keys, k)
-					end
-				end
-
-				for k,v in pairs(keys) do
-					local levelupId = tonumber( string.match(v, "[0-9]+") )
-					local val = DynamicText.GetSkillLevelUpValue(skillId, levelupId, skillLevel, bIsTalent)
-					val = math.abs(val)
-					local replStr = fmtVal2Str( val )
-					parsedText = Match(parsedText, v, replStr)
-
-					local info = {}
-					info.Key = v
-					info.Value = val
-					table.insert(reslutTable.Integer, info)
-				end
-			end
-			--浮点数 至多保留两位 显示：【乘以100，并且加上% 字符】
-			do
-				local keys = {}
-				for k,v in string.gmatch(parsedText, "([a-zA-Z]+[0-9]+\%%)") do
-					if string.find(k, curSkillKeyword) then
-						table.insert(keys, k)
-					end
-				end
-
-				for k,v in pairs(keys) do
-					local levelupId = tonumber( string.match(v, "[0-9]+") )
-					local val = DynamicText.GetSkillLevelUpValue(skillId, levelupId, skillLevel, bIsTalent) * 100
-					val = math.abs(val)
-					local replStr = fmtVal2Str(tonumber(fmtVal2Str(val)))
-					replStr = string.format("%s%%", replStr)
-					parsedText = Match(parsedText, v, replStr)
-
-					local info = {}
-					info.Key = v
-					info.Value = val
-					table.insert(reslutTable.Percentage, info)
-				end
-			end
-		end
-
-		return reslutTable
-	end
-
-	--[[技能描述动态字符串解析 -- 返回 数据类型-索引数据]]
-	def.static("number", "number", "boolean", "table", "=>", "string").ExchangeParseSkillDescText = function (skillId, skillLevel, bIsTalent, info)
-		-- warn("ExchangeParseSkillDescText = ", skillId, skillLevel, bIsTalent, table.nums(info))
-		local SkillLevelupKey = "levelup"
-		local TalentLevelupKey = "talentlevelup"
-		local SkillLevelupTemplateKey = "SkillLevelUp"
-		local TalentLevelupTemplateKey = "TalentLevelUp"
-
-		local parsedText = DynamicText.GetSkillDesc(skillId, bIsTalent)
-
-		if parsedText ~= "" then
-			local curSkillKeyword = ""
-			local curSkillTemplateKey = ""
-			if bIsTalent then
-				curSkillKeyword = TalentLevelupKey
-				curSkillTemplateKey = TalentLevelupTemplateKey
-			else
-				curSkillKeyword = SkillLevelupKey
-				curSkillTemplateKey = SkillLevelupTemplateKey
-			end
-
-			--整数处理
-			do
-				local keys = {}
-				for k,v in string.gmatch(parsedText, "([a-zA-Z]+[0-9]+)") do
-					if string.find(k, curSkillKeyword) then
-						table.insert(keys, k)
-					end
-				end
-				local index = 1
-				for k,v in pairs(keys) do
-					local levelupId = tonumber( string.match(v, "[0-9]+") )
-					local replStr = info.Integer[index].Value
-					-- warn("replStrAAAAAAAAAAAA = ", replStr)
-					index = index + 1
-					parsedText = Match(parsedText, v, replStr)
-					-- warn("parsedText = ", parsedText)
-				end
-			end
-			--浮点数 至多保留两位 显示：【乘以100，并且加上% 字符】
-			do
-				local keys = {}
-				for k,v in string.gmatch(parsedText, "([a-zA-Z]+[0-9]+\%%)") do
-					if string.find(k, curSkillKeyword) then
-						table.insert(keys, k)
-					end
-				end
-
-				local index = 1
-				for k,v in pairs(keys) do
-					local levelupId = tonumber( string.match(v, "[0-9]+") )
-					local replStr = info.Percentage[index].Value
-					-- warn("replStrBBBBBBBBBBBB = ", replStr)
-					index = index + 1
-					parsedText = Match(parsedText, v, replStr)
-				end
-			end
-		end
-
-		return parsedText
+		local parsedText = CElementSkill.GetSkillDesc(skillId, bIsTalent)
+		return DynamicText.ParseSkillSpecial(parsedText, skillId, skillLevel, bIsTalent)
 	end
 
 	--[[纹章描述动态字符串解析]]
 	def.static("number", "number", "=>", "string").ParseRuneDescText = function (runeId, runeLevel)
 		local runeTemplate = CElementData.GetTemplate("Rune", runeId)
 		if runeTemplate == nil then return "" end
+		return DynamicText.ParseRuneDescSpecial(runeTemplate.RuneDescription, runeId, runeLevel)
+	end
 
-		local RuneLevelupKey = "runelevelup"
-		local parsedText = runeTemplate.RuneDescription
-		if parsedText ~= "" then
-			--整数处理
-			do
-				local keys = {}
-				for k,v in string.gmatch(parsedText, "([a-zA-Z]+[0-9]+)") do
-					if string.find(k, RuneLevelupKey) then
-						table.insert(keys, k)
-					end
-				end
+	--[[技能描述动态字符串解析 str -> str]]  
+	def.static("string", "number", "number", "boolean", "=>", "string").ParseSkillSpecial = function (parsedText, skillId, skillLevel, bIsTalent)
+		local curSkillKeyword = bIsTalent and "talentlevelup" or "levelup"
+		local keys = DynamicText.ParseDescKeys(parsedText, curSkillKeyword)
 
-				for k,v in pairs(keys) do
-					local levelupId = tonumber( string.match(v, "[0-9]+") )
-					local val = CElementSkill.GetRuneLevelUpValue(runeId, levelupId, runeLevel)
-					val = math.abs(val)
-					local replStr = fmtVal2Str( val )
-					parsedText = Match(parsedText, v, replStr)
-				end
+		--整数处理
+		do
+			for k,v in pairs(keys.IntegerKeys) do
+				local levelupId = tonumber( string.match(v, _G.Regexp4Num) )
+				local val = CElementSkill.GetSkillLevelUpValue(skillId, levelupId, skillLevel, bIsTalent)
+				val = math.abs(val)
+				local replStr = fixFloatStr(val, 2)
+				parsedText = Match(parsedText, v, replStr)
 			end
-			--浮点数 至多保留两位 显示：【乘以100，并且加上% 字符】
-			do
-				local keys = {}
-				for k,v in string.gmatch(parsedText, "([a-zA-Z]+[0-9]+\%%)") do
-					if string.find(k, RuneLevelupKey) then
-						table.insert(keys, k)
-					end
-				end
-
-				for k,v in pairs(keys) do
-					local levelupId = tonumber( string.match(v, "[0-9]+") )
-					local val = CElementSkill.GetRuneLevelUpValue(runeId, levelupId, runeLevel) * 100
-					val = math.abs(val)
-					local replStr = fmtVal2Str(tonumber(fmtVal2Str(val)))
-					replStr = string.format("%s%%", replStr)
-					parsedText = Match(parsedText, v, replStr)
-				end
+		end
+		--浮点数 至多保留两位 显示：【乘以100，并且加上% 字符】
+		do
+			for k,v in pairs(keys.PercentageKeys) do
+				local levelupId = tonumber( string.match(v, _G.Regexp4Num) )
+				local val = CElementSkill.GetSkillLevelUpValue(skillId, levelupId, skillLevel, bIsTalent) * 100
+				val = math.abs(val)
+				local replStr = fixFloatStr(val, 2, true)
+				replStr = string.format("%s%%", replStr)
+				parsedText = Match(parsedText, v, replStr)
 			end
 		end
 
@@ -383,47 +164,30 @@ do
 	end
 
 	--[[纹章描述动态字符串解析]]
-	def.static("number", "number", "string", "=>", "string").ParseRuneDescSpecial = function (runeId, runeLevel, parsedText)
+	def.static("string", "number", "number", "=>", "string").ParseRuneDescSpecial = function (parsedText, runeId, runeLevel)
 		local runeTemplate = CElementData.GetTemplate("Rune", runeId)
-		if runeTemplate == nil then return "" end
+		if runeTemplate == nil then return parsedText end
 
-		local RuneLevelupKey = "runelevelup"
-		-- local parsedText = runeTemplate.RuneDescription
 		if parsedText ~= "" then
+			local RuneLevelupKey = "runelevelup"
+			local keys = DynamicText.ParseDescKeys(parsedText, RuneLevelupKey)
 			--整数处理
-			do
-				local keys = {}
-				for k,v in string.gmatch(parsedText, "([a-zA-Z]+[0-9]+)") do
-					if string.find(k, RuneLevelupKey) then
-						table.insert(keys, k)
-					end
-				end
+			for k,v in pairs(keys.IntegerKeys) do
+				local levelupId = tonumber( string.match(v, _G.Regexp4Num) )
+				local val = CElementSkill.GetRuneLevelUpValue(runeId, levelupId, runeLevel)
+				val = math.abs(val)
 
-				for k,v in pairs(keys) do
-					local levelupId = tonumber( string.match(v, "[0-9]+") )
-					local val = CElementSkill.GetRuneLevelUpValue(runeId, levelupId, runeLevel)
-					val = math.abs(val)
-					local replStr = fmtVal2Str( val )
-					parsedText = Match(parsedText, v, replStr)
-				end
+				local replStr = fixFloatStr(val, 2)
+				parsedText = Match(parsedText, v, replStr)
 			end
 			--浮点数 至多保留两位 显示：【乘以100，并且加上% 字符】
-			do
-				local keys = {}
-				for k,v in string.gmatch(parsedText, "([a-zA-Z]+[0-9]+\%%)") do
-					if string.find(k, RuneLevelupKey) then
-						table.insert(keys, k)
-					end
-				end
-
-				for k,v in pairs(keys) do
-					local levelupId = tonumber( string.match(v, "[0-9]+") )
-					local val = CElementSkill.GetRuneLevelUpValue(runeId, levelupId, runeLevel) * 100
-					val = math.abs(val)
-					local replStr = fmtVal2Str(tonumber(fmtVal2Str(val)))
-					replStr = string.format("%s%%", replStr)
-					parsedText = Match(parsedText, v, replStr)
-				end
+			for k,v in pairs(keys.PercentageKeys) do
+				local levelupId = tonumber( string.match(v, _G.Regexp4Num) )
+				local val = CElementSkill.GetRuneLevelUpValue(runeId, levelupId, runeLevel) * 100
+				val = math.abs(val)
+				local replStr = fixFloatStr(val, 2, true)
+				replStr = string.format("%s%%", replStr)
+				parsedText = Match(parsedText, v, replStr)
 			end
 		end
 
@@ -433,116 +197,19 @@ do
 	--[[状态描述动态字符串解析]]
 	def.static("string", "table", "=>", "string").ParseBuffStateDescText = function (parsedText, buffInfo)
 		if buffInfo.Skill then
-			parsedText = DynamicText.ParseSkill(parsedText, buffInfo.Skill.ID, buffInfo.Skill.Level, false)
+			parsedText = DynamicText.ParseSkillSpecial(parsedText, buffInfo.Skill.ID, buffInfo.Skill.Level, false)
 		end
 		if buffInfo.Talent then
-			parsedText = DynamicText.ParseSkill(parsedText, buffInfo.Talent.ID, buffInfo.Talent.Level, true)
+			parsedText = DynamicText.ParseSkillSpecial(parsedText, buffInfo.Talent.ID, buffInfo.Talent.Level, true)
 		end
 		if buffInfo.Rune then
-			parsedText = DynamicText.ParseRune(parsedText, buffInfo.Rune.ID, buffInfo.Rune.Level)
+			parsedText = DynamicText.ParseRuneDescSpecial(parsedText, buffInfo.Rune.ID, buffInfo.Rune.Level)
 		end
 		parsedText = DynamicText.ParseAttr(parsedText, buffInfo.Attr)
 
 		return parsedText
 	end
-	
-	--[[技能描述动态字符串解析 str -> str]]  
-	def.static("string", "number", "number", "boolean", "=>", "string").ParseSkill = function (parsedText, skillId, skillLevel, bIsTalent)
-		local SkillLevelupKey = "levelup"
-		local TalentLevelupKey = "talentlevelup"
-		local SkillLevelupTemplateKey = "SkillLevelUp"
-		local TalentLevelupTemplateKey = "TalentLevelUp"
 
-		local curSkillKeyword = ""
-		local curSkillTemplateKey = ""
-		if bIsTalent then
-			curSkillKeyword = TalentLevelupKey
-			curSkillTemplateKey = TalentLevelupTemplateKey
-		else
-			curSkillKeyword = SkillLevelupKey
-			curSkillTemplateKey = SkillLevelupTemplateKey
-		end
-
-		--整数处理
-		do
-			local keys = {}
-			for k,v in string.gmatch(parsedText, "([a-zA-Z]+[0-9]+)") do
-				if string.find(k, curSkillKeyword) and string.sub(k,1,string.len(curSkillKeyword)) == curSkillKeyword then
-					table.insert(keys, k)
-				end
-			end
-
-			for k,v in pairs(keys) do
-				local levelupId = tonumber( string.match(v, "[0-9]+") )
-				local val = DynamicText.GetSkillLevelUpValue(skillId, levelupId, skillLevel, bIsTalent)
-				val = math.abs(val)
-				local replStr = fmtVal2Str( val )
-				parsedText = Match(parsedText, v, replStr)
-			end
-		end
-		--浮点数 至多保留两位 显示：【乘以100，并且加上% 字符】
-		do
-			local keys = {}
-			for k,v in string.gmatch(parsedText, "([a-zA-Z]+[0-9]+\%%)") do
-				if string.find(k, curSkillKeyword) and string.sub(k,1,string.len(curSkillKeyword)) == curSkillKeyword then
-					table.insert(keys, k)
-				end
-			end
-
-			for k,v in pairs(keys) do
-				local levelupId = tonumber( string.match(v, "[0-9]+") )
-				local val = DynamicText.GetSkillLevelUpValue(skillId, levelupId, skillLevel, bIsTalent) * 100
-				val = math.abs(val)
-				local replStr = fmtVal2Str(tonumber(fmtVal2Str(val)))
-				replStr = string.format("%s%%", replStr)
-				parsedText = Match(parsedText, v, replStr)
-			end
-		end
-
-		return parsedText
-	end
-	--[[纹章描述动态字符串解析 str -> str]]  
-	def.static("string", "number", "number", "=>", "string").ParseRune = function (parsedText, runeId, runeLevel)
-		local RuneLevelupKey = "runelevelup"
-
-		--整数处理
-		do
-			local keys = {}
-			for k,v in string.gmatch(parsedText, "([a-zA-Z]+[0-9]+)") do
-				if string.find(k, RuneLevelupKey) and string.sub(k,1,string.len(RuneLevelupKey)) == RuneLevelupKey then
-					table.insert(keys, k)
-				end
-			end
-
-			for k,v in pairs(keys) do
-				local levelupId = tonumber( string.match(v, "[0-9]+") )
-				local val = CElementSkill.GetRuneLevelUpValue(runeId, levelupId, runeLevel)
-				val = math.abs(val)
-				local replStr = fmtVal2Str( val )
-				parsedText = Match(parsedText, v, replStr)
-			end
-		end
-		--浮点数 至多保留两位 显示：【乘以100，并且加上% 字符】
-		do
-			local keys = {}
-			for k,v in string.gmatch(parsedText, "([a-zA-Z]+[0-9]+\%%)") do
-				if string.find(k, RuneLevelupKey) and string.sub(k,1,string.len(RuneLevelupKey)) == RuneLevelupKey then
-					table.insert(keys, k)
-				end
-			end
-
-			for k,v in pairs(keys) do
-				local levelupId = tonumber( string.match(v, "[0-9]+") )
-				local val = CElementSkill.GetRuneLevelUpValue(runeId, levelupId, runeLevel) * 100
-				val = math.abs(val)
-				local replStr = fmtVal2Str(tonumber(fmtVal2Str(val)))
-				replStr = string.format("%s%%", replStr)
-				parsedText = Match(parsedText, v, replStr)
-			end
-		end
-
-		return parsedText
-	end
 	--[[属性描述动态字符串解析 str -> str]]  
 	def.static("string", "table", "=>", "string").ParseAttr = function (parsedText, attrInfo)
 		local AttrKey = "attr"
@@ -562,34 +229,34 @@ do
 		--整数处理
 		do
 			local keys = {}
-			for k,v in string.gmatch(parsedText, "([a-zA-Z]+[0-9]+)") do
+			for k,v in string.gmatch(parsedText, _G.Regexp4Int) do
 				if string.find(k, AttrKey) and string.sub(k,1,string.len(AttrKey)) == AttrKey then
 					table.insert(keys, k)
 				end
 			end
 
 			for k,v in pairs(keys) do
-				local attrId = tonumber( string.match(v, "[0-9]+") )
+				local attrId = tonumber( string.match(v, _G.Regexp4Num) )
 				local val = GetAttrValueById(attrId)
 				val = math.abs(val)
-				local replStr = fmtVal2Str( val )
+				local replStr = fixFloatStr(val, 2)
 				parsedText = Match(parsedText, v, replStr)
 			end
 		end
 		--浮点数 至多保留两位 显示：【乘以100，并且加上% 字符】
 		do
 			local keys = {}
-			for k,v in string.gmatch(parsedText, "([a-zA-Z]+[0-9]+\%%)") do
+			for k,v in string.gmatch(parsedText, _G.Regexp4Percent) do
 				if string.find(k, AttrKey) and string.sub(k,1,string.len(AttrKey)) == AttrKey then
 					table.insert(keys, k)
 				end
 			end
 
 			for k,v in pairs(keys) do
-				local attrId = tonumber( string.match(v, "[0-9]+") )
+				local attrId = tonumber( string.match(v, _G.Regexp4Num) )
 				local val = GetAttrValueById(attrId) * 100
 				val = math.abs(val)
-				local replStr = fmtVal2Str(tonumber(fmtVal2Str(val)))
+				local replStr = fixFloatStr(val, 2, true)
 				replStr = string.format("%s%%", replStr)
 				parsedText = Match(parsedText, v, replStr)
 			end

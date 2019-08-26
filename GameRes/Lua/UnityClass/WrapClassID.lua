@@ -60,5 +60,4 @@ _G.ClassType = {
 	GImageModel = 57,
 	Camera = 58,
 	GWebView = 59,
-    GDragablePageView = 60,
 }

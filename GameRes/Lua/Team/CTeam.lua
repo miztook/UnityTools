@@ -46,7 +46,6 @@ end
 def.method().Reset = function (self)
 	self._ID = 0
 	self._TargetId = 0          --房间目标ID
-	self._MemberList = {}
 	self._TeamNotice = ""
 	self._TeamLeaderId = 0
 	self._TeamLeaderName = ""
@@ -60,6 +59,32 @@ def.method().Reset = function (self)
 --	self._IsAutoMatch = false    --是否支持自动匹配
 	self._Setting = nil
 	self._IsFirstInit = true
+
+	local teamMemberList = self._MemberList
+	local hp = game._HostPlayer
+	local world = game._CurWorld
+
+	local oldMemberIdList = {}
+	for i,v in ipairs(teamMemberList) do
+		if v._ID ~= hp._ID then
+			local findMember = world:FindObject(v._ID)
+			if findMember then
+				findMember:UpdateTopPateName(true)
+				findMember:UpdatePetName()
+				findMember:UpdateTopPate(EnumDef.PateChangeType.HPLine)
+				findMember:UpdateTopPate(EnumDef.PateChangeType.Rescue)
+				
+				table.insert(oldMemberIdList, v._ID)
+			end
+		end
+	end
+	-- 清理
+	self._MemberList = {}
+
+	-- 刷新选中
+	for i, id in ipairs(oldMemberIdList) do
+		hp:UpdateTargetSelected(id)
+	end
 end
 
 CTeam.Commit()

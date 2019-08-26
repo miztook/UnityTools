@@ -360,7 +360,6 @@ local LinkInfo =
 			Portal = 
 			{
 				[1] = { id = 7, regionId = 0, x = 0, y = 0, z = 0, xA = 0.002543569, yA = 0.9150009, zA = -15.74689 },
-				[2] = { id = 11, regionId = 587, x = 181.8571, y = 20.41581, z = -184.2713, xA = 0.002543569, yA = 0.9150009, zA = -15.74689 },
 			},
 		},
 	},
@@ -733,79 +732,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 39, x = 218.7238, y = 52.23923, z = -236.3165, xA = -243.45, yA = 42.75, zA = -174.06 },
-			},
-		},
-		[131] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1310, regionId = 56, x = 142.9399, y = 60.89861, z = -41.86623 },
-			},
-		},
-		[132] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1310, regionId = 141, x = -93.30187, y = 62.78048, z = 45.12124 },
-			},
-		},
-		[133] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1310, regionId = 147, x = 27.95571, y = 64.66893, z = 139.8048 },
-			},
-		},
-		[134] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1310, regionId = 142, x = -132.5841, y = 93.1552, z = -255.6468 },
-			},
-		},
-		[135] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1310, regionId = 148, x = 159.6036, y = 74.60387, z = 210.2977 },
-			},
-		},
-		[136] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1310, regionId = 149, x = -34.56901, y = 64.42458, z = -204.1205 },
-			},
-		},
-		[137] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1310, regionId = 150, x = -206.4892, y = 72.33791, z = 82.37799 },
-			},
-		},
-		[138] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1310, regionId = 151, x = -183.967, y = 87.70186, z = 190.6759 },
-			},
-		},
-		[139] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1310, regionId = 152, x = 97.70465, y = 59.90432, z = -188.0464 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -243.45, yA = 42.75, zA = -174.06 },
 			},
 		},
 		[140] = 
@@ -813,7 +740,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 241, x = -194.032, y = 82.56526, z = 234.3118, xA = -249.66, yA = -18.33, zA = -182.2 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = -249.66, yA = -18.33, zA = -182.2 },
 			},
 		},
 	},
@@ -824,79 +751,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 39, x = 218.7238, y = 52.23923, z = -236.3165, xA = -243.45, yA = 42.75, zA = -174.06 },
-			},
-		},
-		[131] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1311, regionId = 56, x = 142.9399, y = 60.89861, z = -41.86623 },
-			},
-		},
-		[132] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1311, regionId = 141, x = -93.30187, y = 62.78048, z = 45.12124 },
-			},
-		},
-		[133] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1311, regionId = 147, x = 27.95571, y = 64.66893, z = 139.8048 },
-			},
-		},
-		[134] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1311, regionId = 142, x = -132.5841, y = 93.1552, z = -255.6468 },
-			},
-		},
-		[135] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1311, regionId = 148, x = 159.6036, y = 74.60387, z = 210.2977 },
-			},
-		},
-		[136] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1311, regionId = 149, x = -34.56901, y = 64.42458, z = -204.1205 },
-			},
-		},
-		[137] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1311, regionId = 150, x = -206.4892, y = 72.33791, z = 82.37799 },
-			},
-		},
-		[138] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1311, regionId = 151, x = -183.967, y = 87.70186, z = 190.6759 },
-			},
-		},
-		[139] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1311, regionId = 152, x = 97.70465, y = 59.90432, z = -188.0464 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -243.45, yA = 42.75, zA = -174.06 },
 			},
 		},
 		[140] = 
@@ -904,7 +759,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 241, x = -194.032, y = 82.56526, z = 234.3118, xA = -249.66, yA = -18.33, zA = -182.2 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = -249.66, yA = -18.33, zA = -182.2 },
 			},
 		},
 	},
@@ -915,79 +770,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 39, x = 218.7238, y = 52.23923, z = -236.3165, xA = -243.45, yA = 42.75, zA = -174.06 },
-			},
-		},
-		[131] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1312, regionId = 56, x = 142.9399, y = 60.89861, z = -41.86623 },
-			},
-		},
-		[132] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1312, regionId = 141, x = -93.30187, y = 62.78048, z = 45.12124 },
-			},
-		},
-		[133] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1312, regionId = 147, x = 27.95571, y = 64.66893, z = 139.8048 },
-			},
-		},
-		[134] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1312, regionId = 142, x = -132.5841, y = 93.1552, z = -255.6468 },
-			},
-		},
-		[135] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1312, regionId = 148, x = 159.6036, y = 74.60387, z = 210.2977 },
-			},
-		},
-		[136] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1312, regionId = 149, x = -34.56901, y = 64.42458, z = -204.1205 },
-			},
-		},
-		[137] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1312, regionId = 150, x = -206.4892, y = 72.33791, z = 82.37799 },
-			},
-		},
-		[138] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1312, regionId = 151, x = -183.967, y = 87.70186, z = 190.6759 },
-			},
-		},
-		[139] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1312, regionId = 152, x = 97.70465, y = 59.90432, z = -188.0464 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -243.45, yA = 42.75, zA = -174.06 },
 			},
 		},
 		[140] = 
@@ -995,7 +778,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 241, x = -194.032, y = 82.56526, z = 234.3118, xA = -249.66, yA = -18.33, zA = -182.2 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = -249.66, yA = -18.33, zA = -182.2 },
 			},
 		},
 	},
@@ -1006,79 +789,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 39, x = 218.7238, y = 52.23923, z = -236.3165, xA = -243.45, yA = 42.75, zA = -174.06 },
-			},
-		},
-		[131] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1313, regionId = 56, x = 142.9399, y = 60.89861, z = -41.86623 },
-			},
-		},
-		[132] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1313, regionId = 141, x = -93.30187, y = 62.78048, z = 45.12124 },
-			},
-		},
-		[133] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1313, regionId = 147, x = 27.95571, y = 64.66893, z = 139.8048 },
-			},
-		},
-		[134] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1313, regionId = 142, x = -132.5841, y = 93.1552, z = -255.6468 },
-			},
-		},
-		[135] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1313, regionId = 148, x = 159.6036, y = 74.60387, z = 210.2977 },
-			},
-		},
-		[136] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1313, regionId = 149, x = -34.56901, y = 64.42458, z = -204.1205 },
-			},
-		},
-		[137] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1313, regionId = 150, x = -206.4892, y = 72.33791, z = 82.37799 },
-			},
-		},
-		[138] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1313, regionId = 151, x = -183.967, y = 87.70186, z = 190.6759 },
-			},
-		},
-		[139] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1313, regionId = 152, x = 97.70465, y = 59.90432, z = -188.0464 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -243.45, yA = 42.75, zA = -174.06 },
 			},
 		},
 		[140] = 
@@ -1086,7 +797,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 241, x = -194.032, y = 82.56526, z = 234.3118, xA = -249.66, yA = -18.33, zA = -182.2 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = -249.66, yA = -18.33, zA = -182.2 },
 			},
 		},
 	},
@@ -1097,79 +808,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 39, x = 218.7238, y = 52.23923, z = -236.3165, xA = -243.45, yA = 42.75, zA = -174.06 },
-			},
-		},
-		[131] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1314, regionId = 56, x = 142.9399, y = 60.89861, z = -41.86623 },
-			},
-		},
-		[132] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1314, regionId = 141, x = -93.30187, y = 62.78048, z = 45.12124 },
-			},
-		},
-		[133] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1314, regionId = 147, x = 27.95571, y = 64.66893, z = 139.8048 },
-			},
-		},
-		[134] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1314, regionId = 142, x = -132.5841, y = 93.1552, z = -255.6468 },
-			},
-		},
-		[135] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1314, regionId = 148, x = 159.6036, y = 74.60387, z = 210.2977 },
-			},
-		},
-		[136] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1314, regionId = 149, x = -34.56901, y = 64.42458, z = -204.1205 },
-			},
-		},
-		[137] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1314, regionId = 150, x = -206.4892, y = 72.33791, z = 82.37799 },
-			},
-		},
-		[138] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1314, regionId = 151, x = -183.967, y = 87.70186, z = 190.6759 },
-			},
-		},
-		[139] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1314, regionId = 152, x = 97.70465, y = 59.90432, z = -188.0464 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -243.45, yA = 42.75, zA = -174.06 },
 			},
 		},
 		[140] = 
@@ -1177,7 +816,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 241, x = -194.032, y = 82.56526, z = 234.3118, xA = -249.66, yA = -18.33, zA = -182.2 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = -249.66, yA = -18.33, zA = -182.2 },
 			},
 		},
 	},
@@ -1232,87 +871,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 39, x = 218.7238, y = 52.23923, z = -236.3165, xA = -243.45, yA = 42.75, zA = -174.06 },
-			},
-		},
-		[131] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1330, regionId = 56, x = 142.9399, y = 60.89861, z = -41.86623 },
-			},
-		},
-		[132] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1330, regionId = 141, x = -93.30187, y = 62.78048, z = 45.12124 },
-			},
-		},
-		[1320] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1330, regionId = 578, x = -33.87945, y = 64.42458, z = -202.5937 },
-			},
-		},
-		[133] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1330, regionId = 147, x = 11.73886, y = 64.66893, z = 135.4507 },
-			},
-		},
-		[134] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1330, regionId = 142, x = -132.5841, y = 93.1552, z = -255.6468 },
-			},
-		},
-		[135] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1330, regionId = 148, x = 159.6036, y = 74.60387, z = 210.2977 },
-			},
-		},
-		[136] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1330, regionId = 149, x = -34.56901, y = 64.42458, z = -204.1205 },
-			},
-		},
-		[137] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1330, regionId = 150, x = -206.4892, y = 72.33791, z = 82.37799 },
-			},
-		},
-		[138] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1330, regionId = 151, x = -183.967, y = 87.70186, z = 190.6759 },
-			},
-		},
-		[139] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1330, regionId = 152, x = 97.70465, y = 59.90432, z = -188.0464 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -243.45, yA = 42.75, zA = -174.06 },
 			},
 		},
 		[140] = 
@@ -1320,7 +879,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 241, x = -194.032, y = 82.56526, z = 234.3118, xA = -249.66, yA = -18.33, zA = -182.2 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = -249.66, yA = -18.33, zA = -182.2 },
 			},
 		},
 	},
@@ -1331,87 +890,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 39, x = 218.7238, y = 52.23923, z = -236.3165, xA = -243.45, yA = 42.75, zA = -174.06 },
-			},
-		},
-		[131] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1331, regionId = 56, x = 142.9399, y = 60.89861, z = -41.86623 },
-			},
-		},
-		[132] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1331, regionId = 141, x = -93.30187, y = 62.78048, z = 45.12124 },
-			},
-		},
-		[1320] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1331, regionId = 578, x = -33.87945, y = 64.42458, z = -202.5937 },
-			},
-		},
-		[133] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1331, regionId = 147, x = 11.73886, y = 64.66893, z = 135.4507 },
-			},
-		},
-		[134] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1331, regionId = 142, x = -132.5841, y = 93.1552, z = -255.6468 },
-			},
-		},
-		[135] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1331, regionId = 148, x = 159.6036, y = 74.60387, z = 210.2977 },
-			},
-		},
-		[136] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1331, regionId = 149, x = -34.56901, y = 64.42458, z = -204.1205 },
-			},
-		},
-		[137] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1331, regionId = 150, x = -206.4892, y = 72.33791, z = 82.37799 },
-			},
-		},
-		[138] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1331, regionId = 151, x = -183.967, y = 87.70186, z = 190.6759 },
-			},
-		},
-		[139] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1331, regionId = 152, x = 97.70465, y = 59.90432, z = -188.0464 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -243.45, yA = 42.75, zA = -174.06 },
 			},
 		},
 		[140] = 
@@ -1419,7 +898,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 241, x = -194.032, y = 82.56526, z = 234.3118, xA = -249.66, yA = -18.33, zA = -182.2 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = -249.66, yA = -18.33, zA = -182.2 },
 			},
 		},
 	},
@@ -1430,87 +909,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 39, x = 218.7238, y = 52.23923, z = -236.3165, xA = -243.45, yA = 42.75, zA = -174.06 },
-			},
-		},
-		[131] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1332, regionId = 56, x = 142.9399, y = 60.89861, z = -41.86623 },
-			},
-		},
-		[132] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1332, regionId = 141, x = -93.30187, y = 62.78048, z = 45.12124 },
-			},
-		},
-		[1320] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1332, regionId = 578, x = -33.87945, y = 64.42458, z = -202.5937 },
-			},
-		},
-		[133] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1332, regionId = 147, x = 11.73886, y = 64.66893, z = 135.4507 },
-			},
-		},
-		[134] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1332, regionId = 142, x = -132.5841, y = 93.1552, z = -255.6468 },
-			},
-		},
-		[135] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1332, regionId = 148, x = 159.6036, y = 74.60387, z = 210.2977 },
-			},
-		},
-		[136] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1332, regionId = 149, x = -34.56901, y = 64.42458, z = -204.1205 },
-			},
-		},
-		[137] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1332, regionId = 150, x = -206.4892, y = 72.33791, z = 82.37799 },
-			},
-		},
-		[138] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1332, regionId = 151, x = -183.967, y = 87.70186, z = 190.6759 },
-			},
-		},
-		[139] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1332, regionId = 152, x = 97.70465, y = 59.90432, z = -188.0464 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -243.45, yA = 42.75, zA = -174.06 },
 			},
 		},
 		[140] = 
@@ -1518,7 +917,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 241, x = -194.032, y = 82.56526, z = 234.3118, xA = -249.66, yA = -18.33, zA = -182.2 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = -249.66, yA = -18.33, zA = -182.2 },
 			},
 		},
 	},
@@ -1529,87 +928,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 39, x = 218.7238, y = 52.23923, z = -236.3165, xA = -243.45, yA = 42.75, zA = -174.06 },
-			},
-		},
-		[131] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1333, regionId = 56, x = 142.9399, y = 60.89861, z = -41.86623 },
-			},
-		},
-		[132] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1333, regionId = 141, x = -93.30187, y = 62.78048, z = 45.12124 },
-			},
-		},
-		[1320] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1333, regionId = 578, x = -33.87945, y = 64.42458, z = -202.5937 },
-			},
-		},
-		[133] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1333, regionId = 147, x = 11.73886, y = 64.66893, z = 135.4507 },
-			},
-		},
-		[134] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1333, regionId = 142, x = -132.5841, y = 93.1552, z = -255.6468 },
-			},
-		},
-		[135] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1333, regionId = 148, x = 159.6036, y = 74.60387, z = 210.2977 },
-			},
-		},
-		[136] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1333, regionId = 149, x = -34.56901, y = 64.42458, z = -204.1205 },
-			},
-		},
-		[137] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1333, regionId = 150, x = -206.4892, y = 72.33791, z = 82.37799 },
-			},
-		},
-		[138] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1333, regionId = 151, x = -183.967, y = 87.70186, z = 190.6759 },
-			},
-		},
-		[139] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1333, regionId = 152, x = 97.70465, y = 59.90432, z = -188.0464 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -243.45, yA = 42.75, zA = -174.06 },
 			},
 		},
 		[140] = 
@@ -1617,7 +936,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 241, x = -194.032, y = 82.56526, z = 234.3118, xA = -249.66, yA = -18.33, zA = -182.2 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = -249.66, yA = -18.33, zA = -182.2 },
 			},
 		},
 	},
@@ -1628,87 +947,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 39, x = 218.7238, y = 52.23923, z = -236.3165, xA = -243.45, yA = 42.75, zA = -174.06 },
-			},
-		},
-		[131] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1334, regionId = 56, x = 142.9399, y = 60.89861, z = -41.86623 },
-			},
-		},
-		[132] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1334, regionId = 141, x = -93.30187, y = 62.78048, z = 45.12124 },
-			},
-		},
-		[1320] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1334, regionId = 578, x = -33.87945, y = 64.42458, z = -202.5937 },
-			},
-		},
-		[133] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1334, regionId = 147, x = 11.73886, y = 64.66893, z = 135.4507 },
-			},
-		},
-		[134] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1334, regionId = 142, x = -132.5841, y = 93.1552, z = -255.6468 },
-			},
-		},
-		[135] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1334, regionId = 148, x = 159.6036, y = 74.60387, z = 210.2977 },
-			},
-		},
-		[136] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1334, regionId = 149, x = -34.56901, y = 64.42458, z = -204.1205 },
-			},
-		},
-		[137] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1334, regionId = 150, x = -206.4892, y = 72.33791, z = 82.37799 },
-			},
-		},
-		[138] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1334, regionId = 151, x = -183.967, y = 87.70186, z = 190.6759 },
-			},
-		},
-		[139] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1334, regionId = 152, x = 97.70465, y = 59.90432, z = -188.0464 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -243.45, yA = 42.75, zA = -174.06 },
 			},
 		},
 		[140] = 
@@ -1716,7 +955,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 241, x = -194.032, y = 82.56526, z = 234.3118, xA = -249.66, yA = -18.33, zA = -182.2 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = -249.66, yA = -18.33, zA = -182.2 },
 			},
 		},
 	},
@@ -1857,7 +1096,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 8, regionId = 0, x = 0, y = 0, z = 0, xA = 0, yA = 0, zA = 0 },
+				[1] = { id = 8, regionId = 0, x = 0, y = 0, z = 0, xA = 0.002543569, yA = 0.9150009, zA = -15.74689 },
 			},
 		},
 	},
@@ -1981,7 +1220,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 54, x = -248.7057, y = -6.808498, z = -187.8694, xA = -194.7, yA = 82.2, zA = 228.76 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -194.7, yA = 82.2, zA = 228.76 },
 			},
 		},
 		[140] = 
@@ -1989,75 +1228,11 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 3, regionId = 209, x = 312.5387, y = 30.49136, z = 29.53843, xA = 275.5659, yA = -9.910275, zA = 23.21227 },
-				[2] = { id = 4, regionId = 210, x = 270.3446, y = -8.208547, z = 16.14061, xA = 318.8305, yA = 30.15565, zA = 26.92305 },
-				[3] = { id = 5, regionId = 220, x = 1.004611, y = 22.29269, z = 31.2534, xA = -34.75534, yA = 38.34096, zA = 52.50761 },
-				[4] = { id = 6, regionId = 221, x = -33.09686, y = 41.12839, z = 51.67188, xA = 3.714653, yA = 21.03644, zA = 30.09468 },
-				[5] = { id = 7, regionId = 240, x = 316.1293, y = 31.41, z = 53.01378, xA = 176.4999, yA = 39.78488, zA = 2.813782 },
-			},
-		},
-		[141] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1430, regionId = 194, x = -283.944, y = 1.979423, z = -68.45753 },
-			},
-		},
-		[1410] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1430, regionId = 460, x = 316.7558, y = 49.56199, z = -77.0893 },
-			},
-		},
-		[1412] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1430, regionId = 582, x = 293.66, y = 45.28226, z = -112.45 },
-			},
-		},
-		[142] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1430, regionId = 195, x = -369.5096, y = 2.103673, z = 6.430655 },
-			},
-		},
-		[1420] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1430, regionId = 579, x = 311.8109, y = -9.54787, z = 47.95555 },
-			},
-		},
-		[143] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1430, regionId = 222, x = 61.0647, y = 30.41437, z = 48.47094 },
-			},
-		},
-		[144] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1430, regionId = 225, x = -182.7735, y = 2.671629, z = -64.63421 },
-			},
-		},
-		[145] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1430, regionId = 459, x = 155.6317, y = 59.46346, z = 18.43012 },
+				[1] = { id = 3, regionId = 0, x = 0, y = 0, z = 0, xA = 275.5659, yA = -9.910275, zA = 23.21227 },
+				[2] = { id = 4, regionId = 0, x = 0, y = 0, z = 0, xA = 318.8305, yA = 30.15565, zA = 26.92305 },
+				[3] = { id = 5, regionId = 0, x = 0, y = 0, z = 0, xA = -34.75534, yA = 38.34096, zA = 52.50761 },
+				[4] = { id = 6, regionId = 0, x = 0, y = 0, z = 0, xA = 3.714653, yA = 21.03644, zA = 30.09468 },
+				[5] = { id = 7, regionId = 0, x = 0, y = 0, z = 0, xA = 176.4999, yA = 39.78488, zA = 2.813782 },
 			},
 		},
 		[150] = 
@@ -2065,7 +1240,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 56, x = 58.67616, y = 26.03611, z = 143.0075, xA = 336.29, yA = 46.57, zA = -106.17 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = 336.29, yA = 46.57, zA = -106.17 },
 			},
 		},
 		[3] = 
@@ -2084,7 +1259,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 54, x = -248.7057, y = -6.808498, z = -187.8694, xA = -194.7, yA = 82.2, zA = 228.76 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -194.7, yA = 82.2, zA = 228.76 },
 			},
 		},
 		[140] = 
@@ -2092,75 +1267,11 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 3, regionId = 209, x = 312.5387, y = 30.49136, z = 29.53843, xA = 275.5659, yA = -9.910275, zA = 23.21227 },
-				[2] = { id = 4, regionId = 210, x = 270.3446, y = -8.208547, z = 16.14061, xA = 318.8305, yA = 30.15565, zA = 26.92305 },
-				[3] = { id = 5, regionId = 220, x = 1.004611, y = 22.29269, z = 31.2534, xA = -34.75534, yA = 38.34096, zA = 52.50761 },
-				[4] = { id = 6, regionId = 221, x = -33.09686, y = 41.12839, z = 51.67188, xA = 3.714653, yA = 21.03644, zA = 30.09468 },
-				[5] = { id = 7, regionId = 240, x = 316.1293, y = 31.41, z = 53.01378, xA = 176.4999, yA = 39.78488, zA = 2.813782 },
-			},
-		},
-		[141] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1431, regionId = 194, x = -283.944, y = 1.979423, z = -68.45753 },
-			},
-		},
-		[1410] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1431, regionId = 460, x = 316.7558, y = 49.56199, z = -77.0893 },
-			},
-		},
-		[1412] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1431, regionId = 582, x = 293.66, y = 45.28226, z = -112.45 },
-			},
-		},
-		[142] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1431, regionId = 195, x = -369.5096, y = 2.103673, z = 6.430655 },
-			},
-		},
-		[1420] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1431, regionId = 579, x = 311.8109, y = -9.54787, z = 47.95555 },
-			},
-		},
-		[143] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1431, regionId = 222, x = 61.0647, y = 30.41437, z = 48.47094 },
-			},
-		},
-		[144] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1431, regionId = 225, x = -182.7735, y = 2.671629, z = -64.63421 },
-			},
-		},
-		[145] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1431, regionId = 459, x = 155.6317, y = 59.46346, z = 18.43012 },
+				[1] = { id = 3, regionId = 0, x = 0, y = 0, z = 0, xA = 275.5659, yA = -9.910275, zA = 23.21227 },
+				[2] = { id = 4, regionId = 0, x = 0, y = 0, z = 0, xA = 318.8305, yA = 30.15565, zA = 26.92305 },
+				[3] = { id = 5, regionId = 0, x = 0, y = 0, z = 0, xA = -34.75534, yA = 38.34096, zA = 52.50761 },
+				[4] = { id = 6, regionId = 0, x = 0, y = 0, z = 0, xA = 3.714653, yA = 21.03644, zA = 30.09468 },
+				[5] = { id = 7, regionId = 0, x = 0, y = 0, z = 0, xA = 176.4999, yA = 39.78488, zA = 2.813782 },
 			},
 		},
 		[150] = 
@@ -2168,7 +1279,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 56, x = 58.67616, y = 26.03611, z = 143.0075, xA = 336.29, yA = 46.57, zA = -106.17 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = 336.29, yA = 46.57, zA = -106.17 },
 			},
 		},
 		[3] = 
@@ -2187,7 +1298,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 54, x = -248.7057, y = -6.808498, z = -187.8694, xA = -194.7, yA = 82.2, zA = 228.76 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -194.7, yA = 82.2, zA = 228.76 },
 			},
 		},
 		[140] = 
@@ -2195,75 +1306,11 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 3, regionId = 209, x = 312.5387, y = 30.49136, z = 29.53843, xA = 275.5659, yA = -9.910275, zA = 23.21227 },
-				[2] = { id = 4, regionId = 210, x = 270.3446, y = -8.208547, z = 16.14061, xA = 318.8305, yA = 30.15565, zA = 26.92305 },
-				[3] = { id = 5, regionId = 220, x = 1.004611, y = 22.29269, z = 31.2534, xA = -34.75534, yA = 38.34096, zA = 52.50761 },
-				[4] = { id = 6, regionId = 221, x = -33.09686, y = 41.12839, z = 51.67188, xA = 3.714653, yA = 21.03644, zA = 30.09468 },
-				[5] = { id = 7, regionId = 240, x = 316.1293, y = 31.41, z = 53.01378, xA = 176.4999, yA = 39.78488, zA = 2.813782 },
-			},
-		},
-		[141] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1432, regionId = 194, x = -283.944, y = 1.979423, z = -68.45753 },
-			},
-		},
-		[1410] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1432, regionId = 460, x = 316.7558, y = 49.56199, z = -77.0893 },
-			},
-		},
-		[1412] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1432, regionId = 582, x = 293.66, y = 45.28226, z = -112.45 },
-			},
-		},
-		[142] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1432, regionId = 195, x = -369.5096, y = 2.103673, z = 6.430655 },
-			},
-		},
-		[1420] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1432, regionId = 579, x = 311.8109, y = -9.54787, z = 47.95555 },
-			},
-		},
-		[143] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1432, regionId = 222, x = 61.0647, y = 30.41437, z = 48.47094 },
-			},
-		},
-		[144] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1432, regionId = 225, x = -182.7735, y = 2.671629, z = -64.63421 },
-			},
-		},
-		[145] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1432, regionId = 459, x = 155.6317, y = 59.46346, z = 18.43012 },
+				[1] = { id = 3, regionId = 0, x = 0, y = 0, z = 0, xA = 275.5659, yA = -9.910275, zA = 23.21227 },
+				[2] = { id = 4, regionId = 0, x = 0, y = 0, z = 0, xA = 318.8305, yA = 30.15565, zA = 26.92305 },
+				[3] = { id = 5, regionId = 0, x = 0, y = 0, z = 0, xA = -34.75534, yA = 38.34096, zA = 52.50761 },
+				[4] = { id = 6, regionId = 0, x = 0, y = 0, z = 0, xA = 3.714653, yA = 21.03644, zA = 30.09468 },
+				[5] = { id = 7, regionId = 0, x = 0, y = 0, z = 0, xA = 176.4999, yA = 39.78488, zA = 2.813782 },
 			},
 		},
 		[150] = 
@@ -2271,7 +1318,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 56, x = 58.67616, y = 26.03611, z = 143.0075, xA = 336.29, yA = 46.57, zA = -106.17 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = 336.29, yA = 46.57, zA = -106.17 },
 			},
 		},
 		[3] = 
@@ -2290,7 +1337,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 54, x = -248.7057, y = -6.808498, z = -187.8694, xA = -194.7, yA = 82.2, zA = 228.76 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -194.7, yA = 82.2, zA = 228.76 },
 			},
 		},
 		[140] = 
@@ -2298,75 +1345,11 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 3, regionId = 209, x = 312.5387, y = 30.49136, z = 29.53843, xA = 275.5659, yA = -9.910275, zA = 23.21227 },
-				[2] = { id = 4, regionId = 210, x = 270.3446, y = -8.208547, z = 16.14061, xA = 318.8305, yA = 30.15565, zA = 26.92305 },
-				[3] = { id = 5, regionId = 220, x = 1.004611, y = 22.29269, z = 31.2534, xA = -34.75534, yA = 38.34096, zA = 52.50761 },
-				[4] = { id = 6, regionId = 221, x = -33.09686, y = 41.12839, z = 51.67188, xA = 3.714653, yA = 21.03644, zA = 30.09468 },
-				[5] = { id = 7, regionId = 240, x = 316.1293, y = 31.41, z = 53.01378, xA = 176.4999, yA = 39.78488, zA = 2.813782 },
-			},
-		},
-		[141] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1433, regionId = 194, x = -283.944, y = 1.979423, z = -68.45753 },
-			},
-		},
-		[1410] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1433, regionId = 460, x = 316.7558, y = 49.56199, z = -77.0893 },
-			},
-		},
-		[1412] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1433, regionId = 582, x = 293.66, y = 45.28226, z = -112.45 },
-			},
-		},
-		[142] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1433, regionId = 195, x = -369.5096, y = 2.103673, z = 6.430655 },
-			},
-		},
-		[1420] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1433, regionId = 579, x = 311.8109, y = -9.54787, z = 47.95555 },
-			},
-		},
-		[143] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1433, regionId = 222, x = 61.0647, y = 30.41437, z = 48.47094 },
-			},
-		},
-		[144] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1433, regionId = 225, x = -182.7735, y = 2.671629, z = -64.63421 },
-			},
-		},
-		[145] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1433, regionId = 459, x = 155.6317, y = 59.46346, z = 18.43012 },
+				[1] = { id = 3, regionId = 0, x = 0, y = 0, z = 0, xA = 275.5659, yA = -9.910275, zA = 23.21227 },
+				[2] = { id = 4, regionId = 0, x = 0, y = 0, z = 0, xA = 318.8305, yA = 30.15565, zA = 26.92305 },
+				[3] = { id = 5, regionId = 0, x = 0, y = 0, z = 0, xA = -34.75534, yA = 38.34096, zA = 52.50761 },
+				[4] = { id = 6, regionId = 0, x = 0, y = 0, z = 0, xA = 3.714653, yA = 21.03644, zA = 30.09468 },
+				[5] = { id = 7, regionId = 0, x = 0, y = 0, z = 0, xA = 176.4999, yA = 39.78488, zA = 2.813782 },
 			},
 		},
 		[150] = 
@@ -2374,7 +1357,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 56, x = 58.67616, y = 26.03611, z = 143.0075, xA = 336.29, yA = 46.57, zA = -106.17 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = 336.29, yA = 46.57, zA = -106.17 },
 			},
 		},
 		[3] = 
@@ -2393,7 +1376,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 54, x = -248.7057, y = -6.808498, z = -187.8694, xA = -194.7, yA = 82.2, zA = 228.76 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -194.7, yA = 82.2, zA = 228.76 },
 			},
 		},
 		[140] = 
@@ -2401,75 +1384,11 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 3, regionId = 209, x = 312.5387, y = 30.49136, z = 29.53843, xA = 275.5659, yA = -9.910275, zA = 23.21227 },
-				[2] = { id = 4, regionId = 210, x = 270.3446, y = -8.208547, z = 16.14061, xA = 318.8305, yA = 30.15565, zA = 26.92305 },
-				[3] = { id = 5, regionId = 220, x = 1.004611, y = 22.29269, z = 31.2534, xA = -34.75534, yA = 38.34096, zA = 52.50761 },
-				[4] = { id = 6, regionId = 221, x = -33.09686, y = 41.12839, z = 51.67188, xA = 3.714653, yA = 21.03644, zA = 30.09468 },
-				[5] = { id = 7, regionId = 240, x = 316.1293, y = 31.41, z = 53.01378, xA = 176.4999, yA = 39.78488, zA = 2.813782 },
-			},
-		},
-		[141] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1434, regionId = 194, x = -283.944, y = 1.979423, z = -68.45753 },
-			},
-		},
-		[1410] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1434, regionId = 460, x = 316.7558, y = 49.56199, z = -77.0893 },
-			},
-		},
-		[1412] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1434, regionId = 582, x = 293.66, y = 45.28226, z = -112.45 },
-			},
-		},
-		[142] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1434, regionId = 195, x = -369.5096, y = 2.103673, z = 6.430655 },
-			},
-		},
-		[1420] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1434, regionId = 579, x = 311.8109, y = -9.54787, z = 47.95555 },
-			},
-		},
-		[143] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1434, regionId = 222, x = 61.0647, y = 30.41437, z = 48.47094 },
-			},
-		},
-		[144] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1434, regionId = 225, x = -182.7735, y = 2.671629, z = -64.63421 },
-			},
-		},
-		[145] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1434, regionId = 459, x = 155.6317, y = 59.46346, z = 18.43012 },
+				[1] = { id = 3, regionId = 0, x = 0, y = 0, z = 0, xA = 275.5659, yA = -9.910275, zA = 23.21227 },
+				[2] = { id = 4, regionId = 0, x = 0, y = 0, z = 0, xA = 318.8305, yA = 30.15565, zA = 26.92305 },
+				[3] = { id = 5, regionId = 0, x = 0, y = 0, z = 0, xA = -34.75534, yA = 38.34096, zA = 52.50761 },
+				[4] = { id = 6, regionId = 0, x = 0, y = 0, z = 0, xA = 3.714653, yA = 21.03644, zA = 30.09468 },
+				[5] = { id = 7, regionId = 0, x = 0, y = 0, z = 0, xA = 176.4999, yA = 39.78488, zA = 2.813782 },
 			},
 		},
 		[150] = 
@@ -2477,7 +1396,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 56, x = 58.67616, y = 26.03611, z = 143.0075, xA = 336.29, yA = 46.57, zA = -106.17 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = 336.29, yA = 46.57, zA = -106.17 },
 			},
 		},
 		[3] = 
@@ -2502,7 +1421,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 54, x = -248.7057, y = -6.808498, z = -187.8694, xA = -194.7, yA = 82.2, zA = 228.76 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -194.7, yA = 82.2, zA = 228.76 },
 			},
 		},
 		[140] = 
@@ -2510,43 +1429,11 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 3, regionId = 209, x = 312.5387, y = 30.49136, z = 29.53843, xA = 275.5659, yA = -9.910275, zA = 23.21227 },
-				[2] = { id = 4, regionId = 210, x = 270.3446, y = -8.208547, z = 16.14061, xA = 318.8305, yA = 30.15565, zA = 26.92305 },
-				[3] = { id = 5, regionId = 220, x = 1.004611, y = 22.29269, z = 31.2534, xA = -34.75534, yA = 38.34096, zA = 52.50761 },
-				[4] = { id = 6, regionId = 221, x = -33.09686, y = 41.12839, z = 51.67188, xA = 3.714653, yA = 21.03644, zA = 30.09468 },
-				[5] = { id = 7, regionId = 240, x = 316.1293, y = 31.41, z = 53.01378, xA = 176.4999, yA = 39.78488, zA = 2.813782 },
-			},
-		},
-		[141] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 146, regionId = 194, x = -283.944, y = 1.979423, z = -68.45753 },
-			},
-		},
-		[142] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 146, regionId = 195, x = -369.5096, y = 2.103673, z = 6.430655 },
-			},
-		},
-		[143] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 146, regionId = 222, x = 61.0647, y = 30.41437, z = 48.47094 },
-			},
-		},
-		[144] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 146, regionId = 225, x = -182.7735, y = 2.671629, z = -64.63421 },
+				[1] = { id = 3, regionId = 0, x = 0, y = 0, z = 0, xA = 275.5659, yA = -9.910275, zA = 23.21227 },
+				[2] = { id = 4, regionId = 0, x = 0, y = 0, z = 0, xA = 318.8305, yA = 30.15565, zA = 26.92305 },
+				[3] = { id = 5, regionId = 0, x = 0, y = 0, z = 0, xA = -34.75534, yA = 38.34096, zA = 52.50761 },
+				[4] = { id = 6, regionId = 0, x = 0, y = 0, z = 0, xA = 3.714653, yA = 21.03644, zA = 30.09468 },
+				[5] = { id = 7, regionId = 0, x = 0, y = 0, z = 0, xA = 176.4999, yA = 39.78488, zA = 2.813782 },
 			},
 		},
 		[150] = 
@@ -2554,7 +1441,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 56, x = 57.33732, y = 26.40692, z = 143.0183, xA = 336.29, yA = 46.57, zA = -106.17 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = 336.29, yA = 46.57, zA = -106.17 },
 			},
 		},
 		[3] = 
@@ -2573,7 +1460,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 54, x = -248.7057, y = -6.808498, z = -187.8694, xA = -194.7, yA = 82.2, zA = 228.76 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -194.7, yA = 82.2, zA = 228.76 },
 			},
 		},
 		[140] = 
@@ -2581,43 +1468,11 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 3, regionId = 209, x = 312.5387, y = 30.49136, z = 29.53843, xA = 275.5659, yA = -9.910275, zA = 23.21227 },
-				[2] = { id = 4, regionId = 210, x = 270.3446, y = -8.208547, z = 16.14061, xA = 318.8305, yA = 30.15565, zA = 26.92305 },
-				[3] = { id = 5, regionId = 220, x = 1.004611, y = 22.29269, z = 31.2534, xA = -34.75534, yA = 38.34096, zA = 52.50761 },
-				[4] = { id = 6, regionId = 221, x = -33.09686, y = 41.12839, z = 51.67188, xA = 3.714653, yA = 21.03644, zA = 30.09468 },
-				[5] = { id = 7, regionId = 240, x = 316.1293, y = 31.41, z = 53.01378, xA = 176.4999, yA = 39.78488, zA = 2.813782 },
-			},
-		},
-		[141] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 147, regionId = 194, x = -283.944, y = 1.979423, z = -68.45753 },
-			},
-		},
-		[142] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 147, regionId = 195, x = -369.5096, y = 2.103673, z = 6.430655 },
-			},
-		},
-		[143] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 147, regionId = 222, x = 61.0647, y = 30.41437, z = 48.47094 },
-			},
-		},
-		[144] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 147, regionId = 225, x = -182.7735, y = 2.671629, z = -64.63421 },
+				[1] = { id = 3, regionId = 0, x = 0, y = 0, z = 0, xA = 275.5659, yA = -9.910275, zA = 23.21227 },
+				[2] = { id = 4, regionId = 0, x = 0, y = 0, z = 0, xA = 318.8305, yA = 30.15565, zA = 26.92305 },
+				[3] = { id = 5, regionId = 0, x = 0, y = 0, z = 0, xA = -34.75534, yA = 38.34096, zA = 52.50761 },
+				[4] = { id = 6, regionId = 0, x = 0, y = 0, z = 0, xA = 3.714653, yA = 21.03644, zA = 30.09468 },
+				[5] = { id = 7, regionId = 0, x = 0, y = 0, z = 0, xA = 176.4999, yA = 39.78488, zA = 2.813782 },
 			},
 		},
 		[150] = 
@@ -2625,7 +1480,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 56, x = 57.33732, y = 26.40692, z = 143.0183, xA = 336.29, yA = 46.57, zA = -106.17 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = 336.29, yA = 46.57, zA = -106.17 },
 			},
 		},
 		[3] = 
@@ -2644,7 +1499,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 54, x = -248.7057, y = -6.808498, z = -187.8694, xA = -194.7, yA = 82.2, zA = 228.76 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -194.7, yA = 82.2, zA = 228.76 },
 			},
 		},
 		[140] = 
@@ -2652,43 +1507,11 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 3, regionId = 209, x = 312.5387, y = 30.49136, z = 29.53843, xA = 275.5659, yA = -9.910275, zA = 23.21227 },
-				[2] = { id = 4, regionId = 210, x = 270.3446, y = -8.208547, z = 16.14061, xA = 318.8305, yA = 30.15565, zA = 26.92305 },
-				[3] = { id = 5, regionId = 220, x = 1.004611, y = 22.29269, z = 31.2534, xA = -34.75534, yA = 38.34096, zA = 52.50761 },
-				[4] = { id = 6, regionId = 221, x = -33.09686, y = 41.12839, z = 51.67188, xA = 3.714653, yA = 21.03644, zA = 30.09468 },
-				[5] = { id = 7, regionId = 240, x = 316.1293, y = 31.41, z = 53.01378, xA = 176.4999, yA = 39.78488, zA = 2.813782 },
-			},
-		},
-		[141] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 148, regionId = 194, x = -283.944, y = 1.979423, z = -68.45753 },
-			},
-		},
-		[142] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 148, regionId = 195, x = -369.5096, y = 2.103673, z = 6.430655 },
-			},
-		},
-		[143] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 148, regionId = 222, x = 61.0647, y = 30.41437, z = 48.47094 },
-			},
-		},
-		[144] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 148, regionId = 225, x = -182.7735, y = 2.671629, z = -64.63421 },
+				[1] = { id = 3, regionId = 0, x = 0, y = 0, z = 0, xA = 275.5659, yA = -9.910275, zA = 23.21227 },
+				[2] = { id = 4, regionId = 0, x = 0, y = 0, z = 0, xA = 318.8305, yA = 30.15565, zA = 26.92305 },
+				[3] = { id = 5, regionId = 0, x = 0, y = 0, z = 0, xA = -34.75534, yA = 38.34096, zA = 52.50761 },
+				[4] = { id = 6, regionId = 0, x = 0, y = 0, z = 0, xA = 3.714653, yA = 21.03644, zA = 30.09468 },
+				[5] = { id = 7, regionId = 0, x = 0, y = 0, z = 0, xA = 176.4999, yA = 39.78488, zA = 2.813782 },
 			},
 		},
 		[150] = 
@@ -2696,7 +1519,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 56, x = 57.33732, y = 26.40692, z = 143.0183, xA = 336.29, yA = 46.57, zA = -106.17 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = 336.29, yA = 46.57, zA = -106.17 },
 			},
 		},
 		[3] = 
@@ -2987,6 +1810,9 @@ local LinkInfo =
 			},
 		},
 	},
+	[1521] = 
+	{
+	},
 	[153] = 
 	{
 		[140] = 
@@ -3005,87 +1831,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 1, x = 340.7602, y = 47.88917, z = -108.4603, xA = 53.87782, yA = 26.63887, zA = 143.2052 },
-			},
-		},
-		[151] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1533, regionId = 242, x = 253.8614, y = 47.7204, z = -28.53061 },
-			},
-		},
-		[1513] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1533, regionId = 586, x = 25.97408, y = 85.03421, z = 46.27552 },
-			},
-		},
-		[152] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1533, regionId = 212, x = 297.7679, y = 31.94773, z = 108.2688 },
-			},
-		},
-		[1520] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1533, regionId = 580, x = -295.9118, y = 122.2584, z = 22.75172 },
-			},
-		},
-		[153] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1533, regionId = 216, x = -68.33228, y = 96.48226, z = 62.74277 },
-			},
-		},
-		[154] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1533, regionId = 243, x = -247.0087, y = 122.2311, z = 32.03649 },
-			},
-		},
-		[155] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1533, regionId = 397, x = 264.8915, y = 42.54323, z = 103.264 },
-			},
-		},
-		[156] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1533, regionId = 457, x = -303.7988, y = 122.8804, z = 77.8112 },
-			},
-		},
-		[158] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1533, regionId = 458, x = 268.0232, y = 50.23918, z = -70.75442 },
-			},
-		},
-		[159] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1533, regionId = 585, x = -177.8283, y = 75.23026, z = -146.5067 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = 53.87782, yA = 26.63887, zA = 143.2052 },
 			},
 		},
 		[170] = 
@@ -3093,7 +1839,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 282, x = -162.4924, y = 33.50184, z = -212.5631, xA = 166.67, yA = 49.2398, zA = 276.6437 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = 166.67, yA = 49.2398, zA = 276.6437 },
 			},
 		},
 	},
@@ -3104,87 +1850,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 1, x = 340.7602, y = 47.88917, z = -108.4603, xA = 53.87782, yA = 26.63887, zA = 143.2052 },
-			},
-		},
-		[151] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1534, regionId = 242, x = 253.8614, y = 47.7204, z = -28.53061 },
-			},
-		},
-		[1513] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1534, regionId = 586, x = 25.97408, y = 85.03421, z = 46.27552 },
-			},
-		},
-		[152] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1534, regionId = 212, x = 297.7679, y = 31.94773, z = 108.2688 },
-			},
-		},
-		[1520] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1534, regionId = 580, x = -295.9118, y = 122.2584, z = 22.75172 },
-			},
-		},
-		[153] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1534, regionId = 216, x = -68.33228, y = 96.48226, z = 62.74277 },
-			},
-		},
-		[154] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1534, regionId = 243, x = -247.0087, y = 122.2311, z = 32.03649 },
-			},
-		},
-		[155] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1534, regionId = 397, x = 264.8915, y = 42.54323, z = 103.264 },
-			},
-		},
-		[156] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1534, regionId = 457, x = -303.7988, y = 122.8804, z = 77.8112 },
-			},
-		},
-		[158] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1534, regionId = 458, x = 268.0232, y = 50.23918, z = -70.75442 },
-			},
-		},
-		[159] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1534, regionId = 585, x = -177.8283, y = 75.23026, z = -146.5067 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = 53.87782, yA = 26.63887, zA = 143.2052 },
 			},
 		},
 		[170] = 
@@ -3192,7 +1858,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 282, x = -162.4924, y = 33.50184, z = -212.5631, xA = 166.67, yA = 49.2398, zA = 276.6437 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = 166.67, yA = 49.2398, zA = 276.6437 },
 			},
 		},
 	},
@@ -3203,87 +1869,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 1, x = 340.7602, y = 47.88917, z = -108.4603, xA = 53.87782, yA = 26.63887, zA = 143.2052 },
-			},
-		},
-		[151] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1535, regionId = 242, x = 253.8614, y = 47.7204, z = -28.53061 },
-			},
-		},
-		[1513] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1535, regionId = 586, x = 25.97408, y = 85.03421, z = 46.27552 },
-			},
-		},
-		[152] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1535, regionId = 212, x = 297.7679, y = 31.94773, z = 108.2688 },
-			},
-		},
-		[1520] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1535, regionId = 580, x = -295.9118, y = 122.2584, z = 22.75172 },
-			},
-		},
-		[153] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1535, regionId = 216, x = -68.33228, y = 96.48226, z = 62.74277 },
-			},
-		},
-		[154] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1535, regionId = 243, x = -247.0087, y = 122.2311, z = 32.03649 },
-			},
-		},
-		[155] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1535, regionId = 397, x = 264.8915, y = 42.54323, z = 103.264 },
-			},
-		},
-		[156] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1535, regionId = 457, x = -303.7988, y = 122.8804, z = 77.8112 },
-			},
-		},
-		[158] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1535, regionId = 458, x = 268.0232, y = 50.23918, z = -70.75442 },
-			},
-		},
-		[159] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1535, regionId = 585, x = -177.8283, y = 75.23026, z = -146.5067 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = 53.87782, yA = 26.63887, zA = 143.2052 },
 			},
 		},
 		[170] = 
@@ -3291,7 +1877,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 282, x = -162.4924, y = 33.50184, z = -212.5631, xA = 166.67, yA = 49.2398, zA = 276.6437 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = 166.67, yA = 49.2398, zA = 276.6437 },
 			},
 		},
 	},
@@ -3302,87 +1888,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 1, x = 340.7602, y = 47.88917, z = -108.4603, xA = 53.87782, yA = 26.63887, zA = 143.2052 },
-			},
-		},
-		[151] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1536, regionId = 242, x = 253.8614, y = 47.7204, z = -28.53061 },
-			},
-		},
-		[1513] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1536, regionId = 586, x = 25.97408, y = 85.03421, z = 46.27552 },
-			},
-		},
-		[152] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1536, regionId = 212, x = 297.7679, y = 31.94773, z = 108.2688 },
-			},
-		},
-		[1520] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1536, regionId = 580, x = -295.9118, y = 122.2584, z = 22.75172 },
-			},
-		},
-		[153] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1536, regionId = 216, x = -68.33228, y = 96.48226, z = 62.74277 },
-			},
-		},
-		[154] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1536, regionId = 243, x = -247.0087, y = 122.2311, z = 32.03649 },
-			},
-		},
-		[155] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1536, regionId = 397, x = 264.8915, y = 42.54323, z = 103.264 },
-			},
-		},
-		[156] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1536, regionId = 457, x = -303.7988, y = 122.8804, z = 77.8112 },
-			},
-		},
-		[158] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1536, regionId = 458, x = 268.0232, y = 50.23918, z = -70.75442 },
-			},
-		},
-		[159] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1536, regionId = 585, x = -177.8283, y = 75.23026, z = -146.5067 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = 53.87782, yA = 26.63887, zA = 143.2052 },
 			},
 		},
 		[170] = 
@@ -3390,7 +1896,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 282, x = -162.4924, y = 33.50184, z = -212.5631, xA = 166.67, yA = 49.2398, zA = 276.6437 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = 166.67, yA = 49.2398, zA = 276.6437 },
 			},
 		},
 	},
@@ -3604,7 +2110,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 3, regionId = 283, x = -208.5928, y = 33.21892, z = -222.1043, xA = 249.4218, yA = 36.16064, zA = -185.2836 },
+				[1] = { id = 3, regionId = 283, x = -221.4703, y = 33.21892, z = -222.5899, xA = 249.4218, yA = 36.16064, zA = -185.2836 },
 			},
 		},
 	},
@@ -3804,7 +2310,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 281, x = 168.4864, y = 49.2398, z = 280.3145, xA = -182.9084, yA = 43.7357, zA = -175.8306 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -182.9084, yA = 43.7357, zA = -175.8306 },
 			},
 		},
 		[160] = 
@@ -3812,55 +2318,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 282, x = -66.14845, y = 22.65574, z = -265.3277, xA = -6.61, yA = -0.789258, zA = 217.78 },
-			},
-		},
-		[171] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1730, regionId = 285, x = 48.94223, y = 63.50848, z = 28.94925 },
-			},
-		},
-		[172] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1730, regionId = 296, x = -161.1276, y = 74.11932, z = 147.7018 },
-			},
-		},
-		[1720] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1730, regionId = 581, x = -97.59998, y = 63.05092, z = 87.2835 },
-			},
-		},
-		[173] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1730, regionId = 287, x = -43.6616, y = 39.57605, z = -101.3951 },
-			},
-		},
-		[174] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1730, regionId = 288, x = -198.8804, y = 40.87141, z = -138.1829 },
-			},
-		},
-		[175] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1730, regionId = 582, x = -214.1739, y = 53.63648, z = 134.8386 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = -6.61, yA = -0.789258, zA = 217.78 },
 			},
 		},
 		[180] = 
@@ -3868,7 +2326,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 3, regionId = 283, x = -208.5928, y = 33.21892, z = -222.1043, xA = 249.4218, yA = 36.16064, zA = -185.2836 },
+				[1] = { id = 3, regionId = 0, x = 0, y = 0, z = 0, xA = 249.4218, yA = 36.16064, zA = -185.2836 },
 			},
 		},
 	},
@@ -3879,7 +2337,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 281, x = 168.4864, y = 49.2398, z = 280.3145, xA = -182.9084, yA = 43.7357, zA = -175.8306 },
+				[1] = { id = 1, regionId = 281, x = 0, y = 0, z = 0, xA = -182.9084, yA = 43.7357, zA = -175.8306 },
 			},
 		},
 		[160] = 
@@ -3887,7 +2345,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 282, x = -66.14845, y = 22.65574, z = -265.3277, xA = -6.61, yA = -0.789258, zA = 217.78 },
+				[1] = { id = 2, regionId = 282, x = 0, y = 0, z = 0, xA = -6.61, yA = -0.789258, zA = 217.78 },
 			},
 		},
 		[171] = 
@@ -3895,7 +2353,7 @@ local LinkInfo =
 			Nonstop = false,
 			Region = 
 			{
-				[1] = { sceneId = 1731, regionId = 285, x = 48.94223, y = 63.50848, z = 28.94925 },
+				[1] = { sceneId = 1731, regionId = 285, x = 0, y = 0, z = 0 },
 			},
 		},
 		[172] = 
@@ -3903,7 +2361,7 @@ local LinkInfo =
 			Nonstop = false,
 			Region = 
 			{
-				[1] = { sceneId = 1731, regionId = 296, x = -161.1276, y = 74.11932, z = 147.7018 },
+				[1] = { sceneId = 1731, regionId = 296, x = 0, y = 0, z = 0 },
 			},
 		},
 		[1720] = 
@@ -3911,7 +2369,7 @@ local LinkInfo =
 			Nonstop = false,
 			Region = 
 			{
-				[1] = { sceneId = 1731, regionId = 581, x = -97.59998, y = 63.05092, z = 87.2835 },
+				[1] = { sceneId = 1731, regionId = 581, x = 0, y = 0, z = 0 },
 			},
 		},
 		[173] = 
@@ -3919,7 +2377,7 @@ local LinkInfo =
 			Nonstop = false,
 			Region = 
 			{
-				[1] = { sceneId = 1731, regionId = 287, x = -43.6616, y = 39.57605, z = -101.3951 },
+				[1] = { sceneId = 1731, regionId = 287, x = 0, y = 0, z = 0 },
 			},
 		},
 		[174] = 
@@ -3927,7 +2385,7 @@ local LinkInfo =
 			Nonstop = false,
 			Region = 
 			{
-				[1] = { sceneId = 1731, regionId = 288, x = -198.8804, y = 40.87141, z = -138.1829 },
+				[1] = { sceneId = 1731, regionId = 288, x = 0, y = 0, z = 0 },
 			},
 		},
 		[175] = 
@@ -3935,7 +2393,7 @@ local LinkInfo =
 			Nonstop = false,
 			Region = 
 			{
-				[1] = { sceneId = 1731, regionId = 582, x = -214.1739, y = 53.63648, z = 134.8386 },
+				[1] = { sceneId = 1731, regionId = 582, x = 0, y = 0, z = 0 },
 			},
 		},
 		[180] = 
@@ -3943,7 +2401,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 3, regionId = 283, x = -208.5928, y = 33.21892, z = -222.1043, xA = 249.4218, yA = 36.16064, zA = -185.2836 },
+				[1] = { id = 3, regionId = 283, x = 0, y = 0, z = 0, xA = 249.4218, yA = 36.16064, zA = -185.2836 },
 			},
 		},
 	},
@@ -3954,7 +2412,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 281, x = 168.4864, y = 49.2398, z = 280.3145, xA = -182.9084, yA = 43.7357, zA = -175.8306 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -182.9084, yA = 43.7357, zA = -175.8306 },
 			},
 		},
 		[160] = 
@@ -3962,55 +2420,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 282, x = -66.14845, y = 22.65574, z = -265.3277, xA = -6.61, yA = -0.789258, zA = 217.78 },
-			},
-		},
-		[171] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1732, regionId = 285, x = 48.94223, y = 63.50848, z = 28.94925 },
-			},
-		},
-		[172] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1732, regionId = 296, x = -161.1276, y = 74.11932, z = 147.7018 },
-			},
-		},
-		[1720] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1732, regionId = 581, x = -97.59998, y = 63.05092, z = 87.2835 },
-			},
-		},
-		[173] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1732, regionId = 287, x = -43.6616, y = 39.57605, z = -101.3951 },
-			},
-		},
-		[174] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1732, regionId = 288, x = -198.8804, y = 40.87141, z = -138.1829 },
-			},
-		},
-		[175] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1732, regionId = 582, x = -214.1739, y = 53.63648, z = 134.8386 },
+				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = -6.61, yA = -0.789258, zA = 217.78 },
 			},
 		},
 		[180] = 
@@ -4018,7 +2428,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 3, regionId = 283, x = -208.5928, y = 33.21892, z = -222.1043, xA = 249.4218, yA = 36.16064, zA = -185.2836 },
+				[1] = { id = 3, regionId = 0, x = 0, y = 0, z = 0, xA = 249.4218, yA = 36.16064, zA = -185.2836 },
 			},
 		},
 	},
@@ -4059,7 +2469,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 284, x = 254.9596, y = 36.31863, z = -185.3332, xA = -198.6445, yA = 31.31918, zA = -223.0596 },
+				[1] = { id = 1, regionId = 284, x = 247.2062, y = 36.31863, z = -185.7315, xA = -198.6445, yA = 31.31918, zA = -223.0596 },
 			},
 		},
 		[1813] = 
@@ -4146,23 +2556,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 284, x = 254.9596, y = 36.31863, z = -185.3332, xA = -198.6445, yA = 31.31918, zA = -223.0596 },
-			},
-		},
-		[182] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1810, regionId = 308, x = -29.30111, y = 99.22388, z = 171.4193 },
-			},
-		},
-		[183] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1810, regionId = 309, x = -209.1896, y = 84.23731, z = 65.71462 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -198.6445, yA = 31.31918, zA = -223.0596 },
 			},
 		},
 	},
@@ -4234,72 +2628,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 284, x = 254.9596, y = 36.31863, z = -185.3332, xA = -198.6445, yA = 31.31918, zA = -223.0596 },
-			},
-		},
-		[1813] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1830, regionId = 584, x = -44.17, y = 80.5069, z = 37.85682 },
-			},
-		},
-		[182] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1830, regionId = 308, x = -29.30111, y = 99.22388, z = 171.4193 },
-			},
-		},
-		[1820] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1830, regionId = 582, x = -158.8534, y = 28.20935, z = -139.9621 },
-			},
-		},
-		[183] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1830, regionId = 309, x = -209.1896, y = 84.23731, z = 65.71462 },
-			},
-		},
-		[184] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1830, regionId = 418, x = 187.2149, y = 37.85, z = -193.2072 },
-			},
-		},
-		[185] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1830, regionId = 419, x = 177.026, y = 37.85, z = -193.2072 },
-			},
-		},
-		[186] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1830, regionId = 457, x = 22.22536, y = 58.03954, z = -98.68752 },
-				[2] = { sceneId = 1830, regionId = 498, x = -63.86747, y = 77.55291, z = -98.14767 },
-			},
-		},
-		[188] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1830, regionId = 424, x = -204.6253, y = 89.6198, z = 91.82 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -198.6445, yA = 31.31918, zA = -223.0596 },
 			},
 		},
 	},
@@ -4310,72 +2639,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 284, x = 254.9596, y = 36.31863, z = -185.3332, xA = -198.6445, yA = 31.31918, zA = -223.0596 },
-			},
-		},
-		[1813] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1831, regionId = 584, x = -44.17, y = 80.5069, z = 37.85682 },
-			},
-		},
-		[182] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1831, regionId = 308, x = -29.30111, y = 99.22388, z = 171.4193 },
-			},
-		},
-		[1820] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1831, regionId = 582, x = -158.8534, y = 28.20935, z = -139.9621 },
-			},
-		},
-		[183] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1831, regionId = 309, x = -209.1896, y = 84.23731, z = 65.71462 },
-			},
-		},
-		[184] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1831, regionId = 418, x = 187.2149, y = 37.85, z = -193.2072 },
-			},
-		},
-		[185] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1831, regionId = 419, x = 177.026, y = 37.85, z = -193.2072 },
-			},
-		},
-		[186] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1831, regionId = 457, x = 22.22536, y = 58.03954, z = -98.68752 },
-				[2] = { sceneId = 1831, regionId = 498, x = -63.86747, y = 77.55291, z = -98.14767 },
-			},
-		},
-		[188] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1831, regionId = 424, x = -204.6253, y = 89.6198, z = 91.82 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -198.6445, yA = 31.31918, zA = -223.0596 },
 			},
 		},
 	},
@@ -4386,72 +2650,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 284, x = 254.9596, y = 36.31863, z = -185.3332, xA = -198.6445, yA = 31.31918, zA = -223.0596 },
-			},
-		},
-		[1813] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1832, regionId = 584, x = -44.17, y = 80.5069, z = 37.85682 },
-			},
-		},
-		[182] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1832, regionId = 308, x = -29.30111, y = 99.22388, z = 171.4193 },
-			},
-		},
-		[1820] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1832, regionId = 582, x = -158.8534, y = 28.20935, z = -139.9621 },
-			},
-		},
-		[183] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1832, regionId = 309, x = -209.1896, y = 84.23731, z = 65.71462 },
-			},
-		},
-		[184] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1832, regionId = 418, x = 187.2149, y = 37.85, z = -193.2072 },
-			},
-		},
-		[185] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1832, regionId = 419, x = 177.026, y = 37.85, z = -193.2072 },
-			},
-		},
-		[186] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1832, regionId = 457, x = 22.22536, y = 58.03954, z = -98.68752 },
-				[2] = { sceneId = 1832, regionId = 498, x = -63.86747, y = 77.55291, z = -98.14767 },
-			},
-		},
-		[188] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1832, regionId = 424, x = -204.6253, y = 89.6198, z = 91.82 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -198.6445, yA = 31.31918, zA = -223.0596 },
 			},
 		},
 	},
@@ -4462,72 +2661,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 284, x = 254.9596, y = 36.31863, z = -185.3332, xA = -198.6445, yA = 31.31918, zA = -223.0596 },
-			},
-		},
-		[1813] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1833, regionId = 584, x = -44.17, y = 80.5069, z = 37.85682 },
-			},
-		},
-		[182] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1833, regionId = 308, x = -29.30111, y = 99.22388, z = 171.4193 },
-			},
-		},
-		[1820] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1833, regionId = 582, x = -158.8534, y = 28.20935, z = -139.9621 },
-			},
-		},
-		[183] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1833, regionId = 309, x = -209.1896, y = 84.23731, z = 65.71462 },
-			},
-		},
-		[184] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1833, regionId = 418, x = 187.2149, y = 37.85, z = -193.2072 },
-			},
-		},
-		[185] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1833, regionId = 419, x = 177.026, y = 37.85, z = -193.2072 },
-			},
-		},
-		[186] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1833, regionId = 457, x = 22.22536, y = 58.03954, z = -98.68752 },
-				[2] = { sceneId = 1833, regionId = 498, x = -63.86747, y = 77.55291, z = -98.14767 },
-			},
-		},
-		[188] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1833, regionId = 424, x = -204.6253, y = 89.6198, z = 91.82 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = -198.6445, yA = 31.31918, zA = -223.0596 },
 			},
 		},
 	},
@@ -4615,13 +2749,12 @@ local LinkInfo =
 	},
 	[190] = 
 	{
-		[1] = 
+		[110] = 
 		{
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 3, regionId = 0, x = 0, y = 0, z = 0, xA = 0, yA = 0, zA = 0 },
-				[2] = { id = 4, regionId = 0, x = 0, y = 0, z = 0, xA = 0, yA = 0, zA = 0 },
+				[1] = { id = 3, regionId = 365, x = -132.03, y = 17.74, z = -335.2, xA = 132.7513, yA = 20.77529, zA = 115.3066 },
 			},
 		},
 		[160] = 
@@ -4629,7 +2762,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = -215.9, yA = -23.42, zA = 34.29 },
+				[1] = { id = 2, regionId = 364, x = -224.9006, y = 17.74, z = -311.739, xA = -215.9, yA = -23.42, zA = 34.29 },
 			},
 		},
 		[191] = 
@@ -4956,103 +3089,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 359, x = -72.64531, y = 17.74, z = -317.8, xA = 94.26928, yA = 24.20665, zA = -355.4113 },
-			},
-		},
-		[191] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1917, regionId = 333, x = -154.1615, y = 37.85361, z = -69.8308 },
-			},
-		},
-		[1910] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1917, regionId = 438, x = 97.90557, y = 62.78423, z = -38.62287 },
-			},
-		},
-		[1915] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1917, regionId = 462, x = -172.9141, y = 95.1241, z = 340.3514 },
-			},
-		},
-		[1916] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1917, regionId = 461, x = -172.9141, y = 95.1241, z = 340.3514 },
-			},
-		},
-		[192] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1917, regionId = 343, x = -33.78888, y = 52.35772, z = -97.81056 },
-			},
-		},
-		[193] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1917, regionId = 335, x = 164.2927, y = 58.1803, z = -31.76832 },
-			},
-		},
-		[194] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1917, regionId = 344, x = -84.84373, y = 72.34522, z = 293.0358 },
-			},
-		},
-		[195] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1917, regionId = 338, x = 133.8781, y = 22.52782, z = 285.7237 },
-			},
-		},
-		[196] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1917, regionId = 387, x = -212.5262, y = 17.74, z = -300.1619 },
-			},
-		},
-		[197] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1917, regionId = 391, x = 87.02374, y = 37.13116, z = -144.305 },
-			},
-		},
-		[198] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1917, regionId = 393, x = 258.0414, y = 70.64035, z = -26.28558 },
-			},
-		},
-		[199] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1917, regionId = 394, x = 138.0947, y = 18.3358, z = 146.5044 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = 94.26928, yA = 24.20665, zA = -355.4113 },
 			},
 		},
 	},
@@ -5080,103 +3117,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 359, x = -72.64531, y = 17.74, z = -317.8, xA = 94.26928, yA = 24.20665, zA = -355.4113 },
-			},
-		},
-		[191] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1918, regionId = 333, x = -154.1615, y = 37.85361, z = -69.8308 },
-			},
-		},
-		[1910] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1918, regionId = 438, x = 97.90557, y = 62.78423, z = -38.62287 },
-			},
-		},
-		[1915] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1918, regionId = 462, x = -172.9141, y = 95.1241, z = 340.3514 },
-			},
-		},
-		[1916] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1918, regionId = 461, x = -172.9141, y = 95.1241, z = 340.3514 },
-			},
-		},
-		[192] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1918, regionId = 343, x = -33.78888, y = 52.35772, z = -97.81056 },
-			},
-		},
-		[193] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1918, regionId = 335, x = 164.2927, y = 58.1803, z = -31.76832 },
-			},
-		},
-		[194] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1918, regionId = 344, x = -84.84373, y = 72.34522, z = 293.0358 },
-			},
-		},
-		[195] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1918, regionId = 338, x = 133.8781, y = 22.52782, z = 285.7237 },
-			},
-		},
-		[196] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1918, regionId = 387, x = -212.5262, y = 17.74, z = -300.1619 },
-			},
-		},
-		[197] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1918, regionId = 391, x = 87.02374, y = 37.13116, z = -144.305 },
-			},
-		},
-		[198] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1918, regionId = 393, x = 258.0414, y = 70.64035, z = -26.28558 },
-			},
-		},
-		[199] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1918, regionId = 394, x = 138.0947, y = 18.3358, z = 146.5044 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = 94.26928, yA = 24.20665, zA = -355.4113 },
 			},
 		},
 	},
@@ -5204,103 +3145,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 359, x = -72.64531, y = 17.74, z = -317.8, xA = 94.26928, yA = 24.20665, zA = -355.4113 },
-			},
-		},
-		[191] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1919, regionId = 333, x = -154.1615, y = 37.85361, z = -69.8308 },
-			},
-		},
-		[1910] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1919, regionId = 438, x = 97.90557, y = 62.78423, z = -38.62287 },
-			},
-		},
-		[1915] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1919, regionId = 462, x = -172.9141, y = 95.1241, z = 340.3514 },
-			},
-		},
-		[1916] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1919, regionId = 461, x = -172.9141, y = 95.1241, z = 340.3514 },
-			},
-		},
-		[192] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1919, regionId = 343, x = -33.78888, y = 52.35772, z = -97.81056 },
-			},
-		},
-		[193] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1919, regionId = 335, x = 164.2927, y = 58.1803, z = -31.76832 },
-			},
-		},
-		[194] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1919, regionId = 344, x = -84.84373, y = 72.34522, z = 293.0358 },
-			},
-		},
-		[195] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1919, regionId = 338, x = 133.8781, y = 22.52782, z = 285.7237 },
-			},
-		},
-		[196] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1919, regionId = 387, x = -212.5262, y = 17.74, z = -300.1619 },
-			},
-		},
-		[197] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1919, regionId = 391, x = 87.02374, y = 37.13116, z = -144.305 },
-			},
-		},
-		[198] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1919, regionId = 393, x = 258.0414, y = 70.64035, z = -26.28558 },
-			},
-		},
-		[199] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1919, regionId = 394, x = 138.0947, y = 18.3358, z = 146.5044 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = 94.26928, yA = 24.20665, zA = -355.4113 },
 			},
 		},
 	},
@@ -5331,103 +3176,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 359, x = -72.64531, y = 17.74, z = -317.8, xA = 94.26928, yA = 24.20665, zA = -355.4113 },
-			},
-		},
-		[191] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1920, regionId = 333, x = -154.1615, y = 37.85361, z = -69.8308 },
-			},
-		},
-		[1910] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1920, regionId = 438, x = 97.90557, y = 62.78423, z = -38.62287 },
-			},
-		},
-		[1915] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1920, regionId = 462, x = -172.9141, y = 95.1241, z = 340.3514 },
-			},
-		},
-		[1916] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1920, regionId = 461, x = -172.9141, y = 95.1241, z = 340.3514 },
-			},
-		},
-		[192] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1920, regionId = 343, x = -33.78888, y = 52.35772, z = -97.81056 },
-			},
-		},
-		[193] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1920, regionId = 335, x = 164.2927, y = 58.1803, z = -31.76832 },
-			},
-		},
-		[194] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1920, regionId = 344, x = -84.84373, y = 72.34522, z = 293.0358 },
-			},
-		},
-		[195] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1920, regionId = 338, x = 133.8781, y = 22.52782, z = 285.7237 },
-			},
-		},
-		[196] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1920, regionId = 387, x = -212.5262, y = 17.74, z = -300.1619 },
-			},
-		},
-		[197] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1920, regionId = 391, x = 87.02374, y = 37.13116, z = -144.305 },
-			},
-		},
-		[198] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1920, regionId = 393, x = 258.0414, y = 70.64035, z = -26.28558 },
-			},
-		},
-		[199] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1920, regionId = 394, x = 138.0947, y = 18.3358, z = 146.5044 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = 94.26928, yA = 24.20665, zA = -355.4113 },
 			},
 		},
 	},
@@ -5455,103 +3204,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 359, x = -72.64531, y = 17.74, z = -317.8, xA = 94.26928, yA = 24.20665, zA = -355.4113 },
-			},
-		},
-		[191] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1921, regionId = 333, x = -154.1615, y = 37.85361, z = -69.8308 },
-			},
-		},
-		[1910] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1921, regionId = 438, x = 97.90557, y = 62.78423, z = -38.62287 },
-			},
-		},
-		[1915] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1921, regionId = 462, x = -172.9141, y = 95.1241, z = 340.3514 },
-			},
-		},
-		[1916] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1921, regionId = 461, x = -172.9141, y = 95.1241, z = 340.3514 },
-			},
-		},
-		[192] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1921, regionId = 343, x = -33.78888, y = 52.35772, z = -97.81056 },
-			},
-		},
-		[193] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1921, regionId = 335, x = 164.2927, y = 58.1803, z = -31.76832 },
-			},
-		},
-		[194] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1921, regionId = 344, x = -84.84373, y = 72.34522, z = 293.0358 },
-			},
-		},
-		[195] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1921, regionId = 338, x = 133.8781, y = 22.52782, z = 285.7237 },
-			},
-		},
-		[196] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1921, regionId = 387, x = -212.5262, y = 17.74, z = -300.1619 },
-			},
-		},
-		[197] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1921, regionId = 391, x = 87.02374, y = 37.13116, z = -144.305 },
-			},
-		},
-		[198] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1921, regionId = 393, x = 258.0414, y = 70.64035, z = -26.28558 },
-			},
-		},
-		[199] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1921, regionId = 394, x = 138.0947, y = 18.3358, z = 146.5044 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = 94.26928, yA = 24.20665, zA = -355.4113 },
 			},
 		},
 	},
@@ -5708,127 +3361,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 359, x = -72.64531, y = 17.74, z = -317.8, xA = 94.26928, yA = 24.20665, zA = -355.4113 },
-			},
-		},
-		[191] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1930, regionId = 333, x = -154.1615, y = 37.85361, z = -69.8308 },
-			},
-		},
-		[1910] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1930, regionId = 438, x = 97.90557, y = 62.78423, z = -38.62287 },
-			},
-		},
-		[1915] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1930, regionId = 462, x = -172.9141, y = 95.1241, z = 340.3514 },
-			},
-		},
-		[1916] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1930, regionId = 461, x = -172.9141, y = 95.1241, z = 340.3514 },
-			},
-		},
-		[192] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1930, regionId = 343, x = -33.78888, y = 52.35772, z = -97.81056 },
-			},
-		},
-		[1922] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1930, regionId = 583, x = -10.94053, y = 62.70417, z = 52.86694 },
-			},
-		},
-		[1923] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1930, regionId = 584, x = -129.7964, y = 137.5623, z = -256.4394 },
-			},
-		},
-		[1924] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1930, regionId = 585, x = 151.8614, y = 93.18023, z = -31.88824 },
-			},
-		},
-		[193] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1930, regionId = 335, x = 164.2927, y = 58.1803, z = -31.76832 },
-			},
-		},
-		[194] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1930, regionId = 344, x = -84.84373, y = 72.34522, z = 293.0358 },
-			},
-		},
-		[195] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1930, regionId = 338, x = 133.8781, y = 22.52782, z = 285.7237 },
-			},
-		},
-		[196] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1930, regionId = 387, x = -212.5262, y = 17.74, z = -300.1619 },
-			},
-		},
-		[197] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1930, regionId = 391, x = 87.02374, y = 37.13116, z = -144.305 },
-			},
-		},
-		[198] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1930, regionId = 393, x = 258.0414, y = 70.64035, z = -26.28558 },
-			},
-		},
-		[199] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1930, regionId = 394, x = 138.0947, y = 18.3358, z = 146.5044 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = 94.26928, yA = 24.20665, zA = -355.4113 },
 			},
 		},
 	},
@@ -5856,127 +3389,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 359, x = -72.64531, y = 17.74, z = -317.8, xA = 94.26928, yA = 24.20665, zA = -355.4113 },
-			},
-		},
-		[191] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1931, regionId = 333, x = -154.1615, y = 37.85361, z = -69.8308 },
-			},
-		},
-		[1910] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1931, regionId = 438, x = 97.90557, y = 62.78423, z = -38.62287 },
-			},
-		},
-		[1915] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1931, regionId = 462, x = -172.9141, y = 95.1241, z = 340.3514 },
-			},
-		},
-		[1916] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1931, regionId = 461, x = -172.9141, y = 95.1241, z = 340.3514 },
-			},
-		},
-		[192] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1931, regionId = 343, x = -33.78888, y = 52.35772, z = -97.81056 },
-			},
-		},
-		[1922] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1931, regionId = 583, x = -10.94053, y = 62.70417, z = 52.86694 },
-			},
-		},
-		[1923] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1931, regionId = 584, x = -129.7964, y = 137.5623, z = -256.4394 },
-			},
-		},
-		[1924] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1931, regionId = 585, x = 151.8614, y = 93.18023, z = -31.88824 },
-			},
-		},
-		[193] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1931, regionId = 335, x = 164.2927, y = 58.1803, z = -31.76832 },
-			},
-		},
-		[194] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1931, regionId = 344, x = -84.84373, y = 72.34522, z = 293.0358 },
-			},
-		},
-		[195] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1931, regionId = 338, x = 133.8781, y = 22.52782, z = 285.7237 },
-			},
-		},
-		[196] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1931, regionId = 387, x = -212.5262, y = 17.74, z = -300.1619 },
-			},
-		},
-		[197] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1931, regionId = 391, x = 87.02374, y = 37.13116, z = -144.305 },
-			},
-		},
-		[198] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1931, regionId = 393, x = 258.0414, y = 70.64035, z = -26.28558 },
-			},
-		},
-		[199] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1931, regionId = 394, x = 138.0947, y = 18.3358, z = 146.5044 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = 94.26928, yA = 24.20665, zA = -355.4113 },
 			},
 		},
 	},
@@ -6004,127 +3417,7 @@ local LinkInfo =
 			Nonstop = true,
 			Portal = 
 			{
-				[1] = { id = 1, regionId = 359, x = -72.64531, y = 17.74, z = -317.8, xA = 94.26928, yA = 24.20665, zA = -355.4113 },
-			},
-		},
-		[191] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1932, regionId = 333, x = -154.1615, y = 37.85361, z = -69.8308 },
-			},
-		},
-		[1910] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1932, regionId = 438, x = 97.90557, y = 62.78423, z = -38.62287 },
-			},
-		},
-		[1915] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1932, regionId = 462, x = -172.9141, y = 95.1241, z = 340.3514 },
-			},
-		},
-		[1916] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1932, regionId = 461, x = -172.9141, y = 95.1241, z = 340.3514 },
-			},
-		},
-		[192] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1932, regionId = 343, x = -33.78888, y = 52.35772, z = -97.81056 },
-			},
-		},
-		[1922] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1932, regionId = 583, x = -10.94053, y = 62.70417, z = 52.86694 },
-			},
-		},
-		[1923] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1932, regionId = 584, x = -129.7964, y = 137.5623, z = -256.4394 },
-			},
-		},
-		[1924] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1932, regionId = 585, x = 151.8614, y = 93.18023, z = -31.88824 },
-			},
-		},
-		[193] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1932, regionId = 335, x = 164.2927, y = 58.1803, z = -31.76832 },
-			},
-		},
-		[194] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1932, regionId = 344, x = -84.84373, y = 72.34522, z = 293.0358 },
-			},
-		},
-		[195] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1932, regionId = 338, x = 133.8781, y = 22.52782, z = 285.7237 },
-			},
-		},
-		[196] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1932, regionId = 387, x = -212.5262, y = 17.74, z = -300.1619 },
-			},
-		},
-		[197] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1932, regionId = 391, x = 87.02374, y = 37.13116, z = -144.305 },
-			},
-		},
-		[198] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1932, regionId = 393, x = 258.0414, y = 70.64035, z = -26.28558 },
-			},
-		},
-		[199] = 
-		{
-			Nonstop = false,
-			Region = 
-			{
-				[1] = { sceneId = 1932, regionId = 394, x = 138.0947, y = 18.3358, z = 146.5044 },
+				[1] = { id = 1, regionId = 0, x = 0, y = 0, z = 0, xA = 94.26928, yA = 24.20665, zA = -355.4113 },
 			},
 		},
 	},
@@ -6393,25 +3686,6 @@ local LinkInfo =
 	[214] = 
 	{
 	},
-	[2185] = 
-	{
-		[140] = 
-		{
-			Nonstop = true,
-			Portal = 
-			{
-				[1] = { id = 1, regionId = 1, x = 340.7602, y = 47.88917, z = -108.4603, xA = 53.87782, yA = 26.63887, zA = 143.2052 },
-			},
-		},
-		[170] = 
-		{
-			Nonstop = true,
-			Portal = 
-			{
-				[1] = { id = 2, regionId = 0, x = 0, y = 0, z = 0, xA = 166.67, yA = 49.2398, zA = 276.6437 },
-			},
-		},
-	},
 	[221] = 
 	{
 	},
@@ -6586,6 +3860,9 @@ local LinkInfo =
 	{
 	},
 	[502] = 
+	{
+	},
+	[503] = 
 	{
 	},
 	[601] = 

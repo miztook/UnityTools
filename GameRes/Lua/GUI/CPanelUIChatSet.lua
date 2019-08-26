@@ -12,6 +12,7 @@ def.field("userdata")._Img_OpenCurrent = nil
 def.field("userdata")._Img_OpenTeam = nil
 def.field("userdata")._Img_OpenCombat = nil
 def.field("userdata")._Img_OpenSocial = nil
+def.field("userdata")._Img_OpenRecruit = nil
 
 def.field("userdata")._Img_OpenWorldVoice = nil
 def.field("userdata")._Img_OpenGuildVoice = nil
@@ -25,6 +26,7 @@ def.field("boolean")._Channel_Team = true
 def.field("boolean")._Channel_Current = true
 def.field("boolean")._Channel_Combat= false
 def.field("boolean")._Channel_Social= true
+def.field("boolean")._Channel_Recruit= true
 
 def.field("boolean")._Channel_WorldVoice = true
 def.field("boolean")._Channel_GuildVoice = true
@@ -52,6 +54,7 @@ def.override().OnCreate = function(self)
     self._Img_OpenTeam = self: GetUIObject("Img_OpenTeam")
     self._Img_OpenCombat = self: GetUIObject("Img_OpenCombat")
     self._Img_OpenSocial = self: GetUIObject("Img_OpenSocial")
+    self._Img_OpenRecruit = self: GetUIObject("Img_OpenRecruit")
 
     self._Img_OpenWorldVoice = self: GetUIObject("Img_OpenWorldVoice")
     self._Img_OpenGuildVoice = self: GetUIObject("Img_OpenGuildVoice")
@@ -78,6 +81,7 @@ def.override('string').OnClick = function(self, id)
         UserData:SetField("Channel_Current", self._Channel_Current)
         UserData:SetField("Channel_Combat", self._Channel_Combat)
         UserData:SetField("Channel_Social", self._Channel_Social)
+        UserData:SetField("Channel_Recruit", self._Channel_Recruit)
 
         UserData:SetField("Channel_WorldVoice", self._Channel_WorldVoice)
         UserData:SetField("Channel_GuildVoice", self._Channel_GuildVoice)
@@ -120,6 +124,11 @@ def.override('string').OnClick = function(self, id)
         self._Img_OpenSocial:SetActive(self._Channel_Social)
         self:GetUIObject("Img_SocialBg"):SetActive(not self._Channel_Social)
         self:UpdateChatLabelColor(self:GetUIObject("Lab_Social"), self._Channel_Social)
+    elseif id == "Btn_Recruit" then
+        self._Channel_Recruit = not self._Channel_Recruit
+        self._Img_OpenRecruit:SetActive(self._Channel_Recruit)
+        self:GetUIObject("Img_RecruitBg"):SetActive(not self._Channel_Recruit)
+        self:UpdateChatLabelColor(self:GetUIObject("Lab_Recruit"), self._Channel_Recruit)
     elseif id == "Btn_WorldVoice" then
         self._Channel_WorldVoice = not self._Channel_WorldVoice   
         self._Img_OpenWorldVoice:SetActive(self._Channel_WorldVoice)
@@ -151,6 +160,7 @@ def.method().UpdateChatStates = function (self)
         self._Img_OpenWorld:SetActive(self._Channel_World)
         self:GetUIObject("Img_WorldBg"):SetActive(not self._Channel_World)
         self:UpdateChatLabelColor(self:GetUIObject("Lab_World"), self._Channel_World)
+        ChatManager.Instance()._Channel_World = self._Channel_World
     end
     local Channel_Guild = ChatManager.Instance()._Channel_Guild
     if Channel_Guild ~= nil then
@@ -158,6 +168,7 @@ def.method().UpdateChatStates = function (self)
         self._Img_OpenGuild:SetActive(self._Channel_Guild)
         self:GetUIObject("Img_GuildBg"):SetActive(not self._Channel_Guild)
         self:UpdateChatLabelColor(self:GetUIObject("Lab_Guild"), self._Channel_Guild)
+        ChatManager.Instance()._Channel_Guild = self._Channel_Guild
     end
     local Channel_System = ChatManager.Instance()._Channel_System
     if Channel_System ~= nil then
@@ -165,6 +176,7 @@ def.method().UpdateChatStates = function (self)
         self._Img_OpenSystem:SetActive(self._Channel_System)
         self:GetUIObject("Img_SystemBg"):SetActive(not self._Channel_System)
         self:UpdateChatLabelColor(self:GetUIObject("Lab_System"), self._Channel_System)
+        ChatManager.Instance()._Channel_System = self._Channel_System
     end
     local Channel_Team = ChatManager.Instance()._Channel_Team
     if Channel_Team ~= nil then
@@ -172,6 +184,7 @@ def.method().UpdateChatStates = function (self)
         self._Img_OpenTeam:SetActive(self._Channel_Team)
         self:GetUIObject("Img_TeamBg"):SetActive(not self._Channel_Team)
         self:UpdateChatLabelColor(self:GetUIObject("Lab_Team"), self._Channel_Team)
+        ChatManager.Instance()._Channel_Team = self._Channel_Team
     end
     local Channel_Current = ChatManager.Instance()._Channel_Current
     if Channel_Current ~= nil then
@@ -179,6 +192,7 @@ def.method().UpdateChatStates = function (self)
         self._Img_OpenCurrent:SetActive(self._Channel_Current)
         self:GetUIObject("Img_CurrentBg"):SetActive(not self._Channel_Current)
         self:UpdateChatLabelColor(self:GetUIObject("Lab_Current"), self._Channel_Current)
+        ChatManager.Instance()._Channel_Current = self._Channel_Current
     end
 
     local Channel_Combat = ChatManager.Instance()._Channel_Combat
@@ -187,6 +201,7 @@ def.method().UpdateChatStates = function (self)
         self._Img_OpenCombat:SetActive(self._Channel_Combat)
         self:GetUIObject("Img_CombatBg"):SetActive(not self._Channel_Combat)
         self:UpdateChatLabelColor(self:GetUIObject("Lab_Combat"), self._Channel_Combat)
+        ChatManager.Instance()._Channel_Combat = self._Channel_Combat
     end
 
     local Channel_Social = ChatManager.Instance()._Channel_Social
@@ -195,6 +210,16 @@ def.method().UpdateChatStates = function (self)
         self._Img_OpenSocial:SetActive(self._Channel_Social)
         self:GetUIObject("Img_SocialBg"):SetActive(not self._Channel_Social)
         self:UpdateChatLabelColor(self:GetUIObject("Lab_Social"), self._Channel_Social)
+        ChatManager.Instance()._Channel_Social = self._Channel_Social
+    end
+
+    local Channel_Recruit = ChatManager.Instance()._Channel_Recruit
+    if Channel_Recruit ~= nil then
+    	self._Channel_Recruit = Channel_Recruit
+        self._Img_OpenRecruit:SetActive(self._Channel_Recruit)
+        self:GetUIObject("Img_RecruitBg"):SetActive(not self._Channel_Recruit)
+        self:UpdateChatLabelColor(self:GetUIObject("Lab_Recruit"), self._Channel_Recruit)
+        ChatManager.Instance()._Channel_Recruit = self._Channel_Recruit
     end
 
     local Channel_WorldVoice = UserData:GetField("Channel_WorldVoice")
@@ -247,7 +272,8 @@ def.override().OnHide = function(self)
     UserData:SetField("Channel_Current", self._Channel_Current)
     UserData:SetField("Channel_Combat", self._Channel_Combat)
     UserData:SetField("Channel_Social", self._Channel_Social)
-    
+    UserData:SetField("Channel_Recruit", self._Channel_Recruit)
+
     UserData:SetField("Channel_WorldVoice", self._Channel_WorldVoice)
     UserData:SetField("Channel_GuildVoice", self._Channel_GuildVoice)
     UserData:SetField("Channel_TeamVoice", self._Channel_TeamVoice)

@@ -859,7 +859,7 @@ def.method(CDress).ShowDressInfo = function (self, data)
     -- 介绍
     GUI.SetText(self._PanelObject.Lab_Des, data._Template.Description)
     -- 魅力值
-    GUI.SetText(self._PanelObject.Lab_CharmValue, tostring(data._Template.Score))
+    GUI.SetText(self._PanelObject.Lab_CharmValue, GUITools.FormatNumber(data._Template.Score, false, 7))
     -- 来源
     GUI.SetText(self._PanelObject.Lab_Origin, data._Template.Origin)
     local isGot = data._ID > 0

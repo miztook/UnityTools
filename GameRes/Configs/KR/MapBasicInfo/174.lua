@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Desert",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13011] = 
@@ -45,7 +46,7 @@ local MapInfo =
 		},
 		[3029] = 
 		{
-			[1] = { x = 168.53, y = 50.64, z = 247.24, name = "남작", SortID = 5 },
+			[1] = { x = 168.53, y = 50.64, z = 247.24, name = "레인저", SortID = 5 },
 		},
 		[3018] = 
 		{
@@ -101,9 +102,9 @@ local MapInfo =
 		},
 		[3004] = 
 		{
-			[1] = { x = 108.05, y = 51.87, z = 217.15, name = "엘프 잡화상인", SortID = 26 },
-			[2] = { x = 61.36, y = 66.04, z = 102.42, name = "엘프 잡화상인", SortID = 28 },
-			[3] = { x = 80.96, y = 59.52, z = 12.49, name = "엘프 잡화상인", SortID = 29 },
+			[1] = { x = 108.05, y = 51.87, z = 217.15, name = "엘프 잡화 상인", SortID = 26 },
+			[2] = { x = 61.36, y = 66.04, z = 102.42, name = "엘프 잡화 상인", SortID = 28 },
+			[3] = { x = 80.96, y = 59.52, z = 12.49, name = "엘프 잡화 상인", SortID = 29 },
 		},
 		[3001] = 
 		{
@@ -143,8 +144,8 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[288] = { x = -194.61, y = 175.80, z = -118.24, name = "죽음의 왕좌", worldId = 0, IsCanFind = 1, Describe = "죽음의 왕좌", PkMode = 0 },
-			[315] = { x = -179.16, y = 29.78, z = -150.60, name = "逃离区域", worldId = 0, PkMode = 0 },
+			[288] = { x = -194.61, y = 175.80, z = -118.24, name = "죽음의 왕좌", worldId = 0, IsCanFind = 1, Describe = "죽음의 왕좌", PkMode = 1 },
+			[315] = { x = -179.16, y = 29.78, z = -150.60, name = "逃离区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

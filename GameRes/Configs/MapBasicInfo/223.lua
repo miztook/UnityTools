@@ -11,11 +11,12 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD02.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn02_Cave01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[21400] = 
 		{
-			[1] = { x = -100.74, y = 43.68, z = 99.85, name = "奇利恩的仆从", level = 35,IsBoss = true },
+			[1] = { x = -100.74, y = 43.68, z = 99.85, name = "奇利恩的仆从", level = 32,IsBoss = true },
 		},
 	},
 	Npc = 
@@ -29,7 +30,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[192] = { x = -95.41, y = 45.49, z = 99.99, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 0 },
+			[192] = { x = -95.41, y = 45.49, z = 99.99, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1 },
 		},
 	},
 	Mine = 

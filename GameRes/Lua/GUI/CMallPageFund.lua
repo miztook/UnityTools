@@ -36,6 +36,7 @@ def.override().OnCreate = function(self)
     self._PanelObject._Lab_PriceNum = uiTemplate:GetControl(3)
     self._PanelObject._Lab_Dianum1 = uiTemplate:GetControl(4)
     self._PanelObject._Lab_Dianum2 = uiTemplate:GetControl(5)
+    self._PanelObject._Img_Icon = uiTemplate:GetControl(6)
 end
 
 def.override("dynamic").OnData = function(self, data)
@@ -67,23 +68,25 @@ def.method().UpdateTopUI = function(self)
     local fundStruct = CMallMan.Instance():GetFundRoleData(good_temp.FundId)
     local ui_fx = self._PanelObject._Img_Frame_BG:FindChild("Frame_FundTop/Img_FundBG")
     local is_buy = fundStruct ~= nil and fundStruct.IsBuy
+    GUITools.SetItemIcon(self._PanelObject._Img_Icon, self._FundTemp.IconPath)
     GameUtil.PlayUISfx(PATH.UIFX_Mall_FundTop, ui_fx, ui_fx, -1)
     if self._FundData.CostType == ECostType.Cash then
-        GUI.SetText(lab_count, string.format(StringTable.Get(31000), GUITools.FormatNumber(self._FundData.CashCount, false)))
+        local cash_cost = CMallMan.Instance():GetGoodsDataCashCost(self._FundData)
+        GUI.SetText(lab_count, string.format(StringTable.Get(31000), GUITools.FormatNumber(cash_cost, false)))
         self._BuyBtn:SetInteractable(not is_buy)
         self._BuyBtn:MakeGray(is_buy)
-        GUI.SetText(self._PanelObject._Lab_PriceNum, string.format(StringTable.Get(31053), GUITools.FormatNumber(self._FundData.CashCount, true)))
-        GUI.SetText(self._PanelObject._Lab_Dianum1, string.format(StringTable.Get(31053), GUITools.FormatNumber(self._FundTemp.RewardMoneyCount, true)))
-        GUI.SetText(self._PanelObject._Lab_Dianum2, string.format(StringTable.Get(31053), GUITools.FormatNumber(self:CalGiftAllCount(), true)))
+        GUI.SetText(self._PanelObject._Lab_PriceNum, GUITools.FormatNumber(cash_cost, true))
+        GUI.SetText(self._PanelObject._Lab_Dianum1, GUITools.FormatNumber(self._FundTemp.RewardMoneyCount, true))
+        GUI.SetText(self._PanelObject._Lab_Dianum2, GUITools.FormatNumber(self:CalGiftAllCount(), true))
     else
         --warn("error ！！！ 模板错误，基金必须配成现金购买")
         
         GUI.SetText(lab_count, tostring(self._FundData.CostMoneyCount))
         self._BuyBtn:SetInteractable(not is_buy)
         self._BuyBtn:MakeGray(is_buy)
-        GUI.SetText(self._PanelObject._Lab_PriceNum, string.format(StringTable.Get(31053), GUITools.FormatNumber(self._FundData.CostMoneyCount, true)))
-        GUI.SetText(self._PanelObject._Lab_Dianum1, string.format(StringTable.Get(31053), GUITools.FormatNumber(self._FundTemp.RewardMoneyCount, true)))
-        GUI.SetText(self._PanelObject._Lab_Dianum2, string.format(StringTable.Get(31053), GUITools.FormatNumber(self:CalGiftAllCount(), true)))
+        GUI.SetText(self._PanelObject._Lab_PriceNum, GUITools.FormatNumber(self._FundData.CostMoneyCount, true))
+        GUI.SetText(self._PanelObject._Lab_Dianum1, GUITools.FormatNumber(self._FundTemp.RewardMoneyCount, true))
+        GUI.SetText(self._PanelObject._Lab_Dianum2, GUITools.FormatNumber(self:CalGiftAllCount(), true))
     end
 end
 
@@ -117,7 +120,7 @@ end
 def.method("=>", "number").CalGiftAllCount = function(self)
     local all_count = 0
     for i,v in ipairs(self._FundTemp.FundRewardDetails) do
-        if i ~= 1 then
+        if not v.IsGift then
             if v.RewardType1 == ERewardType.Money then
                 all_count = all_count + v.FundRewardCount1
             end
@@ -168,6 +171,7 @@ def.method("table").ParseFundTemp = function(self, temp)
     self._FundTemp.FundRewardDetails[1].FundRewardId1 = temp.RewardMoneyId
     self._FundTemp.FundRewardDetails[1].FundRewardCount1 = temp.RewardMoneyCount
     self._FundTemp.FundRewardDetails[1].State = is_buy and FundState.GotIt or FundState.NotReach
+    self._FundTemp.FundRewardDetails[1].IsGift = true
     for i,v in ipairs(temp.FundRewardDetails) do
         self._FundTemp.FundRewardDetails[i+1] = {}
         self._FundTemp.FundRewardDetails[i+1].Id = v.Id
@@ -183,6 +187,7 @@ def.method("table").ParseFundTemp = function(self, temp)
         self._FundTemp.FundRewardDetails[i+1].FundRewardId3 = v.FundRewardId3
         self._FundTemp.FundRewardDetails[i+1].FundRewardCount3 = v.FundRewardCount3
         self._FundTemp.FundRewardDetails[i+1].DisplayText = v.DisplayText
+        self._FundTemp.FundRewardDetails[i+1].IsGift = false
         if fundStruct ~= nil and fundStruct.IsBuy then
             local state = FundState.NotReach
             for i1,v1 in ipairs(fundStruct.CanRewardIds) do
@@ -234,6 +239,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
     local lab_head_need_level = uiTemplate:GetControl(17)
     local lab_head_need_battle = uiTemplate:GetControl(18)
     local lab_head_need_quest = uiTemplate:GetControl(19)
+    local lab_level_tip = uiTemplate:GetControl(20)
 
     local btnGet = uiTemplate:GetControl(5)
     local lab_btn_get = btnGet:FindChild("Img_Bg/Lab_Engrave")
@@ -258,6 +264,9 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
     item_icon2:SetActive(false)
     item_icon3:SetActive(false)
     img_btn_fx:SetActive(false)
+    if lab_level_tip then
+        lab_level_tip:SetActive(false)
+    end
     if self._FundTemp ~= nil and self._FundTemp.FundRewardDetails ~= nil then
         local detailItem = self._FundTemp.FundRewardDetails[index]
         if detailItem ~= nil then
@@ -282,18 +291,27 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                 if detailItem.EventType == EEventType.Level then
                     frame_Level:SetActive(true)
                     frame_head_level:SetActive(true)
-                    GUI.SetText(labNeedLevel, detailItem.Param.."")
+                    GUI.SetText(labNeedLevel, string.format(StringTable.Get(31091), GUITools.FormatNumber(detailItem.Param, false)))
                     GUI.SetText(lab_head_need_level, string.format(StringTable.Get(31053), detailItem.Param..""))
                 elseif detailItem.EventType == EEventType.Fight then
                     frame_Battle:SetActive(true)
                     frame_head_battle:SetActive(true)
-                    GUI.SetText(labNeedBattle, GUITools.FormatNumber(detailItem.Param, false))
+                    GUI.SetText(labNeedBattle, string.format(StringTable.Get(31090), GUITools.FormatNumber(detailItem.Param, false)))
                     GUI.SetText(lab_head_need_battle, string.format(StringTable.Get(31053), GUITools.FormatNumber(detailItem.Param, false)))
                 elseif detailItem.EventType == EEventType.Quest then
                     frame_head_quest:SetActive(true)
                     frame_quest:SetActive(true)
                     GUI.SetText(labNeedQuest, detailItem.DisplayText)
-                    GUI.SetText(lab_head_need_quest, string.format(StringTable.Get(31053), detailItem.Id..""))              
+                    GUI.SetText(lab_head_need_quest, string.format(StringTable.Get(31053), detailItem.Id..""))  
+                elseif detailItem.EventType == EEventType.ProfessionLevel then
+                    frame_Level:SetActive(true)
+                    frame_head_level:SetActive(true)
+                    GUI.SetText(labNeedLevel, string.format(StringTable.Get(31094), GUITools.FormatNumber(detailItem.Param, false)))
+                    GUI.SetText(lab_head_need_level, string.format(StringTable.Get(31053), detailItem.Param..""))         
+                    if lab_level_tip then
+                        GUI.SetText(lab_level_tip, StringTable.Get(31095))
+                        lab_level_tip:SetActive(true)
+                    end
                 end
                 if detailItem.FundRewardId1 ~= nil and detailItem.FundRewardId1 > 0 then
                     item_icon1:SetActive(true)

@@ -6,6 +6,8 @@ local CMallUtility = require "Mall.CMallUtility"
 local CMallPagePetEggShop = Lplus.Extend(CMallPageBase, "CMallPagePetEggShop")
 local def = CMallPagePetEggShop.define
 
+local PetRandomInfoSpecialID = 689
+
 def.field("table")._PanelObjects = BlankTable
 def.field("boolean")._IsReadyPetData = false
 def.field("boolean")._IsCanFreePet = false
@@ -173,8 +175,16 @@ def.override('string').OnClick = function(self, id)
 --            print("strValue ", strValue)
 --            CPlatformSDKMan.Instance():ShowInAppWeb(strValue)
 --        end
-        local strValue = CElementData.GetSpecialIdTemplate(self._RateShowUrlSpecialID).Value
-        CPlatformSDKMan.Instance():ShowInAppWeb(strValue)
+        local bKakaoPlatform = CPlatformSDKMan.Instance():IsInKakao()
+        if bKakaoPlatform then
+            local key = CElementData.GetSpecialIdTemplate(PetRandomInfoSpecialID).Value
+            local url = CPlatformSDKMan.Instance():GetCustomData(key)
+            CPlatformSDKMan.Instance():ShowInAppWeb(url)
+        else
+            local strValue = CElementData.GetSpecialIdTemplate(self._RateShowUrlSpecialID).Value
+            game._GUIMan:OpenUrl(strValue)
+            --CPlatformSDKMan.Instance():ShowInAppWeb(strValue)
+        end
     elseif string.find(id,"Btn_PetChange") then 
         local index = tonumber(string.sub(id,-1))
         local needCount = self._CostCountExchangeDataList[index]
@@ -402,7 +412,7 @@ def.method().ShowExchangePanel = function(self)
         local itemTemp = CElementData.GetItemTemplate(v)
         if itemTemp == nil then  warn("item id ".. v.." is nil") return end
         GUITools.SetItemIcon(self._PanelObjects.ImgExchangePetIcon[i],itemTemp.IconAtlasPath)
-        GUI.SetText(self._PanelObjects.LabNameExchange[i],itemTemp.TextDisplayName)
+        GUI.SetText(self._PanelObjects.LabNameExchange[i], RichTextTools.GetItemNameRichText(v, 1, false))
         if itemTemp.InitQuality == 5 then
             GUITools.SetGroupImg(self._PanelObjects.ImgExchangePetBg[i],0)
             GUITools.SetGroupImg(self._PanelObjects.ImgExchangePetQuality[i],0)
@@ -438,6 +448,18 @@ end
 def.method().UpdateMoney = function(self)
     self._HaveExchangeMoneyCount = game._HostPlayer:GetMoneyCountByType(self._PetExchangeCostMoneyId)
     GUI.SetText(self._PanelObjects.LabHaveMoney,GUITools.FormatNumber(self._HaveExchangeMoneyCount, false))
+end
+-- 返回键
+def.override("=>", "boolean").HandleEscapeKey = function(self)
+    if self._PanelObjects.FramePetExchange.activeSelf then
+        self._PanelObjects.FramePetExchange:SetActive(false)
+        return true
+    end
+    if self._PanelObjects._FrameAllRewardPanel.activeSelf then
+        self._PanelObjects._FrameAllRewardPanel:SetActive(false)
+        return true
+    end
+    return false
 end
 
 def.override().OnHide = function(self)

@@ -66,7 +66,7 @@ def.method().InitUIObject = function(self)
             end
         end
     end
-    print("赋值 特效回调 ")
+    --print("赋值 特效回调 ")
     self._GuildEventCB = OnGuildEvent
     CGame.EventManager:addHandler(GuildEvent, self._GuildEventCB)
 end

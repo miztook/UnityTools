@@ -21,6 +21,8 @@ def.field('userdata')._List_SingleReward = nil
 def.field('userdata')._Img_Arrow = nil
 def.field('userdata')._Frame_RankingList = nil
 def.field('userdata')._Lab_Ranking = nil
+def.field('userdata')._Img_warn = nil
+def.field('userdata')._Lab_warn = nil
 
 def.field("table")._KillBossRewardInfo = BlankTable
 def.field("table")._BossData = BlankTable
@@ -56,6 +58,9 @@ def.override().OnCreate = function(self)
     self._List_SingleReward = self:GetUIObject('List_SingleReward'):GetComponent(ClassType.GNewList)
     self._Frame_RankingList = self:GetUIObject('Frame_RankingList')
     self._Lab_Ranking = self:GetUIObject('Lab_Ranking')
+    self._Img_warn = self:GetUIObject('Img_warn')
+    self._Lab_warn = self._Img_warn:FindChild('Lab_Warn')
+
     self._Frame_RankingList:SetActive(false)
 
     for i = 1, self._MaxListNum do
@@ -68,6 +73,12 @@ end
 
 def.override("dynamic").OnData = function(self,data)  
     self._SingleRewards = {}
+    self._KillBossRewardInfo = {}
+    self._BossData = {}
+    self._GuildRewards = {}
+    self._WorldBossRankInfoList = {}
+    self._LastDamageRankInfo = {}
+    self._GuildRewardInfo = {}
     self._KillBossRewardInfo = data
     local WorldBossData = CElementData.GetTemplate("Monster", data.BossId)   
     if WorldBossData == nil then return end
@@ -82,15 +93,13 @@ def.override("dynamic").OnData = function(self,data)
         return false
     end
     table.sort(self._WorldBossRankInfoList, sortFunc)
-    -- warn("##################self._WorldBossRankInfoList ===>>>", #self._WorldBossRankInfoList)
     for i,v in ipairs(self._WorldBossRankInfoList) do
-        local isGuild = v.GuildName ~= ""
-        -- warn("iiiiiiisGuild ======>>>", isGuild)
-        if isGuild then
-            if game._HostPlayer._Guild._GuildName == v.GuildName then
+        local isGuild = IsNilOrEmptyString(v.GuildName)
+        if not isGuild then
+            if game._GuildMan:IsHostInGuild() and game._HostPlayer._Guild._GuildName == v.GuildName then
                 self._GuildRewards = v.GuildRewardItemInfoList   -- 公会奖励
                 self._GuildRewardInfo = v
-                self._CurIndex = i                
+                self._CurIndex = i         
             end
         else
             if game._HostPlayer._InfoData._Name == v.RoleName then
@@ -99,7 +108,20 @@ def.override("dynamic").OnData = function(self,data)
             end
         end
     end
-    -- warn("self._CurIndexself._CurIndex======>>>", self._CurIndex, self._GuildRewardInfo.GuildName, self._GuildRewardInfo.RoleName)
+
+    -- 不在前三没有公会奖励
+    if self._GuildRewardInfo.GuildName == nil and self._GuildRewardInfo.RoleName == nil then
+        if game._GuildMan:IsHostInGuild() then
+            self._GuildRewardInfo.GuildName = game._HostPlayer._Guild._GuildName
+            self._GuildRewardInfo.GuildLevel = game._HostPlayer._Guild._GuildLevel
+            self._GuildRewardInfo.RoleName = game._HostPlayer._InfoData._Name
+            self._GuildRewardInfo.RoleLevel = game._HostPlayer._InfoData._Level
+        else
+            self._GuildRewardInfo.RoleName = game._HostPlayer._InfoData._Name
+            self._GuildRewardInfo.RoleLevel = game._HostPlayer._InfoData._Level
+        end
+    end
+    self._CurIndex = 0 
     self._SingleRewards = data.RoleRewardItemInfoList
     self:UpdateFrameShow()   
     self._DefaultIcon = "Item/defaultItemIcon" 
@@ -121,7 +143,19 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
             if reward.IsTokenMoney then
                 IconTools.InitTokenMoneyIcon(frame_item_icon, reward.Tid, 0)
             else
-                IconTools.InitItemIconNew(frame_item_icon, reward.Tid)
+                local grade = -1 -- 装备类型的显示评分
+                local itemTemplate = CElementData.GetItemTemplate(reward.Tid)
+                if itemTemplate ~= nil then
+                    local EItemType = require "PB.Template".Item.EItemType
+                    if itemTemplate.ItemType == EItemType.Equipment then
+                        grade = reward.FightProperty.star
+                    end
+                end
+
+                IconTools.InitItemIconNew(frame_item_icon, reward.Tid, 
+                { 
+                    [EItemIconTag.Grade] = grade,
+                })
             end
         end 
         GameUtil.PlayUISfx(PATH.UI_WORLDBOSS_Settlement_Shuaguang , item, item, -1)
@@ -169,35 +203,59 @@ def.method().UpdateFrameShow = function(self)
         GUI.SetText(self._Lab_KillBossName, self._BossData.TextDisplayName)
         GUITools.SetIcon(self._Img_KillBossIcon, self._BossData.IconAtlasPath)
 
+        local isGuild = IsNilOrEmptyString(self._GuildRewardInfo.GuildName)
+
         -- GameUtil.PlayUISfx(PATH.UI_WORLDBOSS_Settlement_Title , self._Img_KillBossGuildTitle, self._Img_KillBossGuildTitle, -1)
         if self._CurIndex > 0 then
             GUI.SetText(self._Lab_RankingNum, string.format(StringTable.Get(21015) ,self._CurIndex))
+            if not isGuild then
+                self._Img_warn:SetActive(false)
+            else
+                self._Img_warn:SetActive(true)
+                GUI.SetText(self._Lab_warn, StringTable.Get(21026))
+            end
         else
             GUI.SetText(self._Lab_RankingNum, StringTable.Get(21022))
+            self._Img_warn:SetActive(true)
+            if not isGuild then
+                GUI.SetText(self._Lab_warn, StringTable.Get(21025))
+            else
+                GUI.SetText(self._Lab_warn, StringTable.Get(21027))
+            end
         end
-        -- warn("self._GuildRewardInfo.GuildName  ===>>>".. self._GuildRewardInfo.GuildName)
-        local isGuild = self._GuildRewardInfo.GuildName ~= ""
-        if isGuild then   -- game._GuildMan:IsHostInGuild()
-            self:GetUIObject('Img_warn'):SetActive(false)
+        
+        if not isGuild then   -- game._GuildMan:IsHostInGuild()
+            
             self:GetUIObject('View_GuildReward'):SetActive(true)
             self:GetUIObject("Img_HeadBG"):SetActive(false)
             self:GetUIObject("Img_GuildBg"):SetActive(true)
             -- 公会等级，公会名字，公会图标        
             GUI.SetText(self._Lab_Ranking, StringTable.Get(21020))
-            GUI.SetText(self._Lab_GuildName, self._GuildRewardInfo.GuildName)
+            if self._GuildRewardInfo.GuildName ~= nil then
+                GUI.SetText(self._Lab_GuildName, self._GuildRewardInfo.GuildName)
+            end
             local GuildLevel = "Lv ".. self._GuildRewardInfo.GuildLevel
             GUI.SetText(self._Lab_GuildLevel, GuildLevel)
-            GUITools.SetGuildIcon(self:GetUIObject("Img_GuildBg"), CElementData.GetTemplate("GuildIcon", self._GuildRewardInfo.GuildIcon.BaseColorID).IconPath) 
-            GUITools.SetGuildIcon(self:GetUIObject("Img_GuildRound"), CElementData.GetTemplate("GuildIcon", self._GuildRewardInfo.GuildIcon.FrameID).IconPath)  
-            GUITools.SetGuildIcon(self._Img_GuildIcon, CElementData.GetTemplate("GuildIcon", self._GuildRewardInfo.GuildIcon.ImageID).IconPath)            
-            local DemageRate = self._GuildRewardInfo.DemageRate.."%"
+
+            if self._GuildRewardInfo.GuildIcon ~= nil then
+                GUITools.SetGuildIcon(self:GetUIObject("Img_GuildBg"), CElementData.GetTemplate("GuildIcon", self._GuildRewardInfo.GuildIcon.BaseColorID).IconPath) 
+                GUITools.SetGuildIcon(self:GetUIObject("Img_GuildRound"), CElementData.GetTemplate("GuildIcon", self._GuildRewardInfo.GuildIcon.FrameID).IconPath)  
+                GUITools.SetGuildIcon(self._Img_GuildIcon, CElementData.GetTemplate("GuildIcon", self._GuildRewardInfo.GuildIcon.ImageID).IconPath)            
+            else
+                GUITools.SetGuildIcon(self:GetUIObject("Img_GuildBg"), CElementData.GetTemplate("GuildIcon", game._HostPlayer._Guild._GuildIconInfo._BaseColorID).IconPath) 
+                GUITools.SetGuildIcon(self:GetUIObject("Img_GuildRound"), CElementData.GetTemplate("GuildIcon", game._HostPlayer._Guild._GuildIconInfo._FrameID).IconPath)  
+                GUITools.SetGuildIcon(self._Img_GuildIcon, CElementData.GetTemplate("GuildIcon", game._HostPlayer._Guild._GuildIconInfo._ImageID).IconPath)            
+            end
+
+            
+            -- local DemageRate = self._GuildRewardInfo.DemageRate.."%"
             -- GUI.SetText(self._Lab_HurtScale, DemageRate)
             if self._List_GuildReward ~= nil then
                 -- warn("self._GuildRewards == ", #self._GuildRewards)
                 self._List_GuildReward:SetItemCount(#self._GuildRewards)
             end    
         else
-            self:GetUIObject('Img_warn'):SetActive(true)
+            
             self:GetUIObject('View_GuildReward'):SetActive(false)
             self:GetUIObject("Img_HeadBG"):SetActive(true)
             self:GetUIObject("Img_GuildBg"):SetActive(false)
@@ -254,9 +312,9 @@ def.method("boolean").UpdateFrameRankingList = function(self, IsShowRanking)
                 GUI.SetText(Lab_HurtScale, tostring(v.DemageRate))
             end
 
-            local isGuild = v.GuildName ~= ""
+            local isGuild = IsNilOrEmptyString(v.GuildName)
             local GuildLevel = nil
-            if isGuild then
+            if not isGuild then
                 GUI.SetText(Lab_KillType, StringTable.Get(21018))
                 GUI.SetText(Lab_KillName, v.GuildName)
                 if game._HostPlayer._Guild._GuildName == v.GuildName then
@@ -298,9 +356,9 @@ def.method("boolean").UpdateFrameRankingList = function(self, IsShowRanking)
             local Lab_Hurt = self:GetUIObject('Lab_Hurt'..LastDamageRankIndex - 1)
             local Lab_HurtScale = self:GetUIObject('Lab_HurtScale'..LastDamageRankIndex - 1)
 
-            local isGuild = self._LastDamageRankInfo.GuildName ~= ""
+            local isGuild = IsNilOrEmptyString(self._LastDamageRankInfo.GuildName)
             local GuildLevel = nil
-            if isGuild then
+            if not isGuild then
                 GUI.SetText(Lab_KillType, StringTable.Get(21018))
                 GUI.SetText(Lab_KillName, self._LastDamageRankInfo.GuildName)
                 if game._HostPlayer._Guild._GuildName == self._LastDamageRankInfo.GuildName then
@@ -335,6 +393,9 @@ def.override().OnHide = function(self)
     self._BossData = {}
     self._GuildRewards = {}
     self._DefaultIcon = ""
+    self._WorldBossRankInfoList = {}
+    self._LastDamageRankInfo = {}
+    self._GuildRewardInfo = {}
 end
 
 def.override().OnDestroy = function (self)

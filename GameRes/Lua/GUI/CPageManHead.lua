@@ -7,7 +7,6 @@ local CTeamMan = require "Team.CTeamMan"
 local CFrameBuff = require "GUI.CFrameBuff"
 local CElementData = require "Data.CElementData"
 local MenuComponents = require "GUI.MenuComponents"
---local CInteractiveMenuMan = require "Main.CInteractiveMenuMan"
 local EMonsterQuality = require "PB.Template".Monster.EMonsterQuality
 
 local CPageManHead = Lplus.Class("CPageManHead")
@@ -103,8 +102,9 @@ def.method("boolean").ShowTarget = function(self, bIsShow)
 end
 
 def.method().TickLogic = function(self)
-    if self._TargetEntiy and self._TargetEntiy._CurrentTargetId > 0 then
-        local object = game._CurWorld:FindObject(self._TargetEntiy._CurrentTargetId)
+    if self._TargetEntiy ~= nil then
+        local targetId = self._TargetEntiy:GetCurrentTargetId()
+        local object = game._CurWorld:FindObject(targetId)
         if object == nil or object._InfoData == nil then self:ShowTarget(false) return end
         --没目标时以上逻辑已返回 忽略
 
@@ -123,7 +123,7 @@ def.method().TickLogic = function(self)
             info._HeadIcon_Elite:SetActive(false)
             info._HeadIcon_Boss:SetActive(false)
             --设置头像
-            game: SetEntityCustomImg(info._HeadIcon,
+            TeraFuncs.SetEntityCustomImg(info._HeadIcon,
                                      object._ID,
                                      object._InfoData._CustomImgSet,
                                      object._InfoData._Gender,
@@ -348,7 +348,7 @@ def.method().UpdateCustomHead = function(self)
         --设置头像
         local info = self._PanelObject
 
-        game: SetEntityCustomImg(info._HeadIcon,
+        TeraFuncs.SetEntityCustomImg(info._HeadIcon,
                                  self._TargetEntiy._ID,
                                  self._TargetEntiy._InfoData._CustomImgSet,
                                  self._TargetEntiy._InfoData._Gender,

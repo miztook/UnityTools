@@ -1,13 +1,14 @@
 
 local Lplus = require "Lplus"
-local PBHelper = require "Network.PBHelper"
+
 local CInteractiveMenuMan = Lplus.Class("CInteractiveMenuMan")
 local def = CInteractiveMenuMan.define
-local instance = nil
+
 
 def.field("table")._ListenerDic = BlankTable
 def.field("table")._OpenedMenu = nil
 
+local instance = nil
 def.static("=>", CInteractiveMenuMan).Instance = function()
     if not instance then
         instance = CInteractiveMenuMan()

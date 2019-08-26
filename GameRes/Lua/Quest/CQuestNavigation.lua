@@ -389,7 +389,7 @@ def.method("number", "number").NavigatToRegion = function(self, scene_id, region
     DoNavigat(scene_id, dest_pos, "Region", 0, nil)
 end]]
 
-def.method().Release = function(self)
+def.method().Stop = function(self)
     if game._HostPlayer ~= nil then
         game._HostPlayer:RemoveTimer(self._DetectTimerId)
     end

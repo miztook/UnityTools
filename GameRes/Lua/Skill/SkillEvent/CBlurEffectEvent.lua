@@ -39,7 +39,7 @@ def.override().OnEvent = function(self)
 	elseif self._Event.Type == 1 then  -- MotionBlur
 		CVisualEffectMan.StartMotionBlur(self._Event.Level, self._Event.FadeinDuration/1000, self._Event.KeepMaxDuration/1000, self._Event.FadeoutDuration/1000)
 	else
-		print("error MotionBlur.Type in CBlurEffectEvent")
+		--print("error MotionBlur.Type in CBlurEffectEvent")
 	end
 end
 

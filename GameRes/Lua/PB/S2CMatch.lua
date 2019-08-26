@@ -64,7 +64,7 @@ local function OnS2CMatchResult(sender, msg)
             SendProtocol(protocol)
         end
         local deadLine = msg.TeamDungeonInfo.DeadLine - GameUtil.GetServerTime()/1000
-        local dungeonID = CTeamMan.Instance():ExchangeToDungeonId(msg.TargetId)
+        local dungeonID = TeamUtil.ExchangeToDungeonId(msg.TargetId)
         local param = {Duration = deadLine, DungeonId = dungeonID, CallBack = callback, MatchList = msg.TeamDungeonInfo.MemberList}
 	    game._GUIMan:Open("CPanelUITeamConfirm", param)
 	end
@@ -81,7 +81,7 @@ local function OnS2CMatchCancelRes(sender, msg)
     elseif msg.MatchType == EMatchType.EMatchType_Dungeon then
         CPVEAutoMatch.Instance():OnS2CMatchCancle(msg)
         local CTeamMan = require "Team.CTeamMan"
-        CTeamMan.Instance():OnS2CTeamPrepareResult(false)
+        CTeamMan.Instance():UpdateTeamPrepareResult(false)
 	end
 end
 PBHelper.AddHandler("S2CMatchCancelRes", OnS2CMatchCancelRes)
@@ -93,8 +93,10 @@ local function OnS2CMatchEnterConfirm(sender, msg)
 	elseif msg.MatchType == EMatchType.EMatchType_Arena then
 		game._CArenaMan:OnS2CConfigEnter3V3(msg)
     elseif msg.MatchType == EMatchType.EMatchType_Dungeon then
-        local CTeamMan = require "Team.CTeamMan"
-        CTeamMan.Instance():OnS2CTeamMemberConfirmed(msg.RoleId)
+        local CPanelUITeamConfirm = require "GUI.CPanelUITeamConfirm"
+		if CPanelUITeamConfirm.Instance():IsShow() then
+			CPanelUITeamConfirm.Instance():UpdateTeamMemberConfirmed(msg.RoleId)
+		end
 	end
 	game._CArenaMan:OnS2CEliminateEnterConfirm(msg.RoleId)
 end
@@ -120,7 +122,7 @@ local function OnS2CMatchBackToMatching(sender, msg)
 		game._CArenaMan:OnS2C3V3BackToMatching(msg)
     elseif msg.MatchType == EMatchType.EMatchType_Dungeon then
         local CTeamMan = require "Team.CTeamMan"
-        CTeamMan.Instance():OnS2CTeamPrepareResult(false)
+        CTeamMan.Instance():UpdateTeamPrepareResult(false)
 	end
 end
 PBHelper.AddHandler("S2CMatchBackToMatching",OnS2CMatchBackToMatching)

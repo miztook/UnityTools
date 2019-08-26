@@ -140,7 +140,6 @@ def.override("dynamic").OnData = function(self, data)
         warn("CPanelEquipHint InitPanel cannot find tid: " .. self._ItemData._Tid )
         return 
     end
-
     self._CallWithFuncs = data.withFuncs
     if not data.withFuncs then
         self._PopFrom = data.popFrom
@@ -184,7 +183,7 @@ def.override("string").OnClick = function(self,id)
         local PanelData = 
         {
             ApproachIDs = itemData._Template.ApproachID,
-            ParentObj = self._Mask1,
+            ParentObj = self._FrameBottom1,
             IsFromTip = true,
             TipPanel = self,
             ItemId  = itemData._Tid,
@@ -195,7 +194,7 @@ end
 
 def.method().InitPanel = function(self)
     if self._ItemData == nil then
-        print("CPanelEquipHint InitPanel _ItemData is nil")
+        --print("CPanelEquipHint InitPanel _ItemData is nil")
         return 
     end
     if self._PopFrom == nil then
@@ -224,23 +223,24 @@ def.method().InitPanel = function(self)
         self:InitFrameAttribute()
         self:InitFrameOther()
         self:InitTips()
-        if self._PopFrom ~= TipsPopFrom.Equip_Process and self._PopFrom ~= TipsPopFrom.CHAT_PANEL and self._PopFrom ~= TipsPopFrom.WithoutButton then 
+        self:InitBottom()
+        if self._PopFrom ~= TipsPopFrom.Equip_Process and self._PopFrom ~= TipsPopFrom.CHAT_PANEL and self._PopFrom ~= TipsPopFrom.WithoutButton and self._PopFrom ~= TipsPopFrom.ITEM_DBPANEL then 
             self._Lay_Button:SetActive(true)
             self._IsShowButton = true
             self:InitButtons(self._Lay_Button)
         else
             -- 聊天界面不显示锁
+            self._RdoLock1 :SetActive(true)
             if self._PopFrom == TipsPopFrom.CHAT_PANEL then 
                 self._RdoLock1 :SetActive(false)
             end
-            self._RdoLock1 :SetActive(true)
             self._IsShowButton = false
             self._Lay_Button:SetActive(false)
         end
     end
     self:InitMaskHeight(self._FrameContent1, self._Scroll1, self._Mask1, self._FrameBottom1,self._Frame_Tips1,self:GetUIObject("Lab_EquipTips1"),101, 56)
     -- 设置按钮位置
-    self:InitButtonPosition(self._Mask1, self._Lay_Button)
+    self:InitButtonPosition( self._FrameBottom1, self._Lay_Button)
     self._Scroll1.localPosition = Vector2.New(0,0)
 
     -- 设置tip上下居中左右居中
@@ -260,7 +260,7 @@ def.method().InitVirtualEquip = function(self)
     local labName = self._Frame_BaseAttribute1:FindChild("Item1/Lab_AttriTips")
     local labValue = self._Frame_BaseAttribute1:FindChild("Item1/Lab_AttriValues")
     GUI.SetText(labName,FightProperty.Name)
-    GUI.SetText(labValue,string.format(StringTable.Get(10679),GUITools.FormatMoney(FightProperty.MinValue),GUITools.FormatMoney(FightProperty.MaxValue)))
+    GUI.SetText(labValue,string.format(StringTable.Get(10679),GUITools.FormatNumber(FightProperty.MinValue),GUITools.FormatNumber(FightProperty.MaxValue)))
     -- 重铸属性
     for i = 1,5 do
         local item = self._Frame_Attribute1:FindChild("Item"..i)
@@ -290,57 +290,40 @@ def.method().InitVirtualEquip = function(self)
     self._Frame_EnchantAttri1:SetActive(false)
     self._Frame_Other1:SetActive(false)
     self:InitTips()
+    self:InitBottom()
     self:InitButtons(self._Lay_Button)
 end
 
+-- mask + bottom 内容加上遮罩最大高度是430
 def.method("userdata","userdata","userdata","userdata","userdata","userdata","number","number").InitMaskHeight = function (self, frameContent, scroll, maskObj,bottomObj,frameTip,labDescribe,title_height, btn_height)
-    local height = GameUtil.GetTipLayoutHeight(frameContent)
+    local heightContent = GameUtil.GetTipLayoutHeight(frameContent)
+    local heightBottom = GameUtil.GetTipLayoutHeight(bottomObj)
+    local height =  heightContent + heightBottom 
+    local heightMask = 0
     if height < 0 then warn("C# function is wrong") return end
-
     local scrollRect = scroll:GetComponent(ClassType.RectTransform)
     local maskRect = maskObj:GetComponent(ClassType.RectTransform)
     local scrollSizeDelta = scrollRect.sizeDelta
     local maskSizeDelta = maskRect.sizeDelta
-    local height1 = GameUtil.GetTipLayoutHeight(frameTip)
-    local height2 = GameUtil.GetTipLayoutHeight(labDescribe)
-    local minHeight = GameUtil.GetTipLayoutHeight(bottomObj) + math.abs(labDescribe.localPosition.y) +  height2 + math.abs(bottomObj.localPosition.y)
-    -- 遮罩留白处高度
-    local offsety1 = 3 
-    local controlHeightObj = frameTip:FindChild("ControlHeight")
-    local height3 = bottomObj:GetComponent(ClassType.RectTransform).rect.height
-    -- Frame_Content最大高度430和最小高度315
+
     if height <= 315 then 
         height = 315
+        heightMask = height - heightBottom 
         GameUtil.SetScrollEnabled(scroll,false)
-        -- frameTip 全部放下 
-        bottomObj.localPosition = Vector3.New(bottomObj.localPosition.x,-132)
     else
-        --剪切frameTip
-        if minHeight + math.abs(frameTip.localPosition.y) + offsety1 <= 315 then 
-            height = 315
+        if height >= 430 then
+            height = 430
+            heightMask = height - heightBottom 
+        elseif height < 430 and height > 315 then 
+            heightMask = height - heightBottom 
             GameUtil.SetScrollEnabled(scroll,false)
-            local offsety = height - height3 - math.abs(frameTip.localPosition.y) - offsety1 
-            bottomObj.localPosition = Vector2.New(bottomObj.localPosition.x,-offsety)
-           
-        elseif minHeight + math.abs(frameTip.localPosition.y) + offsety1 >= 315 and minHeight + math.abs(frameTip.localPosition.y) + offsety1 <= 409 then 
-            height  = minHeight + math.abs(frameTip.localPosition.y) + offsety1
-            GameUtil.SetScrollEnabled(scroll,false)
-            local offsety = height - height3 - math.abs(frameTip.localPosition.y) - offsety1
-            bottomObj.localPosition = Vector2.New(bottomObj.localPosition.x,-offsety)
-        else
-            height = 409
-            if controlHeightObj~= nil then 
-                controlHeightObj:SetActive(false)
-            end
         end
     end
-    maskSizeDelta.y = height
+    maskSizeDelta.y = heightMask
     maskRect.sizeDelta = maskSizeDelta
-    scrollSizeDelta.y = height + btn_height + title_height 
+    scrollSizeDelta.y = height + title_height 
     scrollRect.sizeDelta = scrollSizeDelta
-
-    frameContent.localPosition=Vector3.New(0,0,0)
-    -- body
+    frameContent.localPosition = Vector3.New(0,0,0)
 end 
 
 def.method("boolean").InitBaseInfo = function(self,isCompare)
@@ -421,7 +404,7 @@ def.method("boolean").InitBaseInfo = function(self,isCompare)
         if fight_score <= 0 then
             frameBattle:SetActive(false)
         end
-        GUI.SetText(self:GetUIObject("Lab_BattleValues"..i), GUITools.FormatMoney(itemData:GetFightScore()))
+        GUI.SetText(self:GetUIObject("Lab_BattleValues"..i), GUITools.FormatNumber(itemData:GetFightScore()))
     else
         frameBattle:SetActive(false)
     end
@@ -450,20 +433,25 @@ def.method("boolean").InitBaseInfo = function(self,isCompare)
     end
     GUI.SetText(self:GetUIObject("Lab_EquipName"..i), name)
     local imgEquipGrade = self:GetUIObject("Img_EquipGrade"..i)
-    if self._PopFrom == TipsPopFrom.OTHER_PANEL then
+    if self._PopFrom == TipsPopFrom.OTHER_PANEL  then
         imgEquipGrade:SetActive(false)
         Rdo_Lock:SetActive(false)
         return
     end
-    Rdo_Lock:GetComponent(ClassType.GNewIOSToggle).Value = itemData._IsLock
-    local labLockYes = Rdo_Lock:FindChild("Lab_Yes")
-    local labLockNo = Rdo_Lock:FindChild("Lab_No")
-    if not itemData._IsLock then 
-        labLockYes:SetActive(false)
-        labLockNo:SetActive(true)
+    if self._PopFrom ~= TipsPopFrom.OTHER_PALYER then
+        Rdo_Lock:SetActive(true)
+        Rdo_Lock:GetComponent(ClassType.GNewIOSToggle):SetValue(itemData._IsLock,true)
+        local labLockYes = Rdo_Lock:FindChild("Lab_Yes")
+        local labLockNo = Rdo_Lock:FindChild("Lab_No")
+        if not itemData._IsLock then 
+            labLockYes:SetActive(false)
+            labLockNo:SetActive(true)
+        else
+            labLockYes:SetActive(true)
+            labLockNo:SetActive(false)
+        end
     else
-        labLockYes:SetActive(true)
-        labLockNo:SetActive(false)
+        Rdo_Lock:SetActive(false)
     end
     local imgGrade = self:GetUIObject("Img_Grade"..i)
     GUITools.SetGroupImg(imgGrade,itemData._BaseAttrs.Star)
@@ -506,7 +494,7 @@ def.method('userdata','table',"=>","string").ShowBaseAttriData = function (self,
     local labName = item1:FindChild("Lab_AttriTips")
     local labValue = item1:FindChild("Lab_AttriValues")
     GUI.SetText(labName,BaseProTextDisplayName)
-    GUI.SetText(labValue,GUITools.FormatMoney(itemData._BaseAttrs.Value))
+    GUI.SetText(labValue,GUITools.FormatNumber(itemData._BaseAttrs.Value))
     -- 强化 
     local item2 = parentObj:FindChild("Item2")
     local item3 = parentObj:FindChild("Item3")
@@ -517,7 +505,7 @@ def.method('userdata','table',"=>","string").ShowBaseAttriData = function (self,
         local labValue = item2:FindChild("Lab_AttriValues")
         local labLevel = item2:FindChild("Lab_Level")
         GUI.SetText(labName,BaseProTextDisplayName)
-        GUI.SetText(labValue,GUITools.FormatMoney(itemData:GetInforceIncrease()))
+        GUI.SetText(labValue,GUITools.FormatNumber(itemData:GetBaseInforceIncrease()))
         GUI.SetText(labLevel,string.format(StringTable.Get(10632),inforceLv))
     else
         item2:SetActive(false)
@@ -547,7 +535,7 @@ def.method("userdata","table").CreatFrameAttributeItem = function (self,frameObj
         -- if generatorInfo == nil then
         -- return end
     end
-    GUI.SetText(labTip,StringTable.Get(10622)..count..StringTable.Get(10624))
+    GUI.SetText(labTip,StringTable.Get(10622)..StringTable.Get(10624))
     for i = 1,5 do
         if i <= count then   
             local item = frameObj:FindChild("Item"..i)
@@ -579,7 +567,7 @@ def.method("userdata",'userdata','table','number').InitFrameAttributeItemData = 
     local displayname = fightElement.TextDisplayName or "NIL"
     local value = itemData._EquipBaseAttrs[index].value
     GUI.SetText(Lab_AttriTips, displayname)
-    GUI.SetText(Lab_AttriVlalues,GUITools.FormatMoney(value))
+    GUI.SetText(Lab_AttriVlalues,GUITools.FormatNumber(value))
 end
 -----------------------------------重铸属性end--------------------------------
 
@@ -665,63 +653,64 @@ def.method("userdata","table").GetOtherValue = function (self, parentObj,itemDat
 
         --升级条件 获取被动技能
         local labCondition = parentObj:FindChild("Lab_ConditionContent")
-        local LegendUpgrade = CElementData.GetLegendaryUpgradeTemplate(itemData._TalentId)
-        local conditionDesStr = ""
-        if LegendUpgrade == nil then 
-            labCondition:SetActive(false)
-        else
-            local curLevelData = LegendUpgrade.ParamDatas[itemData._TalentLevel+1]
-            if curLevelData == nil then
-                labCondition:SetActive(false)
-            else
-                labCondition:SetActive(true)
-                local conditionTips = ""
-                if not isActive then 
-                    conditionTips = StringTable.Get(140)
-                else
-                    conditionTips = StringTable.Get(141)
-                end
-                --具体条件
-                local conditionStr = StringTable.Get(150+ LegendUpgrade.UpgradeTypeId)
-                if LegendUpgrade.UpgradeTypeId == EnumDef.LegendUpgradeType.KILLCOUNT then
-                    conditionDesStr = string.format("%s：%s %d/%d",conditionTips,conditionStr,itemData._TalentParam,curLevelData.Param)
-                elseif LegendUpgrade.UpgradeTypeId == EnumDef.LegendUpgradeType.QUEST then
-                    local quest = CElementData.GetQuestTemplate(itemData._TalentParam)
-                    conditionDesStr = string.format("%s：%s%s",conditionTips,conditionStr,quest.Name)
-                elseif LegendUpgrade.UpgradeTypeId == EnumDef.LegendUpgradeType.STRENGHT  then
-                    conditionDesStr = string.format("%s：%s%d",conditionTips,conditionStr,itemData._TalentParam)
-                elseif LegendUpgrade.UpgradeTypeId == EnumDef.LegendUpgradeType.NPC  then
-                    local npc = CElementData.GetNpcTemplate(itemData._TalentParam)
-                    conditionStr = string.format(conditionStr,npc.Name)
-                    conditionDesStr = string.format("%s：%s",conditionTips,conditionStr)
-                end
-            end
-        end
+        labCondition:SetActive(false)
+        -- local LegendUpgrade = CElementData.GetLegendaryUpgradeTemplate(itemData._TalentId)
+        -- local conditionDesStr = ""
+        -- if LegendUpgrade == nil then 
+            -- labCondition:SetActive(false)
+        -- else
+        --     local curLevelData = LegendUpgrade.ParamDatas[itemData._TalentLevel+1]
+        --     if curLevelData == nil then
+        --         labCondition:SetActive(false)
+        --     else
+        --         labCondition:SetActive(true)
+        --         local conditionTips = ""
+        --         if not isActive then 
+        --             conditionTips = StringTable.Get(140)
+        --         else
+        --             conditionTips = StringTable.Get(141)
+        --         end
+        --         --具体条件
+        --         local conditionStr = StringTable.Get(150+ LegendUpgrade.UpgradeTypeId)
+        --         if LegendUpgrade.UpgradeTypeId == EnumDef.LegendUpgradeType.KILLCOUNT then
+        --             conditionDesStr = string.format("%s：%s %d/%d",conditionTips,conditionStr,itemData._TalentParam,curLevelData.Param)
+        --         elseif LegendUpgrade.UpgradeTypeId == EnumDef.LegendUpgradeType.QUEST then
+        --             local quest = CElementData.GetQuestTemplate(itemData._TalentParam)
+        --             conditionDesStr = string.format("%s：%s%s",conditionTips,conditionStr,quest.Name)
+        --         elseif LegendUpgrade.UpgradeTypeId == EnumDef.LegendUpgradeType.STRENGHT  then
+        --             conditionDesStr = string.format("%s：%s%d",conditionTips,conditionStr,itemData._TalentParam)
+        --         elseif LegendUpgrade.UpgradeTypeId == EnumDef.LegendUpgradeType.NPC  then
+        --             local npc = CElementData.GetNpcTemplate(itemData._TalentParam)
+        --             conditionStr = string.format(conditionStr,npc.Name)
+        --             conditionDesStr = string.format("%s：%s",conditionTips,conditionStr)
+        --         end
+        --     end
+        -- end
 
         local labSkillName = parentObj:FindChild("Lab_SkillContent")
         local labSkillDes = parentObj:FindChild("Lab_OtherTips")
         local skillDes = DynamicText.ParseSkillDescText(itemData._TalentId,itemData._TalentLevel, true)
 
         -- 控制颜色显示
-        if isPutOn and isActive then
+        -- if isPutOn and isActive then
             --激活 并穿上
             GUI.SetText(labSkillName,string.format(StringTable.Get(10664),skillName,itemData._TalentLevel))
-            GUI.SetText(labCondition,string.format(StringTable.Get(10659),conditionDesStr))
+            -- GUI.SetText(labCondition,string.format(StringTable.Get(10659),conditionDesStr))
             --被动技能描述
             GUI.SetText(labSkillDes,string.format(StringTable.Get(10666),skillDes))
-        else
-            -- 未激活或未穿上
-            GUI.SetText(labSkillDes,string.format(StringTable.Get(10665),skillDes))
-            if not isActive then 
-                GUI.SetText(labSkillName,string.format(StringTable.Get(10662),skillName))
-                GUI.SetText(labCondition,string.format(StringTable.Get(10658),conditionDesStr))
-            else
-                GUI.SetText(labSkillName,string.format(StringTable.Get(10663),skillName,itemData._TalentLevel))
-                GUI.SetText(labCondition,string.format(StringTable.Get(10659),conditionDesStr))
-            end
-        end    
-    else
-        parentObj:SetActive(false)  
+    --     else
+    --         -- 未激活或未穿上
+    --         GUI.SetText(labSkillDes,string.format(StringTable.Get(10665),skillDes))
+    --         if not isActive then 
+    --             GUI.SetText(labSkillName,string.format(StringTable.Get(10662),skillName))
+    --             GUI.SetText(labCondition,string.format(StringTable.Get(10658),conditionDesStr))
+    --         else
+    --             GUI.SetText(labSkillName,string.format(StringTable.Get(10663),skillName,itemData._TalentLevel))
+    --             GUI.SetText(labCondition,string.format(StringTable.Get(10659),conditionDesStr))
+    --         end
+    --     end    
+    -- else
+    --     parentObj:SetActive(false)  
     end
 end
 
@@ -745,8 +734,8 @@ def.method("userdata","table","number").ShowEnchantAttri = function (self,frameO
     local fightElement = CElementData.GetPropertyInfoById(itemData._EnchantAttr.index)
     local name = fightElement.Name   
     local value = tonumber(itemData._EnchantAttr.value)
-    GUI.SetText(frameObj:FindChild("Lab_AttriTips"),name)
-    GUI.SetText(frameObj:FindChild("Lab_AttriValues"),GUITools.FormatMoney(value))
+    GUI.SetText(frameObj:FindChild("Frame_AttriTips/Lab_AttriTips"),name)
+    GUI.SetText(frameObj:FindChild("Frame_AttriTips/Lab_AttriValues"),GUITools.FormatNumber(value))
     local labTime = frameObj:FindChild("Lab_AttriTime")
     local timerId = 0
     local callBack = function()
@@ -767,13 +756,19 @@ def.method("userdata","table","number").ShowEnchantAttri = function (self,frameO
     end
 end
 
--- 时间金币面板
+-- 描述面板
 def.method().InitTips = function(self)
+    if self._IsShowCompare then 
+        GUI.SetText(self:GetUIObject("Lab_EquipTips2"),self._CompareData._Template.TextDescription)
+    end
+    GUI.SetText(self:GetUIObject("Lab_EquipTips1"),self._ItemData._Template.TextDescription)
+end
+
+def.method().InitBottom = function(self)
     if self._IsShowCompare then 
         self._ItemCoolDownTimer2,self._ItemExpiredTime2 = self:GetTipsValues(self._Frame_Tips2,self._CompareData,2)
     end
-    self._ItemCoolDownTimer1,self._ItemExpiredTime1 = self:GetTipsValues(self._Frame_Tips1,self._ItemData,1)
-    
+    self._ItemCoolDownTimer1,self._ItemExpiredTime1 = self:GetTipsValues(self._Frame_Tips1,self._ItemData,1)  
 end
 
 def.method('userdata','table',"number","=>","number","number").GetTipsValues = function (self,parentObj,itemData,index)
@@ -797,43 +792,46 @@ def.method('userdata','table',"number","=>","number","number").GetTipsValues = f
     if not itemData:CanDecompose() then 
         labDecompose:SetActive(false)
     end
-    GUI.SetText(self:GetUIObject("Lab_EquipTips"..index),itemTemp.TextDescription)
     -- 交易
     local frameTransaction = self:GetUIObject("Frame_Transaction"..index)
     frameTransaction:SetActive(true)
     local lab_CoolTime = frameTransaction:FindChild("Lab_CoolTime")
     local ImgTransaction = frameTransaction:FindChild("Img_Transaction")
     local timerId1, timerId2 = 0,0
-    if itemData:IsBind() then 
-        ImgTransaction:SetActive(false)
-        GUI.SetText(lab_CoolTime,StringTable.Get(10683))
-    else
-        if game._CAuctionUtil:GetMarketItemIDByItemID(itemData._Tid) > 0 then 
-            if itemData._SellCoolDownExpired > 0 then
-                ImgTransaction:SetActive(true)
-                local callBack1 = function()
-                    local time = itemData._SellCoolDownExpired - GameUtil.GetServerTime()/1000 
-                    if time > 0 then
-                        self:ShowTime(time,false,lab_CoolTime)
-                    else
-                        ImgTransaction:SetActive(false)
-                        GUI.SetText(lab_CoolTime,StringTable.Get(10684))
-                        _G.RemoveGlobalTimer(timerId1)
-                        timerId1 = 0
-                    end
-                end
-                timerId1 =  _G.AddGlobalTimer(1, false, callBack1) 
-            else
-                ImgTransaction:SetActive(false)
-                GUI.SetText(lab_CoolTime,StringTable.Get(10684))
-            end
-        else
-            -- 可以交易
+    --虚拟物品直接隐藏交易情况
+    if self._PopFrom == TipsPopFrom.OTHER_PANEL then 
+        frameTransaction:SetActive(false)
+    else 
+        if itemData:IsBind() then 
             ImgTransaction:SetActive(false)
             GUI.SetText(lab_CoolTime,StringTable.Get(10683))
-        end               
+        else
+            if game._CAuctionUtil:GetMarketItemIDByItemID(itemData._Tid) > 0 then 
+                if itemData._SellCoolDownExpired > 0 then
+                    ImgTransaction:SetActive(true)
+                    local callBack1 = function()
+                        local time = itemData._SellCoolDownExpired - GameUtil.GetServerTime()/1000 
+                        if time > 0 then
+                            self:ShowTime(time,false,lab_CoolTime)
+                        else
+                            ImgTransaction:SetActive(false)
+                            GUI.SetText(lab_CoolTime,StringTable.Get(10684))
+                            _G.RemoveGlobalTimer(timerId1)
+                            timerId1 = 0
+                        end
+                    end
+                    timerId1 =  _G.AddGlobalTimer(1, false, callBack1) 
+                else
+                    ImgTransaction:SetActive(false)
+                    GUI.SetText(lab_CoolTime,StringTable.Get(10684))
+                end
+            else
+                -- 可以交易
+                ImgTransaction:SetActive(false)
+                GUI.SetText(lab_CoolTime,StringTable.Get(10683))
+            end               
+        end
     end
-
     -- 到期时间
     local labExpiredTime = self:GetUIObject("Lab_ExpireTime"..index)
     if itemData._ExpireData <= 0 then 

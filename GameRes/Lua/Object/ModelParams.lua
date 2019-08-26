@@ -337,6 +337,121 @@ def.method("number", "number", CDress).SetWeaponParam = function (self, weaponTi
 	end
 end
 
+-- 复制ModelParams
+def.method("=>", ModelParams).Copy = function (self)
+	local newParams = ModelParams.new()
+	newParams._Prof = self._Prof
+	newParams._ModelAssetPath = self._ModelAssetPath
+	newParams._ArmorAssetPath = self._ArmorAssetPath
+	newParams._FacialAssetPath = self._FacialAssetPath
+	newParams._HairstyleAssetPath = self._HairstyleAssetPath
+	newParams._HairColorId = self._HairColorId
+	newParams._SkinColorId = self._SkinColorId
+	newParams._IsWeaponInHand = self._IsWeaponInHand
+	newParams._WeaponAssetPathL = self._WeaponAssetPathL
+	newParams._WeaponAssetPathR = self._WeaponAssetPathR
+	newParams._IsChangeWing = self._IsChangeWing
+	newParams._WingAssetPath = self._WingAssetPath
+	newParams._IsChangeHeadwear = self._IsChangeHeadwear
+	newParams._HeadwearAssetPath = self._HeadwearAssetPath
+	newParams._Is2ShowDress = self._Is2ShowDress
+	for slot, colors in pairs(self._DressColors) do
+		local dyeIdList = nil
+		for part, dyeId in ipairs(colors) do
+			if dyeIdList == nil then
+				dyeIdList = {}
+			end
+			dyeIdList[part] = dyeId
+		end
+		newParams._DressColors[slot] = dyeIdList
+	end
+	newParams._IsUpdateWeaponFx = self._IsUpdateWeaponFx
+	newParams._WeaponFxPathLeftBack = self._WeaponFxPathLeftBack
+	newParams._WeaponFxPathRightBack = self._WeaponFxPathRightBack
+	newParams._WeaponFxPathLeftHand = self._WeaponFxPathLeftHand
+	newParams._WeaponFxPathRightHand = self._WeaponFxPathRightHand
+	return newParams
+end
+
+-- 完全比对ModelParams
+def.method(ModelParams, "=>", "boolean").Equal = function (self, newParams)
+	if newParams == nil then return false end
+
+	if self._Prof ~= newParams._Prof then
+		return false
+	end
+	-- 盔甲
+	if self._ArmorAssetPath ~= newParams._ArmorAssetPath then
+		return false
+	end
+	-- 脸
+	if self._FacialAssetPath ~= newParams._FacialAssetPath then
+		return false
+	end
+	-- 头部
+	if self._HairstyleAssetPath ~= newParams._HairstyleAssetPath then
+		return false
+	end
+	if self._IsChangeHeadwear ~= newParams._IsChangeHeadwear then
+		return false
+	end
+	if self._IsChangeHeadwear and self._HeadwearAssetPath ~= newParams._HeadwearAssetPath then
+		return false
+	end
+	-- 发色
+	if self._HairColorId ~= newParams._HairColorId then
+		return false
+	end
+	-- 肤色
+	if self._SkinColorId ~= newParams._SkinColorId then
+		return false
+	end
+	-- 武器
+	if self._IsWeaponInHand ~= newParams._IsWeaponInHand then
+		return false
+	end
+	local newWeaponL, newWeaponR = newParams._WeaponAssetPathL, newParams._WeaponAssetPathR
+	if newWeaponL ~= self._WeaponAssetPathL or newWeaponR ~= self._WeaponAssetPathR then
+		return false
+	end
+	-- 武器特效
+	if self._IsUpdateWeaponFx ~= newParams._IsUpdateWeaponFx then
+		return false
+	end
+	local newWeaponFxLB, newWeaponFxRB = newParams._WeaponFxPathLeftBack, newParams._WeaponFxPathRightBack
+	local newWeaponFxLH, newWeaponFxRH = newParams._WeaponFxPathLeftHand, newParams._WeaponFxPathRightHand
+	if newWeaponFxLB ~= self._WeaponFxPathLeftBack or newWeaponFxRB ~= self._WeaponFxPathRightBack or
+	   newWeaponFxLH ~= self._WeaponFxPathLeftHand or newWeaponFxRH ~= self._WeaponFxPathRightHand then
+		return false
+	end
+	-- 翅膀
+	if self._IsChangeWing ~= newParams._IsChangeWing then
+		return false
+	end
+	if self._WingAssetPath ~= newParams._WingAssetPath then
+		return false
+	end
+	-- 时装
+	if self._Is2ShowDress ~= newParams._Is2ShowDress then
+		return false
+	end
+	for slot, colors in pairs(self._DressColors) do
+		if newParams._DressColors[slot] == nil then
+			return false
+		end
+		for part, dyeId in ipairs(colors) do
+			local newDyeId = newParams._DressColors[slot][part]
+			if newDyeId == nil or newDyeId ~= dyeId then
+				return false
+			end
+		end
+	end
+	if self._GUID ~= newParams._GUID then
+		return false
+	end
+	return true
+end
+
 -- 打印ModelParams（测试用）
 def.method("string").PrintModelParams = function (self, tag)
 	warn("[PrintModelParams] tag:" .. tag, debug.traceback())

@@ -118,12 +118,13 @@ def.method("userdata", "number").OnInitOnlineRewardInfo = function(self, item, i
 
 end
 
-def.method("userdata", "number").OnSelectOnlineReward = function(self, item, index)
+def.method("userdata", "number").OnSelectOnlineReward = function(self, item, index)    
     local OnlineRewardInfo = self._OnlineRewardDataTable[index]
     local rewardsData = GUITools.GetRewardList(OnlineRewardInfo._Data.RewardId, true) 
     self._CurSelectReward = index
     if OnlineRewardInfo ~= nil then
         if OnlineRewardInfo._IsDraw == false and OnlineRewardInfo._IsGet then
+            CSoundMan.Instance():Play2DAudio(PATH.GUISound_System_Bonus_Sign, 0)
             game._CWelfareMan:OnC2SOnlineRewardDrawReward(self._CurSelectReward)
         else
             local reward_template = GUITools.GetRewardList(OnlineRewardInfo._Data.RewardId, true)

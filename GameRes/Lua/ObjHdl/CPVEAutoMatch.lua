@@ -28,10 +28,9 @@ def.field("number")._AutoMatchTickTime = 0
 def.field('number')._StartTime = 0
 def.field("string")._TargetMatchText = ""
 def.field("number")._EndTime = 0
+def.field("table")._BlockEndTimeList = BlankTable
 
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
+local LOCK_TIME = 10 * 1000 --10s
 
 local function ParseMatchTable(self, info)
     local new_table = {}
@@ -39,7 +38,10 @@ local function ParseMatchTable(self, info)
         local item = {}
         item.StartTime = v.SignUpTime
         item.TargetId = v.TargetId
-        new_table[#new_table + 1] = item
+        local target_temp = CElementData.GetTemplate("TeamRoomConfig", v.TargetId)
+        if target_temp ~= nil then
+            new_table[#new_table + 1] = item
+        end
     end
     return new_table
 end
@@ -49,6 +51,35 @@ def.static("=>", CPVEAutoMatch).Instance = function ()
         instance = CPVEAutoMatch()
     end
 	return instance
+end
+
+def.method("number", "=>", "boolean").IsBlocking = function(self, targetId)
+    local bRet = false
+    if self._BlockEndTimeList[targetId] then
+        local endTime = self._BlockEndTimeList[targetId]
+        local leftTime = (endTime - GameUtil.GetServerTime())/1000
+        leftTime = math.floor(leftTime)
+
+        if leftTime > 0 then
+            bRet = true
+            TeraFuncs.SendFlashMsg(StringTable.Get(22417), false)
+        else
+            self._BlockEndTimeList[targetId] = nil
+        end
+    end
+
+    return bRet
+end
+
+def.method("number").Lock = function(self, targetId)
+    local endTime = GameUtil.GetServerTime() + LOCK_TIME
+    self._BlockEndTimeList[targetId] = endTime
+end
+
+def.method("number").UnLock = function(self, targetId)
+    if self._BlockEndTimeList[targetId] then
+        self._BlockEndTimeList[targetId] = nil
+    end
 end
 
 def.method("=>", "table").GetAllMatchingTable = function(self)
@@ -107,7 +138,7 @@ def.method("table").Add = function(self, data)
     CGame.EventManager:raiseEvent(nil, event)
 end
 
-def.method().StopAll = function(self)
+def.method().Stop = function(self)
     self._PVEMatchingTable = {}
     local PVEMatchEvent = require "Events.PVEMatchEvent"
     local event = PVEMatchEvent()
@@ -130,11 +161,6 @@ def.method("number").StopByID = function(self, targetID)
             end
         end
     end
-end
-
-def.method().Release = function(self)
-    self:StopAll()
-    instance = nil
 end
 
 --================= C2S Start ==================
@@ -200,9 +226,9 @@ def.method("table").OnS2CMatchCancle = function(self, msg)
     if msg.MatchType == EMatchType.EMatchType_Dungeon then
         if msg.TargetId == -1 then
             if msg.Reason ~= ServerMessageMatch.Match_EnterLocalDungeon then
-                SendFlashMsg(StringTable.Get(22082), false)
+                TeraFuncs.SendFlashMsg(StringTable.Get(22082), false)
             end
-            self:StopAll()
+            self:Stop()
         else
             self:StopByID(msg.TargetId)
             if msg.Reason ~= ServerMessageMatch.Match_EnterLocalDungeon then
@@ -210,10 +236,10 @@ def.method("table").OnS2CMatchCancle = function(self, msg)
                     local target_temp = CElementData.GetTemplate("TeamRoomConfig", msg.TargetId)
                     if target_temp ~= nil then
                         local str = string.format(StringTable.Get(22083), target_temp.DisplayName)
-                        SendFlashMsg(str, false)
+                        TeraFuncs.SendFlashMsg(str, false)
                     end
                 else
-                    SendFlashMsg(StringTable.Get(22082), false)
+                    TeraFuncs.SendFlashMsg(StringTable.Get(22082), false)
                 end
             end
         end
@@ -222,7 +248,7 @@ end
 
 -- 匹配成功，进入副本协议处理
 def.method().OnMatchStartLoading = function(self)
-    self:StopAll()
+    self:Stop()
     game._GUIMan:CloseToMain()
 end
 

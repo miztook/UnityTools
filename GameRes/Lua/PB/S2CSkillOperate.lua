@@ -297,14 +297,6 @@ local function OnS2CSkillPerformFailed(sender, msg)
 			print("InvalidDistance Check! HostPlayer Pos:", pos.x, pos.z)
 			print("InvalidDistance Check! Last SyncPos:", _G.lastIsStop, _G.lastHostPosX, _G.lastHostPosZ, _G.lastDestPosX, _G.lastDestPosZ)
 		end
-
-		--[[
-		-- OnSkillFailed中会对自动换进行处理
-		local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
-		if CDungeonAutoMan.Instance():IsOn() then
-			CDungeonAutoMan.Instance():ChangeGoal()
-		end
-		]]
 	end
 	
 end

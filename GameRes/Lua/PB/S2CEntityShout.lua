@@ -27,7 +27,7 @@ local function OnEntityShout( sender,msg )
 			end
 
 			local text = DynamicText.ParseDialogueText(textTemplate.TextContent)
-			entity:OnTalkPopTopChange(true, text, tonumber(textTemplate.Duration/1000))
+			entity:ShowPopText(true, text, tonumber(textTemplate.Duration/1000))
 			--print("text=",text,textID)
 			local syncChannel = textTemplate.SyncChannel
 			if syncChannel ~= nil and syncChannel ~= ESyncChannel.DontSync then

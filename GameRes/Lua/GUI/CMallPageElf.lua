@@ -8,6 +8,8 @@ local CGame = Lplus.ForwardDeclare("CGame")
 local CMallPageElf = Lplus.Extend(CMallPageBase, "CMallPageElf")
 local def = CMallPageElf.define
 
+local ElfRandomInfoSpecialID = 688
+
 def.field("table")._PanelObjects = nil
 def.field("table")._AllRewardTable = nil
 def.field("table")._ListNodeName = nil
@@ -370,13 +372,31 @@ def.override('string').OnClick = function(self, id)
         }
         MsgBox.ShowQuickMultBuyBox(rewardTable, callback)
     elseif id == "Btn_ShowProbability" then
-        local strValue = CElementData.GetSpecialIdTemplate(self._RateShowUrlSpecialID).Value
-        CPlatformSDKMan.Instance():ShowInAppWeb(strValue)
+        local bKakaoPlatform = CPlatformSDKMan.Instance():IsInKakao()
+        if bKakaoPlatform then
+            local key = CElementData.GetSpecialIdTemplate(ElfRandomInfoSpecialID).Value
+            local url = CPlatformSDKMan.Instance():GetCustomData(key)
+            CPlatformSDKMan.Instance():ShowInAppWeb(url)
+        else
+            local strValue = CElementData.GetSpecialIdTemplate(self._RateShowUrlSpecialID).Value
+            game._GUIMan:OpenUrl(strValue)
+            --CPlatformSDKMan.Instance():ShowInAppWeb(strValue)
+        end
     elseif id == "Btn_OK" then
         self._PanelObjects._Frame_MatNoEnough:SetActive(false)
     elseif id == "Img_MatNotEnoughBG" then
         self._PanelObjects._Frame_MatNoEnough:SetActive(false)
     end
+end
+
+-- 返回键
+def.override("=>", "boolean").HandleEscapeKey = function(self)
+    if self._PanelObjects._FrameAllRewardPanel.activeSelf then
+        self._PanelObjects._FrameAllRewardPanel:SetActive(false)
+        return true
+    end
+    
+    return false
 end
 
 def.override().OnHide = function(self)

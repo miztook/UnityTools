@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 4,
 	Remarks = "新手副本",
-	TextDisplayName = "아르카니아 균열",
+	TextDisplayName = "아카이아 균열",
 	Length = 512,
 	Width = 512,
 	NavMeshName = "Dungn00_EmpireRelicPrologue.navmesh",
@@ -11,21 +11,23 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/Map_Bg_Start.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn00_EmpireRelicPrologue.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[40032] = 
 		{
-			[1] = { x = 1.05, y = 68.26, z = -48.72, name = "阿勒坤先锋", level = 1, DropItemIds = " " },
-			[2] = { x = -0.57, y = 68.26, z = -54.96, name = "阿勒坤先锋", level = 1, DropItemIds = " " },
-			[3] = { x = 3.90, y = 68.26, z = -54.63, name = "阿勒坤先锋", level = 1, DropItemIds = " " },
-			[4] = { x = -5.19, y = 68.26, z = -56.94, name = "阿勒坤先锋", level = 1, DropItemIds = " " },
-			[5] = { x = 9.55, y = 68.26, z = -57.06, name = "阿勒坤先锋", level = 1, DropItemIds = " " },
-			[6] = { x = -7.70, y = 68.26, z = -50.56, name = "阿勒坤先锋", level = 1, DropItemIds = " " },
-			[7] = { x = 2.43, y = 68.26, z = -49.55, name = "阿勒坤先锋", level = 1, DropItemIds = " " },
-			[8] = { x = -2.27, y = 68.26, z = -50.26, name = "阿勒坤先锋", level = 1, DropItemIds = " " },
-			[9] = { x = 2.43, y = 68.26, z = -46.32, name = "阿勒坤先锋", level = 1, DropItemIds = " " },
-			[10] = { x = -2.37, y = 68.26, z = -53.17, name = "阿勒坤先锋", level = 1, DropItemIds = " " },
-			[11] = { x = 4.84, y = 68.26, z = -52.98, name = "阿勒坤先锋", level = 1, DropItemIds = " " },
+			[1] = { x = 1.05, y = 68.26, z = -48.72, name = "아르곤 선봉", level = 1, DropItemIds = " " },
+			[2] = { x = 1.59, y = 68.26, z = -50.45, name = "아르곤 선봉", level = 1, DropItemIds = " " },
+			[3] = { x = -1.65, y = 68.26, z = -63.19, name = "아르곤 선봉", level = 1, DropItemIds = " " },
+			[4] = { x = 4.66, y = 68.26, z = -63.23, name = "아르곤 선봉", level = 1, DropItemIds = " " },
+			[5] = { x = -1.16, y = 68.26, z = -50.22, name = "아르곤 선봉", level = 1, DropItemIds = " " },
+			[6] = { x = 3.98, y = 68.26, z = -50.14, name = "아르곤 선봉", level = 1, DropItemIds = " " },
+			[7] = { x = 5.67, y = 68.26, z = -55.69, name = "아르곤 선봉", level = 1, DropItemIds = " " },
+			[8] = { x = -3.39, y = 68.26, z = -55.21, name = "아르곤 선봉", level = 1, DropItemIds = " " },
+			[9] = { x = -2.27, y = 68.26, z = -50.26, name = "아르곤 선봉", level = 1, DropItemIds = " " },
+			[10] = { x = 2.43, y = 68.26, z = -46.32, name = "아르곤 선봉", level = 1, DropItemIds = " " },
+			[11] = { x = -2.37, y = 68.26, z = -53.17, name = "아르곤 선봉", level = 1, DropItemIds = " " },
+			[12] = { x = 4.84, y = 68.26, z = -52.98, name = "아르곤 선봉", level = 1, DropItemIds = " " },
 		},
 		[40000] = 
 		{
@@ -53,27 +55,21 @@ local MapInfo =
 		{
 			[1] = { x = -0.05, y = 68.26, z = -48.72, name = "불사의 근위병", level = 1, SortID = 1 },
 		},
-		[40033] = 
-		{
-			[1] = { x = 1.59, y = 68.26, z = -52.97, name = "阿勒坤咒术师", level = 1, DropItemIds = " " },
-			[2] = { x = -8.23, y = 68.26, z = -47.05, name = "阿勒坤咒术师", level = 1, DropItemIds = " " },
-			[3] = { x = 10.03, y = 68.26, z = -48.86, name = "阿勒坤咒术师", level = 1, DropItemIds = " " },
-		},
 		[40034] = 
 		{
-			[1] = { x = 1.76, y = 65.95, z = -10.59, name = "阿勒坤先锋", level = 1, DropItemIds = " " },
-			[2] = { x = 1.73, y = 65.95, z = -18.17, name = "阿勒坤先锋", level = 1, DropItemIds = " " },
-			[3] = { x = -5.19, y = 65.95, z = -11.29, name = "阿勒坤先锋", level = 1, DropItemIds = " " },
-			[4] = { x = 9.25, y = 65.95, z = -8.03, name = "阿勒坤先锋", level = 1, DropItemIds = " " },
-			[5] = { x = 0.30, y = 65.95, z = -4.11, name = "阿勒坤先锋", level = 1, DropItemIds = " " },
+			[1] = { x = -2.54, y = 65.95, z = -17.94, name = "아르곤 선봉", level = 1, DropItemIds = " " },
+			[2] = { x = 6.35, y = 65.95, z = -18.33, name = "아르곤 선봉", level = 1, DropItemIds = " " },
+			[3] = { x = -4.85, y = 65.95, z = -10.12, name = "아르곤 선봉", level = 1, DropItemIds = " " },
+			[4] = { x = 7.44, y = 65.95, z = -10.55, name = "아르곤 선봉", level = 1, DropItemIds = " " },
+			[5] = { x = 0.30, y = 65.95, z = -4.11, name = "아르곤 선봉", level = 1, DropItemIds = " " },
 		},
 		[40035] = 
 		{
-			[1] = { x = 7.38, y = 65.95, z = -15.67, name = "阿勒坤咒术师", level = 1, DropItemIds = " " },
-			[2] = { x = -1.90, y = 65.95, z = -14.33, name = "阿勒坤咒术师", level = 1, DropItemIds = " " },
-			[3] = { x = 4.11, y = 65.95, z = -10.33, name = "阿勒坤咒术师", level = 1, DropItemIds = " " },
-			[4] = { x = -4.61, y = 65.95, z = -5.40, name = "阿勒坤咒术师", level = 1, DropItemIds = " " },
-			[5] = { x = 6.86, y = 65.95, z = -4.23, name = "阿勒坤咒术师", level = 1, DropItemIds = " " },
+			[1] = { x = 5.27, y = 65.95, z = -5.14, name = "아르곤 흑마법사", level = 1, DropItemIds = " " },
+			[2] = { x = -1.15, y = 65.95, z = -5.17, name = "아르곤 흑마법사", level = 1, DropItemIds = " " },
+			[3] = { x = 4.11, y = 65.95, z = -10.33, name = "아르곤 흑마법사", level = 1, DropItemIds = " " },
+			[4] = { x = -4.61, y = 65.95, z = -5.40, name = "아르곤 흑마법사", level = 1, DropItemIds = " " },
+			[5] = { x = 6.86, y = 65.95, z = -4.23, name = "아르곤 흑마법사", level = 1, DropItemIds = " " },
 		},
 		[40024] = 
 		{
@@ -105,7 +101,7 @@ local MapInfo =
 		},
 		[11098] = 
 		{
-			[1] = { x = 1.66, y = 68.26, z = -63.65, name = "비행 몬스터", level = 20, SortID = 49 },
+			[1] = { x = 1.66, y = 68.26, z = -67.64, name = "비행 몬스터", level = 20, SortID = 49 },
 		},
 		[11100] = 
 		{
@@ -114,6 +110,11 @@ local MapInfo =
 		[40031] = 
 		{
 			[1] = { x = 30.00, y = 71.02, z = 126.00, name = "비행 몬스터", level = 20, SortID = 54 },
+		},
+		[40033] = 
+		{
+			[1] = { x = -8.59, y = 68.26, z = -50.99, name = "아르곤 흑마법사", level = 1, DropItemIds = " " },
+			[2] = { x = 11.63, y = 68.26, z = -52.67, name = "아르곤 흑마법사", level = 1, DropItemIds = " " },
 		},
 		[40001] = 
 		{
@@ -143,16 +144,16 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[334] = { x = 1.57, y = 68.26, z = -67.77, name = "摇杆教学", worldId = 0, PkMode = 0 },
-			[335] = { x = 1.78, y = 68.58, z = -48.98, name = "自动移动教学", worldId = 0, PkMode = 0 },
-			[338] = { x = 1.57, y = 68.21, z = 15.60, name = "平台区域", worldId = 0, PkMode = 0 },
-			[339] = { x = 1.76, y = 70.46, z = 177.98, name = "裂隙中心", worldId = 0, PkMode = 0 },
-			[340] = { x = 1.77, y = 68.26, z = -77.11, name = "遥感教学触发区域", worldId = 0, PkMode = 0 },
-			[341] = { x = 0.72, y = 71.02, z = 72.41, name = "巨龙CG触发", worldId = 0, PkMode = 0 },
-			[342] = { x = 1.64, y = 82.74, z = 115.09, name = "BOSS区域", worldId = 0, PkMode = 0 },
-			[343] = { x = 1.86, y = 66.26, z = -38.65, name = "断桥中触发区域", worldId = 0, PkMode = 0 },
-			[344] = { x = 1.59, y = 71.02, z = 115.10, name = "巨龙平台Boss战区域", worldId = 0, BackgroundMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 0, CameraDistance = 15 },
-			[345] = { x = -1.38, y = 71.40, z = 113.82, name = "教学6回调区域", worldId = 0, PkMode = 0 },
+			[334] = { x = 1.57, y = 68.26, z = -67.77, name = "摇杆教学", worldId = 0, PkMode = 1 },
+			[335] = { x = 1.78, y = 68.58, z = -48.98, name = "自动移动教学", worldId = 0, PkMode = 1 },
+			[338] = { x = 1.57, y = 68.21, z = 15.60, name = "平台区域", worldId = 0, PkMode = 1 },
+			[339] = { x = 1.76, y = 70.46, z = 177.98, name = "裂隙中心", worldId = 0, PkMode = 1 },
+			[340] = { x = 1.77, y = 68.26, z = -77.11, name = "遥感教学触发区域", worldId = 0, PkMode = 1 },
+			[341] = { x = 0.72, y = 71.02, z = 72.41, name = "巨龙CG触发", worldId = 0, PkMode = 1 },
+			[342] = { x = 1.64, y = 82.74, z = 115.09, name = "BOSS区域", worldId = 0, PkMode = 1 },
+			[343] = { x = 1.86, y = 66.26, z = -38.65, name = "断桥中触发区域", worldId = 0, PkMode = 1 },
+			[344] = { x = 1.59, y = 71.02, z = 115.10, name = "巨龙平台Boss战区域", worldId = 0, BackgroundMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1, CameraDistance = 15 },
+			[345] = { x = -1.38, y = 71.40, z = 113.82, name = "教学6回调区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 
@@ -242,15 +243,15 @@ local MapInfo =
 		},
 		[6] = 
 		{
-			x = 1.59, y = 68.26, z = -52.97, Type = 1,
+			x = 1.59, y = 68.26, z = -50.45, Type = 1,
 			Tid = 
 			{
-				[40033] = 2,
+				[40032] = 2,
 			},
 		},
 		[10] = 
 		{
-			x = 1.76, y = 65.95, z = -10.59, Type = 1,
+			x = -2.54, y = 65.95, z = -17.94, Type = 1,
 			Tid = 
 			{
 				[40034] = 1,
@@ -258,7 +259,7 @@ local MapInfo =
 		},
 		[12] = 
 		{
-			x = 1.73, y = 65.95, z = -18.17, Type = 1,
+			x = 6.35, y = 65.95, z = -18.33, Type = 1,
 			Tid = 
 			{
 				[40034] = 1,
@@ -266,7 +267,7 @@ local MapInfo =
 		},
 		[13] = 
 		{
-			x = -5.19, y = 65.95, z = -11.29, Type = 1,
+			x = -4.85, y = 65.95, z = -10.12, Type = 1,
 			Tid = 
 			{
 				[40034] = 1,
@@ -274,7 +275,7 @@ local MapInfo =
 		},
 		[14] = 
 		{
-			x = 9.25, y = 65.95, z = -8.03, Type = 1,
+			x = 7.44, y = 65.95, z = -10.55, Type = 1,
 			Tid = 
 			{
 				[40034] = 1,
@@ -290,7 +291,7 @@ local MapInfo =
 		},
 		[18] = 
 		{
-			x = -0.57, y = 68.26, z = -54.96, Type = 1,
+			x = -1.65, y = 68.26, z = -63.19, Type = 1,
 			Tid = 
 			{
 				[40032] = 1,
@@ -298,7 +299,7 @@ local MapInfo =
 		},
 		[22] = 
 		{
-			x = 3.90, y = 68.26, z = -54.63, Type = 1,
+			x = 4.66, y = 68.26, z = -63.23, Type = 1,
 			Tid = 
 			{
 				[40032] = 1,
@@ -306,7 +307,7 @@ local MapInfo =
 		},
 		[29] = 
 		{
-			x = -5.19, y = 68.26, z = -56.94, Type = 1,
+			x = -1.16, y = 68.26, z = -50.22, Type = 1,
 			Tid = 
 			{
 				[40032] = 1,
@@ -314,7 +315,7 @@ local MapInfo =
 		},
 		[31] = 
 		{
-			x = 9.55, y = 68.26, z = -57.06, Type = 1,
+			x = 3.98, y = 68.26, z = -50.14, Type = 1,
 			Tid = 
 			{
 				[40032] = 1,
@@ -322,7 +323,7 @@ local MapInfo =
 		},
 		[32] = 
 		{
-			x = 7.38, y = 65.95, z = -15.67, Type = 1,
+			x = 5.27, y = 65.95, z = -5.14, Type = 1,
 			Tid = 
 			{
 				[40035] = 1,
@@ -330,7 +331,7 @@ local MapInfo =
 		},
 		[33] = 
 		{
-			x = -1.90, y = 65.95, z = -14.33, Type = 1,
+			x = -1.15, y = 65.95, z = -5.17, Type = 1,
 			Tid = 
 			{
 				[40035] = 1,
@@ -410,7 +411,7 @@ local MapInfo =
 		},
 		[45] = 
 		{
-			x = -7.70, y = 68.26, z = -50.56, Type = 1,
+			x = 5.67, y = 68.26, z = -55.69, Type = 1,
 			Tid = 
 			{
 				[40032] = 1,
@@ -434,7 +435,7 @@ local MapInfo =
 		},
 		[49] = 
 		{
-			x = 1.66, y = 68.26, z = -63.65, Type = 1,
+			x = 1.66, y = 68.26, z = -67.64, Type = 1,
 			Tid = 
 			{
 				[11098] = 1,
@@ -442,7 +443,7 @@ local MapInfo =
 		},
 		[50] = 
 		{
-			x = 2.43, y = 68.26, z = -49.55, Type = 1,
+			x = -3.39, y = 68.26, z = -55.21, Type = 1,
 			Tid = 
 			{
 				[40032] = 1,
@@ -498,7 +499,7 @@ local MapInfo =
 		},
 		[58] = 
 		{
-			x = -8.23, y = 68.26, z = -47.05, Type = 1,
+			x = -8.59, y = 68.26, z = -50.99, Type = 1,
 			Tid = 
 			{
 				[40033] = 1,
@@ -506,7 +507,7 @@ local MapInfo =
 		},
 		[59] = 
 		{
-			x = 10.03, y = 68.26, z = -48.86, Type = 1,
+			x = 11.63, y = 68.26, z = -52.67, Type = 1,
 			Tid = 
 			{
 				[40033] = 1,

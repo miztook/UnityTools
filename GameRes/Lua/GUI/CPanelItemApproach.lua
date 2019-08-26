@@ -249,7 +249,12 @@ def.method("number","number","number","number").Move = function(self, nType, nMa
         elseif game._HostPlayer:InPharse() then
 			title, message, closeType = StringTable.GetMsg(82)
 		elseif game._HostPlayer:InDungeon() then 
-			title, message, closeType = StringTable.GetMsg(17)
+			if game._DungeonMan:InTowerDungeon() or game._DungeonMan:InGuildDungeon() then
+				-- 爬塔或者公会副本
+				title, message, closeType = StringTable.GetMsg(140)
+			else
+				title, message, closeType = StringTable.GetMsg(17)
+			end
 		end
 		MsgBox.ShowMsgBox(message, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback)
 		return

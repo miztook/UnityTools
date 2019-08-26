@@ -43,6 +43,8 @@ def.field('table')._Current_SelectSubData = nil
 def.field('table')._Current_SimulateOpenData = nil --模拟打开指定目录
 def.field("number")._CurrentSelectTabIndex = 0
 def.field("boolean")._IsTabOpen = false
+def.field("boolean")._IsInit = false
+
 def.field('number')._CurChoiceIndex = -1 --当前选中的成就Index
 
 def.field("userdata")._List_ManualTree = nil -- 一级目录根节点
@@ -141,11 +143,11 @@ def.method("boolean").ShowOverviewPanel = function(self, isShow)
     self._Frame_ManualProgressPanel:SetActive(isShow)
 
     if isShow then
-        local tids = GameUtil.GetAllTid("ManualTotalReward")
+        local tids = CElementData.GetAllTid("ManualTotalReward")
         self._List_OverviewMenu:SetItemCount(#tids)
 
         local activeCount = game._CManualMan._ManualActiveCount
-        local totalCount = GameUtil.GetAllTid("ManualEntrie")
+        local totalCount = CElementData.GetAllTid("ManualEntrie")
         self._ImgProgress.fillAmount = activeCount / #totalCount
         local str = "<color=#5CBE37>"..activeCount.."</color>" ..'/'.. #totalCount
         GUI.SetText(self._LabProgressTotal, str )
@@ -172,7 +174,7 @@ def.method("boolean").ShowOverviewPanel = function(self, isShow)
                         local percent = fixFloat(attriData._Value * 100)
                         valStr = fixFloatStr(percent, 1) .. "%" -- 修正浮点数，保留小数点后一位
                     else
-                        valStr = tostring(attriData._Value)
+                        valStr = tostring( GUITools.FormatNumber(attriData._Value) )
                     end
  --                   if isHighLight then
 --[[                        tipStr = string.format(ColorHexStr.White, tipStr)
@@ -201,7 +203,7 @@ def.method().ShowData = function (self)
     -- end
 
     self._IsTabOpen = false
-    
+    self._IsInit = true
     --self._Current_SelectSubData = self._Current_SelectData.SmallTypeDatas[1]
     --self:OnSelectManualSubDataChange(0)
     self._List_Manual:SelectItem(0,0)
@@ -305,7 +307,7 @@ def.method().OnSelectManualDataChange = function(self)
     --print_r(self._Current_SelectData)
     self._Frame_ElementsContainer:SetActive(true)
     self._List_Elements:SetItemCount(#self._Current_SelectData.SmallTypeDatas) 
-    print("self._Current_SelectData.SmallTypeName ", self._Current_SelectData.SmallTypeName)
+    --print("self._Current_SelectData.SmallTypeName ", self._Current_SelectData.SmallTypeName)
     --GUI.SetText(self._Lab_SmallTypeName, self._Current_SelectData.SmallTypeName )
 end
 
@@ -328,17 +330,20 @@ def.method('number').OnSelectManualSubDataChange = function(self,index)
 
     local template = CElementData.GetManualEntrieTemplate(self._Current_SelectSubData.EntrieId)
     GUI.SetText(self._Lab_ElementSubName, template.DisPlayName )
-    if finishIndex > 0 then       --self._Current_SelectSubData = self._Current_SelectData.SmallTypeDatas[index+1]
+
+    self._Lab_ElementSubDes:SetActive(true)
+    GUI.SetText(self._Lab_ElementSubDes, template.Content )
+    self._Lab_UnlockEntrie:SetActive(false)
+    --if finishIndex > 0 then       --self._Current_SelectSubData = self._Current_SelectData.SmallTypeDatas[index+1]
+    if self._Current_SelectSubData.IsShow then
         --print("self._Current_SelectSubData.EntrieId=",self._Current_SelectSubData.EntrieId)
         --print_r(self._Current_SelectSubData)
         
-        self._Lab_ElementSubDes:SetActive(true)
-        GUI.SetText(self._Lab_ElementSubDes, template.Content )
         --local iconPath = template.IconPath..".png"
         --GUITools.SetSprite(self._Img_ElementIcon, iconPath)
 
         self._Frame_List_ElementSubContainer:SetActive(true)
-        self._Lab_UnlockEntrie:SetActive(false)
+        --self._Lab_UnlockEntrie:SetActive(false)
         self._List_ElementsSub:SetItemCount(#self._Current_SelectSubData.Details) 
 
         if self._Current_SelectSubData.IsDrawReward then
@@ -365,16 +370,16 @@ def.method('number').OnSelectManualSubDataChange = function(self,index)
         end
     else
         self._Lab_ActivationTip:SetActive(true)
-        GUI.SetText(self._Lab_ActivationTip, StringTable.Get(20814) )
+        GUI.SetText(self._Lab_ActivationTip, string.format(StringTable.Get(20814), template.ShowParam1) )
         self._Frame_List_ElementSubContainer:SetActive(true)
-        self._Lab_ElementSubDes:SetActive(false)
-        self._Lab_UnlockEntrie:SetActive(true)
-        GUI.SetText(self._Lab_UnlockEntrie, template.UnlockTips )
+        --self._Lab_ElementSubDes:SetActive(false)
+        --self._Lab_UnlockEntrie:SetActive(true)
+        --GUI.SetText(self._Lab_UnlockEntrie, template.UnlockTips )
         self._List_ElementsSub:SetItemCount(0) 
         self._Btn_Activation:SetActive(false)      
     end
 
-    print("self._Current_SelectSubData.EntrieId======",self._Current_SelectSubData.EntrieId,template.DisPlayName)
+    --print("self._Current_SelectSubData.EntrieId======",self._Current_SelectSubData.EntrieId,template.DisPlayName)
     local AddPropertys = {}
     local template = CElementData.GetManualEntrieTemplate( self._Current_SelectSubData.EntrieId )
     local ids = string.split(template.AttrIds, '*') 
@@ -412,7 +417,7 @@ def.method('number').OnSelectManualSubDataChange = function(self,index)
                     local percent = fixFloat(attriData._Value * 100)
                     valStr = fixFloatStr(percent, 1) .. "%" -- 修正浮点数，保留小数点后一位
                 else
-                    valStr = tostring(attriData._Value)
+                    valStr = tostring(GUITools.FormatNumber(attriData._Value))
                 end
                 if isActive then
                     tipStr = string.format(ColorHexStr.White, tipStr)
@@ -487,7 +492,7 @@ end
 def.method('number').OnDataManualTotalDrawChange = function (self,id)
     --获得此条目的数据
     if self._List_OverviewMenu ~= nil then
-        local tids = GameUtil.GetAllTid("ManualTotalReward")
+        local tids = CElementData.GetAllTid("ManualTotalReward")
         local template = CElementData.GetManualTotalRewardTemplate(id)
 
         local idx = -1
@@ -520,6 +525,7 @@ def.method('userdata','number').OnInitTabListDeep1 = function(self,item,bigTypeI
     else
         local data = game._CManualMan:GetData()
         local current_type_manuals = data[EnumDef.ManualType.Manual]
+
         local template = CElementData.GetManualTemplate(current_type_manuals[bigTypeIndex-1].BigTypeId)
         item:FindChild("Lab_Text"):GetComponent(ClassType.Text).text = template.DisPlayName
         --item:FindChild("Lab_Text"):GetComponent(ClassType.Text).text = template.DisPlayName
@@ -577,6 +583,10 @@ def.method('userdata','userdata','number').OnClickTabListDeep1 = function(self,l
         item:FindChild("Img_Arrow"):SetActive(true)
         --item:FindChild("Img_Arrow")
         local data = game._CManualMan:GetData()
+        if data == nil then
+            warn("manual data = nil")
+            return
+        end
         local template = CElementData.GetManualTemplate(data[EnumDef.ManualType.Manual][bigTypeIndex-1].BigTypeId)
 
         if bigTypeIndex == 0 then
@@ -586,7 +596,7 @@ def.method('userdata','userdata','number').OnClickTabListDeep1 = function(self,l
             --如果没有小类型 直接打开
 --[[            self._List_Manual:OpenTab(0)
             self._Current_SelectData = current_bigtype.Data
-            self._TeamMan:C2SGetTeamListInRoom(self._Current_SelectData.Id)
+            TeamUtil.RequestTeamListInRoom(self._Current_SelectData.Id)
             self:InitSeleteRoom()
 --]]
         else
@@ -646,6 +656,14 @@ def.method('userdata','number','number').OnClickTabListDeep2 = function(self,lis
         local template = CElementData.GetManualEntrieTemplate(value1.EntrieId)
         local template2 = CElementData.GetManualEntrieTemplate(value2.EntrieId)
 
+        if value1.IsShow and not value2.IsShow then
+            return true
+        elseif not value1.IsShow and value2.IsShow then
+            return false
+        elseif not value1.IsShow and not value2.IsShow then
+            return template.ShowParam1 < template2.ShowParam1
+        end
+
         if template.EntrieQuality == template2.EntrieQuality then
             if value1.EntrieId < value2.EntrieId then
                 return true
@@ -690,7 +708,7 @@ def.method("userdata", "userdata", "number", "number").ParentTabListInitItem = f
 end
 
 def.method("userdata", "userdata", "number", "number").ParentTabListSelectItem = function(self, list, item, main_index, sub_index)
-    print("OnTabListSelectItem", item, main_index, sub_index)
+    --print("OnTabListSelectItem", item, main_index, sub_index)
     if list.name == "List_Manual" then
         if sub_index == -1 then
             local bigTypeIndex = main_index + 1
@@ -700,6 +718,14 @@ def.method("userdata", "userdata", "number", "number").ParentTabListSelectItem =
             local smallTypeIndex = sub_index + 1
             self:OnClickTabListDeep2(list,bigTypeIndex,smallTypeIndex)
         end
+    end
+
+    if not self._IsInit then
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
+    end
+    
+    if self._IsInit then
+        self._IsInit = false
     end
 end
 
@@ -752,9 +778,10 @@ def.method("userdata", "string", "number").ParentInitItem = function(self, item,
         local Img_RedPoint = item:FindChild("Img_RedPoint")
         local Img_NewIcon = item:FindChild("Img_NewIcon")
         local Img_Quality = item:FindChild("Img_BG/Img_Quality")
-        
+        local Img_ClickManual = item:FindChild("Img_BG/Img_ClickManual")
          
-        
+        Img_ClickManual:SetActive(false)
+
         -- 是否已经领奖
         local IsDrawReward = true
         --  计算进度/总进度
@@ -766,7 +793,8 @@ def.method("userdata", "string", "number").ParentInitItem = function(self, item,
             end
         end
         
-        if finishIndex > 0 then
+        --if finishIndex > 0 then
+        if data.IsShow then
             Img_Quality:SetActive(true)
             GUITools.SetGroupImg(Img_Quality,template.EntrieQuality)
         else
@@ -776,7 +804,7 @@ def.method("userdata", "string", "number").ParentInitItem = function(self, item,
         GameUtil.StopUISfx(PATH.UIFX_manual_kejihuo, Img_Icon)
         --测试领奖用
         --finishIndex = #data.Details
-        if finishIndex > 0 then
+        if data.IsShow then
             Lab_Name:SetActive(true)
              GUI.SetText(Lab_Name, template.DisPlayName )
             Img_Lock:SetActive(false)
@@ -917,7 +945,7 @@ def.method("userdata", "string", "number").ParentInitItem = function(self, item,
         GUI.SetText(Lab_Des, detailTemplate.Title)
     elseif id == 'List_OverviewMenu' then
         --local data = self._Current_SelectData.SmallTypeDatas[index+1]
-        local tids = GameUtil.GetAllTid("ManualTotalReward")
+        local tids = CElementData.GetAllTid("ManualTotalReward")
         local template = CElementData.GetManualTotalRewardTemplate(tids[idx])
 
         --是否锁住
@@ -1001,6 +1029,7 @@ def.method("userdata", "string", "number").ParentSelectItem = function(self, ite
         self._Current_SelectSubData.CurIndex = index + 1
         game._GUIMan:Open("CPanelUIManualElementSubDes", self._Current_SelectSubData)
     end
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
 end
 
 def.method("userdata", "string", "string", "number").ParentSelectItemButton = function(self, item, id, id_btn, index)
@@ -1012,7 +1041,7 @@ def.method("userdata", "string", "string", "number").ParentSelectItemButton = fu
      elseif id_btn == 'Btn_Get' then  
         local item_index = index + 1
 
-        local tids = GameUtil.GetAllTid("ManualTotalReward")
+        local tids = CElementData.GetAllTid("ManualTotalReward")
         local template = CElementData.GetManualTotalRewardTemplate(tids[item_index])
         if template ~= nil then
             game._CManualMan:SendC2SManualTotalDraw(template.Id)
@@ -1022,7 +1051,7 @@ def.method("userdata", "string", "string", "number").ParentSelectItemButton = fu
         local item_index = tonumber(string.sub(id_btn, -1))
         if not item_index then return end
 
-        local tids = GameUtil.GetAllTid("ManualTotalReward")
+        local tids = CElementData.GetAllTid("ManualTotalReward")
         local template = CElementData.GetManualTotalRewardTemplate(tids[idx])
 
         if template.RewardId > 0 then            
@@ -1043,6 +1072,7 @@ def.method("userdata", "string", "string", "number").ParentSelectItemButton = fu
             end
         end 
     end
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
 end
 
 

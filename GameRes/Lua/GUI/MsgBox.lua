@@ -58,7 +58,7 @@
 	local title, msg, closeType = StringTable.GetMsg(4)
     MsgBox.ShowMsgBox(strMsg, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback, nil,nil,MsgBoxPriority.Noranl, 等等（除了第一个参数增加的，其他和msgbox参数一样）)
 二、**在数据编辑器里面配置的MsgBox使用方法：**
-	MsgBox.ShowSystemMsgBox(errorID(SystemNotify的tid), message(""), title(""), MsgBoxType.MBBT_OK, 等等) message和title可以为“”，如果为空是会使用配置表里面的数据，如果不为空使用传入的参数。
+	MsgBox.ShowSystemMsgBox(errorID(SystemNotify的tid),MsgBoxType.MBBT_OK, 等等)
 
 注意:
 1. 当前的 timercallback 返回值都是 false
@@ -127,10 +127,11 @@ _G.MsgBoxRet =
 _G.MsgBoxPriority = 
 {
 	None = 0,
-	Normal = 1,      --正常
-	Guide = 2,       --引导
-	Quit = 3,       -- QuitGame
-	Disconnect = 100,  --断线提示优先级最高
+	Normal = 1,             -- 正常
+	Guide = 2,              -- 引导
+    ImportantTip = 3,       -- 在重要弹窗之上的msgbox，比如匹配成功
+	Quit = 4,               -- QuitGame
+	Disconnect = 100,       -- 断线提示优先级最高
 }
 
 --MsgBox的额外显示条件
@@ -146,6 +147,8 @@ _G.MsgBoxAddParam =
     GainMoneyCount = 8,     -- 获得的货币数量
     GainItemID = 9,         -- 获得的物品ID
     GainItemCount = 10,     -- 获得的物品数量
+    EquipItemStar = 11,     -- 装备评分
+    IsNOCloseBtn = 12,      -- 是否显示关闭按钮
 }
 
 -- 快速购买弹窗外部条件
@@ -188,15 +191,13 @@ end
 --	_MsgBoxEx(nil,lpszText,lpszCaption,op_type,callback, ttl, timercallback, priority, lpszSpecText, notShowTag)	
 --end
 
-local _MsgBoxSystem = function(sysTid, lpszText, lpszCaption, nType, callback, ttl, timercallback, priority, setting)
+local _MsgBoxSystem = function(sysTid, nType, callback, ttl, timercallback, priority, setting)
 	if not sysTid then sysTid = 0 end
-	if lpszText == nil then lpszText = "" end
-	if lpszCaption == nil then lpszCaption = "" end
 	if not nType then nType = MsgBoxType.MBBT_OKCANCEL end
 	if not ttl then ttl = 0 end
 	if not priority then priority = 1 end
 	local boxMan = require "GUI.CMsgBoxMan"
-	boxMan.Instance():ShowSystemMsgBox(sysTid, nil, lpszText,lpszCaption, nType, callback, ttl, timercallback, priority, setting)
+	boxMan.Instance():ShowSystemMsgBox(sysTid, nil, nType, callback, ttl, timercallback, priority, setting)
 end
 
 --[[    第一个参数类型为以下结构
@@ -235,7 +236,7 @@ local _QuickBuyTable = function(rewardTable, cb)
     end
 end
 
-local _QuickBuyBox = function(costMoneyID, moneyCost, cb, externCondition, isMoney)
+local _QuickBuyBox = function(costMoneyID, moneyCost, cb, externCondition, isMoney, goodsId)
     local is_money = (isMoney == nil and true or isMoney)
     local CMallUtility = require "Mall.CMallUtility"
     if CMallUtility.CheckQuickBuyExternalCondition(externCondition) then
@@ -251,8 +252,8 @@ local _QuickBuyBox = function(costMoneyID, moneyCost, cb, externCondition, isMon
             end
         else
             local quick_buy_temp = CMallUtility.GetQuickBuyTemp(costMoneyID, is_money)
+            local CElementData = require "Data.CElementData"
             if quick_buy_temp == nil then
-                local CElementData = require "Data.CElementData"
                 if is_money then
                     local money_temp = CElementData.GetMoneyTemplate(costMoneyID)
                     game._GUIMan:ShowTipText(string.format(StringTable.Get(268), money_temp.TextDisplayName), true)
@@ -260,6 +261,21 @@ local _QuickBuyBox = function(costMoneyID, moneyCost, cb, externCondition, isMon
                     game._GUIMan:ShowTipText(string.format(StringTable.Get(268), RichTextTools.GetItemNameRichText(costMoneyID, 1, false)), true)
                 end
             else
+                if goodsId and type(goodsId) == "number" and goodsId > 0 then
+                    local goods_temp = CElementData.GetTemplate("Goods", goodsId)
+                    if goods_temp ~= nil then
+                        -- 线上版本如果不更新，CanQuickExchange字段是nil，需要判断nil和false
+                        if goods_temp.CanQuickExchange ~= nil and goods_temp.CanQuickExchange == false then
+                            if is_money then
+                                local money_temp = CElementData.GetMoneyTemplate(costMoneyID)
+                                game._GUIMan:ShowTipText(string.format(StringTable.Get(268), money_temp.TextDisplayName), true)
+                            else
+                                game._GUIMan:ShowTipText(string.format(StringTable.Get(268), RichTextTools.GetItemNameRichText(costMoneyID, 1, false)), true)
+                            end
+                            return
+                        end
+                    end
+                end
                 local rewardTable = {
                     {
                         ID = costMoneyID,
@@ -267,7 +283,7 @@ local _QuickBuyBox = function(costMoneyID, moneyCost, cb, externCondition, isMon
                         IsMoney = is_money
                     },
                 }
-                local data = {targetRewardTable = rewardTable, callback = cb}
+                local data = {targetRewardTable = rewardTable, callback = cb, goodsID = goodsId}
                 game._GUIMan:Open("CPanelQuickBuy", data)
             end
         end
@@ -279,34 +295,38 @@ local _IsShow = function ()
 	return (boxMan.Instance():GetMsgListCount() > 0)
 end
 
-local _CloseAll = function ()
+local _IsDisconnectShow = function()
+    local boxMan = require "GUI.CMsgBoxMan"
+    return boxMan.Instance():IsDisconnectShow()
+end
+
+local _ClearAllBoxes = function ()
 	local boxMan = require "GUI.CMsgBoxMan"
-	boxMan.Instance():RemoveAll()
+	boxMan.Instance():ClearAllBoxList()
 end
 
-local _CloseAllExceptDisconnect = function()
+local _ClearAllExceptDisconnect = function()
     local boxMan = require "GUI.CMsgBoxMan"
-    boxMan.Instance():RemoveAllExceptDisconnect()
+    boxMan.Instance():ClearAllExceptDisconnect()
 end
 
-local _RemoveAllBoxes = function()
+local _RemoveAllBoxesData = function()
     local boxMan = require "GUI.CMsgBoxMan"
-	boxMan.Instance():RemoveAllBoxes()
+	boxMan.Instance():RemoveAllBoxesData()
 end
 
 
 local MsgBox = 
 {
 	ShowMsgBox = _MsgBox,
-	--ShowMsgBoxEx = _MsgBoxEx,
---	ShowMsgBoxByID = _MsgBoxByID,
 	ShowSystemMsgBox = _MsgBoxSystem,
     ShowQuickBuyBox = _QuickBuyBox,
-    ShowQuickMultBuyBox = _QuickBuyTable,
+    ShowQuickMultBuyBox = _QuickBuyTable,                       
 	IsShow = _IsShow,
-	CloseAll = _CloseAll,
-    CloseAllExceptDisconnect = _CloseAllExceptDisconnect,
-    RemoveAllBoxes = _RemoveAllBoxes,
+    IsDisconnectShow = _IsDisconnectShow,                       -- 当前弹的msgbox是否是断线类型的。
+	ClearAllBoxes = _ClearAllBoxes,                             -- 单单清理msgbox队列里面的box
+    ClearAllExceptDisconnect = _ClearAllExceptDisconnect,       -- 清除所有msgbox队列里面的box，除了断线的。
+    RemoveAllBoxesData = _RemoveAllBoxesData,                   -- 清除所有msgbox队列里面的box，并且清除msgbox缓存的一些数据（比如不再显示）
 }
 
 _G.MsgBox = MsgBox

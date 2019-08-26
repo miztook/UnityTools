@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Viper_Arena",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10051] = 
@@ -23,11 +24,11 @@ local MapInfo =
 		},
 		[10147] = 
 		{
-			[1] = { x = 188.37, y = 20.90, z = -170.25, name = "바바후카인", level = 14, SortID = 23 },
+			[1] = { x = 188.37, y = 20.90, z = -170.25, name = "죠죠 후카", level = 14, SortID = 23 },
 		},
 		[10148] = 
 		{
-			[1] = { x = 193.95, y = 20.93, z = -172.37, name = "망치 후카인", level = 14, SortID = 15 },
+			[1] = { x = 193.95, y = 20.93, z = -172.37, name = "뇨뇨 후카", level = 14, SortID = 15 },
 		},
 		[10149] = 
 		{
@@ -53,11 +54,11 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[82] = { x = 200.17, y = 27.63, z = -208.92, name = "奴隶区", worldId = 0, PkMode = 0 },
-			[83] = { x = 216.72, y = 27.63, z = -152.72, name = "군사 구역", worldId = 0, PkMode = 0 },
-			[84] = { x = 147.62, y = 24.12, z = -132.52, name = "竞技场外", worldId = 0, PkMode = 0 },
-			[85] = { x = 172.31, y = 43.92, z = -144.51, name = "", worldId = 0, PkMode = 0 },
-			[130] = { x = 190.17, y = 20.85, z = -174.95, name = "竞技场内环", worldId = 0, PkMode = 0 },
+			[82] = { x = 200.17, y = 27.63, z = -208.92, name = "奴隶区", worldId = 0, PkMode = 1 },
+			[83] = { x = 216.72, y = 27.63, z = -152.72, name = "군사 구역", worldId = 0, PkMode = 1 },
+			[84] = { x = 147.62, y = 24.12, z = -132.52, name = "竞技场外", worldId = 0, PkMode = 1 },
+			[85] = { x = 172.31, y = 43.92, z = -144.51, name = "", worldId = 0, PkMode = 1 },
+			[130] = { x = 190.17, y = 20.85, z = -174.95, name = "竞技场内环", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

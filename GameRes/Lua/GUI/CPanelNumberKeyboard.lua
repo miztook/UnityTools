@@ -21,7 +21,7 @@ def.field("number")._Min = 0					-- 可输入的最小值:这决定了默认显�
 def.field("function")._EndCb = nil				-- 结束时回调函数
 def.field("function")._CountChangeCb = nil      -- 数量变化回调函数
 def.field("boolean")._IsFirst = true			-- 第一次输入新值要覆盖旧值
-
+ 
 local instance = nil
 def.static("=>", CPanelNumberKeyboard).Instance = function()
 	if not instance then
@@ -87,6 +87,10 @@ end
 local NumberButton = { "Btn_1", "Btn_2", "Btn_3", "Btn_4", "Btn_5", "Btn_6", "Btn_7", "Btn_8", "Btn_9" }
 -- Button点击
 def.override("string").OnClick = function(self, id)
+    if IsNil(self._Label) then
+        game._GUIMan:CloseByScript(self)
+        return
+    end
 	for i,v in ipairs(NumberButton) do
 		if id == v then
 			if self._IsFirst then
@@ -97,7 +101,7 @@ def.override("string").OnClick = function(self, id)
 				self._LabelNumberContent = string.format("%d", math.min(i, self._Max))
 			else
 				if tonumber(self._LabelNumberContent .. i) <= self._Max then
-					if tonumber(self._LabelNumberContent) < self._Min then
+					if tonumber(self._LabelNumberContent .. i) < self._Min then
 						local num = 0
 						if i > self._Min then
 							num = i
@@ -139,7 +143,8 @@ def.override("string").OnClick = function(self, id)
 	elseif id == "Btn_Max" then
 		self._LabelNumberContent = string.format("%d", self._Max)
 	elseif id == "Btn_Sure" then
-	    if self._LabelNumberContent == "0" or self._LabelNumberContent == "" then
+        local num = tonumber(self._LabelNumberContent)
+	    if self._LabelNumberContent == "0" or self._LabelNumberContent == "" or (num and num < self._Min) then
             self._LabelNumberContent = tostring(self._Min)
 		    GUI.SetText(self._Label, self._LabelNumberContent)
 	    else
@@ -153,7 +158,10 @@ def.override("string").OnClick = function(self, id)
     end
     GUI.SetText(self._Label, self._LabelNumberContent)
 	if not IsNil(self._DefaultLabel) then
-		if tonumber(self._LabelNumberContent) < self._Min then
+		if self._LabelNumberContent == "" or tonumber(self._LabelNumberContent) < self._Min then 
+			self._Label:SetActive(false)
+			self._DefaultLabel:SetActive(true)
+		elseif self._Min == 0 and tonumber(self._LabelNumberContent) == self._Min then 
 			self._Label:SetActive(false)
 			self._DefaultLabel:SetActive(true)
 		else

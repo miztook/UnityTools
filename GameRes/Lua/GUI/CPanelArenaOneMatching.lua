@@ -101,6 +101,7 @@ local function AddGlobalTimer(self)
             game._DungeonMan:SetDungeonID(game._DungeonMan:Get1v1WorldTID())
             if self:IsShow() then 
                 game._GUIMan:CloseByScript(self)
+                game._GUIMan:Close("CPanelMirrorArena")
             end
         end
     end

@@ -64,18 +64,23 @@ local SystemEntranceCfg =
     [11] = {  Name = "神符",    IconPath = "System_Magic",   Priority = 7, },     --神符
     
     [34] = {  Name = "商店",    IconPath = "System_Shop",   Priority = 8, },     --商店
-    [43] = {  Name = "生涯",    IconPath = "System_Museum",   Priority = 3, },    --荣誉
-    [6]  = {  Name = "公会",    IconPath = "System_Guild",   Priority = 9, },     --公会    
+    [51] = {  Name = "召唤",    IconPath = "System_Lottery",   Priority = 27, },    --召唤
+    [37] = {  Name = "交易",    IconPath = "System_Auction",   Priority = 25, },    --交易 
+    [6]  = {  Name = "公会",    IconPath = "System_Guild",   Priority = 9, },     --公会  
+
+
+    [43] = {  Name = "生涯",    IconPath = "System_Museum",   Priority = 3, },    --荣誉      
     [33] = {  Name = "排行",    IconPath = "System_Ranking",   Priority = 10, },     --排行榜
+    [50] = {  Name = "省电",    IconPath = "System_PowerSaving",   Priority = 26, },    --省电模式 
     [35] = {  Name = "设置",    IconPath = "System_Setting",   Priority = 11, },    --设置
 
     [38] = {  Name = "福利",    IconPath = "System_Welfare",   Priority = 23, },    --福利
     [49] = {  Name = "指南",    IconPath = "System_Activity",   Priority = 22, },    --指南
     [7] =  {  Name = "冒险",    IconPath = "System_Calendar",   Priority = 21, },    --冒险
-    [19] = {  Name = "商城",    IconPath = "System_Mall",   Priority = 20, },    --商城
+    [19] = {  Name = "<color=#fecc6a>商城</color>",    IconPath = "System_Mall",   Priority = 20, },    --商城
 
-    [37] = {  Name = "交易",    IconPath = "System_Auction",   Priority = 25, },    --交易  
-    [50] = {  Name = "省电",    IconPath = "System_PowerSaving",   Priority = 26, },    --省电模式  
+     
+     
     
     
 }

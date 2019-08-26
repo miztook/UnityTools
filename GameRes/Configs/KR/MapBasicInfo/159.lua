@@ -6,17 +6,17 @@ local MapInfo =
 	Length = 800,
 	Width = 800,
 	NavMeshName = "World03Part2.navmesh",
-	BackgroundMusic = "",
+	BackgroundMusic = "BGM_Map_3/Map_3/Map_3_phase",
 	BattleMusic = "",
-	EnvironmentMusic = "",
+	EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12243] = 
 		{
-			[1] = { x = -195.50, y = 58.57, z = -96.60, name = "아논 용사", level = 35, DropItemIds = " " },
-			[2] = { x = -230.90, y = 56.87, z = -122.90, name = "아논 용사", level = 35, DropItemIds = " " },
+			[1] = { x = -229.30, y = 56.87, z = -125.30, name = "아논 용사", level = 35, DropItemIds = " " },
 		},
 		[12244] = 
 		{
@@ -27,7 +27,7 @@ local MapInfo =
 	{
 		[2327] = 
 		{
-			[1] = { x = -175.52, y = 59.77, z = -83.60, name = "사마엘", FunctionName = " " },
+			[1] = { x = -225.54, y = 57.20, z = -107.15, name = "사마엘", FunctionName = " " },
 		},
 		[2328] = 
 		{
@@ -37,31 +37,35 @@ local MapInfo =
 		{
 			[1] = { x = -179.13, y = 45.48, z = -151.50, name = "사마엘", FunctionName = " " },
 		},
+		[2139] = 
+		{
+			[1] = { x = -173.26, y = 45.48, z = -151.33, name = "레인저", FunctionName = " " },
+		},
 	},
 	Region = 
 	{
 		[1] = 
 		{
-			[1] = { x = 340.76, y = 47.89, z = -108.46, xA = 53.88, yA = 26.64, zA = 143.21, name = "霍加斯北通往霍加斯南的传送区域", worldId = 140, PkMode = 0 },
+			[1] = { x = 340.76, y = 47.89, z = -108.46, xA = 53.88, yA = 26.64, zA = 143.21, name = "霍加斯北通往霍加斯南的传送区域", worldId = 140, IsCanFind = 1, Describe = "호가스 남부", PkMode = 1 },
 		},
 		[2] = 
 		{
-			[209] = { x = 326.53, y = 47.83, z = -69.38, name = "전방 캠프", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[210] = { x = 268.97, y = 42.73, z = -81.04, name = "선봉군 항구", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[211] = { x = 272.13, y = 43.23, z = 29.33, name = "전선", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[212] = { x = 297.77, y = 31.95, z = 108.27, name = "폐허가 된 성루", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[213] = { x = 195.43, y = 39.00, z = 116.25, name = "버려진 자들의 묘지", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[214] = { x = 199.62, y = 52.34, z = -41.98, name = "남작령 외곽", worldId = 0, PkMode = 0 },
-			[215] = { x = 150.61, y = 63.09, z = -41.98, name = "탈란 남작령", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[216] = { x = -68.33, y = 96.48, z = 62.74, name = "아논 마을", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[217] = { x = -158.15, y = 41.27, z = -121.41, name = "칼란항", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[218] = { x = -33.91, y = 49.54, z = -83.02, name = "죽음의 갱도", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[219] = { x = -297.35, y = 123.86, z = 13.72, name = "눈의 성", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[582] = { x = -193.58, y = 51.97, z = -158.64, name = "逃离抵达", worldId = 0, PkMode = 0 },
-			[583] = { x = 48.90, y = 82.48, z = 50.23, name = "安农入侵刷怪-主线补充", worldId = 0, PkMode = 0 },
-			[584] = { x = 278.56, y = 45.81, z = 52.74, name = "后顾之忧刷怪-主线补充", worldId = 0, PkMode = 0 },
-			[585] = { x = -177.11, y = 75.23, z = -141.48, name = "卡兰港战斗进入相位-主线补充", worldId = 0, PkMode = 0 },
-			[586] = { x = 25.97, y = 85.03, z = 46.28, name = "赤金复活进入相位-主线补充", worldId = 0, PkMode = 0 },
+			[209] = { x = 326.53, y = 47.83, z = -69.38, name = "전방 캠프", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[210] = { x = 268.97, y = 42.73, z = -81.04, name = "선봉군 항구", worldId = 0, IsCanFind = 1, XMap = 267.9317, YMap = 41.25945, ZMap = -103.1695, PkMode = 1 },
+			[211] = { x = 272.13, y = 43.23, z = 29.33, name = "전선", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[212] = { x = 297.77, y = 31.95, z = 108.27, name = "폐허가 된 성루", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[213] = { x = 195.43, y = 39.00, z = 116.25, name = "버려진 자들의 묘지", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[214] = { x = 199.62, y = 52.34, z = -41.98, name = "남작령 외곽", worldId = 0, PkMode = 1 },
+			[215] = { x = 150.61, y = 63.09, z = -41.98, name = "탈란 남작령", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[216] = { x = -68.33, y = 96.48, z = 62.74, name = "아논 마을", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[217] = { x = -158.15, y = 41.27, z = -121.41, name = "칼란항", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[218] = { x = -33.91, y = 49.54, z = -83.02, name = "죽음의 갱도", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[219] = { x = -297.35, y = 123.86, z = 13.72, name = "눈의 성", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[582] = { x = -193.58, y = 51.97, z = -158.64, name = "逃离抵达", worldId = 0, PkMode = 1 },
+			[583] = { x = 48.90, y = 82.48, z = 50.23, name = "安农入侵刷怪-主线补充", worldId = 0, PkMode = 1 },
+			[584] = { x = 278.56, y = 45.81, z = 52.74, name = "后顾之忧刷怪-主线补充", worldId = 0, PkMode = 1 },
+			[585] = { x = -177.11, y = 75.23, z = -141.48, name = "卡兰港战斗进入相位-主线补充", worldId = 0, PkMode = 1 },
+			[586] = { x = 25.97, y = 85.03, z = 46.28, name = "赤金复活进入相位-主线补充", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 
@@ -69,20 +73,12 @@ local MapInfo =
 	},
 	Entity = 
 	{
-		[4] = 
-		{
-			x = -195.50, y = 58.57, z = -96.60, Type = 1,
-			Tid = 
-			{
-				[12243] = 4,
-			},
-		},
 		[5] = 
 		{
-			x = -230.90, y = 56.87, z = -122.90, Type = 1,
+			x = -229.30, y = 56.87, z = -125.30, Type = 1,
 			Tid = 
 			{
-				[12243] = 5,
+				[12243] = 9,
 			},
 		},
 		[6] = 
@@ -90,12 +86,12 @@ local MapInfo =
 			x = -187.70, y = 45.94, z = -129.80, Type = 1,
 			Tid = 
 			{
-				[12244] = 8,
+				[12244] = 7,
 			},
 		},
 		[3] = 
 		{
-			x = -175.52, y = 59.77, z = -83.60, Type = 2,
+			x = -225.54, y = 57.20, z = -107.15, Type = 2,
 			Tid = 
 			{
 				[2327] = 1,
@@ -115,6 +111,14 @@ local MapInfo =
 			Tid = 
 			{
 				[2353] = 1,
+			},
+		},
+		[9] = 
+		{
+			x = -173.26, y = 45.48, z = -151.33, Type = 2,
+			Tid = 
+			{
+				[2139] = 4,
 			},
 		},
 	},

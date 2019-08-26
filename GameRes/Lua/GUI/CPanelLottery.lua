@@ -3,6 +3,8 @@ local Lplus = require 'Lplus'
 local CPanelBase = require 'GUI.CPanelBase'
 local CPanelLottery = Lplus.Extend(CPanelBase, 'CPanelLottery')
 local CElementData = require "Data.CElementData"
+local EItemType = require "PB.Template".Item.EItemType
+
 local EItemQuality = require "PB.Template".Item.ItemQuality
 local def = CPanelLottery.define
  
@@ -20,6 +22,7 @@ def.field("table")._MoneyItems = BlankTable
 def.field("number")._CurPage = 0
 def.field('number')._TotalPage = 0
 def.field("number")._TimerID = 0
+def.field("boolean")._IsHaveItemDB = false
 
 local instance = nil
 def.static('=>', CPanelLottery).Instance = function ()
@@ -82,10 +85,14 @@ end
 --                 IsFromRewardTemplate = false,
 --                 ListItem = {},
 --                 MoneyList = {},
+--                 IsHaveItemDb = false,
 --             }
 def.override("dynamic").OnData = function(self, data)
     --warn("debug.traceback",debug.traceback())
-
+    self._IsHaveItemDB = false
+    if data.IsHaveItemDB ~= nil then
+        self._IsHaveItemDB = data.IsHaveItemDB
+    end
 	if self:InitData(data) then
 		--self:InitData(data)
 		-- self:ShowMoneyTopTip()
@@ -112,16 +119,20 @@ def.override("string").OnClick = function(self,id)
     end
 end
 
-local function PileItem(self,item)
-    local itemId = item.ItemId 
+local function PileItem(self,itemData)
+    local itemId = itemData.Tid 
     
-    local itemCount = item.Count 
+    local itemCount = itemData.Count 
     local temp = CElementData.GetItemTemplate(itemId)
+    local itemDB = nil
+    if self._IsHaveItemDB ~= nil then 
+        itemDB = itemData
+    end
     if temp.PileLimit > 1 then 
         local isHaven = false
         if #self._AllItemData > 0 then 
             for j,itemData in ipairs(self._AllItemData) do 
-                if itemData.Id  == itemId and itemData.Count < temp.PileLimit then
+                if itemData.Tid  == itemId and itemData.Count < temp.PileLimit then
                     isHaven = true
                     itemData.Count = itemData.Count + itemCount
                     if itemData.Count > temp.PileLimit then 
@@ -136,7 +147,9 @@ local function PileItem(self,item)
                             ProfessionMask = template.ProfessionLimitMask,
                             Slot = template.Slot,
                             InitQuality = template.InitQuality,
-                            TextDisplayName = template.TextDisplayName
+                            TextDisplayName = template.TextDisplayName,
+                            ItemType = template.ItemType,
+                            ItemDB = itemDB,
                         }
                         table.insert(self._AllItemData,item)
                     end
@@ -154,7 +167,9 @@ local function PileItem(self,item)
                 ProfessionMask = template.ProfessionLimitMask,
                 Slot = template.Slot,
                 InitQuality = template.InitQuality,
-                TextDisplayName = template.TextDisplayName
+                TextDisplayName = template.TextDisplayName,
+                ItemType = template.ItemType,
+                ItemDB = itemDB,
             }
             table.insert(self._AllItemData,item)
         end
@@ -168,7 +183,9 @@ local function PileItem(self,item)
             ProfessionMask = template.ProfessionLimitMask,
             Slot = template.Slot,
             InitQuality = template.InitQuality,
-            TextDisplayName = template.TextDisplayName
+            TextDisplayName = template.TextDisplayName,
+            ItemType = template.ItemType,
+            ItemDB = itemDB,
         }
         table.insert(self._AllItemData,item)
     end
@@ -330,8 +347,13 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
                     game._GUIMan:OpenSpecialTopTips(string.format(StringTable.Get(22600),strName,strGiftName,itemName))
                 end
             end
+            local fightStar = -1
+            if data.ItemType == EItemType.Equipment and data.ItemDB.FightProperty ~= nil then
+                fightStar = data.ItemDB.FightProperty.star
+            end
             local setting = {
                     [EItemIconTag.Number] = data.Count,
+                    [EItemIconTag.Grade] = fightStar,
                 }
             IconTools.InitItemIconNew(frame_icon, data.Id, setting, EItemLimitCheck.AllCheck)
         end
@@ -366,14 +388,8 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
         else
             i = i - #self._MoneyItems
             local itemTemplate = CElementData.GetItemTemplate(self._AllItemData[i].Id)
-            local normalPack = game._HostPlayer._Package._NormalPack
-            local itemData =  normalPack:GetItem(self._AllItemData[i].Id)
-            if itemData ~= nil then
-                if itemData:IsEquip() then 
-                    CItemTipMan.ShowPackbackEquipTip(itemData, TipsPopFrom.WithoutButton,TipPosition.FIX_POSITION,item)
-                else
-                    CItemTipMan.ShowPackbackItemTip(itemData, TipsPopFrom.OTHER_PANEL,TipPosition.FIX_POSITION,item)
-                end
+            if self._AllItemData[i].ItemDB ~= nil then
+                CItemTipMan.ShowItemDBTips(self._AllItemData[i].ItemDB, TipsPopFrom.ITEM_DBPANEL)
             else
                 CItemTipMan.ShowItemTips(self._AllItemData[i].Id,TipsPopFrom.OTHER_PANEL,item,TipPosition.FIX_POSITION) 
             end

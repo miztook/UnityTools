@@ -48,6 +48,8 @@ def.override().OnCreate = function(self)
 	self._Btn_No = self:GetUIObject("Btn_No")
 	self._Frame_ShowScreenShot:SetActive(true)
 	GUITools.SetUIActive(self._Frame_ShowScreenShot, false)
+	local btn_photo = self:GetUIObject("Btn_Photo")
+	GUITools.SetUIActive(btn_photo, false) -- 屏蔽保存相册功能
 
 	self._InteractiveSkillIdMap = {}
 	local hp = game._HostPlayer

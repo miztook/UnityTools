@@ -26,6 +26,7 @@ def.method().Load = function (self)
 	local template = CElementData.GetObstacleTemplate(self._TID)
 	if template ~= nil then
 		local m = CModel.new()
+		m._HasAnimationComp = false
 		m._ModelFxPriority = self:GetModelCfxPriority()
 		local on_model_loaded = function(ret)
 			if ret then
@@ -80,8 +81,8 @@ def.override().Release = function (self)
     self._OnLoadedCallbacks = nil
     self._IsReleased = true
 
-    if self._TopPate ~= nil then 
-        self._TopPate:Release() 
+    if self._TopPate ~= nil then
+        self._TopPate:Pool() 
     end
 
     GameUtil.DisableCollider(self._GameObject)

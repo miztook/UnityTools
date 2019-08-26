@@ -5,8 +5,6 @@
 
 local CElementData = require "Data.CElementData"
 local IDRange = require "PB.Template".SensitiveWord.IDRange
-local tabooWords_Name = {}
-local tabooWords_Chat = {}
 
 local function charsize(ch)
 	if not ch then
@@ -163,37 +161,50 @@ local function checkspecialcharacters(str)
 	return str_ret
 end
 
-local data_id_list = CElementData.GetAllSensitiveWord()
 
---韩文版名字和聊天屏蔽词分开
-if _G.UserLanguageCode == "KR" then
-	for i = 1, #data_id_list do
-		if data_id_list[i] > IDRange.ChatStart then
-			local data = CElementData.GetSensitiveWordTemplate(data_id_list[i])	
+local tabooWords_Name = nil
+local tabooWords_Chat = nil
+local function init()
+	if tabooWords_Name ~= nil then return end
 
-			if string.find(data.TextWord, "%%") == nil then
-				tabooWords_Chat[#tabooWords_Chat+1] = checkspecialcharacters(data.TextWord)
+	tabooWords_Name = {}
+	tabooWords_Chat = {}
+
+	--韩文版名字和聊天屏蔽词分开
+	local data_id_list = CElementData.GetAllTid("SensitiveWord")
+	if _G.UserLanguageCode == "KR" then
+		for i = 1, #data_id_list do
+			if data_id_list[i] > IDRange.ChatStart then
+				local data = CElementData.GetSensitiveWordTemplate(data_id_list[i])	
+
+				if string.find(data.TextWord, "%%") == nil then
+					tabooWords_Chat[#tabooWords_Chat+1] = checkspecialcharacters(data.TextWord)
+				end
+			else
+				local data = CElementData.GetSensitiveWordTemplate(data_id_list[i])	
+
+				if string.find(data.TextWord, "%%") == nil then
+					tabooWords_Name[#tabooWords_Name+1] = checkspecialcharacters(data.TextWord)
+				end
+				
 			end
-		else
+		end
+	else   --名字和聊天屏蔽词相同
+		for i = 1, #data_id_list do
 			local data = CElementData.GetSensitiveWordTemplate(data_id_list[i])	
 
 			if string.find(data.TextWord, "%%") == nil then
 				tabooWords_Name[#tabooWords_Name+1] = checkspecialcharacters(data.TextWord)
 			end
-			
 		end
+		tabooWords_Chat = tabooWords_Name
 	end
-else   --名字和聊天屏蔽词相同
-	for i = 1, #data_id_list do
-		local data = CElementData.GetSensitiveWordTemplate(data_id_list[i])	
-
-		if string.find(data.TextWord, "%%") == nil then
-			tabooWords_Name[#tabooWords_Name+1] = checkspecialcharacters(data.TextWord)
-		end
-	end
-	tabooWords_Chat = tabooWords_Name
 end
-data_id_list = nil
+
+local function clear()
+	tabooWords_Name = nil
+	tabooWords_Chat = nil
+end
 
 local function filter(str, caseSensitive, tabooWords)
 	local str_ret = ""
@@ -242,28 +253,17 @@ end
 
 local Lplus = require "Lplus"
 
-local LuaString = Lplus.Class("LuaString")
-do
-	local def = LuaString.define
-
-	def.static("string","varlist","=>","string").SubStr = function(str,...)
-		return strsub(str,...)
-	end
-
-	def.static("string","number","=>","string").CharAt = function(str,pos)
-		return tochar(str,pos)
-	end
-
-	def.static("string","=>","number").Len = function(str)
-		return strlen(str)
-	end
-end
-LuaString.Commit()
-
-
 local Filter = Lplus.Class("Filter")
 do
 	local def = Filter.define
+
+	def.const("function").Init = function(str)
+		return init()
+	end
+
+	def.const("function").Clear = function(str)
+		return clear()
+	end
 
 	def.const("function").FilterName = function(str)
 		return filter(str, false, tabooWords_Name)
@@ -279,6 +279,5 @@ Filter.Commit()
 
 return 
 {
-	LuaString = LuaString,
 	Filter = Filter,
 }

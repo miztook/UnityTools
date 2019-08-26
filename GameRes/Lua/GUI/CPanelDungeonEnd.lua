@@ -272,7 +272,7 @@ def.override("dynamic").OnData = function(self, data)
         end
         self:SetPlayerModel(cb)
     end
-    -- 设置再一次挑战按钮
+    -- 设置再一次挑战按钮 
     do 
         local dungeonTid = game._DungeonMan:GetDungeonID()
         local template = CElementData.GetInstanceTemplate(dungeonTid)
@@ -303,12 +303,16 @@ def.override("dynamic").OnData = function(self, data)
             end
         end
     end
+
+    game._CGuideMan:IsShowGuide(false,"")
 end
 
 --Button点击
 def.override("string").OnClick = function(self, id)
     if id == "Btn_Quit" then
         self:OnLeaveDungeon()
+    elseif id == "Btn_Exit" then
+        game._GUIMan:CloseSubPanelLayer()
     elseif string.find(id,"Img_Head") then 
         local index = tonumber(string.sub(id,-1))
         local roleId = 0
@@ -323,8 +327,10 @@ def.override("string").OnClick = function(self, id)
             if index == 1 then return end
             for i,Data in ipairs(self._DetailData._Data) do 
                 for k,w in ipairs(Data.statisticDatas) do
-                    if w.key == EStatistic.EStatistic_roleId then 
-                        if  w.value ~= game._HostPlayer._ID then 
+                    if w.key == EStatistic.EStatistic_roleName then 
+                        if w.value ~= game._HostPlayer._ID and w.originParam > 0 then 
+                            roleId  = w.originParam
+                        elseif w.value ~= game._HostPlayer._ID and w.originParam <= 0 then 
                             roleId  = w.value
                             break
                         end
@@ -340,8 +346,10 @@ def.override("string").OnClick = function(self, id)
             end
             if roleId == game._HostPlayer._ID then return end
         end
-        game:CheckOtherPlayerInfo(roleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.DungeonEnd)
-
+        if self._CurType ~= EnumDef.DungeonEndType.ArenaThreeType then
+            local PBUtil = require "PB.PBUtil"
+            PBUtil.RequestOtherPlayerInfo(roleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.DungeonEnd)
+        end
     elseif id == "Btn_Again" then
         if self._CurRemainCount == 0 then 
 
@@ -364,6 +372,8 @@ def.override("string").OnClick = function(self, id)
             game._CArenaMan:SendC2SOpenOne()
             game._GUIMan:SetMainUIMoveToHide(false,nil)
         else
+            game._DungeonMan:SetAgainDungeonSign(true)
+           
             -- 组队状态
             if CTeamMan.Instance():InTeam() then
                 local TeamList = CTeamMan.Instance():GetMemberList()
@@ -371,11 +381,9 @@ def.override("string").OnClick = function(self, id)
                     game._GUIMan:ShowTipText(StringTable.Get(933),false)
                     return 
                 elseif #TeamList > 1 and CTeamMan.Instance():IsTeamLeader() then 
-                    self._IsAgainTeam = true
-                    local C2SReStartInstance = require "PB.net".C2SReStartInstance
-                    local protocol = C2SReStartInstance()
+                    local C2SReStartInstanceCheck = require "PB.net".C2SReStartInstanceCheck
+                    local protocol = C2SReStartInstanceCheck()
                     PBHelper.Send(protocol)
-                    game._GUIMan:SetMainUIMoveToHide(false,nil)
                 return end
             end
             -- 非组队状态
@@ -433,14 +441,22 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
             if data.IsTokenMoney then
                 IconTools.InitTokenMoneyIcon(frame_icon, data.Data.Id, data.Data.Count)
             else
-                IconTools.InitItemIconNew(frame_icon, data.Data.Id, { [EItemIconTag.Number] = data.Data.Count })
+                IconTools.InitItemIconNew(frame_icon, data.Data.Id, { [EItemIconTag.Number] = data.Data.Count})
             end
         else
             local ItemId = self._Data._InfoData.Rewards[index + 1].ItemId
             if ItemId ~= 0 then
                 local tNum = self._Data._InfoData.Rewards[index + 1].ItemNum
                 lab_tips:SetActive(false)	
-                IconTools.InitItemIconNew(frame_icon,ItemId, { [EItemIconTag.Number] = tNum })
+                local grade = -1 -- 装备类型的显示评分
+                local itemTemplate = CElementData.GetItemTemplate(self._Data._InfoData.Rewards[index + 1].ItemDb.Tid)
+                if itemTemplate ~= nil then
+                    local EItemType = require "PB.Template".Item.EItemType
+                    if itemTemplate.ItemType == EItemType.Equipment then
+                        grade = self._Data._InfoData.Rewards[index + 1].ItemDb.FightProperty.star
+                    end
+                end
+                IconTools.InitItemIconNew(frame_icon,ItemId, { [EItemIconTag.Number] = tNum ,[EItemIconTag.Grade] = grade })
             else
                 if self._Data._InfoData.Rewards[index + 1].MoneyId == EResourceType.ResourceTypeArenaPoints and self._CurType == EnumDef.DungeonEndType.ArenaThreeType and self._Data._InfoData.Rewards[index + 1].MoneyNum == 0 then 
                     lab_tips:SetActive(true)
@@ -481,7 +497,7 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
         GUI.SetText(labName,name)
         GUI.SetText(labLv,tostring(data.Level))
         GUI.SetText(labJob,tostring(StringTable.Get(10300 + data.Profession - 1)))
-        game:SetEntityCustomImg(imgHead,data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
+        TeraFuncs.SetEntityCustomImg(imgHead,data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
         if not self._Data._IsOut then 
             GUITools.SetUIActive(labNotOut,false)
             if index + 1 <= 6 then 
@@ -531,7 +547,8 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
             local itemTid = self._Data._InfoData.Rewards[index + 1].ItemId
             local moneyId = self._Data._InfoData.Rewards[index + 1].MoneyId
             if itemTid ~= nil and itemTid ~= 0 then
-                CItemTipMan.ShowItemTips(itemTid, TipsPopFrom.OTHER_PANEL,item,TipPosition.FIX_POSITION)
+                warn( "ItemDb" )
+                CItemTipMan.ShowItemDBTips(self._Data._InfoData.Rewards[index + 1].ItemDb, TipsPopFrom.ITEM_DBPANEL,item,TipPosition.FIX_POSITION)
             elseif moneyId ~= 0 then  
                 local panelData = 
                     {
@@ -550,7 +567,20 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
         if id_btn == "Img_Head" then 
             local roleId = 0 
             roleId = self._DetailData[index + 1].RoleId
-            game:CheckOtherPlayerInfo(roleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.DungeonEnd)
+            local PBUtil = require "PB.PBUtil"
+            PBUtil.RequestOtherPlayerInfo(roleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.DungeonEnd)
+        end
+    elseif id == "List_Players" then 
+        if string.find(id_btn,"Img_Head1") then 
+            local roleId = 0
+            for i,v in ipairs(self._DetailData._Data[index + 1].statisticDatas) do 
+                if v.key == EStatistic.EStatistic_roleId then 
+                    roleId = v.value
+                break end
+            end
+            if roleId == game._HostPlayer._ID then return end
+            local PBUtil = require "PB.PBUtil"
+            PBUtil.RequestOtherPlayerInfo(roleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.DungeonEnd)
         end
     end
 end
@@ -785,9 +815,9 @@ def.method().ShowInstanceEnd = function(self)
         local labScore = self:GetUIObject("Lab_ScoreRatio")
         local value = self._InstanceScoreTable.Ratio * 100
         GUI.SetText(labScore,string.format(StringTable.Get(21703),value))
+        if self._CurGoldInstanceItem == nil then return end
+        IconTools.SetTags(self._CurGoldInstanceItem, { [EItemIconTag.Number] = self._InstanceScoreTable.ConversionNum } )
     end
-    if self._CurGoldInstanceItem == nil then return end
-    IconTools.SetTags(self._CurGoldInstanceItem, { [EItemIconTag.Number] = self._InstanceScoreTable.ConversionNum } )
 end
 
 --副本结束界面详细信息
@@ -895,6 +925,9 @@ local function GetGuildDefendDetailInfo(self,data)
 end
 
 def.method("table").ShowGuildDetailInfo = function(self,data)
+    if not self:IsShow() then return end
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_DungeonDetails,0)
+
     self:GetUIObject("Frame4"):SetActive(true)
     self._DetailData = GetGuildDefendDetailInfo(self,data)
     if self._DetailData == nil then return end
@@ -960,7 +993,7 @@ def.method().ShowArenaOneEnd = function(self)
         end
         self._UIFXTimers[1] = _G.AddGlobalTimer(0.2, true, callback1)
     elseif infoData.RewardState == EJJC1x1RewardResult.FAILED then
-        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Arena_Defeat, 0)  
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Arena1v1Defeat, 0)  
         self._FrameEnd:SetActive(false)
         self._FrameVictory:SetActive(false)
         self:GetUIObject("EffectPos1"):SetActive(false)
@@ -971,7 +1004,7 @@ def.method().ShowArenaOneEnd = function(self)
         LabFailHost:SetActive(true)
         frame_PVP1:FindChild("Img_Bg_04"):SetActive(true)
         self._FrameLose:SetActive(true)	
-        GameUtil.PlayUISfx(PATH.UIFx_JJCLose,frame_PVP1,frame_PVP1 ,-1)
+        GameUtil.PlayUISfx(PATH.UIFx_JJCLose,frame_PVP1,frame_PVP1 ,-1,-1,-3)
     end
     
     self._PointChange = infoData.ToScore - infoData.FromScore
@@ -1083,7 +1116,8 @@ def.method("table").ShowArenaOnePlayer = function(self,data)
     self._DetailData = data
     self._FrameInformation:SetActive(true)
     self:GetUIObject("Frame1"):SetActive(true)	
- 
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_DungeonDetails,0)
+
     self._MaxGetDmg,self._MaxCure,self._MaxDmg = self:MaxValue(data._Data)
     for i,Data in ipairs(data._Data) do 
         for j,w in ipairs(Data.statisticDatas) do
@@ -1515,6 +1549,7 @@ end
 -- 3v3结算详细信息面板
 def.method("table").ShowArenaThreePlayer = function(self,data)
     if not self:IsShow() then return end
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_DungeonDetails,0)
     self._FrameInformation:SetActive(true)
     self:GetUIObject("Frame2"):SetActive(true)	
     if self._DetailData == nil then 
@@ -1661,6 +1696,7 @@ def.method().ShowTrialEnd = function (self)
             end
         end
         self._UIFXTimers[2] = _G.AddGlobalTimer(0.3, true, callback)
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_DungeonEnd,0)
         GameUtil.PlayUISfx(PATH.UIFX_PVP1_End_Victory, self._FrameEnd, self._FrameEnd, -1)
     end
 end
@@ -1804,6 +1840,7 @@ end
 
 def.method("table").ShowEliminatePlayer = function (self,data)
     if not self:IsShow() then return end
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_DungeonDetails,0)
     self._FrameInformation:SetActive(true)
     self:GetUIObject("Frame5"):SetActive(true) 
     local listObj = self:GetUIObject("Frame_BattleList")
@@ -1846,7 +1883,7 @@ def.method("userdata","table").SetFramePlayer = function(self,uiItem,uiData)
                 self:ShowValueWtihColor(LabPoint,uiData.KillNum,self._MaxKillNum)
                 self:ShowValueWtihColor(LabCure,uiData.Cure,self._MaxCure)  
                 self:ShowValueWtihColor(LabDamage,uiData.Dmg,self._MaxDmg)
-                game:SetEntityCustomImg(ImgHead,uiData.RoleId,uiData.CustomImgSetId,uiData.Gender,uiData.Profession)
+                TeraFuncs.SetEntityCustomImg(ImgHead,uiData.RoleId,uiData.CustomImgSetId,uiData.Gender,uiData.Profession)
             else
                 local roleId,customImgSetId ,prof,Gender = 0,0,0,0
                 local IsHostPlayer = false
@@ -1890,11 +1927,41 @@ def.method("userdata","table").SetFramePlayer = function(self,uiItem,uiData)
                         end
                     end	
                 end
-                game:SetEntityCustomImg(ImgHead,roleId,customImgSetId,Gender,prof)
+                TeraFuncs.SetEntityCustomImg(ImgHead,roleId,customImgSetId,Gender,prof)
             end
         else
             uiItem: SetActive(false)
         end
+    end
+end
+
+-- 发送助战
+local function C2SReStartInstance(self)
+    self._IsAgainTeam = true
+    local C2SReStartInstance = require "PB.net".C2SReStartInstance
+    local protocol = C2SReStartInstance()
+    PBHelper.Send(protocol)
+    game._GUIMan:SetMainUIMoveToHide(false,nil)
+end
+
+def.method("table").OnS2CReStartInstanceCheck = function(self,data)
+    if data.errorCode == 0 then 
+        if data.lackNumber == 0 then
+            C2SReStartInstance(self)
+            return
+        end
+        local setting =
+        {
+            [MsgBoxAddParam.CostItemID] = tonumber(CElementData.GetSpecialIdTemplate(550).Value),
+            [MsgBoxAddParam.CostItemCount] = data.lackNumber,
+        }
+        local  function callback(value)
+            if value then 
+                C2SReStartInstance(self)
+            end
+        end
+        local title,msg,closeType = StringTable.GetMsg(135)
+        MsgBox.ShowMsgBox(msg,title,closeType, MsgBoxType.MBBT_OKCANCEL, callback, nil, nil, MsgBoxPriority.Normal, setting)
     end
 end
 
@@ -1920,7 +1987,8 @@ end
 def.override().OnDestroy = function(self)
     CGame.EventManager:removeHandler("CountGroupUpdateEvent", OnCountGroupUpdateEvent)
     self._DetailData = nil
-    game._GUIMan:SetNormalUIMoveToHide(false, 0, "", nil)
+    game._CGuideMan:IsShowGuide(true,"")
+    --game._GUIMan:SetNormalUIMoveToHide(false, 0, "", nil)
     CItemTipMan.CloseCurrentTips()
     CSoundMan.Instance():Stop3DAudio(PATH.GUISound_Arena1v1Victory,"")
     if self._PlayerModel ~= nil then

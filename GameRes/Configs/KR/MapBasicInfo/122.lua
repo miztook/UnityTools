@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Battle",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10063] = 
@@ -64,7 +65,7 @@ local MapInfo =
 		},
 		[13] = 
 		{
-			[1] = { x = 216.79, y = 57.77, z = 100.99, name = "그린마을 정문", SortID = 18 },
+			[1] = { x = 216.79, y = 57.77, z = 100.99, name = "그린 마을 정문", SortID = 18 },
 		},
 		[6] = 
 		{
@@ -84,15 +85,15 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[49] = { x = 185.80, y = 76.07, z = 95.68, name = "그린마을 항구", isShowName = true, worldId = 0, PkMode = 0 },
-			[76] = { x = 178.45, y = 59.84, z = 145.33, name = "그린 마을", isShowName = true, worldId = 0, PkMode = 0 },
-			[90] = { x = 213.87, y = 53.43, z = 46.34, name = "初始抵达区", worldId = 0, PkMode = 0 },
-			[128] = { x = 218.58, y = 57.88, z = 86.81, name = "队长刷新区域", worldId = 0, PkMode = 0 },
-			[179] = { x = 189.38, y = 64.53, z = 142.70, name = "前往boss区域", worldId = 0, PkMode = 0 },
-			[180] = { x = 180.29, y = 64.75, z = 134.11, name = "献祭区域", worldId = 0, PkMode = 0 },
-			[188] = { x = 216.93, y = 60.55, z = 107.82, name = "大门障碍区域", worldId = 0, PkMode = 0 },
-			[202] = { x = 218.05, y = 65.14, z = 55.38, name = "门外区域", worldId = 0, PkMode = 0 },
-			[203] = { x = 160.78, y = 64.66, z = 154.37, name = "Boss刷新区域", worldId = 0, PkMode = 0 },
+			[49] = { x = 185.80, y = 76.07, z = 95.68, name = "그린 마을 항구", isShowName = true, worldId = 0, PkMode = 1 },
+			[76] = { x = 178.45, y = 59.84, z = 145.33, name = "그린 마을", isShowName = true, worldId = 0, PkMode = 1 },
+			[90] = { x = 213.87, y = 53.43, z = 46.34, name = "初始抵达区", worldId = 0, PkMode = 1 },
+			[128] = { x = 218.58, y = 57.88, z = 86.81, name = "队长刷新区域", worldId = 0, PkMode = 1 },
+			[179] = { x = 189.38, y = 64.53, z = 142.70, name = "前往boss区域", worldId = 0, PkMode = 1 },
+			[180] = { x = 180.29, y = 64.75, z = 134.11, name = "献祭区域", worldId = 0, PkMode = 1 },
+			[188] = { x = 216.93, y = 60.55, z = 107.82, name = "大门障碍区域", worldId = 0, PkMode = 1 },
+			[202] = { x = 218.05, y = 65.14, z = 55.38, name = "门外区域", worldId = 0, PkMode = 1 },
+			[203] = { x = 160.78, y = 64.66, z = 154.37, name = "Boss刷新区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

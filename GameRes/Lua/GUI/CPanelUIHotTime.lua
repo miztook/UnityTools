@@ -5,6 +5,7 @@ local EHotTimeType = require "PB.Template".HotTimeConfigure.EHotTimeType
 local CPanelUIHotTime = Lplus.Extend(CPanelBase, 'CPanelUIHotTime')
 local EItemEventType = require "PB.data".EItemEventType
 local def = CPanelUIHotTime.define
+local CPanelUIBuffEnter = require "GUI.CPanelUIBuffEnter" 
 
 def.field("userdata")._Frame_BuffList = nil
 def.field("userdata")._List_Buff = nil
@@ -47,7 +48,7 @@ def.override().OnCreate = function(self)
     GUITools.RegisterGTextEventHandler(self._Panel, self._Lab_BuffEffectiveMap) 
 
     self._Frame_HotTimeDesc = self:GetUIObject("Frame_HotTimeDesc")
-    local HotTimeCount = GameUtil.GetAllTid("HotTimeConfigure")
+    local HotTimeCount = CElementData.GetAllTid("HotTimeConfigure")
     local HotTimeTable = {}
     -- local HotTimeCount = 4   -- CBT暂时只有四个hottime
     for i,v in ipairs(HotTimeCount) do
@@ -55,13 +56,16 @@ def.override().OnCreate = function(self)
         if HotTimeConfigure ~= nil and HotTimeConfigure.Id ~= nil then   
             if HotTimeTable[HotTimeConfigure.HotTimeType] == nil then
                 HotTimeTable[HotTimeConfigure.HotTimeType] = 0
-
-                self._Table_HotTimeInfo[#self._Table_HotTimeInfo + 1] = 
-                {
-                    _Data = HotTimeConfigure,
-                    _CountDown = 0,
-                    _ItemId = 0,
-                }
+                if HotTimeConfigure.HotTimeType ~= EHotTimeType.EAdminGold 
+                    and HotTimeConfigure.HotTimeType ~= EHotTimeType.EAdminExp
+                    and HotTimeConfigure.HotTimeType ~= EHotTimeType.EDropLimit then
+                    self._Table_HotTimeInfo[#self._Table_HotTimeInfo + 1] = 
+                    {
+                        _Data = HotTimeConfigure,
+                        _CountDown = 0,
+                        _ItemId = 0,
+                    }
+                end
             end
         else
             warn("HotTime Error ID："..v)
@@ -88,29 +92,15 @@ def.method("dynamic").RafreshHotTime = function(self, data)
     -- 增加Admin hottime数据
     if #data.AdminSysDatas > 0 then
         for i,v in ipairs(data.AdminSysDatas) do
+            local HotTimeConfigure = CElementData.GetTemplate("HotTimeConfigure", v.HotTimeId)
             self._Table_HotTimeInfo[#self._Table_HotTimeInfo + 1] = 
             {
-                _Data = v,
-                _CountDown = v.SysCountDown,
+                _Data = HotTimeConfigure,
+                _CountDown = v.CountDown,
+                _Percent = v.Percent
             }
         end
     end
-    -- -- 增加系统 hottime数据
-    -- if #data.HotTimeSysDatas > 0 then
-    --     for i,v in ipairs(data.HotTimeSysDatas) do
-    --         local HotTimeConfigure = CElementData.GetTemplate("HotTimeConfigure",v.ConfigId)
-    --         for k,hottime in ipairs(self._Table_HotTimeInfo) do 
-    --             if HotTimeConfigure.HotTimeType == hottime._Data.HotTimeType then
-    --                 self._Table_HotTimeInfo[k] = 
-    --                 {
-    --                     _Data = HotTimeConfigure,
-    --                     _CountDown = v.SysCountDown,
-    --                 } 
-    --             end
-    --         end
-    --     end
-    -- end
-
 
     -- 增加道具物品 hottime数据
     if #data.HotTimeItemDatas > 0 then
@@ -128,20 +118,30 @@ def.method("dynamic").RafreshHotTime = function(self, data)
         end
     end
 
-    for k,hottime in ipairs(self._Table_HotTimeInfo) do                
-        if hottime._Data.HotTimeType == EHotTimeType.ESingleExp or hottime._Data.HotTimeType == EHotTimeType.ESingleGold then
-            if hottime._CountDown > 0 then
-                index = #self._Table_HotTimeInfo - 1
-                break
-            end
-        end
-    end
     table.sort(self._Table_HotTimeInfo , sort_func)
-    self._List_Buff:SetItemCount(#self._Table_HotTimeInfo)
+    if #data.AdminSysDatas <= 0 then
+        self._List_Buff:SetItemCount(#self._Table_HotTimeInfo + 1)
+    else
+        self._List_Buff:SetItemCount(#self._Table_HotTimeInfo)
+    end
+    
     self._List_Buff:SetSelection(index)
     self._List_Buff:ScrollToStep(index) 
     GUI.SetText(self._Lab_HotTimeTag, StringTable.Get(31851))
     GUI.SetText(self._Lab_BuffEffectiveMap, StringTable.Get(31852))
+    self:RafreshMainHotTimeRedPoint()
+end
+
+def.method().RafreshMainHotTimeRedPoint = function(self)
+    local IsShowSfx = false
+    for k,hottime in ipairs(self._Table_HotTimeInfo) do 
+        if hottime._CountDown ~= nil and hottime._CountDown > 0 then
+            IsShowSfx = true
+            CPanelUIBuffEnter.Instance():IsShowHottimeBuffEnterSfx(IsShowSfx)
+            return
+        end
+    end
+    CPanelUIBuffEnter.Instance():IsShowHottimeBuffEnterSfx(IsShowSfx)
 end
 
 -- 获取秒小时分天
@@ -223,74 +223,30 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
 
         local idx = index + 1
         local HotTimeDate = self._Table_HotTimeInfo[idx]
-        
-        if HotTimeDate._Data.Name ~= nil then
-            GUI.SetText(Lab_BuffName, HotTimeDate._Data.Name)
+        if HotTimeDate == nil then
+            GUITools.SetItemIcon(Img_BuffIcon, "Item/defaultItemIcon")  -- 没有活动的空item显示固定不变的图标
+            GUI.SetText(Lab_BuffName, StringTable.Get(19))
+            GUI.SetText(Lab_BuffDesc, StringTable.Get(31857))
+            Btn_BuyBuff:SetActive(false)
+            Btn_UseBuff:SetActive(false)
+            Img_BuffOpen:SetActive(false) 
+            Img_BuffState:SetActive(false) 
+            Img_BuffClose:SetActive(true)
+
+            return
         end
-        warn("init --->>>", HotTimeDate._Data.HotTimeType, HotTimeDate._Data.Name)
+        if HotTimeDate._Data.DisPlayName ~= nil then
+            GUI.SetText(Lab_BuffName, HotTimeDate._Data.DisPlayName)
+        end
+
+        GUITools.SetItemIcon(Img_BuffIcon, HotTimeDate._Data.IconPath)
+        -- warn("init --->>>", HotTimeDate._Data.HotTimeType, HotTimeDate._Data.DisPlayName, HotTimeDate._CountDown)
         local BuffDesc = nil
         local normalPack = game._HostPlayer._Package._NormalPack
         if HotTimeDate._Data.HotTimeType ~= nil then
-            --[[  -- 由于系统hottime和Admin hottime冲突。取消系统Hottime 
-            if HotTimeDate._Data.HotTimeType == EHotTimeType.ESystemGold then
-                GUITools.SetItemIcon(Img_BuffIcon, PATH.ICON_ITEN_TOKEN_1)
-                
-                Btn_BuyBuff:SetActive(false)
-                Btn_UseBuff:SetActive(false)
-                Lab_BuffState:SetActive(true)                
-                if HotTimeDate._CountDown ~= nil and HotTimeDate._CountDown > 0 then
-                    -- local Timetext = os.date("%H:%M:%S", HotTimeDate._CountDown/1000)
-                    -- GUI.SetText(Lab_BuffState, Timetext) 
-                    local time = HotTimeDate._CountDown/1000
-                    self:ShowTime(time, Lab_BuffState, idx)
-                    Img_BuffOpen:SetActive(true)
-                    BuffDesc = HotTimeDate._Data.Content
-                    Img_BuffClose:SetActive(false)
-                    Img_BuffState:SetActive(true)
-                    -- GameUtil.PlayUISfx(PATH.UIFX_HOTTIME_Huang, Img_BuffIcon, Img_BuffIcon, -1)
-                    GameUtil.PlayUISfxClipped(PATH.UIFX_HOTTIME_Huang, Img_BuffIconBG, Img_BuffIconBG, self:GetUIObject('List_BuffView'))
-                else
-                    -- GUI.SetText(Lab_BuffState, StringTable.Get(31850))  
-                    Img_BuffClose:SetActive(true)
-                    Img_BuffOpen:SetActive(false)    
-                    Img_BuffState:SetActive(false)
-                    BuffDesc = StringTable.Get(19469)      
-                    GameUtil.StopUISfx(PATH.UIFX_HOTTIME_Huang, Img_BuffIconBG)
-                end
-            elseif HotTimeDate._Data.HotTimeType == EHotTimeType.ESystemExp then
-                GUITools.SetItemIcon(Img_BuffIcon, PATH.ICON_ITEN_TOKEN_4)
-                
-                Btn_BuyBuff:SetActive(false)
-                Btn_UseBuff:SetActive(false)
-                Lab_BuffState:SetActive(true)
-                if HotTimeDate._CountDown ~= nil and HotTimeDate._CountDown > 0 then
-                    -- local Timetext = os.date("%H:%M:%S", HotTimeDate._CountDown/1000)
-                    -- GUI.SetText(Lab_BuffState, Timetext)
-                    local time = HotTimeDate._CountDown/1000
-                    self:ShowTime(time, Lab_BuffState, idx)
-                    Img_BuffOpen:SetActive(true)
-                    Img_BuffState:SetActive(true)
-                    BuffDesc = HotTimeDate._Data.Content  
-                    Img_BuffClose:SetActive(false)
-                    -- GameUtil.PlayUISfx(PATH.UIFX_HOTTIME_Lan, Img_BuffIcon, Img_BuffIcon, -1)
-                    GameUtil.PlayUISfxClipped(PATH.UIFX_HOTTIME_Lan, Img_BuffIconBG, Img_BuffIconBG, self:GetUIObject('List_BuffView'))
-                else                
-                    -- GUI.SetText(Lab_BuffState, StringTable.Get(31850))
-                    Img_BuffClose:SetActive(true)
-                    Img_BuffOpen:SetActive(false)
-                    Img_BuffState:SetActive(false)
-                    BuffDesc = StringTable.Get(19469)  
-                    GameUtil.StopUISfx(PATH.UIFX_HOTTIME_Lan, Img_BuffIconBG)
-                end
-            else
-                ]]
             if HotTimeDate._Data.HotTimeType == EHotTimeType.ESingleGold then
-                -- if HotTimeDate._ItemId == 0 then
-                --     HotTimeDate._ItemId = 98    -- hottime固定金币道具加成Tid
-                -- end
                 local itemCount = normalPack:GetItemCount(HotTimeDate._ItemId)
-                -- warn("OninitItem =======>>> ", HotTimeDate._Data.Name, HotTimeDate._CountDown, HotTimeDate._ItemId, itemCount)
-                GUITools.SetItemIcon(Img_BuffIcon, PATH.ICON_ITEN_HOTTIME_02)
+                -- warn("OninitItem =======>>> ", HotTimeDate._Data.DisPlayName, HotTimeDate._CountDown, HotTimeDate._ItemId, itemCount)
                 local Percent = 0
                 Btn_BuyBuff:SetActive(false)
                 if HotTimeDate._CountDown ~= nil and HotTimeDate._CountDown > 0 then
@@ -298,8 +254,6 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                     if item ~= nil and item.EventType1 == EItemEventType.ItemEvent_HotTime then 
                         Percent = item.Type1Param3
                     end
-                    -- local Timetext = os.date("%H:%M:%S", HotTimeDate._CountDown/1000)
-                    -- GUI.SetText(Lab_BuffState, Timetext)  
                     Lab_BuffState:SetActive(true)
                     local time = HotTimeDate._CountDown/1000
 
@@ -308,7 +262,6 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                     Img_BuffOpen:SetActive(true)
                     Img_BuffState:SetActive(true)
                     Img_BuffClose:SetActive(false)
-                    -- GameUtil.PlayUISfx(PATH.UIFX_HOTTIME_Huang, Img_BuffIcon, Img_BuffIcon, -1)
                     GameUtil.PlayUISfxClipped(PATH.UIFX_HOTTIME_Huang, Img_BuffIconBG, Img_BuffIconBG, self:GetUIObject('List_BuffView'))
                     game._HottimeGoldItemTid = HotTimeDate._ItemId
                     game._IsGoldHottime = true
@@ -317,13 +270,6 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                     Img_BuffOpen:SetActive(false)   
                     Img_BuffState:SetActive(false)
                     Img_BuffClose:SetActive(true)
-                    -- if itemCount > 0 then
-                    --     Btn_UseBuff:SetActive(true)
-                    --     -- GUI.SetText(Lab_UseBuff, string.format(StringTable.Get(31853), itemCount))
-                    --     GUI.SetText(Lab_BuffNum, "("..itemCount..")")
-                    -- elseif itemCount <= 0 then
-                    --     Btn_UseBuff:SetActive(false)
-                    -- end
                     GameUtil.StopUISfx(PATH.UIFX_HOTTIME_Huang, Img_BuffIconBG) 
                     game._HottimeGoldItemTid = 0
                     game._IsGoldHottime = false
@@ -334,10 +280,9 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                 --     HotTimeDate._ItemId = 97    -- hottime固定经验道具加成Tid
                 -- end
                 local itemCount = normalPack:GetItemCount(HotTimeDate._ItemId)
-                GUITools.SetItemIcon(Img_BuffIcon, PATH.ICON_ITEN_HOTTIME_01)
                 local Percent = 0
                 Btn_BuyBuff:SetActive(false)
-                -- warn("OninitItem =======>>> ", HotTimeDate._Data.Name, HotTimeDate._CountDown, HotTimeDate._ItemId, itemCount)
+                -- warn("OninitItem =======>>> ", HotTimeDate._Data.DisPlayName, HotTimeDate._CountDown, HotTimeDate._ItemId, itemCount)
                 if HotTimeDate._CountDown ~= nil and HotTimeDate._CountDown > 0 then
                     local item = CElementData.GetItemTemplate(HotTimeDate._ItemId)
                     if item ~= nil and item.EventType1 == EItemEventType.ItemEvent_HotTime then 
@@ -353,7 +298,6 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                     Img_BuffOpen:SetActive(true)
                     Img_BuffState:SetActive(true)
                     Img_BuffClose:SetActive(false)
-                    -- GameUtil.PlayUISfx(PATH.UIFX_HOTTIME_Lan, Img_BuffIcon, Img_BuffIcon, -1)
                     GameUtil.PlayUISfxClipped(PATH.UIFX_HOTTIME_Lan, Img_BuffIconBG, Img_BuffIconBG, self:GetUIObject('List_BuffView'))
                     game._HottimeExpItemTid = HotTimeDate._ItemId
                     game._IsExpHottime = true
@@ -362,13 +306,6 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                     Img_BuffOpen:SetActive(false)   
                     Img_BuffState:SetActive(false)
                     Img_BuffClose:SetActive(true)
-                    -- if itemCount > 0 then
-                    --     Btn_UseBuff:SetActive(true)
-                    --     -- GUI.SetText(Lab_UseBuff, string.format(StringTable.Get(31853), itemCount))
-                    --     GUI.SetText(Lab_BuffNum, "("..itemCount..")")
-                    -- elseif itemCount <= 0 then
-                    --     Btn_UseBuff:SetActive(false)
-                    -- end
                     GameUtil.StopUISfx(PATH.UIFX_HOTTIME_Lan, Img_BuffIconBG)
                     game._HottimeExpItemTid = 0
                     game._IsExpHottime = false
@@ -376,7 +313,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                 BuffDesc = string.format(HotTimeDate._Data.Content, (Percent.."%"))
             elseif HotTimeDate._Data.HotTimeType == EHotTimeType.EMonthGold then
                 local itemCount = normalPack:GetItemCount(HotTimeDate._ItemId)
-                -- warn("OninitItem =======>>> ", HotTimeDate._Data.Name, HotTimeDate._CountDown, HotTimeDate._ItemId, itemCount)
+                -- warn("OninitItem =======>>> ", HotTimeDate._Data.DisPlayName, HotTimeDate._CountDown, HotTimeDate._ItemId, itemCount)
                 GUITools.SetItemIcon(Img_BuffIcon, PATH.ICON_ITEN_HOTTIME_02)
                 local Percent = 0
                 if HotTimeDate._CountDown ~= nil and HotTimeDate._CountDown > 0 then
@@ -394,7 +331,6 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                     Btn_UseBuff:SetActive(false)
                     Img_BuffOpen:SetActive(true)
                     Img_BuffState:SetActive(true)
-                    -- GameUtil.PlayUISfx(PATH.UIFX_HOTTIME_Huang, Img_BuffIcon, Img_BuffIcon, -1)
                     GameUtil.PlayUISfxClipped(PATH.UIFX_HOTTIME_Huang, Img_BuffIconBG, Img_BuffIconBG, self:GetUIObject('List_BuffView'))
                 else
                     Lab_BuffState:SetActive(false)
@@ -414,9 +350,8 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                 BuffDesc = string.format(HotTimeDate._Data.Content, (Percent.."%"))
             elseif HotTimeDate._Data.HotTimeType == EHotTimeType.EMonthExp then
                 local itemCount = normalPack:GetItemCount(HotTimeDate._ItemId)
-                GUITools.SetItemIcon(Img_BuffIcon, PATH.ICON_ITEN_HOTTIME_01)
                 local Percent = 0
-                -- warn("OninitItem =======>>> ", HotTimeDate._Data.Name, HotTimeDate._CountDown, HotTimeDate._ItemId, itemCount)
+                -- warn("OninitItem =======>>> ", HotTimeDate._Data.DisPlayName, HotTimeDate._CountDown, HotTimeDate._ItemId, itemCount)
                 if HotTimeDate._CountDown ~= nil and HotTimeDate._CountDown > 0 then
                     local item = CElementData.GetItemTemplate(HotTimeDate._ItemId)
                     if item ~= nil and item.EventType1 == EItemEventType.ItemEvent_HotTime then 
@@ -432,7 +367,6 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                     Btn_UseBuff:SetActive(false)
                     Img_BuffOpen:SetActive(true)
                     Img_BuffState:SetActive(true)
-                    -- GameUtil.PlayUISfx(PATH.UIFX_HOTTIME_Lan, Img_BuffIcon, Img_BuffIcon, -1)
                     GameUtil.PlayUISfxClipped(PATH.UIFX_HOTTIME_Lan, Img_BuffIconBG, Img_BuffIconBG, self:GetUIObject('List_BuffView'))
                 else
                     Lab_BuffState:SetActive(false)
@@ -450,9 +384,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                     GameUtil.StopUISfx(PATH.UIFX_HOTTIME_Lan, Img_BuffIconBG)
                 end
                 BuffDesc = string.format(HotTimeDate._Data.Content, (Percent.."%"))
-            elseif HotTimeDate._Data.HotTimeType == EHotTimeType.EAdminGold then
-                GUITools.SetItemIcon(Img_BuffIcon, PATH.ICON_ITEN_TOKEN_1)
-                
+            elseif HotTimeDate._Data.HotTimeType == EHotTimeType.EAdminGold then                
                 Btn_BuyBuff:SetActive(false)
                 Btn_UseBuff:SetActive(false)
                 Lab_BuffState:SetActive(true)
@@ -463,8 +395,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                     self:ShowTime(time, Lab_BuffState, idx)
                     Img_BuffOpen:SetActive(true)
                     Img_BuffState:SetActive(true)
-                    BuffDesc = HotTimeDate._Data.Content
-                    -- GameUtil.PlayUISfx(PATH.UIFX_HOTTIME_Huang, Img_BuffIcon, Img_BuffIcon, -1)
+                    BuffDesc = string.format(HotTimeDate._Data.Content, (HotTimeDate._Percent.."%"))
                     GameUtil.PlayUISfxClipped(PATH.UIFX_HOTTIME_Huang, Img_BuffIconBG, Img_BuffIconBG, self:GetUIObject('List_BuffView'))
                 else
                     -- GUI.SetText(Lab_BuffState, StringTable.Get(31850))  
@@ -474,7 +405,6 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                     GameUtil.StopUISfx(PATH.UIFX_HOTTIME_Huang, Img_BuffIconBG)    
                 end
             elseif HotTimeDate._Data.HotTimeType == EHotTimeType.EAdminExp then
-                GUITools.SetItemIcon(Img_BuffIcon, PATH.ICON_ITEN_TOKEN_4)
                 Btn_BuyBuff:SetActive(false)
                 Btn_UseBuff:SetActive(false)
                 Lab_BuffState:SetActive(true)
@@ -485,8 +415,27 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                     self:ShowTime(time, Lab_BuffState, idx)
                     Img_BuffOpen:SetActive(true)
                     Img_BuffState:SetActive(true)
-                    BuffDesc = HotTimeDate._Data.Content  
-                    -- GameUtil.PlayUISfx(PATH.UIFX_HOTTIME_Lan, Img_BuffIcon, Img_BuffIcon, -1)
+                    BuffDesc = string.format(HotTimeDate._Data.Content, (HotTimeDate._Percent.."%"))
+                    GameUtil.PlayUISfxClipped(PATH.UIFX_HOTTIME_Lan, Img_BuffIconBG, Img_BuffIconBG, self:GetUIObject('List_BuffView'))
+                else                
+                    -- GUI.SetText(Lab_BuffState, StringTable.Get(31850))
+                    Img_BuffOpen:SetActive(false)
+                    Img_BuffState:SetActive(false)
+                    BuffDesc = StringTable.Get(19469)  
+                    GameUtil.StopUISfx(PATH.UIFX_HOTTIME_Lan, Img_BuffIconBG)
+                end
+            elseif HotTimeDate._Data.HotTimeType == EHotTimeType.EDropLimit then
+                Btn_BuyBuff:SetActive(false)
+                Btn_UseBuff:SetActive(false)
+                Lab_BuffState:SetActive(true)
+                if HotTimeDate._CountDown ~= nil and HotTimeDate._CountDown > 0 then
+                    -- local Timetext = os.date("%H:%M:%S", HotTimeDate._CountDown/1000)
+                    -- GUI.SetText(Lab_BuffState, Timetext)
+                    local time = HotTimeDate._CountDown/1000
+                    self:ShowTime(time, Lab_BuffState, idx)
+                    Img_BuffOpen:SetActive(true)
+                    Img_BuffState:SetActive(true)
+                    BuffDesc = string.format(HotTimeDate._Data.Content, (HotTimeDate._Percent.."%"))
                     GameUtil.PlayUISfxClipped(PATH.UIFX_HOTTIME_Lan, Img_BuffIconBG, Img_BuffIconBG, self:GetUIObject('List_BuffView'))
                 else                
                     -- GUI.SetText(Lab_BuffState, StringTable.Get(31850))
@@ -577,6 +526,7 @@ end
 
 def.override().OnDestroy = function (self)
     GameUtil.StopUISfx(PATH.UIFX_HOTTIME_Bannerfenwei,self._Lab_HotTimeTag)
+    self:RafreshMainHotTimeRedPoint()
     self._Frame_BuffList = nil
     self._List_Buff = nil
     self._Lab_BuffEffectiveMap = nil

@@ -54,7 +54,7 @@ def.method("number", "number", "=>", "table").GetItemAttrIndex = function(self, 
 		items = self._NormalPack._ItemSet
 	end
 	if items == nil then
-		print("items is nil")
+		--print("items is nil")
 	end
 	local itemDB = items[index].ItemData
 	if itemDB.Tid ~= 0 then

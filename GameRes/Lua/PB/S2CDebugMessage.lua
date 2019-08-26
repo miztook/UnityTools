@@ -17,15 +17,10 @@ local function OnEntityDebugInfo(sender, msg)
 	if entity ~= nil then
 		local server_pos = Vector3.New(msg.Position.x, msg.Position.y, msg.Position.z)
 		local local_pos = entity:GetPos()
-		if game._IsDebugMode then
-			local oldname = entity._InfoData._Name
-			local newName = tostring(server_pos) .. " " tostring(local_pos)
-			entity._InfoData._Name = newName
-			print("OnEntityDebugInfo: " .. tostring(server_pos) .. " local_pos " .. tostring(local_pos))
-		end
-
-	else
-		--warn("S2CEntityMove can not find entity with id " .. msg.EntityId)
+		local oldname = entity._InfoData._Name
+		local newName = tostring(server_pos) .. " " tostring(local_pos)
+		entity._InfoData._Name = newName
+		warn("OnEntityDebugInfo: " .. tostring(server_pos) .. " local_pos " .. tostring(local_pos))
 	end
 end
 

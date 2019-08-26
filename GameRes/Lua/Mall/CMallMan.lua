@@ -2,13 +2,15 @@ local Lplus = require "Lplus"
 local CElementData = require "Data.CElementData"
 local GainNewItemEvent = require "Events.GainNewItemEvent"
 local NotifyFunctionEvent = require "Events.NotifyFunctionEvent"
-local ApplicationQuitEvent = require "Events.ApplicationQuitEvent"
 local CMallUtility = require "Mall.CMallUtility"
 local CQuest = require "Quest.CQuest"
+local CPageBag = require "GUI.CPageBag"
 local CGame = Lplus.ForwardDeclare("CGame")
 local EPlatformType = require "PB.data".EPlatformType
 local EFormatType = require "PB.Template".Store.EFormatType
 local EGoodsType = require "PB.Template".Goods.EGoodsType
+local EActivityStoreType = require "PB.Template".ActivityStore.EActivityStoreType
+
 local CMallMan = Lplus.Class("CMallMan")
 local def = CMallMan.define
 local instance = nil
@@ -20,7 +22,8 @@ def.static("=>", CMallMan).Instance = function()
 	return instance
 end
 
-def.field("number")._RefreshTime = 0                    -- 定义页签刷新的时间戳
+local RefundTipSpecialID = 686
+
 def.field("table")._MallRoleInfo = nil                  -- 角色商城数据(对应net.proto的RoleStoreDB里面的StoreDatas)
 def.field("table")._TabDatasFromServer = BlankTable     -- 从server请求的页签数据(或者是CMallMan里面的缓存数据)
 def.field("table")._BannerDatas = BlankTable            -- 从server请求的banner数据
@@ -28,11 +31,65 @@ def.field("boolean")._IsMallRoleInfoInited = false      -- 商城角色数据是
 def.field("number")._TotalUnlockTid = 80                -- 召唤解锁id
 def.field("number")._ElfUnlockTid = 10                  -- 精灵献礼解锁ID
 def.field("number")._PetExtractUnlockTid = 75           -- 宠物解锁ID
+def.field("table")._ActivityDataTimers = BlankTable     -- 活动商品是否时间到的timers
 def.field("boolean")._IsSingle = true                   -- 是否是单抽（用于再来一次）
 def.field("boolean")._IsFirstLoad = true                -- 是否是第一次加载抽奖结果界面。
+def.field("boolean")._IsExtracting = false              -- 是否正在抽取
+def.field("userdata")._MallLotteryCache = nil           -- 抽取翻牌界面的缓存（为了不让lua清掉）
+
+------------------------------------------活动商城Start------------------------------------------------
+def.field("table")._ActivityPagesData = BlankTable
+------------------------------------------活动商城 End ------------------------------------------------
+
+-- 获得召唤的页签商城数据（net.proto里面StoreFound结构的table）
+def.method("=>", "table").GetSummonTagsDataFromServer = function(self)
+    local store_funds = {}
+    for i,v in ipairs(self._TabDatasFromServer.StoreTagFounds) do
+        for j,w in ipairs(v.Stores) do
+            if w.FormatType == EFormatType.SprintGiftTemp or w.FormatType == EFormatType.PetDropRuleTemp then
+                w.BigTagID = v.TagId
+                store_funds[#store_funds + 1] = w
+            end
+        end
+    end
+    return store_funds
+end
 
 def.method("=>", "table").GetTagsDataFromServer = function(self)
-    return self._TabDatasFromServer
+    local data = {}
+    data.StoreTagFounds = {}
+    if self._TabDatasFromServer == nil or self._TabDatasFromServer.StoreTagFounds == nil then
+        data.RefundStatementURL = ""
+        warn("error !!! : CMallMan.GetTagsDataFromServer() -- self._TabDatasFromServer.StoreTagFounds为空！！！", debug.traceback())
+        return data 
+    end
+    for _,v in ipairs(self._TabDatasFromServer.StoreTagFounds) do
+        if v.Stores ~= nil and (#v.Stores > 0) then
+            data.StoreTagFounds[#data.StoreTagFounds + 1] = {}
+            local store_fund = data.StoreTagFounds[#data.StoreTagFounds]
+            store_fund.TagId = v.TagId
+            store_fund.TagName = v.TagName
+            store_fund.TagSort = v.TagSort
+            store_fund.LabelType = v.LabelType
+            store_fund.Stores = {}
+            for _1,v1 in ipairs(v.Stores) do
+                if v1.FormatType ~= EFormatType.SprintGiftTemp and v1.FormatType ~= EFormatType.PetDropRuleTemp then
+                    store_fund.Stores[#store_fund.Stores + 1] = {}
+                    local small_fund = store_fund.Stores[#store_fund.Stores]
+                    small_fund.StoreId = v1.StoreId
+                    small_fund.StoreName = v1.StoreName
+                    small_fund.FormatType = v1.FormatType
+                    small_fund.ShowEndTime = v1.ShowEndTime
+                    small_fund.LabelType = v1.LabelType
+                end
+            end
+            if #store_fund.Stores == 0 then
+                table.remove(data.StoreTagFounds, #data.StoreTagFounds)
+            end
+        end
+    end
+    data.RefundStatementURL = self._TabDatasFromServer.RefundStatementURL
+    return data
 end
 
 def.method("number").RemoveTagsDataFromServer = function(self, StoreId)
@@ -56,17 +113,17 @@ end
 local OnGainNewItemEvent = function(sender, event)
     if instance ~= nil then
         local can_extract = (CMallUtility.CanExtractElf() and game._CFunctionMan:IsUnlockByFunTid(instance._ElfUnlockTid) and game._CFunctionMan:IsUnlockByFunTid(instance._TotalUnlockTid))
-        CMallMan.Instance():SaveRedPointState(EnumDef.MallStoreType.ElfExtract, can_extract)
-        local CPanelMall = require "GUI.CPanelMall"
-        if CPanelMall.Instance():IsShow() then
+        CMallMan.Instance():SaveSummonRedPointState(EnumDef.MallStoreType.ElfExtract, can_extract)
+        local CPanelSummon = require "GUI.CPanelSummon"
+        if CPanelSummon.Instance():IsShow() then
             for _,v in ipairs(instance._TabDatasFromServer.StoreTagFounds) do
                 for _1,v1 in ipairs(v.Stores) do
-                    if v1.StoreId == EnumDef.MallStoreType.ElfExtract then
-                        CPanelMall.Instance():ShowRedPoint(v.TagId, v1.StoreId, can_extract)
+                    if v1.FormatType == EFormatType.SprintGiftTemp then
+                        CPanelSummon.Instance():ShowRedPoint(v1.StoreId, can_extract)
                     end
                 end
             end
-            CPanelMall.Instance():OnGainNewItem(sender, event)
+            CPanelSummon.Instance():OnGainNewItem(sender, event)
         end
     end
 end
@@ -75,20 +132,22 @@ local OnSystemUnlockEvent = function(sender, event)
     if instance ~= nil then
         local id = event.FunID
         if id == instance._ElfUnlockTid and game._CFunctionMan:IsUnlockByFunTid(instance._TotalUnlockTid) then
-            instance:SaveRedPointState(EnumDef.MallStoreType.ElfExtract, CMallUtility.CanExtractElf())
+            instance:SaveSummonRedPointState(EnumDef.MallStoreType.ElfExtract, CMallUtility.CanExtractElf())
         end
     end
 end
 
-local OnApplicationQuit = function(sender, event)
-    instance:Release()
+local function OnHostPlayerLevelChangeEvent(sender, event)
+    if instance ~= nil then
+        instance:OnActivityMallHandleLevelUp()
+    end
 end
 
 def.method().Init = function(self)
     self._IsFirstLoad = true
     CGame.EventManager:addHandler(GainNewItemEvent, OnGainNewItemEvent)
     CGame.EventManager:addHandler(NotifyFunctionEvent, OnSystemUnlockEvent)
-    CGame.EventManager:addHandler(ApplicationQuitEvent, OnApplicationQuit)
+    CGame.EventManager:addHandler('HostPlayerLevelChangeEvent', OnHostPlayerLevelChangeEvent)
 end
 
 def.method("number", "number", "=>", "table").GetTagDataByTagIDAndStoreID = function(self, tagID, storeID)
@@ -198,13 +257,46 @@ def.method("number", "boolean").SaveRedPointState = function(self, keyID, value)
     end
     redPointMap[keyID] = value
     CRedDotMan.SaveModuleDataToUserData(RedDotSystemType.Mall, redPointMap)
-    for _,v in pairs(redPointMap) do
-        if v == true then
+    for k,v in pairs(redPointMap) do
+        if v == true and k ~= EnumDef.MallStoreType.ElfExtract and k ~= EnumDef.MallStoreType.PetExtract then
             CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Mall,true)
             return
         end
     end
     CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Mall,false)
+end
+
+-- 获得召唤的红点状态
+def.method("number", "=>", "boolean").GetSummonRedPointState = function(self, keyID)
+    local redPointMap = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.Summon)
+    if redPointMap ~= nil and redPointMap[keyID] ~= nil then
+        return redPointMap[keyID]
+    end
+    return false
+end
+
+-- 保存召唤的红点状态
+def.method("number", "boolean").SaveSummonRedPointState = function(self, keyID, value)
+    local red_map = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.Summon)
+    if red_map == nil then
+        red_map = {}
+    end
+    red_map[keyID] = value
+    CRedDotMan.SaveModuleDataToUserData(RedDotSystemType.Summon, red_map)
+    local finded = false
+    for _,v in pairs(red_map) do
+        if v == true then
+            CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Summon,true)
+            finded = true
+        end
+    end
+    if not finded then
+        CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Summon,false)
+    end
+    local CPanelSummon = require "GUI.CPanelSummon"
+    if CPanelSummon.Instance():IsShow() then
+        CPanelSummon.Instance():UpdatePanelRedPoint()
+    end
 end
 
 -- 根据角色数据设置红点信息
@@ -215,7 +307,9 @@ def.method().SetFundOrMonthlyCardRedPointStateByPlayerBuyInfo = function(self)
         local store_temp = CElementData.GetTemplate("Store", v.StoreId)
         if store_temp == nil then print("CMallMan.SetRedPointStateByPlayerBuyInfo   找不到对应的商店模板", v.StoreId) return end
         if store_temp.FormatType == EFormatType.FundTemp then
-            local good_temp = CElementData.GetTemplate("Goods", tonumber(store_temp.GoodIds))
+            local goods_id = tonumber(store_temp.GoodIds) or 0
+            local good_temp = CElementData.GetTemplate("Goods", goods_id)
+            if good_temp == nil then return end
             local find_it = false
             for i,v1 in pairs(self._MallRoleInfo.RoleStoreData.FundDatas) do
                 if i == good_temp.FundId then
@@ -227,7 +321,9 @@ def.method().SetFundOrMonthlyCardRedPointStateByPlayerBuyInfo = function(self)
                 self:SaveRedPointState(v.StoreId, false)
             end
         elseif store_temp.FormatType == EFormatType.MonthlyCardTemp then
-            local good_temp = CElementData.GetTemplate("Goods", tonumber(store_temp.GoodIds))
+            local goods_id = tonumber(store_temp.GoodIds) or 0
+            local good_temp = CElementData.GetTemplate("Goods", goods_id)
+            if good_temp == nil then return end
             local find_it = false
             for i,v1 in pairs(self._MallRoleInfo.RoleStoreData.MonthlyCardDatas) do
                 if i == good_temp.MonthlyCardId then
@@ -243,6 +339,15 @@ def.method().SetFundOrMonthlyCardRedPointStateByPlayerBuyInfo = function(self)
     
 end
 
+local goods_sort_func = function(item1, item2)
+    if item1.IsRemainCount ~= item2.IsRemainCount then
+        return item1.IsRemainCount
+    else
+        return item1.Id < item2.Id
+    end
+    return false
+end
+
 --解析商城数据
 def.method("table", "=>", "table").ParseMsg = function(self, data)
     local pageData = {}
@@ -254,7 +359,7 @@ def.method("table", "=>", "table").ParseMsg = function(self, data)
     pageData.RateQueryURL = data.RateQueryURL
     pageData.Goods = {}
     for i,v in ipairs(data.Goods) do
-        if self:CheckGoodsAllRight(v.Id) then
+        if self:CheckGoodsAllRight(v.Id) and self:CheckGoodsLifeTime(v.ShowEndTime) then
             pageData.Goods[#pageData.Goods + 1] = {}
             local idx = #pageData.Goods
             pageData.Goods[idx].Id = v.Id
@@ -274,13 +379,20 @@ def.method("table", "=>", "table").ParseMsg = function(self, data)
             pageData.Goods[idx].CostMoneyId = v.CostMoneyId
             pageData.Goods[idx].CostMoneyCount = v.CostMoneyCount
             pageData.Goods[idx].IOS_ProductId = v.IOS_ProductId
-            pageData.Goods[idx].CashCount = v.CashCount
+            pageData.Goods[idx].AND_ProductId = v.AND_ProductId
+            pageData.Goods[idx].CashCount_IOS = v.CashCount_IOS
+            pageData.Goods[idx].CashCount_AOS = v.CashCount_AOS
             pageData.Goods[idx].IconPath = v.IconPath
             pageData.Goods[idx].LimitType = v.LimitType
             pageData.Goods[idx].LabelType = v.LabelType
             pageData.Goods[idx].NextRefreshTime = v.NextRefreshTime
+            pageData.Goods[idx].ShowEndTime = v.ShowEndTime
+            local buy_count = self:GetItemHasBuyCountByID(pageData.StoreId, v.Id)
+            pageData.Goods[idx].IsRemainCount = v.Stock > 0 and v.Stock > buy_count or v.Stock <= 0
         end
     end
+
+    table.sort(pageData.Goods, goods_sort_func)
     pageData.RecommendInfo1 = {}
     pageData.RecommendInfo1.Infos = {}
     if data.RecommendInfo1 ~= nil then
@@ -319,7 +431,7 @@ end
 def.method("table", "table").UpdateGoods = function(self, pageData, data)
     pageData.Goods = {}
     for i,v in ipairs(data.Goods) do
-        if self:CheckGoodsAllRight(v.Id) then
+        if self:CheckGoodsAllRight(v.Id) and self:CheckGoodsLifeTime(v.ShowEndTime) then
             local item = {}
             item.Id = v.Id
             item.Name = v.Name
@@ -338,14 +450,20 @@ def.method("table", "table").UpdateGoods = function(self, pageData, data)
             item.CostMoneyId = v.CostMoneyId
             item.CostMoneyCount = v.CostMoneyCount
             item.IOS_ProductId = v.IOS_ProductId
-            item.CashCount = v.CashCount
+            item.AND_ProductId = v.AND_ProductId
+            item.CashCount_IOS = v.CashCount_IOS
+            item.CashCount_AOS = v.CashCount_AOS
             item.IconPath = v.IconPath
             item.LimitType = v.LimitType
             item.LabelType = v.LabelType
             item.NextRefreshTime = v.NextRefreshTime
+            item.ShowEndTime = v.ShowEndTime
+            local buy_count = self:GetItemHasBuyCountByID(pageData.StoreId, v.Id)
+            item.IsRemainCount = v.Stock > buy_count
             table.insert(pageData.Goods, item)
         end
     end
+    table.sort(pageData.Goods, goods_sort_func)
 end
 
 --解析角色数据
@@ -452,9 +570,18 @@ def.method("table", "=>", "table").ParseTagsData = function(self, msg)
     return data
 end
 
+def.method("number", "number", "=>", "boolean").BannerTimeIsOK = function(self, startTime, endTime)
+    local now_time = GameUtil.GetServerTime()/1000
+    if now_time > startTime and now_time < endTime then
+        return true
+    end
+    return false
+end
+
+-- 加载所有bannner数据
 def.method().LoadBannerTempData = function(self)
     self._BannerDatas = {}
-    local all_banners = GameUtil.GetAllTid("Banner")
+    local all_banners = CElementData.GetAllTid("Banner")
     if all_banners == nil then return end
 
     for i,v in ipairs(all_banners) do
@@ -462,16 +589,28 @@ def.method().LoadBannerTempData = function(self)
         if banner_temp then
             local item = {}
             item.BannerTid = v
-            item.OpenFlag = banner_temp.IsOpen
+            item.OpenFlag = banner_temp.IsOpen and self:BannerTimeIsOK(GUITools.FormatTimeFromGmtToSeconds(banner_temp.StartTime) or 0, GUITools.FormatTimeFromGmtToSeconds(banner_temp.EndTime) or 0)
+            item.SortId = banner_temp.SortId or 0
             self._BannerDatas[#self._BannerDatas + 1] = item
         end
     end
 end
 
+local IsTimeOK = function(startTime, endTime)
+    if startTime == nil or endTime == nil then
+        return true
+    end
+    local now_time = GameUtil.GetServerTime()/1000
+    if startTime > 0 and endTime > 0 then
+        return now_time > startTime and now_time < endTime
+    end
+    return true
+end
+
 def.method("=>", "table").GetAllOpenedBanner = function(self)
     local opened_table = {}
     for i,v in ipairs(self._BannerDatas) do
-        if v.OpenFlag then
+        if v.OpenFlag and IsTimeOK(v.StartTime, v.EndTime) then
             opened_table[#opened_table + 1] = v
         end
     end
@@ -483,14 +622,26 @@ def.method("table").ParseBannerInfoData = function(self, msg)
     for k,w in ipairs(self._BannerDatas) do
         for i,v in ipairs(msg.BannerDatas) do
             if v.BannerTid == w.BannerTid then
+                w.SortId = v.SortWeight
+                w.StartTime = v.StartTime
+                w.EndTime = v.EndTime
                 if v.OpenFlag ~= nil then
-                    w.OpenFlag = v.OpenFlag
+                    w.OpenFlag = v.OpenFlag and self:BannerTimeIsOK(v.StartTime, v.EndTime)
                 else
                     w.OpenFlag = false
                 end
             end
         end
     end
+
+    local sort_func = function(item1, item2)
+        if item1.SortId == item2.SortId then
+            return false
+        else
+            return item1.SortId > item2.SortId
+        end
+    end
+    table.sort(self._BannerDatas, sort_func)
 end
 
 -- 购买了新的基金
@@ -538,7 +689,8 @@ end
 
 -- 大页签是否韩服隐藏（1.9.0）
 def.method("number", "=>", "boolean").SpecialHideTagCheck = function(self, tagID)
-    if game._IsHideMallPages and (tagID == 2 or tagID == 7) then
+    local options = GameConfig.Get("FuncOpenOption")
+    if options.HideMall and (tagID == 2 or tagID == 7) then
         return false
     end
     return true
@@ -546,7 +698,8 @@ end
 
 -- 小页签是否韩服隐藏（1.9.0）
 def.method("number", "=>", "boolean").SpecialHideStoreCheck = function(self, storeID)
-    if game._IsHideMallPages and storeID == 14 then
+    local options = GameConfig.Get("FuncOpenOption")
+    if options.HideMall and storeID == 14 then
         return false
     end
     return true
@@ -596,6 +749,14 @@ def.method("number", "=>", "boolean").CheckGoodsAllRight = function(self, goodsI
     return true
 end
 
+def.method("number", "=>", "boolean").CheckGoodsLifeTime = function(self, deadTime)
+    if deadTime <= 0 then
+        return true
+    end
+    local now_time = GameUtil.GetServerTime()
+    return now_time < deadTime
+end
+
 -- 商品页签是否已经过时
 def.method("number", "=>", "boolean").ShowEndTimeCheck = function(self, endTime)
     local now_time = GameUtil.GetServerTime()
@@ -623,15 +784,46 @@ def.method("=>","boolean").GetIsSingle = function(self)
     return self._IsSingle
 end
 
+-- 获得不同平台下的模板商品的现金消耗
+def.method("number", "=>", "number").GetGoodsTempCashCost = function(self, goodsTid)
+    local goods_temp = CElementData.GetTemplate("Goods", goodsTid)
+    if goods_temp == nil then
+        warn("error !!! 商品数据错误，没有此ID的商品  ID：", goodsTid)
+        return 0
+    end
+    if IsAndroid() or IsWin() then
+        return goods_temp.AOS_CashCount
+    elseif IsIOS() then
+        return goods_temp.IOS_CashCount
+    end
+end
+
+-- 获得不同平台下的服务器数据的现金消耗
+def.method("table", "=>", "number").GetGoodsDataCashCost = function(self, goods_item)
+    if IsAndroid() or IsWin() then
+        return (goods_item.CashCount_AOS or 0)
+    elseif IsIOS() then
+        return (goods_item.CashCount_IOS or 0)
+    end
+    return 0
+end
+
 -- 点击了退款声明Label
 def.method().HandleClickBuyTips = function(self)
-    if self._TabDatasFromServer == nil or self._TabDatasFromServer.RefundStatementURL == nil or self._TabDatasFromServer.RefundStatementURL == "" then
-        warn("退款声明URL 为空！！！ ")
-        return
+    local bKakaoPlatform = CPlatformSDKMan.Instance():IsInKakao()
+    if bKakaoPlatform then
+        local key = CElementData.GetSpecialIdTemplate(RefundTipSpecialID).Value
+        local url = CPlatformSDKMan.Instance():GetCustomData(key)
+        CPlatformSDKMan.Instance():ShowInAppWeb(url)
+    else
+        if self._TabDatasFromServer == nil or self._TabDatasFromServer.RefundStatementURL == nil or self._TabDatasFromServer.RefundStatementURL == "" then
+            warn("退款声明URL 为空！！！ ")
+            return
+        end
+        print("弹了退款申明的URL ", self._TabDatasFromServer.RefundStatementURL)
+        game._GUIMan:OpenUrl(self._TabDatasFromServer.RefundStatementURL)
+        --CPlatformSDKMan.Instance():ShowInAppWeb(self._TabDatasFromServer.RefundStatementURL)
     end
-    print("弹了退款申明的URL ", self._TabDatasFromServer.RefundStatementURL)
-    --game._GUIMan:OpenUrl(self._TabDatasFromServer.RefundStatementURL)
-    CPlatformSDKMan.Instance():ShowInAppWeb(self._TabDatasFromServer.RefundStatementURL)
 end
 
 --======================C2S======================
@@ -722,26 +914,44 @@ end
 
 -- 精灵献礼抽取协议
 def.method("number").ElfExtract = function(self, count)
+    if CPageBag.Instance():IsBagFull() then
+        game._GUIMan:ShowTipText(StringTable.Get(256), false)
+        return
+    end
+    if self._IsExtracting then
+        print("正在抽奖中")
+        return
+    end
     self._IsSingle = (count == 1)
+    self._IsExtracting = true
     local C2SSprintGiftReq = require "PB.net".C2SSprintGiftReq
     local protocol = C2SSprintGiftReq()
     protocol.Count = count
     local PBHelper = require "Network.PBHelper"
     PBHelper.Send(protocol)
-    local cb = function(asset)
-    end
+
     GameUtil.PreLoadUIFX(PATH.UIFX_MallLottery_Get)
     if self._IsFirstLoad then
         local cb = function(asset)
             self._IsFirstLoad = false
+            self._MallLotteryCache = asset
         end
-        GameUtil.AsyncLoad(_G.InterfacesDir .. PATH.UI_MallLottery, cb)
+        GameUtil.AsyncLoadPanel(PATH.UI_MallLottery, cb, false)
     end
 end
 
 -- 宠物抽奖
 def.method("number").PetExtract = function(self, count)
+    if CPageBag.Instance():IsBagFull() then
+        game._GUIMan:ShowTipText(StringTable.Get(256), false)
+        return
+    end
+    if self._IsExtracting then
+        print("正在抽奖中")
+        return
+    end
     self._IsSingle = (count == 1)
+    self._IsExtracting = true
     local C2SPetDropRuleReq = require "PB.net".C2SPetDropRuleReq
     local protocol = C2SPetDropRuleReq()
     protocol.Count = count
@@ -751,9 +961,43 @@ def.method("number").PetExtract = function(self, count)
     if self._IsFirstLoad then
         local cb = function(asset)
             self._IsFirstLoad = false
+            self._MallLotteryCache = asset
         end
-        GameUtil.AsyncLoad(_G.InterfacesDir .. PATH.UI_MallLottery, cb)
+        GameUtil.AsyncLoadPanel(PATH.UI_MallLottery, cb, false)
     end
+end
+
+def.method("number", "number").BuyActivityGoods = function(self, pageID, goodsID)
+    local goods_temp = CElementData.GetTemplate("Goods", goodsID)
+    if goods_temp ~= nil then
+        local C2SAtStoreBuyReq = require "PB.net".C2SAtStoreBuyReq
+        local ECostType = require "PB.Template".Goods.ECostType
+        local protocol = C2SAtStoreBuyReq()
+        protocol.AtStoreTid = pageID
+        protocol.GoodsId = goodsID
+        protocol.Count = 1
+        print("发送购买消息 ", pageID, goodsID)
+        if goods_temp.CostType == ECostType.Cash then
+            -- send receipt cache
+            CPlatformSDKMan.Instance():ProcessPurchaseCache()
+
+            protocol.Platform = _G.IsIOS() and EPlatformType.EPlatformType_AppStore or
+                        (_G.IsAndroid() and EPlatformType.EPlatformType_GooglePlay or EPlatformType.EPlatformType_default)
+            protocol.DeviceId = GameUtil.GetOpenUDID()
+            --TODO("FIXME::支付 需要平台传入! Google | Apple | T-Store")
+        end
+        SendProtocol(protocol)
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Buy_Item, 0)
+    else
+        warn("error !!! 购买活动商品错误,没有这个商品的模板数据，goodsID为： ", goodsID, debug.traceback())
+    end
+end
+
+-- 请求banner的更新
+def.method().RequestBannerInfo = function(self)
+    local C2SBannerInfo = require "PB.net".C2SBannerInfo
+    local protocol = C2SBannerInfo()
+    SendProtocol(protocol)
 end
 
 --======================S2C======================
@@ -761,16 +1005,27 @@ end
 --处理页签数据
 def.method("table").HandleTabsData = function(self, datas)
     local CPanelMall = require "GUI.CPanelMall"
-    if not CPanelMall.Instance():IsShow() then return end
+    local CPanelSummon = require "GUI.CPanelSummon"
     self._TabDatasFromServer = self:ParseTagsData(datas)
-    CPanelMall.Instance():Init(self._TabDatasFromServer)
+    if CPanelMall.Instance():IsShow() then
+        CPanelMall.Instance():Init(self._TabDatasFromServer)
+    end
+    if CPanelSummon.Instance():IsShow() then
+        CPanelSummon.Instance():Init()
+    end
 end
 
 --处理小页签数据
 def.method("table").HandleSmallTypeData = function(self, datas)
+
     local CPanelMall = require "GUI.CPanelMall"
-    if not CPanelMall.Instance():IsShow() then return end
-    CPanelMall.Instance():HandleSmallTabData(datas)
+    local CPanelSummon = require "GUI.CPanelSummon"
+    if CPanelMall.Instance():IsShow() then
+        CPanelMall.Instance():HandleSmallTabData(datas)
+    end
+    if CPanelSummon.Instance():IsShow() then
+        CPanelSummon.Instance():HandleSmallTabData(datas)
+    end
 end
 
 --处理商城的角色操作数据
@@ -778,7 +1033,7 @@ def.method("table").HandleMallRoleInfo = function(self, datas)
     self._MallRoleInfo = self:ParseRoleData(datas)
     self:SetFundOrMonthlyCardRedPointStateByPlayerBuyInfo()
     local bState = CMallUtility.CanExtractElf() and game._CFunctionMan:IsUnlockByFunTid(self._ElfUnlockTid) and game._CFunctionMan:IsUnlockByFunTid(self._TotalUnlockTid)
-    self:SaveRedPointState(EnumDef.MallStoreType.ElfExtract, bState)
+    self:SaveSummonRedPointState(EnumDef.MallStoreType.ElfExtract, bState)
     self._IsMallRoleInfoInited = true
 end
 
@@ -922,44 +1177,385 @@ def.method("table").HandleQuickStoreBuyReq = function(self, msg)
     end
 end
 
+-- banner上线的时候同步过来的消息
 def.method("table").HandleBannerInfoData = function(self, msg)
     self:LoadBannerTempData()
     self:ParseBannerInfoData(msg)
+
+    local BannerInfoUpdate = require "Events.BannerInfoUpdate"
+    local event = BannerInfoUpdate()
+    CGame.EventManager:raiseEvent(nil, event)
 end
 
+-- banner更新消息
 def.method("table").HandleBannerUpdate = function(self, msg)
     if self._BannerDatas ~= nil then
         for i,v in ipairs(self._BannerDatas) do
-            if v.BannerTid == msg.BannerTid then
-                v.OpenFlag = msg.OpenFlag
+            if v.BannerTid == msg.PbBannerData.BannerTid then
+                v.OpenFlag = msg.PbBannerData.OpenFlag
             end
         end
     end
     local BannerInfoUpdate = require "Events.BannerInfoUpdate"
     local event = BannerInfoUpdate()
-    event._BannerID = msg.BannerTid
-    event._IsOpen = msg.OpenFlag
+    event._BannerID = msg.PbBannerData.BannerTid
+    event._IsOpen = msg.PbBannerData.OpenFlag
     CGame.EventManager:raiseEvent(nil, event)
 end
 
-def.method().Clear = function(self)
-    self._RefreshTime = 0
-    self._IsMallRoleInfoInited = false
-    self._MallRoleInfo = nil
-	self._TabDatasFromServer = nil
-    self._BannerDatas = nil
+
+------------------------------------------活动商城Start------------------------------------------------
+local GetBuyCount = function(self, pageId, goodId)
+    local goods_data = self._ActivityPagesData.ActivityGoodsDatas
+    for i,v in ipairs(goods_data) do
+        if v.AtStoreTid == pageId and v.GoodsId == goodId then
+            return v.BuyCount
+        end
+    end
+    return 0
 end
 
-def.method().Release = function(self)
-    self._RefreshTime = 0
+local GetCurActivityGoodsID = function(self, pageId, goodIds)
+    for i,v in ipairs(goodIds) do
+        local good_temp = CElementData.GetTemplate("Goods", v)
+        if good_temp ~= nil then
+            if good_temp.Stock > 0 then
+                if good_temp.Stock > GetBuyCount(self, pageId, v) then
+                    return i,v
+                end
+            else
+                return i,v
+            end
+        end
+    end
+    return #goodIds, goodIds[#goodIds]
+end
+
+-- 上线之后得到服务器发送过来的数据就把活动商城的红点更新出来
+local UpdateSynDataRedPoint = function(self)
+    local active_datas = self:GetOpenActivityData()
+    local new_red_state = {}
+    for i,v in ipairs(active_datas) do
+        new_red_state[v.Id] = true
+    end
+    self:UpdateActivityMallPageRedPointStates(new_red_state)
+end
+
+local SendActivityMallDataChangeEvent = function(self)
+    local ActivityMallDataChangeEvent = require "Events.ActivityMallDataChangeEvent"
+    local event = ActivityMallDataChangeEvent()
+    CGame.EventManager:raiseEvent(nil, event)
+end
+
+
+local RemoveTimeRightCheckTimer = function(self)
+    if self._ActivityDataTimers ~= nil then
+        for i,v in pairs(self._ActivityDataTimers) do
+            _G.RemoveGlobalTimer(v)
+        end
+    end
+    self._ActivityDataTimers = nil
+end
+
+local AddTimeRightCheckTimer = function(self)
+    if self._ActivityPagesData == nil or self._ActivityPagesData.AccountTemplateRecords == nil then return end
+    RemoveTimeRightCheckTimer(self)
+    self._ActivityDataTimers = {}
+    local start_time = GameUtil.GetServerTime()
+
+    for i,v in ipairs(self._ActivityPagesData.AccountTemplateRecords) do
+        if start_time < v.StartTime then
+            local callback = function()
+                v.IsOpen = true
+                SendActivityMallDataChangeEvent(self)
+                self:UpdateActivityMallPageRedPointState(v.Id, true)
+            end
+            self._ActivityDataTimers[v.Id] = _G.AddGlobalTimer((v.StartTime - start_time)/1000, true, callback)
+        elseif start_time < v.EndTime then
+            local callback = function()
+                v.IsOpen = false
+                SendActivityMallDataChangeEvent(self)
+                self:UpdateActivityMallPageRedPointState(v.Id, false)
+            end
+            self._ActivityDataTimers[v.Id] = _G.AddGlobalTimer((v.EndTime - start_time)/1000, true, callback)
+        end
+    end
+end
+
+
+-- 解析活动商城角色数据和模板数据
+local ParseActivityMallDatas = function(msg)
+    local new_msg = {}
+    new_msg.ActivityGoodsDatas = {}
+    new_msg.AccountTemplateRecords = {}
+    if msg.ActivityGoodsDatas then
+        for i,v in ipairs(msg.ActivityGoodsDatas) do
+            local item = {}
+            item.AtStoreTid = v.AtStoreTid
+            item.GoodsId = v.GoodsId
+            item.BuyCount = v.BuyCount ~= nil and v.BuyCount or 0
+            new_msg.ActivityGoodsDatas[#new_msg.ActivityGoodsDatas + 1] = item
+        end
+    end
+    
+    if msg.AccountTemplateRecords then
+        for i,v in ipairs(msg.AccountTemplateRecords) do
+            local item = {}
+            item.Id = v.Id
+            item.ActivityStoreType = v.ActivityStoreType ~= nil and v.ActivityStoreType or 0
+            item.Switch = v.Switch ~= nil and v.Switch or false
+            item.MinLevel = v.MinLevel ~= nil and v.MinLevel or 0
+            item.MaxLevel = v.MaxLevel ~= nil and v.MaxLevel or 0
+            item.StartTime = v.StartTime ~= nil and v.StartTime or 0
+            item.EndTime = v.EndTime ~= nil and v.EndTime or 0
+            item.GoodsList = {}
+
+            if v.GoodsList then
+                for k,w in ipairs(v.GoodsList) do
+                    item.GoodsList[#item.GoodsList + 1] = w
+                end
+            end
+            new_msg.AccountTemplateRecords[#new_msg.AccountTemplateRecords + 1] = item
+        end
+    end
+    return new_msg
+end
+
+local TimeIsOk = function(startTime, endTime)
+    local now_time = GameUtil.GetServerTime()
+    if now_time > startTime and now_time < endTime then
+        return true
+    end
+    return false
+end
+
+local LevelCheck = function(minLevel, maxLevel)
+    local hp = game._HostPlayer
+    local now_level = hp._InfoData._Level
+    if now_level >= minLevel and now_level <= maxLevel then
+        return true
+    end
+    return false
+end
+
+local CheckIsOpen = function(v)
+    if v.Switch and TimeIsOk(v.StartTime, v.EndTime) and LevelCheck(v.MinLevel, v.MaxLevel) and v.HasBuyOver == false then
+        return true
+    end
+    return false
+end
+
+local UpdateAdditionValues = function(self)
+    for i,item in ipairs(self._ActivityPagesData.AccountTemplateRecords) do
+        repeat
+            local page_temp = CElementData.GetTemplate("ActivityStore", item.Id)
+            if page_temp == nil then
+                warn("error !! ActivityStore 模板数据为空 ！！！ " , item.Id)
+                item.IsMultGoods = false
+                break
+            end
+            item.IsMultGoods = page_temp.ActivityStoreType == EActivityStoreType.StageStore
+            if item.IsMultGoods then
+                item.CurGoodsIndex, item.CurGoodsId = GetCurActivityGoodsID(self, item.Id, item.GoodsList)
+            else
+                item.CurGoodsIndex = 1
+                item.CurGoodsId = item.GoodsList[1]
+            end
+            local good_temp = CElementData.GetTemplate("Goods", item.CurGoodsId)
+            if good_temp then
+                if good_temp.Stock > 0 then
+                    item.HasBuyOver = (item.CurGoodsIndex >= #item.GoodsList and GetBuyCount(self, item.Id, item.CurGoodsId) >= good_temp.Stock)
+                else
+                    item.HasBuyOver = false
+                end
+            else
+                item.HasBuyOver = false
+            end
+            if CheckIsOpen(item) then
+                item.IsOpen = true
+            else
+                item.IsOpen = false
+            end
+        until true;
+    end
+end
+
+
+-- 得到开启的活动数据
+def.method("=>", "table").GetOpenActivityData = function(self)
+    local opened_data = {}
+    if self._ActivityPagesData == nil or self._ActivityPagesData.AccountTemplateRecords == nil then
+        warn("error !!! 服务器并没有把推荐商品信息发送过来")
+        return opened_data
+    end
+    for i,v in ipairs(self._ActivityPagesData.AccountTemplateRecords) do
+        if v.IsOpen then
+            opened_data[#opened_data + 1] = v
+        end
+    end
+    return opened_data
+end
+
+-- 得到活动商品的购买数量
+def.method("number", "number", "=>", "number").GetActivityMallGoodsBuyCount = function(self, activityID, goodsID)
+    if self._ActivityPagesData == nil or self._ActivityPagesData.ActivityGoodsDatas == nil then
+        warn("error !!! 服务器并没有把推荐商品信息发送过来")
+        return 0
+    end
+    for i,v in ipairs(self._ActivityPagesData.ActivityGoodsDatas) do
+        if v.AtStoreTid == activityID and v.GoodsId == goodsID then
+            return v.BuyCount
+        end
+    end
+    return 0
+end
+
+def.method("number", "=>", "table").GetActivityGoodsTempData = function(self, pageID)
+    for i,v in ipairs(self._ActivityPagesData.AccountTemplateRecords) do
+        if v.Id == pageID then
+            return v
+        end
+    end
+    return nil
+end
+
+-- 更新活动商品的购买数量
+def.method("number", "number", "number").UpdateActivityMallGoodsBuyCount = function(self, activityID, goodsID, count)
+    if self._ActivityPagesData == nil or self._ActivityPagesData.ActivityGoodsDatas == nil then
+        warn("error !!! 服务器并没有把推荐商品信息发送过来")
+        return
+    end
+    local is_finded = false
+    for i,v in ipairs(self._ActivityPagesData.ActivityGoodsDatas) do
+        if v.AtStoreTid == activityID and v.GoodsId == goodsID then
+            is_finded = true
+            v.BuyCount = count
+        end
+    end
+    if not is_finded then
+        local item = {}
+        item.AtStoreTid = activityID
+        item.GoodsId = goodsID
+        item.BuyCount = count
+        self._ActivityPagesData.ActivityGoodsDatas[#self._ActivityPagesData.ActivityGoodsDatas + 1] = item
+    end
+    UpdateAdditionValues(self)
+end
+
+-- 主角升级的回调函数
+def.method().OnActivityMallHandleLevelUp = function(self)
+    if self._ActivityPagesData == nil or self._ActivityPagesData.AccountTemplateRecords == nil then
+        warn("error !!! 服务器并没有把推荐商品信息发送过来")
+        return
+    end
+    local host_level = game._HostPlayer._InfoData._Level
+    local change_table = {}
+    for i,v in ipairs(self._ActivityPagesData.AccountTemplateRecords) do
+        if not v.IsOpen and CheckIsOpen(v) then
+            v.IsOpen = true
+            local item = {}
+            item.Id = v.Id
+            item.State = true
+            change_table[#change_table + 1] = item
+        elseif v.IsOpen and (not CheckIsOpen(v)) then
+            v.IsOpen = false
+            local item = {}
+            item.Id = v.Id
+            item.State = false
+            change_table[#change_table + 1] = item
+        end
+    end
+    if #change_table > 0 then
+        SendActivityMallDataChangeEvent(self)
+        for i,v in ipairs(change_table) do
+            self:UpdateActivityMallPageRedPointState(v.Id, v.State)
+        end
+    end
+end
+
+
+-- 更新活动商店的红点状态们。
+def.method("table").UpdateActivityMallPageRedPointStates = function(self, states)
+    local redPointMap = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.ActivityMall)
+    if states == nil then
+        redPointMap = {}
+    else
+        redPointMap = states
+    end
+    CRedDotMan.SaveModuleDataToUserData(RedDotSystemType.ActivityMall, redPointMap)
+    for _,v in pairs(redPointMap) do
+        if v == true then
+            CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.ActivityMall,true)
+            return
+        end
+    end
+    CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.ActivityMall,false)
+end
+
+-- 更新活动商店的红点状态。
+def.method("number", "boolean").UpdateActivityMallPageRedPointState = function(self, pageID, state)
+    local redPointMap = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.ActivityMall)
+    if redPointMap == nil then 
+        redPointMap = {}
+    end
+    redPointMap[pageID] = state
+    CRedDotMan.SaveModuleDataToUserData(RedDotSystemType.ActivityMall, redPointMap)
+    for _,v in pairs(redPointMap) do
+        if v == true then
+            CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.ActivityMall,true)
+            return
+        end
+    end
+    CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.ActivityMall,false)
+end
+
+-- 获得活动商店page的红点状态
+def.method("number", "=>", "boolean").GetActivityMallPageRedPointState = function(self, pageID)
+    local redPointMap = CRedDotMan.GetModuleDataToUserData(RedDotSystemType.ActivityMall)
+    if redPointMap == nil or redPointMap[pageID] == nil then
+        return false
+    end
+    return redPointMap[pageID]
+end
+
+-- 请求活动商城数据
+def.method().RequestActivitySynData = function(self)
+    local C2SAtStoreSyncReq = require "PB.net".C2SAtStoreSyncReq
+    local protocol = C2SAtStoreSyncReq()
+    SendProtocol(protocol)
+end
+
+
+-- 收到上线的时候活动商城的数据
+def.method("table").HandleActivitySynData = function(self, msg)
+    self._ActivityPagesData = ParseActivityMallDatas(msg)
+    UpdateAdditionValues(self)
+    UpdateSynDataRedPoint(self)
+    AddTimeRightCheckTimer(self)
+    SendActivityMallDataChangeEvent(self)
+end
+
+-- 购买活动商品的返回消息
+def.method("table").HandleBuyActivityGoods = function(self, msg)
+    local pre_count = self:GetActivityMallGoodsBuyCount(msg.AtStoreTid, msg.GoodsId)
+    local now_count = pre_count + msg.Count
+    self:UpdateActivityMallGoodsBuyCount(msg.AtStoreTid, msg.GoodsId, now_count)
+    SendActivityMallDataChangeEvent(self)
+end
+
+------------------------------------------活动商城 End ------------------------------------------------
+
+def.method().Cleanup = function(self)
+    RemoveTimeRightCheckTimer(self)
     self._IsMallRoleInfoInited = false
     self._MallRoleInfo = nil
     self._TabDatasFromServer = nil
     self._BannerDatas = nil
     self._IsFirstLoad = true
+    self._MallLotteryCache = nil
     CGame.EventManager:removeHandler(GainNewItemEvent, OnGainNewItemEvent)
     CGame.EventManager:removeHandler(NotifyFunctionEvent, OnSystemUnlockEvent)
-    CGame.EventManager:removeHandler(ApplicationQuitEvent, OnApplicationQuit)
+    CGame.EventManager:removeHandler('HostPlayerLevelChangeEvent', OnHostPlayerLevelChangeEvent)
     instance = nil
 end
 

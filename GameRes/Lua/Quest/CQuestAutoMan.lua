@@ -162,7 +162,9 @@ local function IsCurObjectiveForbided(quest_model)
                 end
                 local pathID = obj:GetTemplate().FinishDungeon.PathID
                 return pathID ~= nil and pathID == 0
-            elseif obj:GetTemplate().Guide._is_present_in_parent then
+            elseif obj:GetTemplate().Guide._is_present_in_parent then  -- 引导任务
+                return true 
+            elseif obj:GetTemplate().Achievement._is_present_in_parent then  -- 达成成就
                 return true 
             end
         end
@@ -174,6 +176,15 @@ end
 -- 任务自动化开启 
 def.method("table").Start = function(self, quest_model)  
     --print("CQuestAutoMan Start-0", debug.traceback())
+    -- 已开启
+    if self._IsOn and quest_model ~= nil and quest_model.Id == self._QuestId then
+        if IsCurObjectiveForbided(quest_model) then
+            self:Stop()
+            CAutoFightMan.Instance():SetMode(EnumDef.AutoFightType.WorldFight, 0, true)
+        end
+        return
+    end
+
     local hp = game._HostPlayer
     if hp:IsDead() then
         local CPageQuest = require "GUI.CPageQuest"
@@ -181,7 +192,7 @@ def.method("table").Start = function(self, quest_model)
         return
     end
 
-    print("CQuestAutoMan Start", self._QuestId, quest_model.Id, debug.traceback())
+    --print("CQuestAutoMan Start", self._QuestId, quest_model.Id, debug.traceback())
 
     -- 自动战斗功能未解锁 或者 当前场景不支持自动战斗，返回
     if not game._CFunctionMan:IsUnlockByFunID(EnumDef.EGuideTriggerFunTag.AutoFight) or game:IsCurMapForbidAutofight() then
@@ -199,11 +210,6 @@ def.method("table").Start = function(self, quest_model)
     end
 
     --print("CQuestAutoMan Start-3", self._IsOn)
-
-    -- 已开启
-    if self._IsOn and quest_model.Id == self._QuestId then
-        return
-    end
 
     local addEvent = not self._IsOn
 
@@ -262,7 +268,7 @@ def.method("table").Start = function(self, quest_model)
             end
         end)
 
-    print("CQuestAutoMan Start", self._QuestId)
+    --print("CQuestAutoMan Start", self._QuestId)
 end
 
 def.method("table", "=>", "boolean").IsQuestInAuto = function(self, questModel)
@@ -282,7 +288,7 @@ def.method("number").Pause = function(self, reasonMask)
     self._Paused = true
 
     if reasonMask ~= _G.PauseMask.SkillPerform then
-        print("CQuestAutoMan Pause", self._PauseMask, self._QuestId, debug.traceback())
+        --print("CQuestAutoMan Pause", self._PauseMask, self._QuestId, debug.traceback())
     end
 end
 
@@ -291,7 +297,7 @@ def.method("number").Restart = function(self, reasonMask)
     self._PauseMask = bit.band(self._PauseMask,  bit.bnot(reasonMask))
 
     if reasonMask ~= _G.PauseMask.SkillPerform then
-        print("CQuestAutoMan Restart", self._PauseMask, self._QuestId, debug.traceback())
+        --print("CQuestAutoMan Restart", self._PauseMask, self._QuestId, debug.traceback())
     end
     if self._PauseMask ~= 0 then return end
 
@@ -363,7 +369,7 @@ end
 
 -- 继续任务的下一步检查：
 def.method("number", "boolean").Try2Continue = function(self, quest_id, goToNextQuest)  
-    print("AutoQuest Try2Continue", self._IsOn, quest_id, self._QuestId, goToNextQuest)
+    --print("AutoQuest Try2Continue", self._IsOn, quest_id, self._QuestId, goToNextQuest)
     if not self._IsOn then
         return
     end
@@ -419,7 +425,7 @@ def.method("number", "boolean").Try2Continue = function(self, quest_id, goToNext
     self._QuestId = quest_id
 
     if self._Paused then
-        print("AutoQuest Try2Continue Failed, bcz it's Paused, PauseMask = ", self._PauseMask) 
+        --print("AutoQuest Try2Continue Failed, bcz it's Paused, PauseMask = ", self._PauseMask) 
         return 
     end
 
@@ -470,7 +476,7 @@ def.method().Stop = function(self)
     CGame.EventManager:removeHandler('BaseStateChangeEvent', OnBaseStateChangeEvent)
     CGame.EventManager:removeHandler('QuestWaitTimeFinish', OnQuestDataChange)
 
-    print("CQuestAutoMan Stop", debug.traceback())
+    --print("CQuestAutoMan Stop", debug.traceback())
 end
 
 def.method().Debug = function(self)

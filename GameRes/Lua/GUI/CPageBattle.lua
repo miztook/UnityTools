@@ -59,10 +59,14 @@ end
 local function UpdateAllRoleInfo(self,obj)
 	local data = game._CArenaMan._BattleHostData
 	local labFightScore_Data = obj:FindChild("Lab_FightScore_Data")
-	GUI.SetText(labFightScore_Data,tostring(data.FightScore))
+	GUI.SetText(labFightScore_Data,GUITools.FormatNumber(data.FightScore))
 	if game._CArenaMan._BattleHostData.Rank <= 0 then 
-		GUI.SetText(self._PanelObject._LabRank,StringTable.Get(20103))
+		self._PanelObject._LabRank:SetActive(false)
+		self._PanelObject._LabNoRank:SetActive(true)
+		GUI.SetText(self._PanelObject._LabNoRank,StringTable.Get(20103))
 	else
+		self._PanelObject._LabRank:SetActive(true)
+		self._PanelObject._LabNoRank:SetActive(false)
 		GUI.SetText(self._PanelObject._LabRank,tostring(game._CArenaMan._BattleHostData.Rank))
 	end
 	GUI.SetText(self._PanelObject._LabScore,tostring(game._CArenaMan._BattleHostData.EliminateScore))
@@ -186,6 +190,7 @@ def.method("string").Click = function(self, id)
 		local panelData = {
 								_RewardData = self._RewardList,
 								_MyRank = game._CArenaMan._BattleHostData.Rank,
+								_IsGuild = false,
 						  }
 		game._GUIMan:Open("CPanelRewardShow",panelData)
 	elseif  string.find(id, "Btn_ItemIcon") then 

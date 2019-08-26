@@ -13,6 +13,10 @@ local cfg = {
     List_Item2 = -1632601954,
     List_Item3 = -1632601953,
     Frame_MyReward = -2142414131,
+    View_Item4 = 435233127,
+    List_Item4 = -1632601952,
+    Lab_Title = 1202927846,
+    Lab_GuildTimeTip = -1818392371,
 }
  
 return cfg

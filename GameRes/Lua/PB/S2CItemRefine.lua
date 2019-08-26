@@ -4,9 +4,6 @@ local CGame = Lplus.ForwardDeclare("CGame")
 local ERROR_CODE = require "PB.data".ServerMessageEquip
 local EquipProcessingChangeEvent = require "Events.EquipProcessingChangeEvent"
 
-local function SendFlashMsg(msg, bUp)
-	game._GUIMan:ShowTipText(msg, bUp)
-end
 local function RaiseEquipProcessingChangeEvent()
 	local event = EquipProcessingChangeEvent()
     CGame.EventManager:raiseEvent(nil, event)
@@ -23,9 +20,9 @@ local function OnS2CItemRefine(sender,protocol)
 		itemData:SetRefineLevel(protocol.RefineLevel)
 
 		RaiseEquipProcessingChangeEvent()
-		SendFlashMsg(StringTable.Get(10957), false)
+		TeraFuncs.SendFlashMsg(StringTable.Get(10957), false)
 	elseif protocol.result == ERROR_CODE.ItemRefineFaild then
-		SendFlashMsg(StringTable.Get(10956), false)
+		TeraFuncs.SendFlashMsg(StringTable.Get(10956), false)
 		RaiseEquipProcessingChangeEvent()
 	end
 end

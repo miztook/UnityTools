@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD01.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn01_Rins01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[20410] = 
@@ -48,7 +49,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[192] = { x = -3.11, y = 54.21, z = -4.31, name = "BOSS区域", worldId = 0, PkMode = 0 },
+			[192] = { x = -3.11, y = 54.21, z = -4.31, name = "BOSS区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

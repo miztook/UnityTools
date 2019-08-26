@@ -365,6 +365,8 @@ do
 							isDurationService = true
 						end
 					end
+			elseif option.service_type == EnumDef.ServiceType.FrontLine then
+				CQuest.Instance():DoFrontLineInfo ( template.FrontLine.FrontLineId )
 			end
 
 			if not isDurationService then 
@@ -377,7 +379,7 @@ do
 
 	end
 
-	def.static().Clear = function ()
+	def.static().Stop = function ()
 		lookAtNpcEffectEnable = false
 	end
 end

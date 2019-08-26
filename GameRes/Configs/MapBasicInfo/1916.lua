@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/Map_Bg_019.png",
 	AssetPath = "Assets/Outputs/Scenes/World05.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13118] = 
@@ -50,8 +51,8 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[465] = { x = -172.91, y = 95.12, z = 340.35, name = "塔雷坤相关相位", worldId = 0, PkMode = 0 },
-			[466] = { x = -213.69, y = 95.01, z = 334.57, name = "抵达区域", worldId = 0, PkMode = 0 },
+			[465] = { x = -172.91, y = 95.12, z = 340.35, name = "塔雷坤相关相位", worldId = 0, PkMode = 1 },
+			[466] = { x = -213.69, y = 95.01, z = 334.57, name = "抵达区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

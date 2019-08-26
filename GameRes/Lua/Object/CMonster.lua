@@ -12,13 +12,14 @@ local CVisualEffectMan = require "Effects.CVisualEffectMan"
 local JudgementHitType = require "PB.Template".ExecutionUnit.ExecutionUnitEvent.EventJudgement.JudgementHitType
 local CGame = Lplus.ForwardDeclare("CGame")
 local OBJ_TYPE = require "Main.CSharpEnum".OBJ_TYPE
+local DebugTools = require "Main.DebugTools"
 
 local CMonster = Lplus.Extend(CNonPlayerCreature, "CMonster")
 local def = CMonster.define
 
 def.field("number")._DissolveDeathTimer = 0
 def.field("number")._ProgressCountMax = 1
-def.field("boolean")._IsHideTopPate = true		--force hide top pate after being born
+def.field("boolean")._IsTopPateShown = false
 
 def.static("=>", CMonster).new = function ()
 	local obj = CMonster()
@@ -59,8 +60,7 @@ def.override("=>","string").GetEntityColorName = function(self)
 end
 
 def.override().OnPateCreate = function(self)
-	--CNonPlayerCreature.OnPateCreate(self)
-	CEntity.OnPateCreate(self)
+	--CEntity.OnPateCreate(self)
 	if self._TopPate == nil then return end
 
 	self._TopPate:UpdateName(true)
@@ -69,16 +69,18 @@ def.override().OnPateCreate = function(self)
 		self._TopPate:OnTitleNameChange(true, titleStr)
 	end
 
-	self._IsHideTopPate = true
-
 	local percent = 0
 	if self._InfoData._MaxStamina > 0 then
 		percent = self._InfoData._CurrentStamina / self._InfoData._MaxStamina
 		self._TopPate:OnStaChange(percent)
 	end
 
+	self._IsTopPateShown = false
 	self:OnQuestStatusChange()
-	self._IsHideTopPate = false
+	if self._CurLogoType ~= EnumDef.EntityLogoType.Kill then
+		self:OnBattleTopChange((self._MonsterTemplate.MonsterQuality == EnumDef.MonsterQuality.BEHEMOTH or
+			self._MonsterTemplate.MonsterQuality == EnumDef.MonsterQuality.LEADER) or self:GetCurrentTargetId() == game._HostPlayer._ID)
+	end
 end
 
 def.override("table").SetDir = function (self, dir)
@@ -118,44 +120,25 @@ def.override("table", "number").ChangeDirContinued = function (self, dir, speed)
 end
 
 def.override("boolean").OnBattleTopChange = function(self, isShow)
-	--warn("OnBattleTopChange "..tostring(isShow))
+    -- warn("OnBattleTopChange "..tostring(isShow)..tostring(self:IsVisible())..","..debug.traceback())
 
-	if self._TopPate~=nil then
-		isShow = isShow and self:IsVisible()
+    if self._TopPate ~= nil then
+        isShow = isShow and self:IsVisible() and not self:IsDead()
 
-		if isShow and (not self._IsHideTopPate) then
-			self._TopPate:MarkAsValid(true)
-		end
+        --local is_first = not self._TopPate._IsContentValid
+        if isShow then
+            self._TopPate:MarkAsValid(true)
+        end
+        self._TopPate:SetVisible(isShow)
 
-		self._TopPate:SetVisible(isShow)
-
-		if isShow then
-			if self._TopPate == nil then return end
-
-			--[[
-			if self._MonsterTemplate.MonsterQuality == EnumDef.MonsterQuality.BEHEMOTH or
-			   self._MonsterTemplate.MonsterQuality == EnumDef.MonsterQuality.LEADER then
-				isShow = true
-			end
-
-			local CQuest = require "Quest.CQuest"
-			if CQuest.Instance():IsMyKillTarget(self:GetTemplateId()) then 
-				isShow = true
-			end
-			]]
-
-			if isShow then
-				self._TopPate:SetHPLineIsShow(true,EnumDef.HPColorType.Red)
-			else
-				self._TopPate:SetHPLineIsShow(false,EnumDef.HPColorType.None)
-			end
-			if self._InfoData._MaxStamina > 0 then
-    			self._TopPate:SetStaLineIsShow(isShow)
-			end
-			self._TopPate:UpdateName(isShow)
-			self._TopPate:OnTitleNameChange(isShow,self:GetTitle())
-		end
-	end
+        if isShow and not self._IsTopPateShown then
+            self._IsTopPateShown = true
+            self._TopPate:SetHPLineIsShow(true, EnumDef.HPColorType.Red)
+            self._TopPate:SetStaLineIsShow(self._InfoData._MaxStamina > 0)
+            self._TopPate:UpdateName(true)
+            self._TopPate:OnTitleNameChange(true, self:GetTitle())
+        end
+    end
 end
 
 def.override("=>", "string").GetModelPath = function (self)
@@ -193,29 +176,6 @@ def.override("=>", "number").GetTemplateId = function(self)
 	end
 end
 
--- 溶解结束
-local param = {r = 255, g = 225, b = 40, a = 255}
-def.method("number").OnDissolved = function(self, duration)
-	-- 保险
-	if self._DissolveDeathTimer ~= 0 then
-		self:RemoveTimer(self._DissolveDeathTimer)
-		self._DissolveDeathTimer = 0
-		warn("moster OnDissolved has a special situation")
-	end
-
-	-- 应需求写死
-	CVisualEffectMan.DissolveDie(self, duration, param.r, param.g, param.b) 
-	
-	self._DissolveDeathTimer = self:AddTimer(duration, true, function()
-        	if self:IsReleased() then return end
-			self._DissolveDeathTimer = 0
-			local model = self:GetCurModel()
-			if model and model._GameObject then
-				model._GameObject:SetActive(false)
-			end
-    	end)	
-end
-
 def.override("number").SetRadius = function(self, radius)
 	self._CollisionRadius = radius * self._MonsterTemplate.BodyScale
 
@@ -238,20 +198,21 @@ def.override("=>", "number").GetEntityBodyScale = function(self)
 end
 
 -- 溶解自己
-def.override("number").DissolveSelf = function(self, duration)
-	-- 没有死亡技能， 才处理
-	-- if self._MonsterTemplate and  self._MonsterTemplate.DeathSkillId ~= 0 then
-	-- 	return
-	-- end
+local param = {r = 255, g = 225, b = 40, a = 255}
+def.method("number").DoDissolve = function(self, dissolveEffectduration)
+	if self._DissolveDeathTimer > 0 then return end
 
-	-- call back
-	local function DissolveSelfCallback(self)
-		self._DissolveDeathTimer = 0
-		self:OnDissolved(duration)		
-	end
-	local last_time = self:GetAnimationLength(EnumDef.CLIP.COMMON_DIE) + 3
-	self._DissolveDeathTimer = self:AddTimer(last_time, true, function()
-        	DissolveSelfCallback(self)
+	local delayTime = self:GetAnimationLength(EnumDef.CLIP.COMMON_DIE) + 3
+	self._DissolveDeathTimer = self:AddTimer(delayTime, true, function()
+			CVisualEffectMan.DissolveDie(self, dissolveEffectduration, param.r, param.g, param.b) 
+			self._DissolveDeathTimer = self:AddTimer(dissolveEffectduration, true, function()
+		        	if self:IsReleased() then return end
+					self._DissolveDeathTimer = 0
+					local model = self:GetCurModel()
+					if model and model._GameObject then
+						model._GameObject:SetActive(false)
+					end
+		    	end)
     	end)	
 end
 
@@ -260,7 +221,7 @@ def.override().OnClick = function (self)
 
 	CNonPlayerCreature.OnClick(self)
 
-	if game._IsDebugMode then
+	if DebugTools.EnableEntityInfoDebug then
 		local C2SGetMonsterDebugInfo = require "PB.net".C2SGetMonsterDebugInfo
 		local protocol = C2SGetMonsterDebugInfo()
 		protocol.entityId = self._ID
@@ -371,12 +332,12 @@ def.override("number", "number", "number", "boolean").OnDie = function (self, ki
 	end
 
 	-- 延迟3 + ANIMATION 时间 做溶解销毁
-	self:DissolveSelf(3)
+	self:DoDissolve(3)
 	-- 怪物NPC死亡后 头部信息消失，
 	if self._TopPate ~= nil then
 		self._TopPate:SetVisible(false)
-		self._IsHideTopPate = true
 		self._TopPate:MarkAsValid(false)
+		--self._IsTopPateShown = false
 	end
 
 	local go = self:GetGameObject()
@@ -394,21 +355,14 @@ def.method("=>", "string").GetPropertyString = function(self)
     return StringTable.Get(1199)
 end
 
-def.override().OnQuestStatusChange = function (self)
-	if self._TopPate ~= nil then
-		local curLogoType = EnumDef.EntityLogoType.None
-		local CQuest = require "Quest.CQuest"
-		--warn("IsMyKillTarget", self:GetTemplateId(), CQuest.Instance():IsMyKillTarget(self:GetTemplateId()))
-
-		if CQuest.Instance():IsMyKillTarget(self:GetTemplateId()) then
-			curLogoType = EnumDef.EntityLogoType.Kill
-		end
-
-		if self._CurLogoType ~= curLogoType then
-	    		self._TopPate:OnLogoChange(curLogoType)
-	    		self:OnBattleTopChange(true)
-		end
-	end
+def.override().OnQuestStatusChange = function(self)
+    if self._TopPate ~= nil then
+        local CQuest = require "Quest.CQuest"
+        if CQuest.Instance():IsMyKillTarget(self:GetTemplateId()) and self._CurLogoType ~= EnumDef.EntityLogoType.Kill then
+            self:OnBattleTopChange(true)
+            self._TopPate:OnLogoChange(EnumDef.EntityLogoType.Kill)
+        end
+    end
 end
 
 def.override("boolean", "number", "number", "number", "table").UpdateState = function(self, add, state_id, duration, originId, info)
@@ -522,7 +476,7 @@ def.override("=>", "string").GetRelationWithHost = function(self)  -- 仇恨列�
 end
 
 def.override().Release = function (self)
-	--warn("CMonster Release " .. self._ID)	
+	--warn(self._ID, "CMonster Release ")	
 	if self._DissolveDeathTimer ~= 0 then
 		self:RemoveTimer(self._DissolveDeathTimer)
 		self._DissolveDeathTimer = 0		

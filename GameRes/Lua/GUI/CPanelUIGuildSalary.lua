@@ -133,7 +133,7 @@ def.method("table").ShowBtnDraw = function(self, data)
 		else
 			local count = #msg.Items + 1
 			msg.Items[count] = {}
-			msg.Items[count].ItemId = v.Data.Id
+			msg.Items[count].Tid = v.Data.Id
 			msg.Items[count].Count = v.Data.Count
 		end
 	end

@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/Map_Bg_Start.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn00_EmpireRelicPrologue.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[283] = 
@@ -129,16 +130,16 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[334] = { x = 1.57, y = 68.26, z = -63.85, name = "摇杆教学", worldId = 0, PkMode = 0 },
-			[335] = { x = 1.78, y = 68.58, z = -48.98, name = "自动移动教学", worldId = 0, PkMode = 0 },
-			[338] = { x = 1.57, y = 68.21, z = 15.60, name = "平台区域", worldId = 0, PkMode = 0 },
-			[339] = { x = 1.76, y = 70.46, z = 177.98, name = "裂隙中心", worldId = 0, PkMode = 0 },
-			[340] = { x = 1.77, y = 68.26, z = -77.11, name = "遥感教学触发区域", worldId = 0, PkMode = 0 },
-			[341] = { x = 0.72, y = 71.02, z = 72.41, name = "巨龙CG触发", worldId = 0, PkMode = 0 },
-			[342] = { x = 1.64, y = 82.74, z = 115.09, name = "BOSS区域", worldId = 0, PkMode = 0 },
-			[343] = { x = 1.86, y = 66.26, z = -38.65, name = "断桥中触发区域", worldId = 0, PkMode = 0 },
-			[344] = { x = 1.59, y = 71.02, z = 115.10, name = "巨龙平台Boss战区域", worldId = 0, PkMode = 0, CameraDistance = 15 },
-			[345] = { x = 1.88, y = 71.02, z = 115.24, name = "教学6回调区域", worldId = 0, PkMode = 0 },
+			[334] = { x = 1.57, y = 68.26, z = -63.85, name = "摇杆教学", worldId = 0, PkMode = 1 },
+			[335] = { x = 1.78, y = 68.58, z = -48.98, name = "自动移动教学", worldId = 0, PkMode = 1 },
+			[338] = { x = 1.57, y = 68.21, z = 15.60, name = "平台区域", worldId = 0, PkMode = 1 },
+			[339] = { x = 1.76, y = 70.46, z = 177.98, name = "裂隙中心", worldId = 0, PkMode = 1 },
+			[340] = { x = 1.77, y = 68.26, z = -77.11, name = "遥感教学触发区域", worldId = 0, PkMode = 1 },
+			[341] = { x = 0.72, y = 71.02, z = 72.41, name = "巨龙CG触发", worldId = 0, PkMode = 1 },
+			[342] = { x = 1.64, y = 82.74, z = 115.09, name = "BOSS区域", worldId = 0, PkMode = 1 },
+			[343] = { x = 1.86, y = 66.26, z = -38.65, name = "断桥中触发区域", worldId = 0, PkMode = 1 },
+			[344] = { x = 1.59, y = 71.02, z = 115.10, name = "巨龙平台Boss战区域", worldId = 0, PkMode = 1, CameraDistance = 15 },
+			[345] = { x = 1.88, y = 71.02, z = 115.24, name = "教学6回调区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

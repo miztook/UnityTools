@@ -81,7 +81,7 @@ def.method().UpdateCustomImg = function(self)
             -- warn("lidaming : Review or HaveSet!!!")
             
 
-            game:SetEntityCustomImg(self._ImgHead,hp._ID,hp._InfoData._CustomImgSet,hp._InfoData._Gender,hp._InfoData._Prof)
+            TeraFuncs.SetEntityCustomImg(self._ImgHead,hp._ID,hp._InfoData._CustomImgSet,hp._InfoData._Gender,hp._InfoData._Prof)
 			-- --获取自定义头像
 			-- local entityImgPath = ""
             -- -- GUITools.SetHeadIconfromImageFile(imgObj, entityImgPath)			

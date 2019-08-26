@@ -7,7 +7,6 @@ local def = CPanelUILegendLibrary.define
 
 def.field("table")._ItemData = nil
 def.field("table")._ObjectList = BlankTable
-def.field('table')._LegendaryInfoList = BlankTable
 
 local TextType = ClassType.Text
 local RectTransform = ClassType.RectTransform
@@ -39,17 +38,15 @@ end
 def.method().InitItem = function(self)
 	local nameStr = string.format(StringTable.Get(10986), self._ItemData:GetNameText())
 	GUI.SetText(self:GetUIObject("Lab_Title") ,RichTextTools.GetQualityText(nameStr, self._ItemData:GetQuality()))
-	local legendLibrary = CElementData.GetLegendaryGroupInfoById( self._ItemData._LegendaryGroupId )
-	self._LegendaryInfoList = {}
-	for k,v in pairs(legendLibrary) do
-		table.insert(self._LegendaryInfoList, v)
-	end
+	local egendaryInfoList = CElementData.GetLegendaryGroupInfoById( self._ItemData._LegendaryGroupId )
 
-	for i=1, #self._LegendaryInfoList do
-		local legendInfo = self._LegendaryInfoList[i]
-		local item = self:GetLegendaryItem(i)
-
-		self:SetItem(item, legendInfo)
+	local index = 1
+	for k,v in pairs(egendaryInfoList) do
+		if v ~= nil then
+			local item = self:GetLegendaryItem(index)
+			self:SetItem(item, v)
+			index = index + 1
+		end
 	end
 end
 
@@ -83,7 +80,6 @@ def.override().OnHide = function(self)
     CPanelBase.OnHide(self)
     self._ItemData = nil
 	self._ObjectList = nil
-	self._LegendaryInfoList = nil
 end
 
 CPanelUILegendLibrary.Commit()

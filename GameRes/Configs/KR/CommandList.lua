@@ -16,7 +16,7 @@ end
 -- TO DO : 1、角色,单位 2、物品 3、生成器 4、调试 5、任务 6、地图 7、掉落 8、公会、CG相关  9、副本
 CommandList:AddCommandInfo()
 {
-	name = "레벨업",
+	name = "레벨 업",
 	cmd = "c 22 0 ",
 	desc = "C 22 0 레벨 (마이너스는 레벨 하락 표시)",
 	type = 1,
@@ -64,7 +64,7 @@ CommandList:AddCommandInfo()
 
 CommandList:AddCommandInfo()
 {
-	name = "귀속다이아 증감",
+	name = "귀속 다이아 증감",
 	cmd = "c 23 3 ", 
 	desc = "C 23 3 수량",
 	type = 2,
@@ -112,17 +112,17 @@ CommandList:AddCommandInfo()
 
 CommandList:AddCommandInfo()
 {
-	name = "채집가능 아이템",
+	name = "채집 가능 아이템",
 	cmd = "c 3 ", 
-	desc = "C 3 채집가능 유닛ID 수",
+	desc = "C 3 채집 가능 유닛ID 수",
 	type = 1,
 }
 
 CommandList:AddCommandInfo()
 {
-	name = "탈 것",
+	name = "탈것",
 	cmd = "c 100 ", 
-	desc = "C 100 탈 것 유닛ID 수",
+	desc = "C 100 탈것 유닛ID 수",
 	type = 1,
 }
 
@@ -248,7 +248,7 @@ CommandList:AddCommandInfo()
 
 CommandList:AddCommandInfo()
 {
-	name = "播放BGM",
+	name = "BGM 출력",
 	cmd = "playbgm ", 
 	desc = "playbgm <name>",
 	type = 4,
@@ -290,7 +290,7 @@ CommandList:AddCommandInfo()
 {
 	name = "게임 계수",
 	cmd = "stats ", 
-	desc = "stats (1-7) 0/1 1열기, 0닫기",
+	desc = "stats (1 - 7) 0/1 1열기, 0닫기",
 	type = 4,
 }
 
@@ -298,7 +298,7 @@ CommandList:AddCommandInfo()
 {
 	name = "게임 성능 디버그",
 	cmd = "perfs ", 
-	desc = "perfs (1-4) 0/1 1열기, 0닫기",
+	desc = "perfs (1 - 4) 0/1 1열기, 0닫기",
 	type = 4,
 }
 
@@ -312,9 +312,9 @@ CommandList:AddCommandInfo()
 
 CommandList:AddCommandInfo()
 {
-	name = "서버 디버그모드",
+	name = "서버 디버그 모드",
 	cmd = "C 400 ", 
-	desc = "c 400 오프라인시간 간격",
+	desc = "c 400 오프라인 시간 간격",
 	type = 4,
 }
 
@@ -465,7 +465,7 @@ CommandList:AddCommandInfo()
 
 CommandList:AddCommandInfo()
 {
-	name = "이동속도 조정",
+	name = "이동 속도 조정",
 	cmd = "c 71 ", 
 	desc = "c 71 속도",
 	type = 6,
@@ -489,25 +489,25 @@ CommandList:AddCommandInfo()
 
 CommandList:AddCommandInfo()
 {
-	name = "드랍",
+	name = "드롭",
 	cmd = "c 66 ", 
-	desc = "C 66 몬스터 ID 몬스터 수량, 몬스터 수는 해당 몬스터의 드랍 횟수를 의미",
+	desc = "C 66 몬스터 ID 몬스터 수량, 몬스터 수는 해당 몬스터의 드롭 횟수를 의미",
 	type = 7,
 }
 
 CommandList:AddCommandInfo()
 {
-	name = "드랍 보기",
+	name = "드롭 보기",
 	cmd = "c 66 666 666", 
-	desc = "서버 드랍 아이템 생성, 삭제, 줍기 수량 표시",
+	desc = "서버 드롭 아이템 생성, 삭제, 줍기 수량 표시",
 	type = 7,
 }
 
 CommandList:AddCommandInfo()
 {
-	name = "드랍 삭제",
+	name = "드롭 삭제",
 	cmd = "c 66 777 777", 
-	desc = "본인 드랍 삭제",
+	desc = "본인 드롭 삭제",
 	type = 7,
 }
 
@@ -523,7 +523,7 @@ CommandList:AddCommandInfo()
 {
 	name = "통계 데이터 표시",
 	cmd = "c 66 -999 ", 
-	desc = "c 66 - 999 몬스터 ID 통계 데이터 보이기 몬스터 처치 횟수 및 드랍 통계 데이터",
+	desc = "c 66 - 999 몬스터 ID 통계 데이터 보이기 몬스터 처치 횟수 및 드롭 통계 데이터",
 	type = 7,
 }
 
@@ -547,13 +547,13 @@ CommandList:AddCommandInfo()
 {
 	name = "인벤토리 전체오픈",
 	cmd = "c 358", 
-	desc = "c 358 인벤토리 전체오픈",
+	desc = "c 358 인벤토리 전체 오픈",
 	type = 8,
 }
 
 CommandList:AddCommandInfo()
 {
-	name = "길드기지",
+	name = "길드 기지",
 	cmd = "c 110", 
 	desc = "c 110 길드 기지",
 	type = 8,

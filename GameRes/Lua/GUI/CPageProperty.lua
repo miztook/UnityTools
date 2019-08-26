@@ -79,7 +79,7 @@ end
 def.method().UpdateCustomHead = function(self)
 	--设置头像
 	local hp = game._HostPlayer
-	game: SetEntityCustomImg(self._PanelObject._ImgHead,hp._ID,hp._InfoData._CustomImgSet,hp._InfoData._Gender,hp._InfoData._Prof)
+	TeraFuncs.SetEntityCustomImg(self._PanelObject._ImgHead,hp._ID,hp._InfoData._CustomImgSet,hp._InfoData._Gender,hp._InfoData._Prof)
 end
 
 def.method().UpdateExp = function(self)

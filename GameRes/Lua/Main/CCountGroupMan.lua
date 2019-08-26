@@ -3,11 +3,12 @@
 --------------------------------------------
 
 local Lplus = require "Lplus"
-local CCountGroupMan = Lplus.Class("CCountGroupMan")
-local def = CCountGroupMan.define
 local CElementData = require "Data.CElementData"
 local PBHelper = require "Network.PBHelper"
 local CGame = Lplus.ForwardDeclare("CGame")
+
+local CCountGroupMan = Lplus.Class("CCountGroupMan")
+local def = CCountGroupMan.define
 
 def.field("table")._CountGroupData = BlankTable -- 获取到所有次数组数据
 
@@ -15,7 +16,6 @@ def.static("=>", CCountGroupMan).new = function()
     local obj = CCountGroupMan()
 	return obj
 end
-
 
 -- 次数组购买接口。
 def.method("number", "number").BuyCountGroup = function (self, CurNum, CountGroupId)
@@ -230,6 +230,35 @@ def.method("number" , "=>", "table").MoneyInfoByCountGroupId = function (self, C
 		param.MoneyCount = countGroup.CostMoneyCount + (BuyCount * countGroup.CostInc)
 	end
 	return param
+end
+
+-- 返回使用次数
+def.method("number", "=>", "number").OnCurUseCount = function (self, CountGroupId)
+	local UsedCount = 0
+	if CountGroupId ~= nil then
+		if self._CountGroupData ~= nil then
+			for i,v in pairs(self._CountGroupData) do
+				if v.Tid == CountGroupId then 
+					UsedCount = v.Count
+				end 
+			end
+		end
+	end
+	return UsedCount
+end
+
+
+-- 次数组次数修改(消耗的次数)
+def.method("number", "number").OnCountGroupChange = function (self, CountGroupId, count)
+	if CountGroupId ~= nil then
+		if self._CountGroupData ~= nil then
+			for i,v in pairs(self._CountGroupData) do
+				if v.Tid == CountGroupId then 
+					v.Count = v.Count - count
+				end 
+			end
+		end
+	end
 end
 
 def.method().Release = function (self)

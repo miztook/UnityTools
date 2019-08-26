@@ -9,10 +9,6 @@ def.field("number")._MaxSize = 0 	--服务器下发 最大格子数量
 def.field("table")._UnlockCellPriceInfo = BlankTable  --解锁价格信息
 def.field("number")._TotalFightScore = 0
 
-local function SendFlashMsg(msg)
-    game._GUIMan:ShowTipText(msg, false)
-end
-
 def.static("=>", CPetPackage).new = function ()
 	local obj = CPetPackage()
 	return obj
@@ -119,7 +115,7 @@ def.method("boolean", "dynamic").UpdatePetList = function (self, bIsAdd, param)
 		local pet = CPetClass.new()
 		pet:Init(param)
 		--弹出获取提示
-		SendFlashMsg( string.format(StringTable.Get(19107), pet:GetName()), false)
+		TeraFuncs.SendFlashMsg( string.format(StringTable.Get(19107), pet:GetName()), false)
 		table.insert(self._ItemSet, pet)
 	else
 		local index = nil

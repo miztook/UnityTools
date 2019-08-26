@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Foerst",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10107] = 
@@ -44,7 +45,7 @@ local MapInfo =
 		},
 		[10111] = 
 		{
-			[1] = { x = -114.00, y = 63.12, z = 214.00, name = "장교 구자르", level = 8, SortID = 21 },
+			[1] = { x = -114.00, y = 63.12, z = 214.00, name = "백부장 구자르", level = 8, SortID = 21 },
 		},
 		[10112] = 
 		{
@@ -96,11 +97,11 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[281] = { x = -106.69, y = 66.64, z = 177.94, name = "相位生效区", worldId = 0, PkMode = 0 },
-			[282] = { x = -85.69, y = 61.47, z = 154.58, name = "伐木场外围1", worldId = 0, PkMode = 0 },
-			[287] = { x = -110.64, y = 62.58, z = 182.09, name = "伐木场外围2", worldId = 0, PkMode = 0 },
-			[284] = { x = -112.23, y = 62.56, z = 201.02, name = "1", worldId = 0, PkMode = 0 },
-			[285] = { x = -119.02, y = 62.60, z = 175.13, name = "离开伐木场", worldId = 0, PkMode = 0 },
+			[281] = { x = -106.69, y = 66.64, z = 177.94, name = "相位生效区", worldId = 0, PkMode = 1 },
+			[282] = { x = -85.69, y = 61.47, z = 154.58, name = "伐木场外围1", worldId = 0, PkMode = 1 },
+			[287] = { x = -110.64, y = 62.58, z = 182.09, name = "伐木场外围2", worldId = 0, PkMode = 1 },
+			[284] = { x = -112.23, y = 62.56, z = 201.02, name = "1", worldId = 0, PkMode = 1 },
+			[285] = { x = -119.02, y = 62.60, z = 175.13, name = "离开伐木场", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

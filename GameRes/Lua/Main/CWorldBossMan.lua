@@ -12,8 +12,9 @@ local CGame = Lplus.ForwardDeclare("CGame")
 local OperatorType = require "PB.net".S2CWorldBossState.OperatorType
 local MapBasicConfig = require "Data.MapBasicConfig"
 
-def.field("table")._Table_WorldBoss = BlankTable
-def.field("table")._Table_EliteBoss = BlankTable
+def.field("table")._Table_WorldBoss = nil
+def.field("table")._Table_EliteBoss = nil
+def.field("table")._Table_WorldBossLineState = nil  -- 世界boss分线状态
 def.field("number")._WorldBossDropCount = -1
 def.field("boolean")._WorldBossRedPointmark = true
 
@@ -32,10 +33,21 @@ local BossState =
     DEATH	= 3, -- Boss死亡
 }
 
+local function sort_func_by_sortindex(a, b)
+    if a._LineId ~= b._LineId then
+        -- 根据解锁等级从小到大
+        return a._LineId < b._LineId
+    end
+    return a._BossTID < b._BossTID
+end
+
 --加载所有世界boss数据
-def.method().LoadAllWorldBossData = function(self)
-	local allWorldBoss = GameUtil.GetAllTid("WorldBossConfig")
+def.method().Init = function(self)
+    if self._Table_WorldBoss ~= nil then return end
+     
+	local allWorldBoss = CElementData.GetAllTid("WorldBossConfig")
     self._Table_WorldBoss = {}
+    self._Table_WorldBossLineState = {}
     for _,v in pairs(allWorldBoss) do
         if v > 0 then
             local WorldBossData = CElementData.GetTemplate("WorldBossConfig", v)      
@@ -52,14 +64,15 @@ def.method().LoadAllWorldBossData = function(self)
                     _IsDeath = true, --Boss是否死亡
                     _GuildName = "",
                     _RoleName = "",
-                }				
+                    _LineId = 0,
+                }
             else
                 warn("世界Boss数据错误ID："..v)
             end	
         end
     end
 
-    local allEliteBoss = GameUtil.GetAllTid("EliteBossConfig")
+    local allEliteBoss = CElementData.GetAllTid("EliteBossConfig")
     self._Table_EliteBoss = {}
     for _,v in pairs(allEliteBoss) do
         if v > 0 then
@@ -109,19 +122,47 @@ end
 
 --更新世界Boss数据
 def.method("table").ChangeWorldBossState = function(self, msg)
-	if msg == nil then return end
+    if msg == nil then return end
+
+    for _,k in pairs(msg.data) do
+        if k.BossTId ~= nil and k.LineId ~= nil then
+            if #self._Table_WorldBossLineState <= 0 then
+                self._Table_WorldBossLineState[#self._Table_WorldBossLineState + 1] = 
+                {
+                    _BossTID = k.BossTId,
+                    _LineId = k.LineId,
+                    _IsDeath = k.IsDeath,
+                }
+            else
+                local isAdd = true
+                for _,LineBossState in pairs(self._Table_WorldBossLineState) do
+                    if LineBossState._BossTID == k.BossTId and LineBossState._LineId == k.LineId then
+                        LineBossState._IsDeath = k.IsDeath
+                        isAdd = false
+                    end
+                end
+                if isAdd then
+                    self._Table_WorldBossLineState[#self._Table_WorldBossLineState + 1] = 
+                    {
+                        _BossTID = k.BossTId,
+                        _LineId = k.LineId,
+                        _IsDeath = k.IsDeath,
+                    }
+                end
+            end
+        end
+    end
+
+
 	for _,v in pairs(self._Table_WorldBoss) do
 		for _,k in pairs(msg.data) do
-			if v._Data.Id == k.ActivityId then              
-                v._BossID = k.BossTId
+            if v._Data.Id == k.ActivityId then
 				v._OpenTime = k.OpenTime	
                 v._CloseTime = k.CloseTime
                 v._NextOpenTime = k.NextOpenTime
-                v._IsDeath = k.IsDeath
                 v._Reason = msg.OptType
                 v._GuildName = msg.GuildName	
                 v._RoleName = msg.RoleName	
-                	
 				if v._Reason == OperatorType.Open then
                     v._Isopen = true 
                 elseif v._Reason == OperatorType.Close then
@@ -137,7 +178,7 @@ def.method("table").ChangeWorldBossState = function(self, msg)
                         if lastShotEntity == nil then
                             lastShotEntity = strName
                         end
-                        ChatMsg = string.format(StringTable.Get(21013), v._Data.Name, strName, lastShotEntity)
+                        ChatMsg = string.format(StringTable.Get(21013), tostring(k.LineId), v._Data.Name, strName, lastShotEntity)
                         
                     else
                         -- 13015 公会
@@ -148,7 +189,7 @@ def.method("table").ChangeWorldBossState = function(self, msg)
                         if lastShotEntity == nil then
                             lastShotEntity = GuildName
                         end
-                        ChatMsg = string.format(StringTable.Get(21013), v._Data.Name, GuildName, msg.LastShotEntityName)
+                        ChatMsg = string.format(StringTable.Get(21013), tostring(k.LineId), v._Data.Name, GuildName, msg.LastShotEntityName)
                     end
 
                     if ChatMsg ~= "" then
@@ -168,6 +209,22 @@ def.method("table").ChangeWorldBossState = function(self, msg)
 			end
 		end
     end
+
+    table.sort(self._Table_WorldBossLineState, sort_func_by_sortindex)
+
+    for _,v in pairs(self._Table_WorldBoss) do
+        v._IsDeath = true
+        for _,k in pairs(self._Table_WorldBossLineState) do
+            if v._Data.WorldBossTid == k._BossTID then
+                v._BossID = k._BossTID
+                v._IsDeath = k._IsDeath and v._IsDeath
+                if not k._IsDeath then
+                    v._LineId = k._LineId
+                end
+            end
+        end
+    end
+
     self:UpdateBossRedPoint()
 end
 
@@ -191,13 +248,11 @@ def.method("table").ChangeEliteBossKillState = function(self, msg)
     self:UpdateBossRedPoint()
 end
 
-
 def.method("table").ChangeEliteBossMapState = function(self, msg)
     if msg == nil then return end
     for _,v in pairs(self._Table_EliteBoss) do
 		for _,k in pairs(msg.EliteBossInfoList) do
-			if v._Data.EliteBossTid == k.BossTid then   
-                -- warn("S2CEliteBossMapStateInfo k.BossTId == ", k.BossTid, k.IsDeath)             
+			if v._Data.EliteBossTid == k.BossTid then            
                 v._BossID = k.BossTid
 				v._IsDeath = k.IsDeath                
 			end
@@ -222,15 +277,34 @@ def.method("=>","table").GetAllWorldBossContents = function(self)
 	return self._Table_WorldBoss
 end
 
---通过bossID获取对应boss状态
-def.method("number","=>","table").GetWorldBossByID = function(self, nID)
+--通过bossID, 和当前线路获取对应boss状态
+def.method("number","number","=>", "boolean", "table").GetWorldBossByID = function(self, lineID, nID)
     for _,v in pairs(self._Table_WorldBoss) do
-        -- warn("vvvvvvvvvvvvvvvvvvvvvv._BossID ===>>>", v._BossID)
-		if v._Data.WorldBossTid == nID then
-            return v 
+        if v._BossID == nID then
+            return true, v._Data
+        end
+    end
+	return false, nil
+end
+
+--通过bossID, 和当前线路获取对应boss状态
+def.method("number","number","=>", "boolean").GetWorldBossByLineAndID = function(self, lineID, nID)
+    for _,v in pairs(self._Table_WorldBossLineState) do
+        if v._LineId == lineID and v._BossTID == nID then
+            return v._IsDeath
         end
 	end
-	return nil
+	return true
+end
+
+--通过bossID, 和当前线路获取对应boss活着的线路
+def.method("number","number","=>", "number").GetLineByCurLineAndID = function(self, lineID, nID)
+    for _,v in pairs(self._Table_WorldBossLineState) do
+        if v._LineId ~= lineID and v._BossTID == nID and not v._IsDeath then
+            return v._LineId
+        end
+	end
+	return 0
 end
 
 --获取世界Boss是否有开启
@@ -321,6 +395,13 @@ def.method().UpdateBossRedPoint = function(self)
   
 end
 
+def.method().Cleanup = function(self)
+    self._Table_WorldBoss = nil
+    self._Table_EliteBoss = nil
+    self._WorldBossDropCount = -1
+    self._WorldBossRedPointmark = true
+    self._WorldBossNextOpenTime = -1
+end
 
 CWorldBossMan.Commit()
 return CWorldBossMan

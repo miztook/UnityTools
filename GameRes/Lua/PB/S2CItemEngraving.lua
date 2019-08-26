@@ -5,9 +5,7 @@ local CGame = Lplus.ForwardDeclare("CGame")
 local EquipProcessingChangeEvent = require "Events.EquipProcessingChangeEvent"
 local CPanelRoleInfo = require "GUI.CPanelRoleInfo"
 
-local function SendFlashMsg(msg, bUp)
-	game._GUIMan:ShowTipText(msg, bUp)
-end
+
 local function RaiseEquipProcessingChangeEvent(id,index)
 	local event = EquipProcessingChangeEvent()
 	event._Type = EnumDef.UIEquipPageState.PageEngrave
@@ -46,9 +44,7 @@ end
 -- 			itemData:SetEngravingValues(protocol.EngravingValues)
 
 -- 			RaiseEquipProcessingChangeEvent()
--- 			SendFlashMsg(StringTable.Get(10955), false)
 -- 		elseif protocol.result == ERROR_CODE.ItemEngravingFaild then
--- 			SendFlashMsg(StringTable.Get(10954), false)
 -- 			RaiseEquipProcessingChangeEvent()
 -- 		end
 -- 	end
@@ -72,7 +68,6 @@ end
 -- 			itemData:ResetEngravingValues()
 
 -- 			RaiseEquipProcessingChangeEvent()
--- 			SendFlashMsg(StringTable.Get(10953), false)
 -- 			if protocol.RoleId == game._HostPlayer._ID  then 
 -- 				CPanelRoleInfo.Instance():UpdateWeaponFx()
 -- 			end

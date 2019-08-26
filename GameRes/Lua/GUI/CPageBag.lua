@@ -73,7 +73,7 @@ local OnUseItemEvent = function(sender, event)
  	if instance ~= nil then
 		instance:UpdateBagItem(event)
  	end
-end
+end   
 
 local OnCloseTipsEvent = function(sender, event)
 	if instance ~= nil and instance._Panel ~= nil then
@@ -111,6 +111,20 @@ local function IsConsumableType(self,itemType)
 		end
 	end
 	return false
+end
+
+local function IsAutoDecompose(self,itemType)
+	local BanAutoDecomType = {}
+	local types = string.split(CSpecialIdMan.Get("BanAutoDecomposeItemType"),"*")
+	for _,v in ipairs(types) do
+		table.insert(BanAutoDecomType,tonumber(v))
+	end
+	for _,typeValue in ipairs(BanAutoDecomType) do 
+		if typeValue == itemType then 
+			return false
+		end
+	end
+	return true
 end
 
 local function InitCurRdoType(self,itemId)
@@ -295,7 +309,7 @@ local function CreateDecomposeFx(self)
 	for i,item in ipairs(self._DecomposeItemObjList) do
     	if item ~= nil then
 	   		local fxObjBg = item:FindChild("ItemIconNew/Frame_ItemIcon")
-	    	GameUtil.PlayUISfx(PATH.UIFx_DecompseBg,fxObjBg,fxObjBg,-1)
+	    	GameUtil.PlayUISfxClipped(PATH.UIFx_DecompseBg, fxObjBg,fxObjBg,self._PanelObject._StroageMask)
 	    end
 	end
 end
@@ -432,11 +446,16 @@ def.method().InitStorage = function(self)
 	end
 	local priceStr = CElementData.GetTemplate("SpecialId", 326).Value
 	self._UnLockPrice = string.split(priceStr, "*")
+	local imgStroageIcon  = self._PanelObject._BtnStorage:FindChild("Img_Icon")
+	GUITools.SetGroupImg(imgStroageIcon,0)
+	local vipId = tonumber(CElementData.GetSpecialIdTemplate(651).Value)
+	if game._HostPlayer:GetGloryLevel() < vipId then 
+		GUITools.SetGroupImg(imgStroageIcon,1)
+	end
 	if not self._IsOpenStorage then 
 		self._PanelObject._Frame_Storage:SetActive(false)
 		self._PanelObject._FrameButtons:SetActive(true)
 	else
-		local vipId = tonumber(CElementData.GetSpecialIdTemplate(651).Value)
 		if game._HostPlayer:GetGloryLevel() < vipId then 
 			local gloryemplate = CElementData.GetTemplate('GloryLevel', vipId)
 			if gloryemplate == nil then  return end
@@ -446,6 +465,7 @@ def.method().InitStorage = function(self)
 		self:OpenStorage()
 	end
 end
+
 
 def.method().OpenStorage = function (self)
 	self._CurStoragePage = 1
@@ -522,6 +542,7 @@ def.method().UnlockStoragePage = function (self)
 			toggleObj:GetComponent(ClassType.Toggle).isOn = false
 			toggleObj:FindChild("Img_D"):SetActive(false)
 		else
+			CSoundMan.Instance():Play2DAudio(PATH.GUISound_Storage_Unlock, 0)
 			GameUtil.PlayUISfx(PATH.UIFX_jiesuo,toggleObj,toggleObj,-1)
 			toggleObj:GetComponent(ClassType.Toggle).isOn = true
 			toggleObj:FindChild("Img_D"):SetActive(true)			
@@ -576,6 +597,11 @@ def.method("userdata","string", "number","table").OnInitNormalItem = function(se
 		if id == "List_Item4" and itemData._DecomposeNum ~= 0 then 
 			number = itemData._DecomposeNum
 		end
+		local count = game._CCountGroupMan:OnCurUseCount(itemData._Template.ItemUseCountGroupId)
+		local isActivated = false
+		if count > 0 then 
+			isActivated = true
+		end
 		local icon_setting = {
 		            [EItemIconTag.Bind] = itemData:IsBind(),
 					[EItemIconTag.Number] = number,
@@ -583,6 +609,7 @@ def.method("userdata","string", "number","table").OnInitNormalItem = function(se
 					[EItemIconTag.ArrowUp] = false,
 					[EItemIconTag.Time] = itemData._SellCoolDownExpired ~= 0,
 					[EItemIconTag.Grade] = -1,
+					[EItemIconTag.Activated] = isActivated,
 		        }
 		IconTools.InitItemIconNew(frame_item_icon, itemData._Tid, icon_setting, EItemLimitCheck.AllCheck)
 		-- IconTools.SetLimit(item, itemData._Tid, EItemLimitCheck.AllCheck)
@@ -990,12 +1017,12 @@ local function FilterPart(self,itemData)
 				break
 			end
 		elseif v == CPanelDecomposeFilter.FilterPart.Consumables then 
-			if IsConsumableType(self,itemData._ItemType) then 
+			if IsConsumableType(self,itemData._ItemType) and IsAutoDecompose(self,itemData._ItemType) then 
 				table.insert(self._ChooseDecomItems,itemData)
 				break
 			end
 		elseif v == CPanelDecomposeFilter.FilterPart.Else then 
-			if not itemData:IsEquip() and not IsConsumableType(self,itemData._ItemType) and not itemData:IsCharm() then  
+			if IsAutoDecompose(self,itemData._ItemType) and not itemData:IsEquip() and not IsConsumableType(self,itemData._ItemType) and not itemData:IsCharm() then  
 				table.insert(self._ChooseDecomItems,itemData)
 				break
 			end
@@ -1007,9 +1034,8 @@ local function FilterQuality(self,itemData)
 	if #self._CurSelectQualitys == 0 then return end
 	for i,v in ipairs(self._CurSelectQualitys) do
 		if itemData._Quality == v - 1 then 
-			if not itemData:IsEquip() or (itemData:IsEquip() and itemData._InforceLevel == 0) then 
+			if IsAutoDecompose(self,itemData._ItemType) and not itemData:IsEquip() or (itemData:IsEquip() and itemData._InforceLevel == 0)then 
 				table.insert(self._ChooseDecomItems,itemData)
-
 				break
 			end
 		end
@@ -1022,7 +1048,7 @@ local function FilterDecomposeItems(self,itemList)
 
 	if self._IsSelectAll then 
 		for i,v in ipairs(itemList) do
-			if not v:IsEquip() or (v:IsEquip() and v._InforceLevel == 0) then
+			if (not v:IsEquip() or (v:IsEquip() and v._InforceLevel == 0)) and IsAutoDecompose(self,v._ItemType) then
 				table.insert(self._ChooseDecomItems,v)
 			end
 		end
@@ -1051,7 +1077,7 @@ local function FilterDecomposeItems(self,itemList)
 	for i,data in ipairs(self._ChooseDecomItems) do 
 		for j,filterQuality in ipairs(self._CurSelectQualitys) do 
 			if data._Quality == filterQuality - 1 then 
-				if not data:IsEquip() or (data:IsEquip() and data._InforceLevel == 0) then
+				if (not data:IsEquip() or (data:IsEquip() and data._InforceLevel == 0)) and IsAutoDecompose(self,data._ItemType) then
 					table.insert(items,data)
 					break
 				end
@@ -1128,16 +1154,19 @@ def.method("number","number","userdata").AddOrDeletChooseItemSets = function (se
 	-- local dt_selected = imgSelect:FindChild("Img_SelectedAnim")
     if not isAdd then
     	-- imgSelect:SetActive(false)
+		CSoundMan.Instance():Play2DAudio(PATH.GUISound_UnEquipProcessing, 0)
     	IconTools.SetFrameIconTags(frame_item_icon, { [EFrameIconTag.Check] = false })
     	UpdateDecomposeBag(self)
    	else 
 		local itemData = self._ItemSet[self._CurRdoType][index + 1]
+
 		if itemData._NormalCount == 1 then 
 			-- imgSelect:SetActive(true)
 			-- if not IsNil(dt_selected) then
 		 --        dt_selected = dt_selected:GetComponent(ClassType.DOTweenPlayer)
 		 --        dt_selected:Restart("1")
 			-- end
+			CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
     		IconTools.SetFrameIconTags(frame_item_icon, { [EFrameIconTag.Check] = true })
 			itemData._DecomposeNum = itemData._NormalCount
     		table.insert(self._ChooseDecomItems,itemData)
@@ -1482,8 +1511,7 @@ def.method("string").Click = function(self,id)
 		
 		local moneyId = CSpecialIdMan.Get("StorageMoneyType")
 		if sum > game._HostPlayer:GetMoneyCountByType( moneyId ) then 
-			local value = sum - game._HostPlayer:GetMoneyCountByType( moneyId )
-            MsgBox.ShowQuickBuyBox(moneyId, value, callback)
+            MsgBox.ShowQuickBuyBox(moneyId, sum, callback)
         return end	
 		local title, msg, closeType = StringTable.GetMsg(1)
         local setting = {
@@ -1528,6 +1556,7 @@ end
 
 def.method('userdata','string','number').SelectItem = function(self, item, id, index)
     --print("OnSelectItem index: " .. tostring(index) .. ' ' .. math.floor(index/5) .. ' itemName =' .. item.name)
+    if self._IsShowDecomposeFx then return end
     if id == 'List_Item1' then
 		local itemData = self._ItemSet[self._CurRdoType][index + 1]
 		if itemData == nil or itemData._Tid == 0  then
@@ -1536,7 +1565,8 @@ def.method('userdata','string','number').SelectItem = function(self, item, id, i
 		local frame_item_icon = GUITools.GetChild(item, 0)
 		if not self._IsOpenStorage and not self._IsOpenDecompose then  
 			-- 弹tip
-			MsgBox.CloseAll()
+			MsgBox.ClearAllBoxes()
+			CItemTipMan.CloseCurrentTips()
 			if itemData:IsEquip() then 
 				itemData:ShowTipWithFuncBtns(TipsPopFrom.BACK_PACK_PANEL,TipPosition.DEFAULT_POSITION,self._PanelObject._BagEquipTipsPosition,item)
 			else
@@ -1594,14 +1624,15 @@ def.method('userdata','string','number').SelectItem = function(self, item, id, i
     	else
     		local panelData = 
 							{
-								_MoneyID = itemData.Tid ,
+								_MoneyID = itemData.Tid ,  
 								_TipPos = TipPosition.FIX_POSITION,
 								_TargetObj = nil, 
 							} 
-			CItemTipMan.ShowMoneyTips(panelData)
+			CItemTipMan.ShowMoneyTips(panelData) 
     	end
-    elseif id == "List_Item4" then 
-    	local itemData = self._ChooseDecomItems[index + 1]
+    elseif id == "List_Item4" then    
+    	local itemData  = self._ChooseDecomItems[index + 1]
+    	if itemData == nil then return end
     	if itemData:IsEquip() then 
 			itemData:ShowTipWithFuncBtns(TipsPopFrom.BACK_PACK_PANEL,TipPosition.DEFAULT_POSITION,self._PanelObject._BagEquipTipsPosition,item)
 		else
@@ -1611,8 +1642,10 @@ def.method('userdata','string','number').SelectItem = function(self, item, id, i
 end
 
 def.method("userdata", "string", "string", "number").SelectItemButton = function(self, button_obj, id, id_btn, index)
+	if self._IsShowDecomposeFx then return end
 	if id == "List_Item4" and id_btn == "Btn_Delete" then 
-		self:AddOrDeletChooseItemSets(self._ChooseDecomItems[index + 1]._Slot,index ,nil)
+		self:AddOrDeletChooseItemSets(self._ChooseDecomItems[index + 1]._Slot,index ,nil) 
+		CSoundMan.Instance():Play2DAudio(PATH.GUISound_UnEquipProcessing, 0)
 	end
 end
 
@@ -1630,7 +1663,7 @@ def.method('userdata','string','number').LongPressItem = function(self, item, id
 			itemData:ShowTip(TipPosition.DEFAULT_POSITION,self._PanelObject._BagEquipTipsPosition)
 		return end
 	elseif id == 'List_Item2' then 
-		itemData = self._StorageItemSet[(self._CurStoragePage - 1) * 30 + index + 1]
+		itemData = self._StorageItemSet[self._CurStoragePage][index + 1]
 		targetObj = self._PanelObject._StorageTipPosition
 		isDeposit = false
 	end
@@ -1639,8 +1672,8 @@ def.method('userdata','string','number').LongPressItem = function(self, item, id
 	end
 	-- 处理按钮长按状态
 	if self._IsOpenStorage then	
-		MsgBox.CloseAll()
-		itemData:ShowTipWithOutOrDepositFunc(targetObj,isDeposit)
+		MsgBox.ClearAllBoxes()
+		itemData:ShowTipWithOutOrDepositFunc(targetObj,isDeposit,self._CurStoragePage)
 		self:CleanBorder()
     	self._CurrentSelectedItem = item
     	self:ShowBorder(item)

@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/gonghuijidi.png",
 	AssetPath = "Assets/Outputs/Scenes/Dn_pvp01_Guildbase.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[37000] = 
@@ -191,11 +192,11 @@ local MapInfo =
 	{
 		[1] = 
 		{
-			[192] = { x = 0.08, y = 8.80, z = 71.68, xA = -71.82, yA = 30.68, zA = 177.99, name = "传送区域", worldId = 110, PkMode = 0 },
+			[192] = { x = 0.08, y = 8.80, z = 71.68, xA = -71.82, yA = 30.68, zA = 177.99, name = "传送区域", worldId = 110, PkMode = 1 },
 		},
 		[2] = 
 		{
-			[400] = { x = 0.10, y = 0.92, z = 4.23, name = "公会宝藏任务发放", worldId = 0, PkMode = 0 },
+			[400] = { x = 0.10, y = 0.92, z = 4.23, name = "公会宝藏任务发放", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

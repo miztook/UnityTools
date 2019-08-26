@@ -15,6 +15,7 @@ local CHostOpHdl = require "ObjHdl.CHostOpHdl"
 local CElementData = require "Data.CElementData"
 local ObjectDieEvent = require "Events.ObjectDieEvent"
 local EntityDisappearEvent = require "Events.EntityDisappearEvent"
+local CarePlayerListChangeEvent = require "Events.CarePlayerListChangeEvent"
 local PackageChangeEvent = require "Events.PackageChangeEvent"
 local CombatStateChangeEvent = require "Events.CombatStateChangeEvent"
 local UserData = require "Data.UserData".Instance()
@@ -50,7 +51,6 @@ local BEHAVIOR = require "Main.CSharpEnum".BEHAVIOR
 local SkillStateUpdateEvent = require "Events.SkillStateUpdateEvent"
 local BaseStateChangeEvent = require "Events.BaseStateChangeEvent"
 local ENUM = require "PB.data".ENUM_FIGHTPROPERTY
-local HATE_OPTION = require "PB.net".HATE_OPT
 
 local CHostPlayer = Lplus.Extend(CPlayer, "CHostPlayer")
 local def = CHostPlayer.define
@@ -121,13 +121,8 @@ def.field("number")._TimerNavMountHorse = 0 			--自动上马逻辑的tick timer
 def.field("number")._TimerBloodDetect = 0 			--自动上马逻辑的tick timer
 def.field("boolean")._CanNotifyErrorMountHorse = false 	--只有主动上马时才能给予反馈提示
 def.field("table")._CheckDestPosition = nil 			--寻路上马
+def.field("boolean")._PauseAutoMount = false 		--是否暂停自动上马
 
-def.field("boolean")._IsHawkEyeEnable = false --是否鹰眼可以使用
-def.field("boolean")._IsHawkEyeState = false --是否鹰眼开启
-def.field("boolean")._IsHawkEyeEffectIsOver = true --是否鹰眼过度效果是否结束
-def.field("number")._HawkEyeCount = 0
-def.field("table")._TableHawkEyeTargetPos = nil
-def.field("number")._TimerIdHawkEyeEffect = 0
 def.field("number")._IdleAnimationTimer = 0 --休闲动作待机timer
 def.field("number")._IdleStateTimer = 0 --进入休闲状态timer
 def.field("boolean")._IsIdleState = false   --休闲状态
@@ -225,7 +220,7 @@ def.override("table").Init = function (self, info)
 			fightPetId = v
 		end
 		self:SetCurrentFightPetId(fightPetId)
-		self:SetPetId(fightPetId)
+		-- self:SetPetId(fightPetId)
 		for i,v in ipairs(info.petCellInfo.helpCellDetails) do
 			self:SetCurrentHelpPetList(v, i)
 		end
@@ -341,10 +336,8 @@ def.method().ListenEvents = function(self)
 		end
 		self._OnObjectDisable = OnObjectDisable
 	end
-
 	CGame.EventManager:addHandler(ObjectDieEvent, self._OnObjectDisable)	
 	CGame.EventManager:addHandler(EntityDisappearEvent, self._OnObjectDisable)
-
 	if self._OnPackageUpdate == nil then
 		local function OnPackageUpdate(sender, event)
 			local net = require "PB.net"
@@ -383,6 +376,9 @@ def.method().ListenEvents = function(self)
 					-- print_r(targetRoomIDs)
 					game._GUIMan:Open("CPanelQuickTeam", targetRoomIDs)
 				end
+			elseif event._Name == EnumDef.QuestEventNames.QUEST_CHANGE then
+				-- 任务目标更新，关闭暂停自动上马
+				self._PauseAutoMount = false
 			end 
 		end
 		self._OnQuestCommonEvent = OnQuestCommonEvent
@@ -395,7 +391,7 @@ def.method().UnlistenEvents = function(self)
 		CGame.EventManager:removeHandler(ObjectDieEvent, self._OnObjectDisable)	
 		CGame.EventManager:removeHandler(EntityDisappearEvent, self._OnObjectDisable)
 	end
-
+    
 	if self._OnPackageUpdate ~= nil then
 		CGame.EventManager:removeHandler(PackageChangeEvent, self._OnPackageUpdate)
 	end
@@ -487,9 +483,12 @@ end
 
 -- 模型加载完成后刷新脚底光圈
 def.override().OnModelLoaded = function (self)
-	CPlayer.OnModelLoaded(self)		
+	CEntity.OnModelLoaded(self)
 
-	self:EnableShadow(true)
+	self:EnableCastShadows(true)
+
+	local level = GameUtil.GetShadowLevel()
+	self:EnableShadow(level < 1)		--阴影片是否开启
 end
 
 def.method().InitHostPlayerConfig = function(self)
@@ -559,7 +558,7 @@ def.method().InitStaticSkillData = function(self)
 	local CElementSkill = require "Data.CElementSkill"
 
 	self._MainSkillIDList = {0, 0, 0, 0, 0, 0, 0, 0}
-	local allSkillLearnCondition = GameUtil.GetAllTid("SkillLearnCondition")
+	local allSkillLearnCondition = CElementData.GetAllTid("SkillLearnCondition")
 	for i, v in ipairs(allSkillLearnCondition) do
 		local learnCondition = CElementSkill.GetLearnCondition(v)
 		if learnCondition.Profession == prof then
@@ -572,7 +571,7 @@ def.method().InitStaticSkillData = function(self)
 		end
 	end
 
-	local tids = GameUtil.GetAllTid("SkillLevelUpCondition")
+	local tids = CElementData.GetAllTid("SkillLevelUpCondition")
 	for i, v in ipairs(tids) do
 		local sluc = CElementSkill.GetLevelUpCondition(v)
 		local isHostSkill = false
@@ -603,19 +602,6 @@ end
 
 def.method("number", "=>", "table").GetSkillLevelUpConditionMap = function (self, skillId)
 	return self._SkillLevelUpCondition[skillId]
-end
-
-def.override().OnPateCreate = function(self)
-    CPlayer.OnPateCreate(self)
-	if self._TopPate == nil then return end
-
-	-- local Designation = game._DesignationMan:GetDesignationDataByID( game._DesignationMan:GetCurDesignation() )
-	-- if Designation ~= nil then
-	-- 	self._TopPate:OnTitleNameChange(true,Designation.Name)
-	-- end
-	self._TopPate:SetHPLineIsShow(self:In1V1Fight() or
-								  self:In3V3Fight() or
-								  self:InEliminateFight(), EnumDef.HPColorType.Green)
 end
 
 def.override().UpdateTopPateHpLine = function(self)
@@ -854,7 +840,7 @@ def.method("table").NavMountHorseLogic = function (self, destPos)
 			return
 		end
 
-		local bCanRideHorse = bHasHorseSet and not bIsOn and self:CanRide()
+		local bCanRideHorse = bHasHorseSet and not bIsOn and self:CanRide() and not self._PauseAutoMount
 		if bCanRideHorse and self:CheckAutoHorse(self._CheckDestPosition) then
 			SendHorseSetProtocol(-1, true)
 		end
@@ -866,6 +852,7 @@ def.method("table").NavMountHorseLogic = function (self, destPos)
 			self:RemoveTimer(self._TimerNavMountHorse)
 			self._TimerNavMountHorse = 0
         end
+        self._PauseAutoMount = false
 		-- do once first
 		tickMountLogic()
 		self._TimerNavMountHorse = self:AddTimer(1, false , tickMountLogic)
@@ -1167,7 +1154,7 @@ def.method().HalfRelease = function (self)
 	CTargetDetector.Instance():Clear()
 	--self:ClearEntityEffect() --只清理Rim效果是不可以的，所有的EntityEffect都应该清理掉
     if self._TopPate ~= nil then 
-        self._TopPate:Release() 
+        self._TopPate:Pool() 
         self._TopPate = nil
     end
 
@@ -1301,7 +1288,7 @@ def.override("table").SkillMove = function (self, pos)
 end
 
 def.override("=>", "boolean", "table").GetNormalMovingInfo = function(self)
-	if self._FSM._CurState._Type == FSM_STATE_TYPE.MOVE then
+	if self._FSM ~= nil and self._FSM._CurState._Type == FSM_STATE_TYPE.MOVE then
 		return true, self._FSM._CurState._TargetPos
 	else
 		return false, nil
@@ -1403,6 +1390,14 @@ def.method(CEntity, "boolean").UpdateTargetInfo = function(self, target, is_lock
 		if isSetCamToLock then
 			game:UpdateCameraLockState(target._ID, true)		-- 尝试开启相机锁定状态
 		end
+
+        local entityType = IDMan.GetEntityType(self._CurTarget._ID)
+        if entityType == EnumDef.EntityType.Role then
+            local C2SSetCarePlayer = require "PB.net".C2SSetCarePlayer
+	        local protocol = C2SSetCarePlayer()
+	        protocol.RoleId = self._CurTarget._ID
+	        PBHelper.Send(protocol)
+        end
 	end
 	if self:InEliminateFight() then 
 		local CPanelPVPHead = require"GUI.CPanelPVPHead"
@@ -1412,11 +1407,12 @@ def.method(CEntity, "boolean").UpdateTargetInfo = function(self, target, is_lock
 	end
 end
 
-def.method().UpdateTargetSelected = function(self)
+def.method("number").UpdateTargetSelected = function(self, id)
 	-- 刷新选中目标
 	local curTarget = self._CurTarget
-	if curTarget ~= nil then
+	if curTarget ~= nil and curTarget._ID == id then
 		CFxMan.Instance():OnTargetSelected(curTarget, self._IsTargetLocked)
+		CPanelUIHead.Instance():OpenTargetHead(self._CurTarget)
 	end
 end
 
@@ -1508,188 +1504,8 @@ def.method().StopAutoTrans = function(self)
 end
 
 def.method("=>", "boolean").GetHawkEyeState = function(self)
-   return self._IsHawkEyeState
-end
-
-local function IsQuestOk(questId)
-	if questId <= 0 then return true end
-
-	return CQuest.Instance():IsQuestInProgress(questId) 
-		or CQuest.Instance():IsQuestReady(questId) 
-		or CQuest.Instance():IsQuestInProgressBySubID(questId) 
-		or CQuest.Instance():IsQuestReadyBySubID(questId) 
-end
-
---参数为是否变更区域判断 还是任务更新原地判断
-def.method('boolean').JudgeIsUseHawEye = function (self,isChangeRegion)
-	--如果不是区域变更询问，是任务变更询问，并且鹰眼按钮正在开启。则跳出。由玩家手动关闭
-	if not isChangeRegion and self._IsHawkEyeEnable then
-		return
-	end
-	local sceneId = game._CurWorld._WorldInfo.SceneTid
-	--local scene = _G.MapBasicInfoTable[sceneId]
-	local scene = MapBasicConfig.GetMapBasicConfigBySceneID(sceneId)
-	if scene == nil then
-		warn("Can not find scene data with id ==", sceneId, debug.traceback())
-		return
-	end
-
-	local regions = scene.Region
-
-	local mapTid = game._CurWorld._WorldInfo.MapTid
-	local map = CElementData.GetMapTemplate(mapTid)
-	--如果地图不是鹰眼地图 则不允许使用
-	if map.IsCanHawkeye == nil or not map.IsCanHawkeye then
-		self._IsHawkEyeEnable = false
-		self:UpdateHawkeye()
-		return
-	end
-
-	--判断万武志是否开启（开启条件之一）
-	local function Hawkeye_callback( isEnable )
-		--print("callback=",isEnable)
-		self._IsHawkEyeEnable = isEnable
-		self:UpdateHawkeye()
-	end
-
-	--如果区域是鹰眼区域 则允许使用
-	for i,v in ipairs(self._CurrentRegionIds) do
-		for j,w in pairs(regions) do
-			for k, x in pairs(w) do
-				if v == k then
-					local noQuestLimit = (x.QuestID == nil)
-					local isQuestOk = false
-					if not noQuestLimit then
-						for i,v in ipairs(x.QuestID) do
-							isQuestOk = IsQuestOk(v)
-							if isQuestOk == true then
-								break
-							end
-						end
-					end
-
-					if x.IsCanHawkeye ~= nil and x.IsCanHawkeye and (noQuestLimit or isQuestOk ) then
-						local ids = x.ManualID
-						--如果没有配置解锁条件
-						if x.ids == nil then
-							Hawkeye_callback(true)
-							return
-						else
-							game._CManualMan:SendC2SManualIsEyesShow( ids, Hawkeye_callback )
-							return
-						end
-					end
-				end
-			end
-		end
-	end
-
-    --没有鹰眼区域 不允许使用
-	self._IsHawkEyeEnable = false
-	self:UpdateHawkeye()
-end
-
-def.method().UpdateHawkeye = function (self)
-	if self._IsHawkEyeEnable then
-				--呼出鹰眼按钮
-		local protocol = (require "PB.net".C2SHawkeyeInfo)()
-		PBHelper.Send(protocol)
-		--print("UseHawEye=====true")
-	else
-		game:RaiseUIShortCutEvent(EnumDef.EShortCutEventType.HawkEyeClose,nil)
-
-		--如果出区域，但还是鹰眼视野
-		-- if self._IsHawkEyeState then
-	 --        local protocol = (require "PB.net".C2SHawkeyeState)()
-	 --        protocol.enable = false --逻辑相反 非鹰眼模式 点击开启
-	 --        PBHelper.Send(protocol)
-		-- end 
-		--print("UseHawEye=====false")
-	end	
-end
-
-def.method("number").SendHawkeyeUseOrStop = function (self,count)
-    if not self._IsHawkEyeEffectIsOver then
-    	return 
-    end
-    if self:GetHawkEyeState() then 
-        local protocol = (require "PB.net".C2SHawkeyeState)()
-        protocol.enable = false --逻辑相反 非鹰眼模式 点击开启
-        
-        PBHelper.Send(protocol)
-    else
-        if count > 0 or count == -1 then  --客户端判定 是否有空余次数 或者 为-1 是无限次数
-            local protocol = (require "PB.net".C2SHawkeyeState)()
-            protocol.enable = true --逻辑相反 非鹰眼模式 点击开启
-            PBHelper.Send(protocol)
-        end
-    end
-end
-
-def.method("boolean","number").SetHawkeyeState = function (self,isEnable,time)
-    if self:GetHawkEyeState() == isEnable then
-    	return 
-    end
-    if isEnable then
-		self:StartHawkeye()
-		game:RaiseUIShortCutEvent(EnumDef.EShortCutEventType.HawkEyeActive,{useTime = time})
-		CSoundMan.Instance():Play2DAudio(PATH.GUISound_Eyes, 0)
-	else
-		self:FinishHawkeye()
-		game:RaiseUIShortCutEvent(EnumDef.EShortCutEventType.HawkEyeDeactive,nil)
-	end
-end
-
-def.method().StartHawkeye = function (self)
-	self._HawkEyeCount = self._HawkEyeCount - 1
-    self._IsHawkEyeState = true
-    self._IsHawkEyeEffectIsOver = false
-	CGMan.PlayCG("Assets/Outputs/CG/City01/CG_shenzhishijie.prefab", function()
-			self._IsHawkEyeEffectIsOver = true
-		end, 0, false)
-
-	if self._TimerIdHawkEyeEffect ~= 0 then
-		self:RemoveTimer(self._TimerIdHawkEyeEffect)
-	end
-	--效果更改
-	local CVisualEffectMan = require "Effects.CVisualEffectMan"
-	CVisualEffectMan.EnableHawkeyeEffect(true)
-	--warn("StartHawkeye", Time.time, debug.traceback())
-end
-
-def.method().FinishHawkeye = function (self)
-	if self._IsHawkEyeState then
-	    self._IsHawkEyeState = false
-	    self._IsHawkEyeEffectIsOver = false
-
-	    --效果更改
-	    self._IsHawkEyeEffectIsOver = true
-	    local CVisualEffectMan = require "Effects.CVisualEffectMan"  
-		CVisualEffectMan.EnableHawkeyeEffect(false)   
-		--warn("FinishHawkeye", Time.time, debug.traceback())
-	end
-end
-
-def.method("table").UpdateHawkEyeTargetPos = function (self,regions)
-	self._TableHawkEyeTargetPos = {}
-	--print("regions=",#regions)
-	local mapId = game._CurWorld._WorldInfo.SceneTid
-	--local regionInfo = _G.MapBasicInfoTable[mapId].Region
-	local regionInfo = MapBasicConfig.GetMapBasicConfigBySceneID(mapId).Region
-	for k,v in ipairs(regions) do
-		if v.regionId and v.regionId > 0 and regionInfo[2] ~= nil and regionInfo[2][v.regionId] ~= nil and v.hawkeyeType ~= 0 then
-			self._TableHawkEyeTargetPos[v.regionId] = { pos=Vector3.New(v.posx,0,v.posz), hawkeyeType=v.hawkeyeType, status=v.status }
-		end
-	end
-
-	--print_r(self._TableHawkEyeTargetPos)
-end
-
-def.method("number").RemoveEyeTargetPos = function (self,regionId)
-	if self._TableHawkEyeTargetPos ~= nil then
-		self._TableHawkEyeTargetPos[regionId] = nil
-		--print_r(self._TableHawkEyeTargetPos)
-	end
+	local CHawkeyeEffectMan = require "Main.CHawkeyeEffectMan"
+    return CHawkeyeEffectMan.Instance()._IsHawkEyeState
 end
 
 def.method("number").SetCamDistOnEnterRegion = function(self, region_id)
@@ -1724,6 +1540,42 @@ def.method("number").SetCamDistOnLeaveRegion = function(self, region_id)
 				if x.CameraDistance ~= nil and x.CameraDistance > 0 then
 					-- 属于改动相机区域
 					GameUtil.SetGameCamDefaultDestDistOffset(false)
+				end
+				break
+			end
+		end
+	end
+end
+
+def.method("number").SetWorldBossConfigOnEnterRegion = function(self, region_id)
+	local sceneId = game._CurWorld._WorldInfo.SceneTid
+
+	local scene = MapBasicConfig.GetMapBasicConfigBySceneID(sceneId)
+	local regions = scene.Region
+
+	for j,w in pairs(regions) do
+		for k,x in pairs(w) do
+			if k == region_id then
+				if x.PkMode == 2 then
+					game:OnEnterWorldBossRegion()
+				end
+				break
+			end
+		end
+	end
+end
+
+def.method("number").SetWorldBossConfigOnLeaveRegion = function(self, region_id)
+	local sceneId = game._CurWorld._WorldInfo.SceneTid
+
+	local scene = MapBasicConfig.GetMapBasicConfigBySceneID(sceneId)
+	local regions = scene.Region
+
+	for j,w in pairs(regions) do
+		for k,x in pairs(w) do
+			if k == region_id then
+				if x.PkMode == 2 then
+					game:OnLeaveWorldBossRegion()
 				end
 				break
 			end
@@ -1767,8 +1619,7 @@ def.override("table", "table", "number").OnStopMove = function (self, cur_pos, f
         self:SetPos(cur_pos)
         -- self:SetDir(facedir)
     elseif movetype == ENTITY_MOVE_TYPE.MapTrans then --同地图传送
-    	local CExteriorMan = require "Main.CExteriorMan"
-       	CExteriorMan.Instance():Quit()
+    	self:QuitExterior()
        	game:QuitNearCam()
        	
     	--warn("OnStopMove MapTrans @", Time.time)
@@ -1860,7 +1711,7 @@ def.method("number").EnterRegion = function(self, region_id)
 	if index == -1 then
 		table.insert(self._CurrentRegionIds, region_id)
 	end
-	--self:JudgeIsUseHawEye(true)
+	self:SetWorldBossConfigOnEnterRegion(region_id)
 	self:SetCamDistOnEnterRegion(region_id)
 	CSoundMan.Instance():ChangeBackgroundMusic(0)
 	CSoundMan.Instance():ChangeEnvironmentMusic(0)
@@ -1875,18 +1726,7 @@ def.method("number").EnterRegion = function(self, region_id)
 		_type = 2,
 		_RegionID = region_id
 	}
-	
-	--self._TableEnterMapRegionTips =  data
-	--local CPanelLoading = require "GUI.CPanelLoading"
-	--if not CPanelLoading.Instance():IsShow() then
-
---		local CPanelEnterMapTips = require "GUI.CPanelEnterMapTips"
---		CPanelEnterMapTips.Instance():ShowEnterTips(data)
-
 	game._CGameTipsQ:ShowMapTip(data)
-
-		--self._TableEnterMapRegionTips = nil
-	--end
 	
 	local targetRoomIDs = CTeamQuickCheck.CheckRegionQuickTeam(region_id)
 	local count = 0  
@@ -1908,11 +1748,53 @@ def.method("number").LeaveRegion = function(self, region_id)
     event.IsEnter = false
 	CGame.EventManager:raiseEvent(nil, event)
 
-	--self:JudgeIsUseHawEye(true)
-	self:RemoveEyeTargetPos(region_id)
+	local CHawkeyeEffectMan = require "Main.CHawkeyeEffectMan"
+	CHawkeyeEffectMan.Instance():RemoveHawkeyeRegion(region_id)
 	self:SetCamDistOnLeaveRegion(region_id)
+	self:SetWorldBossConfigOnLeaveRegion(region_id)
 	CSoundMan.Instance():ChangeBackgroundMusic(0)
 	CSoundMan.Instance():ChangeEnvironmentMusic(0)
+end
+
+-- 获取当前区域的PK模式显示
+def.method("=>", "number").GetCurRegionPKMode = function(self)
+	local EPkMode = require "PB.data".EPkMode
+	local mode = EPkMode.EPkMode_Invalid
+	local sceneTid = game._CurWorld._WorldInfo.SceneTid
+	if sceneTid > 0 then
+		local map = MapBasicConfig.GetMapBasicConfigBySceneID(sceneTid)
+		if map ~= nil then
+			if map.Region ~= nil then
+				local isBreak = false
+				for _, regionId in ipairs(self._CurrentRegionIds) do
+					for j, w in pairs(map.Region) do
+						for k, data in pairs(w) do
+							if regionId == k then
+								if data.PkMode == EPkMode.EPkMode_Peace or
+								   data.PkMode == EPkMode.EPkMode_Guild or
+								   data.PkMode == EPkMode.EPkMode_Massacre then
+									-- 以上模式的区域不会有重叠
+									mode = data.PkMode
+									isBreak = true
+								elseif data.PkMode == EPkMode.EPkMode_NoLimit then
+									-- 有可能与别的模式的区域重叠，继续找
+									mode = data.PkMode
+								end
+								break
+							end
+						end
+						if isBreak then break end
+					end
+					if isBreak then break end
+				end
+			end
+			if mode == EPkMode.EPkMode_Invalid and map.PKMode ~= nil then
+				-- 区域没有有效的PK模式，找场景的PK模式
+				mode = map.PKMode
+			end
+		end
+	end
+	return mode
 end
 
 def.method("number").TryLockTarget = function(self, target_id)
@@ -1950,8 +1832,7 @@ def.override("boolean", "boolean", "number", "boolean", "boolean").UpdateCombatS
 	if is_in_combat_state and not is_client_state then
 		-- self:TryLockTarget(origin_id)
 		
-		local CExteriorMan = require "Main.CExteriorMan"
-		CExteriorMan.Instance():Quit() -- 退出外观
+		self:QuitExterior() -- 退出外观
 
 		-- self._OpHdl:EndNPCService()
 
@@ -1965,8 +1846,7 @@ def.override("number").ChangeShape = function (self, monster_id)
 	CAutoFightMan.Instance():Stop() 
 	CQuestAutoMan.Instance():Stop()
 	CDungeonAutoMan.Instance():Stop()
-	local CExteriorMan = require "Main.CExteriorMan"
-	CExteriorMan.Instance():Quit()
+	self:QuitExterior()
 end
 
 def.override().ResetModelShape = function (self)
@@ -2210,38 +2090,6 @@ def.method("number").EquipDrugItem = function (self, item_id)
 	end
 end
 
---所有仇恨列表
-def.method("number", "number").SetEntityHate = function(self, hate_opt, entityId)
-	--查看列表中有没有对应的entitid
-	local index = table.indexof(self._HatedEntityMap, entityId)
-
-	if hate_opt == HATE_OPTION.HATE_OPT_ADD then
-		if not index then -- 如果没有对应的id就添加
-			table.insert(self._HatedEntityMap, entityId)		
-			game:UpdateCameraLockState(entityId, true)
-		end
-	elseif hate_opt == HATE_OPTION.HATE_OPT_REMOVE then
-		if index then  -- 如果有对应的id 就移除
-			table.remove(self._HatedEntityMap, index)
-			game:UpdateCameraLockState(entityId, false)
-		end
-	end
-
-	if entityId ~= self._ID then
-		local entity = game._CurWorld:FindObject(entityId)
-		if entity ~= nil and entity:IsRole() then
-			-- 仇恨值变化只需要刷新名字颜色
-			entity:SetPKMode(entity:GetPkMode())
-			entity:UpdateTopPate(EnumDef.PateChangeType.HPLine)
-			if entity._TopPate ~= nil then
-				entity._TopPate:UpdateName(true)
-				entity:UpdatePetName()
-				self:UpdateTargetSelected()
-			end
-		end
-	end
-end
-
 def.method("number","=>","boolean").IsEntityHate = function(self , entityid)
 	--查看列表中有没有对应的entitid
 	local index = table.indexof(self._HatedEntityMap, entityid)
@@ -2257,10 +2105,12 @@ end
 
 def.method("=>","boolean").IsInPkState = function (self)
 	local isInPkState = false
-	for i,id in ipairs(self._HatedEntityMap) do
-		isInPkState = IDMan.ISROLEID(id)
-		if isInPkState then 
-			break
+	if self._HatedEntityMap ~= nil and #self._HatedEntityMap > 0 then
+		for i,id in ipairs(self._HatedEntityMap) do
+			isInPkState = IDMan.ISROLEID(id)
+			if isInPkState then 
+				break
+			end
 		end
 	end
 	return isInPkState
@@ -2320,7 +2170,7 @@ end
 
 -- tips战斗力shuxing面板
 def.method("number", "=>", "boolean").IsFSDetail = function(self, newVal)
-	if newVal == ENUM.MAXHP or newVal == ENUM.ATTACK or newVal == ENUM.DEFENSE or newVal == ENUM.CRITICALLEVEL or newVal == ENUM.IMMUNLEVEL
+	if newVal == ENUM.CURRENTMAXHP or newVal == ENUM.ATTACK or newVal == ENUM.DEFENSE or newVal == ENUM.CRITICALLEVEL or newVal == ENUM.IMMUNLEVEL
 	then
 		return true
 	end
@@ -2361,17 +2211,15 @@ def.method().NearDeathState = function(self)
 end
 
 def.override("table", "boolean").UpdateFightProperty = function(self, properties, isNotifyFightScore)
-    if self._InfoData == nil then return end
-
-    local hpChanged = false
+	if self._InfoData == nil then return end
+	local hpChanged = false
 	local FS_detail = {}
 	local is_showFS=false
 	local show_FS_value=0
-    for k,v in pairs(properties) do
-        if v.Index == ENUM.MAXHP or v.Index == ENUM.CURRENTHP then
+	for k,v in pairs(properties) do
+		if v.Index == ENUM.MAXHP or v.Index == ENUM.CURRENTHP then
         	hpChanged = true
         end
-
 		--战力detail
 		if isNotifyFightScore and self._ShowFightScoreBoard then
 			if v.Index == nil then
@@ -2381,8 +2229,10 @@ def.override("table", "boolean").UpdateFightProperty = function(self, properties
 				show_FS_value = math.ceil(v.Value)
 				is_showFS = true
 			elseif self:IsFSDetail(v.Index) then
-				local oldVal = math.ceil(self._InfoData._FightProperty[v.Index][1])
-				table.insert(FS_detail, {["type"]=v.Index, ["a"]=oldVal, ["b"] = math.ceil(v.Value)})
+				--local oldVal = math.ceil(self._InfoData._FightProperty[v.Index][1])
+                                local oldVal = fixFloat(self._InfoData._FightProperty[v.Index][1])
+				--table.insert(FS_detail, {["type"]=v.Index, ["a"]=oldVal, ["b"] = math.ceil(v.Value)})
+                                table.insert(FS_detail, {["type"]=v.Index, ["a"]=oldVal, ["b"] = fixFloat(v.Value)})
 			end
 		end
     end
@@ -2391,8 +2241,8 @@ def.override("table", "boolean").UpdateFightProperty = function(self, properties
 		self:ShowFightScoreUp(show_FS_value, FS_detail)
 	end
 	
-    CPlayer.UpdateFightProperty(self, properties, false)
-    if hpChanged then
+	CPlayer.UpdateFightProperty(self, properties, false)
+	if hpChanged then
 		self:NearDeathState()
 	end
 end
@@ -2520,39 +2370,19 @@ def.method().OnJumpToNewPos = function(self)
     end
 end
 
--- 与服务器同步所有外观信息 Add by Yao
-def.method().SyncAllExterior = function (self)
-	-- 坐骑
-	local horseId = self:GetCurrentHorseId()
-	if self:IsServerMounting() and horseId > 0 and self:CanRide() then
-		self:Ride(horseId, false)
-	elseif self:IsOnRide() then
-		-- 服务器没上马，但表现是上了马
-		if game._RegionLimit._LimitRide then
-			-- 场景限制
-			game._GUIMan:ShowTipText(StringTable.Get(15551), false)
-		end
-		self:UnRide()
-	end
-	self:UpdateCombatState(self:IsInServerCombatState(), true, 0, true, false)
-
-	local ModelParams = require "Object.ModelParams"
-	local curParam = self:GetModelParams()
-	local updateParam = ModelParams.GetUpdateParams(self._OutwardParams, curParam)
-	self:UpdateOutward(updateParam, function ()
-		self:SetCurWeaponInfo()
-		self:SetCurWingModel()
-		GameUtil.SetLayerRecursively(self:GetOriModel():GetGameObject(), self:GetRenderLayer())
-	end)
-end
-
 def.override("=>", "boolean").IsInExterior = function (self)
 	local CExteriorMan = require "Main.CExteriorMan"
 	return CExteriorMan.Instance():GetState()
 end
 
+def.method().QuitExterior = function (self)
+	local CExteriorMan = require "Main.CExteriorMan"
+	CExteriorMan.Instance():Quit()
+end
+
 def.method("table").SetArenaDataInfo = function (self,data)
 	self._InfoData._Arena3V3Stage = data.Stage
+    self._InfoData._Arena3V3Star = data.Star
 	-- body
 end
 def.method("table").SetJJCScore = function (self,data)
@@ -2645,6 +2475,11 @@ def.method().StartIdleAnimation = function(self)
 			self:ClearIdleState()
 			return
 		end
+
+		if self:IsModelChanged() then -- 变身中
+			self:ClearIdleState()
+			return
+		end
 		
 		--骑马的时候，不做待机处理
 		if self:IsOnRide() then
@@ -2670,7 +2505,7 @@ def.method().ContinueIdleSkill = function(self)
 end
 
 def.override().BeginIdleState = function(self)
-	if self:IsOnRide()  or self:IsInServerCombatState() then
+	if self:IsOnRide()  or self:IsInServerCombatState() or self:IsModelChanged() then
 		self:ClearIdleState()
 		return 
 	end
@@ -2678,9 +2513,7 @@ def.override().BeginIdleState = function(self)
 	if self:GetCurStateType() ~= FSM_STATE_TYPE.IDLE then return end
 
 	--如果正在外观或者近景，不管什么逻辑，都不执行
-	local CExteriorMan = require "Main.CExteriorMan"
-	local exterior_state = CExteriorMan.Instance():GetState()
-	if exterior_state or game._IsInNearCam then
+	if self:IsInExterior() or game._IsInNearCam then
 		self:ClearIdleState()
 		return 		
 	end
@@ -2800,6 +2633,8 @@ def.override("number", "number").OnHPChange = function (self, hp, max_hp)
 	if CPanelUIHead and CPanelUIHead.Instance():IsShow() then
 		CPanelUIHead.Instance():UpdateHpInfo()
 	end
+	self:NearDeathState()
+
 	-- 触发血瓶教学
 	local hpPercent = self._InfoData._CurrentHp / self._InfoData._MaxHp
 	game._CGuideMan:GuideTrigger(EnumDef.EGuideBehaviourID.HPPercentLow, hpPercent)

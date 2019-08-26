@@ -11,11 +11,12 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/qilien.png",
 	AssetPath = "Assets/Outputs/Scenes/Dn_evn03_Killerparty.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[36022] = 
 		{
-			[1] = { x = 2.20, y = -0.40, z = 20.00, name = "피의 폭군", level = 56,IsBoss = true },
+			[1] = { x = 2.20, y = -0.40, z = 20.00, name = "신나 투스", level = 56,IsBoss = true },
 		},
 	},
 	Npc = 

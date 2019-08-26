@@ -6,11 +6,12 @@ local MapInfo =
 	Length = 512,
 	Width = 512,
 	NavMeshName = "Dn_env02_MagePlatform.navmesh",
-	BackgroundMusic = "",
+	BackgroundMusic = "BGM_Dunjeon/Dunjeon/STORM_HELL",
 	BattleMusic = "",
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/modaoshi.png",
 	AssetPath = "Assets/Outputs/Scenes/Dn_env02_MagePlatform.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[34104] = 

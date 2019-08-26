@@ -16,10 +16,6 @@ def.field("number")._RightSelectIndex = 0
 def.field("userdata")._LeftSelectItem = nil
 def.field("userdata")._RightSelectItem = nil
 
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
-
 def.static("=>", CPanelUITeamTargetSelect).Instance = function()
 	if not instance then
 		instance = CPanelUITeamTargetSelect()
@@ -40,7 +36,7 @@ end
 
 def.override("dynamic").OnData = function (self,data)
     -- 初始化房间数据状态
-    self._RoomDataList = self._TeamMan:GetAllTeamRoomData()
+    self._RoomDataList = TeamUtil.LoadValidTeamRoomData(false)
 
     if data == nil then
 

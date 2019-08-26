@@ -81,7 +81,9 @@ def.override("string").OnClick = function(self, id)
 	elseif id == "Btn_Input" then
 		local cmd_str = self:GetUIObject("Lab_Input"):GetComponent(ClassType.Text).text
 		if cmd_str ~= nil then
-			if cmd_str == "Fx 0" then
+			if cmd_str == "TemplateEP" then
+				EfficiencyTemplateAllTidDataPrint()
+			elseif cmd_str == "Fx 0" then
 				CFxMan.Instance()._IsAllFxHiden = true
 				return
 			elseif cmd_str == "Fx 1" then
@@ -101,138 +103,13 @@ def.override("string").OnClick = function(self, id)
 				game._CGuideMan:SetOpenDebugGuide(true)
 			elseif cmd_str == "GuideJump" then
 				game._CGuideMan:JumpCurGuide()
-			elseif cmd_str=="TestMove" then
-				--self:CountFrameAndSave()
-				--关闭省电模式
-				--[[game._CPowerSavingMan:Enable(false)
-				local hp=game._HostPlayer
-				
-				-- if not hp._IsClickGroundMove then return end
-				-- if hp._SkillHdl:IsApproachingTarget() then
-				-- 	hp._SkillHdl:CancelSkill()
-				-- end
-				local MapBasicConfig = require "Data.MapBasicConfig" 
-				local sceneId = game._CurWorld._WorldInfo.SceneTid
-				local  allmapInfo = MapBasicConfig.GetTestMapConfigBySceneID(sceneId)
-
-				if #allmapInfo > 0 then
-					local now_info = allmapInfo
-					if now_info ~=nil then
-
-						local  index = 1
-						local  function  NextPos( ... )
-							index=index+1
-
-							--这里做一个循环操作
-							if index > #now_info then
-								index = 1
-							end
-
-							if now_info[index] ~= nil then
-								hp:Move(Vector3.New(now_info[index].x,now_info[index].y,now_info[index].z),0,NextPos,NextPos)
-							end
-						end 
-
-						hp:Move(Vector3.New(now_info[index].x,now_info[index].y,now_info[index].z),0,NextPos,NextPos)
-					end
-				end
-				-- hp:StopAutoLogic()
-				
-				-- local function NextPos( ... )
-				-- 	hp:Move(Vector3.New(-49.218,29.89,171.80),0,nil,nil)
-				-- end
-				-- hp:Move(Vector3.New(-62.1,31.11,166.4),0,NextPos,NextPos)
-				--]]
-
-				--CTransDataHandler.Instance():CanMoveToTargetPos(self._CurMapID, V3pos)
-
-			elseif cmd_str=="CountFrame" then
-				local CTransDataHandler = require "Transfer.CTransDataHandler"
-				local sceneId = game._CurWorld._WorldInfo.SceneTid
-				local hp=game._HostPlayer
-
-				local  xStart = 0
-				local xEnd = 200
-
-				local  zStart = 0
-				local zEnd = 200
-
-				local  x = xStart
-				local  z = zStart
-
-				local  nextTurn = false
-				local  turnEnd = false
-
-				local Timer = 0 -- 类似计时器吧 就是我也不知道怎么说 看代码理解 
-				local  timerID = 0
-
-
-
-				local  function AddPosXZ( )
-					if x < xEnd then
-						x = x + 2
-					elseif x >= xEnd then
-						x = xStart
-						nextTurn = true
-					end
-
-					if z < zEnd  then
-
-						if nextTurn then
-							nextTurn = false
-							z = z + 2 
-						end
-					elseif z >= zEnd then
-						turnEnd = true
-						TimerUtil.RemoveGlobalTimer(Timer)
-					end
-
-				end 
-
-
-				-- warn("当前点是否可达到：")
-				-- local valid = GameUtil.IsValidPositionXZ(x, z)
-				-- warn(valid)
-				-- game:DebugString("c 51 ".."-100"..",".."100")
-				local  first = true
-	
-				local  function MoveAndCount()
-
-					local file = io.open( _G.res_base_path.."\\test.csv","a")
-					if not first then
-
-						local fps = GameUtil.GetFPS()
-						file:write(string.format("%.2f,%d,%d\n",fps,x,z))
-
-					end
-
-					if first then
-
-						first =false
-					
-					end
-
-					local can =  GameUtil.IsValidPositionXZ(x, z)
-					while not can do
-						file:write(string.format("0,%d,%d\n",x,z))
-						AddPosXZ()
-						can = GameUtil.IsValidPositionXZ(x, z)
-					end
-
-					file:close()
-					game:DebugString("c 51 "..x.." "..z)
-
-					AddPosXZ()
-				end 
-
-				Timer =  TimerUtil.AddGlobalTimer(1.5,false,MoveAndCount)
-
-			elseif cmd_str == "debugOpen 0" then
-				-- warn("close debug!!!")
 			elseif cmd_str == "debugOpen 1" then
 				self:CloseDebugMode()
-				-- warn("OPen debug!!!")
 				self:OpenDebugMode()
+            elseif cmd_str == "lan 0" then
+                game._MiscSetting:SetShowLanguageChange(false)
+            elseif cmd_str == "lan 1" then
+                game._MiscSetting:SetShowLanguageChange(true)
 			elseif cmd_str == "c eid" then
 				if game._HostPlayer._CurTarget ~= nil then		
 					TODO("CurTarget EntityId == "..game._HostPlayer._CurTarget._ID)	
@@ -241,15 +118,25 @@ def.override("string").OnClick = function(self, id)
 					warn("请选择怪物")
 					return
 				end
+			elseif cmd_str == "hate 1" then
+				-- 打印仇恨列表
+				local EntityIdList = game._HostPlayer:GetHatedEntityList()
+				if #EntityIdList == 0 then warn("game._HostPlayer:GetHatedEntityList count == 0") return end
+				warn("#EntityIdList =====================>>>", #EntityIdList)
+				for i,entityId in ipairs(EntityIdList) do 
+					warn("game._HostPlayer:GetHatedEntityList entityId ==>", entityId, IDMan.ISROLEID(entityId))
+				end
+			elseif cmd_str == "write proto" then
+				if game._NetMan ~= nil and game._NetMan._GameSession ~= nil then
+					game._NetMan._GameSession:WriteProtocolDebugInfo2Csv()
+				end
+			elseif cmd_str == "clean proto" then
+				if game._NetMan ~= nil and game._NetMan._GameSession ~= nil then
+					game._NetMan._GameSession:CleanRotocolDebugInfo()
+				end
 			else
 				if string.find(cmd_str, "c 701") then
 					game._CGuideMan:DebugCloseGuidePanel()
-					-- if game._CGuideMan ~= nil then
-					-- 	game._CGuideMan._CurGuideStep = 0
-					-- 	game._CGuideMan._CurGuideID = 10
-					-- 	game._CGuideMan._LastGuideID = 9
-					-- 	game._CGuideMan:DebugCloseGuidePanel()
-					-- end
 				end
 				game:DebugString(cmd_str)				
 			end
@@ -536,17 +423,6 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
 	end
 end
 
-def.method("string").OnSyncLog = function(self, log)
-	--if IsCriticalLog(log) and not self._PanelLog.activeSelf then
-	--	self:TogglePanelLog()
-	--end
-
-end
-
-def.override().OnHide = function(self)
-	--GameUtil.EnableCmdsInputMode(false)
-end
-
 def.override().OnDestroy = function(self)
 	self._PanelGmTest = nil
 	self._InputInstructions = nil
@@ -554,71 +430,6 @@ def.override().OnDestroy = function(self)
 	self._UIOrderList = nil
 	self._Frame_PageConnection = nil
 end
-
-def.method().CountFrameAndSave=function(self)
-
-	local frameList = {}
-	local _minFps = 0
-	local  _averageFps = 1
-	local Timer1 
-  
-	local callback1=function ()
-
-	local file 
-		--回调2 用来处理每秒钟的帧率
-		local  callback2 = function ()
-
-			--这边记录每秒帧率的场景ID 坐位位置 还有FPS
-			local fps = GameUtil.GetFPS()
-			file = io.open( _G.res_base_path.."\\test.csv","a")
-			local sceneId = game._CurWorld._WorldInfo.SceneTid
-			local hp = game._HostPlayer
-			local pos = hp:GetPos()
-			local time=os.date("*t")
-			file:write(string.format("%d:%d:%d,%.2f,%d,(%.2f:%.2f:%.2f)\n",time.hour,time.min,time.sec,fps,sceneId,pos.x,pos.y,pos.z))
-			file:close()
-
-			if _minFps==0 then
-				_minFps = fps
-			end
-			if _minFps ~= 0 and fps < _minFps then
-				_minFps = fps
-			end
-
-			table.insert(frameList,fps)
-		end
-
-		--每次移除 再重新添加
-		if Timer1 ~= nil then 
-			TimerUtil.RemoveGlobalTimer(Timer1)
-		end
-
-		Timer1=TimerUtil.AddGlobalTimer(1,false,callback2) 
-
-		--这里需要处理一下 算出平均帧率
-		if #frameList > 0 then
-			file = io.open("D:\\TeraProject\\MyClientwc\\UnityProject\\test.csv","a")
-			local  sum = 0
-			for k,v in ipairs(frameList) do
-				sum = sum + v
-			end
-			_averageFps=sum / #frameList
-
-			--记录一下时间和最小、平均帧率
-			--local time=os.date("*t")
-			--file:write(string.format("%d:%d,%.2f,%.2f\n",time.hour,time.min,_minFps,_averageFps))
-			file:close()
-		end
-		--每次把表置空
-		frameList = {}
-		_minFps = 0
-	end
-
-	TimerUtil.AddGlobalTimer(10,false,callback1) 
-
-end
-
-
 
 CPanelDebug.Commit()
 return CPanelDebug

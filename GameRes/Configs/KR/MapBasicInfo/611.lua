@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 2,
 	Remarks = "",
-	TextDisplayName = "카마이 족장",
+	TextDisplayName = "자연의 아들",
 	Length = 800,
 	Width = 800,
 	NavMeshName = "Dungn04_Zuras01.navmesh",
@@ -11,11 +11,12 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD04.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn04_Zuras01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[36011] = 
 		{
-			[1] = { x = 0.00, y = 5.00, z = 35.00, name = "카마이 족장", level = 40,IsBoss = true },
+			[1] = { x = 0.00, y = 5.00, z = 35.00, name = "칼 머리", level = 40,IsBoss = true },
 		},
 	},
 	Npc = 

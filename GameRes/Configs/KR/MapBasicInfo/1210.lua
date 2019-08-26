@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10117] = 
@@ -19,11 +20,11 @@ local MapInfo =
 		},
 		[10118] = 
 		{
-			[1] = { x = 69.43, y = 48.33, z = -51.49, name = "약탈자", level = 12, SortID = 394 },
+			[1] = { x = 69.43, y = 48.33, z = -51.49, name = "강도", level = 12, SortID = 394 },
 		},
 		[10119] = 
 		{
-			[1] = { x = 65.78, y = 49.19, z = -47.13, name = "약탈자 두목", level = 10, SortID = 395 },
+			[1] = { x = 65.78, y = 49.19, z = -47.13, name = "강도 두목", level = 10, SortID = 395 },
 		},
 		[10122] = 
 		{
@@ -53,7 +54,7 @@ local MapInfo =
 	{
 		[1] = 
 		{
-			[63] = { x = 39.14, y = 49.57, z = -229.65, xA = -2.98, yA = 28.67, zA = 182.82, name = "传送区域-好望港A", worldId = 110, PkMode = 1 },
+			[63] = { x = 39.14, y = 49.57, z = -229.65, xA = -2.98, yA = 28.67, zA = 182.82, name = "传送区域-好望港A", worldId = 110, IsCanFind = 1, Describe = "희망항 - 정문", PkMode = 1 },
 			[64] = { x = -12.22, y = 53.77, z = -249.65, xA = -89.17, yA = 31.06, zA = 142.08, name = "传送区域-好望港B", worldId = 110, PkMode = 1 },
 			[65] = { x = -248.91, y = 43.14, z = -173.63, xA = 206.82, yA = 48.87, zA = -229.57, name = "传送区域-阿卡尼亚", worldId = 130, PkMode = 1 },
 			[68] = { x = 239.83, y = 21.64, z = -238.40, xA = 141.91, yA = 19.02, zA = 218.47, name = "", worldId = 110, PkMode = 1 },
@@ -61,17 +62,17 @@ local MapInfo =
 		[2] = 
 		{
 			[59] = { x = 185.93, y = 91.20, z = 95.01, name = "初始相位", worldId = 0, PkMode = 1 },
-			[61] = { x = 111.18, y = 101.57, z = 191.07, name = "그린마을 서문", worldId = 0, PkMode = 1 },
-			[62] = { x = -222.68, y = 42.90, z = -170.96, name = "숲 속 주둔지", worldId = 0, PkMode = 1 },
+			[61] = { x = 111.18, y = 101.57, z = 191.07, name = "그린 마을 서문", worldId = 0, PkMode = 1 },
+			[62] = { x = -222.68, y = 42.90, z = -170.96, name = "숲속 주둔지", worldId = 0, PkMode = 1 },
 			[67] = { x = 24.14, y = 62.35, z = 200.33, name = "抵达区域-迪波", worldId = 0, PkMode = 1 },
 			[69] = { x = 222.45, y = 76.10, z = 219.99, name = "新兵训练", worldId = 0, PkMode = 1 },
 			[70] = { x = 212.65, y = 76.11, z = 231.80, name = "难民区【任务】", worldId = 0, PkMode = 1 },
 			[71] = { x = 126.49, y = 79.84, z = 58.06, name = "난민 대피소", worldId = 0, PkMode = 1 },
 			[72] = { x = 7.77, y = 50.53, z = 64.87, name = "农场", worldId = 0, PkMode = 1 },
 			[73] = { x = 145.40, y = 39.42, z = -39.67, name = "海盗营地外", worldId = 0, PkMode = 1 },
-			[74] = { x = -111.55, y = 62.28, z = 191.93, name = "로카 벌목장", worldId = 0, PkMode = 1 },
-			[77] = { x = -150.77, y = 75.86, z = 122.83, name = "레인저 캠프", worldId = 0, PkMode = 1 },
-			[78] = { x = 173.66, y = 27.64, z = -173.21, name = "살무사 아레나", worldId = 0, PkMode = 1 },
+			[74] = { x = -111.55, y = 62.28, z = 191.93, name = "로카 벌목장", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[77] = { x = -150.77, y = 75.86, z = 122.83, name = "레인저 캠프", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[78] = { x = 173.66, y = 27.64, z = -173.21, name = "살무사 아레나", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[79] = { x = -227.22, y = 84.29, z = 72.01, name = "巴哈勒祭坛前", worldId = 0, PkMode = 1 },
 			[87] = { x = -85.79, y = 48.06, z = -141.68, name = "탐욕의 골짜기", worldId = 0, PkMode = 1 },
 			[88] = { x = 41.29, y = 50.50, z = -130.17, name = "好望港外【任务\公共】", worldId = 0, PkMode = 1 },
@@ -79,17 +80,17 @@ local MapInfo =
 			[92] = { x = 124.47, y = 66.38, z = 194.48, name = "西门区域", worldId = 0, PkMode = 1 },
 			[93] = { x = 160.14, y = 72.15, z = 232.64, name = "商业街附近", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[94] = { x = 178.01, y = 81.40, z = 180.85, name = "그린 마을", worldId = 0, IsCanFind = 1, PkMode = 1 },
-			[95] = { x = 147.48, y = 69.89, z = 247.36, name = "보부상 지회", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[95] = { x = 147.48, y = 69.89, z = 247.36, name = "상인 연합 지부", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[96] = { x = 212.81, y = 76.04, z = 227.93, name = "教堂广场", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[97] = { x = 155.59, y = 102.64, z = 152.26, name = "연합의 광장", worldId = 0, IsCanFind = 1, PkMode = 1 },
-			[98] = { x = 217.58, y = 59.72, z = 110.11, name = "그린마을 남문", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[98] = { x = 217.58, y = 59.72, z = 110.11, name = "그린 마을 남문", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[99] = { x = 23.62, y = 62.41, z = 227.20, name = "낭떠러지", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[100] = { x = -13.58, y = 54.24, z = 17.64, name = "캠벨 농장", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[101] = { x = -152.65, y = 177.43, z = 157.23, name = "로카 숲", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[102] = { x = -141.34, y = 200.98, z = 110.52, name = "레인저 캠프", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[103] = { x = -137.74, y = 44.26, z = -176.92, name = "탐욕의 골짜기", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[104] = { x = 186.19, y = 36.00, z = -30.30, name = "해적 소굴", worldId = 0, IsCanFind = 1, PkMode = 1 },
-			[105] = { x = -211.75, y = 50.56, z = -201.41, name = "숲 속 주둔지", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[105] = { x = -211.75, y = 50.56, z = -201.41, name = "숲속 주둔지", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[106] = { x = 36.82, y = 49.63, z = -177.84, name = "희망항 정문", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[107] = { x = 260.85, y = 76.06, z = 232.32, name = "窃听镇长", worldId = 0, PkMode = 1 },
 			[108] = { x = -148.91, y = 42.03, z = -160.69, name = "窟拉逃离区", worldId = 0, IsCanFind = 1, PkMode = 1 },
@@ -111,17 +112,17 @@ local MapInfo =
 			[182] = { x = 143.45, y = 64.89, z = 146.57, name = "埋葬布莱恩", worldId = 0, PkMode = 1 },
 			[183] = { x = -159.13, y = 75.83, z = 112.04, name = "治疗迪波", worldId = 0, PkMode = 1 },
 			[184] = { x = 264.08, y = 76.06, z = 234.75, name = "间谍刷怪【任务】", worldId = 0, PkMode = 1 },
-			[255] = { x = 178.70, y = 73.06, z = 208.29, name = "难民乞讨1", worldId = 0, PkMode = 0 },
-			[256] = { x = 178.14, y = 72.44, z = 222.43, name = "难民乞讨2", worldId = 0, PkMode = 0 },
-			[266] = { x = -34.75, y = 54.85, z = 11.58, name = "拷问", worldId = 0, PkMode = 0 },
-			[267] = { x = -170.26, y = 42.62, z = -137.63, name = "万物志鹰眼0-霜峰卢肯日记02", worldId = 0, PkMode = 0 },
-			[268] = { x = -95.26, y = 59.46, z = 37.46, name = "万物志鹰眼01-迪波日记01", worldId = 0, PkMode = 0 },
-			[269] = { x = -191.94, y = 57.36, z = -238.07, name = "万物志鹰眼03-霜峰卢肯日记05", worldId = 0, PkMode = 0 },
-			[270] = { x = -107.97, y = 57.64, z = -91.61, name = "万物志鹰眼04-霜峰卢肯日记06", worldId = 0, PkMode = 0 },
-			[282] = { x = 38.81, y = 46.72, z = -169.36, name = "测试护送到达", worldId = 0, PkMode = 0 },
-			[332] = { x = 115.53, y = 67.04, z = 183.06, name = "그린마을 서문", worldId = 0, PkMode = 0 },
-			[333] = { x = 107.92, y = 60.88, z = 88.35, name = "测试公会护送02到达", worldId = 0, PkMode = 0 },
-			[334] = { x = 184.74, y = 39.90, z = -22.97, name = "支线任务审判", worldId = 0, PkMode = 0 },
+			[255] = { x = 178.70, y = 73.06, z = 208.29, name = "难民乞讨1", worldId = 0, PkMode = 1 },
+			[256] = { x = 178.14, y = 72.44, z = 222.43, name = "难民乞讨2", worldId = 0, PkMode = 1 },
+			[266] = { x = -34.75, y = 54.85, z = 11.58, name = "拷问", worldId = 0, PkMode = 1 },
+			[267] = { x = -170.26, y = 42.62, z = -137.63, name = "万物志鹰眼0-霜峰卢肯日记02", worldId = 0, PkMode = 1 },
+			[268] = { x = -95.26, y = 59.46, z = 37.46, name = "万物志鹰眼01-迪波日记01", worldId = 0, PkMode = 1 },
+			[269] = { x = -191.94, y = 57.36, z = -238.07, name = "万物志鹰眼03-霜峰卢肯日记05", worldId = 0, PkMode = 1 },
+			[270] = { x = -107.97, y = 57.64, z = -91.61, name = "万物志鹰眼04-霜峰卢肯日记06", worldId = 0, PkMode = 1 },
+			[282] = { x = 38.81, y = 46.72, z = -169.36, name = "测试护送到达", worldId = 0, PkMode = 1 },
+			[332] = { x = 115.53, y = 67.04, z = 183.06, name = "그린 마을 서문", worldId = 0, PkMode = 1 },
+			[333] = { x = 107.92, y = 60.88, z = 88.35, name = "测试公会护送02到达", worldId = 0, PkMode = 1 },
+			[334] = { x = 184.74, y = 39.90, z = -22.97, name = "支线任务审判", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

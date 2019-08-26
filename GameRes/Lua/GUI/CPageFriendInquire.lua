@@ -32,15 +32,15 @@ end
 
 local function UpdateInquireResult(self)
 	self._SearchResultData = game._CFriendMan:GetSearchReault()
-	if self._SearchResultData == nil then 
+	if self._SearchResultData == nil or #self._SearchResultData == 0 then 
 		self._ListInquire:SetActive(false)
 		self._LabNothing:SetActive(true)
-	else
+	elseif #self._SearchResultData > 0 then
 		self._ListInquire:SetActive(true)
 		self._LabNothing:SetActive(false)
 		self._ItemList = {}
 		self._ListInquire:SetActive(true)
-		self._ListInquire:GetComponent(ClassType.GNewList):SetItemCount(1)
+		self._ListInquire:GetComponent(ClassType.GNewList):SetItemCount(#self._SearchResultData)
 	end
 end
 
@@ -85,7 +85,7 @@ def.method("string").Click = function (self,id)
 	        return
 	    end
 	    self._IsShowRecommondList = false
-		game._CFriendMan:DoSearch(self._InputSearch.text)
+		game._CFriendMan:DoSearch(self._InputSearch.text,true)
 	elseif id == "Btn_ChangeRecommend" then 
 		self._IsShowRecommondList = true
 		game._CFriendMan:DoRcommond()
@@ -116,7 +116,7 @@ def.method('userdata', 'string', 'number').InitItem = function(self, item, id, i
 	if id == "List_Inquire" then 
 		local data = nil
 		if not self._IsShowRecommondList then 
-			data = self._SearchResultData
+			data = self._SearchResultData[index + 1]
 		else
 			data = self._RecommendDataList[index + 1]
 		end
@@ -133,7 +133,7 @@ def.method('userdata', 'string', 'number').InitItem = function(self, item, id, i
 		GUI.SetText(labName, data.Name)
         GUI.SetText(labLv, string.format( StringTable.Get(30327),data.Level))
         GUI.SetText(labProfession,tostring(StringTable.Get(10300 + data.Profession - 1)))
-        game:SetEntityCustomImg(imgHead,data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
+        TeraFuncs.SetEntityCustomImg(imgHead,data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
     	if game._CFriendMan:IsFriend(data.RoleId) then 
     		BtnInvite:SetActive(false)
     		imgIsFriend:SetActive(true)
@@ -152,12 +152,13 @@ def.method("userdata", "string", "string", "number").SelectItemButton = function
 	if id ==  "List_Inquire"  then 
 		local data = nil
 		if not self._IsShowRecommondList then 
-			data = self._SearchResultData
+			data = self._SearchResultData[index + 1] 
 		else
 			data = self._RecommendDataList[index + 1] 
 		end	
 		if id_btn == "Btn_Invite" then 
 			if game._CFriendMan:IsFriendNumberOverMax() then return end 
+		    CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
 			local item = self._ItemList[index + 1]
 			local uiTemplate = item:GetComponent(ClassType.UITemplate)
 			local BtnInvite = uiTemplate:GetControl(4)
@@ -168,7 +169,8 @@ def.method("userdata", "string", "string", "number").SelectItemButton = function
        		GameUtil.SetButtonInteractable(BtnInvite, false)
 			game._CFriendMan:DoFriendApply(data.RoleId)  
 		elseif id_btn == "Btn_Border" then 
-			game:CheckOtherPlayerInfo(data.RoleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.Friend)
+			local PBUtil = require "PB.PBUtil"
+			PBUtil.RequestOtherPlayerInfo(data.RoleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.Friend)
 		end
 	end
 end

@@ -55,11 +55,12 @@ end
 
 --------------------------------------------------------------------------------
 
-def.method().Show = function(self)
+def.method("number").Show = function(self, SpecialSignTid)
+    if SpecialSignTid <= 0 then return end
     self._Panel:SetActive(true)
     self._SpecialSignInfo = {}
-    self._SpecialSignInfo = game._CWelfareMan:GetSpecialSignInfo()    
-    local SpecialSignTemp = CElementData.GetTemplate("SpecialSign", self._SpecialSignInfo._Tid)
+    self._SpecialSignInfo = game._CWelfareMan:GetSpecialSignInfo(SpecialSignTid)    
+    local SpecialSignTemp = CElementData.GetTemplate("SpecialSign", SpecialSignTid)
 
     self._Rewards = SpecialSignTemp.SpecialSignRewards
     
@@ -69,8 +70,8 @@ def.method().Show = function(self)
     string.gsub(self._SpecialSignInfo._CanSign, '[^*]+', function(w) table.insert(self._CanSpecialSign, w) end )
 
     -- local ActivityOpenTime = StringTable.Get(19454) .. string.sub(self._SpecialSignInfo._OpenTime, 1, -6) .. "-" .. string.sub(self._SpecialSignInfo._CloseTime, 1, -6)
-    local ActivityOpenTime = string.format(StringTable.Get(19454), os.date("%Y/%m/%d %H:%M", self._SpecialSignInfo._OpenTime) .. " - " .. os.date("%Y/%m/%d %H:%M", self._SpecialSignInfo._CloseTime))
-    GUI.SetText(self._Lab_SpecialSignActivityTime, ActivityOpenTime)
+    -- local ActivityOpenTime = string.format(StringTable.Get(19454), os.date("%Y/%m/%d %H:%M", self._SpecialSignInfo._OpenTime) .. " - " .. os.date("%Y/%m/%d %H:%M", self._SpecialSignInfo._CloseTime))
+    GUI.SetText(self._Lab_SpecialSignActivityTime, SpecialSignTemp.TimeContent)
     GUI.SetText(self._Lab_SpecialSignActivityDesc, SpecialSignTemp.Content)
 
 
@@ -85,7 +86,7 @@ def.method().Show = function(self)
         else
             IconTools.InitItemIconNew(self._Img_TotalItem, reward.Data.Id)
         end
-        GUI.SetText(self._Lab_MaxNum, tostring(reward.Data.Count))
+        GUI.SetText(self._Lab_MaxNum, GUITools.FormatNumber(reward.Data.Count))
     end   
     if SpecialSignTemp.BackgroundImg ~= "" then  
         GUITools.SetSprite(self._Img_SpecialSignBg, SpecialSignTemp.BackgroundImg)
@@ -131,6 +132,7 @@ end
 
 def.method("string").OnClick = function(self, id)
     if id == "Btn_TotalItem" then  
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_System_Bonus_Sign, 0)
         local IsCanSign = false
         if #self._CanSpecialSign > 0 then
             for i,v in pairs(self._CanSpecialSign) do
@@ -185,7 +187,7 @@ def.method("userdata", "number").OnInitSpecialSignInfo = function(self, item, in
         else
             IconTools.InitItemIconNew(Img_Item, reward.Data.Id)
         end
-        GUI.SetText(Lab_ItemNum, tostring(reward.Data.Count))
+        GUI.SetText(Lab_ItemNum, GUITools.FormatNumber(reward.Data.Count))
     end     
     
     Img_Done:SetActive(false)  
@@ -239,6 +241,7 @@ def.method("userdata", "number").OnSelectSpecialSign = function(self, item, inde
     end   
     if IsSelectCanSign then
         -- 发送领取奖励协议
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_System_Bonus_Sign, 0)
         game._CWelfareMan:OnC2SScriptExec(self._SpecialSignInfo._ScriptID, EScriptEventType.SpecialSign_Sign, index)
     else
         local rewardsData = GUITools.GetRewardList(self._Rewards[index].RewardId, true)

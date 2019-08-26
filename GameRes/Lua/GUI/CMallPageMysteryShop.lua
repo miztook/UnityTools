@@ -23,6 +23,7 @@ def.field("number")._ItemShowMaxCount = 0
 def.field("number")._DotweenTimer = 0
 def.field("table")._GloryDatas = BlankTable
 def.field("table")._GoodTimers = nil
+def.field("table")._GoodLifeTimers = nil
 def.field("table")._VIPGridsInfo = nil
 
 def.static("=>", CMallPageMysteryShop).new = function()
@@ -46,13 +47,18 @@ def.override("dynamic").OnData = function(self, data)
     self._NeedPlayDotween = true
     self._VIPGridsInfo = CMallUtility.GetMysteryShopVIPGridTable()
     if self._VIPGridsInfo == nil then warn("error !!! 神秘商店模板数据错误，每一级增加的格子数填写错误") return end
-    self._ItemShowCount = self._VIPGridsInfo[game._HostPlayer._InfoData._GloryLevel] or 8
+    self._ItemShowCount = self._VIPGridsInfo[game._HostPlayer._InfoData._GloryLevel] == nil and refreshTemp.InitCellCount or self._VIPGridsInfo[game._HostPlayer._InfoData._GloryLevel]+refreshTemp.InitCellCount
     self._GloryDatas = game._CWelfareMan:GetGloryGifts()
-    self._ItemShowMaxCount = self._VIPGridsInfo[#self._VIPGridsInfo]
+    self._ItemShowMaxCount = self._VIPGridsInfo[#self._VIPGridsInfo] + refreshTemp.InitCellCount
     if self._GoodTimers ~= nil then
         self:RemoveGoodsTimers()
     else
         self._GoodTimers = {}
+    end
+    if self._GoodLifeTimers ~= nil then
+        self:RemoveAllGoodsLifeTimers()
+    else
+        self._GoodLifeTimers = {}
     end
     self:UpdatePanel()
 end
@@ -111,6 +117,7 @@ def.method().UpdatePanel = function(self)
 end
 
 def.override().RefreshPage = function(self)
+    CMallPageBase.RefreshPage(self)
     if self._PageData == nil then
         warn(string.format("MallPanel.RefreshPage error, self._PageData is nil"))
         return
@@ -229,8 +236,30 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
             local lab_btn_time = uiTemplate:GetControl(17)
             local lab_cash_cost = uiTemplate:GetControl(18)
             local lab_refresh_tip = uiTemplate:GetControl(19)
+            local img_gift_bg = uiTemplate:GetControl(20)
+            local lab_gift = uiTemplate:GetControl(21)
             lab_level_need:SetActive(false)
-            lab_remain_time:SetActive(false)
+--            lab_remain_time:SetActive(false)
+            local now_time = GameUtil.GetServerTime()
+            if good_item.ShowEndTime > 0 and good_item.ShowEndTime > now_time then
+                lab_remain_time:SetActive(true)
+                local callback = function()
+                    local time_str = CMallUtility.GetRemainStringByEndTime(good_item.ShowEndTime or 0)
+                    GUI.SetText(lab_remain_time, time_str)
+                    if GameUtil.GetServerTime() > (good_item.ShowEndTime or 0) then
+                        self._PanelMall:RequestSmallTabData(self._PanelMall._CurrentSelectBigTabID, self._PanelMall._CurrentSelectSmallTabID)
+                        _G.RemoveGlobalTimer(self._GoodLifeTimers[good_item.Id])
+                        self._GoodLifeTimers[good_item.Id] = 0
+                    end
+                end
+                if self._GoodLifeTimers[good_item.Id] ~= nil and self._GoodLifeTimers[good_item.Id] > 0 then
+                    _G.RemoveGlobalTimer(self._GoodLifeTimers[good_item.Id])
+                    self._GoodLifeTimers[good_item.Id] = 0
+                end
+                self._GoodLifeTimers[good_item.Id] = _G.AddGlobalTimer(1, false, callback)
+            else
+                lab_remain_time:SetActive(false)
+            end
             do  -- 物品图标和名字
                 if good_temp.IsBigIcon then
                     img_icon:SetActive(true)
@@ -275,8 +304,9 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                     lab_cost:SetActive(false)
                     lab_cash_cost:SetActive(true)
                     img_money_icon:SetActive(false)
-                    if good_item.CashCount > 0 then
-                        GUI.SetText(lab_cash_cost, string.format(StringTable.Get(31000), GUITools.FormatNumber(good_item.CashCount, false)))
+                    local cash_cost = CMallMan.Instance():GetGoodsDataCashCost(good_item)
+                    if cash_cost > 0 then
+                        GUI.SetText(lab_cash_cost, string.format(StringTable.Get(31000), GUITools.FormatNumber(cash_cost, false)))
                     else
                         GUI.SetText(lab_cash_cost, StringTable.Get(31029))
                     end
@@ -284,18 +314,21 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                 if good_temp.LimitType == ELimitType.NoLimit then
                     frame_has_buy:SetActive(false)
                     lab_refresh_tip:SetActive(false)
+                    lab_btn_time:SetActive(false)
                     lab_remain_count:SetActive(false)
                     lab_remain_tip:SetActive(false)
                 else
                     lab_remain_count:SetActive(true)
                     lab_remain_tip:SetActive(true)
                     lab_refresh_tip:SetActive(false)
+                    lab_btn_time:SetActive(false)
                     GUI.SetText(lab_remain_count, tostring(math.max(0, (good_item.Stock - hasBuyCount))))
-                    if good_temp.LimitType == ELimitType.Cycle then
+                    if good_temp.LimitType == ELimitType.Cycle or good_temp.LimitType == ELimitType.WeekLimit or good_temp.LimitType == ELimitType.MonthLimit then
                         frame_cost_diamond:SetActive(true)
                         frame_has_buy:SetActive(false)
                         if hasBuyCount >= good_item.Stock then
                             lab_refresh_tip:SetActive(true)
+                            lab_btn_time:SetActive(true)
                             lab_cost:SetActive(false)
                             lab_cash_cost:SetActive(false)
                             GUI.SetText(lab_remain_count, "")
@@ -305,6 +338,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                                 GUI.SetText(lab_btn_time, time_str)
                                 if GameUtil.GetServerTime() > (good_item.NextRefreshTime or 0) then
                                     lab_refresh_tip:SetActive(false)
+                                    lab_btn_time:SetActive(false)
                                     if good_item.CostType == ECostType.Currency then
                                         lab_cost:SetActive(true)
                                         lab_cash_cost:SetActive(false)
@@ -323,6 +357,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                             self._GoodTimers[good_item.Id] = _G.AddGlobalTimer(1, false, callback)
                         else
                             lab_refresh_tip:SetActive(false)
+                            lab_btn_time:SetActive(false)
                             if good_temp.StockCycle == 24 then
                                 GUI.SetText(lab_remain_tip, StringTable.Get(31057))
                             elseif good_temp.StockCycle == 168 then
@@ -384,6 +419,28 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
                 end
                 
             end
+
+            local gift_table = CMallUtility.GetGiftItemsByGoodsData(good_item.GiftItemId, good_item.GiftItemCount, good_item.GiftMoneyId, good_item.GiftMoneyCount)
+            if #gift_table <= 0 then
+                img_gift_bg:SetActive(false)
+            else
+                img_gift_bg:SetActive(true)
+                local gift_data = gift_table[1]
+                local str = ""
+                if gift_data.IsTokenMoney then
+                    local money_temp = CElementData.GetMoneyTemplate(gift_data.Data.Id)
+                    if money_temp ~= nil then
+                        str = string.format(StringTable.Get(31086), gift_data.Data.Count, money_temp.TextDisplayName)
+                    end
+                else
+                    local item_temp = CElementData.GetItemTemplate(gift_data.Data.Id)
+                    if item_temp ~= nil then
+                        str = string.format(StringTable.Get(31086), gift_data.Data.Count, item_temp.TextDisplayName)
+                    end
+                end
+                GUI.SetText(lab_gift, str)
+            end
+
             if self._CachedGoodsID > 0 then
                 if good_item.Id == self._CachedGoodsID then
                     local data = {storeID = self._PageData.StoreId, goodData = good_item}
@@ -397,7 +454,7 @@ end
 def.override('userdata', 'string', 'number').OnSelectItem = function(self, item, id, index)
     local index = index + 1
     if index > self._ItemShowCount then return end
-    if self._PageData ~= nil then
+    if self._PageData ~= nil and self._PageData.Goods[index] ~= nil then
         local good_item = self._PageData.Goods[index]
         local good_temp = CElementData.GetTemplate("Goods", good_item.Id)
         if good_temp == nil then
@@ -439,12 +496,21 @@ end
 def.method().RemoveGoodsTimers = function(self)
     if self._GoodTimers == nil then return end
     for k,v in pairs(self._GoodTimers) do
-        print("移除计时器", k,v)
         if v ~= nil then
            _G.RemoveGlobalTimer(v)
         end
     end
     self._GoodTimers = {}
+end
+
+def.method().RemoveAllGoodsLifeTimers = function(self)
+   if self._GoodLifeTimers == nil then return end
+   for k,v in pairs(self._GoodLifeTimers) do
+       if v ~= nil then
+           _G.RemoveGlobalTimer(v)
+       end
+   end
+   self._GoodLifeTimers = {}
 end
 
 def.override().OnHide = function(self)
@@ -453,6 +519,7 @@ def.override().OnHide = function(self)
         self._RefreshTimer = 0
     end
     self:RemoveGoodsTimers()
+    self:RemoveAllGoodsLifeTimers()
 end
 
 def.override().OnDestory = function(self)
@@ -468,6 +535,7 @@ def.override().OnDestory = function(self)
     self._PanelObjects = nil
     self._GloryDatas = nil
     self:RemoveGoodsTimers()
+    self:RemoveAllGoodsLifeTimers()
 end
 
 CMallPageMysteryShop.Commit()

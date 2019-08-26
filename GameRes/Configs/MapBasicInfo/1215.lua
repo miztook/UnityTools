@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10046] = 
@@ -61,16 +62,16 @@ local MapInfo =
 	{
 		[1] = 
 		{
-			[131] = { x = 181.54, y = 21.52, z = -184.19, xA = 166.70, yA = 27.64, zA = -197.58, name = "传送楼下", worldId = 1215, PkMode = 0 },
-			[132] = { x = 156.69, y = 27.20, z = -186.17, xA = 183.87, yA = 20.85, zA = -180.41, name = "传送楼上", worldId = 1215, PkMode = 0 },
+			[131] = { x = 181.54, y = 21.52, z = -184.19, xA = 166.70, yA = 27.64, zA = -197.58, name = "传送楼下", worldId = 1215, PkMode = 1 },
+			[132] = { x = 156.69, y = 27.20, z = -186.17, xA = 183.87, yA = 20.85, zA = -180.41, name = "传送楼上", worldId = 1215, PkMode = 1 },
 		},
 		[2] = 
 		{
-			[82] = { x = 215.84, y = 27.63, z = -200.46, name = "奴隶区", worldId = 0, PkMode = 0 },
-			[83] = { x = 210.04, y = 27.63, z = -146.71, name = "军事区", worldId = 0, PkMode = 0 },
-			[84] = { x = 147.62, y = 24.12, z = -132.52, name = "竞技场外", worldId = 0, PkMode = 0 },
-			[85] = { x = 172.31, y = 43.92, z = -144.51, name = "", worldId = 0, PkMode = 0 },
-			[130] = { x = 190.17, y = 20.85, z = -174.95, name = "竞技场内环", worldId = 0, PkMode = 0 },
+			[82] = { x = 215.84, y = 27.63, z = -200.46, name = "奴隶区", worldId = 0, PkMode = 1 },
+			[83] = { x = 210.04, y = 27.63, z = -146.71, name = "军事区", worldId = 0, PkMode = 1 },
+			[84] = { x = 147.62, y = 24.12, z = -132.52, name = "竞技场外", worldId = 0, PkMode = 1 },
+			[85] = { x = 172.31, y = 43.92, z = -144.51, name = "", worldId = 0, PkMode = 1 },
+			[130] = { x = 190.17, y = 20.85, z = -174.95, name = "竞技场内环", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

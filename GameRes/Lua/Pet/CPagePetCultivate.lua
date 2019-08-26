@@ -19,10 +19,7 @@ def.field("table")._MedicineList = nil  -- 宠物经验药物
 def.field("number")._TimerID = 0        -- timer
 def.field("boolean")._CanNotifyOnClick = true
 def.field("number")._SelectMaterialIndex = 1
-
-local function SendFlashMsg(msg)
-    game._GUIMan:ShowTipText(msg, false)
-end
+def.field("boolean")._Inited = false
 
 local instance = nil
 def.static("table", "userdata", "=>", CPagePetCultivate).new = function(parent, panel)
@@ -104,6 +101,7 @@ local OnPetUpdateEvent = function(sender, event)
     if EPetOptType.EPetOptType_exp == event._Type then
         instance:UpdateExp()
         instance:UpdateSelectMaterial()
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Pet_Eating, 0)
     elseif EPetOptType.EPetOptType_levelup == event._Type then
         instance:UpdateExp()
         instance:UpdateProperty()
@@ -115,7 +113,6 @@ local OnPackageChangeEvent = function(sender, event)
     if instance == nil then return end
 
     instance:UpdateMedicine()
-    instance:UpdateSelectMaterial()
 end
 
 def.method("dynamic").Show = function(self, data)
@@ -182,12 +179,19 @@ def.method().UpdatePanel = function(self)
     self:UpdateExp()
     self:UpdateMedicine()
     self:UpdateSelectMaterial()
+
+    self._Inited = true
 end
 
 local function SetMedicineItem(Medicine)
     local item = Medicine.Obj
-    IconTools.InitMaterialIconNew(item:FindChild("MaterialIcon"), Medicine.Tid, 1)
-    GUI.SetText(item:FindChild("Lab_EXP"), string.format( StringTable.Get(19108), Medicine.AddExp) )
+    if instance._Inited then
+        IconTools.SetMaterialNum(item:FindChild("MaterialIcon"), Medicine.Tid, 1)
+    else
+        IconTools.InitMaterialIconNew(item:FindChild("MaterialIcon"), Medicine.Tid, 1)
+        local str = string.format( StringTable.Get(19108), GUITools.FormatNumber(Medicine.AddExp))
+        GUI.SetText(item:FindChild("Lab_EXP"), str)
+    end
 end
 
 local function CheckCount(self, medicineTid, count)
@@ -207,7 +211,7 @@ local function UseMedicine(self, medicineTid, count, isIgnoreCount)
         local have_count = normalPack:GetItemCount( medicineTid )
         if have_count <= 0 then
             if not CheckCount(self, medicineTid, count) then
-                SendFlashMsg( StringTable.Get(932) )
+                TeraFuncs.SendFlashMsg( StringTable.Get(932) )
                 return
             end
         else
@@ -221,7 +225,7 @@ local function UseMedicine(self, medicineTid, count, isIgnoreCount)
         end
     else
         if not CheckCount(self, medicineTid, count) then
-            SendFlashMsg( StringTable.Get(932) )
+            TeraFuncs.SendFlashMsg( StringTable.Get(932) )
             return
         end
     
@@ -234,7 +238,7 @@ end
 def.method("=>", "boolean").CheckCanFeed = function(self)
     local bRet = true
     if self._PetData._Level >= game._HostPlayer._InfoData._Level then
-        SendFlashMsg( StringTable.Get(19082) )
+        TeraFuncs.SendFlashMsg( StringTable.Get(19082) )
         bRet = false
     end
 
@@ -313,6 +317,8 @@ def.method().UpdateSelectMaterial = function(self)
     end
 
     local Medicine = self._MedicineList[self._SelectMaterialIndex]
+    local item = Medicine.Obj
+    IconTools.SetMaterialNum(item:FindChild("MaterialIcon"), Medicine.Tid, 1)
     GUITools.SetBtnGray(self._PanelObject.Btn_Feed_Once, not CheckCount(self, Medicine.Tid, 1) or IsPetLevelTooHigh(self))
     GUITools.SetBtnGray(self._PanelObject.Btn_Feed_Several, not CheckCount(self, Medicine.Tid, 10) or IsPetLevelTooHigh(self))
 end
@@ -469,6 +475,7 @@ def.method().Hide = function(self)
     self._PanelObject = nil
     self._PetData = nil
     self._Panel:SetActive(false)
+    self._Inited = false
 end
 
 def.method().Destroy = function (self)

@@ -109,12 +109,6 @@ do
 
     def.method().Cleanup = function(self)
         self._NotifyList = {}
-        --self._IsShowNotifyUI = false
-    end
-
-    def.method().Release = function(self)
-        self:Cleanup()
-        --print("CNotificationMan.Release()")
         CGame.EventManager:removeHandler(ShowMainUIEvent, OnShowMainUI) 
     end
 

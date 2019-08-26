@@ -53,7 +53,7 @@ local function OnS2CPkChangeMode(sender, msg)
 				if player._TopPate ~= nil then
 					player._TopPate:UpdateName(true)
 					player:UpdatePetName()
-					player:UpdateTopPateRescue()
+					player:UpdateTopPate(EnumDef.PateChangeType.Rescue)
 				end
 		    end
 		    --hp._TopPate:SetPKIconIsShow( hp:GetPkMode() == EPkMode.EPkMode_Massacre )
@@ -76,12 +76,7 @@ local function OnS2CPkChangeMode(sender, msg)
 		CGame.EventManager:raiseEvent(nil, event)
 
 		-- 	刷新选中目标
-		local curTarget = hp._CurTarget
-		if msg.EntityId == hp._ID or (curTarget ~= nil and msg.EntityId == curTarget._ID) then
-			hp:UpdateTargetSelected()
-			-- local is_locked = hp._IsTargetLocked
-			-- CFxMan.Instance():OnTargetSelected(curTarget, is_locked)
-		end
+		hp:UpdateTargetSelected(msg.EntityId)
 	else
 		OnPKChangeReturnCode(msg.ResCode)
 		return
@@ -122,7 +117,6 @@ PBHelper.AddHandler("S2CPkUpdateEvil", OnS2CPkUpdateEvil)
 
 -- 队伍内有成员改变PK模式
 local function OnS2CPkTeamChangeMode(sender, msg)
-    -- warn("-----S2CPkTeamChangeMode---------->>>", msg.EntityId, msg.PkMode)
 	local CTeamMan = require "Team.CTeamMan"
 	local entityName = CTeamMan.Instance():GetTeamMemberName(msg.EntityId)
 	local PKModeStr = ""

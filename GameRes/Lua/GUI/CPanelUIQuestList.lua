@@ -24,7 +24,7 @@ def.field("table")._QuestChapters = BlankTable
 def.field("table")._ToggleTable = nil -- 六个页签的toggle
 def.field("table")._ToggleTableRed = nil -- 页签红点
 def.field("table")._ChaptersTemplate_id_list = nil --缓存所有章节ID模板
-def.field("table")._QuestsCanRecievedTalbe = nil   --缓存可以接到的任务
+--def.field("table")._QuestsCanRecievedTalbe = nil   --缓存可以接到的任务
 
 
 def.field('userdata')._List_Quest = nil                 --左边章节目录
@@ -46,7 +46,7 @@ def.field('userdata')._Btn_Go = nil                  --任务开始按钮
 
 
 def.field('table')._TargetsTable = nil               --任务目标
-
+def.field("boolean")._IsInit = false
 
 def.field("userdata")._Frame_ElementsContainer = nil --具体内容
 def.field("userdata")._Frame_CurQuest = nil --具体任务任务内容
@@ -71,6 +71,8 @@ def.field("number")._CurrentSelectTabIndex = -1
 --def.field("number")._CurrentSelectTabIndex2 = -1
 def.field("number")._CurrentSelectQuestID = 0
 def.field("number")._CurrentChapterIndex = -1
+def.field("number")._CurrentOnDropDownIndex = -1
+
 --（除主线，支线外）任务组专用
 --def.field("table")._QuestGroups = BlankTable 
 --def.field("table")._GroupsTemplate_id_list = nil --缓存所有任务组ID模板
@@ -100,7 +102,7 @@ def.static('=>', CPanelUIQuestList).Instance = function ()
         instance = CPanelUIQuestList()
         instance._PrefabPath = PATH.UI_QuestList
         instance._PanelCloseType = EnumDef.PanelCloseType.None
-        instance._DestroyOnHide = true
+        instance._DestroyOnHide = false
         
         instance:SetupSortingParam()
     end
@@ -195,11 +197,6 @@ def.override().OnCreate = function(self)
             self._ToggleTableRed[i]: SetActive(false)
         end
     end
-
-    CGame.EventManager:addHandler('QuestCommonEvent', OnQuestEvents)
-    -- CGame.EventManager:addHandler('QuestReceiveEvent', QuestDataChange)
-    -- CGame.EventManager:addHandler('QuestCompleteEvent', QuestDataChange)
-    -- CGame.EventManager:addHandler('QuestObjectiveCounterEvent', QuestDataChange)
 end
 
 -- -- 页签内是否有红点显示
@@ -288,7 +285,7 @@ def.override("dynamic").OnData = function(self,data)
 
     self._CurrentChapterIndex = -1
     self._QuestChapters = {}
-    self._QuestsCanRecievedTalbe = {}
+    --self._QuestsCanRecievedTalbe = {}
 
     --self._QuestGroups = {}
     for i = 1,4 do
@@ -306,9 +303,16 @@ def.override("dynamic").OnData = function(self,data)
         local Lab_GiftPoint = itemObj:FindChild("Lab_GiftPoint"..i)
         GUI.SetText(Lab_GiftPoint, string.format(StringTable.Get(562),i))
     end
+
+    CGame.EventManager:addHandler('QuestCommonEvent', OnQuestEvents)
+    -- CGame.EventManager:addHandler('QuestReceiveEvent', QuestDataChange)
+    -- CGame.EventManager:addHandler('QuestCompleteEvent', QuestDataChange)
+    -- CGame.EventManager:addHandler('QuestObjectiveCounterEvent', QuestDataChange)
 end
 
 def.method().ShowFrame = function(self)
+    self._IsInit = true
+    --print( "ShowFrame===========================" )
     if self._CurFrameType-1 == QuestDef.QuestType.Main or self._CurFrameType-1 == QuestDef.QuestType.Branch then
         self:ShowMainAndBreachFrame(false)
     elseif self._CurFrameType == 4 then
@@ -320,7 +324,6 @@ def.method().ShowFrame = function(self)
     self:ShowRedPoint(self._CurFrameType,false)
 end
 
-local OnDropDownIndex = 0
 def.method('boolean').ShowMainAndBreachFrame = function(self,isReset)
     self._CurrentChapterIndex = -1
     self._CurrentSelectTabIndex = -1
@@ -339,16 +342,16 @@ def.method('boolean').ShowMainAndBreachFrame = function(self,isReset)
 
     if self._QuestChapters[self._CurFrameType] == nil or isReset then
         self._QuestChapters[self._CurFrameType] = {}
-        if self._QuestsCanRecievedTalbe[self._CurFrameType] == nil then
-            self._QuestsCanRecievedTalbe[self._CurFrameType] = CQuest.Instance():GetQuestsCanRecievedByType(self._CurFrameType)
+        --if self._QuestsCanRecievedTalbe[self._CurFrameType] == nil then
+        --    self._QuestsCanRecievedTalbe[self._CurFrameType] = CQuest.Instance():GetQuestsCanRecievedByType(self._CurFrameType)
             --print_r(self._QuestsCanRecievedTalbe[self._CurFrameType])
-        end
+        --end
 
         --某一个类型的任务章节
         QuestTypeChapters = self._QuestChapters[self._CurFrameType]
 
         if self._ChaptersTemplate_id_list == nil then
-            self._ChaptersTemplate_id_list = GameUtil.GetAllTid("QuestChapter")
+            self._ChaptersTemplate_id_list = CElementData.GetAllTid("QuestChapter")
         end
 
         --获得所有章
@@ -416,7 +419,8 @@ def.method('boolean').ShowMainAndBreachFrame = function(self,isReset)
                             end
 
                             if CQuest.Instance()._InProgressQuestMap[v2.QuestId] ~= nil or
-                               self._QuestsCanRecievedTalbe[self._CurFrameType][v2.QuestId] ~= nil
+                                --CQuest.Instance():CanRecieveQuest( v2.QuestId )
+                                CQuest.Instance()._QuestsCanRecievedTalbe[v2.QuestId] ~= nil
                             then
                                 --print("通过Progress==============",v2.QuestId)
                                 -- i 为第几章
@@ -487,18 +491,25 @@ def.method('boolean').ShowMainAndBreachFrame = function(self,isReset)
 
     --如果有任务
     if #QuestTypeChapters > 0 then
+        GameUtil.AdjustDropdownRect(self._Drop_QuestChapter, #self._QuestChapters[self._CurFrameType])
         self:SetQuestChaptersDropGroup()
         self._List_QuestParent:SetActive(true)
         self._Drop_QuestChapter:SetActive(true)
-        -- print("aaaa==================",OnDropDownIndex)
-        OnDropDownIndex = 0
-        GameUtil.SetDropdownValue(self._Drop_QuestChapter, -1)
+
+        --GameUtil.SetDropdownValue(self._Drop_QuestChapter, -1)
         -- local ChapterTemplate = CElementData.GetTemplate("QuestChapter", self._Current_SelectData.ChapterTid)
         -- local Groups = string.split(ChapterTemplate.QuestGroupId, "*")
         -- self._List_Quest:SetItemCount(#Groups)
 
         if self._CurFrameType-1 == QuestDef.QuestType.Main then
-            GameUtil.SetDropdownValue(self._Drop_QuestChapter, #QuestTypeChapters-1)
+            --print("Main111=========",self._CurrentOnDropDownIndex,#QuestTypeChapters)
+            GameUtil.SetDropdownValue(self._Drop_QuestChapter, #QuestTypeChapters)
+            if #QuestTypeChapters == self._CurrentOnDropDownIndex then
+                self:OnDropDown("",#QuestTypeChapters-1)
+            else
+                self._CurrentOnDropDownIndex = #QuestTypeChapters-1
+            end
+            --print("Main222=========",self._CurrentOnDropDownIndex,#QuestTypeChapters)
         elseif self._CurFrameType-1 == QuestDef.QuestType.Branch then
             --如果没有选中 默认为0
             if self._CurrentChapterIndex == -1 then
@@ -530,7 +541,15 @@ def.method('boolean').ShowMainAndBreachFrame = function(self,isReset)
                     break
                 end
             end
+
+            --print("Branch111=========",self._CurrentOnDropDownIndex,self._CurrentChapterIndex)
             GameUtil.SetDropdownValue(self._Drop_QuestChapter, self._CurrentChapterIndex)
+            if self._CurrentChapterIndex == self._CurrentOnDropDownIndex then
+                self:OnDropDown("",self._CurrentChapterIndex)
+            else
+                self._CurrentOnDropDownIndex = self._CurrentChapterIndex
+            end
+            --print("Branch222=========",self._CurrentOnDropDownIndex,self._CurrentChapterIndex)
             --self._List_Quest:SelectItem(self._CurrentChapterIndex,0)
         end
 
@@ -618,6 +637,7 @@ def.override('string').OnClick = function(self, id)
 
         local questModel = CQuest.Instance():FetchQuestModel(self._CurrentSelectQuestID)
         if not CPageQuest.Instance():IsSelectByID( self._CurrentSelectQuestID ) then
+            CAutoFightMan.Instance():SetMode(EnumDef.AutoFightType.QuestFight, self._CurrentSelectQuestID, false)
             questModel:DoShortcut()
         elseif game._CFunctionMan:IsUnlockByFunID(EnumDef.EGuideTriggerFunTag.AutoFight) then
             CQuestAutoMan.Instance():Start(questModel)    
@@ -692,7 +712,7 @@ def.override('string').OnClick = function(self, id)
                         end 
                     end
                 elseif v._State == 2 then
-                    print("QuestGroupDrawReward=",v._GroupID)
+                    --print("QuestGroupDrawReward=",v._GroupID)
                     CQuest.Instance():QuestGroupDrawReward(v._GroupID)
                 end
             end
@@ -720,9 +740,9 @@ def.method().OnSelectChapterDataChange = function(self)
         elseif self._CurFrameType-1 == QuestDef.QuestType.Branch then
             self._List_Quest:SelectItem(CurrentSelectTabIndex-1,CurrentSelectTabIndex2-1)
         end
-        print("OnSelectChapterDataChange=此章选中",self._Current_SelectData.ChapterTid,CurrentSelectTabIndex,CurrentSelectTabIndex2)
+        --print("OnSelectChapterDataChange=此章选中",self._Current_SelectData.ChapterTid,CurrentSelectTabIndex,CurrentSelectTabIndex2)
     else
-        print("OnSelectChapterDataChange=此章全部完成")
+        --print("OnSelectChapterDataChange=此章全部完成")
         local CurrentSelectTabIndex = #self._Current_SelectData.QuestGroups
         local CurrentSelectTabIndex2 = self._Current_SelectData.QuestGroups[#self._Current_SelectData.QuestGroups].FinishCount
         if self._CurFrameType-1 == QuestDef.QuestType.Main then
@@ -1100,7 +1120,7 @@ end
 
 local rewards = nil
 def.method().OnSelectQuestDataChange = function(self)
-    print("_CurrentSelectQuestID=",self._CurrentSelectQuestID,self._Current_SelectData.ChapterTid)
+    --print("_CurrentSelectQuestID=",self._CurrentSelectQuestID,self._Current_SelectData.ChapterTid)
     self._Frame_CurQuest:SetActive(true)
 
     local template = CElementData.GetTemplate("QuestChapter", self._Current_SelectData.ChapterTid)
@@ -1287,7 +1307,8 @@ def.method('userdata','number','number').OnInitTabListDeep2 = function(self,item
         else
             Img_Finish:SetActive(false)
             --判断此任务是否进行中 或者在可以接取的状态
-            if CQuest.Instance():IsQuestInProgress(QuestID) or CQuest.Instance():IsQuestReady(QuestID) or CQuest.Instance():CanRecieveQuest(QuestID) then
+            --if CQuest.Instance():IsQuestInProgress(QuestID) or CQuest.Instance():IsQuestReady(QuestID) or CQuest.Instance():CanRecieveQuest(QuestID) then
+            if CQuest.Instance():IsQuestInProgress(QuestID) or CQuest.Instance():IsQuestReady(QuestID) or CQuest.Instance()._QuestsCanRecievedTalbe[QuestID] ~= nil then
                 color_code = "FFFFFFFF"
             else
             --不能接
@@ -1361,7 +1382,11 @@ def.override("userdata", "userdata", "number", "number").OnTabListInitItem = fun
 end
 
 def.method('userdata','userdata','number').OnClickTabListDeep1 = function(self,list,item,bigTypeIndex)
-print("OnClickTabListDeep1",bigTypeIndex)
+--print("OnClickTabListDeep1",bigTypeIndex)
+    if self._Current_SelectData == nil then
+        warn("self._Current_SelectData == nil",self._CurFrameType,bigTypeIndex)
+        return
+    end
     local GroupData = self._Current_SelectData.QuestGroups[bigTypeIndex]
     local ChapterTemplate = CElementData.GetTemplate("QuestChapter", self._Current_SelectData.ChapterTid)
     local GroupIds = string.split(ChapterTemplate.QuestGroupId, "*")
@@ -1370,7 +1395,7 @@ print("OnClickTabListDeep1",bigTypeIndex)
     self._Current_SelectGroupData = GroupData
     if self._Current_SelectGroupData == nil then
         game._GUIMan:ShowTipText( StringTable.Get(561), false)
-        print(self._Current_SelectData.ChapterTid.."章"..bigTypeIndex.."节未激活")
+        --print(self._Current_SelectData.ChapterTid.."章"..bigTypeIndex.."节未激活")
         return
     end
     self._List_Quest:SetSelection(bigTypeIndex-1,-1)
@@ -1386,12 +1411,12 @@ print("OnClickTabListDeep1",bigTypeIndex)
             local current_type_count = #GroupTemplate.GroupFields
             --print("OpenTab=",self._Current_SelectGroupData.GroupTid,current_type_count)
             self._List_Quest:OpenTab(current_type_count)
-            print("OpenTab.name=",item.name)
+            --print("OpenTab.name=",item.name)
             local lastMainSelectedNode = self._List_Quest:GetItem(self._List_Quest.LastMainSelected)
             if lastMainSelectedNode ~= nil then
                 lastMainSelectedNode:FindChild("Img_Arrow/Img_Arrow_01"):SetActive(false)
                 lastMainSelectedNode:FindChild("Img_Arrow/Img_Arrow_02"):SetActive(true)
-                print("lastMainSelectedNode.name=",lastMainSelectedNode.name)
+                --print("lastMainSelectedNode.name=",lastMainSelectedNode.name)
             end
             item:FindChild("Img_Arrow/Img_Arrow_01"):SetActive(true)
             item:FindChild("Img_Arrow/Img_Arrow_02"):SetActive(false)
@@ -1425,11 +1450,11 @@ print("OnClickTabListDeep1",bigTypeIndex)
 end
 
 def.method('userdata','number','number').OnClickTabListDeep2 = function(self,list,bigTypeIndex,smallTypeIndex)
-    print("OnClickTabListDeep2",bigTypeIndex,smallTypeIndex)
+    --print("OnClickTabListDeep2",bigTypeIndex,smallTypeIndex)
     if self._Current_SelectGroupData == nil then
         --print("任务不能接取也没有完成")
         game._GUIMan:ShowTipText( StringTable.Get(560), false)
-        print(StringTable.Get(560))
+        --print(StringTable.Get(560))
         return
     end
     local GroupTemplate = CElementData.GetTemplate("QuestGroup", self._Current_SelectGroupData.GroupTid)
@@ -1456,7 +1481,7 @@ def.method('userdata','number','number').OnClickTabListDeep2 = function(self,lis
         --不能接
             --print("任务不能接取也没有完成")
             game._GUIMan:ShowTipText( StringTable.Get(560), false)
-            print(StringTable.Get(560))
+            --print(StringTable.Get(560))
         end
     end
 end
@@ -1545,6 +1570,14 @@ def.override("userdata", "userdata", "number", "number").OnTabListSelectItem = f
             self._Lab_ReputationFinishQuest:SetActive(true)
         end
     end
+
+    if not self._IsInit then
+        --CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
+    end
+    
+    if self._IsInit then
+        self._IsInit = false
+    end
 end
 
 def.override("userdata", "string", "number").OnInitItem = function(self, item, id, index)
@@ -1569,7 +1602,8 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
                 IconTools.InitItemIconNew(frame_icon, rewardData.Data.Id, { [EItemIconTag.Number] = rewardData.Data.Count })
             end
 
-            local isLock = rewardData.Data.ReputationLevel <= self._Current_SelectData.ReputationLevel
+            --local isLock = rewardData.Data.ReputationLevel > self._Current_SelectData.ReputationLevel
+            local isLock = false
 
             local frame_item = GUITools.GetChild(frame_icon, 3)
             local img_quality_bg = GUITools.GetChild(frame_item, 1)
@@ -1654,7 +1688,7 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
             str_Num_Chapter = StringTable.Get(553)
             str_Num_repeatCount = string.format("%d/%d",FinishNum,TotalNum)
             str_QuestProvideRepeat = StringTable.Get(570)
-            print( "=============Reward",CyclicQuestData._CyclicQuestID,FinishNum,TotalNum )
+            --print( "=============Reward",CyclicQuestData._CyclicQuestID,FinishNum,TotalNum )
             if CyclicQuestData._CyclicQuestID ~= 0 then
                 questModels[idx] = CQuest.Instance():GetInProgressQuestModel(CyclicQuestData._CyclicQuestID)
                 Btn_AcceptRepeat:SetActive(false)
@@ -1712,7 +1746,7 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
             if template ~= nil then
                 TotalNum = template.MaxCount
             end
-            print( "=============Activity",FinishNum,TotalNum )
+            --print( "=============Activity",FinishNum,TotalNum )
             str_Num_repeatCount = string.format("%d/%d",FinishNum,TotalNum)
 
             --如果没有进行中的活动任务（工会）
@@ -1940,13 +1974,13 @@ def.method().SetQuestChaptersDropGroup = function (self)
             str =  "<color=#FBF4B8>" .. Groups[1] .."</color>" .. "  " .. Groups[2]
         else
             -- 如果可以接取 则显示任务名称 否则显示 章节名称
-            if CQuest.Instance():QuestChapterIsRecieve( v.ChapterTid ) then
+--[[            if CQuest.Instance():QuestChapterIsRecieve( v.ChapterTid ) then
                 local questID = CQuest.Instance():GetChapterFristQuest( v.ChapterTid )
                 local QuestTemplate = CElementData.GetQuestTemplate(questID)
                 str = QuestTemplate.TextDisplayName
-            else
+            else--]]
                 str = template.TextDisplayName
-            end
+            --end
         end
 
         if self._CurFrameType-1 == QuestDef.QuestType.Branch then
@@ -1965,8 +1999,6 @@ def.method().SetQuestChaptersDropGroup = function (self)
             groupStr = groupStr .. "," .. str
         end
     end
-
-    GameUtil.AdjustDropdownRect(self._Drop_QuestChapter, #self._QuestChapters[self._CurFrameType])
     
     local drop_template = self:GetUIObject("Drop_Template_QuestChapter")
     local RectTransform = drop_template:GetComponent(ClassType.RectTransform)
@@ -1998,22 +2030,25 @@ def.method().SetQuestChaptersDropGroup = function (self)
     GUI.SetDropDownOption2(self._Drop_QuestChapter, groupStr, groupStr2)
 end
 def.override("string", "number").OnDropDown = function(self, id, index)
-    --第一次回调无效
-    -- OnDropDownIndex = OnDropDownIndex + 1
-    -- if OnDropDownIndex ~= 2 then
-    --     return
-    -- end
-    print("OnDropDown",id,index)
+    --print("OnDropDown",id,index)
+    self._CurrentOnDropDownIndex = index
+    self._IsInit = true
     local current_type_chapters = self._QuestChapters[self._CurFrameType]
     self._Current_SelectData = current_type_chapters[index+1]
+
+    if self._Current_SelectData == nil then
+        warn("self._Current_SelectData == nil",self._CurFrameType,index,#current_type_chapters)
+        return
+    end
     self:OnSelectChapterDataChange()
 end
 
 def.override().OnHide = function(self)
     CPanelBase.OnHide(self)
+    self._CurrentOnDropDownIndex = -1
     self._QuestChapters = nil
     self._ChaptersTemplate_id_list = nil
-    self._QuestsCanRecievedTalbe = nil
+    --self._QuestsCanRecievedTalbe = nil
     CGame.EventManager:removeHandler('QuestCommonEvent', OnQuestEvents)
     _G.RemoveGlobalTimer(timeID)
     repeatRewards = {}

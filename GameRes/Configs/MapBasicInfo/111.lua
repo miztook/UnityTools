@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/city01.png",
 	AssetPath = "Assets/Outputs/Scenes/City01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10093] = 
@@ -85,9 +86,9 @@ local MapInfo =
 	{
 		[1] = 
 		{
-			[1] = { x = -1.18, y = 29.19, z = 204.52, xA = 38.19, yA = 49.34, zA = -221.96, name = "传送至东部领地1", worldId = 120, PkMode = 1 },
-			[2] = { x = -113.82, y = 29.13, z = 142.47, xA = -21.32, yA = 53.58, zA = -242.44, name = "传送至东部领地2", worldId = 120, PkMode = 1 },
-			[4] = { x = 145.58, y = 21.67, z = 219.67, xA = 239.44, yA = 21.91, zA = -224.12, name = "", worldId = 120, PkMode = 1 },
+			[1] = { x = -1.18, y = 29.19, z = 204.52, xA = 38.19, yA = 49.34, zA = -221.96, name = "传送至东部领地1", worldId = 120, IsCanFind = 1, Describe = "东部领地-正门", PkMode = 1 },
+			[2] = { x = -113.82, y = 29.13, z = 142.47, xA = -21.32, yA = 53.58, zA = -242.44, name = "传送至东部领地2", worldId = 120, IsCanFind = 1, Describe = "东部领地-贪婪溪谷", PkMode = 1 },
+			[4] = { x = 145.58, y = 21.67, z = 219.67, xA = 239.44, yA = 21.91, zA = -224.12, name = "", worldId = 120, IsCanFind = 1, Describe = "东部领地-水道", PkMode = 1 },
 			[87] = { x = -4.99, y = 179.30, z = -131.70, xA = -4.55, yA = 58.38, zA = -43.17, name = "顶端传送区域", worldId = 111, PkMode = 1 },
 			[91] = { x = -28.68, y = 58.38, z = -36.51, xA = -5.80, yA = 179.30, zA = -138.31, name = "传送阵大堂", worldId = 111, PkMode = 1 },
 		},
@@ -106,8 +107,8 @@ local MapInfo =
 			[117] = { x = -5.16, y = 58.38, z = -20.23, name = "贝里克神殿", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[118] = { x = -7.01, y = 185.32, z = -201.91, name = "天空圣殿", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[124] = { x = 22.82, y = 25.45, z = 159.87, name = "难民抢劫【任务】", worldId = 0, PkMode = 1 },
-			[256] = { x = -4.63, y = 53.80, z = 7.10, name = "刷怪区域2", worldId = 0, PkMode = 0 },
-			[436] = { x = -24.38, y = 34.80, z = 10.68, name = "神殿对峙相位", worldId = 0, PkMode = 0 },
+			[256] = { x = -4.63, y = 53.80, z = 7.10, name = "刷怪区域2", worldId = 0, PkMode = 1 },
+			[436] = { x = -24.38, y = 34.80, z = 10.68, name = "神殿对峙相位", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

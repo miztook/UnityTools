@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Canyon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world02.png",
 	AssetPath = "Assets/Outputs/Scenes/World02.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[11055] = 
@@ -54,7 +55,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[141] = { x = -93.47, y = 63.86, z = 45.75, name = "西门战斗相位【个人】", worldId = 0, PkMode = 0 },
+			[141] = { x = -93.47, y = 63.86, z = 45.75, name = "西门战斗相位【个人】", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

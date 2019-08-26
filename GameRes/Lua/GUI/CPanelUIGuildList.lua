@@ -31,7 +31,7 @@ def.field("table")._List_Item_3 = BlankTable
 -- 公会列表
 def.field("table")._Guild_List = nil
 -- 上次点击item
-def.field("userdata")._Add_Item = nil
+def.field("userdata")._SelectItemButton = nil
 ---- 是否需要审批
 --def.field("boolean")._NeedAgree = false
 -- 是否第一次点击列表界面
@@ -74,13 +74,14 @@ def.field("userdata")._Rdo_Check = nil     --<GNewIOSToggle>
 --def.field("userdata")._Lab_Create_Money = nil
 def.field("userdata")._TagGroup = nil
 def.field(CCommonBtn)._Btn_Create = nil
-def.field("userdata")._Lab_Count = nil 
+def.field("userdata")._Lab_Count = nil
+def.field("userdata")._Lab_Tip = nil 
 def.field("userdata")._Btn_Plus = nil
 def.field("userdata")._Btn_Minus = nil
 
 local instance = nil
 def.static("=>", CPanelUIGuildList).Instance = function()
-	if not instance then
+	if not instance then  
 		instance = CPanelUIGuildList()
 		instance._PrefabPath = PATH.UI_Guild_List
 		instance._PanelCloseType = EnumDef.PanelCloseType.None
@@ -99,6 +100,7 @@ end
 
 -- 当数据
 def.override("dynamic").OnData = function(self, data)
+    self._Search_Success:SetActive(false)
     if data._Index == 0 then
         self._Guild_List = {}
         -- 公会人数满了不显示
@@ -141,7 +143,7 @@ end
 
 -- Button点击
 def.override("string").OnClick = function(self, id)
-    print("id ", id)
+    --print("id ", id)
     if self._Frame_Money ~= nil and self._Frame_Money:OnClick(id) then
         return
     end
@@ -190,12 +192,13 @@ def.override("string").OnClick = function(self, id)
         end
     elseif id == "Btn_NumInput" then
         local cb = function(count)
+            if not self:IsShow() then return end
             local real_count = (count or 0)
             self._Need_Value = math.max(real_count, 0)
             self._Need_Value = math.min(self._Need_Value, GlobalDefinition.MaxFightScoreNum)
             self:UpdateInputState()
         end
-        game._GUIMan:OpenNumberKeyboard(self._Lab_Count, nil, 0, GlobalDefinition.MaxFightScoreNum, cb, nil)
+        game._GUIMan:OpenNumberKeyboard(self._Lab_Count,self._Lab_Tip, 0, GlobalDefinition.MaxFightScoreNum, cb, nil)
     elseif id == "Btn_Plus_Score" then
         self:OnBtnPlusScore()
     elseif id == "Btn_Minus_Score" then
@@ -219,7 +222,13 @@ end
 -- 初始化列表
 def.override("userdata", "string", "number").OnInitItem = function(self, item, id, index)
     if id == "Add_List" then
-        self:OnSetSingleItem(item, index, self._Guild_List[index + 1])
+        local data = nil 
+        if self._Is_Search then 
+            data = self._Search_Result[index + 1]
+        else
+            data = self._Guild_List[index + 1]
+        end
+        self:OnSetSingleItem(item, index,data )
     elseif id == "Group_List_1" then
         self:OnSetGroupList1(item, index)
     elseif id == "Group_List_2" then
@@ -238,6 +247,7 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
         self._List_Item_1._Index = index + 1
         self:OnSetCreateMoney()
         GameUtil.PlayUISfx(PATH.UIFX_QiZhiGengHuan, self._Guild_Icon_Image[2], self._Guild_Icon_Image[2], -1)
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Pet_Skill, 0)
     elseif id == "Group_List_2" then
         self._List_Item_2._Item:FindChild("Img_U"):SetActive(false)
         item:FindChild("Img_U"):SetActive(true)
@@ -245,6 +255,7 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
         self._List_Item_2._Index = index + 1
         self:OnSetCreateMoney()
         GameUtil.PlayUISfx(PATH.UIFX_QiZhiGengHuan, self._Guild_Icon_Image[2], self._Guild_Icon_Image[2], -1)
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Pet_Skill, 0)
     elseif id == "Group_List_3" then
         self._List_Item_3._Item:FindChild("Img_U"):SetActive(false)
         item:FindChild("Img_U"):SetActive(true)
@@ -252,6 +263,7 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
         self._List_Item_3._Index = index + 1
         self:OnSetCreateMoney()
         GameUtil.PlayUISfx(PATH.UIFX_QiZhiGengHuan, self._Guild_Icon_Image[2], self._Guild_Icon_Image[2], -1)
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Pet_Skill, 0)
     end
 end
 
@@ -259,12 +271,18 @@ end
 def.override("userdata", "string", "string", "number").OnSelectItemButton = function(self, item, id, id_btn, index)
     if id == "Add_List" then
         if id_btn == "Btn_Add_Guild" then
-            self._Add_Item = item
+            self._SelectItemButton = item
             self:OnBtnAddGuild(index)
         elseif id_btn == "Lab_Leader" then
             local EOtherRoleInfoType = require "PB.data".EOtherRoleInfoType
-            local guildList = self._Guild_List[index + 1]
-            game:CheckOtherPlayerInfo(guildList.leaderID, EOtherRoleInfoType.RoleInfo_Simple, nil)
+            local guildList = {}
+            if not self._Is_Search then 
+                guildList = self._Guild_List[index + 1]
+            else
+                guildList = self._Search_Result[index + 1] 
+            end
+            local PBUtil = require "PB.PBUtil"
+            PBUtil.RequestOtherPlayerInfo(guildList.leaderID, EOtherRoleInfoType.RoleInfo_Simple, nil)
         end
     end
 end
@@ -296,7 +314,7 @@ end
 def.method().OnInit = function(self)
     self._GuildCreateDiamondCost = CSpecialIdMan.Get("GuildCreateDiamondCost")
 
-    local allTid = GameUtil.GetAllTid("GuildIcon")
+    local allTid = CElementData.GetAllTid("GuildIcon")
     self._Guild_Icon_1 = {}
     self._Guild_Icon_2 = {}
     self._Guild_Icon_3 = {}
@@ -345,6 +363,7 @@ def.method().OnInitUIObject = function(self)
     self._Btn_Plus = self:GetUIObject("Btn_Plus_Score")
     self._Btn_Minus = self:GetUIObject("Btn_Minus_Score")
     self._Lab_Count = self:GetUIObject("Lab_Count")
+    self._Lab_Tip = self:GetUIObject("Lab_Tip")
     self._Frame_Toggle = self:GetUIObject("Rdo_Check")
 	self._Rdo_Check = self._Frame_Toggle:GetComponent(ClassType.GNewIOSToggle)
     GameUtil.RegisterUIEventHandler(self._Panel, self._Frame_Toggle, ClassType.GNewIOSToggle)
@@ -416,6 +435,7 @@ def.method("userdata", "number", "table").OnSetSingleItem = function(self, item,
         if data.guildID == _Guild._ApplyList[i] then
             GUI.SetText(item:FindChild("Btn_Add_Guild/Img_Bg/Lab_Engrave"), StringTable.Get(887))
             GUITools.SetBtnGray(item:FindChild("Btn_Add_Guild"), true)
+            -- GameUtil.SetButtonInteractable(item:FindChild("Btn_Add_Guild"), false)
         end
     end
 end
@@ -541,18 +561,24 @@ end
 -- 申请加入公会
 def.method("number").OnBtnAddGuild = function(self, index)
     local guild = game._HostPlayer._Guild
-    local guildList = self._Guild_List[index + 1]
+    local guildList = nil 
+    if not self._Is_Search then 
+        guildList = self._Guild_List[index + 1]
+    else
+        guildList = self._Search_Result[index + 1] 
+    end
     if game._HostPlayer:GetHostFightScore() < guildList.addLimit.battlePower then
         game._GUIMan:ShowTipText(StringTable.Get(811), true)
         return
     end
+    for i = 1, #guild._ApplyList do
+        if guildList.guildID == guild._ApplyList[i] then
+            game._GuildMan:SendC2SGuildApplyAdd(guildList.guildID)   
+            return
+        end
+    end
     local callback = function(val)
         if val then
-            for i = 1, #guild._ApplyList do
-                if guildList.guildID == guild._ApplyList[i] then
-                    return
-                end
-            end
             game._GuildMan:SendC2SGuildApplyAdd(guildList.guildID)
         end
     end
@@ -584,17 +610,10 @@ end
 
 -- 加入公会申请成功
 def.method().OnGuildApplyAddSuccess = function(self)
-    if self._Is_Search then
-        GUI.SetText(self._Search_Success:FindChild("Btn_Add_Guild/Img_Bg/Lab_Engrave"), StringTable.Get(887))
-        --self._Search_Success:FindChild("Btn_Add_Guild/Img_Lock"):SetActive(true)
-        GUITools.SetBtnGray(self._Search_Success:FindChild("Btn_Add_Guild"), true)
-        GameUtil.SetButtonInteractable(self._Search_Success:FindChild("Btn_Add_Guild"), false)
-    else
-        GUI.SetText(self._Add_Item:FindChild("Btn_Add_Guild/Img_Bg/Lab_Engrave"), StringTable.Get(887))
-        --self._Add_Item:FindChild("Img_Lock"):SetActive(true)
-        GUITools.SetBtnGray(self._Add_Item:FindChild("Btn_Add_Guild"), true)
-        GameUtil.SetButtonInteractable(self._Search_Success:FindChild("Btn_Add_Guild"), true)
-    end
+   
+    GUI.SetText(self._SelectItemButton:FindChild("Img_Bg/Lab_Engrave"), StringTable.Get(887))
+    --self._SelectItemButton:FindChild("Img_Lock"):SetActive(true)
+    GUITools.SetBtnGray(self._SelectItemButton, true)
 end
 
 -- 搜索公会
@@ -609,6 +628,7 @@ def.method().OnBtnSearchGuild = function(self)
     if string.len(guildName) < 9 then
         guildID = tonumber(guildName)
     end
+
     local protocol = (require "PB.net".C2SGuildBaseInfo)()
     if guildID ~= nil then
         protocol.guildID = guildID  
@@ -620,14 +640,13 @@ end
 
 -- 搜索公会结果
 def.method("table").ShowSearchGuild = function(self, result)
-    if result == nil then
+    if result == nil or #result == 0 then
         game._GUIMan:ShowTipText(StringTable.Get(8011), true)
     else
         self._Is_Search = true
         self._Search_Result = result
-        self._Add_List_Rect:SetActive(false)
-        self._Search_Success:SetActive(true)
-        self:OnSetSingleItem(self._Search_Success, 0, result)
+        self._Add_List:GetComponent(ClassType.GNewListLoop):SetItemCount(#self._Search_Result)
+        -- self:OnSetSingleItem(self._Search_Success, 0, result)
     end
 end
 
@@ -645,10 +664,13 @@ end
 
 def.method().UpdateInputState = function(self)
     if self._Need_Value <= 0 then
-        GUI.SetText(self._Lab_Count, StringTable.Get(8110))
+        self._Lab_Count:SetActive(false)
+        self._Lab_Tip:SetActive(true)
         GameUtil.SetButtonInteractable(self._Btn_Minus, false)
         GUITools.SetBtnGray(self._Btn_Minus, true, true)
     else
+        self._Lab_Count:SetActive(true)
+        self._Lab_Tip:SetActive(false)
         GUI.SetText(self._Lab_Count, tostring(self._Need_Value))
         GameUtil.SetButtonInteractable(self._Btn_Minus, true)
         GUITools.SetBtnGray(self._Btn_Minus, false, true)
@@ -723,6 +745,7 @@ def.method().OnBtnCreateGuild = function(self)
             if game._HostPlayer:GetBindDiamonds() < self._Create_Money then
                 local callback = function(value)
                     if value then
+                        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Create, 0)
                         local protocol = (require "PB.net".C2SGuildCreate)()
                         protocol.createInfo.guildName = name
                         protocol.createInfo.guildIcon.BaseColorID = self._Guild_Icon_1[self._List_Item_1._Index].Id
@@ -733,10 +756,11 @@ def.method().OnBtnCreateGuild = function(self)
                         PBHelper.Send(protocol)
                     end
                 end
-                MsgBox.ShowQuickBuyBox(3, self._Create_Money, callback)
+                MsgBox.ShowQuickBuyBox(3, self._Create_Money, callback) 
                 return
                 --game._GUIMan:ShowTipText(StringTable.Get(813), true)
-            else    
+            else   
+                CSoundMan.Instance():Play2DAudio(PATH.GUISound_Create, 0) 
                 local protocol = (require "PB.net".C2SGuildCreate)()
                 protocol.createInfo.guildName = name
                 protocol.createInfo.guildIcon.BaseColorID = self._Guild_Icon_1[self._List_Item_1._Index].Id

@@ -49,6 +49,7 @@ def.override("dynamic").OnData = function(self, data)
 		self._LabNothing:SetActive(true)
 		return
 	end
+	self._LabNothing:SetActive(false)
 	self._List_MenuType:SetItemCount(#data)
 end
 
@@ -73,7 +74,7 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
     if id == "List_MenuType" then
         local uiTemplate = item:GetComponent(ClassType.UITemplate)
         local data = self._Apply_List[index + 1]
-    	game:SetEntityCustomImg(uiTemplate:GetControl(3), data.roleID, data.CustomImgSet, Profession2Gender[data.professionID], data.professionID)
+    	TeraFuncs.SetEntityCustomImg(uiTemplate:GetControl(3), data.roleID, data.CustomImgSet, Profession2Gender[data.professionID], data.professionID)
     	GUI.SetText(uiTemplate:GetControl(4), data.roleName)
     	GUITools.SetGroupImg(uiTemplate:GetControl(5), data.professionID - 1)
     	GUI.SetText(uiTemplate:GetControl(7), tostring(data.roleLevel))

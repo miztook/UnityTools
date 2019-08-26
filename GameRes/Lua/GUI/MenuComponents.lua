@@ -376,7 +376,8 @@ do
         if self._RoleID ~= 0 then
             --game._GUIMan:ShowTipText("查看信息的功能暂时未开通",true)
             local EOtherRoleInfoType = require "PB.data".EOtherRoleInfoType
-            game:CheckOtherPlayerInfo(self._RoleID, EOtherRoleInfoType.RoleInfo_Detail, nil)
+            local PBUtil = require "PB.PBUtil"
+            PBUtil.RequestOtherPlayerInfo(self._RoleID, EOtherRoleInfoType.RoleInfo_Detail, nil)
             MenuComponent.HandleClick(self)
         end
 	end
@@ -447,7 +448,8 @@ do
         end
     end
 	def.override().HandleClick = function (self)
-        CTeamMan.Instance():InvitateMember(self._TargetID)
+        local teamId = CTeamMan.Instance():GetTeamId()
+        TeamUtil.InviteMember(teamId, self._TargetID)
         MenuComponent.HandleClick(self)
 	end
 	InviteMemberComponent.Commit()
@@ -485,7 +487,7 @@ do
     end
 	def.override().HandleClick = function (self)
         if self._TargetID ~= 0 then
-            CTeamMan.Instance():ApplyTeam(self._TargetTeamId)
+            TeamUtil.ApplyTeam(self._TargetTeamId)
             MenuComponent.HandleClick(self)
         end
 	end
@@ -514,7 +516,8 @@ do
         end
     end
 	def.override().HandleClick = function (self)
-        CTeamMan.Instance():QuitTeam()
+        local teamId = CTeamMan.Instance():GetTeamId()
+        TeamUtil.QuitTeam(teamId)
         MenuComponent.HandleClick(self)
 	end
 	QuitTeamComponent.Commit()

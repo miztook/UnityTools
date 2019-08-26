@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 3,
 	Remarks = "",
-	TextDisplayName = "이민 담판 [명성]",
+	TextDisplayName = "난민 담판 [명성]",
 	Length = 512,
 	Width = 512,
 	NavMeshName = "City01.navmesh",
@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/city01.png",
 	AssetPath = "Assets/Outputs/Scenes/City01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10189] = 
@@ -22,29 +23,29 @@ local MapInfo =
 	{
 		[849] = 
 		{
-			[1] = { x = -2.00, y = 58.38, z = -42.54, name = "이민대표", SortID = 38, FunctionName = " " },
+			[1] = { x = -2.00, y = 58.38, z = -42.54, name = "난민 대표", SortID = 38, FunctionName = " " },
 		},
 		[850] = 
 		{
-			[1] = { x = -7.72, y = 58.38, z = -42.33, name = "시민대표", SortID = 39, FunctionName = " " },
+			[1] = { x = -7.72, y = 58.38, z = -42.33, name = "시민 대표", SortID = 39, FunctionName = " " },
 		},
 		[851] = 
 		{
-			[1] = { x = -4.51, y = 58.38, z = -38.72, name = "시정의원", SortID = 40, FunctionName = " " },
-			[2] = { x = -10.84, y = 58.38, z = -39.51, name = "시정의원", SortID = 43, FunctionName = " " },
-			[3] = { x = -6.50, y = 58.58, z = -34.51, name = "시정의원", SortID = 46, FunctionName = " " },
+			[1] = { x = -4.51, y = 58.38, z = -38.72, name = "시정 의원", SortID = 40, FunctionName = " " },
+			[2] = { x = -10.84, y = 58.38, z = -39.51, name = "시정 의원", SortID = 43, FunctionName = " " },
+			[3] = { x = -6.50, y = 58.58, z = -34.51, name = "시정 의원", SortID = 46, FunctionName = " " },
 		},
 		[852] = 
 		{
-			[1] = { x = -8.10, y = 58.38, z = -36.60, name = "시정의원", SortID = 41, FunctionName = " " },
-			[2] = { x = 1.58, y = 58.38, z = -37.12, name = "시정의원", SortID = 44, FunctionName = " " },
-			[3] = { x = -1.79, y = 58.38, z = -38.84, name = "시정의원", SortID = 47, FunctionName = " " },
+			[1] = { x = -8.10, y = 58.38, z = -36.60, name = "시정 의원", SortID = 41, FunctionName = " " },
+			[2] = { x = 1.58, y = 58.38, z = -37.12, name = "시정 의원", SortID = 44, FunctionName = " " },
+			[3] = { x = -1.79, y = 58.38, z = -38.84, name = "시정 의원", SortID = 47, FunctionName = " " },
 		},
 		[853] = 
 		{
-			[1] = { x = -11.29, y = 58.38, z = -37.26, name = "시정의원", SortID = 42, FunctionName = " " },
-			[2] = { x = -0.53, y = 58.58, z = -36.19, name = "시정의원", SortID = 45, FunctionName = " " },
-			[3] = { x = 2.59, y = 58.38, z = -40.15, name = "시정의원", SortID = 48, FunctionName = " " },
+			[1] = { x = -11.29, y = 58.38, z = -37.26, name = "시정 의원", SortID = 42, FunctionName = " " },
+			[2] = { x = -0.53, y = 58.58, z = -36.19, name = "시정 의원", SortID = 45, FunctionName = " " },
+			[3] = { x = 2.59, y = 58.38, z = -40.15, name = "시정 의원", SortID = 48, FunctionName = " " },
 		},
 		[843] = 
 		{
@@ -63,7 +64,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[405] = { x = -5.24, y = 58.38, z = -36.40, name = "相位区域", worldId = 0, PkMode = 0 },
+			[405] = { x = -5.24, y = 58.38, z = -36.40, name = "相位区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

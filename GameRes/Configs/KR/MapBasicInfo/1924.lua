@@ -6,52 +6,51 @@ local MapInfo =
 	Length = 800,
 	Width = 800,
 	NavMeshName = "World05.navmesh",
-	BackgroundMusic = "",
+	BackgroundMusic = "BGM_Map_5/Map_5/Map_5_phase",
 	BattleMusic = "",
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world05.png",
 	AssetPath = "Assets/Outputs/Scenes/World05.prefab",
+	PKMode= 0,
 	Monster = 
 	{
-		[14295] = 
-		{
-			[1] = { x = 66.34, y = 58.31, z = -42.40, name = "혈집사", level = 59, SortID = 15, DropItemIds = " " },
-			[2] = { x = 80.06, y = 58.31, z = -52.61, name = "혈집사", level = 59, SortID = 5, DropItemIds = " " },
-			[3] = { x = 80.76, y = 60.94, z = -26.87, name = "혈집사", level = 59, SortID = 6, DropItemIds = " " },
-			[4] = { x = 81.47, y = 58.31, z = -39.38, name = "혈집사", level = 59, SortID = 8, DropItemIds = " " },
-		},
 		[14297] = 
 		{
 			[1] = { x = 65.13, y = 58.13, z = -62.70, name = "혈사제", level = 59, SortID = 3, DropItemIds = " " },
-			[2] = { x = 45.54, y = 58.19, z = -52.68, name = "혈사제", level = 59, SortID = 4, DropItemIds = " " },
+			[2] = { x = 65.49, y = 58.19, z = -42.91, name = "혈사제", level = 59, SortID = 4, DropItemIds = " " },
 			[3] = { x = 77.51, y = 58.13, z = -64.18, name = "혈사제", level = 59, SortID = 9, DropItemIds = " " },
+		},
+		[14295] = 
+		{
+			[1] = { x = 80.06, y = 58.18, z = -52.61, name = "혈집사", level = 59, SortID = 5, DropItemIds = " " },
+			[2] = { x = 80.76, y = 60.94, z = -26.87, name = "혈집사", level = 59, SortID = 6, DropItemIds = " " },
+			[3] = { x = 81.47, y = 58.18, z = -39.38, name = "혈집사", level = 59, SortID = 8, DropItemIds = " " },
 		},
 		[14308] = 
 		{
-			[1] = { x = 95.28, y = 58.14, z = -42.67, name = "남작 사망", level = 59, SortID = 7, DropItemIds = " " },
-		},
-		[14299] = 
-		{
-			[1] = { x = 148.37, y = 70.67, z = -60.81, name = "혈전사", level = 59, SortID = 11, DropItemIds = " " },
-			[2] = { x = 150.78, y = 70.67, z = -45.08, name = "혈전사", level = 59, SortID = 13, DropItemIds = " " },
-			[3] = { x = 152.74, y = 70.67, z = -32.28, name = "혈전사", level = 59, SortID = 14, DropItemIds = " " },
-			[4] = { x = 165.01, y = 70.67, z = -11.90, name = "혈전사", level = 59, SortID = 16, DropItemIds = " " },
-			[5] = { x = 120.20, y = 70.67, z = -40.40, name = "혈전사", level = 59, SortID = 23, DropItemIds = " " },
+			[1] = { x = 95.28, y = 58.14, z = -42.67, name = "죽음의 남작", level = 59, SortID = 7, DropItemIds = " " },
 		},
 		[14294] = 
 		{
 			[1] = { x = 107.40, y = 65.80, z = 13.60, name = "불사의 근위병", level = 58, SortID = 12, DropItemIds = " " },
 			[2] = { x = 94.30, y = 65.80, z = -6.20, name = "불사의 근위병", level = 58, SortID = 26, DropItemIds = " " },
-			[3] = { x = 129.20, y = 65.80, z = 37.80, name = "불사의 근위병", level = 58, SortID = 27, DropItemIds = " " },
-			[4] = { x = 147.60, y = 70.68, z = 9.90, name = "불사의 근위병", level = 58, SortID = 28, DropItemIds = " " },
-			[5] = { x = 80.90, y = 65.80, z = 18.40, name = "불사의 근위병", level = 58, SortID = 29, DropItemIds = " " },
-			[6] = { x = 161.30, y = 65.80, z = 32.50, name = "불사의 근위병", level = 58, SortID = 30, DropItemIds = " " },
+			[3] = { x = 129.20, y = 65.79, z = 37.80, name = "불사의 근위병", level = 58, SortID = 27, DropItemIds = " " },
+			[4] = { x = 147.60, y = 70.51, z = 9.90, name = "불사의 근위병", level = 58, SortID = 28, DropItemIds = " " },
+			[5] = { x = 80.90, y = 59.88, z = 18.40, name = "불사의 근위병", level = 58, SortID = 29, DropItemIds = " " },
+			[6] = { x = 161.30, y = 61.89, z = 32.50, name = "불사의 근위병", level = 58, SortID = 30, DropItemIds = " " },
 			[7] = { x = 166.90, y = 70.51, z = 6.20, name = "불사의 근위병", level = 58, SortID = 31, DropItemIds = " " },
-			[8] = { x = 185.40, y = 61.73, z = 30.00, name = "불사의 근위병", level = 58, SortID = 32, DropItemIds = " " },
+			[8] = { x = 185.40, y = 61.65, z = 30.00, name = "불사의 근위병", level = 58, SortID = 32, DropItemIds = " " },
 			[9] = { x = 191.90, y = 73.18, z = 9.00, name = "불사의 근위병", level = 58, SortID = 33, DropItemIds = " " },
 			[10] = { x = 224.90, y = 61.65, z = 30.50, name = "불사의 근위병", level = 58, SortID = 34, DropItemIds = " " },
 			[11] = { x = 250.60, y = 61.65, z = 34.60, name = "불사의 근위병", level = 58, SortID = 35, DropItemIds = " " },
 			[12] = { x = 207.00, y = 61.65, z = 33.30, name = "불사의 근위병", level = 58, SortID = 36, DropItemIds = " " },
+		},
+		[14299] = 
+		{
+			[1] = { x = 150.78, y = 70.61, z = -45.08, name = "혈전사", level = 59, SortID = 13, DropItemIds = " " },
+			[2] = { x = 152.74, y = 70.52, z = -32.28, name = "혈전사", level = 59, SortID = 14, DropItemIds = " " },
+			[3] = { x = 162.74, y = 70.52, z = -22.72, name = "혈전사", level = 59, SortID = 16, DropItemIds = " " },
+			[4] = { x = 120.20, y = 65.81, z = -40.40, name = "혈전사", level = 59, SortID = 23, DropItemIds = " " },
 		},
 		[14296] = 
 		{
@@ -59,21 +58,18 @@ local MapInfo =
 		},
 		[14298] = 
 		{
-			[1] = { x = 171.74, y = 70.52, z = -23.60, name = "복수의 혈마법사", level = 59, SortID = 10, DropItemIds = " " },
-			[2] = { x = 183.82, y = 70.52, z = -15.06, name = "복수의 혈마법사", level = 59, SortID = 18, DropItemIds = " " },
-			[3] = { x = 186.32, y = 70.52, z = -24.29, name = "복수의 혈마법사", level = 59, SortID = 19, DropItemIds = " " },
-			[4] = { x = 198.42, y = 70.52, z = -15.18, name = "복수의 혈마법사", level = 59, SortID = 21, DropItemIds = " " },
-			[5] = { x = 117.60, y = 65.81, z = -25.50, name = "복수의 혈마법사", level = 59, SortID = 24, DropItemIds = " " },
+			[1] = { x = 183.82, y = 70.52, z = -15.06, name = "복수의 혈마법사", level = 59, SortID = 18, DropItemIds = " " },
+			[2] = { x = 186.32, y = 70.52, z = -24.29, name = "복수의 혈마법사", level = 59, SortID = 19, DropItemIds = " " },
+			[3] = { x = 198.42, y = 70.52, z = -15.18, name = "복수의 혈마법사", level = 59, SortID = 21, DropItemIds = " " },
+			[4] = { x = 117.60, y = 65.81, z = -25.50, name = "복수의 혈마법사", level = 59, SortID = 24, DropItemIds = " " },
 		},
 		[14303] = 
 		{
-			[1] = { x = 230.00, y = 70.64, z = -23.50, name = "청동 방주 순찰병", level = 59, SortID = 41, DropItemIds = " " },
-			[2] = { x = 255.80, y = 70.64, z = -16.10, name = "청동 방주 순찰병", level = 59, SortID = 42, DropItemIds = " " },
-			[3] = { x = 261.10, y = 70.64, z = -34.70, name = "청동 방주 순찰병", level = 59, SortID = 43, DropItemIds = " " },
-			[4] = { x = 254.20, y = 70.64, z = -47.40, name = "청동 방주 순찰병", level = 59, SortID = 44, DropItemIds = " " },
-			[5] = { x = 274.60, y = 70.64, z = -43.40, name = "청동 방주 순찰병", level = 59, SortID = 45, DropItemIds = " " },
-			[6] = { x = 244.70, y = 70.64, z = -36.70, name = "청동 방주 순찰병", level = 59, SortID = 46, DropItemIds = " " },
-			[7] = { x = 256.90, y = 70.64, z = 0.80, name = "청동 방주 순찰병", level = 59, SortID = 47, DropItemIds = " " },
+			[1] = { x = 230.00, y = 70.52, z = -23.50, name = "데바 순찰자", level = 59, SortID = 41, DropItemIds = " " },
+			[2] = { x = 255.80, y = 70.77, z = -16.10, name = "데바 순찰자", level = 59, SortID = 42, DropItemIds = " " },
+			[3] = { x = 261.10, y = 70.64, z = -34.70, name = "데바 순찰자", level = 59, SortID = 43, DropItemIds = " " },
+			[4] = { x = 254.20, y = 70.52, z = -47.40, name = "데바 순찰자", level = 59, SortID = 44, DropItemIds = " " },
+			[5] = { x = 256.90, y = 70.52, z = 0.80, name = "데바 순찰자", level = 59, SortID = 47, DropItemIds = " " },
 		},
 		[14311] = 
 		{
@@ -88,7 +84,7 @@ local MapInfo =
 	{
 		[4242] = 
 		{
-			[1] = { x = 24.59, y = 58.54, z = -50.65, name = "엘리언 쿠벨", SortID = 1, FunctionName = " " },
+			[1] = { x = 24.59, y = 58.54, z = -50.65, name = "엘리온 쿠벨", SortID = 1, FunctionName = " " },
 		},
 		[4046] = 
 		{
@@ -139,36 +135,28 @@ local MapInfo =
 	},
 	Entity = 
 	{
-		[15] = 
-		{
-			x = 66.34, y = 58.31, z = -42.40, Type = 1,
-			Tid = 
-			{
-				[14295] = 8,
-			},
-		},
 		[3] = 
 		{
 			x = 65.13, y = 58.13, z = -62.70, Type = 1,
 			Tid = 
 			{
-				[14297] = 6,
+				[14297] = 3,
 			},
 		},
 		[5] = 
 		{
-			x = 80.06, y = 58.31, z = -52.61, Type = 1,
+			x = 80.06, y = 58.18, z = -52.61, Type = 1,
 			Tid = 
 			{
-				[14295] = 6,
+				[14295] = 3,
 			},
 		},
 		[4] = 
 		{
-			x = 45.54, y = 58.19, z = -52.68, Type = 1,
+			x = 65.49, y = 58.19, z = -42.91, Type = 1,
 			Tid = 
 			{
-				[14297] = 6,
+				[14297] = 3,
 			},
 		},
 		[6] = 
@@ -176,7 +164,7 @@ local MapInfo =
 			x = 80.76, y = 60.94, z = -26.87, Type = 1,
 			Tid = 
 			{
-				[14295] = 6,
+				[14295] = 3,
 			},
 		},
 		[7] = 
@@ -189,10 +177,10 @@ local MapInfo =
 		},
 		[8] = 
 		{
-			x = 81.47, y = 58.31, z = -39.38, Type = 1,
+			x = 81.47, y = 58.18, z = -39.38, Type = 1,
 			Tid = 
 			{
-				[14295] = 6,
+				[14295] = 3,
 			},
 		},
 		[9] = 
@@ -200,15 +188,7 @@ local MapInfo =
 			x = 77.51, y = 58.13, z = -64.18, Type = 1,
 			Tid = 
 			{
-				[14297] = 6,
-			},
-		},
-		[11] = 
-		{
-			x = 148.37, y = 70.67, z = -60.81, Type = 1,
-			Tid = 
-			{
-				[14299] = 6,
+				[14297] = 3,
 			},
 		},
 		[12] = 
@@ -216,31 +196,31 @@ local MapInfo =
 			x = 107.40, y = 65.80, z = 13.60, Type = 1,
 			Tid = 
 			{
-				[14294] = 6,
+				[14294] = 3,
 			},
 		},
 		[13] = 
 		{
-			x = 150.78, y = 70.67, z = -45.08, Type = 1,
+			x = 150.78, y = 70.61, z = -45.08, Type = 1,
 			Tid = 
 			{
-				[14299] = 6,
+				[14299] = 3,
 			},
 		},
 		[14] = 
 		{
-			x = 152.74, y = 70.67, z = -32.28, Type = 1,
+			x = 152.74, y = 70.52, z = -32.28, Type = 1,
 			Tid = 
 			{
-				[14299] = 6,
+				[14299] = 3,
 			},
 		},
 		[16] = 
 		{
-			x = 165.01, y = 70.67, z = -11.90, Type = 1,
+			x = 162.74, y = 70.52, z = -22.72, Type = 1,
 			Tid = 
 			{
-				[14299] = 6,
+				[14299] = 3,
 			},
 		},
 		[17] = 
@@ -251,20 +231,12 @@ local MapInfo =
 				[14296] = 1,
 			},
 		},
-		[10] = 
-		{
-			x = 171.74, y = 70.52, z = -23.60, Type = 1,
-			Tid = 
-			{
-				[14298] = 6,
-			},
-		},
 		[18] = 
 		{
 			x = 183.82, y = 70.52, z = -15.06, Type = 1,
 			Tid = 
 			{
-				[14298] = 6,
+				[14298] = 3,
 			},
 		},
 		[19] = 
@@ -272,7 +244,7 @@ local MapInfo =
 			x = 186.32, y = 70.52, z = -24.29, Type = 1,
 			Tid = 
 			{
-				[14298] = 6,
+				[14298] = 3,
 			},
 		},
 		[21] = 
@@ -280,15 +252,15 @@ local MapInfo =
 			x = 198.42, y = 70.52, z = -15.18, Type = 1,
 			Tid = 
 			{
-				[14298] = 6,
+				[14298] = 3,
 			},
 		},
 		[23] = 
 		{
-			x = 120.20, y = 70.67, z = -40.40, Type = 1,
+			x = 120.20, y = 65.81, z = -40.40, Type = 1,
 			Tid = 
 			{
-				[14299] = 6,
+				[14299] = 3,
 			},
 		},
 		[24] = 
@@ -296,7 +268,7 @@ local MapInfo =
 			x = 117.60, y = 65.81, z = -25.50, Type = 1,
 			Tid = 
 			{
-				[14298] = 6,
+				[14298] = 3,
 			},
 		},
 		[26] = 
@@ -304,39 +276,39 @@ local MapInfo =
 			x = 94.30, y = 65.80, z = -6.20, Type = 1,
 			Tid = 
 			{
-				[14294] = 6,
+				[14294] = 3,
 			},
 		},
 		[27] = 
 		{
-			x = 129.20, y = 65.80, z = 37.80, Type = 1,
+			x = 129.20, y = 65.79, z = 37.80, Type = 1,
 			Tid = 
 			{
-				[14294] = 6,
+				[14294] = 3,
 			},
 		},
 		[28] = 
 		{
-			x = 147.60, y = 70.68, z = 9.90, Type = 1,
+			x = 147.60, y = 70.51, z = 9.90, Type = 1,
 			Tid = 
 			{
-				[14294] = 6,
+				[14294] = 3,
 			},
 		},
 		[29] = 
 		{
-			x = 80.90, y = 65.80, z = 18.40, Type = 1,
+			x = 80.90, y = 59.88, z = 18.40, Type = 1,
 			Tid = 
 			{
-				[14294] = 6,
+				[14294] = 3,
 			},
 		},
 		[30] = 
 		{
-			x = 161.30, y = 65.80, z = 32.50, Type = 1,
+			x = 161.30, y = 61.89, z = 32.50, Type = 1,
 			Tid = 
 			{
-				[14294] = 6,
+				[14294] = 3,
 			},
 		},
 		[31] = 
@@ -344,15 +316,15 @@ local MapInfo =
 			x = 166.90, y = 70.51, z = 6.20, Type = 1,
 			Tid = 
 			{
-				[14294] = 6,
+				[14294] = 3,
 			},
 		},
 		[32] = 
 		{
-			x = 185.40, y = 61.73, z = 30.00, Type = 1,
+			x = 185.40, y = 61.65, z = 30.00, Type = 1,
 			Tid = 
 			{
-				[14294] = 6,
+				[14294] = 3,
 			},
 		},
 		[33] = 
@@ -360,7 +332,7 @@ local MapInfo =
 			x = 191.90, y = 73.18, z = 9.00, Type = 1,
 			Tid = 
 			{
-				[14294] = 6,
+				[14294] = 3,
 			},
 		},
 		[34] = 
@@ -368,7 +340,7 @@ local MapInfo =
 			x = 224.90, y = 61.65, z = 30.50, Type = 1,
 			Tid = 
 			{
-				[14294] = 6,
+				[14294] = 3,
 			},
 		},
 		[35] = 
@@ -376,7 +348,7 @@ local MapInfo =
 			x = 250.60, y = 61.65, z = 34.60, Type = 1,
 			Tid = 
 			{
-				[14294] = 6,
+				[14294] = 3,
 			},
 		},
 		[36] = 
@@ -384,23 +356,23 @@ local MapInfo =
 			x = 207.00, y = 61.65, z = 33.30, Type = 1,
 			Tid = 
 			{
-				[14294] = 6,
+				[14294] = 3,
 			},
 		},
 		[41] = 
 		{
-			x = 230.00, y = 70.64, z = -23.50, Type = 1,
+			x = 230.00, y = 70.52, z = -23.50, Type = 1,
 			Tid = 
 			{
-				[14303] = 4,
+				[14303] = 2,
 			},
 		},
 		[42] = 
 		{
-			x = 255.80, y = 70.64, z = -16.10, Type = 1,
+			x = 255.80, y = 70.77, z = -16.10, Type = 1,
 			Tid = 
 			{
-				[14303] = 4,
+				[14303] = 2,
 			},
 		},
 		[43] = 
@@ -408,39 +380,23 @@ local MapInfo =
 			x = 261.10, y = 70.64, z = -34.70, Type = 1,
 			Tid = 
 			{
-				[14303] = 4,
+				[14303] = 2,
 			},
 		},
 		[44] = 
 		{
-			x = 254.20, y = 70.64, z = -47.40, Type = 1,
+			x = 254.20, y = 70.52, z = -47.40, Type = 1,
 			Tid = 
 			{
-				[14303] = 4,
-			},
-		},
-		[45] = 
-		{
-			x = 274.60, y = 70.64, z = -43.40, Type = 1,
-			Tid = 
-			{
-				[14303] = 4,
-			},
-		},
-		[46] = 
-		{
-			x = 244.70, y = 70.64, z = -36.70, Type = 1,
-			Tid = 
-			{
-				[14303] = 4,
+				[14303] = 2,
 			},
 		},
 		[47] = 
 		{
-			x = 256.90, y = 70.64, z = 0.80, Type = 1,
+			x = 256.90, y = 70.52, z = 0.80, Type = 1,
 			Tid = 
 			{
-				[14303] = 4,
+				[14303] = 2,
 			},
 		},
 		[52] = 

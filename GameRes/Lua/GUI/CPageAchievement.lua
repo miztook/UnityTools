@@ -393,10 +393,11 @@ def.method("userdata","number").InitAchievementShow = function(self,item, Index)
 					local DesignationData = CElementData.GetTemplate("Designation",reward_template.DesignationId)
 					if DesignationData ~= nil then
 						titleObj: SetActive(true)
-                        GUITools.SetGroupImg(titleObj, DesignationData.Quality)
+                        -- GUITools.SetGroupImg(titleObj, DesignationData.Quality)
+                        GUITools.SetSprite(titleObj, DesignationData.IconPath)
 						local titleLab = titleObj:FindChild("Lab_Title")
 --						local rewardtext = string.format(StringTable.Get(517),DesignationData.Name)
-						GUI.SetText(titleLab,DesignationData.Name)
+						GUI.SetText(titleLab, string.format(StringTable.Get(31203), DesignationData.ColorRGB, DesignationData.Name))
 					end					
 				else
 					rewardObj: SetActive(true)
@@ -788,7 +789,7 @@ def.method().InitConditionList = function(self)
             local strCellsReachParm = string.split(achievementData.ReachParm, "*")
             for i = 1, #strCellsCondition do
                 self._ListParm[#self._ListParm + 1] = {Condition = tonumber(strCellsCondition[i]), ReachParm = tonumber(strCellsReachParm[i])}
-                print(strCellsCondition[i], strCellsReachParm[i])
+                --print(strCellsCondition[i], strCellsReachParm[i])
             end
         end
     end
@@ -846,7 +847,8 @@ def.method("userdata", "string", "number").ParentInitItem = function(self, item,
 			    if DesignationData ~= nil then
 				    titleObj: SetActive(true)
                     frame_item:SetActive(false)
-                    GUITools.SetGroupImg(titleObj, DesignationData.Quality)
+                    -- GUITools.SetGroupImg(titleObj, DesignationData.Quality)
+                    GUITools.SetSprite(titleObj, DesignationData.IconPath)
 				    local titleLab = titleObj:FindChild("Lab_Title")
 				    GUI.SetText(titleLab,DesignationData.Name)
                 else

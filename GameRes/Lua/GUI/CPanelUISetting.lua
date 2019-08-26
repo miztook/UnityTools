@@ -9,6 +9,8 @@ local CGame = Lplus.ForwardDeclare("CGame")
 local CAutoFightMan = require "AutoFight.CAutoFightMan"
 local QualitySettingMan = require "Main.QualitySettingMan"
 local CElementData = require "Data.CElementData"
+local EParmType = require "PB.Template".ItemApproach.EParmType
+
 
 local CPanelUISetting = Lplus.Extend(CPanelBase, "CPanelUISetting")
 local def = CPanelUISetting.define
@@ -20,6 +22,7 @@ def.field("string")._OriginLanguageCode = ""
 def.field("boolean")._IsShowLanguage = false
 def.field("boolean")._IgnoreClick = false
 def.field("boolean")._IsScriptToggle = false
+def.field("boolean")._IsScriptSlider = false
 --基础设置
 def.field("number")._FrameRate = 30                 -- 帧率
 def.field("boolean")._IsOpenPlayerPush = false      -- 是否接收推送
@@ -57,6 +60,7 @@ def.field("boolean")._IsMedicalAutoUse = true       -- 药水自动使用开启�
 def.field("boolean")._IsDrugSortBuyHigh = true       -- 药水自动使用低等级还是高等级
 def.field("number")._HPMinNumber = 0                -- 最低使用药水的HP百分比（0-100）
 def.field("table")._UserSkillMap = nil              -- 目前学习的技能（用于自动化战斗时是否释放）
+def.field("boolean")._IsAnyChange = false           -- 任何一个设置变化了，就需要saveFile
 
 local instance = nil
 def.static("=>", CPanelUISetting).Instance = function()
@@ -100,6 +104,7 @@ def.override().OnCreate = function(self)
     self._PanelObjects._Drop_Language = self:GetUIObject("Drop_Language")
     self._PanelObjects._Img_BGM = self:GetUIObject("Img_BGM")
     self._PanelObjects._Img_EffectSound = self:GetUIObject("Img_EffectSound")
+    self._PanelObjects._Drop_Language:SetActive(game._MiscSetting:IsShowLanguageChange())
 
     --渲染设置
     self._PanelObjects._RdoGroup_MainControl = self:GetUIObject("Rdo_MainControlGroup")
@@ -192,29 +197,23 @@ local HandleIOSToggleShow = function(iosToggleGO, isOn)
     iosToggleGO:GetComponent(ClassType.GNewIOSToggle).Value = isOn
 end
 
---5,10,15,20
+local PersonNumCfg = {6, 10, 15, 25}
+
 local GetGroupIndexByPersonNum = function(personNum)
-    if personNum == 1 then
-        return 1
-    elseif personNum == 5 then
-        return 2
-    elseif personNum == 10 then
-        return 3
-    else
-        return 4
+    for i,v in ipairs(PersonNumCfg) do
+        if personNum == v then
+            return i
+        end
     end
+
+    return 4
 end
 
 local GetNewPersonNumberByIndex = function(index)
-    if index == 1 then
-        return 1
-    elseif index == 2 then
-        return 5
-    elseif index == 3 then
-        return 10
-    elseif index == 4 then
-        return 20
+    if index >= 1 and index <= 4 then
+        return PersonNumCfg[index]
     end
+    
     return _G.MAX_VISIBLE_PLAYER
 end
 
@@ -305,6 +304,8 @@ end
 
 def.override("dynamic").OnData = function(self, data)
     self._HelpUrlType = HelpPageUrlType.Setting
+    self._IsAnyChange = false
+    self._IsScriptSlider = true
     if data ~= nil and type(data) == "number" then
         self._DataPage = data
     else
@@ -315,6 +316,7 @@ def.override("dynamic").OnData = function(self, data)
     self:UpdateValues()
     self:UpdatePage()
     self:UpdateControlStates()
+    self._IsScriptSlider = false
     CGame.EventManager:addHandler('NotifyClick', OnElseClick)
     CGame.EventManager:addHandler('PlatformSDKEvent', OnPlatformSDKEvent)
 end
@@ -382,7 +384,7 @@ def.method().UpdateValues = function(self)
     self._IsShowHeadInfo = game._MiscSetting:IsShowHeadInfo()
 
     -- TODO 景深、水面反射、开启高帧率
-    self._MaxPlayersInScreen = UserData:GetField(EnumDef.LocalFields.ManPlayersInScreen) or _G.MAX_VISIBLE_PLAYER
+    self._MaxPlayersInScreen = game._MaxPlayersInScreen
     self._BGMVolume = CSoundMan.Instance():GetBGMSysVolume()
     self._OrigBGMVolume = self._BGMVolume
     self._SoundVolume = CSoundMan.Instance():GetEffectSysVolume()
@@ -469,7 +471,7 @@ def.method().UpdateControlStates = function(self)
     self:SetValueLab(self._PanelObjects._Lab_HPMinVal, self._HPMinNumber, 100, true)
     -- 药水自动使用
     GUI.SetGroupToggleOn(self._PanelObjects._Group_AutoUse, self._IsMedicalAutoUse and 2 or 1)
-    print("self._IsDrugSortBuyHigh ", self._IsDrugSortBuyHigh, self._IsDrugSortBuyHigh and 2 or 1)
+    --print("self._IsDrugSortBuyHigh ", self._IsDrugSortBuyHigh, self._IsDrugSortBuyHigh and 2 or 1)
     GUI.SetGroupToggleOn(self._PanelObjects._Group_UseSort, self._IsDrugSortBuyHigh and 2 or 1)
     -- 消息推送
     GUI.SetGroupToggleOn(self._PanelObjects._RdoGroup_PlayerPush, self._IsOpenPlayerPush and 2 or 1)
@@ -505,11 +507,6 @@ def.override('string').OnClick = function(self, id)
         CSoundMan.Instance():SetCutSceneSysVolume(self._OrigSoundVolume)
         CSoundMan.Instance():SetUISysVolume(self._OrigSoundVolume)
 
-        -- 保存
-        game:SaveCamParamsToUserData()
-
-        game:SaveGameConfigToUserData()
-        
         game._GUIMan:CloseByScript(self)
     -- 天气特效暂时屏蔽
 --    elseif id == "Rdo_Weather" then
@@ -540,13 +537,11 @@ def.override('string').OnClick = function(self, id)
             game._GUIMan:ShowTipText(StringTable.Get(19706), false)
         else
             game:AddForbidTimer(self._ClickInterval)
-
-            game._CDecomposeAndSortMan:SaveRecord()
-            game._CFriendMan:SaveRecord()
-            game:SaveBagItemToUserData()
-            game._CArenaMan:Release()
-            game:LogoutRole()       --发送登出角色请求
-            CRedDotMan.ClearRedTabelState()
+            do
+                local C2SLogoutRole = require "PB.net".C2SLogoutRole
+                local protocol = C2SLogoutRole()
+                SendProtocol(protocol)
+            end
         end
     elseif id == "Btn_3" then
         -- 实名认证
@@ -572,6 +567,26 @@ def.override('string').OnClick = function(self, id)
 
         -- 优惠券
         CPlatformSDKMan.Instance():ShowCoupon()
+    elseif id == "Btn_7" then
+        -- 跳转至官咖
+        local approachItem = CElementData.GetItemApproach(1000)
+        if approachItem == nil then
+            warn("error !!! banner 填的物品跳转路径ID错误，Banner ID: ", 1000)
+            return
+        end
+        if approachItem.ClickType == EParmType.KakaoKey then
+            local bKakaoPlatform = CPlatformSDKMan.Instance():IsInKakao()
+            if bKakaoPlatform then
+                if approachItem.ClickValue1 and approachItem.ClickValue1 ~= "" then
+                    local url = CPlatformSDKMan.Instance():GetCustomData(approachItem.ClickValue1)
+                    CPlatformSDKMan.Instance():ShowDaumCafeWithUrl(url)
+                else
+                    warn("error !!! 物品获取途径模板数据错误，填写的kakao key不对，ID： ", 1000)
+                end
+            else
+                warn("error !!! 不是kakao平台，跳转官咖失败")
+            end
+        end
     elseif string.find(id, "Btn_Logout") then
         game:AddForbidTimer(self._ClickInterval)
 
@@ -626,6 +641,7 @@ def.override('string').OnClick = function(self, id)
     end
     if save_value then
         self:SaveValues()
+        self._IsAnyChange = true
     end
 end
 
@@ -679,7 +695,7 @@ def.override("string", "number").OnDropDown = function(self, id, index)
         end
 
         game._GUIMan:CloseCircle()
-        MsgBox.CloseAll()
+        MsgBox.ClearAllBoxes()
         local title, msg, closeType = StringTable.GetMsg(36)
         local message = string.format(msg, languageCode)
         local specTip = StringTable.Get(19700)
@@ -719,6 +735,9 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
     end
     local shouldSave = true
     if string.find(id, "Rdo_MainControl_") and checked then
+        local FPSAdapter = require "System.FPSAdapter"
+        FPSAdapter.Revert()
+        
         -- 渲染设置
         -- 从左到右依次是 极速->低->中->高->最高->自定义，预设最后一个数组分别是 1，2，3，4，5，6
         self._WholeQualityLevel = tonumber(string.sub(id, -1))
@@ -874,6 +893,7 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
         local idx = tonumber(string.sub(id, -1))
         local new_num = GetNewPersonNumberByIndex(idx)
         self._MaxPlayersInScreen = new_num
+        game._MiscSetting:SyncToServerCareNumAndShowTopPate(self._MaxPlayersInScreen, self._IsShowHeadInfo)
     elseif string.find(id, "Group_FightLock_PVE") then
         -- Boss镜头锁定
         local is_yes = self:IsYes(id)
@@ -903,6 +923,7 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
     elseif string.find(id, "Rdo_HeadInfo") then
         local is_yes = self:IsYes(id)
         self._IsShowHeadInfo = is_yes
+        game._MiscSetting:SyncToServerCareNumAndShowTopPate(self._MaxPlayersInScreen, self._IsShowHeadInfo)
     elseif string.find(id, "Rdo_AutoUse") then
         local is_yes = self:IsYes(id)
         self._IsMedicalAutoUse = is_yes
@@ -951,6 +972,7 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
     end
     if shouldSave then
         self:SaveValues()
+        self._IsAnyChange = true
     end
 end
 
@@ -980,6 +1002,7 @@ end
 
 -- 滑动条值改变的回调
 def.method("string", "number").OnSliderChanged = function(self, id, value)
+    if self._IsScriptSlider then return end
     if string.find(id, "Sld_BGM") then
         -- 背景音乐
         self._BGMVolume = value
@@ -1000,6 +1023,7 @@ def.method("string", "number").OnSliderChanged = function(self, id, value)
         self:SetValueLab(self._PanelObjects._Lab_HPMinVal, self._HPMinNumber, 100, true)
     end
     self:SaveValues()
+    self._IsAnyChange = true
 end
 
 def.override("string").OnPointerDown = function(self, id)
@@ -1083,6 +1107,8 @@ def.method().SaveValues = function(self)
     QualitySettingMan.Instance():SetFPSLimit(self._FrameRate)
     -- TODO 景深、水面反射、开启高帧率
 
+    local FPSAdapter = require "System.FPSAdapter"
+    FPSAdapter.SyncSettings()
 
     --设置Pve摄像机跟随
     game._IsOpenPVECamLock = self._IsBossLensLock
@@ -1094,6 +1120,8 @@ def.method().SaveValues = function(self)
     if not self._IsPvpLensLock then
         game:UpdateCameraLockState(0, false)
     end
+
+    if self._MaxPlayersInScreen == 0 then self._MaxPlayersInScreen = _G.MAX_VISIBLE_PLAYER end
     game._MaxPlayersInScreen = self._MaxPlayersInScreen
     UserData:SetField(EnumDef.LocalFields.ManPlayersInScreen, self._MaxPlayersInScreen)
     --game._HostPlayer._IsClickGroundMove = self._IsClickGroundMove
@@ -1119,10 +1147,19 @@ def.method().SaveValues = function(self)
     -- 保存技能自动化战斗时的信息到userdata
     SaveSkillMap(self)
     CAutoFightMan.Instance():SetCantRecastSkillTable(SelectForbidAutoSkill(self))
+    -- 设置界面保存数据的时候就直接写入到文件，防止修改设置之后直接杀进程保存不上的问题。
+    
 end
 
 def.override().OnHide = function(self)
     self._IsScriptToggle = false
+    if self._IsAnyChange then
+        QualitySettingMan.Instance():SaveQualityConfigToUserData()
+        game:SaveCamParamsToUserData()
+        game:SaveGameConfigToUserData()
+	    game:SaveLoginRoleConfigToUserData()	 -- 保存角色信息
+        UserData:SaveDataToFile()
+    end
     CPanelBase.OnHide(self)
     CGame.EventManager:removeHandler('NotifyClick', OnElseClick)
     CGame.EventManager:removeHandler('PlatformSDKEvent', OnPlatformSDKEvent)

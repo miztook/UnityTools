@@ -5,10 +5,6 @@
 local PBHelper = require "Network.PBHelper"
 --local CElementData = require "Data.CElementData"
 
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
-
 --开启支付
 local function OnS2CPurchaseProduct(sender,protocol)
 	warn("=============OnS2CPurchaseProduct=============")

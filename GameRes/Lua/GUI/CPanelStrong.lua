@@ -1,5 +1,6 @@
 local Lplus = require 'Lplus'
 local CPanelBase = require 'GUI.CPanelBase'
+local CGame = Lplus.ForwardDeclare("CGame")
 local CElementData = require"Data.CElementData"
 local CDressMan = require "Dress.CDressMan"
 local GuideType = require "PB.Template".GrowthGuidance.GuideType
@@ -24,6 +25,7 @@ def.field("userdata")._TabListMenu = nil
 def.field("number")._CurPageType  = 0
 def.field("userdata")._NewTabList = nil 
 def.field("userdata")._FrameToggle = nil 
+def.field("userdata")._Toggle = nil 
 
 
 local PageType = 
@@ -96,7 +98,7 @@ local function sortFunction(data1,data2)
 end
 
 local function InitElseData(self)
-    local allIds = GameUtil.GetAllTid("GrowthGuidance")
+    local allIds = CElementData.GetAllTid("GrowthGuidance")
     if allIds == nil or #allIds == 0 then warn( " CPanelStrong Get Template is fail") return end
     for i,id in ipairs(allIds) do
         local data = {}
@@ -145,6 +147,18 @@ local function InitElseData(self)
     end
 end
 
+local OnNotifyPropEvent = function(sender, event)
+    if instance ~= nil and instance:IsShow() then
+        local hp = game._HostPlayer
+        if hp._ID == event.ObjID then
+            local curFight =  hp:GetHostFightScore()
+            if not IsNil(instance._LabCurFight) then
+                GUI.SetText(instance._LabCurFight, GUITools.FormatMoney(curFight))
+            end
+        end
+    end
+end
+
 local function InitPanel(self,data,selectId)
     --当前战斗力
     local curFight =  game._HostPlayer:GetHostFightScore()
@@ -153,9 +167,10 @@ local function InitPanel(self,data,selectId)
     end
 
     --推荐战斗力
+    local s_value = game._PlayerStrongMan:GetSValueByValueID(1)
     local basicValue = game._PlayerStrongMan:GetBasicValueByValueID(1)
     if not IsNil(self._LabBasicFight) then
-        GUI.SetText(self._LabBasicFight, GUITools.FormatMoney(basicValue))
+        GUI.SetText(self._LabBasicFight, GUITools.FormatMoney(s_value))
     end
 
     --战斗力评级S、A、B、C、 -- 3、2、1、0
@@ -211,6 +226,7 @@ def.override().OnCreate = function(self)
     self._TabListMenu = self:GetUIObject("TabList_Menu")
     self._FrameToggle = self:GetUIObject("Frame_Toggle")
     self._NewTabList = self._TabListMenu:GetComponent(ClassType.GNewTabList)
+    self._Toggle = self:GetUIObject("Toogle_Panel")
 end
 
 -- panelData = {
@@ -228,6 +244,8 @@ def.override("dynamic").OnData = function(self, data)
     InitElseData(self)
     InitStrongData(self)
     local selectId = 0
+    local state = game._PlayerStrongMan:GetShowPlayerStrongPanelState()
+    self._Toggle:GetComponent(ClassType.Toggle).isOn = not state
     if data ~= nil and data.SelectId ~= nil then 
         selectId = data.SelectId
     end
@@ -250,6 +268,8 @@ def.override("dynamic").OnData = function(self, data)
         end
     end
     self._HelpUrlType = HelpPageUrlType.StrongGuide
+
+    CGame.EventManager:addHandler("NotifyPropEvent", OnNotifyPropEvent)
 end
 
 def.override('string').OnClick = function(self, id)
@@ -346,6 +366,8 @@ def.override("string", "boolean").OnToggle = function(self,id, checked)
                 end
             end
         end    
+    elseif id == "Toogle_Panel" then
+        game._PlayerStrongMan:SetShowPlayerStrongPanel(not checked)
     end
 end
 
@@ -465,14 +487,14 @@ local function InitStrongTabDeep1(self,index,item)
     local basicValue = game._PlayerStrongMan:GetBasicValueByValueID(data.ValueId)
     local sliderBg = uiTemplate:GetControl(8)
     sliderBg:SetActive(true)
-    local slider = uiTemplate:GetControl(4):GetComponent(ClassType.Image)
-
+    local slider = uiTemplate:GetControl(4)
+    slider:SetActive(true)
     if basicValue == 0 then 
-        slider.fillAmount = 0
+        slider:GetComponent(ClassType.Image).fillAmount = 0
         GUITools.SetGroupImg(imgScore,3)
     return end
     if slider ~= nil then
-        slider.fillAmount = math.clamp(value/basicValue, 0, 1)
+        slider:GetComponent(ClassType.Image).fillAmount = math.clamp(value/basicValue, 0, 1)
     end
 
     local percent = (value/basicValue) * 100
@@ -549,11 +571,12 @@ local function InitStrongTabDeep2(self,item, mainIndex,index,data)
     GUI.SetText(labTag1, cellData.Name)
     local value = game._PlayerStrongMan:GetCellFightScore(cellData.Id)
     local basicValue = game._PlayerStrongMan: GetBasicValueByValueID(cellData.ValueId)
-    local slider = uiTemplate:GetControl(1):GetComponent(ClassType.Image)
+    local slider = uiTemplate:GetControl(1)
     local sliderBg = uiTemplate:GetControl(4)
     sliderBg:SetActive(true)
     if slider ~= nil then
-        slider.fillAmount = math.clamp(value/basicValue, 0, 1)
+        slider:SetActive(true)
+        slider:GetComponent(ClassType.Image).fillAmount = math.clamp(value/basicValue, 0, 1)
     end
 end
 
@@ -595,6 +618,10 @@ def.method("userdata","number","number").OnInitTabListDeep2 = function(self, ite
     elseif self._CurPageType == PageType.GETPET then 
         InitElseTabDeep2(self,item, mainIndex ,index ,self._PetListData)
     end  
+end
+
+def.override().OnHide = function (self)
+    CGame.EventManager:removeHandler("NotifyPropEvent", OnNotifyPropEvent)
 end
 
 def.override().OnDestroy = function(self)

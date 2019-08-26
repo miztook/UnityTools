@@ -4,7 +4,6 @@
 local PBHelper = require "Network.PBHelper"
 
 local function OnSelfDefiniteInfo(sender, msg)
-
 	local info = msg.DetailRoleInfo
 	if game._HostPlayer == nil then			
 		game:PrepareForGameStart()
@@ -16,7 +15,7 @@ local function OnSelfDefiniteInfo(sender, msg)
 		game._HostPlayer:ResetServerState(info)		--断线重连后同步服务器的状态	
 	end
 	-- 弹出app弹窗
-	game:OnAppMsgBoxStatic(EnumDef.TriggerTag.ReachGloryLevel, info.GloryLevel)
+	AppMsgBox.StartWork(EnumDef.TriggerTag.ReachGloryLevel, info.GloryLevel)
 end
 
 PBHelper.AddHandler("S2CSelfDefiniteInfo", OnSelfDefiniteInfo)

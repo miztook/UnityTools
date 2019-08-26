@@ -45,11 +45,18 @@ def.field("userdata")._Btn_JoinTeam = nil
 def.field("userdata")._Btn_ManageTeam = nil
 def.field("userdata")._Btn_Follow = nil
 def.field("userdata")._Btn_Matching = nil
+def.field("userdata")._Btn_Skip = nil
 def.field("userdata")._Lab_MemberCount = nil
 def.field("userdata")._Img_Matching = nil
 
 def.field("userdata")._TeamApplyRedDotObj = nil -- 组队申请红点控件
 def.field("table")._BtnFollowInfo = BlankTable	-- 组队跟随按钮信息
+
+def.field("number")._EndTimeCache = 0
+def.field("number")._EndDungeontimeCache = 0
+def.field("number")._ShowType = 0
+def.field("number")._EnterDungeonType = 0
+
 
 local instance = nil
 def.static("=>",CPanelTracker).Instance = function ()
@@ -63,10 +70,6 @@ def.static("=>",CPanelTracker).Instance = function ()
 		instance._QuestPage = CPageQuest.Instance()
 	end
 	return instance
-end
-
-local function SendFlashMsg(msg)
-    game._GUIMan:ShowTipText(msg, false)
 end
 
 local function OnTeamInfoChange(sender, event)
@@ -119,7 +122,8 @@ def.override().OnCreate = function(self)
 	self._Btn_Follow = self:GetUIObject('Btn_Follow')
 	self._Lab_MemberCount = self:GetUIObject("Lab_MemberCount")
 	self._Img_Matching = self:GetUIObject("Img_Matching")
-
+	self._Btn_Skip = self:GetUIObject("Btn_Skip")
+	self._Btn_Skip:SetActive(false)
 	self._BtnFollowInfo = {}
 	self._BtnFollowInfo.Obj = self:GetUIObject("Btn_Follow")
 	self._BtnFollowInfo.TextObj = self:GetUIObject("Lab_Follow")
@@ -153,9 +157,19 @@ def.override("dynamic").OnData = function(self,data)
 	end
 
 	-- 初始化时调用 设置
-	self:InitTeamApplyRedDotState()
+	CRedDotMan.SaveModuleDataToUserData("TeamApply", false)
 	-- 刷新 组队申请红点信息
 	self:UpdateTeamRedDotState()
+    if self._EndTimeCache ~= 0 then
+        self:UpdateGuildBattleRefreshTime(self._EndTimeCache, self._ShowType)
+        self._EndTimeCache = 0
+        self._ShowType = 0
+    end
+    if self._EndDungeontimeCache ~= 0 then
+        self:AddDungeonTime(self._EndDungeontimeCache, self._EnterDungeonType)
+        self._EndDungeontimeCache = 0
+        self._EnterDungeonType = 0
+    end
 
 	CGame.EventManager:addHandler('TeamInfoChangeEvent', OnTeamInfoChange)
     CGame.EventManager:addHandler('PVEMatchEvent', OnMatchEventHandle)
@@ -171,13 +185,13 @@ def.method().ResetLayout = function(self)
 	end
 end
 
--- 初始化时调用 设置
-def.method().InitTeamApplyRedDotState = function(self)
-	CTeamMan.Instance():InitTeamApplyRedDotState()
+def.method("boolean").ShowSpecialCameraUI = function(self,b)
+	self._Btn_Skip:SetActive(b)
 end
+
 -- 刷新 组队申请红点信息
 def.method().UpdateTeamRedDotState = function(self)
-	local bShow = CTeamMan.Instance():GetTeamApplyRedDotState()
+	local bShow = CRedDotMan.GetModuleDataToUserData("TeamApply") or false
 	self._TeamApplyRedDotObj:SetActive(bShow)
 end
 
@@ -256,15 +270,13 @@ def.method().OnClickFollow = function(self)
 			teamMan:OnClickFollowCoolingdown()
 			teamMan:FollowLeader(true)
 		else
-			SendFlashMsg(StringTable.Get(19409), false)
+			TeraFuncs.SendFlashMsg(StringTable.Get(19409), false)
 		end
 	else
 	-- 队员:自动跟随
 		-- warn("队员:自动跟随")
 		teamMan:FollowLeader( not teamMan:IsFollowing())
 	end
-
-	CSoundMan.Instance():Play2DAudio(PATH.GUISound_Choose_Press, 0)
 end
 
 ---------------------------------------------------------
@@ -290,6 +302,13 @@ def.method().UpdateTeamButtons = function(self)
     	local maxCount = CTeamMan.Instance():GetMemberMax()
         local is_team_leader = CTeamMan.Instance():IsTeamLeader()
 
+        local lab_manage = self._Btn_ManageTeam:FindChild("Img_BG/Lab_ManageTeam")
+	    if is_team_leader then
+	        GUI.SetText(lab_manage, StringTable.Get(is_big_team and 22052 or 22050))
+	    else
+	        GUI.SetText(lab_manage, StringTable.Get(is_big_team and 22053 or 22051))
+	    end
+
         if is_big_team then
             if count < maxCount - 2 then    -- 两行以内
                 if is_matching then
@@ -300,12 +319,6 @@ def.method().UpdateTeamButtons = function(self)
                 end
                 if count < maxCount - 5 then    -- 一行以内
                     self._Btn_ManageTeam:SetActive(true)
-                    local lab_manage = self._Btn_ManageTeam:FindChild("Img_BG/Lab_ManageTeam")
-                    if is_team_leader then
-                        GUI.SetText(lab_manage, StringTable.Get(22052))
-                    else
-                        GUI.SetText(lab_manage, StringTable.Get(22053))
-                    end
                 end
             end
         else
@@ -320,13 +333,6 @@ def.method().UpdateTeamButtons = function(self)
                 if count < maxCount then
                     self._Btn_ManageTeam:SetActive(true)
                 end
-            end
-
-            local lab_manage = self._Btn_ManageTeam:FindChild("Img_BG/Lab_ManageTeam")
-            if is_team_leader then
-                GUI.SetText(lab_manage, StringTable.Get(22050))
-            else
-                GUI.SetText(lab_manage, StringTable.Get(22051))
             end
         end
         GUI.SetText(self._Lab_MemberCount, string.format(StringTable.Get(30314), count))
@@ -467,10 +473,10 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
 			
 			local hostPlayer = game._HostPlayer
 			if not hostPlayer:InTeam() then
-				CTeamMan.Instance():C2SGetTeamListInRoom(1)
+				TeamUtil.RequestTeamListInRoom(1)
 				game._GUIMan:Open("CPanelUITeamCreate",nil)
 			elseif bIsCurrentPanel then
-				CTeamMan.Instance():SendC2SGetTeamEquipInfo()
+				TeamUtil.RequestTeamEquipInfo()
 			end
 		end
 
@@ -560,20 +566,24 @@ def.override("string").OnClick = function(self, id)
 	]]
 --	elseif id == "Tab_MatchingInfo" then
 --		local targetMatchId =  CTeamMan.Instance()._TargetMatchId
---		CTeamMan.Instance():C2SGetTeamListInRoom( targetMatchId )
+--		TeamUtil.RequestTeamListInRoom( targetMatchId )
 --		game._GUIMan:Open("CPanelUITeamCreate", { TargetMatchId = targetMatchId })
 	elseif string.find(id, "MemberItem") then
-		CTeamMan.Instance():SendC2SGetTeamEquipInfo()
+		TeamUtil.RequestTeamEquipInfo()
 	elseif id == "Btn_JoinTeam" then
-		CTeamMan.Instance():C2SGetTeamListInRoom(1)
+		TeamUtil.RequestTeamListInRoom(1)
 		game._GUIMan:Open("CPanelUITeamCreate",nil)
 	elseif id == "Btn_CreateTeam" then
-		CTeamMan.Instance():CreateTeam(0, 0, "", 1, false, 0)
+		TeamUtil.CreateTeam(0, 0, "", 1, false, 0)
 	elseif id == "Btn_ManageTeam" then
-		CTeamMan.Instance():SendC2SGetTeamEquipInfo()
+		TeamUtil.RequestTeamEquipInfo()
     elseif id == "Btn_AutoMatch" or id == "Btn_Matching" then
     	game._GUIMan:Open("CPanelUITeamMatchingBoard", nil)
+	elseif id == "Btn_Skip" then
+		game:CameraMoveEnd()
 	end
+
+	CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
 end
 
 -- 界面打开前设置界面最小化
@@ -606,11 +616,21 @@ def.method("number", "number").AddDungeonTime = function(self, endTime, period)
 	end
 end
 
+def.method("number", "number").CacheDungeonCountdown = function(self, endTime, enterType)
+    self._EndDungeontimeCache = endTime
+    self._EnterDungeonType = enterType
+end
+
 --设置副本事件倒计时
 def.method("number", "string").AddDungeonCountdown = function(self, endTime, infoStr)
 	if self._DungeonGoalPage then
 		self._DungeonGoalPage:AddDungeonCountdown(endTime, infoStr)
 	end
+end
+
+def.method("number", "number").CacheEndTimeAndShowType = function(self, endTime, showType)
+    self._EndTimeCache = endTime
+    self._ShowType = showType
 end
 
 def.method("number", "number").UpdateGuildBattleRefreshTime = function(self, endTime, showType)
@@ -651,7 +671,10 @@ def.override().OnDestroy = function(self)
 	self._IsInitDungeon = false
 	self._IsSetMinWhenOpen = false
 	self._IsOpenDungeon = false
-
+    self._EndTimeCache = 0
+    self._ShowType = 0
+    self._EndDungeontimeCache = 0
+    self._EnterDungeonType = 0
 	instance = nil
 end
 

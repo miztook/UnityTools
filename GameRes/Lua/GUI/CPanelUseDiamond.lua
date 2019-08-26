@@ -11,7 +11,7 @@ def.field('userdata')._TipsToggle = nil     --提示toggle
 def.field("userdata")._LabText    = nil     --文本
 
 
-def.field("table")._PanelData = nil     --界面数据
+def.field("table")._PanelTable = nil     --界面数据
 def.field("string")._CurComeType = ""  --界面来源
 def.field("number")._OperaType  = -1   --操作类型 1= 消耗操作  2= 兑换操作  3 = 充值操作
 
@@ -47,53 +47,53 @@ end
 --初始化购买物品界面
 local function InitBuyItemShow(iPanel)
     local iconName = STRING_ICONNAME[4]
-    if iPanel._PanelData._UseType == EResourceType.ResourceTypeDiamond then
+    if iPanel._PanelTable._UseType == EResourceType.ResourceTypeDiamond then
         iconName = STRING_ICONNAME[3]
-    elseif  iPanel._PanelData._UseType == EResourceType.ResourceTypeGold then
+    elseif  iPanel._PanelTable._UseType == EResourceType.ResourceTypeGold then
         iconName = STRING_ICONNAME[1]
     end
 
-    local strName = "<color=#" .. EnumDef.Quality2ColorHexStr[iPanel._PanelData._Item._QualityIdex] ..">" .. iPanel._PanelData._Item._ItemName .."</color>"
-    --local showStr = string.format(StringTable.Get(20301),strName,iPanel._PanelData._Diamond,iconName)
-    local showStr = string.format(StringTable.Get(20301), strName,iPanel._PanelData._Diamond, iconName)
+    local strName = "<color=#" .. EnumDef.Quality2ColorHexStr[iPanel._PanelTable._Item._QualityIdex] ..">" .. iPanel._PanelTable._Item._ItemName .."</color>"
+    --local showStr = string.format(StringTable.Get(20301),strName,iPanel._PanelTable._Diamond,iconName)
+    local showStr = string.format(StringTable.Get(20301), strName,iPanel._PanelTable._Diamond, iconName)
     GUI.SetText(iPanel._LabText, showStr)
     iPanel._OperaType = 1
-    iPanel._TipsToggleObj: SetActive(iPanel._PanelData._tips) 
+    iPanel._TipsToggleObj: SetActive(iPanel._PanelTable._tips) 
 end
 
 --初始化直接扣钱的操作
 local function InitDirectlyUseDimaond(iPanel)
     --直接扣钱，但是是购买物品有数量的
     local iconName = STRING_ICONNAME[4]
-    if iPanel._PanelData._UseType == EResourceType.ResourceTypeDiamond then
+    if iPanel._PanelTable._UseType == EResourceType.ResourceTypeDiamond then
         iconName = STRING_ICONNAME[3]
-    elseif iPanel._PanelData._UseType == EResourceType.ResourceTypeGold then
+    elseif iPanel._PanelTable._UseType == EResourceType.ResourceTypeGold then
         iconName = STRING_ICONNAME[1]
     end
 
     local showStr = ""
-    if iPanel._PanelData._BuyCount ~= nil and iPanel._PanelData._BuyItemID ~= nil then  
-        local itemID = iPanel._PanelData._BuyItemID
+    if iPanel._PanelTable._BuyCount ~= nil and iPanel._PanelTable._BuyItemID ~= nil then  
+        local itemID = iPanel._PanelTable._BuyItemID
         local itemTemplate = CElementData.GetItemTemplate(itemID)
         if itemTemplate ~= nil then
             local strName = "<color=#" .. EnumDef.Quality2ColorHexStr[itemTemplate.InitQuality] ..">" .. itemTemplate.Name .."</color>"
-            --showStr = string.format(StringTable.Get(20302),iPanel._PanelData._Diamond, iconName, iPanel._PanelData._BuyCount,strName)
-            showStr = string.format(StringTable.Get(20302), iPanel._PanelData._Diamond, iconName, iPanel._PanelData._BuyCount,strName)
+            --showStr = string.format(StringTable.Get(20302),iPanel._PanelTable._Diamond, iconName, iPanel._PanelTable._BuyCount,strName)
+            showStr = string.format(StringTable.Get(20302), iPanel._PanelTable._Diamond, iconName, iPanel._PanelTable._BuyCount,strName)
         end     
     else
-        --showStr = string.format(StringTable.Get(20300),iPanel._PanelData._Diamond,iconName)
-        showStr = string.format(StringTable.Get(20300), iPanel._PanelData._Diamond, iconName)
+        --showStr = string.format(StringTable.Get(20300),iPanel._PanelTable._Diamond,iconName)
+        showStr = string.format(StringTable.Get(20300), iPanel._PanelTable._Diamond, iconName)
     end
 
     GUI.SetText(iPanel._LabText, showStr)
-    iPanel._TipsToggleObj: SetActive(iPanel._PanelData._tips) 
+    iPanel._TipsToggleObj: SetActive(iPanel._PanelTable._tips) 
     iPanel._OperaType = 1
 end
 
 --兑换界面
 local function InitChangeDiamond(iPanel,nCount,isTips)  
     iPanel._TipsToggleObj: SetActive(isTips) 
-    iPanel._PanelData._Diamond = nCount
+    iPanel._PanelTable._Diamond = nCount
     local showStr = string.format(StringTable.Get(20304),nCount,nCount)
     GUI.SetText(iPanel._LabText, showStr)
 
@@ -124,7 +124,7 @@ def.override("dynamic").OnData = function(self, data)
         self._TipsToggle.isOn = false
     end
 
-    self._PanelData = data  
+    self._PanelTable = data  
     self._CurComeType = data._ComeType
     if  data._PanelType == 1 then--交易界面
         if data._Item ~= nil then
@@ -143,7 +143,7 @@ def.override("string").OnClick = function(self, id)
     if id == "Btn_Yes" then--确定
         if self._OperaType == 1 then--交易
              ---1 购买类型错误，直接退出 0 = 可以购买 1= 可以购买，但是需要兑换  2= 没钱，充钱！
-            local ntype,nCount = CUseDiamondMan.Instance():ClickConfigCheck(self._PanelData._UseType,self._PanelData._Diamond)      
+            local ntype,nCount = CUseDiamondMan.Instance():ClickConfigCheck(self._PanelTable._UseType,self._PanelTable._Diamond)      
             if ntype == 0 then
                 CUseDiamondMan.Instance(): ConfigEvent(true) 
 
@@ -151,7 +151,7 @@ def.override("string").OnClick = function(self, id)
                     game._GUIMan:CloseByScript(self)  
                 end                                           
             elseif ntype == 1 then
-                InitChangeDiamond(self,nCount,self._PanelData._tips)
+                InitChangeDiamond(self,nCount,self._PanelTable._tips)
             elseif ntype == 2 then
                 BuyDiamond(self)
             else
@@ -159,7 +159,7 @@ def.override("string").OnClick = function(self, id)
             end  
             return     
         elseif self._OperaType == 2 then--兑换
-            CUseDiamondMan.Instance():C2SChangeDiamond(self._PanelData._Diamond)         
+            CUseDiamondMan.Instance():C2SChangeDiamond(self._PanelTable._Diamond)         
         elseif self._OperaType == 3 then--充值
             CUseDiamondMan.Instance():BuyDiamond()          
         end 
@@ -178,7 +178,7 @@ end
 
 def.override().OnHide = function(self)
     CPanelBase.OnHide(self)
-    self._PanelData = nil
+    self._PanelTable = nil
     CUseDiamondMan.Instance(): ConfigEvent(false) 
 end
 

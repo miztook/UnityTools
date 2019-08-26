@@ -244,6 +244,7 @@ local cfg = {
     Lab_Guild_OnLinemNum = 1770679658,
     Btn_BonusTip = -358739265,
     Guild_Event_List = -676769969,
+    Lab_BottomTip = 1759386110,
 }
  
 return cfg

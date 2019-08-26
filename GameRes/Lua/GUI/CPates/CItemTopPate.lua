@@ -11,6 +11,8 @@ local CItemTopPate = Lplus.Extend(CPateBase, "CItemTopPate")
 do
 	local def = CItemTopPate.define
 		
+    local CONST_CACHE_AMOUNT = 50
+
 	def.field('userdata')._Go_Name = nil
 	--def.field('userdata')._Frame_ActionTip = nil
 	def.field('userdata')._Go_ActionTip = nil
@@ -20,24 +22,23 @@ do
 	def.field('userdata')._Txt_Name = nil
 
 	def.final("=>", CItemTopPate).new = function ()
-		local obj = CItemTopPate()
-		obj._VOffset = 2.5
-
+        local cache, limit = CItemTopPate.GetPateCache()
+        local obj = CPateBase.CreateNewInternal("GUI.CPates.CItemTopPate", cache, limit) --CItemTopPate()
+        --obj._VOffset = 2.5
 		--local data=CPateBase.StaticData()
 		--table.insert(data._AllCreated,obj)
+
+--        if obj._Data ~= nil then
+--			obj._Data._LogoType = nil
+--			obj._Data._TitleName = nil
+--			obj._Data._IsShowTitle = nil
+--			obj._Data._IsShowName = nil
+--        end
 
 		return obj
 	end
 
-	def.override().UIReset = function(self)
-		GUITools.SetUIActive(self._Go_Name, false)
-		GUITools.SetUIActive(self._Go_TitleName, false)
-		--GUITools.SetUIActive(self._Frame_Title, false)
-		GUITools.SetUIActive(self._Go_ActionTip, false)
-	end
-
-	def.override().Release = function(self)
-		CPateBase.Release(self)
+	def.method().Pool = function (self)
 
 		self._Go_Name = nil
 		self._Frame_ActionTip = nil
@@ -49,14 +50,29 @@ do
 
 		--local data=CPateBase.StaticData()
 		--table.remove(data._AllCreated,obj)
+
+        local cache, limit = CItemTopPate.GetPateCache()
+        CPateBase.PoolInternal(self, cache, limit) --CNPCTopPate()
+	end
+
+	def.override().UIReset = function(self)
+		GUITools.SetUIActive(self._Go_Name, false)
+		GUITools.SetUIActive(self._Go_TitleName, false)
+		--GUITools.SetUIActive(self._Frame_Title, false)
+		GUITools.SetUIActive(self._Go_ActionTip, false)
 	end
 
 --	def.override("=>", "userdata").GetCacheRoot = function (self)
 --		return _ItemTopCache
 --	end
-	def.override("=>", "table", "number","userdata").GetGoCache = function (self)
+	def.static("=>", "table", "number").GetPateCache = function ()
 		local data = CPateBase.StaticData()
-		return data._ItemTopCache, 50, data._ItemPatePrefab
+		return data._ItemPateCache, CONST_CACHE_AMOUNT
+	end
+
+	def.override("=>", "table", "number", "userdata").GetGoCache = function (self)
+		local data = CPateBase.StaticData()
+		return data._ItemPateGOCache, CONST_CACHE_AMOUNT, data._ItemPatePrefab
 	end
 
 	def.override().UIFind = function(self)
@@ -99,7 +115,7 @@ do
 
 	def.override("number").OnLogoChange = function (self, curType)
 		self._Owner._CurLogoType = curType
-		if self._IsReleased then return end
+		if self._IsPooled then return end
 		if self:IsObjCreated() then
 			SyncLogo(self, curType)
 		end
@@ -125,7 +141,7 @@ do
 				isShow = false
 			end
 
-			if self._IsReleased then return end
+			if self._IsPooled then return end
 			if self:IsObjCreated() then
 				SyncTitle(self, isShow,name)
 			else
@@ -177,7 +193,7 @@ do
 	end
 
 	def.override("boolean").UpdateName= function(self, isShow)
-		if self._IsReleased then return end
+		if self._IsPooled then return end
 		if self:IsObjCreated() then
 			SyncName(self, isShow)
 		else
@@ -186,7 +202,7 @@ do
 	end
 
 	def.override().SyncDataToUI = function (self)
-		if not self._IsReleased and self:IsObjCreated() then
+		if not self._IsPooled and self:IsObjCreated() then
 
 			if self._Data._LogoType ~= nil then
 				SyncLogo(self, self._Data._LogoType)

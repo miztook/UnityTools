@@ -99,6 +99,7 @@ local cfg = {
     Img_Lock14 = -1088902966,
     DragblePanel = 1453771453,
     List_PageToggles = 280343535,
+    Btn_F16 = 1871168616,
 }
  
 return cfg

@@ -11,25 +11,26 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Battle",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12033] = 
 		{
-			[1] = { x = 272.20, y = 39.47, z = 21.10, name = "제 3군단 주술사", level = 36, SortID = 8 },
-			[2] = { x = 301.26, y = 39.47, z = 4.71, name = "제 3군단 주술사", level = 36, SortID = 9 },
-			[3] = { x = 334.25, y = 40.15, z = 20.57, name = "제 3군단 주술사", level = 36, SortID = 10 },
-			[4] = { x = 288.69, y = 40.15, z = 0.69, name = "제 3군단 주술사", level = 36, SortID = 13 },
+			[1] = { x = 272.20, y = 39.47, z = 21.10, name = "제3군단 흑마법사", level = 36, SortID = 8 },
+			[2] = { x = 301.26, y = 39.47, z = 4.71, name = "제3군단 흑마법사", level = 36, SortID = 9 },
+			[3] = { x = 334.25, y = 40.15, z = 20.57, name = "제3군단 흑마법사", level = 36, SortID = 10 },
+			[4] = { x = 288.69, y = 40.15, z = 0.69, name = "제3군단 흑마법사", level = 36, SortID = 13 },
 		},
 		[12032] = 
 		{
-			[1] = { x = 272.20, y = 39.47, z = 21.10, name = "제 3군단 검사", level = 35, SortID = 8 },
-			[2] = { x = 301.26, y = 39.47, z = 4.71, name = "제 3군단 검사", level = 35, SortID = 9 },
-			[3] = { x = 334.25, y = 40.15, z = 20.57, name = "제 3군단 검사", level = 35, SortID = 10 },
-			[4] = { x = 288.69, y = 40.15, z = 0.69, name = "제 3군단 검사", level = 35, SortID = 13 },
+			[1] = { x = 272.20, y = 39.47, z = 21.10, name = "제3군단 검사", level = 35, SortID = 8 },
+			[2] = { x = 301.26, y = 39.47, z = 4.71, name = "제3군단 검사", level = 35, SortID = 9 },
+			[3] = { x = 334.25, y = 40.15, z = 20.57, name = "제3군단 검사", level = 35, SortID = 10 },
+			[4] = { x = 288.69, y = 40.15, z = 0.69, name = "제3군단 검사", level = 35, SortID = 13 },
 		},
 		[12043] = 
 		{
-			[1] = { x = 317.76, y = 40.14, z = 37.84, name = "제 3군단 장교", level = 37, SortID = 16 },
+			[1] = { x = 317.76, y = 40.14, z = 37.84, name = "제3군단 천부장", level = 37, SortID = 16 },
 		},
 		[12036] = 
 		{
@@ -81,9 +82,9 @@ local MapInfo =
 		},
 		[2104] = 
 		{
-			[1] = { x = 301.41, y = 38.28, z = 4.76, name = "장교", SortID = 6 },
-			[2] = { x = 290.41, y = 39.37, z = -2.80, name = "장교", SortID = 7 },
-			[3] = { x = 333.10, y = 40.02, z = 15.90, name = "장교", SortID = 11 },
+			[1] = { x = 301.41, y = 38.28, z = 4.76, name = "연합군 장교", SortID = 6 },
+			[2] = { x = 290.41, y = 39.37, z = -2.80, name = "연합군 장교", SortID = 7 },
+			[3] = { x = 333.10, y = 40.02, z = 15.90, name = "연합군 장교", SortID = 11 },
 		},
 		[2103] = 
 		{
@@ -116,9 +117,9 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[209] = { x = 330.18, y = 47.72, z = -81.81, name = "전방 캠프", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[210] = { x = 268.59, y = 42.38, z = -35.23, name = "선봉군 항구", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[211] = { x = 253.86, y = 47.72, z = -28.53, name = "전선", worldId = 0, IsCanFind = 1, PkMode = 0 },
+			[209] = { x = 330.18, y = 47.72, z = -81.81, name = "전방 캠프", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[210] = { x = 268.59, y = 42.38, z = -35.23, name = "선봉군 항구", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[211] = { x = 253.86, y = 47.72, z = -28.53, name = "전선", worldId = 0, IsCanFind = 1, PkMode = 1 },
 		},
 	},
 	Mine = 

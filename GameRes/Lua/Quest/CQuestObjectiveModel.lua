@@ -238,7 +238,7 @@ def.method().DoShortcut = function(self)
         CTransManage.Instance():TransToRegionIsNeedBroken(temp.ArriveRegion.MapId,temp.ArriveRegion.RegionId,true,nil, true)
     elseif temp.ArriveLevel._is_present_in_parent then
         -- game._GUIMan:ShowTipText(StringTable.Get(31804), false)
-        game._GUIMan:Open("CPanelStrong",{ PageType = CPanelStrong.PageType.GETEXP})
+        game._GUIMan:Open("CPanelStrong",{ PageType = CPanelStrong.PageType.GETEXP, SelectId = 1})
     elseif temp.WaitTime._is_present_in_parent then
 
     elseif temp.FinishDungeon._is_present_in_parent then
@@ -392,7 +392,7 @@ def.method().DoShortcut = function(self)
     elseif temp.Convoy._is_present_in_parent then
         if self._QuestModel:GetTemplate().Type == QuestDef.QuestType.GuildConvoy then
             local convoyPos = game._GuildMan:GetConvoyEntityPos()
-            game:NavigatToPos(convoyPos, 0, nil, nil)
+            TeraFuncs.NavigatToPos(convoyPos, 0, nil, nil)
         else
             CQuest.Instance():QuestFollow(true,self._BelongParentQuestId)
         end

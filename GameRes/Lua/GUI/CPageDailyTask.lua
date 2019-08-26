@@ -266,7 +266,7 @@ def.method("userdata", "number").OnInitQuestInfo = function(self, item, index)
     -- 描述
     GUI.SetText(Lab_GoalQuest, dailyTaskTemplate.Description)
     -- 目标数量
-    GUI.SetText(Lab_GoalQuestNum, taskInfo.ObjReachCount .. "/" .. dailyTaskTemplate.ObjCount)
+    GUI.SetText(Lab_GoalQuestNum, taskInfo.ObjReachCount .. "/" .. GUITools.FormatMoney(dailyTaskTemplate.ObjCount))
     -- 是否已完成
     GUITools.SetUIActive(Frame_Done, taskInfo.IsDrawReward)
     -- 奖励
@@ -294,7 +294,14 @@ def.method("userdata", "number").OnInitQuestInfo = function(self, item, index)
                 -- 已到时间, 显示“0分钟”
                 timeStr = string.format(minuteStr, 0)
             else
-                GUI.SetText(Lab_QuickFinishNeedMoney, GUITools.FormatMoney(dailyTaskTemplate.FinishCost))
+
+                local have_count = game._HostPlayer:GetMoneyCountByType(1)
+                if have_count >= dailyTaskTemplate.FinishCost then
+                    GUI.SetText(Lab_QuickFinishNeedMoney, GUITools.FormatNumber(dailyTaskTemplate.FinishCost, true))
+                else
+                    GUI.SetText(Lab_QuickFinishNeedMoney, "<color=#FF0000>".. GUITools.FormatNumber(dailyTaskTemplate.FinishCost, true) .. "</color>")
+                end
+
                 if leftTime / 60 <= 1 then
                     -- 剩余时间小于1分钟，显示“不足1分钟”
                     timeStr = StringTable.Get(31802) .. string.format(minuteStr, 1)
@@ -723,6 +730,7 @@ def.method("=>", "boolean", "string").GetCurLuckRefCost = function(self)
     local cost = nil
     local IsHaveFreeCount = true    
     if curRefTime < self._FreeChangeLuckNum then   
+        curRefTime = self._FreeChangeLuckNum - curRefTime
         cost = string.format(StringTable.Get(31805), (curRefTime.."/"..self._FreeChangeLuckNum))
         IsHaveFreeCount = true
     else        
@@ -743,6 +751,7 @@ def.method("=>", "boolean", "string").GetCurQuestRefCost = function(self)
     local IsHaveFreeCount = true
     local cost = nil    
     if curRefTime < self._FreeRefreshQuestNum then
+        curRefTime = self._FreeRefreshQuestNum - curRefTime
         cost = string.format(StringTable.Get(31806), (curRefTime.."/"..self._FreeRefreshQuestNum))
         IsHaveFreeCount = true
     else        

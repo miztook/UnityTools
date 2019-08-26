@@ -14,8 +14,9 @@ local GuildMemberType = require "PB.data".GuildMemberType
 local NotifyGuildEvent = require "Events.NotifyGuildEvent"
 local CGame = Lplus.ForwardDeclare("CGame")
 local GuildBuildingType = require "PB.data".GuildBuildingType
-local DynamicText = require "Utility.DynamicText"
+local CElementSkill = require "Data.CElementSkill"
 local CCommonBtn = require "GUI.CCommonBtn"
+
 local CPanelUIGuildSkillLvUp = Lplus.Extend(CPanelBase, "CPanelUIGuildSkillLvUp")
 local def = CPanelUIGuildSkillLvUp.define
 
@@ -108,7 +109,7 @@ def.override("dynamic").OnData = function(self, data)
 		btn_2:SetActive(false)
 		btn_3:SetActive(false)
 
-		local value = DynamicText.GetSkillLevelUpValue(talentId, 1, 1, true)
+		local value = CElementSkill.GetSkillLevelUpValue(talentId, 1, 1, true)
 		GUI.SetText(self._Lab_Effect0, template.Description .. "+" .. value )
 
 	elseif data._Type == "Level" then
@@ -124,9 +125,9 @@ def.override("dynamic").OnData = function(self, data)
 		btn_2:SetActive(true)
 		btn_3:SetActive(false)
 
-		local nowValue = DynamicText.GetSkillLevelUpValue(talentId, 1, data._Level, true)
+		local nowValue = CElementSkill.GetSkillLevelUpValue(talentId, 1, data._Level, true)
 		GUI.SetText(self._Lab_Effect_Now, template.Description .. "+" .. nowValue)
-		local nextValue = DynamicText.GetSkillLevelUpValue(talentId, 1, data._Level + 1, true)
+		local nextValue = CElementSkill.GetSkillLevelUpValue(talentId, 1, data._Level + 1, true)
 		GUI.SetText(self._Lab_Effect_Next, template.Description .. "+" .. nextValue)	
 	elseif data._Type == "Active" then
         local setting = {
@@ -141,7 +142,7 @@ def.override("dynamic").OnData = function(self, data)
 		btn_2:SetActive(false)
 		btn_3:SetActive(true)
 
-		local value = DynamicText.GetSkillLevelUpValue(talentId, 1, data._Level, true)
+		local value = CElementSkill.GetSkillLevelUpValue(talentId, 1, data._Level, true)
 		GUI.SetText(self._Lab_Effect1, template.Description .. "+" .. value)
 	end
 end

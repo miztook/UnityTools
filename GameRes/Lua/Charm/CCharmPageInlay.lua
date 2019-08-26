@@ -22,10 +22,10 @@ def.field("number")._SmallFieldCount = 8            -- 小神符槽位的数量
 def.field("boolean")._IsShowAttrInfoPanel = false   -- 属性总览面板是否在显示中
 def.field("boolean")._IsSelecting = false           -- 是否是正在属性dropdown操作
 def.field("boolean")._IsScriptDropdown = false      -- 代码正在操作dropdown
-def.field("boolean")._IsScriptToggelPages = false   -- 是否是手动设置页签toggle
 def.field("boolean")._IsScriptToggleField = false   -- 是否是脚本点击的槽位。
 def.field("boolean")._IsChangingAllCharms = false     -- 是否是正在进行一键穿戴的操作
 def.field("table")._UIFXTimers = nil                -- 播放UI特效的Timers
+def.field("userdata")._SelectedCharmItem = nil      -- 选中的神符item
 
 def.static("=>", CCharmPageInlay).new = function()
     local obj = CCharmPageInlay()
@@ -56,12 +56,16 @@ def.override().OnCreate = function(self)
     self._PanelObject._Img_FieldBG1 = self._PanelCharm:GetUIObject("Img_Bg_02")
     self._PanelObject._Img_FieldBG2 = self._PanelCharm:GetUIObject("Img_Bg_03")
     self._PanelObject._Img_FieldBG0 = self._PanelCharm:GetUIObject("Img_Bg_01")
+--    self._PanelObject._Lab_NoCharmTip = self._PanelCharm:GetUIObject("Lab_NoCharmTip")
+    self._PanelObject._PageView_CharmPage = self._PanelCharm:GetUIObject("PageView_Charms")
     self._PanelObject._Tab_CharmFieldPages = {}
-    local ids = GameUtil.GetAllTid("CharmPage")
+    local ids = CElementData.GetAllTid("CharmPage")
     self._FieldPagesCount = #ids
-    for i = 1,self._FieldPagesCount do
-        self._PanelObject._Tab_CharmFieldPages[i] = self._PanelCharm:GetUIObject("Tab_CharmPage"..i)
-    end
+    self._PanelObject._PageView_CharmPage:GetComponent(ClassType.GDragablePageView):SetPageItemCount(self._FieldPagesCount)
+    self._PanelObject._PageToggles:GetComponent(ClassType.GNewList):SetItemCount(self._FieldPagesCount)
+--    for i = 1,self._FieldPagesCount do
+--        self._PanelObject._Tab_CharmFieldPages[i] = self._PanelCharm:GetUIObject("Tab_CharmPage"..i)
+--    end
     self._UIFXTimers = {}
 end
 
@@ -75,7 +79,7 @@ def.override("dynamic").OnData = function(self, data)
     self._PanelObject._Tab_UnlockTip:SetActive(false)
     self:GenerateFieldPages()
     self:GetCurrentPageInlayAttrTable()
-    self:SelectCharmsByFieldType(false, 0)
+    self:SelectCharmsByFieldType(false, -1)
     self:SelectCharmsByAttrID(self._CurrentAttrID)
     self:GetAttrTableByShowCharmItems()
     self:SetDropDownInfo()
@@ -103,7 +107,7 @@ def.override("dynamic").ShowPage = function(self, data)
     end
     self._CurrentAttrID = -1
     self:GetCurrentPageInlayAttrTable()
-    self:SelectCharmsByFieldType(size == ECharmSize.ECharmSize_Big, 0)
+    self:SelectCharmsByFieldType(size == ECharmSize.ECharmSize_Big, -1)
     self:SelectCharmsByAttrID(self._CurrentAttrID)
     self:GetAttrTableByShowCharmItems()
     self:SetDropDownInfo()
@@ -148,20 +152,20 @@ end
 def.method("boolean", "number").SelectCharmsByFieldType = function(self,isBig, fieldColor)
     self:GetAllCharmItems()
     self._CharmShowItems = {}
-    if fieldColor == -1 then
+    if isBig then
         for _,v in ipairs(self._CharmItems) do
-            self:AddToCharmShowItems(v)
+            if v:IsBigCharm() then
+                self:AddToCharmShowItems(v)
+            end
         end
     else
-        if isBig then
-            for _,v in ipairs(self._CharmItems) do
-                if v:IsBigCharm() then
+        for _,v in ipairs(self._CharmItems) do
+            if fieldColor == ECharmColor.ECharmColor_Colorful or fieldColor == -1 then
+                if not v:IsBigCharm() then
                     self:AddToCharmShowItems(v)
                 end
-            end
-        else
-            for _,v in ipairs(self._CharmItems) do
-                if not v:IsBigCharm() then
+            else
+                if not v:IsBigCharm() and fieldColor == v._CharmItemTemplate.CharmColor then
                     self:AddToCharmShowItems(v)
                 end
             end
@@ -264,7 +268,7 @@ end
 
 -- 生成神符页对象
 def.method().GenerateFieldPages = function(self)
-    local fieldPages = GameUtil.GetAllTid("CharmPage")
+    local fieldPages = CElementData.GetAllTid("CharmPage")
     local hp = game._HostPlayer
     for i,value in ipairs(fieldPages) do
         local fieldPageTemp = CElementData.GetTemplate("CharmPage", value)
@@ -301,7 +305,7 @@ def.method("number").ChangeFieldPage = function(self, pageIndex)
         if not charm_field:IsBigField() then
             self:SelectCharmsByFieldType(false, -1)
         else
-            self:SelectCharmsByFieldType(true, 0)
+            self:SelectCharmsByFieldType(true, -1)
         end
     end
     self._CurrentAttrID = -1
@@ -314,11 +318,12 @@ end
 
 -- 刷新UI
 def.override().RefreshPageUI = function(self)
-    self._PanelObject._Btn_PutOnAll:SetActive(true)
+    self._PanelObject._Btn_PutOnAll:SetActive(self._CurrentPage:PageShouldShowRedPoint(self._CharmItems))
     self._PanelObject._Btn_ShowDetail:SetActive(true)
     if self._IsSelecting then
         self._PanelObject._Tab_HaveNoCharm:SetActive(false)
         self._PanelObject._Tab_RightHaveCharm:SetActive(true)
+        self._SelectedCharmItem = nil
         self._PanelObject._List_CharmList:GetComponent(ClassType.GNewList):SetItemCount(#self._CharmAttrItems)
         self._PanelCharm:UpdateSideTabs({#self._CharmAttrItems})
     else
@@ -329,6 +334,7 @@ def.override().RefreshPageUI = function(self)
         else
             self._PanelObject._Tab_HaveNoCharm:SetActive(false)
             self._PanelObject._Tab_RightHaveCharm:SetActive(true)
+            self._SelectedCharmItem = nil
             self._PanelObject._List_CharmList:GetComponent(ClassType.GNewList):SetItemCount(#self._CharmAttrItems)
             self._PanelCharm:UpdateSideTabs({#self._CharmAttrItems})
         end
@@ -350,7 +356,7 @@ def.override().RefreshPageUI = function(self)
         GameUtil.SetButtonInteractable(self._PanelObject._NextPageBtn, true)
         self._PanelObject._NextPageBtn:SetActive(true)
     end
-    GUI.SetGroupToggleOn(self._PanelObject._PageToggles, self._CurrentPageIndex)
+    GUI.SetGroupToggleOn(self._PanelObject._PageToggles, self._CurrentPageIndex + 1)
     GUITools.SetGroupImg(self._PanelObject._Img_FieldBG0, self._CurrentPageIndex - 1)
     self:RefreshFieldsUI()
     if CCharmMan.Instance()._ShowFieldFXAndRedPoint then
@@ -575,13 +581,13 @@ def.override("table").HandleOption = function(self, event)
             event._Option == "Compose" or event._Option == "FieldCompose") and self._IsShow then
         local select_index = CCharmFieldPage.GetSelectIndex()
         if select_index == -1 then
-            self:SelectCharmsByFieldType(true, 0)
+            self:SelectCharmsByFieldType(true, -1)
         else
             local charm_field = self._CurrentPage._CharmFields[select_index]
             if not charm_field:IsBigField() then
-                self:SelectCharmsByFieldType(false, 0)
+                self:SelectCharmsByFieldType(false, -1)
             else
-                self:SelectCharmsByFieldType(true, 0)
+                self:SelectCharmsByFieldType(true, -1)
             end
         end
 
@@ -635,6 +641,7 @@ def.override('string').OnClick = function(self, id)
         CCharmFieldPage.SetSelectIndex(1)
         self._CurrentPageIndex = self._CurrentPageIndex + 1
         self:ChangeFieldPage(self._CurrentPageIndex)
+        self._PanelObject._PageView_CharmPage:GetComponent(ClassType.GDragablePageView):ChangePageIndex(self._CurrentPageIndex - 1)
     elseif id == "Btn_PrePage" then
         if self._IsChangingAllCharms then
             game._GUIMan:ShowTipText(StringTable.Get(19362), false)
@@ -643,6 +650,7 @@ def.override('string').OnClick = function(self, id)
         CCharmFieldPage.SetSelectIndex(1)
         self._CurrentPageIndex = self._CurrentPageIndex - 1
         self:ChangeFieldPage(self._CurrentPageIndex)
+        self._PanelObject._PageView_CharmPage:GetComponent(ClassType.GDragablePageView):ChangePageIndex(self._CurrentPageIndex - 1) 
     elseif id == "Btn_ShowDetail" then
         if self._CharmInlayAttrTable ~= nil then
             self._IsShowAttrInfoPanel = not self._IsShowAttrInfoPanel
@@ -705,6 +713,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
             [EItemIconTag.CanUse] = is_can_inlay,
         }
         IconTools.InitItemIconNew(GUITools.GetChild(item, 0), charm_item._Tid, setting)
+        IconTools.SetFrameIconTags(GUITools.GetChild(item, 0), { [EFrameIconTag.Select] = false })
     elseif id == "List_AllAttribute" then
         if self._CharmInlayAttrTable == nil then return end
         local combat_data = self._CharmInlayAttrTable[index]
@@ -714,6 +723,11 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         local attr_value = uiTemplate:GetControl(1)
         GUI.SetText(attr_name, attr_temp.TextDisplayName)
         GUI.SetText(attr_value, "+".. GUITools.FormatNumber(math.ceil(combat_data.AttrValue), false))
+    elseif id == "PageView_Charms" then
+        self._PanelObject._Tab_CharmFieldPages[index] = item
+        GUITools.RegisterToggleEventHandler(self._PanelCharm._Panel, item, true)
+    elseif id == "Tgp_PageToggles" then
+        item.name = "Rdo_Page"..index
     end
 end
 
@@ -721,6 +735,8 @@ def.override('userdata', 'string', 'number').OnSelectItem = function(self, item,
     local index = index + 1
     if id == "List_CharmList" then
         local inlayCb = function()
+            if not self._PanelCharm:IsShow() then return end
+            if self._CharmAttrItems == nil or self._CharmAttrItems[index] == nil then return end
             if self._CurrentPage == nil or self._CurrentPage._CurField == nil then
                 game._GUIMan:ShowTipText(StringTable.Get(19347), false)
                 return
@@ -738,6 +754,8 @@ def.override('userdata', 'string', 'number').OnSelectItem = function(self, item,
             end
         end
         local devourCb = function()
+            if not self._PanelCharm:IsShow() then return end
+            if self._CharmAttrItems == nil or self._CharmAttrItems[index] == nil or self._PanelCharm == nil then return end
             local charm_temp = CElementData.GetTemplate("CharmItem", self._CharmAttrItems[index]._Tid)
             if charm_temp.Level >= self._PanelCharm._CharmMaxLevel then
                 game._GUIMan:ShowTipText(StringTable.Get(19354), false)
@@ -757,6 +775,16 @@ def.override('userdata', 'string', 'number').OnSelectItem = function(self, item,
         table.insert(comps, link_comp)
     	--CItemTipMan.ShowItemTipWithCertainFunc(self._CharmAttrItems[index], comps, TipPosition.FIX_POSITION,item)
         CItemTipMan.ShowCharmItemTips(self._CharmAttrItems[index]._Tid, self._CurrentPage._CurField._FieldData._CharmID, comps, TipPosition.FIX_POSITION,item)
+        if self._SelectedCharmItem ~= nil then
+            IconTools.SetFrameIconTags(self._SelectedCharmItem, { [EFrameIconTag.Select] = false })
+        end
+        IconTools.SetFrameIconTags(GUITools.GetChild(item, 0), { [EFrameIconTag.Select] = true })
+        self._SelectedCharmItem = GUITools.GetChild(item, 0)
+    elseif id == "Tgp_PageToggles" then
+        CCharmFieldPage.SetSelectIndex(1)
+        self._CurrentPageIndex = index
+        self:ChangeFieldPage(self._CurrentPageIndex)
+        self._PanelObject._PageView_CharmPage:GetComponent(ClassType.GDragablePageView):ChangePageIndex(self._CurrentPageIndex - 1)
     end
 end
 
@@ -786,9 +814,11 @@ def.override("string", "boolean").OnToggle = function(self,id, checked)
             local itemData = CIvtrItem.CreateVirtualItem(self._CurrentPage._CurField._FieldData._ItemID)
             if itemData ~= nil then
                 local takeOffCb = function()
+                    if self._CurrentPage == nil or self._CurrentPage._CurField == nil then return end
                     CCharmMan.Instance():PutOff(self._CurrentPage._CurField._FieldID)
                 end
                 local devourCb = function()
+                    if self._PanelCharm == nil or self._CurrentPage == nil then return end
                     local charm_temp = CElementData.GetTemplate("CharmItem", itemData._Tid)
                     if charm_temp.Level >= self._PanelCharm._CharmMaxLevel then
                         game._GUIMan:ShowTipText(StringTable.Get(19354), false)
@@ -812,9 +842,9 @@ def.override("string", "boolean").OnToggle = function(self,id, checked)
         --更新神符背包，更新dropdown
         self._CurrentAttrID = -1
         if self._CurrentPage._CurField:IsBigField() then
-            self:SelectCharmsByFieldType(true, 0)
+            self:SelectCharmsByFieldType(true, -1)
         else
-            self:SelectCharmsByFieldType(false, 0)
+            self:SelectCharmsByFieldType(false, -1)
         end
         self:SelectCharmsByAttrID(self._CurrentAttrID)
         self:GetAttrTableByShowCharmItems()
@@ -825,19 +855,10 @@ def.override("string", "boolean").OnToggle = function(self,id, checked)
         else
             self._PanelObject._Tab_HaveNoCharm:SetActive(false)
             self._PanelObject._Tab_RightHaveCharm:SetActive(true)
+            self._SelectedCharmItem = nil
             self._PanelObject._List_CharmList:GetComponent(ClassType.GNewList):SetItemCount(#self._CharmAttrItems)
             self._PanelCharm:UpdateSideTabs({#self._CharmAttrItems})
         end
-    elseif string.find(id, "Rdo_Page") and checked then
-        if self._IsScriptToggelPages then 
-            self._IsScriptToggelPages = false
-            return
-        end
-        local index = string.sub(id, -1) + 0
-        CCharmFieldPage.SetSelectIndex(1)
-        self._CurrentPageIndex = index
-        self._IsScriptToggelPages = true
-        self:ChangeFieldPage(self._CurrentPageIndex)
     end
 end
 
@@ -856,6 +877,7 @@ def.override("string", "number").OnDropDown = function(self, id, index)
     else
         self._PanelObject._Tab_HaveNoCharm:SetActive(false)
         self._PanelObject._Tab_RightHaveCharm:SetActive(true)
+        self._SelectedCharmItem = nil
         self._PanelObject._List_CharmList:GetComponent(ClassType.GNewList):SetItemCount(#self._CharmAttrItems)
         self._PanelCharm:UpdateSideTabs({#self._CharmAttrItems})
     end
@@ -901,10 +923,10 @@ end
 -------------------------------------红点End-----------------------------------------
 
 def.override().OnHide = function(self)
-    self._IsScriptToggelPages = false
     self._CurrentAttrID = -1
     self._IsShowAttrInfoPanel = false
     self._IsScriptToggleField = false
+    self._SelectedCharmItem = nil
     self._PanelObject._Tab_CombatDetail:SetActive(false)
     self._PanelObject._Tab_InlayTip:SetActive(false)
     for key,v in pairs(self._UIFXTimers) do

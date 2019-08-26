@@ -63,7 +63,7 @@ def.override("dynamic").OnData = function (self,data)
         local composeTemp = CElementData.GetTemplate("CharmUpgrade", old_charm_temp.UpgradeTargetId)
         if composeTemp then
             self._GfxDelay = (composeTemp.CostItemTId > 0 and composeTemp.CostItemCount > 0) and 0.6 or 0.3
-            print("self._GfxDelay ", self._GfxDelay)
+            --print("self._GfxDelay ", self._GfxDelay)
         end
     end
 
@@ -152,7 +152,7 @@ def.method("dynamic", "dynamic", "=>", "string").GetPropStringByPropTypeAndValue
     if propType == nil or propValue == nil then return "+0" end
     if propType == 1 or propType == 2 then
         if propType == 1 then
-            return "+"..propValue
+            return "+".. GUITools.FormatNumber(propValue, false)
         elseif propType == 2 then
             local value = propValue/100
             local value_str = string.format("+%0.1f%%", value)
@@ -174,9 +174,9 @@ def.method().UpdatePanel = function(self)
     GUI.SetText(self._PanelObject._Lab_ItemName, new_item_temp.TextDisplayName)
     self._PanelObject._Lab_LevelInfo:SetActive(true)
     GUI.SetText(self._PanelObject._Lab_LevelInfo, StringTable.Get(19363))
-    GUI.SetText(self._PanelObject._Lab_LevelBase, old_charm_temp.Level.."")
-    GUI.SetText(self._PanelObject._Lab_LevelUp, new_charm_temp.Level.."")
-    GUI.SetText(self._PanelObject._Lab_Count, string.format(StringTable.Get(19365), self._Count))
+    GUI.SetText(self._PanelObject._Lab_LevelBase, GUITools.FormatNumber(old_charm_temp.Level, false))
+    GUI.SetText(self._PanelObject._Lab_LevelUp, GUITools.FormatNumber(new_charm_temp.Level, false))
+    GUI.SetText(self._PanelObject._Lab_Count, string.format(StringTable.Get(19365), GUITools.FormatNumber(self._Count, false)))
     if self._IsSuccess then
         self._PanelObject._Tab_SuccessAttr:SetActive(true)
         self._PanelObject._Tab_FaildTip:SetActive(false)

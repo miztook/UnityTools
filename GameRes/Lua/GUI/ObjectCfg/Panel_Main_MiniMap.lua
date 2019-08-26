@@ -64,6 +64,7 @@ local cfg = {
     Img_DamageBG = 1217253680,
     Img_DamageBigBG = 796614746,
     Frame_Main = 1721778571,
+    Img_PKMode = -1008283046,
 }
  
 return cfg

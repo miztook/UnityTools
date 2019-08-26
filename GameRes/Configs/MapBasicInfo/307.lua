@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/jjc.png",
 	AssetPath = "Assets/Outputs/Scenes/Dn_pvp02_Arena01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 	},

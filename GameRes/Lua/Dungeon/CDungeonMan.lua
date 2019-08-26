@@ -58,12 +58,14 @@ def.field("table")._TableExpeditionChapterData = BlankTable -- 远征章节数�
 
 def.field("number")._CurIntroductionTID = 0 -- 当前副本的介绍弹窗ID
 
---存储全部副本的模板信息
-def.field("table")._TableAllDungeonInfo = BlankTable
 --服务器同步的副本数据
 def.field("table")._TableDungeonData = nil
 --副本目标
 def.field("table")._TableDungeonGoal = nil
+
+--副本再来一次的标志
+def.field("boolean")._IsAgainDungeon = false
+
 
 def.static("=>", CDungeonMan).new = function()
     local obj = CDungeonMan()
@@ -71,12 +73,6 @@ def.static("=>", CDungeonMan).new = function()
 end
 
 def.method().LoadAllDungeonData = function (self)
-    self._TableAllDungeonInfo = {}
-    local allInstance = GameUtil.GetAllTid("Instance")
-    for _,v in ipairs(allInstance) do
-        self._TableAllDungeonInfo[#self._TableAllDungeonInfo + 1] = v
-    end
-   
 	local CSpecialIdMan = require  "Data.CSpecialIdMan"
 	self._TowerDungeonTID = CSpecialIdMan.Get("TowerDungeonID")
 
@@ -90,9 +86,12 @@ def.method().LoadAllDungeonData = function (self)
 	--self._BeginnerDungeonTID = CSpecialIdMan.Get("BeginnerDungeonId")
 end
 
+def.method().ClearAllDungeonData = function (self)
+end
+
 --获取所有副本数据(TId)
 def.method("=>","table").GetAllDungeonInfo = function(self)
-	return self._TableAllDungeonInfo
+	return CElementData.GetAllTid("Instance") or {}
 end
 
 --是否在副本中
@@ -113,6 +112,28 @@ def.method("=>","boolean").InImmediate = function(self)
 	return  MapBasicConfig.GetMapType(nCurMapID) == EWorldType.Immediate
 end
 
+--是否在爬塔副本
+def.method("=>","boolean").InTowerDungeon = function(self)
+	if self._DungeonID > 0 then
+		local template = CElementData.GetInstanceTemplate(self._DungeonID)
+		if template ~= nil then
+			return template.InstanceType == EInstanceType.INSTANCE_TOWER
+		end
+	end
+	return false
+end
+
+--是否在公会副本
+def.method("=>","boolean").InGuildDungeon = function(self)
+	if self._DungeonID > 0 then
+		local template = CElementData.GetInstanceTemplate(self._DungeonID)
+		if template ~= nil then
+			return template.InstanceType == EInstanceType.INSTANCE_GUILDEXPEDITION
+		end
+	end
+	return false
+end
+
 --添加副本数据
 def.method("table").AddDungeonData = function(self, data)
 	if(self._TableDungeonData == nil) then 
@@ -124,7 +145,7 @@ end
 
 --通过地图id获取副本数据
 def.method("number", "=>", "table").GetDungeonDataByWorldId = function(self, id)
-	for i, v in  ipairs(self._TableAllDungeonInfo) do
+	for i, v in  ipairs(self:GetAllDungeonInfo()) do
 		local dungeon = CElementData.GetTemplate("Instance", v)
 		if dungeon.AssociatedWorldId == id then
 			return dungeon
@@ -391,7 +412,7 @@ end
 -- 开启便捷匹配 S2C同步  副本目标
 def.method("number").StartQuickMatch = function(self, targetId)
 	self:SetQuickMatchTargetId(targetId)
-	local dungeonId = CTeamMan.Instance():ExchangeToDungeonId(self._QuickMatchTargetId)
+	local dungeonId = TeamUtil.ExchangeToDungeonId(self._QuickMatchTargetId)
 	local dungeonTemplate = CElementData.GetInstanceTemplate(dungeonId)
 	if dungeonTemplate then
 		CPVPAutoMatch.Instance():InitMatchFunctionText(dungeonTemplate.TextDisplayName)
@@ -443,10 +464,11 @@ end
 
 --进副本
 def.method("number").TryEnterDungeon = function(self,nInstanceID)
+	-- warn(" --TryEnterDungeon----")
  	local protocol = (require "PB.net".C2SEnterInstance)()
     protocol.reqEnterInstance.InstanceId = nInstanceID
     PBHelper.Send(protocol)
-    
+    if self:IsAgainDungeon() then return end
     local mapTemplate = CElementData.GetMapTemplate(nInstanceID)
 	if mapTemplate == nil then return end
 
@@ -471,8 +493,10 @@ def.method("table").OnEnterDungeon = function(self, msg)
 	self:SetMatchID(0)	
 	self:SetDungeonID(instanceTid)
 	-- game:LuaEnterDungeonGC()
-	local str = "Enter_Dungeon_ID:"..msg.dungeonTId
-	CPlatformSDKMan.Instance():SetBreakPoint(str)
+	local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
+	CPlatformSDKMan.Instance():SetPipelineBreakPoint(
+		PlatformSDKDef.PipelinePointType.DungeonEnter,
+		msg.dungeonTId)
 end
 
 def.method("table").OnDungeonStart = function(self, msg)
@@ -481,9 +505,19 @@ def.method("table").OnDungeonStart = function(self, msg)
 		warn("DungeonID has error", self._DungeonID, instanceTid)
 		return
 	end
-
+	if self:IsAgainDungeon() and not CTeamMan.Instance():IsFollowing() then 
+		self:SetAgainDungeonSign(false)
+		CDungeonAutoMan.Instance():Start()
+		CAutoFightMan.Instance():Start()
+		CAutoFightMan.Instance():SetMode(EnumDef.AutoFightType.WorldFight, 0, false) 
+		-- CDungeonAutoMan.Instance():Restart(_G.PauseMask.UIShown)
+	end
 	self:SetInstanceEndTime(msg.resEnterStart.EndTime)
-	CPanelTracker.Instance():AddDungeonTime(msg.resEnterStart.EndTime, 1)
+    if CPanelTracker.Instance():IsShow() then
+	    CPanelTracker.Instance():AddDungeonTime(msg.resEnterStart.EndTime, 1)
+    else
+        CPanelTracker.Instance():CacheDungeonCountdown(msg.resEnterStart.EndTime, 1)
+    end
 
 	-- 副本断线重连CG处理
 	local restartCgId = 0
@@ -533,24 +567,30 @@ local function ClearDungeonShow(self)
 end
 
 def.method().OnLeaveDungeon = function(self)
+	-- warn(" --OnLeaveDungeon--- ")
 	if self._DungeonID <= 0 then
 		warn("self._DungeonID is invaild, DungeonID = ", self._DungeonID)
 		return
 	end
 	-- game:LuaLeaveDungeonGC()
-	local str = "Leave_Dungeon_ID:"..self._DungeonID
-	CPlatformSDKMan.Instance():SetBreakPoint(str)
+	local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
+	CPlatformSDKMan.Instance():SetPipelineBreakPoint(
+		PlatformSDKDef.PipelinePointType.DungeonEnd,
+		self._DungeonID)
 	local mapTemplate = CElementData.GetMapTemplate(self._DungeonID)
-	if mapTemplate.AutoFightType == 0 then  -- 任务目标
-		-- 不做处理，维持现状
-	elseif mapTemplate.AutoFightType == 1 then	-- 副本目标
-		CAutoFightMan.Instance():Stop()
-		CQuestAutoMan.Instance():Stop()
-		CDungeonAutoMan.Instance():Stop()
-	elseif mapTemplate.AutoFightType == 2 then  -- 无目标
-		CAutoFightMan.Instance():Stop()
-		CQuestAutoMan.Instance():Stop()
-		CDungeonAutoMan.Instance():Stop()
+	if not self:IsAgainDungeon() then
+		-- 非再来一次
+		if mapTemplate.AutoFightType == 0 then  -- 任务目标
+			-- 不做处理，维持现状
+		elseif mapTemplate.AutoFightType == 1 then	-- 副本目标
+			CAutoFightMan.Instance():Stop()
+			CQuestAutoMan.Instance():Stop()
+			CDungeonAutoMan.Instance():Stop()
+		elseif mapTemplate.AutoFightType == 2 then  -- 无目标
+			CAutoFightMan.Instance():Stop()
+			CQuestAutoMan.Instance():Stop()
+			CDungeonAutoMan.Instance():Stop()
+		end
 	end
 
 	local CExteriorMan = require "Main.CExteriorMan"
@@ -603,9 +643,15 @@ def.method("table").AddDungeonGoal = function(self, data)
 				CreatTime = v.CreatTime,
 			}
 	end
-	local str = " Dungeon_ID:" ..self._DungeonID .."__DungeonGoal_ID:" ..self._TableDungeonGoal[#self._TableDungeonGoal].SequenceId
-	CPlatformSDKMan.Instance():SetBreakPoint(str)
-	
+	local data =
+	{
+		DungeonId = self._DungeonID,
+		GoalId = self._TableDungeonGoal[#self._TableDungeonGoal].SequenceId,
+	}
+	local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
+	CPlatformSDKMan.Instance():SetPipelineBreakPoint(
+		PlatformSDKDef.PipelinePointType.DungeonGoal,
+		data)
 	local instance = CElementData.GetTemplate("Instance", self._DungeonID)
 	if instance ~= nil and (instance.InstanceType == EInstanceType.INSTANCE_NORMAL_MAP or instance.InstanceType == EInstanceType.INSTANCE_GUILDBASE ) then
 		--初始化任务追踪界面
@@ -781,7 +827,16 @@ def.method("number","string","boolean").TriggerCameraAnimation = function(self, 
 			if self._CameraAnimationEntityID == 0 then
 				return
 			end
-			
+
+			local monsterTid = 0
+			if animationEntity:IsMonster() then
+				monsterTid = animationEntity._MonsterTemplate.Id
+			end
+			local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
+			CPlatformSDKMan.Instance():SetPipelineBreakPoint(
+				PlatformSDKDef.PipelinePointType.BossEnter,
+				monsterTid)
+
 			-- StartScreenFade(0, 1, 0.5,function( )
 				game._GUIMan:SetMainUIMoveToHide(true, nil)
 			-- end)
@@ -838,7 +893,7 @@ def.method("number","string","boolean").TriggerCameraAnimation = function(self, 
 			self._BossAnimationTimer = _G.AddGlobalTimer(animationTime, true, ClearAnimation)	
 		end)
 	end
-	GameUtil.AsyncLoad(strCamAnimationPath, cb)	
+	GameUtil.AsyncLoad(strCamAnimationPath, cb, false, "cg")	
 end
 
 --BOSS入场处理
@@ -948,8 +1003,16 @@ def.method("=>", "number").GetCurIntroductionPopupTID = function(self)
 	return self._CurIntroductionTID
 end
 
-def.method().Release = function(self)
-	CBeginnerDungeonMan.Instance():Release()
+def.method("boolean").SetAgainDungeonSign = function(self,state)
+	self._IsAgainDungeon = state
+end
+
+def.method("=>","boolean").IsAgainDungeon = function(self)
+	return self._IsAgainDungeon
+end
+
+def.method().Cleanup = function(self)
+	CBeginnerDungeonMan.Instance():Cleanup()
 
 	self._TableDungeonData = nil
 	self._TableDungeonGoal = nil

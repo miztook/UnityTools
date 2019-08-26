@@ -127,6 +127,14 @@ local cfg = {
     Lab_InheritTip = -645159982,
     Img_FortifyBorderBG = -1330545114,
     Img_LegendBorderBG = -525620006,
+    Img_PVP_AttributeBG = 722422128,
+    Img_InheritOrign_PVP_Property = 1914872539,
+    Lab_PVP_AttributeName = -364282784,
+    Lab_PVP_PropertyOld = 759828331,
+    Lab_PVP_PropertyNew = 759827172,
+    Lab_InheritedPVPPropertyName = 749051586,
+    Lab_InheritedPVPPropertyOldValue = -1390877631,
+    Lab_InheritedPVPPropertyNewValue = -212325272,
 }
  
 return cfg

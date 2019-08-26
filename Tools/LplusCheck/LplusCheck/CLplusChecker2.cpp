@@ -672,7 +672,7 @@ void CLplusChecker::HandleLine_StringTableUse(const char* szLine, int nLine, SLu
 		ASSERT(p);
 
 		SStringTableToken usedToken;
-		usedToken.className = current->strName;
+		usedToken.classOrFileName = current->strName;
 		usedToken.location.line = nLine;
 		usedToken.location.col = p - szLine;
 
@@ -709,6 +709,53 @@ void CLplusChecker::HandleLine_StringTableUse(const char* szLine, int nLine, SLu
 		}
 	}
 }
+
+void CLplusChecker::HandleLine_StringTableUse(const char* szLine, int nLine, SLuaFile* luaFile)
+{
+	if (luaFile)
+	{
+		const char* p = strstr(szLine, "StringTable.Get(");
+		ASSERT(p);
+
+		SStringTableToken usedToken;
+		usedToken.classOrFileName = "<FILE>";
+		usedToken.location.line = nLine;
+		usedToken.location.col = p - szLine;
+
+		p += strlen("StringTable.Get(");
+		const char* start = p;
+
+		const char* end = strstr(p, ")");
+		ASSERT(end);
+		if (end)
+		{
+			bool bNumber = true;
+			for (const char* k = start; k < end; ++k)
+			{
+				if (*k != ' ' && *k != '\t' && !isdigit(*k))
+				{
+					bNumber = false;
+					break;
+				}
+			}
+
+			if (bNumber)
+			{
+				//field
+				char name[256];
+				strncpy_s(name, 256, start, end - start);
+				name[end - start] = '\0';
+
+				std::string strId = name;
+				trim(strId, "\t ");
+
+				usedToken.text_id = atoi(strId.c_str());
+				luaFile->stringTableUsedList.insert(usedToken);
+			}
+		}
+	}
+}
+
 
 void CLplusChecker::HandleLine_ErrorToken(const char* szLine, int nLine, const char* filename)
 {
@@ -1157,6 +1204,58 @@ void CLplusChecker::Get_AllMethodUsedIndirect(const char* szLine, int nLine, SLu
 	*/
 }
 
+void CLplusChecker::Get_AllMethodUsedIndirect(const char* szLine, int nLine, SLuaFile* luaFile)
+{
+	if (luaFile && strstr(szLine, ":") != NULL)
+	{
+		const char* p = szLine;
+		int len = strlen(szLine);
+		const char* end = strstr(szLine, ":");
+
+		for (int i = 0; i < len; ++i)
+		{
+			if (p[i] < -1 || p[i] > 255)
+				return;
+		}
+
+		//现在开始检查直接字段后的间接字段
+		while (end &&  *end == ':')
+		{
+			++end;
+			while (*end == ' ' || *end == '\t') ++end;		//去掉空格
+
+			const char* start = end;
+
+			while ((end == start) ? (*end == '_' || isalpha(*end)) : (*end == '_' || isalpha(*end) || isdigit(*end)))
+			{
+				++end;
+			}
+
+			//field name
+			char fieldname[1024];
+			strncpy(fieldname, start, end - start);
+			fieldname[end - start] = '\0';
+
+			bool bFunction;
+			std::vector<std::string> vParams;
+			if (ParseUseFunctionToken(end, vParams, bFunction))
+			{
+				SLuaFunctionToken usedToken;
+				usedToken.location.line = nLine;
+				usedToken.location.col = start - szLine;
+				usedToken.token = fieldname;
+				usedToken.className = "Unknown";
+				usedToken.vParams = vParams;
+				usedToken.bHasFunction = bFunction;
+
+				luaFile->functionAllUsedIndirectList.insert(usedToken);
+			}
+
+			end = strstr(end + 1, ":");
+		}
+	}
+}
+
 void CLplusChecker::Get_AllSpecialMethodUsedIndirect(const char* szLine, int nLine, SLuaClass* current)
 {
 	if (current)
@@ -1197,6 +1296,51 @@ void CLplusChecker::Get_AllSpecialMethodUsedIndirect(const char* szLine, int nLi
 				usedToken.bHasFunction = bFunction;
 
 				current->functionSpecialUsedIndirect.insert(usedToken);
+			}
+		}
+	}
+}
+
+void CLplusChecker::Get_AllSpecialMethodUsedIndirect(const char* szLine, int nLine, SLuaFile* luaFile)
+{
+	if (luaFile)
+	{
+		std::string specialToken;
+		for (const auto& entry : m_SpecialMethodParamMap)
+		{
+			const auto& str = entry.first;
+			if (strstr(szLine, str.c_str()) != NULL)
+			{
+				specialToken = str;
+				break;
+			}
+		}
+
+		if (specialToken.empty())
+			return;
+
+		const char* p = szLine;
+		int len = strlen(szLine);
+		const char* end = strstr(szLine, specialToken.c_str());
+
+		//现在开始检查直接字段后的间接字段
+		if (end)
+		{
+			end += specialToken.length();
+
+			bool bFunction;
+			std::vector<std::string> vParams;
+			if (ParseUseFunctionToken(end, vParams, bFunction))
+			{
+				SLuaFunctionToken usedToken;
+				usedToken.location.line = nLine;
+				usedToken.location.col = end - szLine;
+				usedToken.token = specialToken;
+				usedToken.className = "C#";
+				usedToken.vParams = vParams;
+				usedToken.bHasFunction = bFunction;
+
+				luaFile->functionSpecialUsedIndirect.insert(usedToken);
 			}
 		}
 	}
@@ -1253,6 +1397,58 @@ void CLplusChecker::Get_GlobalFieldUsed(const char* szLine, int nLine, SLuaClass
 	}
 }
 
+void CLplusChecker::Get_GlobalFieldUsed(const char* szLine, int nLine, SLuaFile* luaFile)
+{
+	if (luaFile)
+	{
+		std::string specialToken;
+		std::string typeName;
+		for (const auto& entry : m_GlobalClassList)
+		{
+			std::string str = std::get<0>(entry) + ".";
+			if (strstr(szLine, str.c_str()) != NULL)
+			{
+				specialToken = str;
+				typeName = std::get<1>(entry);
+				break;
+			}
+		}
+
+		if (specialToken.empty())
+			return;
+
+		const char* p = szLine;
+		p = strstr(p, specialToken.c_str());
+		p += strlen(specialToken.c_str());
+		while (*p == ' ' || *p == '\t') ++p;			//去掉空格
+
+		const char* start = p;
+		const char* end = p;
+
+		while ((end == p) ? (*end == '_' || isalpha(*end)) : (*end == '_' || isalpha(*end) || isdigit(*end)))
+		{
+			++end;
+			if (*end < 0 || *end >= 255)
+				break;
+		}
+		p = end;
+
+		char name[1024];
+		strncpy(name, start, end - start);
+		name[end - start] = '\0';
+
+		SLuaFieldToken usedToken;
+		usedToken.location.line = nLine;
+		usedToken.location.col = start - szLine;
+		usedToken.token = name;
+		usedToken.className = typeName;
+		usedToken.typeName = "table";
+
+		luaFile->fieldUsedGlobalList.insert(usedToken);
+	}
+}
+
+
 void CLplusChecker::Get_GlobalMethodUsed(const char* szLine, int nLine, SLuaClass* current)
 {
 	if (current)
@@ -1307,6 +1503,62 @@ void CLplusChecker::Get_GlobalMethodUsed(const char* szLine, int nLine, SLuaClas
 		}
 	}
 }
+
+void CLplusChecker::Get_GlobalMethodUsed(const char* szLine, int nLine, SLuaFile* luaFile)
+{
+	if (luaFile)
+	{
+		std::string specialToken;
+		std::string typeName;
+		for (const auto& entry : m_GlobalClassList)
+		{
+			std::string str = std::get<0>(entry) + ":";
+			if (strstr(szLine, str.c_str()) != NULL)
+			{
+				specialToken = str;
+				typeName = std::get<1>(entry);
+				break;
+			}
+		}
+
+		if (specialToken.empty())
+			return;
+
+		const char* p = strstr(szLine, specialToken.c_str());
+		p += specialToken.length();
+
+		while (*p == ' ' || *p == '\t') ++p;			//去掉空格
+		const char* start = p;
+		const char* end = p;
+		while ((end == p) ? (*end == '_' || isalpha(*end)) : (*end == '_' || isalpha(*end) || isdigit(*end)))
+		{
+			++end;
+			if (*end < 0 || *end >= 255)
+				break;
+		}
+		p = end;
+
+		bool bFunction;
+		std::vector<std::string> vParams;
+		if (ParseUseFunctionToken(p, vParams, bFunction))
+		{
+			char name[1024];
+			strncpy(name, start, end - start);
+			name[end - start] = '\0';
+
+			SLuaFunctionToken usedToken;
+			usedToken.location.line = nLine;
+			usedToken.location.col = end - szLine;
+			usedToken.token = name;
+			usedToken.className = typeName;
+			usedToken.vParams = vParams;
+			usedToken.bHasFunction = bFunction;
+
+			luaFile->functionUsedGlobalList.insert(usedToken);
+		}
+	}
+}
+
 
 void CLplusChecker::Check_MethodDefinitionToFile(FILE* pFile, const SLuaClass& luaClass)
 {
@@ -1676,215 +1928,6 @@ void CLplusChecker::Check_MethodUsedIndirectToFile(FILE* pFile, const SLuaClass&
 					}
 				}
 			}
-		}
-	}
-}
-
-void CLplusChecker::Check_AllMethodusedIndirectToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry7>& entryParamSet)
-{
-	for (const auto& token : luaClass.functionAllUsedIndirectList)
-	{
-		if (token.bHasFunction || token.bIsStatic)			//非static方法
-			continue;
-
-		bool skip = false;
-		for (const auto& entry : m_MethodParamList)		//特殊的参数匹配,和unity内部函数重名
-		{
-			const auto& name = std::get<0>(entry);
-			int numParams = std::get<1>(entry);
-
-			if (name == token.token && numParams == (int)token.vParams.size())
-			{
-				skip = true;
-				break;
-			}
-		}
-
-		if (skip)
-			continue;
-
-		bool bFound = false;		//是否找到匹配的
-		bool bMatch = false;
-		for (const auto& entry : m_mapLuaClass)				//检查token是否在所有类中有定义
-		{
-			for (const auto& func : entry.second.functionDefList)
-			{
-				if (!func.bIsStatic && func.token == token.token)		//名字一致，检查类型
-				{
-					bFound = true;
-					bMatch = func.vParams.size() == token.vParams.size();
-
-					if (bMatch)
-						break;
-				}
-			}
-
-			if (bMatch)
-				break;
-		}
-
-		if (bFound && !bMatch)
-		{
-			entryParamSet.insert(SOutputEntry7(
-				token.token,
-				token.className,
-				(int)token.vParams.size(),
-				0,
-				luaClass.strName,
-				token.location.line,
-				token.location.col));
-		}
-	}
-}
-
-void CLplusChecker::Check_AllSpecialMethodusedIndirectToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry7>& entryParamSet)
-{
-	for (const auto& token : luaClass.functionSpecialUsedIndirect)
-	{
-		if (token.bHasFunction)			//非static方法
-			continue;
-
-		bool bFound = false;		//是否找到匹配的
-		bool bMatch = false;
-
-		auto itr = m_SpecialMethodParamMap.find(token.token);
-		if (itr != m_SpecialMethodParamMap.end())
-		{
-			bFound = true;
-			
-			const std::vector<int>& paramList = itr->second;
-			bMatch = std::find(paramList.begin(), paramList.end(), (int)token.vParams.size()) != paramList.end();
-		}
-
-		if (bFound && !bMatch)
-		{
-			entryParamSet.insert(SOutputEntry7(
-				token.token,
-				token.className,
-				(int)token.vParams.size(),
-				0,
-				luaClass.strName,
-				token.location.line,
-				token.location.col));
-		}
-	}
-}
-
-void CLplusChecker::Check_AllGlobalFieldUsedToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry5>& entrySet)
-{
-	for (const auto& entry : m_mapLuaClass)
-	{
-		const auto& luaClass = entry.second;
-
-		for (const auto& token : luaClass.fieldUsedGlobalList)
-		{
-			const SLuaClass* ownerClass = GetLuaClass(token.className.c_str());
-			if (ownerClass)
-			{
-				bool bFound = false;
-				const SLuaFieldToken* pFieldToken = NULL;
-
-				const SLuaClass* thisClass = ownerClass;
-				while (thisClass)
-				{
-					for (const auto& func : thisClass->fieldDefList)
-					{
-						if (token.token == func.token)
-						{
-							pFieldToken = &func;
-							bFound = true;
-							break;
-						}
-					}
-
-					if (bFound)
-						break;
-
-					thisClass = thisClass->parent;
-				}
-
-				if (!bFound)
-				{
-					entrySet.insert(SOutputEntry5(
-						token.token,
-						token.className,
-						luaClass.strName,
-						token.location.line,
-						token.location.col));
-				}
-			}
-		}
-	}
-}
-
-void CLplusChecker::Check_AllGlobalMethodUsedToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry5>& entrySet, std::set<SOutputEntry7>& entryParamSet)
-{
-	for (const auto& token : luaClass.functionUsedGlobalList)
-	{
-		const SLuaClass* ownerClass = GetLuaClass(token.className.c_str());
-
-		if (ownerClass)
-		{
-			bool bFound = false;
-			const SLuaFunctionToken* pFuncToken = NULL;
-
-			const SLuaClass* thisClass = ownerClass;
-			while (thisClass)
-			{
-				for (const auto& func : thisClass->functionDefList)
-				{
-					if (token.token == func.token)
-					{
-						pFuncToken = &func;
-						bFound = true;
-						break;
-					}
-				}
-
-				if (bFound)
-					break;
-
-				thisClass = thisClass->parent;
-			}
-
-			if (!bFound)
-			{
-				entrySet.insert(SOutputEntry5(
-					token.token,
-					token.className,
-					luaClass.strName,
-					token.location.line,
-					token.location.col));
-			}
-
-			if (bFound)			   //检查param类型
-			{
-				if (!token.bHasFunction)		//跳过function类型
-				{
-					if (pFuncToken->vParams.size() != token.vParams.size())
-					{
-						entryParamSet.insert(SOutputEntry7(
-							token.token,
-							token.className,
-							(int)token.vParams.size(),
-							(int)pFuncToken->vParams.size(),
-							luaClass.strName,
-							token.location.line,
-							token.location.col));
-					}
-				}
-			}
-		}
-	}
-}
-
-void CLplusChecker::Check_GameTextUsedToFile(const SLuaClass& luaClass, std::set<SStringTableToken>& entrySet)
-{
-	for (const auto& entry : luaClass.stringTableUsedList)
-	{
-		if (m_GameTextKeySet.find(entry.text_id) == m_GameTextKeySet.end())
-		{
-			entrySet.insert(entry);
 		}
 	}
 }

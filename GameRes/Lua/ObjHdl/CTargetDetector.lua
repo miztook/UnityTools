@@ -61,6 +61,7 @@ do
 	def.field("number")._RectangularSightLength = 0
 	def.field("number")._RectangularSightWidth = 0
 	def.field("number")._CircularSightRadius = 0
+	def.field("number")._TargetMissDistanceSqr = 0      -- 目标解锁距离
 
 	-- 常量
 	local detect_delta_range = 0
@@ -215,12 +216,23 @@ do
 		return false
 	end
 
+	def.method("number").UpdateTargetMissDistance = function(self, mapTid)
+		local map = CElementData.GetMapTemplate(mapTid)
+		local d = 0
+		if map ~= nil and map.UnlockSightRange ~= 0 then
+			d = map.UnlockSightRange
+		else
+			d = tonumber(CElementData.GetSpecialIdTemplate(1).Value)
+		end
+		self._TargetMissDistanceSqr = d * d
+	end
+
 	def.method(CEntity, "=>", "boolean").IsCurTargetMiss = function(self, cur_target)
 		if cur_target == nil then 
 			return false 
 		end
 		local targetPosX, targetPosZ = cur_target:GetPosXZ()
-		local max_dis = game._TargetMissDistanceSqr
+		local max_dis = self._TargetMissDistanceSqr
 		-- 世界boss
 		if self:IsCurTargetWorldBoss(cur_target) then
 			if world_boss_radius_sqr <= 0 then
@@ -341,17 +353,17 @@ do
 		if cur_target ~= nil and not cur_target:IsReleased()  and host._IsTargetLocked then
 			if cur_target:GetObjectType() == OBJ_TYPE.NPC and hoh:HaveServiceOptions(cur_target, nil) then
 				if cur_target._IsInService then
-					game:RaiseUIShortCutEvent(EnumDef.EShortCutEventType.DialogEnd, nil)
+					EventUntil.RaiseUIShortCutEvent(EnumDef.EShortCutEventType.DialogEnd, nil)
 				else
-					game:RaiseUIShortCutEvent(EnumDef.EShortCutEventType.DialogStart, cur_target)
+					EventUntil.RaiseUIShortCutEvent(EnumDef.EShortCutEventType.DialogStart, cur_target)
 				end
 				return
 			--非任务模式下的对象也显示快捷方式 与原有设计更改
 			elseif cur_target:GetObjectType() == OBJ_TYPE.MINE and cur_target:GetCanGather() then
-				game:RaiseUIShortCutEvent(EnumDef.EShortCutEventType.GatherStart, cur_target)
+				EventUntil.RaiseUIShortCutEvent(EnumDef.EShortCutEventType.GatherStart, cur_target)
 				return
 			elseif cur_target:GetObjectType() == OBJ_TYPE.ELSEPLAYER and cur_target:CanRescue() and cur_target:IsFriendly() and not game._RegionLimit._LimitRescue then
-				game:RaiseUIShortCutEvent(EnumDef.EShortCutEventType.RescueStart, cur_target)
+				EventUntil.RaiseUIShortCutEvent(EnumDef.EShortCutEventType.RescueStart, cur_target)
 				return
 			end
 		end
@@ -379,14 +391,14 @@ do
 		if target ~= nil and not host:IsDead() then
 			if target:GetObjectType() == OBJ_TYPE.NPC then
 				if target._IsInService then
-					game:RaiseUIShortCutEvent(EnumDef.EShortCutEventType.DialogEnd, nil)
+					EventUntil.RaiseUIShortCutEvent(EnumDef.EShortCutEventType.DialogEnd, nil)
 				else
-					game:RaiseUIShortCutEvent(EnumDef.EShortCutEventType.DialogStart, target)
+					EventUntil.RaiseUIShortCutEvent(EnumDef.EShortCutEventType.DialogStart, target)
 				end
 			elseif target:GetObjectType() == OBJ_TYPE.MINE then
-				game:RaiseUIShortCutEvent(EnumDef.EShortCutEventType.GatherStart, target)
+				EventUntil.RaiseUIShortCutEvent(EnumDef.EShortCutEventType.GatherStart, target)
 			elseif target:GetObjectType() == OBJ_TYPE.ELSEPLAYER and not game._RegionLimit._LimitRescue then
-				game:RaiseUIShortCutEvent(EnumDef.EShortCutEventType.RescueStart, target)
+				EventUntil.RaiseUIShortCutEvent(EnumDef.EShortCutEventType.RescueStart, target)
 			end
 		else
 			local CPanelSkillSlot = require "GUI.CPanelSkillSlot"
@@ -437,7 +449,7 @@ do
 					bossId = id
 
 					local targetPosX, targetPosZ = entity:GetPosXZ()
-					local max_dis = game._TargetMissDistanceSqr
+					local max_dis = self._TargetMissDistanceSqr
 					-- 世界boss
 					if self:IsCurTargetWorldBoss(entity) then
 						if world_boss_radius_sqr <= 0 then
@@ -539,11 +551,11 @@ do
 		if #old_pool._List == 0 then return end
 
 		local target_id = GetOne(old_pool)
-		warn("111111111", target_id, table.count(old_pool._Map))
+		--warn("111111111", target_id, table.count(old_pool._Map))
 		local host_player = game._HostPlayer
 		if host_player._CurTarget ~= nil and target_id == host_player._CurTarget._ID and host_player._IsTargetLocked and #old_pool._List ~= 1 then
 			target_id = GetOne(old_pool)
-			warn("2222222", target_id, table.count(old_pool._Map))
+			--warn("2222222", target_id, table.count(old_pool._Map))
 		end
 
 		local target = game._CurWorld:FindObject(target_id)

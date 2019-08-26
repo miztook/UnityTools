@@ -91,7 +91,7 @@ def.method("table").ShowEquip = function (self, itemDB)
 	if itemTemplate == nil then return end
 	self._Btn_Next:SetActive(false)
 	-- 图标
-	IconTools.InitItemIconNew(self._Frame_Icon, itemDB.Tid, nil)
+	IconTools.InitItemIconNew(self._Frame_Icon, itemDB.Tid, { [EItemIconTag.Grade] = itemDB.FightProperty.star })
 
 	-- 基础属性
 	do

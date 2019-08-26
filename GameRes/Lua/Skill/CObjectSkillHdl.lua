@@ -184,6 +184,15 @@ def.virtual("number", "number", "boolean", "number", "table", "table", "table").
 	end
 end
 
+def.virtual("table").OnEntityPerformSkill_Simple = function(self, moveinfo)
+	local x = moveinfo.DestPosition.x
+	local z = moveinfo.DestPosition.z
+	if math.abs(x) < 0.001 and math.abs(z) < 0.001 then return end
+
+	local destPos = Vector3.New(x, 0, z)
+	self._Host:SetPos(destPos)	
+end
+
 def.virtual().SendInteractiveSkillMsg = function(self)
 	local cur_skill_info = self._ActiveCommonSkill
 	if cur_skill_info == nil then return end
@@ -196,14 +205,14 @@ def.virtual().SendInteractiveSkillMsg = function(self)
 		local strInteractive = nil 
 
 		local skilldata = self._ActiveCommonSkill._Skill
-
-		if self._AttackTarget ~= nil then
+		local target = self._AttackTarget
+		if target and target._InfoData then
 			if skilldata.SkillLevelUpDescription ~= nil and skilldata.SkillLevelUpDescription ~= "" then
 				local targetName = nil
-				if self._AttackTarget:IsHostPlayer() then
+				if target:IsHostPlayer() then
 					targetName = StringTable.Get(13036)
 				else
-					targetName = RichTextTools.GetElsePlayerNameRichText(self._AttackTarget._InfoData._Name, false)   
+					targetName = RichTextTools.GetElsePlayerNameRichText(target._InfoData._Name, false)   
 				end
 				strInteractive = string.format(skilldata.SkillLevelUpDescription, playerName, targetName)
 			end
@@ -212,9 +221,9 @@ def.virtual().SendInteractiveSkillMsg = function(self)
 				strInteractive = string.format(skilldata.SkillDescription, playerName)
 			end
 		end
-		local ECHAT_CHANNEL_ENUM = require "PB.data".ChatChannel
-		local ChatManager = require "Chat.ChatManager"
 		if strInteractive ~= nil and strInteractive ~= "" then
+			local ECHAT_CHANNEL_ENUM = require "PB.data".ChatChannel
+			local ChatManager = require "Chat.ChatManager"
 			ChatManager.Instance():ClientSendMsg(ECHAT_CHANNEL_ENUM.ChatChannelCurrent, strInteractive, false, 0, nil,nil)
 		end
 	end
@@ -258,6 +267,50 @@ def.method("number", "boolean").OnEntityStopSkill = function(self, skillid, isNo
 
 	if not self._Host:IsPhysicalControled() and not self._Host:IsMagicControled() then
 		self._Host:Stand()
+	end
+end
+
+def.method("number", "boolean").OnEntityStopSkill_Simple = function(self, skillid, isNormalStop)
+	if self._CachedSkillId > 0 and self._CachedSkillId == skillid then
+		self._CachedSkillAction = nil
+		self._CachedSkillId = 0
+	end
+
+	if self._ActiveCommonSkill ~= nil then
+		self._IsInterruptLastSkill = false
+		self._ActiveCommonSkill = nil
+		self._AttackTarget = nil
+		self._IsCastingDeathSkill = false
+
+		self._IsSkillMoving = false
+		self._SkillMovingDest = nil
+
+		self._AttackPoint = nil     -- 技能释放点
+		self._AttackDir = nil     -- 技能释放方向
+
+		self._SkillStartCallbacks = nil
+		self._SkillEndCallbacks = nil
+		
+		self._IsInterruptLastSkill = false
+
+		self._SpecialEventList = {}
+		self._ActiveEventList = {}
+		self:ClearEventTimerList()
+
+		self:StopGfxPlay(EnumDef.EntityGfxClearType.LifeEnd)
+
+		self._ClientCalcVictims = {}
+		self._JudgementEventsGroup = nil
+
+		for i,v in ipairs(self._GfxList) do
+			v.Gfx:Stop()
+		end
+		self._GfxList = {}
+
+		self:StopSkillIndicatorGfx()
+
+		self._Host:RemoveTimer(self._DashTimerId)
+		self._DashTimerId = 0
 	end
 end
 
@@ -320,7 +373,7 @@ def.virtual("boolean").OnSkillInterruptted = function(self, change2stand)
 
 	self._ActiveCommonSkill = nil
 	self._IsCastingDeathSkill = false
-	self:StopActiveEvents(EnumDef.EntitySkillStopType.PerformEnd)
+	self:StopActiveEvents(EnumDef.EntitySkillStopType.SkillEnd)
 	self:ClearSpecialTriggerTypeEvents(TriggerType.All)
 
 	self:OnSkillEndCallback(false)
@@ -645,9 +698,7 @@ def.method("number").StopGfxPlay = function(self, trigger_type)
 				CFxMan.Instance():Stop(v.Gfx)
 				table.remove(self._GfxList, i)		
 			end
-			-- 清理掉剩余的Lua GFX对象，不需要调用Stop，结束时机由特效生命长度自己决定
-			-- 否则，会出现Lua对象堆积，造成Lua内存持续增长
-			self._GfxList = {}  
+			
 		elseif trigger_type == EnumDef.EntityGfxClearType.BackToPeace then  -- 脱战
 			if v and v.StopWhenBackToPeace then
 				CFxMan.Instance():Stop(v.Gfx)
@@ -658,14 +709,18 @@ def.method("number").StopGfxPlay = function(self, trigger_type)
 				CFxMan.Instance():Stop(v.Gfx)
 				table.remove(self._GfxList, i)		
 			end
-			-- 清理掉剩余的Lua GFX对象，不需要调用Stop，结束时机由特效生命长度自己决定
-			-- 否则，会出现Lua对象堆积，造成Lua内存持续增长
-			self._GfxList = {}  
 		elseif trigger_type == EnumDef.EntityGfxClearType.LifeEnd then
 			CFxMan.Instance():Stop(v.Gfx)
 			table.remove(self._GfxList, i)
 		end	
 	end
+
+	-- 清理掉剩余的Lua GFX对象，不需要调用Stop，结束时机由特效生命长度自己决定
+	-- 否则，会出现Lua对象堆积，造成Lua内存持续增长
+	if trigger_type == EnumDef.EntityGfxClearType.SkillEnd 
+		or trigger_type == EnumDef.EntityGfxClearType.SkillInterrupted then
+		self._GfxList = {} 
+	end 
 end
 
 def.method("boolean").OnSkillEndCallback = function(self, success)
@@ -720,26 +775,14 @@ def.virtual("table", "function", "function").SkillMove = function(self, pos, suc
 end
 
 --播放预警指示特效
-def.method("number", "number", "number", "number","boolean", "=>", "boolean").PlaySkillIndicatorGfx = function (self, skill_indicator_type, duration, param1, param2,IsNotCloseToGround)
-	local gfx_path = nil
+def.method("number", "number", "number", "number","boolean", "=>", "boolean").PlaySkillIndicatorGfx = function (self, skill_indicator_type, duration, param1, param2, isNotCloseToGround)
+	local gfx_path = CFxMan.GetAttackWarningFxPath(not isNotCloseToGround, skill_indicator_type, param2)
 	local scale = Vector3.one
 	if skill_indicator_type == EIndicatorType.Circular then
-		if not IsNotCloseToGround then 
-			gfx_path = PATH.Etc_Yujing_Ring_Decl
-		else
-			gfx_path = PATH.Etc_Yujing_Ring
-		end
-		
 		scale.x = param1 + self._Host:GetRadius() + 0.5
 		scale.y = 1
 		scale.z = param1 + self._Host:GetRadius() + 0.5
 	elseif skill_indicator_type == EIndicatorType.Fan then
-		if not IsNotCloseToGround then 
-			gfx_path = PATH["Etc_Yujing_Shanxing"..param2.."_Decl"]
-		else
-			gfx_path = PATH["Etc_Yujing_Shanxing"..param2]
-		end
-
 		if gfx_path == nil then
 			warn("Cannot find path:", "Etc_Yujing_Shanxing"..param2)
 			gfx_path = ""
@@ -749,19 +792,11 @@ def.method("number", "number", "number", "number","boolean", "=>", "boolean").Pl
 		scale.y = 1
 		scale.z = param1 + self._Host:GetRadius() + 0.5
 	elseif skill_indicator_type == EIndicatorType.Rectangle then
-		if not IsNotCloseToGround then 
-			gfx_path = PATH.Etc_Yujing_Juxing_Decl
-		else
-			gfx_path = PATH.Etc_Yujing_Juxing
-		end
-
 		scale.x = param1 + 1
-
 		scale.y = 1
 		scale.z = param2 + self._Host:GetRadius() + 0.5
 	-- 环形
 	elseif skill_indicator_type == EIndicatorType.Ring then
-		gfx_path = PATH.Etc_Yujing_Hollow
 		scale.x = self._Host:GetRadius() + param2 + 0.5 -- 外径
 		scale.y = 1
 		scale.z = self._Host:GetRadius() + param1 - 0.5 -- 内径		
@@ -773,8 +808,7 @@ def.method("number", "number", "number", "number","boolean", "=>", "boolean").Pl
 	local pos = go.position
 	pos.y = GameUtil.GetMapHeight(pos) + 0.2
 	local dir = self._Host._SkillDestDir or go.forward
-	-- warn("gfx_path，scale ，IsNotCloseToGround ",gfx_path,scale.x,scale.y,scale.z,IsNotCloseToGround)
-	local fx, id = GameUtil.PlayEarlyWarningGfx(gfx_path, pos, dir, scale, duration,IsNotCloseToGround)
+	local fx, id = GameUtil.PlayEarlyWarningGfx(gfx_path, pos, dir, scale, duration, isNotCloseToGround)
 	if fx ~= nil then
 		if self._SkillIndicatorFx == nil then
 			self._SkillIndicatorFx = CFxObject.new()
@@ -811,6 +845,17 @@ def.method("table").PerformInitedSkill = function (self, SkillInfo)
 	self:OnEntityPerformSkill(SkillInfo.SkillId, SkillInfo.PerformId, false, SkillInfo.TargetId, destPosition, direction, moveInfo)	
 end
 
+def.method().Cleanup = function(self)
+	self:StopGfxPlay(EnumDef.EntityGfxClearType.LifeEnd)
+
+	for i,v in ipairs(self._GfxList) do
+		v.Gfx:Stop()
+	end
+	self._GfxList = {}
+
+	self:StopSkillIndicatorGfx()
+end
+
 def.virtual().Release = function(self)
 	self._IsSkillMoving = false
 	self._SkillMovingDest = nil
@@ -831,17 +876,11 @@ def.virtual().Release = function(self)
 	self._ActiveEventList = {}
 	self:ClearEventTimerList()
 
-	self:StopGfxPlay(EnumDef.EntityGfxClearType.LifeEnd)
+	self:Cleanup()
 
 	self._ClientCalcVictims = {}
 	self._JudgementEventsGroup = nil
 
-	for i,v in ipairs(self._GfxList) do
-		v.Gfx:Stop()
-	end
-	self._GfxList = {}
-
-	self:StopSkillIndicatorGfx()
 
 	self._Host:RemoveTimer(self._DashTimerId)
 	self._DashTimerId = 0

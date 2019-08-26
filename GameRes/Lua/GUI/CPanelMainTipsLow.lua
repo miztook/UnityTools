@@ -455,7 +455,7 @@ local function AddMoveObj(MoveData)
 					obj:SetActive(false)
 				return end
 
-				local itemName = "<color=#" .. EnumDef.Quality2ColorHexStr[itemData.InitQuality] ..">" .. itemData.TextDisplayName .." x "..tostring(MoveData._Count).."</color>"
+				local itemName = "<color=#" .. EnumDef.Quality2ColorHexStr[itemData.InitQuality] ..">" .. itemData.TextDisplayName .." x "..GUITools.FormatMoney(MoveData._Count).."</color>"
 	 			strTips  = string.format(StringTable.Get(507),itemName)
 			else
 				if MoveData._Count == nil then
@@ -465,7 +465,7 @@ local function AddMoveObj(MoveData)
 				return end
 
 				local CTokenMoneyMan = require "Data.CTokenMoneyMan"
-				local itemName = CTokenMoneyMan.Instance():GetName(MoveData._ItemID).." x "..tostring(MoveData._Count)
+				local itemName = CTokenMoneyMan.Instance():GetName(MoveData._ItemID).." x "..GUITools.FormatMoney(MoveData._Count)
 				strTips = string.format(StringTable.Get(507),itemName)
 			end
 			
@@ -524,7 +524,7 @@ local function EnumMoveTextObjs(self)
                 -- warn("MoveTextTimer done")
                 return
             end
-
+			CSoundMan.Instance():Play2DAudio(PATH.GUISound_Msg_Get, 0)
             AddMoveObj(self._TableMoveText[1])
             table.remove(self._TableMoveText, 1)
 
@@ -608,7 +608,7 @@ end
 --	local uiTemplate = item:GetComponent(ClassType.UITemplate)
 --	local imgHead = uiTemplate:GetControl(1)
 --	local labName = uiTemplate:GetControl(3)
---	game:SetEntityCustomImg(imgHead,data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
+--	TeraFuncs.SetEntityCustomImg(imgHead,data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
 --	GUI.SetText(labName,data.Name)
 --end
 
@@ -670,10 +670,6 @@ def.method("string","number","number").ShowAttention = function(self,strTips, nT
 			GUI.SetText(self._LabAttention, strTips)
 		end
 
-		local function cb( ... )
-			self._AttentionTip: SetActive(false)
-		end
-
 		if nType == EnumDef.AttentionTipeType._Simple then
 			if not IsNil(self._ImgAttentionBoss) then
 				self._ImgAttentionBoss: SetActive(false)
@@ -709,7 +705,11 @@ def.method("string","number","number").ShowAttention = function(self,strTips, nT
 			end
 		end
 
-		GUITools.DoAlpha(self._LabAttention, 1,nTime, cb)  
+		local function cb()
+			self:HideAttention()
+		end
+
+		GUITools.DoAlpha(self._LabAttention, 1, nTime, cb)  
 	end
 end
 
@@ -1374,6 +1374,8 @@ def.override().OnHide = function(self)
 	self:CloseSkillTip()
 
 	--self:CloseFSDetails()
+
+    self:HideAttention()
 
 --	if self._FrameFSDetail ~= nil then
 --		self._FrameFSDetail:SetActive(false)

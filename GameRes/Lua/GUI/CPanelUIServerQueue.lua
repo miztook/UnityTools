@@ -95,7 +95,7 @@ def.method("number", "number").UpdateQueueShow = function (self, curNum, totalNu
 	else
 		totalNumStr = string.format(COLOR_BULE_HEX, totalNumStr)
 	end
-	local infoStr = string.format(StringTable.Get(32200), curNumStr, totalNumStr)
+	local infoStr = StringTable.Format_AB_BA(StringTable.Get(32200), curNumStr, totalNumStr)
 	GUI.SetText(self._Lab_QueueInfo, infoStr)
 	-- 预计等待时间
 	local waitMin = math.ceil((curNum * self._SecondsPerPerson) / 60) + 0 -- 单位：分

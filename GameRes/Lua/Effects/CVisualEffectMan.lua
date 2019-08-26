@@ -14,9 +14,9 @@ end
 ---------------------------------]]
 
 def.static(CEntity, "table", "number", "number", "number", "function").DoFlyingDie = function(obj, dir, force, mass, corpse_stay_duration, cb)
-	if obj ~= nil and not IsNil(obj:GetGameObject()) then
+	if obj ~= nil and obj:IsCullingVisible() and not IsNil(obj:GetGameObject()) then
 		local md = obj:GetCurModel()
-		if md then
+		if md and md:IsReady() then
 			GameUtil.AddObjectEffect(md:GetGameObject(), 1, dir, force, mass, corpse_stay_duration)
 			obj:AddTimer(5, true, function()
 					if cb ~= nil then cb() end
@@ -27,9 +27,9 @@ end
 
 -- 破绽闪红，逻辑控制其开关
 def.static(CEntity, "boolean", "number", "number", "number", "number").EnableRimColorEffect = function(obj, enabled, r, g, b, power)
-	if obj ~= nil and not IsNil(obj:GetGameObject()) then
+	if obj ~= nil and obj:IsCullingVisible() and not IsNil(obj:GetGameObject()) then
 		local md = obj:GetCurModel()
-		if md then
+		if md and md:IsReady() then
 			GameUtil.AddObjectEffect(md:GetGameObject(), 6, enabled, r, g, b, power)
 		end
 	end
@@ -37,9 +37,9 @@ end
 
 -- 受击闪白，闪一下
 def.static(CEntity).StartTwinkleWhiteEffect = function(obj)
-	if obj ~= nil and not IsNil(obj:GetGameObject()) then
+	if obj ~= nil and obj:IsCullingVisible() and not IsNil(obj:GetGameObject()) then
 		local md = obj:GetCurModel()
-		if md then
+		if md and md:IsReady() then
 			if obj:IsHostPlayer() then
 				GameUtil.AddObjectEffect(md:GetGameObject(), 7, 0.3, 1, 0, 0, 1, 5)
 			else
@@ -50,9 +50,9 @@ def.static(CEntity).StartTwinkleWhiteEffect = function(obj)
 end
 
 def.static(CEntity).StopTwinkleWhiteEffect = function(obj)
-	if obj ~= nil and not IsNil(obj:GetGameObject()) then
+	if obj ~= nil and obj:IsCullingVisible() and not IsNil(obj:GetGameObject()) then
 		local md = obj:GetCurModel()
-		if md ~= nil then			
+		if md ~= nil and md:IsReady() then			
 			GameUtil.AddObjectEffect(md:GetGameObject(), 3)
 			local oriModel = obj:GetOriModel()
 			if oriModel ~= nil and oriModel ~= md then
@@ -64,9 +64,9 @@ end
 
 -- 死亡溶解 param -> color
 def.static(CEntity, "number", "number", "number", "number").DissolveDie = function(obj, duration, r, g, b)
-	if obj ~= nil and not IsNil(obj:GetGameObject()) then
+	if obj ~= nil and obj:IsCullingVisible() and not IsNil(obj:GetGameObject()) then
 		local md = obj:GetCurModel()
-		if md then
+		if md and md:IsReady() then
 			if r and g and b then
 				GameUtil.AddObjectEffect(md:GetGameObject(), 13, duration,  r,  g, b, 255)
 			else
@@ -78,27 +78,27 @@ end
 
 -- 选中颜色 0- 无颜色  1- 红  2- 蓝  3- 黄
 def.static(CEntity,"number","number","number","number").EliteBornColor = function(obj, r, g, b, power)
-	if obj ~= nil and not IsNil(obj:GetGameObject()) then
+	if obj ~= nil and obj:IsCullingVisible() and not IsNil(obj:GetGameObject()) then
 		local md = obj:GetCurModel()
-		if md then
+		if md and md:IsReady() then
 			GameUtil.AddObjectEffect(md:GetGameObject(), 8, r, g, b, power)
 		end
 	end
 end
 
 def.static(CEntity, "boolean").DoFreezen = function(obj, enabled)
-	if obj ~= nil and not IsNil(obj:GetGameObject()) then
+	if obj ~= nil and obj:IsCullingVisible() and not IsNil(obj:GetGameObject()) then
 		local md = obj:GetCurModel()
-		if md then
+		if md and md:IsReady() then
 			GameUtil.AddObjectEffect(md:GetGameObject(), 10, enabled)
 		end
 	end
 end
 
 def.static(CEntity, "boolean").DoStealth = function(obj, on)
-	if obj ~= nil and not IsNil(obj:GetGameObject()) then		
+	if obj ~= nil and obj:IsCullingVisible() and not IsNil(obj:GetGameObject()) then		
 		local md = obj:GetCurModel()
-		if md then
+		if md and md:IsReady() then
 			GameUtil.AddObjectEffect(md:GetGameObject(), 12, on)
 		end
 	end
@@ -106,9 +106,9 @@ end
 
 -- 显示刀光
 def.static(CEntity, "boolean").ShowBladeEffect = function(obj, on)
-	if obj ~= nil and not IsNil(obj:GetGameObject()) then		
+	if obj ~= nil and obj:IsCullingVisible() and not IsNil(obj:GetGameObject()) then		
 		local md = obj:GetCurModel()
-		if md then
+		if md and md:IsReady() then
 			GameUtil.AddObjectEffect(md:GetGameObject(), 14, on)
 		end
 	end

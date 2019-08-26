@@ -49,5 +49,9 @@ def.override(CFSMStateBase).UpdateState = function(self, newstate)
 	warn("Cann't Dead Twice")
 end
 
+def.override().UpdateWhenBecomeVisible = function(self)
+	self._Host:PlayDieAnimation(true)
+end
+
 CFSMObjDead.Commit()
 return CFSMObjDead

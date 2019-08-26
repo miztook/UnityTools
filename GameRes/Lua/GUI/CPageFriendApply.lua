@@ -83,8 +83,8 @@ def.method('userdata', 'string', 'number').InitItem = function(self, item, id, i
 		GUI.SetText(labName, self._ApplyDatas[index + 1].Name)
         GUI.SetText(labLv,string.format(StringTable.Get(30327), self._ApplyDatas[index + 1].Level))
         GUI.SetText(labProfession,tostring(StringTable.Get(10300 + self._ApplyDatas[index + 1].Profession - 1)))
-        game:SetEntityCustomImg(imgHead,self._ApplyDatas[index + 1].RoleId,self._ApplyDatas[index + 1].CustomImgSet,self._ApplyDatas[index + 1].Gender,self._ApplyDatas[index + 1].Profession)
-        GUI.SetText(labFight,tostring(self._ApplyDatas[index + 1].Fight))
+        TeraFuncs.SetEntityCustomImg(imgHead,self._ApplyDatas[index + 1].RoleId,self._ApplyDatas[index + 1].CustomImgSet,self._ApplyDatas[index + 1].Gender,self._ApplyDatas[index + 1].Profession)
+        GUI.SetText(labFight,GUITools.FormatNumber(self._ApplyDatas[index + 1].Fight))
 	end
 end
 
@@ -105,7 +105,8 @@ def.method("userdata", "string", "string", "number").SelectItemButton = function
 			return end
 			game._CFriendMan:DoRejectApply({self._ApplyDatas[index + 1].RoleId}) 
 		elseif id_btn == "Btn_Border" then 
-			game:CheckOtherPlayerInfo(self._ApplyDatas[index + 1].RoleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.FriendApply)
+			local PBUtil = require "PB.PBUtil"
+			PBUtil.RequestOtherPlayerInfo(self._ApplyDatas[index + 1].RoleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.FriendApply)
 		end
 	end
 end

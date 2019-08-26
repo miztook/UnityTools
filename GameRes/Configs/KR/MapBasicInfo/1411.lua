@@ -11,13 +11,14 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD04.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn04_Zuras01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12201] = 
 		{
-			[1] = { x = 0.55, y = 1.87, z = -34.39, name = "검은 날개 시칸 사제", level = 33, SortID = 4 },
-			[2] = { x = 0.53, y = 1.87, z = -29.51, name = "검은 날개 시칸 사제", level = 33, SortID = 5 },
-			[3] = { x = 0.53, y = 1.87, z = -24.13, name = "검은 날개 시칸 사제", level = 33, SortID = 6 },
+			[1] = { x = 0.55, y = 1.87, z = -34.39, name = "검은 날개 사제", level = 33, SortID = 4 },
+			[2] = { x = 0.53, y = 1.87, z = -29.51, name = "검은 날개 사제", level = 33, SortID = 5 },
+			[3] = { x = 0.53, y = 1.87, z = -24.13, name = "검은 날개 사제", level = 33, SortID = 6 },
 		},
 		[12204] = 
 		{
@@ -52,11 +53,11 @@ local MapInfo =
 		},
 		[12209] = 
 		{
-			[1] = { x = -0.23, y = 5.67, z = 22.36, name = "니콜라스", level = 34, SortID = 29 },
+			[1] = { x = -0.23, y = 5.67, z = 22.36, name = "니콜라스", level = 34, SortID = 29,IsBoss = true },
 		},
 		[12203] = 
 		{
-			[1] = { x = 0.37, y = 1.87, z = -28.74, name = "시칸달루이", level = 33, SortID = 30 },
+			[1] = { x = 0.37, y = 1.87, z = -28.74, name = "시칸달루이", level = 33, SortID = 30,IsBoss = true },
 		},
 		[12212] = 
 		{
@@ -128,12 +129,12 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[255] = { x = -0.30, y = 6.76, z = -106.48, name = "1-1", worldId = 0, PkMode = 0 },
-			[256] = { x = -0.38, y = 5.83, z = -35.67, name = "2-2", worldId = 0, PkMode = 0 },
-			[257] = { x = -0.29, y = 14.96, z = 11.84, name = "3-3", worldId = 0, PkMode = 0 },
-			[258] = { x = -0.21, y = 14.96, z = 80.17, name = "4-4", worldId = 0, PkMode = 0 },
-			[260] = { x = 21.88, y = 0.93, z = -92.49, name = "冒泡1", worldId = 0, PkMode = 0 },
-			[261] = { x = 22.03, y = 1.04, z = -71.73, name = "冒泡2", worldId = 0, PkMode = 0 },
+			[255] = { x = -0.30, y = 6.76, z = -106.48, name = "1-1", worldId = 0, PkMode = 1 },
+			[256] = { x = -0.38, y = 5.83, z = -35.67, name = "2-2", worldId = 0, PkMode = 1 },
+			[257] = { x = -0.29, y = 14.96, z = 11.84, name = "3-3", worldId = 0, PkMode = 1 },
+			[258] = { x = -0.21, y = 14.96, z = 80.17, name = "4-4", worldId = 0, PkMode = 1 },
+			[260] = { x = 21.88, y = 0.93, z = -92.49, name = "冒泡1", worldId = 0, PkMode = 1 },
+			[261] = { x = 22.03, y = 1.04, z = -71.73, name = "冒泡2", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

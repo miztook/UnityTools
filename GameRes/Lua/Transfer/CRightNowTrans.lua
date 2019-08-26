@@ -74,7 +74,7 @@ end
 
 def.override().BrokenTrans = function(self)
     if not game._HostPlayer:GetTransPortalState() then return end
-    print("传送打断", debug.traceback())
+    --print("传送打断", debug.traceback())
 	if self._AnimationTimerID ~= 0 then
 		_G.RemoveGlobalTimer(self._AnimationTimerID)
 		self._AnimationTimerID = 0
@@ -116,7 +116,7 @@ def.override().ContinueTrans = function(self)
     end
 
     if self._TransType == EnumDef.ETransType.TransToWorldMap and self._MapID ~= game._CurWorld._WorldInfo.SceneTid then
-        print("self._MapID, game._CurWorld._WorldInfo.SceneTid ", self._MapID, game._CurWorld._WorldInfo.SceneTid )
+        --print("self._MapID, game._CurWorld._WorldInfo.SceneTid ", self._MapID, game._CurWorld._WorldInfo.SceneTid )
         hp: SetTransPortalState(false)
         CTransStrategyBase.RaiseEvent(self, self._MapID, self._FinalPosition)
         self._TransMan:StartMoveByMapIDAndPos(self._MapID, self._FinalPosition, nil, self._TransMan:IsSearchNpc(), self._TransMan._IsIgnoreConnected)
@@ -140,7 +140,7 @@ def.override().ContinueTrans = function(self)
 		    hp:NavMountHorseLogic(self._TargetPosition)
         end
         CTransStrategyBase.RaiseEvent(self, self._MapID, self._FinalPosition)
-        game:NavigatToPos(self._FinalPosition, 0, callback, nil)
+        TeraFuncs.NavigatToPos(self._FinalPosition, 0, callback, nil)
     end
 end
 

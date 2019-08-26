@@ -45,7 +45,7 @@ _G.SOUND_ENUM =
 	MIX_CFG = 
 	{
 		--[0] = {[1]=1, [2]=1, [3]=1, [4]=1},
-		[1] = {[1]=1, [2]=0, [3]=1, [4]=1},
+		[1] = {[1]=0.35, [2]=0.35, [3]=1, [4]=1},
 		[2] = {[1]=0.25, [2]=0.25, [3]=1, [4]=1},
 		[4] = {[1]=0.25, [2]=1, [3]=1, [4]=1},
 		[8] = {[1]=0, [2]=1, [3]=1, [4]=1},
@@ -77,9 +77,6 @@ local _mixModeList={32,16,8,4,2,1}
 local _MixMode = 0
 
 def.method("boolean", "boolean").Init = function(self, bOnBgm, bOnEffect)
-
-	warn("---------CSound Init")
-
 	--初始化声音，默认开启，以后服务器下发用户数据是否开启
 	--self:EnableBackgroundMusic(bOnBgm)
 	--self:EnableEffectAudio(bOnEffect)
@@ -124,7 +121,6 @@ def.method("boolean", "boolean").Init = function(self, bOnBgm, bOnEffect)
 	end
 
 	self:ApplyMixMode()
-
 end
 
 def.method("number","boolean").SetMixMode = function(self, channel, flag)

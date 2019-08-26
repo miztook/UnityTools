@@ -6,7 +6,7 @@ local on_disconect = function (retval)
 	warn("点击确定按钮重新登陆", retval)
 end
 
---MsgBox.CloseAll()
+--MsgBox.ClearAllBoxes()
 
 MsgBox.ShowMsgBox("与服务器连接已断开0000","断线提示", 0, MsgBoxType.MBBT_OKCANCEL,on_disconect)
 MsgBox.ShowMsgBox("与服务器连接已断开1111","断线提示", 0, MsgBoxType.MBBT_YES,on_disconect)
@@ -25,12 +25,12 @@ MsgBox.ShowMsgBox("勾选不再显示，以后再次有相同操作会直接以�
 MsgBox.ShowMsgBox("勾选不再显示，以后再次有相同操作会直接以确定的形式处理", "不再显示提示", 0, MsgBoxType.MBBT_OKCANCEL,nil,nil,nil,MsgBoxPriority.Guide,setting)
 MsgBox.ShowMsgBox("勾选不再显示，以后再次有相同操作会直接以确定的形式处理", "不再显示提示", 0, MsgBoxType.MBBT_OKCANCEL,nil,nil,nil,MsgBoxPriority.Disconnect,setting)
     
---MsgBox.CloseAll()
+--MsgBox.ClearAllBoxes()
 
 local on_failed = function (retval)
 	MsgBox.ShowMsgBox("与服务器连接已断开0000","断线提示", 0, MsgBoxType.MBBT_OKCANCEL,on_disconect)
 	MsgBox.ShowMsgBox("与服务器连接已断开1111","断线提示", 0, MsgBoxType.MBBT_OKCANCEL,on_disconect)
-	MsgBox.CloseAll()
+	MsgBox.ClearAllBoxes()
 	MsgBox.ShowMsgBox("算了，我放弃了1！！","坑爹啊", 0, MsgBoxType.MBBT_NO)
 	MsgBox.ShowMsgBox("算了，我放弃了2！！","坑爹啊", 0, MsgBoxType.MBBT_OK, function() warn("OK!!!!") end)
 	MsgBox.ShowMsgBox("算了，我放弃了3！！","坑爹啊", 0, MsgBoxType.MBBT_OK, function() warn "test end" end)

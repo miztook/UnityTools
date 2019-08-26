@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD02.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn02_Cave01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[21402] = 
@@ -29,7 +30,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[192] = { x = -95.41, y = 45.49, z = 99.99, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 0 },
+			[192] = { x = -95.41, y = 45.49, z = 99.99, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1 },
 		},
 	},
 	Mine = 

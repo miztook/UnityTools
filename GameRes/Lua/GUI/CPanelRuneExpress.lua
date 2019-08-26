@@ -2,6 +2,7 @@ local Lplus = require 'Lplus'
 local CPanelBase = require 'GUI.CPanelBase'
 local DynamicText = require "Utility.DynamicText"
 local CElementSkill = require "Data.CElementSkill"
+local CElementData = require "Data.CElementData"
 
 local CPanelRuneExpress = Lplus.Extend(CPanelBase, 'CPanelRuneExpress')
 local def = CPanelRuneExpress.define
@@ -45,7 +46,7 @@ end
 def.method().InitRuneInfo = function (self)
     self._RuneEffect = {}
     local defaultRuneInfo = {}
-    local allRune = GameUtil.GetAllTid("Rune")
+    local allRune = CElementData.GetAllTid("Rune")
 	for i, v in ipairs(allRune) do
 		local rune = CElementSkill.GetRune(v)
 		defaultRuneInfo[rune.SkillId .. rune.UiPos] = v

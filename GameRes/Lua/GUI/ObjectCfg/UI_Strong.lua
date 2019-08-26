@@ -5,6 +5,7 @@ local cfg = {
     Lab_BasicFight = -758439244,
     Img_Score = 1910655702,
     Frame_Toggle = 1280068262,
+    Toogle_Panel = 22693457,
 }
  
 return cfg

@@ -136,6 +136,7 @@ def.method("string").OnClick = function (self, id)
                 if val then
                     -- 展示升级动画
                     GameUtil.PlayUISfx(PATH.UIFX_TongYongShuXingLiuGuang_01, self._Img_ProArrow, self._Img_ProArrow, -1)
+                    CSoundMan.Instance():Play2DAudio(PATH.GUISound_SkillUpgrade, 0)
                     local protocol = (require "PB.net".C2SSkillMasteryUpgradeReq)() 
                     protocol.Tid = nextTid
                     PBHelper.Send(protocol) 
@@ -164,6 +165,7 @@ def.method("string", "boolean").OnToggle = function(self, id, checked)
     if string.find(id, "SkillProf_") then
         local id_data = string.split(id, "_")
         if id_data[2] then
+            CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
             local index = tonumber(id_data[2])
             self._CurSelectIdx = index
             self:UpdateSelectedItemInfo(false)
@@ -178,7 +180,7 @@ def.method("userdata", "string", "number").OnInitItem = function(self, item, id,
         local attr_name = item:FindChild("Lab_AttrName")
         GUI.SetText(attr_name, tostring(propertyTmp.TextDisplayName))              
         local attr_num = item:FindChild("Lab_AttrNum")
-        GUI.SetText(attr_num, tostring(data.Value))             
+        GUI.SetText(attr_num, GUITools.FormatNumber(data.Value, false))             
     end
 end
 
@@ -235,7 +237,7 @@ def.method("boolean").UpdateSelectedItemInfo = function(self, is_upd)
             GUI.SetText(self._LabMasteryName, tmp.Name)
             GUI.SetText(self._LabMasteryLevel, tostring(tmp.Level))
             GUI.SetText(self._LabMasteryDesc, tmp.Description)
-            GUI.SetText(self._LabAttrNow, tostring(tmp.PropValue))
+            GUI.SetText(self._LabAttrNow, tostring(GUITools.FormatNumber(tonumber(tmp.PropValue), false)))
             local hp = game._HostPlayer
             local can_upd = true
             local enough_Money = true
@@ -248,7 +250,7 @@ def.method("boolean").UpdateSelectedItemInfo = function(self, is_upd)
                     GameUtil.PlayUISfx(PATH.UI_shengjishuzhi, self._LabAttrNxt, self._LabAttrNxt, -1)
                 end
                 
-                GUI.SetText(self._LabAttrNxt, tostring(nxt_tmp.PropValue))        
+                GUI.SetText(self._LabAttrNxt, tostring(GUITools.FormatNumber(tonumber(nxt_tmp.PropValue), false)))        
                 local goldDes = nxt_tmp.CostMoneyCount
                 if playerGold >= nxt_tmp.CostMoneyCount then
                     goldDes = "<color=white>" .. GUITools.FormatMoney(nxt_tmp.CostMoneyCount) .. "</color>"
@@ -350,8 +352,7 @@ def.method("boolean").ShowMasteryTips = function(self, state)
             end
         end
         self._TipListComp:SetItemCount(#self._MasteryInfoList)
-
-        GUI.SetText(self._LabCombatPower, tostring(math.floor(score)))
+        GUI.SetText(self._LabCombatPower, GUITools.FormatNumber(math.floor(score), false))
     else
         self._FrameLeft:SetActive(false)
         self._MasteryInfoList = nil

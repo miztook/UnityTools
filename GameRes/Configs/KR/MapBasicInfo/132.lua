@@ -11,25 +11,26 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Canyon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world02.png",
 	AssetPath = "Assets/Outputs/Scenes/World02.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[11055] = 
 		{
-			[1] = { x = -91.93, y = 62.44, z = 45.21, name = "제 3군단 정찰병", level = 22, SortID = 4 },
+			[1] = { x = -91.93, y = 62.44, z = 45.21, name = "제3군단 정찰병", level = 22, SortID = 4 },
 		},
 		[11056] = 
 		{
-			[1] = { x = -88.83, y = 62.19, z = 59.98, name = "제 3군단 검사", level = 22, SortID = 5 },
-			[2] = { x = -91.79, y = 63.27, z = 31.76, name = "제 3군단 검사", level = 22, SortID = 11 },
-			[3] = { x = -97.20, y = 64.22, z = 20.31, name = "제 3군단 검사", level = 22, SortID = 12 },
+			[1] = { x = -88.83, y = 62.19, z = 59.98, name = "제3군단 검사", level = 22, SortID = 5 },
+			[2] = { x = -91.79, y = 63.27, z = 31.76, name = "제3군단 검사", level = 22, SortID = 11 },
+			[3] = { x = -97.20, y = 64.22, z = 20.31, name = "제3군단 검사", level = 22, SortID = 12 },
 		},
 		[11058] = 
 		{
-			[1] = { x = -112.73, y = 62.38, z = 46.10, name = "장교", level = 22, SortID = 13 },
+			[1] = { x = -112.73, y = 62.38, z = 46.10, name = "데바 천부장", level = 22, SortID = 13 },
 		},
 		[11057] = 
 		{
-			[1] = { x = -115.12, y = 62.38, z = 46.27, name = "제 3군단 주술사", level = 22, SortID = 14 },
+			[1] = { x = -115.12, y = 62.38, z = 46.27, name = "제3군단 흑마법사", level = 22, SortID = 14 },
 		},
 		[11059] = 
 		{
@@ -54,7 +55,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[141] = { x = -93.47, y = 63.86, z = 45.75, name = "西门战斗相位【个人】", worldId = 0, PkMode = 0 },
+			[141] = { x = -93.47, y = 63.86, z = 45.75, name = "西门战斗相位【个人】", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

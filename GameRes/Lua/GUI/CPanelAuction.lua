@@ -126,7 +126,7 @@ end
 def.override("dynamic").OnData = function(self, data)
     self._HelpUrlType = HelpPageUrlType.Auction
     if game._CFunctionMan:IsForbidFun(45) then
-        MsgBox.ShowSystemMsgBox(ServerMessageBase.TradeDisenable, nil, nil, MsgBoxType.MBBT_OK)
+        MsgBox.ShowSystemMsgBox(ServerMessageBase.TradeDisenable, MsgBoxType.MBBT_OK)
         game._GUIMan:CloseByScript(self)
         return
     end
@@ -530,7 +530,7 @@ def.method("number","=>","boolean").CanUse = function (self,itemId)
     end
 end
 
-def.method ("table").UpdataSellListItemData = function (self,data)
+def.method("table").UpdataSellListItemData = function (self,data)
     self._ClientData = data
     self._SellItemCount = #self._ClientData
     local itemGuidObj = nil
@@ -572,6 +572,9 @@ def.method().UpdataSellBagItemShow = function(self)
                 self._PutawayItemInfoData[#self._PutawayItemInfoData]._Tid = item2._Tid
                 self._PutawayItemInfoData[#self._PutawayItemInfoData]._Slot = item2._Slot
                 self._PutawayItemInfoData[#self._PutawayItemInfoData]._NormalCount = item2._NormalCount
+                if item2:IsEquip() then
+                    self._PutawayItemInfoData[#self._PutawayItemInfoData]._Star = item2._BaseAttrs.Star
+                end
             end
         end
     end
@@ -686,6 +689,7 @@ def.method("table","number").UpdataBuyListItemDataFirst = function (self,data,re
             self._PanelObject._Frame_Buttom:SetActive(false)
             GUI.SetText(lab_Info, StringTable.Get(20431))
         end
+        itemGuidObj:GetComponent(ClassType.GNewListLoop):SetItemCount(#self._ClientData)
     elseif self._CurrentRightToggle == self._RightToggleType.GUILDAUCTION or self._CurrentRightToggle == self._RightToggleType.WORLDAUCTION then
         self._PanelObject._ViewItem0:SetActive(false)
         self._PanelObject._ViewItem1:SetActive(false)
@@ -693,6 +697,7 @@ def.method("table","number").UpdataBuyListItemDataFirst = function (self,data,re
         self._PanelObject._Frame_Buttom:SetActive(false)
         itemGuidObj = self:GetUIObject("List_Item_Guid3")
         self._ClientData = self:SortAscending(self._ClientData,4)
+        itemGuidObj:GetComponent(ClassType.GNewList):SetItemCount(#self._ClientData)
         --self:AddTickUpdateTimer()
     end
     self:RemoveAllItemShowTimer()
@@ -702,7 +707,6 @@ def.method("table","number").UpdataBuyListItemDataFirst = function (self,data,re
     else
         itemGuidObj:SetActive(true)
         self._PanelObject._Img_ExchangeNoItems:SetActive(false)
-        itemGuidObj:GetComponent(ClassType.GNewListLoop):SetItemCount(#self._ClientData)
     end
 end
 --点击界面中的item，第二次更新UI中Item数据
@@ -846,7 +850,15 @@ def.method('userdata','number').OnInitExchangeOrTreasureItemFirst = function (se
     local lab_Level = uiTemplate:GetControl(1)
     local lab_Name = uiTemplate:GetControl(2)
     local item_icon = uiTemplate:GetControl(3)
-    IconTools.InitItemIconNew(item_icon, self._ClientData[index + 1].ItemID, nil, EItemLimitCheck.AllCheck)
+    local item_temp = CElementData.GetItemTemplate(self._ClientData[index + 1].ItemID)
+    local count = 0
+    if item_temp ~= nil then
+        count = game._CCountGroupMan:OnCurUseCount(item_temp.ItemUseCountGroupId)
+    end
+    local setting = {
+        [EItemIconTag.Activated] = count > 0,
+    }
+    IconTools.InitItemIconNew(item_icon, self._ClientData[index + 1].ItemID, setting, EItemLimitCheck.AllCheck)
     local itemTemp = CElementData.GetItemTemplate(self._ClientData[index + 1].ItemID)
 --    local market_item_temp = CElementData.GetTemplate("MarketItem", self._ClientData[index + 1].ProductId)
 --    if market_item_temp ~= nil and market_item_temp.MaxCellNum > 0 then
@@ -881,7 +893,24 @@ def.method('userdata','number').OnInitExchangeItemSecond = function (self,item,i
     local lab_level = uiTemplate:GetControl(6)
     local lab_number = uiTemplate:GetControl(7)
     local item_temp = CElementData.GetItemTemplate(self._ClientData[index + 1].ItemID)
-    IconTools.InitItemIconNew(item_icon, self._ClientData[index + 1].ItemID, nil, EItemLimitCheck.AllCheck)
+    local count = 0
+    local setting = {}
+    if item_temp == nil then
+        warn("error !! 没有找到物品，ID： ", self._ClientData[index + 1].ItemID)
+        return
+    end
+    count = game._CCountGroupMan:OnCurUseCount(item_temp.ItemUseCountGroupId)
+    if item_temp.ItemType == EItemType.Equipment then
+        setting = {
+            [EItemIconTag.Activated] = count > 0,
+            [EItemIconTag.Grade] = self._ClientData[index + 1].Item.FightProperty.star
+        }
+    else
+        setting = {
+            [EItemIconTag.Activated] = count > 0,
+        }
+    end
+    IconTools.InitItemIconNew(item_icon, self._ClientData[index + 1].ItemID, setting, EItemLimitCheck.AllCheck)
     GUI.SetText(labPriceNumber, GUITools.FormatMoney(self._ClientData[index + 1].Price))
     GUI.SetText(lab_level, string.format(StringTable.Get(10657), item_temp.InitLevel))
     GUI.SetText(lab_number, tostring(self._ClientData[index + 1].ItemNum))
@@ -917,8 +946,18 @@ def.method('userdata','number').OnInitTreasureSecondOrAuctionFirst = function (s
     local lab_Lv = uiTemplate:GetControl(7)
     local lab_Count = uiTemplate:GetControl(10)
     local lab_level = uiTemplate:GetControl(11)
+    local lab_btn_tip = uiTemplate:GetControl(12)
     local itemData = CElementData.GetItemTemplate(self._ClientData[index + 1].ItemID)
-    IconTools.InitItemIconNew(item_icon, self._ClientData[index + 1].ItemID, nil, EItemLimitCheck.AllCheck)
+    local count = 0
+    if itemData ~= nil then
+        count = game._CCountGroupMan:OnCurUseCount(itemData.ItemUseCountGroupId)
+    end
+    local setting = {
+        [EItemIconTag.Activated] = count > 0,
+        [EItemIconTag.Grade] = itemData ~= nil and itemData.ItemType == EItemType.Equipment 
+            and self._ClientData[index + 1].Item ~= nil and self._ClientData[index + 1].Item.FightProperty.star or nil
+    }
+    IconTools.InitItemIconNew(item_icon, self._ClientData[index + 1].ItemID, setting, EItemLimitCheck.AllCheck)
     GUI.SetText(lab_item_name, RichTextTools.GetItemNameRichText(self._ClientData[index + 1].ItemID, 1, false))
     GUI.SetText(lab_level, string.format(StringTable.Get(10657), itemData.InitLevel))
     lab_level:SetActive(itemData.InitLevel > 0)
@@ -954,12 +993,14 @@ def.method('userdata','number').OnInitTreasureSecondOrAuctionFirst = function (s
             GameUtil.SetButtonInteractable(button_obj1, false)
             GUITools.SetBtnGray(button_obj1, true)
             GUITools.SetGroupImg(button_obj1:FindChild("Image"), 1)
-            GUI.SetText(basePrice,StringTable.Get(20425)..self._ClientData[index + 1].StartPrice)
+            GUI.SetText(basePrice,GUITools.FormatMoney(self._ClientData[index + 1].StartPrice))
+            GUI.SetText(lab_btn_tip, StringTable.Get(20425))
         else 
             GUI.SetText(basePrice,GUITools.FormatMoney(self._ClientData[index + 1].StartPrice or self._ClientData[index + 1].Price))
             GameUtil.SetButtonInteractable(button_obj1, true)
             GUITools.SetBtnGray(button_obj1, false)
             GUITools.SetGroupImg(button_obj1:FindChild("Image"), 0)
+            GUI.SetText(lab_btn_tip, StringTable.Get(20432))
         end
     end
 
@@ -994,8 +1035,17 @@ def.method('userdata','number').OnInitSellExchangeItem = function (self,item,ind
     local uiTemplate = item:GetComponent(ClassType.UITemplate)
     local frame_Have = uiTemplate:GetControl(11)
     local item_icon = uiTemplate:GetControl(2)
-
-    IconTools.InitItemIconNew(item_icon, self._ClientData[index + 1].ItemID, nil, EItemLimitCheck.AllCheck)
+    local item_temp = CElementData.GetItemTemplate(self._ClientData[index + 1].ItemID)
+    local count = 0
+    if item_temp ~= nil then
+        count = game._CCountGroupMan:OnCurUseCount(item_temp.ItemUseCountGroupId)
+    end
+    local setting = {
+        [EItemIconTag.Activated] = count > 0,
+        [EItemIconTag.Grade] = item_temp ~= nil and item_temp.ItemType == EItemType.Equipment 
+            and self._ClientData[index + 1].Item ~= nil and self._ClientData[index + 1].Item.FightProperty.star or nil
+    }
+    IconTools.InitItemIconNew(item_icon, self._ClientData[index + 1].ItemID, setting, EItemLimitCheck.AllCheck)
     local lab_Price = uiTemplate:GetControl(1)
     GUI.SetText(lab_Price, GUITools.FormatMoney(self._ClientData[index + 1].Price))    
     local duration = 24 *3600
@@ -1014,9 +1064,14 @@ def.method('userdata','number').OnInitSellTreasureItem = function (self,item,ind
     local frame_Have = uiTemplate:GetControl(11)
     local lab_Tips = uiTemplate:GetControl(10)
     local item_icon = uiTemplate:GetControl(0)
-
+    local item_temp = CElementData.GetItemTemplate(self._ClientData[index + 1].ItemID)
+    local count = 0
+    if item_temp ~= nil then
+        count = game._CCountGroupMan:OnCurUseCount(item_temp.ItemUseCountGroupId)
+    end
     local setting = {
         [EItemIconTag.Number] = self._ClientData[index + 1].ItemNum,
+        [EItemIconTag.Activated] = count > 0,
     }
     IconTools.InitItemIconNew(item_icon, self._ClientData[index + 1].ItemID, setting, EItemLimitCheck.AllCheck)
 
@@ -1048,7 +1103,21 @@ def.method().UpdateBuyPanel = function(self)
     local lab_level = uiTemplate:GetControl(self._FrameRightItemsEnum.LAB_LEVEL)                    --物品等级
 
     local itemTemp = CElementData.GetItemTemplate(self._BuyItemData.ItemID)
-    IconTools.InitItemIconNew(frame_Item, self._BuyItemData.ItemID, nil, EItemLimitCheck.AllCheck)
+    local count = 0
+    if itemTemp ~= nil then
+        count = game._CCountGroupMan:OnCurUseCount(itemTemp.ItemUseCountGroupId)
+    end
+    local setting = {
+        [EItemIconTag.Activated] = count > 0,
+    }
+
+    if itemTemp ~= nil and itemTemp.ItemType == EItemType.Equipment and self._BuyItemData.Item ~= nil then
+        setting = {
+            [EItemIconTag.Activated] = count > 0,
+            [EItemIconTag.Grade] = self._BuyItemData.Item.FightProperty.star
+        }
+    end
+    IconTools.InitItemIconNew(frame_Item, self._BuyItemData.ItemID, setting, EItemLimitCheck.AllCheck)
 
     GUI.SetText(lab_ItemCount, tostring(self._BuyItemData.ItemNum))
     GUI.SetText(lab_ItemDes, itemTemp.TextDescription)
@@ -1109,10 +1178,13 @@ end
 def.method('userdata','number').OnInitSellBag = function (self,item,index)
     local uiTemplate = item:GetComponent(ClassType.UITemplate)
     local itemData = self._SellBagItem[index + 1]
+    local count = game._CCountGroupMan:OnCurUseCount(itemData._Template.ItemUseCountGroupId)
     local setting = {
         [EItemIconTag.Number] = itemData._NormalCount,
         [EItemIconTag.New] = false,
         [EItemIconTag.Bind] = itemData:IsBind(),
+        [EItemIconTag.Activated] = count > 0,
+        [EItemIconTag.Grade] = itemData:IsEquip() and itemData._BaseAttrs.Star or nil
     }
     IconTools.InitItemIconNew(item, itemData._Tid, setting, EItemLimitCheck.AllCheck)
 end
@@ -1330,25 +1402,30 @@ def.method("table","number","=>","table").SortAscending = function (self,items,k
     local ps = {"InitQuality","InitLevel","RemainTime","StartPrice","FixedPrice","PutawayTime"}
     local propertyName = ps[1]
     local function sort_func(itm1,itm2)
-        if key == 6 or key <=2 then
-            return itm1[propertyName] > itm2[propertyName]
-        elseif key <= 4 then        --如果拍卖价相同，按照上架时间排序
-            if itm1[propertyName] < itm2[propertyName] then
-                return true
-            elseif itm1[propertyName] == itm2[propertyName] and itm1.PutawayTime and itm1.PutawayTime > itm2.PutawayTime then
-                return true
-            else
-                return false
-            end
+        if itm1.ItemPos ~= itm2.ItemPos then
+            return itm1.ItemPos > itm2.ItemPos
         else
-            if itm1[propertyName] == 0 and itm2[propertyName] == 0 then
-                return false
-            elseif itm1[propertyName] == 0 and itm2[propertyName] ~= 0 then
-                return false
-            elseif itm2[propertyName] == 0 and itm1[propertyName] ~= 0 then
-                return true
+            if itm1[propertyName] == nil or itm2[propertyName] == nil then return false end
+            if key == 6 or key <=2 then
+                return itm1[propertyName] > itm2[propertyName]
+            elseif key <= 4 then        --如果拍卖价相同，按照上架时间排序
+                if itm1[propertyName] < itm2[propertyName] then
+                    return true
+                elseif itm1[propertyName] == itm2[propertyName] and itm1.PutawayTime and itm1.PutawayTime > itm2.PutawayTime then
+                    return true
+                else
+                    return false
+                end
             else
-                return itm1[propertyName] < itm2[propertyName]
+                if itm1[propertyName] == 0 and itm2[propertyName] == 0 then
+                    return false
+                elseif itm1[propertyName] == 0 and itm2[propertyName] ~= 0 then
+                    return false
+                elseif itm2[propertyName] == 0 and itm1[propertyName] ~= 0 then
+                    return true
+                else
+                    return itm1[propertyName] < itm2[propertyName]
+                end
             end
         end
     end
@@ -1388,8 +1465,9 @@ def.method("table","number","=>","table").SortAscending = function (self,items,k
         end
         return false
     end
-    table.sort(items, sort_pos)
-    table.sort(items, sort_func)
+    if #items > 1 then
+        table.sort(items, sort_func)
+    end
     return items
 end
 

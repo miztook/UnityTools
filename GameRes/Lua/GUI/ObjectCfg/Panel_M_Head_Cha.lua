@@ -18,6 +18,9 @@ local cfg = {
     Img_Guild_4 = 638591532,
     Img_Convoy = -1346225062,
     Frame_GuildFlag = 1002952045,
+    Frame_Normal = 1108626489,
+    Frame_Mini = 1721786409,
+    Txt_CharName_m = 1209043998,
 }
  
 return cfg

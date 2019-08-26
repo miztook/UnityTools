@@ -70,35 +70,33 @@ def.method("number").Load = function (self, enterType)
 	if self._LootType == SLootType.Item then
 		self:LoadItem()
 	elseif self._LootType == SLootType.Gold then
-		if self._MoneyAmount < 0 then
-			warn("Check gold amount! Can not below zero!")
-		else
+		if self._MoneyAmount > 0 then
 			local assetPath = CTokenMoneyMan.Instance():GetCoinModelPathId(self._MoneyAmount)
 			self:LoadMoney(assetPath)
 		end
 	else
 		warn("UnKnown loot type! need check = ", self._LootType)
 	end
-
 end
 
 def.method().LoadItem = function (self)
-	--warn("3333", debug.traceback())
 	local template = CElementData.GetItemTemplate(self._ItemTid)
-
 	if template ~= nil then
-		local item_asset_path = template.LootModelAssetPath
+		-- 策划需求：模型不再走模板配置，统一为Model_Gold_5，解决掉落特效杂乱表现问题  -- added by Jerry
+		local item_asset_path = PATH.Model_Gold_5 --template.LootModelAssetPath
+		--if item_asset_path == nil or item_asset_path == "" then
+		--	 item_asset_path = PATH.Model_Gold_5
+		--end
 		local m = CModel.new()
 		m._ModelFxPriority = self:GetModelCfxPriority()
 		self._Model = m
+		self._Quality = template.InitQuality
 
-		local quality = template.InitQuality
 		local on_model_loaded = function(ret)
 				if ret then
 					if self._IsReleased then
 						m:Destroy()
 					else
-						self._Quality = quality
 						self:InitLootModel()
 					end
 				else
@@ -106,13 +104,13 @@ def.method().LoadItem = function (self)
 				end
 			end
 
-		m:Load(PATH.Model_Gold_5, on_model_loaded)
+		m:Load(item_asset_path, on_model_loaded)
 	end
 end
 
 def.method("string").LoadMoney = function(self, assetPath)
 	if assetPath == "" then
-		warn("moneyData = nil , Path = ", assetPath)
+		warn("Loot money model is nil")
 		return
 	end
 
@@ -128,10 +126,9 @@ def.method("string").LoadMoney = function(self, assetPath)
 				self:InitLootModel()
 			end
 		else
-			warn("Failed to load moneyData")
+			warn("Failed to load money model")
 		end
 	end
-
 	m:Load(assetPath, on_model_loaded)
 end
 
@@ -166,6 +163,7 @@ def.method().InitLootModel = function (self)
 
 		if self._Quality > 0 and self._Quality < 7 then
 			--local gfx_path = PATH[string.format("Etc_Item_Quality_%d", self._Quality)]
+			-- 暂时不分品质，因为特效资源不足 -- added by Jerry
             local gfx_path = PATH["Etc_Item_FlyQuality_1"]
             local parent = (self._Shadow and self:GetGameObject():GetChild(1)) or self:GetGameObject():GetChild(0) or self:GetGameObject()
 			self._ItemGfx = CFxMan.Instance():PlayAsChild(gfx_path, parent, Vector3.zero + Vector3.New(0, 0.12, 0), Quaternion.identity, -1, true, -1, EnumDef.CFxPriority.Always)
@@ -209,14 +207,14 @@ def.method().ShowPickupGfx = function (self)
     local fly_fx = nil
 	local function cb()
 		if fly_fx ~= nil then
-            --print("self._FlyGfx stop")
 			fly_fx:Stop()
             fly_fx = nil
 		end
 
         if IsNil(destTrans) then return end
-        local gfx_path = PATH["Etc_Item_FlyToPlayerExploded"]
+        local gfx_path = PATH.Etc_Item_FlyToPlayerExploded
         self._ExplodedGfx = CFxMan.Instance():PlayAsChild(gfx_path, destTrans, Vector3.zero, Quaternion.identity, 1, false, 1, EnumDef.CFxPriority.Always)
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_LootFlyToPlayerExplode, 0)
 	end
 	fly_fx = CFxMan.Instance():FlyMutantBezierCurve(strPath, self:GetPos(), destTrans, 5, lifetime, EnumDef.CFxPriority.Always, cb)
 end

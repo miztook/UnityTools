@@ -20,6 +20,7 @@ def.field("number")._OwnerId = 0	--主人ID
 def.field("number")._IdleAnimationTimer = 0 --休闲动作待机timer
 def.field("number")._IdleStateTimer = 0 --进入休闲状态timer
 def.field("boolean")._IsIdleState = false   --休闲状态
+def.field("boolean")._LoadModel = true   --是否加载模型
 
 def.static("=>", CPet).new = function ()
 	local obj = CPet()
@@ -27,6 +28,7 @@ def.static("=>", CPet).new = function ()
 	obj._HitEffectInfo = CHitEffectInfo.new(obj)
 	obj._SealInfo = CSkillSealInfo.new(obj)
 	obj._FadeOutWhenLeave = true
+	obj._IsCullingVisible = false -- 宠物的剔除状态默认为false
 	return obj
 end
 
@@ -35,14 +37,9 @@ def.override("table").Init = function (self, info)
 	self:SetOwnerId(info.HostId)
 
 	-- Set Owner PetInfo
-	local table_Player = game._CurWorld._PlayerMan._ObjMap
-	if next(table_Player) ~= nil then
-		for _,v in pairs(table_Player) do
-			if v._ID == info.HostId then
-				v:SetPetId(self._ID)
-			break
-			end
-		end
+	local entity = game._CurWorld:FindObject(info.HostId)
+	if entity then
+		entity:SetPetId(self._ID)
 	end
 
 	self._PetTemplate = CElementData.GetTemplate("Pet", info.PetTid)
@@ -68,16 +65,23 @@ def.override("number").Load = function (self, enterType)
 				local id = self:GetOwnerId()
 				if id == game._HostPlayer._ID then
 					GameUtil.SetLayerRecursively(self._GameObject, EnumDef.RenderLayer.HostPlayer)
+					self:EnableCastShadows(true)
 				elseif IDMan.ISROLEID(id) then
 					GameUtil.SetLayerRecursively(self._GameObject, EnumDef.RenderLayer.Player)
+					self:EnableCastShadows(false)
 				else
 					GameUtil.SetLayerRecursively(self._GameObject, EnumDef.RenderLayer.NPC)
+					self:EnableCastShadows(false)
 				end
 
 				self:Stand()
 				--self:EnableShadow(false)
 				
 				self:OnModelLoaded()
+
+				if self._TopPate == nil then
+					self:CreatePate()
+				end
 				self:SetColorName()
 
 				self._GameObject.position = self._InitPos
@@ -108,7 +112,7 @@ end
 def.override().OnModelLoaded = function(self)
 	CNonPlayerCreature.OnModelLoaded(self)
 	--castShadow
-	self:EnableCastShadows(true)
+	--self:EnableCastShadows(true)
 
 	self:EnableShadow(false)
 	self:BeginIdleState()
@@ -179,15 +183,33 @@ def.override("=>", "number").GetObjectType = function (self)
 end
 
 def.override("boolean").EnableCullingVisible = function (self, visible)
-	if self._Model ~= nil and not self:IsLogicInvisible() then
-		self._Model:SetVisible(visible)
-	end
-
-	if visible and not self._IsCullingVisible and not self:IsLogicInvisible() and self:GetCurStateType() == FSM_STATE_TYPE.IDLE then
-		self:Stand()
+	-- 初次可见时 加载模型
+	if self._LoadModel and not self._IsCullingVisible and visible then
+		self:Load(EnumDef.SightUpdateType.Unknown)
+		self._LoadModel = false 
 	end
 	self._IsCullingVisible = visible
-	self:EnableShadow(self._IsEnableShadow)     --刷新
+
+	if self._Model == nil then return end
+
+	if visible then
+		if self._TopPate ~= nil then
+			self._TopPate:SetVisible(visible)
+		end
+		self._Model:SetVisible(true)
+		if self:IsVisible() and self:GetCurStateType() == FSM_STATE_TYPE.IDLE then
+			self:Stand()
+		end
+		self:EnableShadow(self._IsEnableShadow) 
+	else
+		if self._TopPate ~= nil then
+			self._TopPate:Pool()
+			self._TopPate = nil
+		end
+
+		self._Model:Destroy()
+        self._Model = nil
+	end
 end
 
 def.method("number").SetOwnerId = function(self, ownerId)
@@ -203,6 +225,8 @@ def.method("string").UpdateName = function(self, name)
 end
 
 def.method().SetColorName = function(self)
+	if self._TopPate == nil then return end
+	
 	local owner = game._CurWorld:FindObject( self:GetOwnerId() )
 	if owner ~= nil then
 		local colorname = owner:GetPetColorName(self._InfoData._Name)
@@ -311,7 +335,7 @@ def.override().Release = function (self)
 	self:ClearIdleState()
 
 	CEntity.Release(self)
-	game:RaiseUIShortCutEvent(EnumDef.EShortCutEventType.DialogEnd, self)
+	EventUntil.RaiseUIShortCutEvent(EnumDef.EShortCutEventType.DialogEnd, self)
 end
 
 CPet.Commit()

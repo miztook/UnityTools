@@ -76,6 +76,11 @@ def.method("number","number","number","=>","boolean").GuideStart = function(self
     	end
     end
 
+    --在教学中 并且不跳过其他教学 作为开启条件
+	if game._CGuideMan:InGuide() and BigStepConfig.IsNotJumpGuide ~= nil and BigStepConfig.IsNotJumpGuide then
+		return false
+	end
+
 	-- 如果成功进入下一步，跳过上一步教学
 	game._CGuideMan:JumpCurGuide()
 
@@ -103,6 +108,9 @@ def.method("number","number","number","=>","boolean").GuideStart = function(self
 				CPanelTracker.Instance():SwitchPage(2) -- 默认切换到组队界面
 			elseif SmallStepConfig.ShowHighLightButtonName == "item-0" or SmallStepConfig.ShowHighLightButtonName == "item-1" then 
 				CPanelTracker.Instance():SwitchPage(0) -- 默认切换到组队界面
+				if CPanelTracker.Instance()._QuestPage ~= nil and CPanelTracker.Instance()._QuestPage._List ~= nil then
+					CPanelTracker.Instance()._QuestPage._List:ScrollToStep( 0 )
+				end
 			end
 		end
 	end
@@ -201,18 +209,21 @@ def.method("number","number","number","=>","boolean").GuideNextStep = function(s
     	return true
 	end
 
-	if SmallStepConfig.IsTriggerDelay == nil or not SmallStepConfig.IsTriggerDelay then
+	if SmallStepConfig.IsNextStepTriggerDelay == nil or not SmallStepConfig.IsNextStepTriggerDelay then
 		self:GuideShow( id,nextStep )
 	end
-	self._Step = nextStep  
+	self._Step = nextStep 
 	return true  
 end
 
 def.method("number").GuideFinish = function(self,id)
 	self:GuideClose()
 	--self:SendC2SGuideTrigger( id )
-	local str = "GuideTrigger_End_"..id
-	CPlatformSDKMan.Instance():SetBreakPoint(str)
+	local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
+	CPlatformSDKMan.Instance():SetPipelineBreakPoint(
+		PlatformSDKDef.PipelinePointType.GuideTriggerEnd,
+		id)
+	CSoundMan.Instance():Play3DVoice("",game._HostPlayer:GetPos(),0)
 end
 
 def.method("=>","boolean").SpecialPanelIsShow = function(self)
@@ -345,7 +356,7 @@ def.method().ButtonNormal = function(self)
 end
 
 def.method("number","number").GuideShow = function(self,id,step)
-	--print("GuideShow",id,step)
+	--print("GuideShow------------------------------",id,step,debug.traceback())
     local BigStepConfig = self._Config[id]
     local SmallStepConfig = BigStepConfig.Steps[step]
 
@@ -365,6 +376,17 @@ def.method("number","number").GuideShow = function(self,id,step)
     	self._Panel_script = require("GUI." .. SmallStepConfig.ShowUIPanelName).Instance()
     end
     
+    if SmallStepConfig.ShowHighLightButtonDynamicName ~= nil then
+    	local CPanelMall = require "GUI.CPanelMall"
+    	local mall = CPanelMall.Instance()
+    	if mall ~= nil then
+	    	SmallStepConfig.ShowHighLightButtonName = mall:GetBigTabNameForGuide( tonumber(SmallStepConfig.ShowHighLightButtonDynamicName) )
+	    	SmallStepConfig.NextStepTriggerParam = tonumber(SmallStepConfig.ShowHighLightButtonDynamicName) - 1
+
+	    	--print("~~~~~~~~~~~~~~~~~~~~~",SmallStepConfig.ShowHighLightButtonName,SmallStepConfig.NextStepTriggerParam,id,step)
+	    end
+    end
+
 	--高亮按钮
 	if SmallStepConfig.ShowHighLightButtonName ~= nil and SmallStepConfig.ShowHighLightButtonName ~= "" then
 		--是否成功

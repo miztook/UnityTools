@@ -35,7 +35,13 @@ def.override().LeaveState = function(self)
 end
 
 def.override(CFSMStateBase).UpdateState = function(self, newstate)
-	warn("Cann't Dead Twice")
+    if not self._Host:IsPlayingAnimation(EnumDef.CLIP.COMMON_DIE) then
+        self._Host:PlayDieAnimation(false)
+        self._Host:StopMovementLogic()
+        self._Host:SetAutoPathFlag(false)
+    else
+    	warn("Cann't Dead Twice")
+    end
 end
 
 CFSMHostDead.Commit()

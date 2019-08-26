@@ -29,6 +29,7 @@ def.field("number")._OpenType = 0
 def.field("number")._SelectZoneId = 0
 def.field("table")._ServerList = BlankTable
 def.field("number")._StartTimerId = 0
+def.field("string")._DebugAccount = ""
 
 local instance = nil
 def.static("=>", CPanelLogin).Instance = function ()
@@ -37,7 +38,7 @@ def.static("=>", CPanelLogin).Instance = function ()
 		instance._PrefabPath = PATH.Panel_Login
 		instance._PanelCloseType = EnumDef.PanelCloseType.None
 		instance._DestroyOnHide = true
-		instance._ClickInterval = 1
+		instance._ClickInterval = 2
 		instance:SetupSortingParam()
 	end
 	return instance
@@ -96,7 +97,7 @@ end
 -- 根据类型返回账号密码
 local function GetAccountAndPassword(self)
 	if self._OpenType == EnumDef.PanelLoginOpenType.DebugLogin then
-		local account = self._InputFieldAccount.text
+		local account = self._DebugAccount
 		local password = self._InputFieldPassword.text
 		return account, password
 	else
@@ -126,27 +127,46 @@ def.override("dynamic").OnData = function(self, data)
 	end
 	self:SetCommon(isFirstOpen)
 
-	self._OpenType = CPlatformSDKMan.Instance():GetPanelLoginOpenType()
-	self:CheckOpenType(self._OpenType)
-
 	self._SelectZoneId = 0
 	self._ServerList = {}
 	self._Frame_Server1:SetActive(false)
 	self._Frame_Server2:SetActive(false)
 
-	self:RequestData()
+	self._OpenType = CPlatformSDKMan.Instance():GetPanelLoginOpenType()
+	self:CheckOpenType(self._OpenType)
 end
 
 def.method().RequestData = function (self)
-	GameUtil.EnableBlockCanvas(true)
+	self:RequestDataInternal(nil)
+end
+
+def.method("function").RequestDataInternal = function (self, callback)
+	game._GUIMan:ShowCircle(StringTable.Get(32), true)
 
 	local serverReady, accountReady = false, false
 	local function ShowList()
 		if serverReady and accountReady then
-			GameUtil.EnableBlockCanvas(false)
+			game._GUIMan:CloseCircle()
 			if self:IsShow() then
 				local server_list = CLoginMan.GetServerList()
 				self:RefreshServerList(server_list)
+
+				if callback ~= nil then
+					-- 属于点击了之后的重新请求
+					if next(server_list) == nil then
+						-- 点击了之后的重新请求服务器列表再次失败，弹窗提示
+						local title = StringTable.Get(8)
+						local msg = StringTable.Get(14009)
+						MsgBox.ShowMsgBox(msg, title, 0, MsgBoxType.MBBT_OKCANCEL, function(ret)
+							-- 弹退出游戏弹窗
+							if ret then
+								GameUtil.QuitGame()
+							end
+						end)
+					else
+						callback()
+					end
+				end
 			end
 		end
 	end
@@ -160,6 +180,11 @@ def.method().RequestData = function (self)
 	if not IsNilOrEmptyString(account) then
 		CLoginMan.RequestAccountRoleList(account, function ()
 			accountReady = true
+
+			-- 刷新GM界面
+			local DebugTools = require "Main.DebugTools"
+			DebugTools.ResetDebugToolState()
+
 			ShowList()
 		end)
 	else
@@ -211,7 +236,7 @@ def.method("table").RefreshServerList = function (self, serverlist)
 	end
 
 	if next(self._ServerList) == nil then
-		game._GUIMan:ShowTipText(StringTable.Get(14005), false)
+		warn("RefreshServerList serverlist got empty.")
 	end
 end
 
@@ -227,7 +252,7 @@ def.method("boolean").SetCommon = function (self, isFirstOpen)
 
 	if isFirstOpen then
 		-- 第一次打开登录界面
-		GameUtil.ContinueLogoMaskFade()
+		-- GameUtil.ContinueLogoMaskFade()
 	else
 		StartScreenFade(1, 0, 1, nil)
 		GameUtil.OpenOrCloseLoginLogo(true) -- 登录界面的Logo是单独的
@@ -290,8 +315,10 @@ def.method().StartDebugLogin = function (self)
 
 	local last_use_account_account = UserData:GetCfg(EnumDef.LocalFields.LastUseAccount, "Account")
 	if last_use_account_account == nil then
+		self._DebugAccount = ""
 		self._InputFieldAccount.text = ""
 	else
+		self._DebugAccount = last_use_account_account
 		self._InputFieldAccount.text = last_use_account_account
 	end
 	local last_use_account_password = UserData:GetCfg(EnumDef.LocalFields.LastUseAccount, "Password")
@@ -302,6 +329,7 @@ def.method().StartDebugLogin = function (self)
 	end
 
 	self._OpenType = EnumDef.PanelLoginOpenType.DebugLogin
+	self:RequestDataInternal(nil)
 end
 
 -------------------------------SDK Login Start---------------------------------
@@ -326,6 +354,7 @@ def.method().OpenServerInfo = function (self)
 	end)
 
 	self._OpenType = EnumDef.PanelLoginOpenType.OnlyServer
+	self:RequestDataInternal(nil)
 end
 --------------------------------SDK Login End----------------------------------
 
@@ -350,10 +379,19 @@ def.override("string").OnClick = function(self, id)
 	end
 
 	if id == "Btn_ServerSelect" or id == "Btn_OnlyServerSelect" then
-		game:AddForbidTimer(self._ClickInterval)
+		if game:GetNetworkStatus() == EnumDef.NetworkStatus.NotReachable then
+			-- 没有网络
+			local title = StringTable.Get(8)
+			local msg = StringTable.Get(14007)
+			MsgBox.ShowMsgBox(msg, title, 0, MsgBoxType.MBBT_OK)
+			return
+		end
 		
-		local accountStr, passwordStr = GetAccountAndPassword(self)
-		game._GUIMan:Open("CPanelServerSelect", { account = accountStr, password = passwordStr })
+		-- game:AddForbidTimer(self._ClickInterval)
+		self:RequestDataInternal(function()
+			local accountStr, passwordStr = GetAccountAndPassword(self)
+			game._GUIMan:Open("CPanelServerSelect", { account = accountStr, password = passwordStr })
+		end)
 	elseif id == "Btn_TouchScreen" then
 		game:AddForbidTimer(self._ClickInterval)
 		
@@ -383,48 +421,85 @@ def.override("string").OnClick = function(self, id)
 	end
 end
 
+def.override("string", "string").OnEndEdit = function(self, id, str)
+	if string.find(id, "InputField_Account") then
+		if str ~= self._DebugAccount then
+			-- 更改了账号
+			self._DebugAccount = str
+			self:RequestDataInternal(nil)
+		end
+	end
+end
+
 -- 点击进入游戏
 def.method().OnBtnStartGame = function(self)
 	GameUtil.PlayUISfx(PATH.UIFX_ENTERGAME, self._Lab_TouchScreen, self._Lab_TouchScreen, -1)
 
 	RemoveStartTimer(self)
+	-- 等待特效播放
 	self._StartTimerId = _G.AddGlobalTimer(self._ClickInterval / 2, true, function()
-		-- 等待特效播放
-		if next(self._ServerList) == nil then
-			self:RequestData()
+		if game:GetNetworkStatus() == EnumDef.NetworkStatus.NotReachable then
+			-- 没有网络
+			local title = StringTable.Get(8)
+			local msg = StringTable.Get(14007)
+			MsgBox.ShowMsgBox(msg, title, 0, MsgBoxType.MBBT_OK)
 			return
 		end
-		local account, password = GetAccountAndPassword(self)
-		if not CLoginMan.CheckAccountValid(account, password) then
-			return
-		end
-		if self._SelectZoneId == 0 then
-			-- 没有默认服务器，打开服务器选择界面
-			local accountStr, passwordStr = GetAccountAndPassword(self)
-			game._GUIMan:Open("CPanelServerSelect", { account = accountStr, password = passwordStr })
-			return
-		end
+		local function TryConnectPhase1()
+			local account, password = GetAccountAndPassword(self)
+			if not CLoginMan.CheckAccountValid(account, password) then
+				return
+			end
+			if self._SelectZoneId == 0 then
+				-- 没有默认服务器，打开服务器选择界面
+				local accountStr, passwordStr = GetAccountAndPassword(self)
+				game._GUIMan:Open("CPanelServerSelect", { account = accountStr, password = passwordStr })
+				return
+			end
 
-		local server_info = GetServerInfoByZoneId(self, self._SelectZoneId)
-		if server_info == nil then return end
+			local server_info = GetServerInfoByZoneId(self, self._SelectZoneId)
+			if server_info == nil then return end
 
-		local function Connect()
 			local ip = server_info.ip
 			local port = server_info.port
 			local name = server_info.name
-			CLoginMan.Instance():SetQuickEnterRoleId(0)
-			CLoginMan.Instance():ConnectToServer(ip, port, name, account, password)
-		end
-		if server_info.roleCreateDisable then
-			-- 服务器禁止创建角色
-			local title, msg, closeType = StringTable.GetMsg(132)
-			MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, function(ret)
-				if ret then
-					Connect()
+			local function TryConnectPhase2()
+				local function TryConnectPhase3()
+					CLoginMan.Instance():SetQuickEnterRoleId(0)
+					CLoginMan.Instance():ConnectToServer(ip, port, name, account, password)
 				end
-			end)
+				if server_info.roleCreateDisable then
+					-- 服务器禁止创建角色
+					local title, msg, closeType = StringTable.GetMsg(132)
+					MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, function(ret)
+						if ret then
+							TryConnectPhase3()
+						end
+					end)
+				else
+					TryConnectPhase3()
+				end
+			end
+			if not CLoginMan.CanServerUse(ip, port) then
+				-- 服务器维护中
+				self:RequestDataInternal(function ()
+					if not CLoginMan.CanServerUse(ip, port) then
+						-- 再次请求之后还是维护中，弹窗提示
+						local title = StringTable.Get(8)
+						local msg = StringTable.Get(14008)
+						MsgBox.ShowMsgBox(msg, title, 0, MsgBoxType.MBBT_OK)
+						return
+					end
+					TryConnectPhase2()
+				end)
+			else
+				TryConnectPhase2()
+			end
+		end
+		if next(self._ServerList) == nil then
+			self:RequestDataInternal(TryConnectPhase1)
 		else
-			Connect()
+			TryConnectPhase1()
 		end
 	end)
 end

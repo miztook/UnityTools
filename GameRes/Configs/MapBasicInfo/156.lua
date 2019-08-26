@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12098] = 
@@ -106,16 +107,16 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[219] = { x = -232.35, y = 124.30, z = 12.05, name = "雪峰堡", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[435] = { x = -320.62, y = 113.42, z = 48.29, name = "1-0", worldId = 0, PkMode = 0 },
-			[330] = { x = -315.89, y = 105.83, z = 27.51, name = "1-1", worldId = 0, PkMode = 0 },
-			[331] = { x = -301.51, y = 97.92, z = -20.94, name = "1-2", worldId = 0, PkMode = 0 },
-			[332] = { x = -199.31, y = 110.04, z = -14.66, name = "2-1", worldId = 0, PkMode = 0 },
-			[433] = { x = -168.46, y = 60.96, z = -65.36, name = "3-1", worldId = 0, PkMode = 0 },
-			[334] = { x = -216.97, y = 48.85, z = -104.95, name = "4-1", worldId = 0, PkMode = 0 },
-			[431] = { x = -228.19, y = 88.24, z = -46.38, name = "假追1", worldId = 0, PkMode = 0 },
-			[432] = { x = -95.76, y = 92.80, z = 29.63, name = "假追2", worldId = 0, PkMode = 0 },
-			[434] = { x = -307.22, y = 123.52, z = 80.53, name = "出生离开区域", worldId = 0, PkMode = 0 },
+			[219] = { x = -232.35, y = 124.30, z = 12.05, name = "雪峰堡", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[435] = { x = -320.62, y = 113.42, z = 48.29, name = "1-0", worldId = 0, PkMode = 1 },
+			[330] = { x = -315.89, y = 105.83, z = 27.51, name = "1-1", worldId = 0, PkMode = 1 },
+			[331] = { x = -301.51, y = 97.92, z = -20.94, name = "1-2", worldId = 0, PkMode = 1 },
+			[332] = { x = -199.31, y = 110.04, z = -14.66, name = "2-1", worldId = 0, PkMode = 1 },
+			[433] = { x = -168.46, y = 60.96, z = -65.36, name = "3-1", worldId = 0, PkMode = 1 },
+			[334] = { x = -216.97, y = 48.85, z = -104.95, name = "4-1", worldId = 0, PkMode = 1 },
+			[431] = { x = -228.19, y = 88.24, z = -46.38, name = "假追1", worldId = 0, PkMode = 1 },
+			[432] = { x = -95.76, y = 92.80, z = 29.63, name = "假追2", worldId = 0, PkMode = 1 },
+			[434] = { x = -307.22, y = 123.52, z = 80.53, name = "出生离开区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

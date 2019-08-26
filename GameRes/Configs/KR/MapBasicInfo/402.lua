@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 2,
 	Remarks = "试炼副本",
-	TextDisplayName = "폭풍 시련",
+	TextDisplayName = "시련의 폭풍",
 	Length = 512,
 	Width = 512,
 	NavMeshName = "Dn_env02_MagePlatform.navmesh",
@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/modaoshi.png",
 	AssetPath = "Assets/Outputs/Scenes/Dn_env02_MagePlatform.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[33000] = 
@@ -165,18 +166,18 @@ local MapInfo =
 		},
 		[33010] = 
 		{
-			[1] = { x = 18.04, y = -36.68, z = 114.50, name = "어린 엘프", level = 28 },
-			[2] = { x = 13.30, y = -36.68, z = 126.34, name = "어린 엘프", level = 28 },
-			[3] = { x = -47.63, y = -65.86, z = -27.71, name = "어린 엘프", level = 28 },
-			[4] = { x = -60.93, y = -65.86, z = -35.65, name = "어린 엘프", level = 28 },
-			[5] = { x = 123.04, y = -7.23, z = -5.66, name = "어린 엘프", level = 28 },
-			[6] = { x = 110.00, y = -7.23, z = 1.08, name = "어린 엘프", level = 28 },
-			[7] = { x = 18.04, y = -36.67, z = 114.50, name = "어린 엘프", level = 28 },
-			[8] = { x = 15.00, y = -36.67, z = 120.00, name = "어린 엘프", level = 28 },
-			[9] = { x = -47.00, y = -65.86, z = -27.00, name = "어린 엘프", level = 28 },
-			[10] = { x = -47.00, y = -65.86, z = -27.00, name = "어린 엘프", level = 28 },
-			[11] = { x = 107.00, y = -7.23, z = -10.00, name = "어린 엘프", level = 28 },
-			[12] = { x = 107.00, y = -7.23, z = -10.00, name = "어린 엘프", level = 28 },
+			[1] = { x = 18.04, y = -36.68, z = 114.50, name = "작은 요정", level = 28 },
+			[2] = { x = 13.30, y = -36.68, z = 126.34, name = "작은 요정", level = 28 },
+			[3] = { x = -47.63, y = -65.86, z = -27.71, name = "작은 요정", level = 28 },
+			[4] = { x = -60.93, y = -65.86, z = -35.65, name = "작은 요정", level = 28 },
+			[5] = { x = 123.04, y = -7.23, z = -5.66, name = "작은 요정", level = 28 },
+			[6] = { x = 110.00, y = -7.23, z = 1.08, name = "작은 요정", level = 28 },
+			[7] = { x = 18.04, y = -36.67, z = 114.50, name = "작은 요정", level = 28 },
+			[8] = { x = 15.00, y = -36.67, z = 120.00, name = "작은 요정", level = 28 },
+			[9] = { x = -47.00, y = -65.86, z = -27.00, name = "작은 요정", level = 28 },
+			[10] = { x = -47.00, y = -65.86, z = -27.00, name = "작은 요정", level = 28 },
+			[11] = { x = 107.00, y = -7.23, z = -10.00, name = "작은 요정", level = 28 },
+			[12] = { x = 107.00, y = -7.23, z = -10.00, name = "작은 요정", level = 28 },
 		},
 		[33011] = 
 		{
@@ -249,12 +250,12 @@ local MapInfo =
 		},
 		[33031] = 
 		{
-			[1] = { x = 8.03, y = -36.68, z = 112.59, name = "까마귀 주술사", level = 28 },
-			[2] = { x = -44.98, y = -65.86, z = -38.16, name = "까마귀 주술사", level = 28 },
-			[3] = { x = 116.31, y = -7.23, z = -13.59, name = "까마귀 주술사", level = 28 },
-			[4] = { x = 8.03, y = -36.67, z = 112.59, name = "까마귀 주술사", level = 28 },
-			[5] = { x = -47.00, y = -65.86, z = -27.00, name = "까마귀 주술사", level = 28 },
-			[6] = { x = 107.00, y = -7.23, z = -10.00, name = "까마귀 주술사", level = 28 },
+			[1] = { x = 8.03, y = -36.68, z = 112.59, name = "까마귀 흑마법사", level = 28 },
+			[2] = { x = -44.98, y = -65.86, z = -38.16, name = "까마귀 흑마법사", level = 28 },
+			[3] = { x = 116.31, y = -7.23, z = -13.59, name = "까마귀 흑마법사", level = 28 },
+			[4] = { x = 8.03, y = -36.67, z = 112.59, name = "까마귀 흑마법사", level = 28 },
+			[5] = { x = -47.00, y = -65.86, z = -27.00, name = "까마귀 흑마법사", level = 28 },
+			[6] = { x = 107.00, y = -7.23, z = -10.00, name = "까마귀 흑마법사", level = 28 },
 		},
 		[33032] = 
 		{
@@ -381,12 +382,12 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[1] = { x = 9.97, y = -35.57, z = 119.30, name = "", worldId = 0, PkMode = 0 },
-			[2] = { x = -51.35, y = -64.57, z = -37.52, name = "", worldId = 0, PkMode = 0 },
-			[3] = { x = 112.26, y = -6.38, z = -9.94, name = "", worldId = 0, PkMode = 0 },
-			[255] = { x = 63.50, y = -36.09, z = 141.35, name = "第一层", worldId = 0, PkMode = 0 },
-			[256] = { x = -91.34, y = -65.18, z = 13.31, name = "第二层", worldId = 0, PkMode = 0 },
-			[257] = { x = 142.20, y = -6.68, z = 34.04, name = "第三层", worldId = 0, PkMode = 0 },
+			[1] = { x = 9.97, y = -35.57, z = 119.30, name = "", worldId = 0, PkMode = 1 },
+			[2] = { x = -51.35, y = -64.57, z = -37.52, name = "", worldId = 0, PkMode = 1 },
+			[3] = { x = 112.26, y = -6.38, z = -9.94, name = "", worldId = 0, PkMode = 1 },
+			[255] = { x = 63.50, y = -36.09, z = 141.35, name = "第一层", worldId = 0, PkMode = 1 },
+			[256] = { x = -91.34, y = -65.18, z = 13.31, name = "第二层", worldId = 0, PkMode = 1 },
+			[257] = { x = 142.20, y = -6.68, z = 34.04, name = "第三层", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/dragon.png",
 	AssetPath = "Assets/Outputs/Scenes/Dn_evn01_DNest.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[32066] = 
@@ -42,8 +43,8 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[200] = { x = 7.58, y = -10.31, z = -63.30, name = "镜头调整区域", worldId = 0, PkMode = 0 },
-			[201] = { x = 8.10, y = -35.93, z = -13.50, name = "boss区域", worldId = 0, PkMode = 0, CameraDistance = 15 },
+			[200] = { x = 7.58, y = -10.31, z = -63.30, name = "镜头调整区域", worldId = 0, PkMode = 1 },
+			[201] = { x = 8.10, y = -35.93, z = -12.00, name = "boss区域", worldId = 0, PkMode = 1, CameraDistance = 15 },
 		},
 	},
 	Mine = 
@@ -145,7 +146,7 @@ local MapInfo =
 		},
 		[5] = 
 		{
-			x = 36.40, y = -37.55, z = -24.90, Type = 4,
+			x = 34.00, y = -37.55, z = -24.90, Type = 4,
 			Tid = 
 			{
 				[18] = 0,

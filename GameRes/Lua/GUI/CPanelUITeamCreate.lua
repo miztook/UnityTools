@@ -31,6 +31,8 @@ def.field("boolean")._IsSearching = false
 def.field('userdata')._LastSelectItem = nil
 def.field('userdata')._LastSelectSmallItemD = nil
 def.field("table")._PanelObject = nil
+def.field("boolean")._Inited = false
+def.field('table')._TeamRoomDataList = nil
 
 def.static("=>",CPanelUITeamCreate).Instance = function ()
 	if not instance then
@@ -98,11 +100,11 @@ local function ParseTeamInfoList(teamList)
         team_item.isBountyMode = v.isBountyMode
         team_item.targetId = v.targetId
         team_item.isMatching = v.isMatching
+        team_item.autoApproval = v.autoApproval
         team_list[#team_list + 1] = team_item
     end
     return team_list
 end
-
 
 def.override().OnCreate = function(self)
     self._PanelObject = {}
@@ -136,10 +138,11 @@ end
 
 def.override("dynamic").OnData = function(self, data)
     self._HelpUrlType = HelpPageUrlType.Team
+    self._TeamRoomDataList = TeamUtil.LoadValidTeamRoomData(false)
     self:OnMenuTabChange()
     self:SetListCount()
 
-    local teamData = self._TeamMan:GetAllTeamRoomData()
+    local teamData = self._TeamRoomDataList
     local function CommonInit()
         self._List:SelectItem(0,-1)
         self._Current_SelectData = teamData[1].Data
@@ -148,11 +151,11 @@ def.override("dynamic").OnData = function(self, data)
     --初始化
     if data ~= nil then
         local function InitByDungeonId(id)
-            local b,s = self._TeamMan:GetRoomIndexByDungeonID(id)
+            local b,s = TeamUtil.GetRoomIndexByDungeonID(teamData, id)
             if b > 0 then
                 self._List:SelectItem(b-1,s-1)
                 if s > 0 then
-                    self._Current_SelectData = teamData[b].ListData[s]
+                    self._Current_SelectData = teamData[b].ListData[s].Data
                 else
                     self._Current_SelectData = teamData[b].Data
                 end
@@ -161,11 +164,11 @@ def.override("dynamic").OnData = function(self, data)
             end
         end
         local function InitByRoomId(id)
-            local b,s = self._TeamMan:GetRoomIndexByID(id)
+            local b,s = TeamUtil.GetRoomIndexByID(teamData, id)
             if b > 0 then
                 self._List:SelectItem(b-1,s-1)
                 if s > 0 then
-                    self._Current_SelectData = teamData[b].ListData[s]
+                    self._Current_SelectData = teamData[b].ListData[s].Data
                 else
                     self._Current_SelectData = teamData[b].Data
                 end
@@ -185,7 +188,7 @@ def.override("dynamic").OnData = function(self, data)
         CommonInit()
     end
     
-    -- self:InitSeleteRoom()
+    self._Inited = true
 end
 
 --初始化房间
@@ -248,7 +251,7 @@ end
 def.method("table", "=>", "table").CalcMeetList = function(self, list)
     local meetList = {}
     for i,teamInfo in ipairs(list) do
-        print("teamInfo.targetId ",teamInfo.targetId)
+        --print("teamInfo.targetId ",teamInfo.targetId)
         local teamRoomConfig = CElementData.GetTemplate("TeamRoomConfig", teamInfo.targetId)
         if teamRoomConfig ~= nil then
             if teamRoomConfig.PlayingLaw == ERule.NONE then
@@ -307,7 +310,11 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
             if teamRoomConfig == nil then
                 targetName = StringTable.Get(22401)
             else
-                targetName = teamRoomConfig.DisplayName
+                if teamRoomConfig.DisplayLevel and teamRoomConfig.DisplayLevel > 0 then
+                    targetName = string.format(StringTable.Get(20092), teamRoomConfig.DisplayName, teamRoomConfig.DisplayLevel)
+                else
+                    targetName = teamRoomConfig.DisplayName
+                end
             end
             GUI.SetText(Lab_Target, targetName)
         end
@@ -459,7 +466,8 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
             local canJoin = lv >= infoData.levelLimit and fightScore >= infoData.combatPowerLimit
             GameUtil.SetButtonInteractable(Btn_Join, canJoin)
             GUITools.SetBtnGray(Btn_Join, not canJoin)
-            GUI.SetText(Btn_Join:FindChild("Img_Bg/Lab_Join"), StringTable.Get(22409))
+            local strJoin = infoData.autoApproval and StringTable.Get(22416) or StringTable.Get(22409)
+            GUI.SetText(Btn_Join:FindChild("Img_Bg/Lab_Join"), strJoin)
         end
 	end
 end
@@ -492,7 +500,7 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
         local fightScore = hp:GetHostFightScore()
         local canJoin = lv >= infoData.levelLimit and fightScore >= infoData.combatPowerLimit
         if canJoin then
-            self._TeamMan:ApplyTeam(infoData.teamID)
+            TeamUtil.ApplyTeam(infoData.teamID)
             local lab_tip = item.parent:FindChild("Lab_ApplyTip")
             if lab_tip then
                 lab_tip:SetActive(true)
@@ -531,7 +539,7 @@ def.override("string").OnClick = function(self,id)
                 team_mode = TeamMode.Group
             end
         end
-		self._TeamMan:CreateTeam(0, 0, "",self._Current_SelectData.Id,false, team_mode)
+		TeamUtil.CreateTeam(0, 0, "",self._Current_SelectData.Id,false, team_mode)
 	elseif id == "Btn_Search" then
         local is_matching = CPVEAutoMatch.Instance():IsRoomMatching(self._Current_SelectData.Id)
         if is_matching then
@@ -546,13 +554,14 @@ def.override("string").OnClick = function(self,id)
         end
 	elseif id == "Btn_Refresh" then
         --刷新此频道的队伍
-        self._TeamMan:C2SGetTeamListInRoom(self._Current_SelectData.Id)
+        TeamUtil.RequestTeamListInRoom(self._Current_SelectData.Id)
     elseif id == "Btn_AddTimes" then
         TODO()
     elseif string.find(id, "Lab_Tips") then
         local index = tonumber(string.sub(id, -1))
         self:OnClickSortIndex(index)
 	end
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
 end
 
 def.method("number").OnClickSortIndex = function(self, index)
@@ -634,13 +643,12 @@ end
 --菜单
 def.method().OnMenuTabChange = function(self)
     if instance:IsShow() then
-        local data = self._TeamMan:GetAllTeamRoomData()
-        self._List:SetItemCount(#data)
+        self._List:SetItemCount(#self._TeamRoomDataList)
     end
 end
 
 def.method('userdata','number').OnInitTabListDeep1 = function(self,item,bigTypeIndex)
-    local data = self._TeamMan:GetAllTeamRoomData()
+    local data = self._TeamRoomDataList
     local current_data = data[bigTypeIndex]
 
     local sub_count = 0
@@ -656,7 +664,7 @@ def.method('userdata','number').OnInitTabListDeep1 = function(self,item,bigTypeI
 end
 
 def.method('userdata','number','number').OnInitTabListDeep2 = function(self,item,bigTypeIndex,smallTypeIndex)
-    local data = self._TeamMan:GetAllTeamRoomData()
+    local data = self._TeamRoomDataList
 
     local current_data = data[bigTypeIndex]
     local current_smallData = current_data.ListData[smallTypeIndex]
@@ -709,7 +717,7 @@ def.override("userdata", "userdata", "number", "number").OnTabListInitItem = fun
 end
 
 def.method('userdata', 'userdata', 'number').OnClickTabListDeep1 = function(self,list,item,bigTypeIndex)
-    local data = self._TeamMan:GetAllTeamRoomData()
+    local data = self._TeamRoomDataList
     local current_bigData = data[bigTypeIndex]
 
     if self._LastSelectItem ~= nil then
@@ -726,7 +734,7 @@ def.method('userdata', 'userdata', 'number').OnClickTabListDeep1 = function(self
         --如果没有小类型 直接打开
         self._List:OpenTab(0)
         self._Current_SelectData = current_bigData.Data
-        self._TeamMan:C2SGetTeamListInRoom(self._Current_SelectData.Id)
+        TeamUtil.RequestTeamListInRoom(self._Current_SelectData.Id)
         self:InitSeleteRoom()
         self:UpdateMatchState()
     else
@@ -789,21 +797,27 @@ def.method('userdata', 'userdata', 'number').OnClickTabListDeep1 = function(self
     end
 
     self._CurrentSelectTabIndex = bigTypeIndex
+    if self._Inited then
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
+    end
 end
 
 def.method('userdata','number','number').OnClickTabListDeep2 = function(self,list,bigTypeIndex,smallTypeIndex)
-    local data = self._TeamMan:GetAllTeamRoomData()
+    local data = self._TeamRoomDataList
     local current_bigtype = data[bigTypeIndex]
 
     self._Current_SelectData = current_bigtype.ListData[smallTypeIndex].Data
-    self._TeamMan:C2SGetTeamListInRoom(self._Current_SelectData.Id)
+    TeamUtil.RequestTeamListInRoom(self._Current_SelectData.Id)
     self:InitSeleteRoom()
     self:UpdateMatchState()
+
+    if self._Inited then
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
+    end
 end
 
 --点中，sub_index为-1时是第一级，否则是二级
 def.override("userdata", "userdata", "number", "number").OnTabListSelectItem = function(self, list, item, main_index, sub_index)
-    --print("OnTabListSelectItem", item, main_index, sub_index)
     if list.name == "TabList" then
         if sub_index == -1 then
             local bigTypeIndex = main_index + 1
@@ -811,11 +825,7 @@ def.override("userdata", "userdata", "number", "number").OnTabListSelectItem = f
         elseif sub_index ~= -1 then
             local bigTypeIndex = main_index + 1
             local smallTypeIndex = sub_index + 1
-            -- if self._LastSelectSmallItemD ~= nil then
-            --     GameUtil.StopUISfx(PATH.UIFX_Team_TabMenuListItemFX,self._LastSelectSmallItemD)
-            -- end
             self._LastSelectSmallItemD = item:FindChild("Img_D")
-            -- GameUtil.PlayUISfx(PATH.UIFX_Team_TabMenuListItemFX, self._LastSelectSmallItemD, self._LastSelectSmallItemD, -1)
             self:OnClickTabListDeep2(list,bigTypeIndex,smallTypeIndex)
         end
     end
@@ -829,7 +839,7 @@ end
 def.method().UpdateMatchState = function(self)
     if not self:IsShow() then return end
 
-    self._PanelObject._Btn_Search:SetActive(self._Current_SelectData.Id > 1)
+    self._PanelObject._Btn_Search:SetActive(self._Current_SelectData.PlayingLaw == ERule.DUNGEON)
     local lab_search = self._PanelObject._Btn_Search:FindChild("Img_Bg/Lab_Search")
     local is_matching = CPVEAutoMatch.Instance():IsRoomMatching(self._Current_SelectData.Id)
     if is_matching then
@@ -872,6 +882,7 @@ def.override().OnDestroy = function (self)
     self._List = nil
     self._PanelObject = nil
     self._LastSelectSmallItemD = nil
+    self._Inited = false
 
     instance = nil
 end

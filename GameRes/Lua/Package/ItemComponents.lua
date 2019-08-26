@@ -36,10 +36,6 @@ local ItemComponentType =
     Devour = 18,    --神符吞噬
 }
 
-local function SendFlashMsg(msg, bUp)
-	game._GUIMan:ShowTipText(msg, bUp)
-end
-
 local ItemComponent = Lplus.Class("ItemComponent")
 do
 	local def = ItemComponent.define
@@ -609,10 +605,14 @@ end
 local TakeOutComponent = Lplus.Extend(ItemComponent,"TakeOutComponent")
 do
 	local def = TakeOutComponent.define
-	def.static("table","=>",TakeOutComponent).new = function (item)
+	def.field("number")._StoragePage = 0
+
+	def.static("table","number","=>",TakeOutComponent).new = function (item,curStoragePage)
 		local obj = TakeOutComponent()
 		obj._Item = item
 		obj._Type = ItemComponentType.TakeOut
+		obj._StoragePage = curStoragePage
+
 		return obj
 	end
 	def.override("=>","boolean").IsEnabled = function (self)
@@ -625,6 +625,7 @@ do
 		local protocol = StoragePackChange()
 		protocol.ChangeType = net.StoragePackChangeType.Type_UnLoad 
 		protocol.Index = self._Item._Slot
+		protocol.PageNum = self._StoragePage
 		PBHelper.Send(protocol)		
 	end
 	TakeOutComponent.Commit()
@@ -633,10 +634,12 @@ end
 local DepositComponent = Lplus.Extend(ItemComponent,"DepositComponent")
 do
 	local def = DepositComponent.define
-	def.static("table","=>",DepositComponent).new = function (item)
+	def.field("number")._StoragePage = 0
+	def.static("table","number","=>",DepositComponent).new = function (item,curStoragePage)
 		local obj = DepositComponent()
 		obj._Item = item
 		obj._Type = ItemComponentType.Deposit
+		obj._StoragePage = curStoragePage
 		return obj
 	end
 	def.override("=>","boolean").IsEnabled = function (self)
@@ -645,14 +648,16 @@ do
 	end
 	def.override().Do = function (self)
 	-- 存入仓库
+		if self._StoragePage <= 0 then return end
 		local StoragePackChange = require "PB.net".C2SStoragePackChangeReq
 		local protocol = StoragePackChange()
 		protocol.ChangeType = net.StoragePackChangeType.Type_Load 
 		protocol.Index = self._Item._Slot
+		protocol.PageNum = self._StoragePage
 		PBHelper.Send(protocol)		
 	end
 	DepositComponent.Commit()
-end
+end 
 
 -- 弃用 将来
 local ItemApproachComponent = Lplus.Extend(ItemComponent,"ItemApproachComponent")

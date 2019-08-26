@@ -59,7 +59,7 @@ HostPlayer:Move( ... )
 -- 不会出现自动寻路的标志
 -- 没有上下马的检查判断
 
-game:NavigatToPos( ... )  
+TeraFuncs.NavigatToPos( ... )  
 -- 对HostPlayer自身外的系统提供HostPlayer移动接口，有地图是否加载完毕的判断
 -- 不会出现自动寻路的标志
 -- 没有上下马的检查判断
@@ -132,7 +132,7 @@ CGame.EventManager:removeHandler("CountGroupUpdateEvent", OnCountGroupUpdateEven
 -- 自定义头像接口
 -----------------------------------------------------------
 -- 1、Image 2、roleId 3、CustomImgSet 4、Gender 5、Profession
-game: SetEntityCustomImg(imgObj , 
+TeraFuncs.SetEntityCustomImg(imgObj , 
                          roleId ,
                          customImgSet , 
                          gender , 

@@ -18,6 +18,7 @@ def.field("table")._PanelObjects = BlankTable
 def.field("number")._StoreID = 0                    -- 要购买的商品的StoreID
 def.field("table")._GoodData = nil                  -- 商品数据，服务器发送过来的GoodsDataTemp结构
 def.field("number")._RemainTimeTimer = 0            -- 商品剩余刷新时间timer
+def.field("number")._LifeTimeTimer = 0              -- 商品剩余生命时间timer
 def.field("table")._GainItems = nil                 -- 获得的东西们
 def.field("table")._GainItemsM = nil                -- 概率获得的东西们
 def.field("table")._GiftItems = nil                 -- 赠送的东西们
@@ -198,6 +199,9 @@ def.method().GenerateItemsByGoodsData = function(self)
             self._MaxCount = good_item.Stock - hasBuyCount
         end
     else
+        -- send receipt cache
+        CPlatformSDKMan.Instance():ProcessPurchaseCache()
+
         self._MinCount = 1
         self._MaxCount = 1
         self._CurCount = 1
@@ -268,6 +272,7 @@ local UpdateLeftTab = function(self)
     local img_discount = uiTemplate:GetControl(11)
     local lab_discount = uiTemplate:GetControl(12)
     local img_speci_icon = uiTemplate:GetControl(13)
+    local lab_remain_time_tip = uiTemplate:GetControl(14)
     if good_temp == nil then
         warn("error : 商品模板数据为空 ID：", good_item.Id)
         return
@@ -321,24 +326,29 @@ local UpdateLeftTab = function(self)
             warn("error!!!! 数据模板错误，是小图标但是不是物品类型")
         end
     end
-    if good_temp.LimitType == ELimitType.NoLimit then
+
+    if good_item.ShowEndTime ~= nil and good_item.ShowEndTime > 0 then
+        lab_remain_time:SetActive(true)
+        lab_remain_time_tip:SetActive(true)
+        local time_str = CMallUtility.GetRemainStringByEndTime(good_item.ShowEndTime)
+        GUI.SetText(lab_remain_time, time_str)
+        local callback = function()
+            local time_str = CMallUtility.GetRemainStringByEndTime(good_item.ShowEndTime)
+            GUI.SetText(lab_remain_time, time_str)
+        end
+        if self._LifeTimeTimer > 0 then
+            _G.RemoveGlobalTimer(self._LifeTimeTimer)
+            self._LifeTimeTimer = 0
+        end
+        self._LifeTimeTimer = _G.AddGlobalTimer(1, false, callback)
+    else
         lab_remain_time:SetActive(false)
+        lab_remain_time_tip:SetActive(false)
+    end
+    if good_item.LimitType == ELimitType.NoLimit then
         GUI.SetText(lab_remain_tip, StringTable.Get(31030))
         GUI.SetText(lab_remain_count, "")
     else
-        lab_remain_time:SetActive(false)
-        if good_temp.LimitType == ELimitType.Cycle then
-            lab_remain_time:SetActive(true)
-            local callback = function()
-                local time_str = CMallUtility.GetRemainStringByEndTime(good_item.NextRefreshTime or 0)
-                GUI.SetText(lab_remain_time, time_str)
-            end
-            if self._RemainTimeTimer ~= 0 then
-                _G.RemoveGlobalTimer(self._RemainTimeTimer)
-                self._RemainTimeTimer = 0
-            end
-            self._RemainTimeTimer = _G.AddGlobalTimer(1, false, callback)
-        end
         GUI.SetText(lab_remain_count, tostring(math.max(0, good_item.Stock - hasBuyCount)))
 		frame_cost_diamond:SetActive(true)
         GUI.SetText(lab_remain_tip, StringTable.Get(31038))
@@ -360,8 +370,9 @@ local UpdateLeftTab = function(self)
         end
     else
         img_money:SetActive(false)
-        if good_item.CashCount > 0 then
-            GUI.SetText(lab_cost, string.format(StringTable.Get(31000), GUITools.FormatNumber(good_item.CashCount * self._CurCount, false)))
+        local cash_cost = CMallMan.Instance():GetGoodsDataCashCost(good_item)
+        if cash_cost > 0 then
+            GUI.SetText(lab_cost, string.format(StringTable.Get(31000), GUITools.FormatNumber(cash_cost * self._CurCount, false)))
         else
             GUI.SetText(lab_cost, StringTable.Get(31029))
         end
@@ -441,12 +452,46 @@ local UpdateBtns = function(self)
         self._Btn_OK:MakeGray(false)
     else
         if hasBuyCount >= good_item.Stock and good_item.Stock > 0 then
-            local setting = {
-                [EnumDef.CommonBtnParam.BtnTip] = StringTable.Get(31052)
-            }
-            self._Btn_OK:ResetSetting(setting)
-            self._Btn_OK:SetInteractable(false)
-            self._Btn_OK:MakeGray(true)
+            if good_item.LimitType == ELimitType.Cycle or good_temp.LimitType == ELimitType.WeekLimit or good_temp.LimitType == ELimitType.MonthLimit then
+                local time_str = CMallUtility.GetRemainStringByEndTime(good_item.NextRefreshTime or 0)
+                local final_str = string.format(StringTable.Get(31087), time_str)
+                local setting = {
+                    [EnumDef.CommonBtnParam.BtnTip] = final_str
+                }
+                self._Btn_OK:ResetSetting(setting)
+                self._Btn_OK:SetInteractable(true)
+                self._Btn_OK:MakeGray(false)
+                local callback = function()
+                    local now_time = GameUtil.GetServerTime()
+                    if good_item.NextRefreshTime > now_time then
+                        local time_str = CMallUtility.GetRemainStringByEndTime(good_item.NextRefreshTime or 0)
+                        local final_str = string.format(StringTable.Get(31087), time_str)
+                        local setting = {
+                            [EnumDef.CommonBtnParam.BtnTip] = final_str
+                        }
+                        self._Btn_OK:ResetSetting(setting)
+                    else
+                        _G.RemoveGlobalTimer(self._RemainTimeTimer)
+                        self._RemainTimeTimer = 0
+                        local setting = {
+                            [EnumDef.CommonBtnParam.BtnTip] = StringTable.Get(21302)
+                        }
+                        self._Btn_OK:ResetSetting(setting)
+                    end
+                end
+                if self._RemainTimeTimer ~= 0 then
+                    _G.RemoveGlobalTimer(self._RemainTimeTimer)
+                    self._RemainTimeTimer = 0
+                end
+                self._RemainTimeTimer = _G.AddGlobalTimer(1, false, callback)
+            else
+                local setting = {
+                    [EnumDef.CommonBtnParam.BtnTip] = StringTable.Get(31052)
+                }
+                self._Btn_OK:ResetSetting(setting)
+                --self._Btn_OK:SetInteractable(false)
+                self._Btn_OK:MakeGray(true)
+            end
         else
             local setting = {
                 [EnumDef.CommonBtnParam.BtnTip] = StringTable.Get(21302)
@@ -475,8 +520,9 @@ def.override('string').OnClick = function(self, id)
     elseif id == "Btn_Input" then
         local uiTemplate = self._PanelObjects._Frame_Right:GetComponent(ClassType.UITemplate)
         local lab_number = uiTemplate:GetControl(3):FindChild("Lab_Count")
-        local function callback()
-    		self._CurCount = tonumber(lab_number:GetComponent(ClassType.Text).text) or 0
+        local function callback(count)
+            if not self:IsShow() then return end
+    		self._CurCount = count or 0
             if self._CurCount > self._MaxCount then self._CurCount = self._MaxCount end
             if self._CurCount < self._MinCount then self._CurCount = self._MinCount end
     		self:UpdatePanel()
@@ -486,22 +532,35 @@ def.override('string').OnClick = function(self, id)
         game._GUIMan:CloseByScript(self)
     elseif id == "Btn_OK" then
         local good_item = self._GoodData
-        if good_item.CostType == ECostType.Currency then
-            local have_count = game._HostPlayer:GetMoneyCountByType(good_item.CostMoneyId)
-            if have_count >= good_item.CostMoneyCount * self._CurCount then
-                CMallMan.Instance():BuyGoodsItem(self._StoreID ,good_item.Id, self._CurCount)
-            else
-                local callback = function(val)
-                    if val then
-                        CMallMan.Instance():BuyGoodsItem(self._StoreID ,good_item.Id, self._CurCount)
-                    end
-                end
-                MsgBox.ShowQuickBuyBox(good_item.CostMoneyId, good_item.CostMoneyCount * self._CurCount, callback)
-            end
-        else
-            CMallMan.Instance():BuyItemByRMB(self._StoreID, good_item.Id, good_item.AND_ProductId, good_item.IOS_ProductId)
+        local now_time = GameUtil.GetServerTime()
+        local hasBuyCount = CMallMan.Instance():GetItemHasBuyCountByID(self._StoreID, good_item.Id)
+        if good_item.LimitType ~= ELimitType.Cycle and good_item.LimitType ~= ELimitType.NoLimit and hasBuyCount >= good_item.Stock then
+            game._GUIMan:ShowTipText(StringTable.Get(31093), false)
+            return
         end
-        game._GUIMan:CloseByScript(self)
+        if good_item.ShowEndTime ~= nil and good_item.ShowEndTime > 0 and good_item.ShowEndTime <= now_time then
+            game._GUIMan:ShowTipText(StringTable.Get(31088), false)
+            game._GUIMan:CloseByScript(self)
+        elseif hasBuyCount >= good_item.Stock and good_item.Stock > 0 and good_item.LimitType == ELimitType.Cycle and now_time < good_item.NextRefreshTime then
+            game._GUIMan:ShowTipText(StringTable.Get(31089), false)
+        else
+            if good_item.CostType == ECostType.Currency then
+                local have_count = game._HostPlayer:GetMoneyCountByType(good_item.CostMoneyId)
+                if have_count >= good_item.CostMoneyCount * self._CurCount then
+                    CMallMan.Instance():BuyGoodsItem(self._StoreID ,good_item.Id, self._CurCount)
+                else
+                    local callback = function(val)
+                        if val then
+                            CMallMan.Instance():BuyGoodsItem(self._StoreID ,good_item.Id, self._CurCount)
+                        end
+                    end
+                    MsgBox.ShowQuickBuyBox(good_item.CostMoneyId, good_item.CostMoneyCount * self._CurCount, callback, nil, true, good_item.Id)
+                end
+            else
+                CMallMan.Instance():BuyItemByRMB(self._StoreID, good_item.Id, good_item.AND_ProductId, good_item.IOS_ProductId)
+            end
+            game._GUIMan:CloseByScript(self)
+        end
     elseif id == "ItemIconNew" then
         local good_item = self._GoodData
         local uiTemplate = self._PanelObjects._Frame_Left:GetComponent(ClassType.UITemplate)
@@ -552,6 +611,10 @@ end
 def.override().OnHide = function(self)
     if self._RemainTimeTimer ~= 0 then
         _G.RemoveGlobalTimer(self._RemainTimeTimer)
+        self._RemainTimeTimer = 0
+    end
+    if self._LifeTimeTimer ~= 0 then
+        _G.RemoveGlobalTimer(self._LifeTimeTimer)
         self._RemainTimeTimer = 0
     end
 end

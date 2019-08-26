@@ -127,7 +127,7 @@ end
 -------------------------------------------------
 def.method().InitCharmPageField = function(self)
     self._PageFieldsInfo = {}
-    local pageIDs = GameUtil.GetAllTid("CharmPage")
+    local pageIDs = CElementData.GetAllTid("CharmPage")
     for _,v in ipairs(pageIDs) do
         local page_temp = CElementData.GetTemplate("CharmPage", v)
         if page_temp ~= nil then

@@ -76,10 +76,6 @@ def.static('=>', CPanelUIPetProcess).Instance = function ()
     return instance
 end
 
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
-
 -- 刷新宠物红点
 local function OnPetRetDotUpdateEvent(sender, event)
     if instance == nil then return end
@@ -740,14 +736,16 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
         -- 刷新宠物
         self:UpdateSelectPet()
     end
+
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_Choose_Press, 0)
 end
 
 def.method().DoFreePet = function(self)
     local hp = game._HostPlayer
     if hp:IsFightingPetById(self._ItemData._ID) then
-        SendFlashMsg(StringTable.Get(19053), false)
+        TeraFuncs.SendFlashMsg(StringTable.Get(19053), false)
     elseif hp:IsHelpingPetById(self._ItemData._ID) then
-        SendFlashMsg(StringTable.Get(19053), false)
+        TeraFuncs.SendFlashMsg(StringTable.Get(19053), false)
     else
         game._GUIMan:Open("CPanelUIPetFreeConfirm", self._ItemData)
     end
@@ -759,27 +757,21 @@ def.method().DoPackageAdd = function(self)
     local effectSize = hp._PetPackage:GetEffectSize()
     -- 格子满了
     if effectSize >= maxSize then
-        SendFlashMsg(StringTable.Get(19054), false)
+        TeraFuncs.SendFlashMsg(StringTable.Get(19054), false)
         return
     end
 
     local info = hp._PetPackage:GetUnlockCellPriceInfo()
 
     local hp = game._HostPlayer
-    local callback = function(val)
-        if val then
-            local title, msg, closeType = StringTable.GetMsg(85)
-            local Do = function(buyNum)
-                CPetUtility.SendC2SPetUnLockPetBag(buyNum)
-            end  
+    local title, msg, closeType = StringTable.GetMsg(85)
+    local Do = function(buyNum)
+        CPetUtility.SendC2SPetUnLockPetBag(buyNum)
+    end  
 
-            local money_have = game._GuildMan:GetMoneyValueByTid(info[1])  
-            local max_number = math.min(maxSize - effectSize, math.floor(money_have/info[2]))
-            BuyOrSellItemMan.ShowCommonOperate(TradingType.PetBagBuyCell,title, msg, 1, max_number, info[2], info[1], nil, Do)
-        end
-    end
-
-    MsgBox.ShowQuickBuyBox(info[1], info[2], callback)
+    local money_have = game._GuildMan:GetMoneyValueByTid(info[1])  
+    local max_number = maxSize - effectSize
+    BuyOrSellItemMan.ShowCommonOperate(TradingType.PetBagBuyCell,title, msg, 1, max_number, info[2], info[1], nil, Do)
 end
 
 def.method().DoBtnRename = function(self)

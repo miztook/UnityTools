@@ -11,13 +11,14 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world02.png",
 	AssetPath = "Assets/Outputs/Scenes/World02.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[202] = 
 		{
-			[1] = { x = 214.50, y = 68.86, z = -125.10, name = "어디 한 번 쳐 봐!", level = 25, SortID = 1 },
-			[2] = { x = 132.90, y = 58.06, z = -31.80, name = "어디 한 번 쳐 봐!", level = 25, SortID = 2 },
-			[3] = { x = 168.20, y = 62.66, z = -185.20, name = "어디 한 번 쳐 봐!", level = 25, SortID = 3 },
+			[1] = { x = 214.50, y = 68.86, z = -125.10, name = "어디 한번 쳐 봐!", level = 25, SortID = 1 },
+			[2] = { x = 132.90, y = 58.06, z = -31.80, name = "어디 한번 쳐 봐!", level = 25, SortID = 2 },
+			[3] = { x = 168.20, y = 62.66, z = -185.20, name = "어디 한번 쳐 봐!", level = 25, SortID = 3 },
 		},
 	},
 	Npc = 

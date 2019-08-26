@@ -286,7 +286,7 @@ local function isRuneCanLvUp()
 				SkillInfo[v.SkillId] = v
 			end
 			
-			local allRune = GameUtil.GetAllTid("Rune")
+			local allRune = CElementData.GetAllTid("Rune")
 			local DefaultRuneInfo = {}
 			for i, v in ipairs(allRune) do
 				local rune = CElementSkill.GetRune(v)
@@ -299,6 +299,8 @@ local function isRuneCanLvUp()
 				local skillInfo = SkillInfo[v]
 				local runeInfo = {}
 				if skillInfo then
+					local isRuneWork = false
+					local hasRune = false
 					local SkillRuneInfoDatas = skillInfo.SkillRuneInfoDatas
 					for m, n in ipairs(SkillRuneInfoDatas) do
 						local rune = CElementSkill.GetRune(n.runeId)
@@ -306,6 +308,17 @@ local function isRuneCanLvUp()
 						if HasValidRuneItem(n.runeId, n.level + 1) then
 							return true
 						end
+						-- 在纹章槽有空，并且有可以镶嵌的纹章时，增加红点提示
+						if rune.UiPos >= 1 and rune.UiPos <= 3 then
+							hasRune = true
+							if n.isActivity then
+								isRuneWork = true
+							end
+						end
+							
+					end
+					if hasRune and not isRuneWork then
+						return true
 					end
 				end
 				for i = 1, 3 do
@@ -317,6 +330,8 @@ local function isRuneCanLvUp()
 				end
 
 			end
+
+
 		end
 	end
 	return false

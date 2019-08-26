@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14243] = 
@@ -63,7 +64,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[303] = { x = -162.32, y = 30.19, z = -137.26, name = "暗影森林", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {4540} },
+			[303] = { x = -162.32, y = 30.19, z = -137.26, name = "暗影森林", worldId = 0, PkMode = 1, IsCanHawkeye = true, QuestID = {4540} },
 		},
 	},
 	Mine = 

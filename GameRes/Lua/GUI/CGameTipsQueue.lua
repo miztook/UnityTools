@@ -23,6 +23,7 @@ def.field("table")._MsgBox = BlankTable
 --def.field("table")._QueueQ = BlankTable     -- quest
 def.field("table")._QueueE = BlankTable     -- Evt
 def.field("table")._QueueA = BlankTable     -- achieve
+def.field("boolean")._AchiSwitch = true     -- 成就开关
 
 def.field("table")._EvtFScore = nil  -- zhanli evt
 def.field("table")._Blocker = nil    -- blocker evt
@@ -164,7 +165,6 @@ end
 def.method("number").Tick = function(self, dt)
     local is_in_guide=self:IsInGuide()
     if is_in_guide then return end
-
     if self._StateStack == 0 and(not IsLoadingUI()) and(not self:IsInGuide()) then
         if self._Blocker ~= nil then
             self._Blocker.blockTime = self._Blocker.blockTime - dt
@@ -213,7 +213,7 @@ def.method("number").Tick = function(self, dt)
         -- Achieve
         while #self._QueueA > 0 do
             local evt = self._QueueA[1]
-            if not self:CanDo(evt) then
+            if not self:CanDo(evt) or (not self._AchiSwitch) then
                 break
             end
             table.remove(self._QueueA, 1)
@@ -323,36 +323,36 @@ def.method("table").Exc = function(self, evt)
         else
             CPanelMainTips.Instance():ShowAchieveTips(evt.tipsStr, evt.nTid)
         end
-        self._BlockerA = evt
+        --self._BlockerA = evt
     elseif evt.evtType == EnumDef.NOTICE_EVENT_TYPE.LVUP then
         local function cb()
             -- warn(Time.time .. " TIPQ LVUP done")
             ConditionalCB(evt)
         end
         OperationTip.ShowLvUpTip(evt.lv, cb)
-        self._Blocker = evt
+        --self._Blocker = evt
     elseif evt.evtType == EnumDef.NOTICE_EVENT_TYPE.NEWSKILL then
         local function cb()
             -- warn(Time.time .. " TIPQ NEWSKILL done")
             ConditionalCB(evt)
         end
         OperationTip.ShowGainNewSkillTip(evt.skillId, cb)
-        self._Blocker = evt
+        --self._Blocker = evt
     elseif evt.evtType == EnumDef.NOTICE_EVENT_TYPE.UNLOCKFUNC then
         local function cb()
             -- warn(Time.time .. " TIPQ UNLOCKFUNC done")
             ConditionalCB(evt)
         end
         OperationTip.ShowFuncUnlockTip(evt.funcId, cb)
-        self._Blocker = evt
+        --self._Blocker = evt
     elseif evt.evtType == EnumDef.NOTICE_EVENT_TYPE.MAP then
         local function cb()
-            -- warn(Time.time .. " TIPQ MAP done")
+            --warn(Time.time .. " TIPQ MAP done"..evt.data._type)
             ConditionalCB(evt)
         end
         local CPanelEnterMapTips = require "GUI.CPanelEnterMapTips"
         CPanelEnterMapTips.Instance():ShowEnterTips(evt.data, cb)
-        self._Blocker = evt
+        --self._Blocker = evt
     elseif evt.evtType == EnumDef.NOTICE_EVENT_TYPE.CHAPTEROPEN then
         local function cb()
             -- warn(Time.time .. " TIPQ CHAPTEROPEN done")
@@ -360,7 +360,7 @@ def.method("table").Exc = function(self, evt)
         end
         local CPanelMainTips = require "GUI.CPanelMainTips"
         CPanelMainTips.Instance():ShowQuestChapterOpen(evt.str, cb)
-        self._Blocker = evt
+        --self._Blocker = evt
     end
 
 end
@@ -529,7 +529,7 @@ def.method().Init = function(self)
     end )
 end
 
-def.method().Release = function(self)
+def.method().Cleanup = function(self)
     self:UnlistenToEvent()
 
     if self._TickTimerId ~= 0 then
@@ -537,10 +537,6 @@ def.method().Release = function(self)
         self._TickTimerId = 0
     end
 
-    self:Clear()
-end
-
-def.method().Clear = function(self)
     self._StateStack = 0
     self._MsgBox = { }
     --self._QueueQ = { }

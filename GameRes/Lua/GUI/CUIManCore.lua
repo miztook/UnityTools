@@ -26,6 +26,12 @@ local def = CUIManCore.define
 local panel_hide_mask = 0 
 -- opened panels with hide mask
 local panels_with_HM = { }
+-- UI加载是即使是全屏界面也不会弹转圈的白名单
+local UIAsyncLoadCircleWhiteList = 
+{
+    "Panel_Loading",
+    "UI_3V3Loading",
+}
 
 
 -- <<   #fields
@@ -52,6 +58,9 @@ def.field("userdata")._UILight = nil
 local FullScreenUIEnv = 192
 def.field("number")._LastEnvMode = -1
 def.field("boolean")._UseIMLighting = false
+def.field("boolean")._AsyncLoadOpenCicle = false        -- 加载UI时间太长是否显示Cicle的开关
+def.field("number")._AsyncLoadToleranceTime = 0.6       -- 容忍的时间。如果异步加载UI时间比较长，就显示转圈，但是不能每次加载都显示，只有加载时间太长的显示。
+def.field("table")._AsyncLoadRequestQueue = nil         -- UI异步加载请求队列
 
 -- >>   #fields
 
@@ -59,6 +68,12 @@ def.field("boolean")._UseIMLighting = false
 def.static("=>", CUIManCore).new = function()
 	local obj = CUIManCore()
 	obj._UISetting = UISetting.GetTable()
+
+    if obj._UISetting == nil then
+        error("***Failed Loading UISettingCfg !!! All UI should be disabled !!! ")
+        return nil
+    end
+
 	return obj
 	-- return nil
 end
@@ -77,7 +92,6 @@ def.method().Init = function(self)
 	-- All full screen BG
 	self._FullScreenUIBG = self._UIRoot:FindChild("FullScreenUIBG")
 	-- self._FullScreenUIBG:SetActive(false)
-
 	self:Clear()
 end
 
@@ -150,7 +164,9 @@ local function ApplyLayerSettings(self)
 			end
 		end
 	end
-	game:EnableMainCamera(not auto_hideCam)
+
+	-- mask 0x01 == full screen ui 
+	GameUtil.EnableMainCamera(not auto_hideCam, 0x01)
 
 	--CSoundMan.Instance():SetMixMode(SOUND_ENUM.MIX_MODE.FSUI, is_fullscreen_open)
 
@@ -374,7 +390,6 @@ local function ShowPanel(self, panel_name, panel_script, panel_data, first_show)
 	--        end
 	--    end
 
-
 	-- auto set sorting order
 	panel_script:SetupUISorting()
 
@@ -391,8 +406,9 @@ local function PrefabLoaded(self, panel_name, panel_script, prefab, panel_data)
 		warn("the panel prefab loaded is nil.", panel_name)
 		return
 	end
+
 	-- 设置game object父级和位置
-	panel_script._Panel = GameObject.Instantiate(prefab)
+	panel_script._Panel = prefab --GameObject.Instantiate(prefab)
 	if panel_script._Panel == nil then
 		warn("GameObject.Instantiate has failed, cannot open ui " .. panel_name)
 	else
@@ -434,6 +450,97 @@ local function PrefabLoaded(self, panel_name, panel_script, prefab, panel_data)
 
 		ShowPanel(self, panel_name, panel_script, panel_data, true)
 	end
+end
+
+local request_index = 0
+-- 申请一个异步UI加载的ID
+local function RequestAnAsyncLoadID()
+    request_index = request_index + 1
+    return request_index
+end
+
+-- 创建一个异步加载的请求,返回一个请求ID
+local function CreateAsyncLoadRequestItem(self, panel_script)
+    if not self._AsyncLoadOpenCicle then return nil end
+    if self:IsUIAsyncLoadCircleWhiteList(panel_script) then return nil end
+    local id = RequestAnAsyncLoadID()
+    local item = {}
+    local callback = function()
+        if not game._GUIMan:IsCircleShow() then
+            game._GUIMan:ShowCircle(StringTable.Get(34), true)
+        end
+    end
+    item.ID = id
+    if panel_script._IsFullScreen then
+        item.Timer = _G.AddGlobalTimer(self._AsyncLoadToleranceTime, true, callback)
+    else
+        item.Timer = 0
+    end
+    self._AsyncLoadRequestQueue[#self._AsyncLoadRequestQueue + 1] = item
+    return id
+end
+
+local function CheckShowCicle(self)
+    if self._AsyncLoadRequestQueue == nil then
+        return
+    end
+    if #self._AsyncLoadRequestQueue <= 0 then
+        game._GUIMan:CloseCircle()
+    end
+end
+
+-- 根据id删除一个请求。
+local function RemoveAsyncLoadRequestItem(self, id)
+    if self._AsyncLoadRequestQueue == nil then return end
+    for i,v in ipairs(self._AsyncLoadRequestQueue) do
+        if v.ID == id then
+            if v.Timer > 0 then
+                _G.RemoveGlobalTimer(v.Timer)
+            end
+            table.remove(self._AsyncLoadRequestQueue, i)
+            CheckShowCicle(self)
+            break
+        end
+    end
+    CheckShowCicle(self)
+end
+
+-- 清楚所有的UI加载请求
+local function RemoveAllAsyncLoadRequest(self)
+    if self._AsyncLoadRequestQueue == nil then return end
+    for i,v in ipairs(self._AsyncLoadRequestQueue) do
+        if v.Timer > 0 then
+            _G.RemoveGlobalTimer(v.Timer)
+        end
+    end
+    self._AsyncLoadRequestQueue = {}
+    if game._GUIMan:IsCircleShow() then
+        game._GUIMan:CloseCircle()
+    end
+    request_index = 0
+end
+
+
+-- 全屏界面不能显示转圈等待的白名单。
+def.method("table", "=>", "boolean").IsUIAsyncLoadCircleWhiteList = function(self, panel_script)
+    if panel_script == nil then return false end
+    local prefab_name = string.sub(panel_script:GetPrefabName(), 1, -8)
+    for _, v in ipairs(UIAsyncLoadCircleWhiteList) do
+        if v == prefab_name then
+            return true
+        end
+    end
+
+    return false
+end
+
+def.method("boolean").SetAsyncLoadOpenCicle = function(self, open)
+    self._AsyncLoadOpenCicle = open
+    if not open then
+        RemoveAllAsyncLoadRequest(self)
+        self._AsyncLoadRequestQueue = {}
+        game._GUIMan:CloseCircle()
+    end
 end
 
 
@@ -478,6 +585,9 @@ def.method("string", "dynamic", "table", "=>", "table").OpenByScript = function(
 		new_order = new_layer:RequireOrderInLayer(panel_script)
 
 		if new_order > 0 then
+
+			panel_script._PanelOnDataData = panel_data     --update onData param
+
 			local p = new_layer._PanelMap[new_order]
 			if p ~= panel_script then
 				if p ~= nil then
@@ -498,7 +608,8 @@ def.method("string", "dynamic", "table", "=>", "table").OpenByScript = function(
 					return panel_script
 				else
 					-- 已在在显示状态，刷新
-					panel_script:OnData(panel_data)
+					panel_script:OnData(panel_script._PanelOnDataData)
+					panel_script._PanelOnDataData = nil
 					game._CGuideMan:GuideOnDataCallBack(panel_script)
 
 					return panel_script
@@ -560,7 +671,8 @@ def.method("string", "dynamic", "table", "=>", "table").OpenByScript = function(
 				if not panel_script._Panel.activeSelf then
 					panel_script._Panel:SetActive(true)
 				end
-				ShowPanel(self, panel_name, panel_script, panel_data, false)
+				ShowPanel(self, panel_name, panel_script, panel_script._PanelOnDataData, false)
+				panel_script._PanelOnDataData = nil
 			else
 				-- game object 还没创建
 				if panel_script._IsLoading then
@@ -568,12 +680,14 @@ def.method("string", "dynamic", "table", "=>", "table").OpenByScript = function(
 						panel_script._Is2Destory = false
 					end
 					-- warn("the panel's game object is loading " .. panel_name)
-					return nil
+					return panel_script
 				end
 				panel_script._IsLoading = true
 				if not panel_script._LoadAssetFromBundle then
-					local prefab = Resources.Load(_G.InterfacesDir .. panel_script._PrefabPath)
-					PrefabLoaded(self, panel_name, panel_script, prefab, panel_data)
+					local prefab = Resources.Load(panel_script._PrefabPath)
+					local panelGo = GameObject.Instantiate(prefab)
+					PrefabLoaded(self, panel_name, panel_script, panelGo, panel_script._PanelOnDataData)
+					panel_script._PanelOnDataData = nil
 				else
 
 					ApplyLayerSettings(self)
@@ -581,22 +695,29 @@ def.method("string", "dynamic", "table", "=>", "table").OpenByScript = function(
 					-- if panel_script._IsFullScreen then
 					-- self._FullScreenUIBG:SetActive(true)
 					-- end
-
-					local function cb(prefab)
+                    local request_id = CreateAsyncLoadRequestItem(self, panel_script)
+					local function cb(panelGo)
+                        if request_id then
+                            RemoveAsyncLoadRequestItem(self, request_id)
+                        end
 						-- reset
 						if not panel_script._IsLoading then
+							Object.Destroy(panelGo)
 							return
 						end
 						panel_script._IsLoading = false
 
 						-- cancel loading but not reset
 						if panel_script._Is2Destory then
+							Object.Destroy(panelGo)
 							panel_script._Is2Destory = false
+							panel_script._PanelOnDataData = nil
 							return
 						end
-						PrefabLoaded(self, panel_name, panel_script, prefab, panel_data)
+						PrefabLoaded(self, panel_name, panel_script, panelGo, panel_script._PanelOnDataData)
+						panel_script._PanelOnDataData = nil
 					end
-					GameUtil.AsyncLoad(_G.InterfacesDir .. panel_script._PrefabPath, cb)
+					GameUtil.AsyncLoadPanel(panel_script._PrefabPath, cb, true)
 
 					-- ToDo: lock screen while loading?
 				end
@@ -658,7 +779,6 @@ def.method("table").CloseAll = function(self, except)
 end
 
 -- /]]
-
 -- 返回登陆时，清空所有
 -- Clear and destroy all panels when returning to Login
 def.method().Clear = function(self)
@@ -682,10 +802,7 @@ def.method().Clear = function(self)
 					if v_panel._IsLoading then
 						v_panel._Is2Destory = true
 					else
-						-- v_panel:OnHide()
 						v_panel:DoHide()
-
-						-- v_panel:OnDestroy()
 						v_panel:DoDestroy()
 
 						if not IsNil(v_panel._Panel) then
@@ -733,6 +850,10 @@ def.method().Clear = function(self)
 	self._LastEnvMode = -1
 
 	self._BlockMainCamera = { }
+    RemoveAllAsyncLoadRequest(self)
+    self._AsyncLoadRequestQueue = {}
+    self._AsyncLoadOpenCicle = false
+
 end
 
 def.method("table", "=>", "boolean").Exist = function(self, panel_script)
@@ -781,13 +902,6 @@ def.method("string", "=>", "table").FindUIByPrefab = function(self, prefab_name)
 
 	return nil
 end
-
--- def.method("boolean").HideMainCamera = function(self, flag)
---    if(flag) then
---        game:EnableMainCamera(false)
---    end
---    self._ForceHideMainCamera = flag
--- end
 
 def.method("table", "boolean").BlockMainCamera = function(self, ui_inst, flag)
 	if (flag) then
@@ -895,35 +1009,35 @@ def.method().OpenEnvLighting = function(self)
 end
 
 def.method("number").RefUILight = function(self, count)
-	--    self._UILightRefCount = self._UILightRefCount + count
-	--    --print("CUIModel ref count " .. self._UILightRefCount)
+--    self._UILightRefCount = self._UILightRefCount + count
+--    --print("CUIModel ref count " .. self._UILightRefCount)
 
-	--    if self._UILightRefCount < 0 then
-	--        self._UILightRefCount = 0
-	--        warn("UILight over kill")
-	--    end
+--    if self._UILightRefCount < 0 then
+--        self._UILightRefCount = 0
+--        warn("UILight over kill")
+--    end
 
-	if IsNil(self._UILight) then
-		local light = GameObject.Find("UILight")
-		if not IsNil(light) then
-			-- print("Light "..light.name)
-			-- light.rotation = Quaternion.Euler(22.5, 340, 0)
-			self._UILight = light:GetComponent(ClassType.Light)
-			if not IsNil(self._UILight) then
-				-- self._UILight.enabled = true
+if IsNil(self._UILight) then
+    local light = GameObject.Find("UILight")
+    if not IsNil(light) then
+        -- print("Light "..light.name)
+        -- light.rotation = Quaternion.Euler(22.5, 340, 0)
+        self._UILight = light:GetComponent(ClassType.Light)
+        if not IsNil(self._UILight) then
+            -- self._UILight.enabled = true
 
-				-- something more...
+            -- something more...
+            self._UILight.intensity = 0.95
+        end
+    else
+        error("UILight not found!!!")
+    end
+end
 
-			end
-		else
-			error("UILight not found!!!")
-		end
-	end
-
-	--    if not IsNil(self._UILight) then
-	--        self._UILight.enabled = (self._UILightRefCount > 0)
-	--        --print("UILight "..tostring(_UILight.enabled))
-	--    end
+--    if not IsNil(self._UILight) then
+--        self._UILight.enabled = (self._UILightRefCount > 0)
+--        --print("UILight "..tostring(_UILight.enabled))
+--    end
 
 end
 

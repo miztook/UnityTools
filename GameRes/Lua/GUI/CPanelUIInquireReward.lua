@@ -48,13 +48,14 @@ def.override("dynamic").OnData = function(self,data)
     if WorldBossData == nil then return end
     string.gsub(WorldBossData.GuildRewardRankIds, '[^*]+', function(w) table.insert(self._GuildReward, w) end )
     string.gsub(WorldBossData.RoleRewardRankIds, '[^*]+', function(w) table.insert(self._SingleReward, w) end )
-    if WorldBossData.PartiRewardId ~= nil and WorldBossData.PartiRewardId > 0 then
-        self._SingleReward[#self._SingleReward + 1 ] = WorldBossData.PartiRewardId
-    end
-
     if WorldBossData.LastBloodId ~= nil and WorldBossData.LastBloodId > 0 then
         self._SingleReward[#self._SingleReward + 1 ] = WorldBossData.LastBloodId
     end
+    
+    if WorldBossData.PartiRewardId ~= nil and WorldBossData.PartiRewardId > 0 then
+        self._SingleReward[#self._SingleReward + 1 ] = WorldBossData.PartiRewardId
+    end
+    
     self:InitRewardContent(EPageType.GuildReward)
 end
 

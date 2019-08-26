@@ -81,7 +81,6 @@ local function S2CGetOtherRoleInfo(sender,msg)
 		elseif orignType == EnumDef.GetTargetInfoOriginType.DungeonEnd then
         	     --根据不同逻辑insert到这个table里
         	     comps = {
-				            MenuComponents.ChatComponent.new(roleId),
 				            MenuComponents.AddFriendComponent.new(roleId),
 				            MenuComponents.DeleteFriendComponent.new(roleId),
 				            MenuComponents.AddBlackListComponent.new(roleId),

@@ -1,3 +1,4 @@
+
 --宠物融合
 
 local Lplus = require "Lplus"
@@ -29,10 +30,6 @@ local listQuality =
     3, -- 史诗
     5, -- 传说
 }
-
-local function SendFlashMsg(msg)
-    game._GUIMan:ShowTipText(msg, false)
-end
 
 local instance = nil
 def.static("table", "userdata", "=>", CPagePetFuse).new = function(parent, panel)
@@ -388,7 +385,7 @@ local function OnSelectItem(self, item, data, bIsConfirm)
             table.remove(self._MaterialPetDataList, oldIndex)
         else
             if #self._MaterialPetDataList == MAX_MATERIAL_COUNT then
-                SendFlashMsg(StringTable.Get(28003))
+                TeraFuncs.SendFlashMsg(StringTable.Get(28003))
                 return false
             end
 
@@ -501,19 +498,34 @@ def.method().ShowUIItemList = function(self)
                                         EnumDef.ApproachMaterialType.PetFuse)
 end
 
+def.method("=>", "boolean").HasSamePet = function(self)
+    local bRet = false
+    local petTid = self._PetData._Tid
+
+    for i, id in ipairs(self._MaterialPetDataList) do
+        local pet = self:GetLocalPetDataById(id)
+        if petTid == pet._Tid then
+            bRet = true
+            break
+        end
+    end
+
+    return bRet
+end
+
 --点击进阶按钮逻辑
 def.method().OnClickBtn_Fuse = function(self)
     local function SendC2SPetFuse()
         --发送阶级协议
         CPetUtility.SendC2SPetFuse(self._PetData._ID, self._MaterialPetDataList)
-        local root = self._PanelObject.Group_Fuse
+        -- local root = self._PanelObject.Group_Fuse
         -- GameUtil.PlayUISfx(PATH.UIFx_DecompseBg, root.GfxHook, root.GfxHook, 1, 20, 1)
     end
 
     if #self._MaterialPetDataList == 0 then
         --没选材料
-        SendFlashMsg(StringTable.Get(19014))
-    elseif self:HasValuableMaterialPet() then
+        TeraFuncs.SendFlashMsg(StringTable.Get(19014))
+    elseif self:HasValuableMaterialPet() or self:HasSamePet() then
         local title, msg, closeType = StringTable.GetMsg(130)
         local  function callback(value)
             if value then 
@@ -549,10 +561,17 @@ def.method("string").OnClick = function(self, id)
     elseif id == "Btn_FuseTalent" then
         self:OnClickBtn_FuseTalent()
     elseif string.find(id, "Btn_AddFusePetNeed") then
+        if self._PetData:AllAptitudeMax() then
+            TeraFuncs.SendFlashMsg(StringTable.Get(19039))
+            return
+        end
+
         self:ShowUIItemList()
     elseif string.find(id, "Btn_Drop_FusePetNeed") then
         local index = tonumber(string.sub(id, -1))
         self:OnClickBtn_AddFusePetNeed(index)
+
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_UnEquipProcessing, 0)
     elseif string.find(id, "Frame_Fuse_Aptitude") then
         -- 暂时注释，后期修改显示方案
         -- local index = tonumber(string.sub(id, -1))

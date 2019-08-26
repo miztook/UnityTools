@@ -92,21 +92,34 @@ def.method().Init = function(self)
 	end
 end
 
+def.method("=>","boolean").IsPathFilterDungeon = function(self)
+	local dungeonId = game._DungeonMan:GetDungeonID()
+	local dungeonIds = string.split(CSpecialIdMan.Get("PathFilterDungeon"), "*")
+	if dungeonIds ~= nil and #dungeonIds > 0 then
+		for i,Id in ipairs(dungeonIds) do
+			if dungeonId == tonumber(Id) then
+				return true
+			end
+		end
+	end
+	return false
+end
+
 -- 创建箭头 显示距离目标点位置(依据副本目标是否为空来判断走哪种寻路 计时副本和相位有可能提供目标为空走的大世界寻路)
 def.method("table").ShowPath = function (self,TargetPos)
 	-- warn(" ---ShowPat--- ",debug.traceback())
 	self._TargetPos = TargetPos
 	if self._TargetPos == nil then return end
 	local dungeonGoal = game._DungeonMan: GetDungeonGoal()
-
-	if dungeonGoal ~= nil then 	
+	-- 例如公会副本不显示路径
+	if dungeonGoal ~= nil and not self:IsPathFilterDungeon() then 	
 		self._IsDungeonPath = true
 		self._IsKillMonster = false
 		if dungeonGoal.GoalType == DungeonGoalType.EDUNGEONGOAL_KILLMONSTER then 
 			self._IsKillMonster = true
 		end
 		self:ShowPathInDungeon()
-	else 
+	elseif dungeonGoal == nil then 
 		self._IsDungeonPath = false
 		self:ShowPathInWorld()
 	end
@@ -315,7 +328,10 @@ local function GetPathPoint(self)
 	local navmeshName = MapBasicConfig.GetNavmeshName(nCurMapID)
 	if navmeshName == nil then return end
 	local path_table = GameUtil.GetAllPointsInNavMesh(navmeshName, cur_pos, self._TargetPos, 1, 0.1)
-	if(path_table == nil) or (table.nums(path_table) <= 0) then print("path_table is nil") return end
+	if(path_table == nil) or (table.nums(path_table) <= 0) then 
+		--print("path_table is nil") 
+		return 
+	end
 	
 	local point_count = #path_table
 	local pointNumber = 0
@@ -368,8 +384,8 @@ end
 
 -- 每隔一秒获取一次路径点 
 def.method().ShowPathInDungeon = function(self)
-	-- warn("------------------------------更换目标--------------------------------------",)
-	if self._ArrowTimerID ~= 0 then 
+	-- warn("------------------------------ShowPathInDungeon--",debug.traceback())
+	if self._ArrowTimerID ~= 0 then
 		_G.RemoveGlobalTimer(self._ArrowTimerID)
 		self._ArrowTimerID = 0
 	end
@@ -537,7 +553,7 @@ def.method().Hide = function (self)
 end
 
 --断线重连调用
-def.method().CleanPathAndData = function (self)
+def.method().Cleanup = function (self)
 	if self._DistanceTimerID ~= 0 then 
 		_G.RemoveGlobalTimer(self._DistanceTimerID)
 		self._DistanceTimerID = 0

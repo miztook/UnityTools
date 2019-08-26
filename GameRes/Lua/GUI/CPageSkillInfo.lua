@@ -141,6 +141,7 @@ def.method().Init = function(self)
         skillToggle.LabLevel = activeGo:FindChild("Img_U/Img_SkillIcon/Lab_Level_Bg/Lab_Level")
         skillToggle.ToggleOnImg = activeGo:FindChild("Img_U/Img_SkillIcon/Img_D")
         skillToggle.UpLevelIcon = activeGo:FindChild("Img_LevelUp")
+        skillToggle.RedPoint = activeGo:FindChild("RedPoint")
         self._SkillToggle[i] = skillToggle
     end
 
@@ -213,7 +214,7 @@ def.method().UpdateSkillList = function(self)
 
         local curToggle = self._SkillToggle[i]
         curToggle._Tid = v
-
+        curToggle.RedPoint:SetActive(false)
         local runeId = self._SkillPoseToRuen[i]
         curToggle.SmallRuneIcon:SetActive(runeId ~= nil)
         if runeId then
@@ -412,7 +413,10 @@ def.method("table", "number").UpdateCurSkillDes = function(self, skill, skillLev
                     self._Lab_Des[i]:SetActive(true)
                 end
                 GUI.SetText(self._Lab_Des[i], result[i]._DesNow)
-
+                if result[i]._DesNext ~= "%%" then
+                    result[i]._ValueNow = GUITools.FormatNumber(tonumber(result[i]._ValueNow), false)
+                    result[i]._ValueNext = GUITools.FormatNumber(tonumber(result[i]._ValueNext), false)
+                end
                 GUI.SetText(self._Lab_SkillNow[i], tostring(result[i]._ValueNow .. result[i]._DesNext))
                 GUI.SetText(self._Lab_SkillNext[i],tostring(result[i]._ValueNext .. result[i]._DesNext))
             else
@@ -499,7 +503,7 @@ end
 
 -- 获取技能升级数据值
 def.method("number", "number", "number", "=>", "string").GetSkillLevelUpValue = function(self, skillId, levelUpId, skillLevel)
-    local allSkillLevelUp = GameUtil.GetAllTid("SkillLevelUp")
+    local allSkillLevelUp = CElementData.GetAllTid("SkillLevelUp")
     for i,v in ipairs(allSkillLevelUp) do
         local skillLevelUp = CElementSkill.GetLevelUp(v)
         if skillLevelUp.SkillId == skillId and skillLevelUp.LevelUpId == levelUpId then

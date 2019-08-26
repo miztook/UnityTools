@@ -28,15 +28,10 @@ def.static("=>", CFunctionMan).new = function ()
     return obj
 end
 
--- 发送解锁事件
-def.method("number").SendFunctionEvent = function(self, funID)
-	local event = NotifyFunctionEvent()
-	event.FunID = funID
-	CGame.EventManager:raiseEvent(nil, event)
-end
-
 -- 加载所有功能解锁数据
-def.method().LoadAllFunctionData = function(self)
+def.method().Init = function(self)
+	if self._FunData ~= nil and #self._FunData > 0 then return end
+	warn("CFunctionMan Init")
 	self._FunData = {}
 	self._FunIDData = {}
 	self._FunTidData = {}
@@ -111,6 +106,12 @@ def.method("number", "boolean").ChangeForbidData = function(self, funTid, isForb
     self._FunForbidIDs[funTid] = isForbid
 end
 
+local function SendFunctionEvent(funID)
+	local event = NotifyFunctionEvent()
+	event.FunID = funID
+	CGame.EventManager:raiseEvent(nil, event)
+end
+
 -- 更改功能解锁数据(变化)
 def.method("number").UpdateFunctionData = function(self, tid)
 	local fun = CElementData.GetTemplate("Fun", tid)
@@ -131,21 +132,21 @@ def.method("number").UpdateFunctionData = function(self, tid)
 						end
 					end
 					self._FunData[j]._Tid[k] = true
-					self:SendFunctionEvent(tid)
+					SendFunctionEvent(tid)
 				end
 			end
 		end
 		for j, w in pairs(self._FunTidData) do
 			if j == tid then
 				self._FunTidData[j] = true
-				self:SendFunctionEvent(tid)
+				SendFunctionEvent(tid)
 			end
 		end
 	else
 		for j, w in pairs(self._FunIDData) do
 			if w._Tid == tid then
 				self._FunIDData[j]._IsOpen = true
-				self:SendFunctionEvent(j)
+				SendFunctionEvent(j)
 			end
 		end
 	end
@@ -177,17 +178,17 @@ def.method("boolean").SetOpenAll4Debug = function(self, open)
 	for i, v in pairs(self._FunIDData) do
 		local fun = CElementData.GetTemplate("Fun", v._Tid)
 		if fun.FunType == 1 then
-			self:SendFunctionEvent(fun.FunID)
+			SendFunctionEvent(fun.FunID)
 		end
 	end
 	for i, v in pairs(self._FunTidData) do
-		self:SendFunctionEvent(i)
+		SendFunctionEvent(i)
 	end
 end
 
 -- 通用功能解锁设置
 def.method("string", "table").FunctionCheck = function(self, prefab, panel)
-	if self._OpenAll4Debug then
+	if self._OpenAll4Debug or game._CurGameStage ~= _G.GameStage.InGameStage then
 		return
 	end
 	for i, v in pairs(self._FunData) do
@@ -214,7 +215,15 @@ def.method("number", "=>", "boolean").IsUnlockByFunID = function(self, funID)
 		return true
 	end
 
-	if self._FunIDData[funID] == nil then
+	if game._CurGameStage ~= _G.GameStage.InGameStage then
+		if self._FunIDData == nil or self._FunIDData[funID] == nil then
+			return false
+		else
+			return self._FunIDData[funID]._IsOpen
+		end
+	end
+	
+	if self._FunIDData == nil or self._FunIDData[funID] == nil then
 		--warn("There is no such funID:" .. funID)
 		return true
 	end
@@ -223,7 +232,7 @@ end
 
 -- 根据功能解锁Tid判断是否解锁
 def.method("number", "=>", "boolean").IsUnlockByFunTid = function(self, tid)
-	if self._OpenAll4Debug then
+	if self._OpenAll4Debug or game._CurGameStage ~= _G.GameStage.InGameStage then
 		return true
 	end
 
@@ -249,7 +258,9 @@ def.method("number", "=>", "boolean").IsUnlockByFunTid = function(self, tid)
 			end
 		end
 	else
-		return self._FunIDData[fun.FunID]._IsOpen
+		if self._FunIDData ~= nil and self._FunIDData[fun.FunID] ~= nil then
+			return self._FunIDData[fun.FunID]._IsOpen
+		end
 	end
 	return true
 end
@@ -333,11 +344,17 @@ def.method("boolean", "number", "number", "number", "=>", "boolean").IsGuideFunO
 	else
 		if isOpen then
 			self._FunIDData[id]._IsOpen = true
-			self:SendFunctionEvent(id)
+			SendFunctionEvent(id)
 		end
 	end
 
 	return isOpen
+end
+
+def.method().Cleanup = function(self)
+	self._FunData = {}
+	self._FunIDData = {}
+	self._FunTidData = {}
 end
 
 CFunctionMan.Commit()

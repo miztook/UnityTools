@@ -14,8 +14,8 @@ data.Cfg =
 data.Channel[0] = 
 {
 	channel = 0,    --当前频道
-	channelname = "[현재]",
-	mainbtnname = "NPC",
+	channelname = "[채널]",
+	mainbtnname = "채널",
 	channelcolor = "FFFFFF",
 	rolenamecolor = "00FF00", 	-- 角色名称颜色：暂时没用，用的prefab上默认颜色。
 	textcolor = "FFFFFF",		-- 文本颜色：暂时没用，用的prefab上默认颜色。

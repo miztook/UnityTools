@@ -36,12 +36,15 @@ local function SetEquipmentInfo(self,equipmentObj, equipPack, fightScore)
             [EFrameIconTag.ItemIcon] = bGotEquip,
         }
         IconTools.SetFrameIconTags(ui_equip, frame_setting)
+        local star = 0 
         if bGotEquip then
             local setting =
             {
                 [EItemIconTag.Bind] = item._IsBind,
                 [EItemIconTag.ArrowUp] = item._PackageType == IVTRTYPE_ENUM.IVTRTYPE_PACK,
                 [EItemIconTag.Equip] = item._PackageType == IVTRTYPE_ENUM.IVTRTYPE_EQUIPPACK,
+                [EItemIconTag.Grade] = item._BaseAttrs.Star,
+
             }
             IconTools.InitItemIconNew(ui_equip, item._Tid, setting)
             if not self._IsShowBox and not item._IsBind then 
@@ -51,7 +54,7 @@ local function SetEquipmentInfo(self,equipmentObj, equipPack, fightScore)
     end
 
     local labelScore = equipmentObj:FindChild("Img_FighScoreBG/Lab_FightScore_Data")
-    GUI.SetText(labelScore, tostring(fightScore))
+    GUI.SetText(labelScore, GUITools.FormatNumber(fightScore))
 end
 
 local function C2SPutOnEquip(self)

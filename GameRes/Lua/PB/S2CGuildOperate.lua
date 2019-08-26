@@ -83,6 +83,8 @@ local function OnGuildOperateReturnCode(code)
 	elseif code == GUILD_OPERATE_RETURN_CODE.GUILD_IN_EIXTLIST then
 		game._GUIMan:ShowTipText(StringTable.Get(8020), true)
 	elseif code == GUILD_OPERATE_RETURN_CODE.GUILD_IN_APPLYLIST then
+		game._GUIMan:ShowTipText(StringTable.Get(856), true)
+	elseif code == GUILD_OPERATE_RETURN_CODE.GUILD_REFUSE_APPLY then
 		game._GUIMan:ShowTipText(StringTable.Get(867), true)
 	elseif code == GUILD_OPERATE_RETURN_CODE.TEMP_DATA_ERROR then
 		game._GUIMan:ShowTipText(StringTable.Get(868), true)
@@ -340,11 +342,11 @@ local function OnS2CGuildBaseInfo(sender, msg)
 	--在打开公会，搜索公会均会通过这条消息返回
 	if msg.resCode == GUILD_OPERATE_RETURN_CODE.OK_GUILD_OPERATE_RETURN_CODE then
 		if game._GuildMan:IsHostInGuild() then
-			game._GuildMan:UpdateGuildBaseInfo(msg.baseInfo)
+			game._GuildMan:UpdateGuildBaseInfo(msg.guildList.guildList[1])
 			game._GuildMan:UpdatePageGuildInfo()
 		end
 		if CPanelUIGuildList.Instance():IsShow() then
-			CPanelUIGuildList.Instance():ShowSearchGuild(msg.baseInfo)
+			CPanelUIGuildList.Instance():ShowSearchGuild(msg.guildList.guildList)
 		end
 	else
 		if CPanelUIGuildList.Instance():IsShow() then
@@ -628,7 +630,7 @@ local function OnS2CGuildSkillLevelUp(sender, msg)
 		if isNewSkil then
 		    guildSkillData[#guildSkillData + 1] = data
 		end
-
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_SkillUpgrade, 0)
 		local event = NotifyGuildEvent()
 		event.Type = "SkillLevelUp"
         event.Param = msg.Skill.SkillId
@@ -655,6 +657,7 @@ local function OnS2CGuildBuffOpen(sender, msg)
 			CPanelUIGuild.Instance():UpdatePageGuildBonus()
 		end
         game._GuildMan:SendC2SGuildBaseInfo(game._GuildMan:GetHostPlayerGuildID(), "")
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_GuildSkill, 0)
 		local event = NotifyGuildEvent()
 		event.Type = "BuffOpen"
 		CGame.EventManager:raiseEvent(msg.BuffData, event)
@@ -990,7 +993,8 @@ PBHelper.AddHandler("S2CGuildDefendComplete", OnS2CGuildDefendComplete)
 -- 公会战场报名
 local function OnS2CGuildBattleFieldOperate(sender, msg)
 	if msg.OpType == 0 then
-		if game._GuildMan:IsHostInGuild() and (not game._IsHideGuildBattle) then
+    	local options = GameConfig.Get("FuncOpenOption")
+		if game._GuildMan:IsHostInGuild() and (not options.HideGuildBattle) then
 			game._GUIMan:Open("CPanelUIGuildBattle", msg)
 		end
 --		game._GUIMan:Open("CPanelUIGuildBattle", msg)
@@ -1020,8 +1024,8 @@ PBHelper.AddHandler("S2CGuildBattleFieldUpdate", OnS2CGuildBattleFieldUpdate)
 
 -- 公会战场结算
 local function OnS2CGuildBattleFieldReward(sender, msg)
-	game._GUIMan:SetNormalUIMoveToHide(true, 0, "CPanelUIGuildBattleEnd", msg)
-	--game._GUIMan:Open("CPanelUIGuildBattleEnd", msg)
+	--game._GUIMan:SetNormalUIMoveToHide(true, 0, "CPanelUIGuildBattleEnd", msg)
+	game._GUIMan:Open("CPanelUIGuildBattleEnd", msg)
 	local CAutoFightMan = require "AutoFight.CAutoFightMan"
 	CAutoFightMan.Instance():Stop()
 end
@@ -1040,7 +1044,11 @@ local function OnS2CMineRefreshNotify(sender, msg)
     if game._GuildMan:IsGuildBattleScene() then
 	    local CPanelTracker = require "GUI.CPanelTracker"
 	    if CPanelTracker then
-		    CPanelTracker.Instance():UpdateGuildBattleRefreshTime(msg.EndTime, msg.RefreshType)
+            if CPanelTracker.Instance():IsShow() then
+		        CPanelTracker.Instance():UpdateGuildBattleRefreshTime(msg.EndTime, msg.RefreshType)
+            else
+                CPanelTracker.Instance():CacheEndTimeAndShowType(msg.EndTime, msg.RefreshType)
+            end
 	    end
     end
 end
@@ -1075,7 +1083,7 @@ PBHelper.AddHandler("S2CGuildBFKillPlayerNotify", OnS2CGuildBFKillPlayerNotify)
 
 -- 公会战场积分刷新
 local function OnS2CGuildBFScoreChange(sender, msg)
-    if game._GuildMan:IsGuildBattleScene() then
+    if game._GuildMan:IsGuildBattleScene() then 
         game._GuildMan:UpdateBattleRankInfo(msg)
     end
 end
@@ -1100,3 +1108,19 @@ local function OnS2CGuildBFExtraData(sender, msg)
     end
 end
 PBHelper.AddHandler("S2CRankGetExtraData", OnS2CGuildBFExtraData)
+
+-- 公会战场已经进去了多少人
+local function OnS2CGuildBFPlayerNum(sender, msg)
+    local panel = require "GUI.CPanelUIGuildBattle".Instance()
+	if panel:IsShow() then
+		panel:UpdatePlayerNum(msg.PlayerNum)
+	end	
+end
+PBHelper.AddHandler("S2CGuildBattleFieldPlayerNum", OnS2CGuildBFPlayerNum)
+
+local function OnS2CRankGetGuildBF(sender, msg)
+    local CPanelRewardShow = require "GUI.CPanelRewardShow"
+    warn(" LuaUInt64.ToDouble(msg.EndTime)  ",LuaUInt64.ToDouble(msg.EndTime))
+    CPanelRewardShow.Instance():OnS2CRankGetGuildBF(LuaUInt64.ToDouble(msg.EndTime))
+end
+PBHelper.AddHandler("S2CRankGetGuildBF", OnS2CRankGetGuildBF)

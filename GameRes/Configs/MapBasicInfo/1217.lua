@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 	},
@@ -21,12 +22,12 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[402] = { x = 42.54, y = 61.15, z = -132.84, name = "神视单人-1", worldId = 0, PkMode = 0 },
-			[403] = { x = -46.20, y = 49.33, z = -205.70, name = "神视单人-2", worldId = 0, PkMode = 0 },
-			[404] = { x = -224.91, y = 130.94, z = -164.84, name = "神视单人-3", worldId = 0, PkMode = 0 },
-			[405] = { x = 36.70, y = 49.55, z = -184.80, name = "神视万物志-1", worldId = 0, PkMode = 0 },
-			[406] = { x = -192.29, y = 131.12, z = -177.56, name = "神视万物志-2", worldId = 0, PkMode = 0 },
-			[407] = { x = -207.24, y = 132.42, z = -184.38, name = "神视万物志-3", worldId = 0, PkMode = 0 },
+			[402] = { x = 42.54, y = 61.15, z = -132.84, name = "神视单人-1", worldId = 0, PkMode = 1 },
+			[403] = { x = -46.20, y = 49.33, z = -205.70, name = "神视单人-2", worldId = 0, PkMode = 1 },
+			[404] = { x = -224.91, y = 130.94, z = -164.84, name = "神视单人-3", worldId = 0, PkMode = 1 },
+			[405] = { x = 36.70, y = 49.55, z = -184.80, name = "神视万物志-1", worldId = 0, PkMode = 1 },
+			[406] = { x = -192.29, y = 131.12, z = -177.56, name = "神视万物志-2", worldId = 0, PkMode = 1 },
+			[407] = { x = -207.24, y = 132.42, z = -184.38, name = "神视万物志-3", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

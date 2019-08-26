@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 1,
 	Remarks = "",
-	TextDisplayName = "老草",
+	TextDisplayName = "베테랑",
 	Length = 600,
 	Width = 600,
 	NavMeshName = "World01.navmesh",
@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world02.png",
 	AssetPath = "Assets/Outputs/Scenes/oldgrass.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 	},

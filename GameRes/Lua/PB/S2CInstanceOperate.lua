@@ -33,7 +33,7 @@ PBHelper.AddHandler("S2CInstanceRoomInit", OnS2CInstanceRoomInit)
 
 --房间信息
 local function OnS2CInstanceRoomInfo(sender, msg)
-	MsgBox.CloseAll()
+	MsgBox.ClearAllBoxes()
 	local nInstanceID = msg.resRoomInfo.InstanceId
     --信息回调
     local callback = function(value)
@@ -59,7 +59,11 @@ local function OnS2CInstanceEnterPrepare(sender, msg)
 	local EInstanceType = require "PB.Template".Instance.EInstanceType
 
 	if instance.InstanceType == EInstanceType.INSTANCE_NORMAL or instance.InstanceType == EInstanceType.INSTANCE_GUILD_BATTLEFIELD then
-		CPanelTracker.Instance():AddDungeonTime(msg.resEnterPrepare.EndTime, 0)
+        if CPanelTracker.Instance():IsShow() then
+		    CPanelTracker.Instance():AddDungeonTime(msg.resEnterPrepare.EndTime, 0)
+        else
+            CPanelTracker.Instance():CacheDungeonCountdown(msg.resEnterPrepare.EndTime, 0)
+        end
 		--重置副本显示状态
 		CPanelTracker.Instance():ResetDungeonShow()
 	elseif instance.InstanceType == EInstanceType.INSTANCE_JJC1X1 or  instance.InstanceType == EInstanceType.INSTANCE_PVP3X3 or instance.InstanceType == EInstanceType.INSTANCE_ELIMINATE then
@@ -92,7 +96,10 @@ PBHelper.AddHandler("S2CInstanceEnterStart", OnS2CInstanceEnterStart)
 
 --进入副本
 local function OnS2CInstanceEnterDungeon(sender,msg)
-	CAutoFightMan.Instance():Stop()
+	local ChangeShapeEvent = require "Events.ChangeShapeEvent"
+	local event = ChangeShapeEvent()
+	CGame.EventManager:raiseEvent(nil, event)
+
 	game._GUIMan:Close("CPanelUIDungeon")
 	local CPanelCalendar = require "GUI.CPanelCalendar"
 	if CPanelCalendar.Instance():IsShow() then
@@ -113,7 +120,7 @@ local function OnS2CInstanceEnterDungeon(sender,msg)
 
     local CPVEAutoMatch = require "ObjHdl.CPVEAutoMatch"
     local CPVPAutoMatch = require "ObjHdl.CPVPAutoMatch"
-    CPVEAutoMatch.Instance():StopAll()
+    CPVEAutoMatch.Instance():Stop()
     if game._CArenaMan._IsMatching3V3 then 
     	CPVPAutoMatch.Instance():Stop()
     	game._CArenaMan._IsMatching3V3 = false
@@ -139,6 +146,7 @@ local function OnS2CInstanceEnterReward(sender, msg)
 	-- 结算隐藏路径及目标
 	local CPath = require "Path.CPath"
 	CPath.Instance():Hide()
+	CItemTipMan.CloseCurrentTips()
 	local GuildId = CSpecialIdMan.Get("GuildMapID")
 	local instanceEndDelayTime = tonumber(CElementData.GetTemplate("SpecialId", instanceEndDelayId).Value)
 	local callback = function()
@@ -157,7 +165,8 @@ local function OnS2CInstanceEnterReward(sender, msg)
 				data._Type = EnumDef.DungeonEndType.InstanceType
 			end
 			data._InfoData = msg.resEnterReward
-			game._GUIMan:SetNormalUIMoveToHide(true, 0, "CPanelDungeonEnd", data)
+			--game._GUIMan:SetNormalUIMoveToHide(true, 0, "CPanelDungeonEnd", data)
+			game._GUIMan:Open("CPanelDungeonEnd", data)
 		end
 	end
 	_G.AddGlobalTimer(instanceEndDelayTime, true, callback)
@@ -301,10 +310,6 @@ local function OnS2CRevExpeditionData(sender,msg)
 	if CPanelUIExpeditionList.Instance():IsShow() then
 		CPanelUIExpeditionList.Instance():InitPanelShow()
 	end
-	local CPanelUIExpedition = require "GUI.CPanelUIExpedition"
-	if CPanelUIExpedition.Instance():IsShow() then
-		CPanelUIExpedition.Instance():InitPanelShow()
-	end
 end
 PBHelper.AddHandler("S2CExpedition", OnS2CRevExpeditionData)
 
@@ -330,8 +335,12 @@ PBHelper.AddHandler("S2CDungeonProgress", OnS2CDungeonProgress)
 -- 副本事件倒计时
 local function OnS2CDungeonCountDown(sender,msg)
 	local CPanelTracker = require "GUI.CPanelTracker"
-	if CPanelTracker and CPanelTracker.Instance():IsShow() then
-		CPanelTracker.Instance():AddDungeonCountdown(msg.EndTime, msg.name)
+	if CPanelTracker then
+        if CPanelTracker.Instance():IsShow() then
+		    CPanelTracker.Instance():AddDungeonCountdown(msg.EndTime, msg.name)
+        else
+            CPanelTracker.Instance():CacheDungeonCountdown(msg.EndTime, msg.name)
+        end
 	end
 end
 PBHelper.AddHandler("S2CDungeonCountDown", OnS2CDungeonCountDown)
@@ -359,3 +368,13 @@ local function OnS2CChangeEntityCollisionRadius(sender,msg)
 	end
 end
 PBHelper.AddHandler("S2CChangeEntityCollisionRadius", OnS2CChangeEntityCollisionRadius)
+
+local function OnS2CInstanceChangePlotCamera(sender,msg)
+	game:CameraMoveBegin(msg.SceneCameraPosfgId)
+end
+PBHelper.AddHandler("S2CInstanceChangePlotCamera", OnS2CInstanceChangePlotCamera)
+
+local function OnS2CReStartInstanceCheck(sender,msg)
+	CPanelDungeonEnd.Instance():OnS2CReStartInstanceCheck(msg)
+end
+PBHelper.AddHandler("S2CReStartInstanceCheck", OnS2CReStartInstanceCheck)

@@ -6,10 +6,6 @@ local CGame = Lplus.ForwardDeclare("CGame")
 local net = require "PB.net"
 local PBHelper = require "Network.PBHelper"
 
-local function SendFlashMsg(msg)
-	game._GUIMan:ShowTipText(msg, false)
-end
-
 --协议名称
 local function OnS2CItemTalentChange(sender,protocol)
 --warn("=============OnC2SItemTalentChange=============")
@@ -24,6 +20,6 @@ local function OnS2CItemTalentChange(sender,protocol)
     local event = EquipTalentChangeEvent()
     CGame.EventManager:raiseEvent(nil, event)
 
-	SendFlashMsg(StringTable.Get(10939))
+	TeraFuncs.SendFlashMsg(StringTable.Get(10939))
 end
 PBHelper.AddHandler("S2CItemTalentChange", OnS2CItemTalentChange)

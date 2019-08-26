@@ -69,8 +69,8 @@ end
 
 def.override().OnCreate = function(self)
     self._LabAdd = self:GetUIObject("Lab_Add")
-    self._LabReduce1 = self:GetUIObject("Lab_Reduce1")
-    self._LabReduce2 = self:GetUIObject("Lab_Reduce2")
+    -- self._LabReduce1 = self:GetUIObject("Lab_Reduce1")
+    -- self._LabReduce2 = self:GetUIObject("Lab_Reduce2")
     self._ImgItemIcon = self:GetUIObject("Img_ItemIcon")
     self._LabItemNum = self:GetUIObject("Lab_ItemNum")
     self._LabEvil = self:GetUIObject("Lab_EvilValue")
@@ -83,9 +83,10 @@ def.override("dynamic").OnData = function(self,data)
     CGame.EventManager:addHandler(PackageChangeEvent, OnPackageChangeEvent) 
     CGame.EventManager:addHandler(EntityEvilNumChangeEvent, OnEntityEvilNumChangeEvent) 
     self._ItemTemplate = CElementData.GetItemTemplate(self._UseItemTid)
-    GUI.SetText(self._LabAdd,string.format(StringTable.Get(31700),self._IncreaseValue))
-    GUI.SetText(self._LabReduce1,string.format(StringTable.Get(31701),self._ReduceValue1))
-    GUI.SetText(self._LabReduce2,string.format(StringTable.Get(31702),self._ItemTemplate.TextDisplayName,self._ReduceValue2))
+    GUI.SetText(self._LabAdd,string.format(StringTable.Get(31700),self._IncreaseValue).."；"
+        ..string.format(StringTable.Get(31701),self._ReduceValue1).."；"..string.format(StringTable.Get(31702),self._ItemTemplate.TextDisplayName,self._ReduceValue2))
+    -- GUI.SetText(self._LabReduce1,string.format(StringTable.Get(31701),self._ReduceValue1))
+    -- GUI.SetText(self._LabReduce2,string.format(StringTable.Get(31702),self._ItemTemplate.TextDisplayName,self._ReduceValue2))
     GUITools.SetItemIcon(self._ImgItemIcon,self._ItemTemplate.IconAtlasPath)
     GUITools.SetItemIcon(self._ImgBtnItem,self._ItemTemplate.IconAtlasPath)
     self:UpdataEvil()
@@ -113,7 +114,7 @@ def.method().UpdataEvil = function (self)
         local labValue2 = uiTemplate:GetControl(1)
         local labValue3 = uiTemplate:GetControl(2)
         local bar = uiTemplate:GetControl(3):GetComponent(ClassType.Scrollbar)
-        if evilValue < EvilValue[i].value then 
+        if evilValue <= EvilValue[i].value then 
             if i < 3 then 
                 GUI.SetText(labValue1,string.format(StringTable.Get(31708),EvilValue[i].value))
                 GUI.SetText(labValue2,string.format(StringTable.Get(31708),EvilValue[i + 1].value))
@@ -129,10 +130,10 @@ def.method().UpdataEvil = function (self)
                 GUI.SetText(labValue1,string.format(StringTable.Get(31705),EvilValue[i].value))
                 GUI.SetText(labValue2,string.format(StringTable.Get(31705),EvilValue[i + 1].value))
                 value = (evilValue - EvilValue[i].value) / (EvilValue[i + 1].value - EvilValue[i].value)
-                if evilValue > EvilValue[i].value and evilValue < EvilValue[i + 1].value then 
+                if evilValue >= EvilValue[i].value and evilValue <= EvilValue[i + 1].value then 
                     perValue = string.format(StringTable.Get(31704),EvilValue[i].per)
                 elseif evilValue > EvilValue[i].value and evilValue > EvilValue[i + 1].value then 
-                     perValue = string.format(StringTable.Get(31703),EvilValue[i].per)
+                    perValue = string.format(StringTable.Get(31703),EvilValue[i].per)
                 end
             else
                 GUI.SetText(labValue1,string.format(StringTable.Get(31706),EvilValue[i].value))

@@ -87,7 +87,6 @@ do
 		"RuneLevelUp",
 		-- "Scene",
 		"ScriptCalendar",
-		"ScriptConfig",
 		"SensitiveWord",
 		"Service",
 		"Sign",
@@ -116,6 +115,8 @@ do
 		"WorldBossConfig",
 		"GloryLevel",
 		"SpecialSign",
+		"ActivityPage",
+		"HotActivity",
 	}
 
 	local def = LuaMemory.define	
@@ -133,7 +134,7 @@ do
 		local oldTotal = collectgarbage("count")
 		for i, v in ipairs(Template) do
 			local oldMemory = collectgarbage("count")
-			local allTid = GameUtil.GetAllTid(v)
+			local allTid = CElementData.GetAllTid(v)
 			local allTemplate = {}
 			for j, w in ipairs(allTid) do
 				allTemplate[#allTemplate + 1] = CElementData.GetTemplate(v, w)

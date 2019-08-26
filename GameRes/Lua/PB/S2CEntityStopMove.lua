@@ -9,9 +9,16 @@ local function OnEntityStopMove( sender,msg )
 	local entity = game._CurWorld:FindObject(msg.EntityId) 
 
 	if entity ~= nil then
-		local cur_pos = Vector3.New(msg.CurrentPosition.x, msg.CurrentPosition.y, msg.CurrentPosition.z)
-		local cur_ori = Vector3.New(msg.CurrentOrientation.x, msg.CurrentOrientation.y, msg.CurrentOrientation.z)
-		entity:OnStopMove(cur_pos, cur_ori, msg.MoveType)
+		local msgCurPos = msg.CurrentPosition
+		local msgCurOri = msg.CurrentOrientation
+		
+		local cur_pos = Vector3.New(msgCurPos.x, msgCurPos.y, msgCurPos.z)
+		local cur_ori = Vector3.New(msgCurOri.x, msgCurOri.y, msgCurOri.z)
+		if entity:IsCullingVisible() then
+			entity:OnStopMove(cur_pos, cur_ori, msg.MoveType)
+		else
+			entity:OnStopMove_Simple(cur_pos, cur_ori, msg.MoveType)
+		end
 	else
 		--warn("S2CEntityStopMove can not find entity with id " .. msg.EntityId)
 	end
@@ -21,6 +28,9 @@ PBHelper.AddHandler("S2CEntityStopMove",OnEntityStopMove)
 
 local function OnS2CRoleTrans(sender,msg )
 	if msg.DelayTime > 0 then 
+
+		CSoundMan.Instance():Play3DAudio(PATH.GUISound_Event_map_portal, game._HostPlayer:GetPos(),0)
+		
 		StartScreenFade(0, 1, 1, nil)
 	end
 end

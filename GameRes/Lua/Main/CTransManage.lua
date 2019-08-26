@@ -15,6 +15,7 @@ local CTransManage = Lplus.Class("CTransManage")
 local def = CTransManage.define
 
 def.field("function")._OnEnd = nil                      -- 到达回调
+def.field("function")._OnMsgboxCB = nil                 -- 如果在副本或者相位内寻到大世界，弹msgbox之后点击取消需要做的事。
 def.field('boolean')._IsIgnoreConnected = false         -- 是否忽略连通关系(如果是连通地图，而且这个bool为true的时候也要传送过去，而不是跑路)
 def.field("table")._TransStrategy = nil                 -- 当前策略
 def.field("table")._TransStrategyCache = nil            -- 策略缓存
@@ -79,13 +80,17 @@ local function CheckIsInPharse(self, mapID, cb, syncServer)
                 self:SyncHostPlayerDestMapInfo(true, mapID)
             end
         else
-            local CAutoFightMan = require "AutoFight.CAutoFightMan"
-            local CQuestAutoMan = require "Quest.CQuestAutoMan"
-            local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
-            CAutoFightMan.Instance():Start()
-		    CDungeonAutoMan.Instance():Start()
-		    CQuestAutoMan.Instance():Restart(_G.PauseMask.UIShown)
+--            local CAutoFightMan = require "AutoFight.CAutoFightMan"
+--            local CQuestAutoMan = require "Quest.CQuestAutoMan"
+--            local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
+--            CAutoFightMan.Instance():Start()
+--		    CDungeonAutoMan.Instance():Start()
+--		    CQuestAutoMan.Instance():Restart(_G.PauseMask.UIShown)
+            if self._OnMsgboxCB ~= nil then
+                self._OnMsgboxCB(val)
+            end
         end
+        self._OnMsgboxCB = nil
         self._IsInManualMode = true
         self._IsShowingMsgBox = false
     end
@@ -150,8 +155,14 @@ local function ShowCantTransMsgBox()
 
     CAutoFightMan.Instance():Pause(_G.PauseMask.UIShown)
     CQuestAutoMan.Instance():Stop()
-    local title = template.Title
-    MsgBox.ShowSystemMsgBox(ServerMessageMap.TransPosNotUnlock, message, title, MsgBoxType.MBBT_OK, cb)
+    local title = template and template.Title or "Unknown title"
+    local close_type = EnumDef.CloseType.ClickAnyWhere
+    if template and template.IsShowCloseBtn then
+        close_type = EnumDef.CloseType.CloseBtn
+    else
+        close_type = EnumDef.CloseType.ClickAnyWhere
+    end
+    MsgBox.ShowMsgBox(message, title, close_type, MsgBoxType.MBBT_OK, cb)
 end
 
 -- 移动到同图某点
@@ -208,6 +219,10 @@ end
 local function RightNowTransToMap(self, transType, transIdOrMapId, pos, rot, functionName, finalMapID)
     if (transIdOrMapId <= 0) then return end
     if game._HostPlayer:GetTransPortalState() then return end
+    if game._HostPlayer:IsInGlobalZone() then
+        game._GUIMan:ShowTipText(StringTable.Get(15556), false)
+        return
+    end
     local callback = function()
         local strategy = nil
         if self._TransStrategyCache["CRightNowTrans"] ~= nil then
@@ -281,8 +296,14 @@ local function TransToMapPortalByMapID(self, nMapID, pos, callback)
             message = template.TextContent
         end
         
-        local title = template.Title
-        MsgBox.ShowSystemMsgBox(ServerMessageMap.TransPosNotUnlock, message, title, MsgBoxType.MBBT_OK, nil)
+        local title = template and template.Title or "Unknow title"
+        local close_type = EnumDef.CloseType.ClickAnyWhere
+        if template and template.IsShowCloseBtn then
+            close_type = EnumDef.CloseType.CloseBtn
+        else
+            close_type = EnumDef.CloseType.ClickAnyWhere
+        end
+        MsgBox.ShowMsgBox(message, title, close_type, MsgBoxType.MBBT_OK)
     else
         self._TransMapID = nMapID
         game._GUIMan:Close("CPanelMap")
@@ -487,7 +508,7 @@ def.method("number").TransToCity = function (self, nMapID)
 
     if map_info_data.MapType == EWorldType.Pharse then
         if map_link_data[nMapID] ~= nil and map_link_data[nMapID].Region ~= nil then
-            print(map_temp.AssociatedPathfindingMainMapId,nMapID, map_link_data[nMapID], map_link_data[nMapID].x, map_link_data[nMapID].y, map_link_data[nMapID].z)
+            --print(map_temp.AssociatedPathfindingMainMapId,nMapID, map_link_data[nMapID], map_link_data[nMapID].x, map_link_data[nMapID].y, map_link_data[nMapID].z)
             local region = map_link_data[nMapID].Region[1]
             local pos = Vector3.New(region.x, region.y, region.z)
             self:StartMoveByMapIDAndPos(nMapID, pos, nil, false, false)
@@ -567,7 +588,7 @@ end
 -- <bIgnorConnect>当地图联通时，次参数决定传送过去与否</bIgnorConnect>
 --------------------------------------------------------------------------
 def.method("number","table","function","boolean","boolean").StartMoveByMapIDAndPos = function(self, mapID, targetPos, functionName, bSearchEntity, bIgnorConnect)
-    print("要寻路的地方是 mapID, targetPos, bSearchEntity, bIgnorConnect, " , mapID, targetPos, bSearchEntity, bIgnorConnect,debug.traceback())
+    --print("要寻路的地方是 mapID, targetPos, bSearchEntity, bIgnorConnect, " , mapID, targetPos, bSearchEntity, bIgnorConnect,debug.traceback())
     if mapID == nil or mapID <= 0 then
         warn("<color=#ff0000>注意!寻路地图非法是 NIL</color>")
         return 
@@ -622,7 +643,7 @@ end
 -- <bSearchEntity>是否是在寻找npc或怪物,决定是否有offset</bSearchEntity>
 --------------------------------------------------------------------------
 def.method("number","table","function","boolean").TransToInstance = function(self, mapID, targetPos, functionName, bSearchEntity)
-    print("传送到副本")
+    --print("传送到副本")
     self._OnEnd = functionName
     self._TransMapID = mapID
     self._IsSearchNpc = bSearchEntity
@@ -641,7 +662,7 @@ end
 def.method().BrokenTrans = function(self)
     if self._TransStrategy == nil then return end
 
-    print("打断寻路",debug.traceback())
+    --print("打断寻路",debug.traceback())
 
     self._TransStrategy:BrokenTrans()
     self._TransStrategy = nil
@@ -655,7 +676,7 @@ def.method().BrokenTrans = function(self)
     hp:StopNaviCal()
     
     if self._IsSyncAutoPath then
-        print("BrokenTrans", debug.traceback())
+        --print("BrokenTrans", debug.traceback())
         self:SyncHostPlayerDestMapInfo(false, 0)
         self._IsSyncAutoPath = false
     end
@@ -671,7 +692,7 @@ def.method().ContinueTrans = function(self)
     local host = game._HostPlayer
     if host == nil then return end
     host:SetTransPortalState(false)
-    game._GUIMan:SetNormalUIMoveToHide(false, 0, "", nil)
+    --game._GUIMan:SetNormalUIMoveToHide(false, 0, "", nil)
     GameUtil.SetCamToDefault(true, false, false, true) -- 重置相机水平方向
 
     if self._TransStrategy ~= nil then
@@ -691,6 +712,14 @@ end
 
 def.method("=>", "boolean").IsIgnoreConnected = function(self)
     return self._IsIgnoreConnected
+end
+
+def.method("function").SetLeaveMsgboxCB = function(self, cb)
+    if self._OnMsgboxCB ~= nil then
+        self._OnMsgboxCB(false)
+        self._OnMsgboxCB = nil
+    end
+    self._OnMsgboxCB = cb
 end
 
 -- 设置是否是手动开启的任务自动化，仅对一次寻路请求有效
@@ -797,7 +826,7 @@ def.method("number", "=>", "boolean").HaveReachToMap = function(self, mapID)
     end
 end
 
-def.method().Release = function(self)
+def.method().Cleanup = function(self)
     self._OnEnd = nil
     self._IsIgnoreConnected = false
     self._IsSyncAutoPath = false

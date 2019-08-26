@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/city01.png",
 	AssetPath = "Assets/Outputs/Scenes/City01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10071] = 
@@ -111,10 +112,10 @@ local MapInfo =
 		[2] = 
 		{
 			[86] = { x = 119.37, y = 21.86, z = 91.35, name = "码头附近", worldId = 0, PkMode = 1 },
-			[255] = { x = 130.77, y = 21.84, z = 94.95, name = "抵达区域", worldId = 0, PkMode = 0 },
-			[271] = { x = 98.05, y = 21.90, z = 136.19, name = "码头区", worldId = 0, PkMode = 0 },
-			[272] = { x = 121.18, y = 21.41, z = 178.80, name = "商会到达点", worldId = 0, PkMode = 0 },
-			[273] = { x = 144.46, y = 18.98, z = 219.44, name = "离开区域", worldId = 0, PkMode = 0 },
+			[255] = { x = 130.77, y = 21.84, z = 94.95, name = "抵达区域", worldId = 0, PkMode = 1 },
+			[271] = { x = 98.05, y = 21.90, z = 136.19, name = "码头区", worldId = 0, PkMode = 1 },
+			[272] = { x = 121.18, y = 21.41, z = 178.80, name = "商会到达点", worldId = 0, PkMode = 1 },
+			[273] = { x = 144.46, y = 18.98, z = 219.44, name = "离开区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12124] = 
@@ -109,11 +110,11 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[460] = { x = 161.46, y = 15.09, z = -91.12, name = "第一个区域", worldId = 0, PkMode = 0 },
-			[461] = { x = 208.06, y = 34.39, z = -104.42, name = "第二个区域", worldId = 0, PkMode = 0 },
-			[462] = { x = 288.49, y = 44.63, z = -122.88, name = "村落区域1", worldId = 0, PkMode = 0 },
-			[463] = { x = 301.58, y = 48.81, z = -98.24, name = "村落区域2", worldId = 0, PkMode = 0 },
-			[464] = { x = 204.59, y = 64.70, z = -96.57, name = "席崁兰尼的回忆", worldId = 0, PkMode = 0 },
+			[460] = { x = 161.46, y = 15.09, z = -91.12, name = "第一个区域", worldId = 0, PkMode = 1 },
+			[461] = { x = 208.06, y = 34.39, z = -104.42, name = "第二个区域", worldId = 0, PkMode = 1 },
+			[462] = { x = 288.49, y = 44.63, z = -122.88, name = "村落区域1", worldId = 0, PkMode = 1 },
+			[463] = { x = 301.58, y = 48.81, z = -98.24, name = "村落区域2", worldId = 0, PkMode = 1 },
+			[464] = { x = 204.59, y = 64.70, z = -96.57, name = "席崁兰尼的回忆", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

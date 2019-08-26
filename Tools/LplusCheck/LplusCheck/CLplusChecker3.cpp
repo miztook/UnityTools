@@ -71,7 +71,6 @@ std::tuple<std::string, std::vector<int>> g_SpecialMethodParams[] =
 
 	{ "GUI.SetText",{ 2 } },
 	{ "GUI.SetGroupToggleOn",{ 2 } },
-	{ "GUI.SetArtFontText",{ 2 } },
 	{ "GUI.SetTextAndChangeLayout",{ 3 } },
 	{ "GUI.SetImageAndChangeLayout",{ 3 } },
 	{ "GUI.SetTextColor",{ 2 } },
@@ -98,12 +97,11 @@ std::tuple<std::string, std::vector<int>> g_SpecialMethodParams[] =
 	{ "GameUtil.SetGameCamDefaultDestDistOffset",{ 1 } },
 	{ "GameUtil.SetGameCamDestDistOffset",{ 2 } },
 	{ "GameUtil.SetDestDistOffsetAndDestPitchDeg",{ 4 } },
-	{ "GameUtil.SetSkillActCamMode",{ 6 } },
+	{ "GameUtil.SetSkillActCamMode",{ 5 } },
 	{ "GameUtil.SetGameCamCtrlParams",{ 2 } },
 	{ "GameUtil.GetGameCamCurDistOffset",{ 0 } },
 	{ "GameUtil.SetGameCamCtrlParams",{ 2 } },
-	{ "GameUtil.AddOrSubForTest",{ 2 } },
-	{ "GameUtil.SetExteriorDebugParams",{ 4 } },
+	{ "GameUtil.SetExteriorCamParams",{ 5 } },
 	{ "GameUtil.SetExteriorCamHeightOffset",{ 1 } },
 	{ "GameUtil.SetGameCamCtrlMode",{ 5 } },
 	{ "GameUtil.SetTransToPortal",{ 1 } },
@@ -119,8 +117,7 @@ std::tuple<std::string, std::vector<int>> g_SpecialMethodParams[] =
 	{ "GameUtil.SetNearCamProfCfg",{ 1 } },
 	{ "GameUtil.SetNearCamRollSensitivity",{ 1 } },
 	{ "GameUtil.EnableNearCamLookIK",{ 1 } },
-	{ "GameUtil.GetGameCamDirXZ",{ 0 } },
-	{ "GameUtil.StartBossCamMove",{ 1 } },
+	{ "GameUtil.StartBossCamMove",{ 1, 2 } },
 
 	//GameUtil.Common
 	{ "GameUtil.FindChild",{ 2 } },
@@ -163,7 +160,7 @@ std::tuple<std::string, std::vector<int>> g_SpecialMethodParams[] =
 
 	//GameUtil.Effect
 	{ "GameUtil.AddCameraOrScreenEffect",{ 5, 7, 9 } },
-	{ "GameUtil.StopSkillScreenEffect",{ 1, 2, 3 } },
+	{ "GameUtil.StopSkillScreenEffect",{ 1, 2 } },
 	{ "GameUtil.EnableSpecialVisionEffect",{ 1 } },
 	{ "GameUtil.StartScreenFade",{ 3 } },
 	{ "GameUtil.ClearScreenFadeEffect",{ 0 } },
@@ -274,7 +271,7 @@ std::tuple<std::string, std::vector<int>> g_SpecialMethodParams[] =
 	{ "GameUtil.SetLayoutElementPreferredSize",{ 3 } },
 	
 	//GameUtil.Res
-	{ "GameUtil.AsyncLoad",{ 2 } },
+	{ "GameUtil.AsyncLoad",{ 4 } },
 	{ "GameUtil.RequestFx",{ 2, 3 } },
 	{ "GameUtil.PreloadFxAsset",{ 1 } },
 	{ "GameUtil.SetFxScale",{ 2 } },
@@ -386,55 +383,64 @@ std::tuple<std::string, std::vector<int>> g_SpecialMethodParams[] =
 
 std::tuple<std::string, std::string> g_szClassInvalidToken[] =
 {
-	{ "game.",	"CGame" },
-	{ "game._AccountInfo",	"CAccountInfo" },
-	{ "game._CurWorld",	"CWorld" },
-	{ "game._GUIMan",		"CUIMan" },
-	{ "game._NetMan",	"CNetwork" },
-	{ "game._GuildMan",	"CGuildMan" },
-	{ "game._DungeonMan",	"CDungeonMan" },
-	{ "game._AcheivementMan",	"AchievementMan" },
-	{ "game._DesignationMan",	"DesignationMan" },
-	{ "game._CWorldBossMan",	"CWorldBossMan" },
-	{ "game._CFunctionMan",	"CFunctionMan" },
-	{ "game._CGuideMan",	"CGuideMan" },
-	{ "game._CManualMan",	"CManualMan" },
-	{ "game._CReputationMan",	"CReputationMan" },
-	{ "game._CAuctionUtil",	"CAuctionUtil" },
-	{ "game._AdventureGuideMan",	"AdventureGuideMan" },
-	{ "game._CamLockTarget",	"CEntity" },
-	{ "game._RegionLimit",	"CRegionLimit" },
-	{ "game._HostPlayer",		"CHostPlayer" },
-};
-
-std::tuple<std::string, std::string> g_GlobalClass[] =
-{
 	{ "game.EventManager", "CEventManager" },
 	{ "game._AccountInfo", "CAccountInfo" },
+	{ "game._HostPlayer", "CHostPlayer" },
 	{ "game._CurWorld", "CWorld" },
-	{ "game._GUIMan", "CUIMan" },
+	{ "game._RegionLimit", "CRegionLimit" },
 	{ "game._NetMan", "CNetwork" },
+	{ "game._GUIMan", "CUIMan" },
+	{ "game._MiscSetting", "CMiscSetting" },
+	{ "game._RoleSceneMan", "CRoleSceneMan" },
+	{ "game._CPowerSavingMan", "CPowerSavingMan" },
 	{ "game._GuildMan", "CGuildMan" },
 	{ "game._DungeonMan", "CDungeonMan" },
-	{ "game._AcheivementMan", "AchievementMan" },
-	{ "game._DesignationMan", "DesignationMan" },
-	{ "game._CWorldBossMan", "CWorldBossMan" },
-	{ "game._CFunctionMan", "CFunctionMan" },
-	{ "game._CGuideMan", "CGuideMan" },
 	{ "game._CGameTipsQ", "CGameTipsQueue" },
 	{ "game._CManualMan", "CManualMan" },
 	{ "game._CFriendMan", "CFriendMan" },
 	{ "game._CArenaMan", "CArenaMan" },
 	{ "game._CDecomposeAndSortMan", "CDecomposeAndSortMan" },
 	{ "game._CReputationMan", "CReputationMan" },
+	{ "game._CNetAutomicMan", "CNetAutomicMan" },
 	{ "game._CAuctionUtil", "CAuctionUtil" },
 	{ "game._AdventureGuideMan", "AdventureGuideMan" },
 	{ "game._PlayerStrongMan", "CPlayerStrongMan" },
 	{ "game._CCalendarMan", "CCalendarMan" },
 	{ "game._CWelfareMan", "CWelfareMan" },
-	{ "game._CamLockTarget", "CEntity" },
-	{ "game._RegionLimit", "CRegionLimit" },
+	{ "game._CCountGroupMan", "CCountGroupMan" },
+};
 
+std::tuple<std::string, std::string> g_GlobalClass[] =
+{
+	{ "game.EventManager", "CEventManager" },
+	{ "game._AccountInfo", "CAccountInfo" },
+	{ "game._HostPlayer", "CHostPlayer" },
+	{ "game._CurWorld", "CWorld" },
+	{ "game._RegionLimit", "CRegionLimit" },
+	{ "game._NetMan", "CNetwork" },
+	{ "game._GUIMan", "CUIMan" },
+	{ "game._MiscSetting", "CMiscSetting" },
+	{ "game._RoleSceneMan", "CRoleSceneMan" },
+	{ "game._CPowerSavingMan", "CPowerSavingMan" },
+	{ "game._GuildMan", "CGuildMan" },
+	{ "game._DungeonMan", "CDungeonMan" },
+	{ "game._CGameTipsQ", "CGameTipsQueue" },
+	{ "game._CManualMan", "CManualMan" },
+	{ "game._CFriendMan", "CFriendMan" },
+	{ "game._CArenaMan", "CArenaMan" },
+	{ "game._CDecomposeAndSortMan", "CDecomposeAndSortMan" },
+	{ "game._CReputationMan", "CReputationMan" },
+	{ "game._CNetAutomicMan", "CNetAutomicMan" },
+	{ "game._CAuctionUtil", "CAuctionUtil" },
+	{ "game._AdventureGuideMan", "AdventureGuideMan" },
+	{ "game._PlayerStrongMan", "CPlayerStrongMan" },
+	{ "game._CCalendarMan", "CCalendarMan" },
+	{ "game._CWelfareMan", "CWelfareMan" },
+	{ "game._CCountGroupMan", "CCountGroupMan" },
+
+	{ "game._HostPlayer._OpHdl", "CHostOpHdl" },
+	{ "game._HostPlayer._Package", "CPackage" },
+	{ "game._HostPlayer._PetPackage", "CPetPackage" },
 	{ "game._CurWorld._PlayerMan", "CPlayerMan" },
 	{ "game._CurWorld._NPCMan", "CNPCMan" },
 	{ "game._CurWorld._SubobjectMan", "CSubobjectMan" },
@@ -443,11 +449,9 @@ std::tuple<std::string, std::string> g_GlobalClass[] =
 	{ "game._CurWorld._MineObjectMan", "CMineMan" },
 	{ "game._CurWorld._PetMan", "CPetMan" },
 	{ "game._GUIMan._UIManCore", "CUIManCore" },
+	{ "game._RoleSceneMan._CreateRoleScene", "CCreateRoleSceneUnit" },
+	{ "game._RoleSceneMan._SelectRoleScene", "CSelectRoleSceneUnit" },
 	{ "game._CGuideMan._CurGuideTrigger", "Guide" },
-
-	{ "CFxMan.Instance()", "CFxMan" },
-	{ "CQuest.Instance()", "CQuest" },
-	//{ "CTeamMan.Instance()", "CTeamMan" },
 };
 
 
@@ -467,11 +471,6 @@ std::tuple<std::string, int> g_SpecialMethodReturns[] =
 
 void CLplusChecker::InitData()
 {
-	for (const auto& e : g_szClassInvalidToken)
-	{
-		m_ClassInvalidTokenMap[std::get<1>(e)] = std::get<0>(e);
-	}
-
 	for (const auto& e : g_BuiltInTypes)
 	{
 		m_BuiltInTypeList.push_back(e);

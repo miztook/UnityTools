@@ -35,7 +35,7 @@ def.override().OnCreate = function(self)
 	-- 设置多语言文本显示
 	-- 活动
 	local title = self._TitleRoot:FindChild("title")
-	GUI.SetText(title, StringTable.Get(547))
+	GUI.SetText(title, StringTable.Get(549))
 
 	-- 红点更新
 	self:UpdateBtnInfo()

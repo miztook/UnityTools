@@ -12,11 +12,44 @@ local function OnChallenge(sender,msg)
     local param1 = CPlatformSDKMan.Instance():GetC2SResponseParam1()
 
     local EDeviceType = require "PB.data".EDeviceType
-    local deviceType = EDeviceType.EDeviceType_WIN
+    local deviceType = EDeviceType.EDeviceType_default
+    
+    --补充检查
+    --[[
+    if IsNilOrEmptyString(emulatorStr) then
+    	if GameUtil.ExistDirOnSDCard("/Android/data/com.bluestacks.home") or GameUtil.ExistDirOnSDCard("/Android/data/com.bluestacks.settings") then
+    		emulatorStr = "BlueStacks";
+    	end
+    end
+    ]]
+
     if _G.IsAndroid() then
-    	deviceType = EDeviceType.EDeviceType_AOS
+	    deviceType = EDeviceType.EDeviceType_AOS
+	    local emulatorStr = GameUtil.GetEmulatorName()
+    	--print("获得模拟器名称 ： ", emulatorStr)
+	    if emulatorStr == "GoogleSdk" then
+            deviceType = EDeviceType.EDeviceType_GoogleSdk
+        elseif emulatorStr == "GenyMotion" then
+            deviceType = EDeviceType.EDeviceType_GenyMotion
+        elseif emulatorStr == "GoldFish" then
+            deviceType = EDeviceType.EDeviceType_GoldFish
+        elseif emulatorStr == "Vbox" then
+            deviceType = EDeviceType.EDeviceType_Vbox
+        elseif emulatorStr == "Nox" then
+            deviceType = EDeviceType.EDeviceType_Nox
+        elseif emulatorStr == "Andy" then
+            deviceType = EDeviceType.EDeviceType_Andy
+        elseif emulatorStr == "QEMU" then
+            deviceType = EDeviceType.EDeviceType_QEMU
+        elseif emulatorStr == "BlueStacks" then
+            deviceType = EDeviceType.EDeviceType_BlueStacks
+        elseif emulatorStr == "AndroidEmulator" then
+            deviceType = EDeviceType.EDeviceType_AndroidEmulator
+        end
     elseif _G.IsIOS() then
-    	deviceType = EDeviceType.EDeviceType_IOS
+	    deviceType = EDeviceType.EDeviceType_IOS
+	elseif _G.IsWin() then
+		deviceType = EDeviceType.EDeviceType_WIN
     end
 
 	local accounttoken = ""
@@ -62,10 +95,9 @@ local function OnS2CReconnectResult(sender, msg)
 	game:OnReconnectResult()
 	if msg.result then
 		game._GUIMan:CloseCircle()
-		MsgBox.CloseAll()	
+		MsgBox.ClearAllBoxes()	
 	else
 		game:LogoutAccount()
-		game:ReturnLoginStage()
 	end
 end
 PBHelper.AddHandler("S2CReconnectResult", OnS2CReconnectResult)

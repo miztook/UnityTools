@@ -18,9 +18,6 @@ def.field(CUIModel)._UIModel = nil                          -- 当前的宠物mo
 def.field("boolean")._IsShowBoardNow = false                -- 当前显示的是 属性面板 | 宠物Model
 def.field("number")._CurrentQuality = 0
 
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
 local listQuality = 
 {
     2, -- 稀有
@@ -220,6 +217,8 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
 
         -- 选中逻辑
         self:UpdateShowBoard()
+
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Choose_Press, 0)
     end
 end
 
@@ -354,10 +353,10 @@ def.method("number").ShowSkillTips = function(self, index)
 
             CItemTipMan.ShowPetSkillTips(panelData)
         else
-            SendFlashMsg(StringTable.Get(19052))
+            TeraFuncs.SendFlashMsg(StringTable.Get(19052))
         end
     else
-        SendFlashMsg( string.format(StringTable.Get(19051),CElementData.GetSpecialIdTemplate(624).Value * (index - 1)) )
+        TeraFuncs.SendFlashMsg( string.format(StringTable.Get(19051),CElementData.GetSpecialIdTemplate(624).Value * (index - 1)) )
     end
 end
 

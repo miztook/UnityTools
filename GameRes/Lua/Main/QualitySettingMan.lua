@@ -37,6 +37,11 @@ def.method("=>", "number").GetRecommendLevel = function(self)
 	local deviceModel = SystemInfo.deviceModel
 	if recommendLevel == 0 then
 		if _G.IsAndroid() then  -- android
+			local emulatorStr = GameUtil.GetEmulatorName()
+			if emulatorStr ~= nil and emulatorStr ~= "" then
+				return 2
+			end
+
             local deviceModel = SystemInfo.deviceModel
            	local dataList = self:GetDeviceLevel()
            	for k,j in pairs(dataList.android) do
@@ -52,26 +57,17 @@ def.method("=>", "number").GetRecommendLevel = function(self)
 
             local processorCount = SystemInfo.processorCount
             local processorFrequency = SystemInfo.processorFrequency
-            if processorFrequency >= 2000 then
-            	if processorCount >= 8 then   
-            		recommendLevel = 5 
-            	elseif processorCount >= 4 then 
-            		recommendLevel = 4
-            	else
-            		recommendLevel = 3
-            	end
-            elseif processorFrequency >= 1500 and processorFrequency < 2000 then
-                if processorCount >= 8 then   
-            		recommendLevel = 4 
-            	elseif processorCount >= 4 then 
-            		recommendLevel = 3
+            local systemMemory = SystemInfo.systemMemorySize
+            if processorFrequency >= 1500 and systemMemory > 2048 then
+            	if processorCount >= 8 and systemMemory >= 4096 then   
+            		recommendLevel = 3 
             	else
             		recommendLevel = 2
             	end
             else 
-            	recommendLevel = 2
+            	recommendLevel = 1
             end
-            warn("processorCount,processorFrequency,recommendLevel ",processorCount,processorFrequency,recommendLevel)
+            warn("processorCount, processorFrequency, systemMemory, recommendLevel ", processorCount, processorFrequency, systemMemory, recommendLevel)
             return recommendLevel
 		elseif _G.IsIOS() then  -- iOS
             local deviceModel = SystemInfo.deviceModel
@@ -162,6 +158,74 @@ local QualitySettings =
 		},
 }
 
+local LowQualitySettings =
+{
+	[1] = { 
+			PostProcessLevel = 3,			--关闭
+			ShadowLevel = 0,
+			CharacterLevel = 0,
+			SceneDetailLevel = 0,
+			FxLevel = 0,
+
+			DofOn = false,
+			PostProcessFogOn = false,
+			WaterReflectionOn = false,
+			FPSLimit = 30,
+		  },
+
+	[2] = { 
+			PostProcessLevel = 3,
+			ShadowLevel = 0,
+			CharacterLevel = 0,
+			SceneDetailLevel = 0,
+			FxLevel = 0,
+
+			DofOn = false,
+			PostProcessFogOn = false,
+			WaterReflectionOn = false,
+			FPSLimit = 30,
+		  },
+
+	[3] = { 
+			PostProcessLevel = 0,
+			ShadowLevel = 1,
+			CharacterLevel = 1,
+			SceneDetailLevel = 1,
+			FxLevel = 1,
+
+			DofOn = false,
+			PostProcessFogOn = false,
+			WaterReflectionOn = false,
+			FPSLimit = 30,
+		  },
+
+	[4] = { 
+			PostProcessLevel = 1,
+			ShadowLevel = 2,
+			CharacterLevel = 2,
+			SceneDetailLevel = 2,
+			FxLevel = 2,
+
+			DofOn = false,
+			PostProcessFogOn = false,
+			WaterReflectionOn = false,
+			FPSLimit = 30,
+		},
+
+	[5] = { 
+			PostProcessLevel = 2,
+			ShadowLevel = 2,
+			CharacterLevel = 2,
+			SceneDetailLevel = 2,
+			FxLevel = 2,
+
+			DofOn = true,
+			PostProcessFogOn = true,
+			WaterReflectionOn = true,
+			FPSLimit = 30,
+		},
+}
+
 def.method().DecideQualityLevel = function(self)
 
 	--根据机型设置 在后处理等级2的时候，使用简化版BloomHD，目标是保证等级2的帧率
@@ -180,9 +244,21 @@ def.method().DecideQualityLevel = function(self)
 		self:UpdateCanSetHighRate(true)
 	end
 
-	if self:HasFieldInUserData() then
-		self:SetQualityConfigFromUserData()
-		return
+	if not _G.IsAndroid() then
+		if self:HasFieldInUserData() then
+			self:SetQualityConfigFromUserData()
+			return
+		end
+	else
+		if self:HasFieldInUserData() then
+			self:SetQualityConfigFromUserData()
+			local wholeLevel = self:GetWholeQualityLevel_Internal(QualitySettings)		--如果安卓使用高等级的非自定义设置，调整到低等级设置
+			if wholeLevel ~= 0 then
+				self:SetWholeQualityLevel(wholeLevel)
+				self:ApplyChanges()
+				return
+			end
+		end
 	end
 
 	--没有userdata，使用推荐位
@@ -192,6 +268,9 @@ def.method().DecideQualityLevel = function(self)
 
 	if recommendLv >= 1 and recommendLv <= 5 then
 		local setting = QualitySettings[recommendLv]
+		if _G.IsAndroid() then
+			setting = LowQualitySettings[recommendLv]
+		end
 
 		self:SetFPSLimit(setting.FPSLimit)
 	end
@@ -248,6 +327,9 @@ def.method("number").SetWholeQualityLevel = function (self, level)
 	if level < 1 or level > 5 then return end
 
 	local setting = QualitySettings[level]
+	if _G.IsAndroid() then
+		setting = LowQualitySettings[level]
+	end
 
 	self:SetPostProcessLevel(setting.PostProcessLevel)
 	self:SetShadowLevel(setting.ShadowLevel)
@@ -274,14 +356,34 @@ def.method("=>", "number").GetWholeQualityLevel = function (self)
 	return self:CalcWholeQualityLevel(postprocessLevel, shadowLevel, characterLevel, scenedetailLevel, fxLevel, dof, fog, reflect)
 end
 
+def.method("table", "=>", "number").GetWholeQualityLevel_Internal = function (self, qualitySettings)
+	local postprocessLevel = self:GetPostProcessLevel()
+	local shadowLevel = self:GetShadowLevel()
+	local characterLevel = self:GetCharacterLevel()
+	local scenedetailLevel = self:GetSceneDetailLevel()
+	local fxLevel = self:GetFxLevel()
+	local dof = self:IsUseDOF()
+	local fog = self:IsUsePostProcessFog()
+	local reflect = self:IsUseWaterReflection()
+
+	return self:CalcWholeQualityLevel_Internal(qualitySettings, postprocessLevel, shadowLevel, characterLevel, scenedetailLevel, fxLevel, dof, fog, reflect)
+end
+
 def.method("number", "number", "number", "number", "number", "boolean", "boolean", "boolean", "=>", "number").CalcWholeQualityLevel = function (self, postprocessLevel, shadowLevel, characterLevel, scenedetailLevel, fxLevel, useDof, usePostprocessFog, useWaterReflection)
+	local qualitySettings = QualitySettings
+	if _G.IsAndroid() then qualitySettings = LowQualitySettings end
+
+	return self:CalcWholeQualityLevel_Internal(qualitySettings, postprocessLevel, shadowLevel, characterLevel, scenedetailLevel, fxLevel, useDof, usePostprocessFog, useWaterReflection)
+end
+
+def.method("table", "number", "number", "number", "number", "number", "boolean", "boolean", "boolean", "=>", "number").CalcWholeQualityLevel_Internal = function (self, qualitySettings, postprocessLevel, shadowLevel, characterLevel, scenedetailLevel, fxLevel, useDof, usePostprocessFog, useWaterReflection)
 	local wholeLevel = 0
 
-	local setting1 = QualitySettings[1]
-	local setting2 = QualitySettings[2]
-	local setting3 = QualitySettings[3]
-	local setting4 = QualitySettings[4]
-	local setting5 = QualitySettings[5]
+	local setting1 = qualitySettings[1]
+	local setting2 = qualitySettings[2]
+	local setting3 = qualitySettings[3]
+	local setting4 = qualitySettings[4]
+	local setting5 = qualitySettings[5]
 
 	if setting1.PostProcessLevel == postprocessLevel and
 			setting1.ShadowLevel == shadowLevel and
@@ -353,6 +455,7 @@ def.method("number").SetShadowLevel = function (self, level)
 		game._HostPlayer:EnableShadow(bEnableShadow)
 	end
 
+	--[[
 	if game._CurWorld ~= nil then
 		local playerObjMap = game._CurWorld._PlayerMan._ObjMap
 		for _,v in pairs(playerObjMap) do
@@ -361,6 +464,7 @@ def.method("number").SetShadowLevel = function (self, level)
 			end
 		end
 	end
+	]]
 end
 
 def.method("=>", "number").GetShadowLevel = function (self)
@@ -390,11 +494,11 @@ def.method("number").SetFxLevel = function (self, level)
 	GameUtil.SetFxLevel(level)
 
 	if level == 0 then 
-		GameUtil.SetActiveFxMaxCount(20)
+		GameUtil.SetActiveFxMaxCount(10)
 	elseif level == 1 then
-		GameUtil.SetActiveFxMaxCount(25)
+		GameUtil.SetActiveFxMaxCount(15)
 	else
-		GameUtil.SetActiveFxMaxCount(30)
+		GameUtil.SetActiveFxMaxCount(20)
 	end
 end
 

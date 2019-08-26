@@ -1,17 +1,35 @@
 local Lplus = require "Lplus"
 local CGame = Lplus.ForwardDeclare("CGame")
 local UserData = require "Data.UserData".Instance()
-local CMiscSetting = Lplus.Class("CMiscSetting")
 local CPateBase = require "GUI.CPate".CPateBase
+local PBHelper = require "Network.PBHelper"
+
+local CMiscSetting = Lplus.Class("CMiscSetting")
 local def = CMiscSetting.define
+
+def.field("boolean")._IsShowHeadInfo = true
+def.field("boolean")._IsShowLanguageChange = false
 
 def.static("=>", CMiscSetting).new = function()
 	local obj = CMiscSetting()
-	obj:LoadUserData()
+	obj:SaveToUserData()
 	return obj
 end
 
-def.field("boolean")._IsShowHeadInfo = true
+def.method().LoadUserData = function(self)
+	local players_in_screen = UserData:GetField(EnumDef.LocalFields.ManPlayersInScreen)
+    if players_in_screen == nil or type(players_in_screen) ~= "number" then
+        _G.MAX_VISIBLE_PLAYER = 25
+    else
+        _G.MAX_VISIBLE_PLAYER = players_in_screen
+    end
+	local ev = UserData:GetField(EnumDef.LocalFields.ShowHeadInfo)
+	if ev == nil or type(ev) ~= "boolean" then
+		self._IsShowHeadInfo = true
+	else
+		self._IsShowHeadInfo = ev
+	end
+end
 
 def.method("=>","boolean").IsShowHeadInfo = function(self)
 	return self._IsShowHeadInfo
@@ -20,6 +38,14 @@ end
 def.method("boolean").SetShowHeadInfo = function(self, is_show)
 	self._IsShowHeadInfo = is_show
 	self:UpdateHeadInfo()
+end
+
+def.method("=>", "boolean").IsShowLanguageChange = function(self)
+    return self._IsShowLanguageChange
+end
+
+def.method("boolean").SetShowLanguageChange = function(self, isShow)
+    self._IsShowLanguageChange = isShow
 end
 
 def.method().UpdateHeadInfo = function(self)
@@ -40,38 +66,12 @@ def.method().SaveToUserData = function(self)
 	--warn("****************SaveToUserData "..tostring(self._IsShowHeadInfo))
 end
 
-def.method().LoadUserData = function(self)
-
-
---	local ev = UserData:GetField(EnumDef.LocalFields.PowerSaving)
---	if ev == nil or type(ev) ~= "boolean" then
---		self._IsEnabled = true
---	else
---		self._IsEnabled = ev
---	end
-
---	ev = UserData:GetField(EnumDef.LocalFields.PowerSavingTime)
---	if ev == nil or type(ev) ~= "number" then
---		self._IsEnabled = false
---	else
---		self:SetSleepingTime(ev)
---	end
-
---	-- warn("***LoadUserData: "..tostring(ev == nil or type(isClickGroundMove) ~= "boolean"))
-    local players_in_screen = UserData:GetField(EnumDef.LocalFields.ManPlayersInScreen)
-    if players_in_screen == nil or type(players_in_screen) ~= "number" then
-        _G.MAX_VISIBLE_PLAYER = 20
-    else
-        _G.MAX_VISIBLE_PLAYER = players_in_screen
-    end
-	local ev = UserData:GetField(EnumDef.LocalFields.ShowHeadInfo)
-	if ev == nil or type(ev) ~= "boolean" then
-		self._IsShowHeadInfo = true
-	else
-		self._IsShowHeadInfo = ev
-	end
-
-	--warn("****************LoadUserData "..tostring(self._IsShowHeadInfo))
+def.method("number", "boolean").SyncToServerCareNumAndShowTopPate = function(self, num, isShow)
+    local C2SSetCareNum = require "PB.net".C2SSetCareNum
+    local protocol = C2SSetCareNum()
+    protocol.CareNum = num
+    protocol.IsShowHeadWord = isShow
+    PBHelper.Send(protocol)
 end
 
 CMiscSetting.Commit()

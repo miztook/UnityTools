@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Canyon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world02.png",
 	AssetPath = "Assets/Outputs/Scenes/World02.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[11017] = 
@@ -32,10 +33,10 @@ local MapInfo =
 		},
 		[1039] = 
 		{
-			[1] = { x = -30.88, y = 63.21, z = -230.32, name = "망치 후카 병사", SortID = 196 },
-			[2] = { x = -36.79, y = 64.21, z = -232.66, name = "망치 후카 병사", SortID = 197 },
-			[3] = { x = -31.71, y = 64.52, z = -189.21, name = "망치 후카 병사", SortID = 4 },
-			[4] = { x = -34.53, y = 64.52, z = -162.57, name = "망치 후카 병사", SortID = 10 },
+			[1] = { x = -30.88, y = 63.21, z = -230.32, name = "망치 수비병", SortID = 196 },
+			[2] = { x = -36.79, y = 64.21, z = -232.66, name = "망치 수비병", SortID = 197 },
+			[3] = { x = -31.71, y = 64.52, z = -189.21, name = "망치 수비병", SortID = 4 },
+			[4] = { x = -34.53, y = 64.52, z = -162.57, name = "망치 수비병", SortID = 10 },
 		},
 		[1034] = 
 		{
@@ -68,7 +69,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[149] = { x = -31.91, y = 72.60, z = -204.59, name = "库摩斯相位【个人】", worldId = 0, PkMode = 0 },
+			[149] = { x = -31.91, y = 72.60, z = -204.59, name = "库摩斯相位【个人】", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

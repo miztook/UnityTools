@@ -265,7 +265,7 @@ def.override("dynamic").OnData = function(self, data)
 	self:EnableAssist(true)
 
 	-- 播放背景特效
-	GameUtil.PlayUISfx(PATH.UIFX_DungeonBG, self._Img_Bg, self._Img_Bg, -1)
+	-- GameUtil.PlayUISfx(PATH.UIFX_DungeonBG, self._Img_Bg, self._Img_Bg, -1)
 
 	CGame.EventManager:addHandler("DungeonUnlockEvent", OnDungeonUnlockEvent)
 	CGame.EventManager:addHandler("CountGroupUpdateEvent", OnCountGroupUpdateEvent)
@@ -393,9 +393,9 @@ def.method().QuickJoinLogic = function(self)
 	-- 									   dungeonTemp.Id)
 
 	if dungeonTemp.IsQuickMatch then
-		local roomId = CTeamMan.Instance():ExchangeToRoomId(dungeon_id)
+		local roomId = TeamUtil.ExchangeToRoomId(dungeon_id)
 		if roomId > 0 then
-			local curMatchDungeonId = CTeamMan.Instance():ExchangeToDungeonId(game._DungeonMan:GetQuickMatchTargetId())
+			local curMatchDungeonId = TeamUtil.ExchangeToDungeonId(game._DungeonMan:GetQuickMatchTargetId())
 			-- 快捷匹配
 			if curMatchDungeonId == dungeon_id then
 				-- 停止

@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD01.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn01_Rins01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[20001] = 
@@ -86,15 +87,15 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[43] = { x = -7.25, y = 33.52, z = -29.86, name = "窄路", worldId = 0, PkMode = 0 },
-			[44] = { x = 41.26, y = 35.46, z = 16.38, name = "BOSS", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 0 },
-			[57] = { x = -35.98, y = 31.86, z = -19.04, name = "目标区域", worldId = 0, PkMode = 0 },
-			[89] = { x = -12.34, y = 31.80, z = 58.13, name = "NPC消失区域", worldId = 0, PkMode = 0 },
-			[90] = { x = 30.53, y = 32.99, z = -30.32, name = "", worldId = 0, PkMode = 0 },
-			[122] = { x = -1.12, y = 44.20, z = 48.55, name = "门口", worldId = 0, PkMode = 0 },
-			[168] = { x = 36.61, y = 33.08, z = -31.70, name = "献祭触发区域", worldId = 0, PkMode = 0 },
-			[185] = { x = -27.93, y = 27.01, z = 20.24, name = "", worldId = 0, PkMode = 0 },
-			[186] = { x = -1.56, y = 29.28, z = 47.07, name = "尸体旁触发布莱恩喊话", worldId = 0, PkMode = 0 },
+			[43] = { x = -7.25, y = 33.52, z = -29.86, name = "窄路", worldId = 0, PkMode = 1 },
+			[44] = { x = 41.26, y = 35.46, z = 16.38, name = "BOSS", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1 },
+			[57] = { x = -35.98, y = 31.86, z = -19.04, name = "目标区域", worldId = 0, PkMode = 1 },
+			[89] = { x = -12.34, y = 31.80, z = 58.13, name = "NPC消失区域", worldId = 0, PkMode = 1 },
+			[90] = { x = 30.53, y = 32.99, z = -30.32, name = "", worldId = 0, PkMode = 1 },
+			[122] = { x = -1.12, y = 44.20, z = 48.55, name = "门口", worldId = 0, PkMode = 1 },
+			[168] = { x = 36.61, y = 33.08, z = -31.70, name = "献祭触发区域", worldId = 0, PkMode = 1 },
+			[185] = { x = -27.93, y = 27.01, z = 20.24, name = "", worldId = 0, PkMode = 1 },
+			[186] = { x = -1.56, y = 29.28, z = 47.07, name = "尸体旁触发布莱恩喊话", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

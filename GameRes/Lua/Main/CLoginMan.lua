@@ -25,17 +25,20 @@ def.static("function").RequestServerList = function (callback)
 	local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
 	CPlatformSDKMan.Instance():SetBreakPoint(PlatformSDKDef.PointState.Game_Get_Server_List)
 	GameUtil.RequestServerList(function (isSuccessful)
-		-- warn("RequestServerList", isSuccessful)
-		-- if isSuccessful then
-			callback()
-		-- end
+		callback()
 	end)
 end
 
--- 获取服务器列表
+local LastestServerList = nil
+-- 获取服务器列表，必须在 RequestServerList 回调中使用，否则不是最新
+-- 调用后会清除C#缓存，若想不请求直接取上次的结果请调用: GetServerListCache
 def.static("=>", "table").GetServerList = function ()
-	local serverList = GameUtil.GetServerList(true)
-	return serverList
+	LastestServerList = GameUtil.GetServerList(true)
+	return LastestServerList
+end
+
+def.static("=>", "table").GetServerListCache = function ()
+	return LastestServerList or {}
 end
 
 -- 请求张海角色信息列表
@@ -103,14 +106,20 @@ def.static("string", "string", "=>", "boolean").CheckAccountValid = function (ac
 			message = template.TextContent
 		end
 		game._GUIMan:CloseCircle()
-		MsgBox.CloseAll()
-		MsgBox.ShowSystemMsgBox(ServerMessageBase.AccountLengthInvalid, message, StringTable.Get(8), MsgBoxType.MBBT_OK)
+		MsgBox.ClearAllBoxes()
+        local close_type = EnumDef.CloseType.ClickAnyWhere
+        if template and template.IsShowCloseBtn then
+            close_type = EnumDef.CloseType.CloseBtn
+        else
+            close_type = EnumDef.CloseType.ClickAnyWhere
+        end
+        MsgBox.ShowMsgBox(message, StringTable.Get(8), close_type, MsgBoxType.MBBT_OK)
 		return false
 	end
 
 	if password == "" then
 		game._GUIMan:CloseCircle()
-		MsgBox.CloseAll()
+		MsgBox.ClearAllBoxes()
 		local title, msg, closeType = StringTable.GetMsg(52)
 		MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OK)
 		return false
@@ -120,11 +129,18 @@ end
 
 -- 服务器是否维护中
 def.static("string", "number", "=>", "boolean").CanServerUse = function (ip, port)
-	local serverList = CLoginMan.GetServerList()
+	local serverList = LastestServerList
 	if serverList ~= nil then
 		for _, info in ipairs(serverList) do
 			if ip == info.ip and port == info.port then
-				return info.state ~= EnumDef.ServerState.Unuse
+				if info.state == EnumDef.ServerState.Unuse then
+					-- 维护中的服务器允许特殊级别的账号登录
+					local specialLevel = GameUtil.GetSpecialLevel()
+					return specialLevel == EnumDef.AccountSpecialLevel.Level1 or
+						   specialLevel == EnumDef.AccountSpecialLevel.Level2
+				else
+					return info.state ~= EnumDef.ServerState.Unrun
+				end
 			end
 		end
 	end
@@ -133,7 +149,7 @@ end
 
 -- 获取服务器ID
 def.static("string", "number", "string", "=>", "number").GetServerZoneId = function (ip, port, name)
-	local serverList = CLoginMan.GetServerList()
+	local serverList = LastestServerList
 	if serverList ~= nil then
 		for _, info in ipairs(serverList) do
 			if ip == info.ip and port == info.port and name == info.name then
@@ -145,26 +161,9 @@ def.static("string", "number", "string", "=>", "number").GetServerZoneId = funct
 end
 
 -------------------------------------- 账号相关 start ---------------------------------
-local function RefreshLoginUI()
-	CLoginMan.RequestServerList(function ()
-		local CPanelLogin = require "GUI.CPanelLogin"
-		if CPanelLogin ~= nil and CPanelLogin.Instance():IsShow() then
-			local server_list = CLoginMan.GetServerList()
-			CPanelLogin.Instance():RefreshServerList(server_list)
-		end
-	end)
-end
-
 -- 连接服务器
 def.method("string", "number", "string", "string", "string").ConnectToServer = function(self, ip, port, server_name, account, password)
 	if not CLoginMan.CheckAccountValid(account, password) then return end
-
-	if not CLoginMan.CanServerUse(ip, port) then
-		-- 服务器维护中，刷新服务器列表
-		game._GUIMan:ShowTipText(StringTable.Get(32), false)
-		RefreshLoginUI()
-		return
-	end
 
 	if game._NetMan:IsValidIpAddress(ip) then
 		-- 平台SDK打点
@@ -183,10 +182,7 @@ def.method("string", "number", "string", "string", "string").ConnectToServer = f
 	else
 		local callback = function()	
 			game._GUIMan:CloseCircle()
-			MsgBox.CloseAll()
-
-			--如果连接失败，刷新服务器列表
-			RefreshLoginUI()
+			MsgBox.ClearAllBoxes()
 		end
 		do
 			local message = ""
@@ -235,7 +231,7 @@ def.method().QuickStartGame = function(self)
 
 	if last_use_account_account == "" or last_use_account_password == "" then
 		game._GUIMan:CloseCircle()
-		MsgBox.CloseAll()
+		MsgBox.ClearAllBoxes()
 		local title, msg, closeType = StringTable.GetMsg(52)
 		MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OK)
 	else
@@ -247,10 +243,7 @@ def.method().QuickStartGame = function(self)
 		else		
 			local callback = function()	
 				game._GUIMan:CloseCircle()
-				MsgBox.CloseAll()
-
-				--如果连接失败，刷新服务器列表
-				RefreshLoginUI()
+				MsgBox.ClearAllBoxes()
 			end
 			do
 				local message = ""
@@ -269,6 +262,7 @@ def.method().QuickStartGame = function(self)
 	end
 end
 
+--[[
 -- 快速进入游戏世界（不需要进入角色选择界面）
 def.method("number").QuickEnterWorld = function (self, index)
 	local roleInfoList = UserData:GetCfg(EnumDef.LocalFields.QuickEnterGameRoleInfo, game._NetMan._UserName)
@@ -285,6 +279,7 @@ def.method("number").QuickEnterWorld = function (self, index)
 		self:DoEnterWorld(selectedRoleId, false)
 	end
 end
+--]]
 -------------------------------------- 账号相关 end ---------------------------------
 
 -------------------------------------- 角色数据相关 start --------------------------------
@@ -304,10 +299,12 @@ def.method("number").OnAccountInfoSet = function (self, selectedRoleId)
 
 	if self._QuickEnterRoleId > 0 then
 		-- 玩家自己选择快速进入
+		game._CurGameStage = _G.GameStage.SelectRoleStage
 		self:DoEnterWorld(self._QuickEnterRoleId, false)
 		self._QuickEnterRoleId = 0
 	elseif selectedRoleId > 0 then
 		-- 服务器推送进入
+		game._CurGameStage = _G.GameStage.SelectRoleStage
 		self:DoEnterWorld(selectedRoleId, true)
 	else
 		-- 进入选择角色场景
@@ -326,7 +323,7 @@ def.method("number").OnAccountInfoSet = function (self, selectedRoleId)
 						end
 					end
 				end
-				if curRoleId > 0 then
+				if curRoleId > 0 and game._AccountInfo ~= nil then
 					for index, info in ipairs(game._AccountInfo._RoleList) do
 						if info.Id == curRoleId then
 							roleIndex = index
@@ -344,6 +341,7 @@ end
 -- 选择角色进入游戏
 def.method("number", "boolean").DoEnterWorld = function (self, selectedRoleId, bServerQuickEnter)
 	if selectedRoleId <= 0 then return end
+	if game._AccountInfo == nil then return end
 
 	for i, role in ipairs(game._AccountInfo._RoleList) do
 		if role.Id == selectedRoleId then
@@ -361,7 +359,8 @@ def.method("number", "boolean").DoEnterWorld = function (self, selectedRoleId, b
 						game._GUIMan:Close("CPanelUIServerQueue")
 						game._GUIMan:CloseCircle()
 
-						game:SendSelectRole(role.Id)
+						local PBUtil = require "PB.PBUtil"
+						PBUtil.SendSelectRoleProtocol(role.Id)
 					end
 					StartScreenFade(0, 1, 0.5, callback)
 				else

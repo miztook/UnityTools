@@ -44,8 +44,6 @@ def.field("boolean")._IsAgainStartBattle = false
 def.field("table")._FriendInfoData = BlankTable
 def.field("boolean")._IsReconnectionOut = false           -- 无畏战场重连后是否被淘汰
 
-
-
 def.final("=>", CArenaMan).new = function ()
 	local obj = CArenaMan()
 	return obj
@@ -304,7 +302,7 @@ def.method("table").OnS2C3V3PlayerInfo = function(self,msg)
 		Data = msg,
 		Type = EnumDef.OpenArenaType.Open3V3
 	}
-	game._CArenaMan:OpenPanel(panelData)
+	self:OpenPanel(panelData)
 
 	if msg.PunishLeftTime > 0 then 
 		game._DungeonMan:BanMatchingTime3V3Man(msg.PunishLeftTime)
@@ -370,6 +368,9 @@ end
 def.method("table").OnS2C3V3StartLoading = function(self,msg)
 	game._GUIMan:Close("CPanelMate")
 	game._GUIMan:Close("CPanelMirrorArena")
+	game._GUIMan:CloseSubPanelLayer()
+    game._GUIMan._UIManCore:SetAsyncLoadOpenCicle(false)
+
 	local data = 
 	{
 		CurArenaType = EnumDef.OpenArenaType.Open3V3,
@@ -398,7 +399,7 @@ def.method("table").OnS2C3V3CancelMatch = function(self,msg)
 	CPanelMirrorArena.Instance():Cancel3V3Timers()
 	if CPanelMate.Instance():IsShow()  then
 	 	game._GUIMan:Close("CPanelMate")
-	 	game._CArenaMan:SendC2SOpenThree()	
+	 	self:SendC2SOpenThree()	
 	end	
 
 	if CPanelArenaLoading.Instance():IsShow() then
@@ -424,12 +425,14 @@ def.method("table").OnS2C3V3CancelMatch = function(self,msg)
 	if msg.RoleId == game._HostPlayer._ID then
 		game._HostPlayer: Set3v3RoomID(0) 
 	end
+    game._GUIMan._UIManCore:SetAsyncLoadOpenCicle(true)
 end
 
 --3V3 开始
 def.method().OnS2CStart3V3 = function(self)
     --添加倒计时（临时）
 	game._GUIMan:Close("CPanelArenaLoading")
+    game._GUIMan._UIManCore:SetAsyncLoadOpenCicle(true)
 	local CPanelTracker = require "GUI.CPanelTracker"
 	CPanelTracker.Instance():ResetDungeonShow()
 	local timer_id = 0
@@ -559,7 +562,7 @@ def.method("table").OnS2CEliminateCancelRes = function(self,msg)
 	CPanelMirrorArena.Instance():CancelBattleTimers()
 	if CPanelMate.Instance():IsShow() then
 	 	game._GUIMan:Close("CPanelMate")
-	 	game._CArenaMan:OnOpenBattle()	
+	 	self:OnOpenBattle()	
 	end	
 
 	if CPanelArenaLoading.Instance():IsShow() then
@@ -567,7 +570,7 @@ def.method("table").OnS2CEliminateCancelRes = function(self,msg)
 	end
 
 	if CPanelMirrorArena.Instance():IsShow() then 
-		game._CArenaMan:OnOpenBattle()
+		self:OnOpenBattle()
 	end
 	
 	CPVPAutoMatch.Instance():Stop()
@@ -628,7 +631,7 @@ def.method("table").OnS2CEliminateInfo = function(self,msg)
 		self._IsBattleFinalGame = true
 	end
 	if CPanelPVPHead.Instance():IsShow() then 
-		CPanelBattleMiddle.Instance():UpdateTableInfo(msg.TableInfo)
+		CPanelBattleMiddle.Instance():UpdateRankShow(msg.TableInfo)
 	else
 		local panelData = 
 						{
@@ -765,7 +768,7 @@ def.method("table").OnS2CMatchRestoreData = function(self,msg)
 end
 
 -- 切换账号 或是 切换角色 关闭默认之前角色匹配相关数据
-def.method().Release = function (self)
+def.method().Cleanup = function (self)
 	self._CurOpenArenaType = 0
 	self._1V1HostData = nil
 	self._3V3HostData = nil

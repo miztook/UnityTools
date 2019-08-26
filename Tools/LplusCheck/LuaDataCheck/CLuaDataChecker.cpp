@@ -107,7 +107,7 @@ void CLuaDataChecker::PrintLuaFiles()
 {
 	for (auto v : m_vecLuaFiles)
 	{
-		printf("luaFile: %s\n", v.strFileName.c_str());
+		printf("luaFile: %s\n", v.strName.c_str());
 	}
 }
 
@@ -209,7 +209,7 @@ SLuaClass* CLuaDataChecker::AddLuaClass(const char* szName)
 SLuaFile* CLuaDataChecker::AddLuaFile(const char* szFileName)
 {
 	SLuaFile luaFile;
-	luaFile.strFileName = szFileName;
+	luaFile.strName = szFileName;
 	m_vecLuaFiles.push_back(luaFile);
 	return &m_vecLuaFiles.back();
 }

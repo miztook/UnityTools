@@ -6,11 +6,12 @@ local MapInfo =
 	Length = 512,
 	Width = 512,
 	NavMeshName = "World04Part1.navmesh",
-	BackgroundMusic = "",
+	BackgroundMusic = "BGM_Map_4/Map_4/Map_4_phase",
 	BattleMusic = "",
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[50305] = 
@@ -54,8 +55,8 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[1] = { x = -236.01, y = 49.31, z = 151.42, name = "2 抵达区域", worldId = 0, PkMode = 0 },
-			[5] = { x = -228.60, y = 49.31, z = 153.07, name = "", worldId = 0, PkMode = 0 },
+			[1] = { x = -236.01, y = 49.31, z = 151.42, name = "2 抵达区域", worldId = 0, PkMode = 1 },
+			[5] = { x = -228.60, y = 49.31, z = 153.07, name = "", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

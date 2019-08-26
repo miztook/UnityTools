@@ -38,6 +38,7 @@ PBHelper.AddHandler("S2CHorseViewList", OnS2CHorseViewList)
 local function OnS2CHorseSet(sender, msg)
 	-- printLog("ResCode", msg.ResCode)
 	-- printLog("notify", game._HostPlayer._CanNotifyErrorMountHorse)
+	local canNotify = game._HostPlayer._CanNotifyErrorMountHorse
 	if msg.ResCode ~= nil and msg.ResCode ~= ServerMessageBase.Success then
 		-- 上马或下马失败
 		if game._HostPlayer._CanNotifyErrorMountHorse then
@@ -64,9 +65,15 @@ local function OnS2CHorseSet(sender, msg)
 		elseif msg.OptType == EHorseOptType.HorseOpt_Unmount then
 			entity:MountOn(false)
 
-			if msg.EntityId == game._HostPlayer._ID and msg.UnmountReason ~= nil and msg.UnmountReason ~= 0 then
-				-- 下马原因提醒
-				ErrorCodeCheck(msg.UnmountReason)
+			if msg.EntityId == game._HostPlayer._ID then
+				if msg.UnmountReason ~= nil and msg.UnmountReason ~= 0 then
+					-- 下马原因提醒
+					ErrorCodeCheck(msg.UnmountReason)
+				end
+				if canNotify then
+					-- 属于主动下马，会暂停自动上马
+					game._HostPlayer._PauseAutoMount = true
+				end
 			end
 		end
 	end

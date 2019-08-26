@@ -52,6 +52,10 @@ local function GetPaths(rootpath)
 end
 
 function HotFix.UpdateFunc(newFunc, oldFunc)
+    local signature = tostring(oldFunc)..tostring(newFunc)
+    if visitedSign[signature] then return end
+    visitedSign[signature] = true
+    
     local oldUpvalueMap = {}
     for i = 1, math.huge do
         local name, value = debug.getupvalue(oldFunc, i)

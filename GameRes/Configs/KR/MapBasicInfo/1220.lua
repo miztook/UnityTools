@@ -6,11 +6,12 @@ local MapInfo =
 	Length = 576,
 	Width = 576,
 	NavMeshName = "World01.navmesh",
-	BackgroundMusic = "",
+	BackgroundMusic = "BGM_Map_1/Map_1/Map_1_phase",
 	BattleMusic = "",
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14222] = 
@@ -57,16 +58,16 @@ local MapInfo =
 	{
 		[1] = 
 		{
-			[131] = { x = 181.54, y = 21.52, z = -184.19, xA = 165.72, yA = 27.64, zA = -198.88, name = "传送楼下", worldId = 1220, PkMode = 0 },
-			[132] = { x = 167.76, y = 27.65, z = -197.04, xA = 183.87, yA = 20.85, zA = -180.41, name = "传送楼上", worldId = 1220, PkMode = 0 },
+			[131] = { x = 181.54, y = 21.52, z = -184.19, xA = 165.72, yA = 27.64, zA = -198.88, name = "传送楼下", worldId = 1220, PkMode = 1 },
+			[132] = { x = 167.76, y = 27.65, z = -197.04, xA = 183.87, yA = 20.85, zA = -180.41, name = "传送楼上", worldId = 1220, PkMode = 1 },
 		},
 		[2] = 
 		{
-			[82] = { x = 215.84, y = 27.63, z = -200.46, name = "奴隶区", worldId = 0, PkMode = 0 },
-			[83] = { x = 210.04, y = 27.63, z = -146.71, name = "군사 구역", worldId = 0, PkMode = 0 },
-			[84] = { x = 147.62, y = 24.12, z = -132.52, name = "竞技场外", worldId = 0, PkMode = 0 },
-			[85] = { x = 177.08, y = 46.90, z = -158.82, name = "", worldId = 0, PkMode = 0 },
-			[130] = { x = 190.17, y = 20.85, z = -174.95, name = "竞技场内环", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {4506} },
+			[82] = { x = 215.84, y = 27.63, z = -200.46, name = "奴隶区", worldId = 0, PkMode = 1 },
+			[83] = { x = 210.04, y = 27.63, z = -146.71, name = "군사 구역", worldId = 0, PkMode = 1 },
+			[84] = { x = 147.62, y = 24.12, z = -132.52, name = "竞技场外", worldId = 0, PkMode = 1 },
+			[85] = { x = 177.08, y = 46.90, z = -158.82, name = "", worldId = 0, PkMode = 1 },
+			[130] = { x = 190.17, y = 20.85, z = -174.95, name = "竞技场内环", worldId = 0, PkMode = 1, IsCanHawkeye = true, QuestID = {4506} },
 		},
 	},
 	Mine = 

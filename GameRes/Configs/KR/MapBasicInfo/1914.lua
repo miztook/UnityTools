@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/city01.png",
 	AssetPath = "Assets/Outputs/Scenes/World05.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14080] = 
@@ -30,11 +31,11 @@ local MapInfo =
 	{
 		[4205] = 
 		{
-			[1] = { x = 128.12, y = 21.26, z = 240.35, name = "엘리언 쿠벨", SortID = 1 },
+			[1] = { x = 128.12, y = 21.26, z = 240.35, name = "엘리온 쿠벨", SortID = 1 },
 		},
 		[4207] = 
 		{
-			[1] = { x = 139.45, y = 21.25, z = 241.72, name = "엘리언 쿠벨", SortID = 10 },
+			[1] = { x = 139.45, y = 21.25, z = 241.72, name = "엘리온 쿠벨", SortID = 10 },
 		},
 		[3253] = 
 		{
@@ -50,8 +51,8 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[441] = { x = 138.70, y = 24.06, z = 252.47, name = "刷新怪物触发", worldId = 0, PkMode = 0 },
-			[442] = { x = 139.04, y = 21.47, z = 245.64, name = "刷出怪物相位", worldId = 0, PkMode = 0 },
+			[441] = { x = 138.70, y = 24.06, z = 252.47, name = "刷新怪物触发", worldId = 0, PkMode = 1 },
+			[442] = { x = 139.04, y = 21.47, z = 245.64, name = "刷出怪物相位", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

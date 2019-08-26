@@ -70,7 +70,7 @@ local _ShowFuncUnlockTip = function(funcId, on_finish)
 		end	
 	end
 	local iconImgPath =  _G.CommonAtlasDir.."Icon/" .. funData.IconPath .. ".png"
-    local text = StringTable.Get(19462)..funData.DisplayName
+    local text = funData.DisplayName .. StringTable.Get(19462)
     local desc = StringTable.Get(22802)
 	local data =
 	    {

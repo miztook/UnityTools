@@ -22,7 +22,6 @@ local cfg = {
     GuildTime = 155644224,
     Lab_MemberCount = 530438819,
     Img_MatchIcon = 1967876642,
-    Lab_Matching = 1383359151,
     Img_AddIcon = -883819522,
     GuildRefreshTime = -166183307,
     Img_Matching = -75036359,
@@ -34,6 +33,7 @@ local cfg = {
     Frame_TeamMem = 735726886,
     Frame_BigTeamMem = -1033370774,
     Btn_Matching = -2047967552,
+    Btn_Skip = -2122870334,
 }
  
 return cfg

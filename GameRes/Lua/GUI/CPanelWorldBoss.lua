@@ -231,7 +231,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         if self._CurType == EPageType.WorldBoss then
             temData = self._Table_WorldBoss[index + 1]
             GUI.SetText(Lab_BossName , temData._Data.Name)   
-            -- warn("==========>>>", temData._Data.Name, temData._Isopen , temData._IsDeath, game._CWorldBossMan:GetWorldBossNextOpenTime())  
+            -- warn("==========>>>", temData._Data.Name, temData._Isopen , temData._IsDeath, temData._LineId)  
             local BossLevel = string.format(StringTable.Get(21500), temData._Data.Level)
             GUI.SetText(Lab_BossLevel, BossLevel)
             GUI.SetText(Lab_SelectBossName , temData._Data.Name) 
@@ -358,19 +358,22 @@ def.override('string').OnClick = function(self, id)
             game._GUIMan:Open("CPanelRuleDescription", 11)
         end
     elseif id == 'Btn_FindBoss' then
-        -- 切换分线到1线
-        local curWorldInfo = game._CurWorld._WorldInfo
-        if curWorldInfo.CurMapLineId ~= 1 then
-            -- warn("pppppppppppppppppppppppp curWorldInfo.CurMapLineId ==", curWorldInfo.CurMapLineId)  
-			local C2SMapLineChange = require "PB.net".C2SMapLineChange
-            local protocol = C2SMapLineChange()
-            protocol.MapLine = 1
-            local PBHelper = require "Network.PBHelper"
-            PBHelper.Send(protocol)
-		end
-
         -- warn("lidaming onclick _CurSelectBossIndex= ", self._CurSelectBossIndex)
         if self._CurType == EPageType.WorldBoss and self._Table_WorldBoss[self._CurSelectBossIndex]._Isopen == true and self._Table_WorldBoss[self._CurSelectBossIndex]._IsDeath == false then
+            -- 世界boss强制切换分线到1线
+            local curWorldInfo = game._CurWorld._WorldInfo
+            local IsDeathByCurLine = game._CWorldBossMan:GetWorldBossByLineAndID(curWorldInfo.CurMapLineId, self._Table_WorldBoss[self._CurSelectBossIndex]._BossID)
+            if IsDeathByCurLine then
+                local LineID = game._CWorldBossMan:GetLineByCurLineAndID(curWorldInfo.CurMapLineId, self._Table_WorldBoss[self._CurSelectBossIndex]._BossID)
+                if LineID > 0 then
+                    local C2SMapLineChange = require "PB.net".C2SMapLineChange
+                    local protocol = C2SMapLineChange()
+                    protocol.MapLine = LineID
+                    local PBHelper = require "Network.PBHelper"
+                    PBHelper.Send(protocol)
+                end
+            end
+            
             -- 停止任务自动化
             local CQuestAutoMan = require"Quest.CQuestAutoMan"
             CQuestAutoMan.Instance():Stop()

@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/qilien.png",
 	AssetPath = "Assets/Outputs/Scenes/Dn_evn03_Killerparty.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[30025] = 
@@ -25,11 +26,11 @@ local MapInfo =
 	{
 		[1] = 
 		{
-			[167] = { x = 2.53, y = -0.12, z = 124.31, xA = 2.40, yA = -0.24, zA = 52.80, name = "传送区域", worldId = 401, PkMode = 0 },
+			[167] = { x = 2.53, y = -0.12, z = 124.31, xA = 2.40, yA = -0.24, zA = 52.80, name = "传送区域", worldId = 401, PkMode = 1 },
 		},
 		[2] = 
 		{
-			[168] = { x = 3.00, y = -1.00, z = 20.39, name = "集合区域", worldId = 0, PkMode = 0, CameraDistance = 15 },
+			[168] = { x = 3.00, y = -1.00, z = 20.39, name = "集合区域", worldId = 0, PkMode = 1, CameraDistance = 15 },
 		},
 	},
 	Mine = 

@@ -6,9 +6,6 @@ local PBHelper = require "Network.PBHelper"
 local Lplus = require 'Lplus'
 local CGame = Lplus.ForwardDeclare("CGame")
 
-local function SendFlashMsg(msg)
-	game._GUIMan:ShowTipText(msg, false)
-end
 local RaiseEvent = function(protocol)
 	local EquipDevEvent = require "Events.EquipDevEvent"
     local event = EquipDevEvent()
@@ -19,9 +16,9 @@ end
 
 local DoLogic = function(protocol, msg)
 	if protocol.result == 0 then--装备养成 成功
-		SendFlashMsg(msg..StringTable.Get(10914))
+		TeraFuncs.SendFlashMsg(msg..StringTable.Get(10914))
 	else--装备养成 失败
-		SendFlashMsg(msg..StringTable.Get(10915))
+		TeraFuncs.SendFlashMsg(msg..StringTable.Get(10915))
 	end
 end
 

@@ -67,6 +67,7 @@ end
 local function OnNotifyPropEvent(sender, event)
 	if instance ~= nil and instance:IsShow() then
 		if game._HostPlayer._ID == event.ObjID then
+			instance:UpdateAutoFightState()
 			instance:UpdateSkillEnableState()
 			instance:UpdateCriticalAttckAvailableGfx()
 		end
@@ -220,8 +221,8 @@ def.override('dynamic').OnData = function(self, data)
 	
 	TriggerAllPreStateComboSkill(self)
 
-	local hp = game._HostPlayer
-    hp:UpdateHawkeye()
+	local CHawkeyeEffectMan = require "Main.CHawkeyeEffectMan"
+	CHawkeyeEffectMan.Instance():UpdateHawkeye()
 end
 
 local function GatherMainSkillLearnLvs()
@@ -414,7 +415,7 @@ def.method().UpdateAutoFightState = function(self)
 
 	local hp = game._HostPlayer
 	local isUnlock = game._CFunctionMan:IsUnlockByFunID(EnumDef.EGuideTriggerFunTag.AutoFight)
-	local isSkillValid = not hp:IsModelChanged()
+	local isSkillValid = not hp:IsModelChangedInData()
 	if not isSkillValid then
 		local skillList = hp:GetTransformSkills()
 		if skillList ~= nil then
@@ -424,8 +425,11 @@ def.method().UpdateAutoFightState = function(self)
 			end
 		end
 	end
-
-	self._ToggleAutoFightObj:SetActive(isUnlock and isSkillValid)
+	local isAutoFightActive = isUnlock and isSkillValid and (not game:IsCurMapForbidAutofight())
+	if not isAutoFightActive then
+		CAutoFightMan.Instance():Stop()
+	end
+	self._ToggleAutoFightObj:SetActive(isAutoFightActive)
 	self._SKillChangeBtn:SetActive(isSkillValid)
 end
 
@@ -440,7 +444,7 @@ def.method().UpdateSkillCDInfo = function(self)
 			local skillTemp = nil			
 			if self._TransformSkillsEnable then
 				local idList = hp:GetTransformSkills()
-				if idList[i] ~= nil then	
+				if idList ~= nil and idList[i] ~= nil then	
 					skillTemp = CElementSkill.Get(idList[i])	
 				end
 			else
@@ -466,7 +470,7 @@ def.method().UpdateSkillCDInfo = function(self)
 							-- 暂时屏蔽跳跃
 							if i ~= JumpSkillIdx and not self._TransformSkillsEnable then						
 								GameUtil.PlayUISfx(PATH.UIFX_SkillCoolDown, v.GameObject, self._Panel, 2)
-								if black then black:SetActive(false) end										
+								-- if black then black:SetActive(false) end										
 							else
 								GUI.SetAlpha(v.UIObjects.ImgSkillIcon, 255)							
 							end						
@@ -537,7 +541,7 @@ local function ClearComboSkill(self, comboSkillInfo)
 	-- 变身技能中 不再清qte技能icon
 	if self._TransformSkillsEnable then
 		local idList = hp:GetTransformSkills()
-		local isValidTransformSkill = (idList[uiPosIdx] ~= nil and idList[uiPosIdx] > 0)
+		local isValidTransformSkill = (idList ~= nil and idList[uiPosIdx] ~= nil and idList[uiPosIdx] > 0)
 		-- 处于变身中 但是对应位置没有技能
 		if not isValidTransformSkill then
 			change_button_icon(curInfo, curInfo.SkillTemplate.IconName)
@@ -836,7 +840,7 @@ local function CastSkill(self, index)
 	-- 变身技能 启用
 	if self._TransformSkillsEnable then
 		local idList = hp:GetTransformSkills()
-		if idList[index] ~= nil then		
+		if idList ~= nil and idList[index] ~= nil then		
 			skillTemp = CElementSkill.Get(idList[index])
 		end				
 	else
@@ -884,6 +888,7 @@ def.override("string").OnClick = function(self,id)
     elseif id == 'Btn_Talk' then 
     	self._ShortcutComp:OnClick()
     elseif id == 'Chk_Eye' then
+    	game._HostPlayer:StopAutoFollow()
     	self._HawkEyeComp:OnClick()
 	else
 		if id == 'Btn_Jump' and game._RegionLimit._LimitDodge then
@@ -954,7 +959,7 @@ def.method("number").CastSkillByIndex = function(self, index)
 	CastSkill(self, index)
 end
 
-def.method().Clear = function (self)
+def.method().Cleanup = function (self)
 	self._MainSkillLearnLvs = {}
 	self._IsPlayingAutoGfx = false
 	self._SkillSlotInfo = {}  -- 清理掉 combo的 缓存
@@ -997,7 +1002,7 @@ def.override().OnHide = function (self)
 	CGame.EventManager:removeHandler('NotifyFunctionEvent', OnNotifyFunctionEvent)	
 	CGame.EventManager:removeHandler('SkillStateUpdateEvent', OnSkillStateUpdateEvent)
 	
-	self:Clear()
+	self:Cleanup()
 end
 
 def.override().OnDestroy = function (self)

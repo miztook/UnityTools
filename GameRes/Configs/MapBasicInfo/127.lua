@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Viper_Arena",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10078] = 
@@ -33,12 +34,12 @@ local MapInfo =
 	{
 		[1] = 
 		{
-			[131] = { x = 169.08, y = 27.69, z = -197.19, xA = 183.17, yA = 20.90, zA = -180.27, name = "进入传送区域", worldId = 127, PkMode = 0 },
+			[131] = { x = 169.08, y = 27.69, z = -197.19, xA = 183.17, yA = 20.90, zA = -180.27, name = "进入传送区域", worldId = 127, PkMode = 1 },
 		},
 		[2] = 
 		{
-			[85] = { x = 172.31, y = 43.92, z = -144.51, name = "", worldId = 0, PkMode = 0 },
-			[130] = { x = 190.17, y = 20.85, z = -174.95, name = "竞技场内环", worldId = 0, PkMode = 0 },
+			[85] = { x = 172.31, y = 43.92, z = -144.51, name = "", worldId = 0, PkMode = 1 },
+			[130] = { x = 190.17, y = 20.85, z = -174.95, name = "竞技场内环", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

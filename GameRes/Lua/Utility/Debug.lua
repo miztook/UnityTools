@@ -45,7 +45,7 @@ function printLog(tag, fmt, ...)
         "] ",
         string.format(tostring(fmt), ...)
     }
-    warn(table.concat(t))
+    print(table.concat(t))
 end
 
 --[[--
@@ -57,8 +57,8 @@ end
 
 ]]
 function printError(fmt, ...)
-    printLog("ERR", fmt, ...)
-    print(debug.traceback("", 2))
+    warn("[ERR]" .. string.format(tostring(fmt), ...))
+    warn(debug.traceback("", 2))
 end
 
 --[[--

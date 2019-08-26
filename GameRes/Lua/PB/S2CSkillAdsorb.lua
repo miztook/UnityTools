@@ -7,10 +7,13 @@ local DistanceH = Vector3.DistanceH_XZ
 	服务器选择速度快距离最近的的吸附通知客户端，吸附结束或者有新的吸附时进行再次选择并通知客户端，直达所有的吸
 	附操作执行完毕通知客户端结束
 --]]
-local function OnSkillAdsorb(sender, msg)
+
+local function ProcessOneProtocol(msg)
 	local world = game._CurWorld
 	local entity = world:FindObject(msg.EntityId)
-	if entity == nil then return end
+	if entity == nil or not entity:IsCullingVisible() then return end
+
+
 	local target = entity:GetGameObject()
 	if target == nil then return end
 
@@ -25,6 +28,16 @@ local function OnSkillAdsorb(sender, msg)
 		GameUtil.AddAdsorbEffect(target, origin, speed, position) 
 	else
 		GameUtil.RemoveAdsorbEffect(target, origin)
+	end
+end
+
+local function OnSkillAdsorb(sender, msg)
+	ProcessOneProtocol(msg)
+
+	if msg.ProtoList ~= nil then
+		for i,v in ipairs(msg.ProtoList) do
+			ProcessOneProtocol(v)
+		end
 	end
 end
 

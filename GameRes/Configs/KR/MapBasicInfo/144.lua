@@ -11,19 +11,16 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Forest",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12007] = 
 		{
 			[1] = { x = -189.09, y = -4.18, z = -65.14, name = "디포 그림자", level = 30, SortID = 1 },
 		},
-		[12008] = 
-		{
-			[1] = { x = -189.09, y = -4.18, z = -65.14, name = "흑마법사 그림자", level = 30, SortID = 1 },
-		},
 		[12217] = 
 		{
-			[1] = { x = -189.09, y = -4.18, z = -65.14, name = "주술사 탈영병", level = 31, DropItemIds = " " },
+			[1] = { x = -189.09, y = -4.18, z = -65.14, name = "흑마법사 탈영병", level = 31, DropItemIds = " " },
 		},
 		[12218] = 
 		{
@@ -31,11 +28,7 @@ local MapInfo =
 		},
 		[12219] = 
 		{
-			[1] = { x = -189.09, y = -4.18, z = -65.14, name = "장교 탈영병", level = 31, DropItemIds = " " },
-		},
-		[12220] = 
-		{
-			[1] = { x = -196.80, y = -4.68, z = -69.99, name = "디포 드페라", level = 31, DropItemIds = " " },
+			[1] = { x = -190.30, y = -4.22, z = -66.42, name = "백부장 탈영병", level = 31, DropItemIds = " " },
 		},
 	},
 	Npc = 
@@ -81,7 +74,8 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[224] = { x = -182.77, y = 2.67, z = -64.63, name = "第二次相位区域", worldId = 0, PkMode = 0 },
+			[224] = { x = -182.77, y = 2.67, z = -64.63, name = "第二次相位区域", worldId = 0, PkMode = 1, IsCanHawkeye = true, QuestID = {2214} },
+			[225] = { x = -196.10, y = 1.00, z = -76.95, name = "抵达区域", worldId = 0, PkMode = 0 },
 		},
 	},
 	Mine = 
@@ -95,7 +89,6 @@ local MapInfo =
 			Tid = 
 			{
 				[12007] = 1,
-				[12008] = 4,
 			},
 		},
 		[8] = 
@@ -105,15 +98,14 @@ local MapInfo =
 			{
 				[12217] = 5,
 				[12218] = 5,
-				[12219] = 1,
 			},
 		},
 		[9] = 
 		{
-			x = -196.80, y = -4.68, z = -69.99, Type = 1,
+			x = -190.30, y = -4.22, z = -66.42, Type = 1,
 			Tid = 
 			{
-				[12220] = 1,
+				[12219] = 1,
 			},
 		},
 		[2] = 

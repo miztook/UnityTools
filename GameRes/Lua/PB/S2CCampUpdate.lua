@@ -39,18 +39,11 @@ local function OnS2CCampUpdate(sender, msg)
     -- 	刷新选中目标
     local hp = game._HostPlayer
     local curTarget = hp._CurTarget
-    -- warn("lidaming hp._ID ==", hp._ID)
     if msg.EntityID == hp._ID then
-        hp:UpdateTargetSelected()
-        -- local is_locked = hp._IsTargetLocked
-        -- CFxMan.Instance():OnTargetSelected(curTarget, is_locked)
+        hp:UpdateTargetSelected(msg.EntityID)
         local playerMap = game._CurWorld._PlayerMan._ObjMap
         for _, player in pairs(playerMap) do
-            if player._TopPate ~= nil then
-                player._TopPate:UpdateName(true)
-                player:UpdatePetName()
-                player:UpdateTopPateRescue()
-            end
+            player:OnHostCampUpdate()
         end
     end
 

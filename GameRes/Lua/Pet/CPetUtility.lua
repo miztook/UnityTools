@@ -561,7 +561,7 @@ end
 
 def.static("=>", "table").GetAllPetGuideInfo = function()
 	local map = {}
-	local tids = GameUtil.GetAllTid("Pet")
+	local tids = CElementData.GetAllPet()
 	for i=1, #tids do
 		local petId = tids[i]
 		local petGuideInfo = CElementData.GetPetGuideById( petId )

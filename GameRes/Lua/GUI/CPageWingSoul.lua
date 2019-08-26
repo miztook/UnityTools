@@ -25,6 +25,7 @@ def.field("userdata")._Lab_Title = nil
 def.field("userdata")._Lab_Number = nil
 def.field("userdata")._Lab_SkillDesc = nil
 def.field("userdata")._FrameDes = nil
+def.field("userdata")._FrameDes1 = nil
 def.field("userdata")._Lab_LevelNumber = nil
 def.field("userdata")._Lab_OpenLimit = nil
 def.field("userdata")._Sel_SoulIcon = nil
@@ -74,8 +75,10 @@ def.method().Init = function(self)
 	self._Lab_Number = self._Root:GetUIObject("Lab_Number_Soul")
 	self._Lab_LevelNumber = self._Root:GetUIObject("Lab_Level_Soul")
     self._Lab_SkillDesc = self._Root:GetUIObject("Lab_Desc_Soul")
-    self._FrameDes = self._Lab_SkillDesc.parent:FindChild("Frame_Des")
+    self._FrameDes = self._Lab_SkillDesc.parent:FindChild("Frame_Des/Frame_Des")
     GUI.SetText(self._FrameDes:FindChild("Lab_Prof_Des"), StringTable.Get(112))
+    self._FrameDes1 = self._Lab_SkillDesc.parent:FindChild("Frame_Des/Frame_Des1")
+    GUI.SetText(self._FrameDes1:FindChild("Lab_Prof_Des"), StringTable.Get(112))
 	self._Lab_OpenLimit = self._Root:GetUIObject("LabOpen_Limit")
 	self._Sel_SoulIcon = self._Root:GetUIObject("Img_CurIcon")
 	self._Btn_PointUp = self._Root:GetUIObject("Btn_PointUp")
@@ -135,7 +138,7 @@ def.method("string").OnClick = function (self, id)
                         self._PageTempAddPointTable[talent_lvl_data[i].WingTalentID] = true
                     end
                 end
-            end
+            end 
 
             CWingsMan.Instance():C2SWingTalentAddPoint(self._Cur_Talent_Page)
         end
@@ -238,10 +241,19 @@ def.method("=>", "boolean").IsPageHasRedPoint = function (self)
     return CWingsMan.Instance():IsTalentHasRedPoint()
 end
 
+def.method("=>", "boolean").CloseOpenHint = function (self)
+    if self._Btn_CloseHint.activeSelf then
+        self._Btn_CloseHint:SetActive(false)
+        return true
+    end
+    return false
+end
+
 def.method().Hide = function (self)
     self._Frame_Soul_C:SetActive(false)
     self._Frame_Soul_L:SetActive(false)
     self._Frame_Soul_R:SetActive(false)
+    self._Btn_CloseHint:SetActive(false)
 end
 
 def.method().Destroy = function (self)
@@ -255,6 +267,7 @@ def.method().Destroy = function (self)
     self._Lab_Number = nil
     self._Lab_SkillDesc = nil
     self._FrameDes = nil
+    self._FrameDes1 = nil
     self._Lab_LevelNumber = nil
     self._Lab_OpenLimit = nil
     self._Sel_SoulIcon = nil
@@ -331,20 +344,6 @@ def.method("number").TalentSkillClickCallBack = function(self, index)
             local descStr = DynamicText.ParseSkillDescText(wing_talent_data.TalentID, self._CurAddNum, true)
             GUI.SetText(self._Lab_SkillDesc, descStr)
 
-            local makeShow = function(parsedText, val)
-                local tag = "talentlevelup1%%"
-                local isFloat = string.find(parsedText, tag)
-                if isFloat then
-                    val = val * 100
-                end
-                val = math.abs(val)
-                local replStr = fmtVal2Str(tonumber(fmtVal2Str(val)))
-                if isFloat then
-                    replStr = string.format("%s%%", replStr)
-                end
-                return replStr
-            end
-
             -- 图片icon设置
             local skill_data = CElementData.GetTemplate("Talent", wing_talent_data.TalentID)
             if skill_data then
@@ -382,19 +381,63 @@ def.method("number").TalentSkillClickCallBack = function(self, index)
 
             local showMax = CWingsMan.Instance():GetStaticAddPoint(self._Cur_Talent_Page, talent_data.WingTalentID) >= max_level
             self._FrameDes:SetActive(true)
-            -- if enableBtnUp then
+
+            local makeShow = function(val, isFloat)
+                if isFloat then
+                    val = val * 100
+                end
+                val = math.abs(val)
+                val = fixFloat(val, 2)
+                if isFloat then
+                    return val .. "%"
+                else
+                    return GUITools.FormatNumber(val, false, 7)
+                end
+            end
+
+            local vT = {}
+            local parsedText = CElementSkill.GetSkillDesc(wing_talent_data.TalentID, true)
+            local keys = DynamicText.ParseDescKeys(parsedText, "talentlevelup")
+            for i,v in ipairs(keys.IntegerKeys) do
+                local levelup = {}
+                levelup.isFloat = false
+                levelup.levelupId = tonumber(string.match(v, _G.Regexp4Num))
+                table.insert( vT, levelup )
+            end
+            for i,v in ipairs(keys.PercentageKeys) do
+                local levelup = {}
+                levelup.isFloat = true
+                levelup.levelupId = tonumber(string.match(v, _G.Regexp4Num))
+                table.insert( vT, levelup )
+            end
+
             do
                 -- 升级数值预览
                 local talentID = wing_talent_data.TalentID
-                local valuenow = CElementSkill.GetTalentLevelUpValue(talentID, 1, self._CurAddNum)
-                local valuenext = CElementSkill.GetTalentLevelUpValue(talentID, 1, self._CurAddNum + 1)
-                local parsedText = DynamicText.GetSkillDesc(talentID, true)
-                valuenow = makeShow(parsedText, valuenow)
-                valuenext = makeShow(parsedText, valuenext)
+                local valuenow = CElementSkill.GetTalentLevelUpValue(talentID, vT[1].levelupId, self._CurAddNum)
+                local valuenext = CElementSkill.GetTalentLevelUpValue(talentID, vT[1].levelupId, self._CurAddNum + 1)
+                local parsedText = CElementSkill.GetSkillDesc(talentID, true)
+                valuenow = makeShow(valuenow, vT[1].isFloat)
+                valuenext = makeShow(valuenext, vT[1].isFloat)
                 local nowShow = self._FrameDes:FindChild("Lab_Prof_Des/Lab_ProfNow")
                 GUI.SetText(nowShow, valuenow)
                 local nowShow = self._FrameDes:FindChild("Lab_Prof_Des/Lab_ProfNext")
                 GUI.SetText(nowShow, valuenext)
+
+                local showExtra = #vT > 1
+                self._FrameDes1:SetActive(showExtra)
+                if showExtra then
+                    local valuenow = CElementSkill.GetTalentLevelUpValue(talentID, vT[2].levelupId, self._CurAddNum)
+                    local valuenext = CElementSkill.GetTalentLevelUpValue(talentID, vT[2].levelupId, self._CurAddNum + 1)
+                    local parsedText = CElementSkill.GetSkillDesc(talentID, true)
+                    valuenow = makeShow(valuenow, vT[2].isFloat)
+                    valuenext = makeShow(valuenext, vT[2].isFloat)
+                    local nowShow = self._FrameDes1:FindChild("Lab_Prof_Des/Lab_ProfNow")
+                    GUI.SetText(nowShow, valuenow)
+                    local nowShow = self._FrameDes1:FindChild("Lab_Prof_Des/Lab_ProfNext")
+                    GUI.SetText(nowShow, valuenext)
+                end
+
             end
 
             self._FrameAdjust:SetActive(not showMax)
@@ -923,6 +966,7 @@ def.method().OnWingTalentPointChange = function (self)
 		self:InitTalentItemsPage(data[self._Cur_Talent_Page])
         self:PlayUISfxOnPointChange(data[self._Cur_Talent_Page])
 	end
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_SkillCommon, 0)
 end
 
 -- 天赋页洗点

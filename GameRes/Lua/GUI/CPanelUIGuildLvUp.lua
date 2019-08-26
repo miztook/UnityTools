@@ -113,8 +113,7 @@ def.override("dynamic").OnData = function(self, data)
 		local nowGuild = CElementData.GetTemplate("GuildLevel", guild._GuildLevel)
 		self._FundBar.size = guild._Fund / nowGuild.MaxGuildFund
 		GUI.SetText(self._FundNum, guild._Fund .. "/" .. nowGuild.MaxGuildFund)
-		local nextGuild = CElementData.GetTemplate("GuildBuildLevel", data._Level + 1)
-		GUI.SetText(self._NextConLab, nextGuild.Description)
+		GUI.SetText(self._NextConLab, nowBuild.LevelUpDescription)
 		self._Lab_Remind:SetActive(false)
 			
 	end

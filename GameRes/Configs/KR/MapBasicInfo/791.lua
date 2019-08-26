@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/WorldMap.png",
 	AssetPath = "Assets/Outputs/Scenes/World05.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[50025] = 
@@ -59,7 +60,7 @@ local MapInfo =
 		},
 		[50028] = 
 		{
-			[1] = { x = -208.99, y = 95.11, z = 331.98, name = "남작 사망", level = 10, SortID = 7 },
+			[1] = { x = -208.99, y = 95.11, z = 331.98, name = "죽음의 남작", level = 10, SortID = 7 },
 		},
 	},
 	Npc = 
@@ -69,7 +70,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[1] = { x = -195.55, y = 95.01, z = 326.17, name = "刷怪区域", worldId = 0, PkMode = 0 },
+			[1] = { x = -195.55, y = 95.01, z = 326.17, name = "刷怪区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

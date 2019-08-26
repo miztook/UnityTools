@@ -126,8 +126,13 @@ def.method().UpdataBuyUIShow = function (self)
         if itemData == nil then warn("error !!! 物品不存在！ ID: ", self._ItemData.ItemID) return end
         self._BuyAuctionOrTreasureUI:SetActive(true)
         self._BuyItemNumber = 1
+        local count = 0
+        if itemData ~= nil then
+            count = game._CCountGroupMan:OnCurUseCount(itemData.ItemUseCountGroupId)
+        end
         local setting = {
             [EItemIconTag.Number] = self._ItemData.Item.Count,
+            [EItemIconTag.Activated] = count > 0,
         }
         IconTools.InitItemIconNew(self:GetUIObject("ItemIconNew"), self._ItemData.ItemID, setting, EItemLimitCheck.AllCheck)
         local colorname = ""

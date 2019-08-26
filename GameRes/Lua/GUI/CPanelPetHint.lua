@@ -206,7 +206,7 @@ end
 
 def.method().Hide = function(self)
     game._GUIMan:CloseByScript(self)
-    -- MsgBox.CloseAll()
+    -- MsgBox.ClearAllBoxes()
 end
 
 CPanelPetHint.Commit()

@@ -160,6 +160,8 @@ local SpecialIdKey =
 	PetFromInfo	= 669,					-- 宠物蛋来源表
 	PetExpRecycleRatio = 677,			-- 宠物经验药返还比例
 	PetSkillBookFromInfo = 678,			-- 宠物技能书来源表
+	PathFilterDungeon = 693,		    -- 副本路径过滤器
+	BanAutoDecomposeItemType = 697      -- 禁止自动分解物品类型
 }
 
 -- 均是整数

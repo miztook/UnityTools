@@ -45,6 +45,8 @@ def.field("number")._ClickInterval = 0
 def.field("number")._HelpUrlType = -1
 def.field("string")._HelpUrlBtnName = "Btn_Info"
 
+def.field("dynamic")._PanelOnDataData = nil
+
 -- 生命周期函数 life time processes and all virtuals
 
 def.virtual().OnCreate = function(self)
@@ -64,11 +66,12 @@ end
 
 def.virtual("string").OnClick = function(self, id)
 	if id == self._HelpUrlBtnName and HelpPageUrl[self._HelpUrlType] then
-		if game._IsHideUrlHelp then
+		local options = GameConfig.Get("FuncOpenOption")
+		if options.HideUrlHelp then
 			game._GUIMan:ShowTipText(StringTable.Get(33), false)
 		else
 			local url = CPlatformSDKMan.Instance():GetCustomData(HelpPageUrl[self._HelpUrlType])
-			CPlatformSDKMan.Instance():ShowInAppWeb(url)
+			CPlatformSDKMan.Instance():ShowDaumCafeWithUrl(url)
 		end
 	end
 end

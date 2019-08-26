@@ -98,6 +98,9 @@ def.override().OnCreate = function(self)
     self._PanelObject = {}
     self._PanelObject._Rdo_TagGroup = self:GetUIObject("Rdo_TagGroup")
     self._PanelObject._Frame_SideTabs = self:GetUIObject("Frame_SideTabs")
+    self._PanelObject._Btn_Dungeon1 = self:GetUIObject("Btn_Dungeon1")
+    self._PanelObject._Btn_Dungeon2 = self:GetUIObject("Btn_Dungeon2")
+    self._PanelObject._Btn_Dungeon3 = self:GetUIObject("Btn_Dungeon3")
 end
 
 --{pageType = 1, data = nil or 1}
@@ -113,8 +116,8 @@ def.override("dynamic").OnData = function (self,data)
         end
         -- self._CurPageIndex + 1 是因为第一个是一个背景图
         GUI.SetGroupToggleOn(self._PanelObject._Rdo_TagGroup, self._CurPageIndex + 1)
+        self._CurrentPage = self._AllPages[self._CurPageIndex]
     end
-    self._CurrentPage = self._AllPages[self._CurPageIndex]
     self._CurrentPage:ShowPage(data.data)
     self:UpdatePanel()
     self:UpdateMoneyPanel()
@@ -128,10 +131,11 @@ end
 def.method("dynamic").GeneratePages = function(self, data)
     local pageInlay = CCharmPageInlay.new()
     local pageCompose = CCharmPageCompose.new()
-    pageInlay:Init(self, data.data)
-    pageCompose:Init(self, data.data)
     self._AllPages[#self._AllPages + 1] = pageInlay
     self._AllPages[#self._AllPages + 1] = pageCompose
+    self._CurrentPage = self._AllPages[self._CurPageIndex]
+    pageInlay:Init(self, data.data)
+    pageCompose:Init(self, data.data)
     for _,v in ipairs(self._AllPages) do
         v:HidePage()
     end
@@ -261,6 +265,12 @@ end
 --更新整个神符Panel
 -------------------------------------------------------
 def.method().UpdatePanel = function(self)
+    local options = GameConfig.Get("FuncOpenOption")
+    if options.HideGuildBattle then
+        self._PanelObject._Btn_Dungeon2:SetActive(false)
+    else
+        self._PanelObject._Btn_Dungeon2:SetActive(true)
+    end
     if self._CurrentPage == nil then
         warn("CPanelCharm.UpdatePanel 当前页签为空~！！")
         return

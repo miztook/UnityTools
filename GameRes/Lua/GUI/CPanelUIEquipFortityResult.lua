@@ -120,6 +120,7 @@ def.override().OnCreate = function(self)
         Img_ResultTitle = self:GetUIObject('Img_ResultTitle'),
         Lab_Restitution = self:GetUIObject('Lab_Restitution'),
         AttributeInfo = {},
+        PVPAttributeInfo = {},
         AttrChangeInfo = {},
         Lab_Next = self:GetUIObject("Lab_Next"),
         Btn_OK = self:GetUIObject('Btn_OK'),
@@ -130,6 +131,14 @@ def.override().OnCreate = function(self)
         AttributeInfo.Name = self:GetUIObject('Lab_AttributeName')
         AttributeInfo.New = self:GetUIObject('Lab_PropertyNew')
         AttributeInfo.Old = self:GetUIObject('Lab_PropertyOld')
+    end
+
+    do
+        local PVPAttributeInfo = self._PanelObject.PVPAttributeInfo
+        PVPAttributeInfo.Root = self:GetUIObject("PVP_Property")
+        PVPAttributeInfo.Name = self:GetUIObject('Lab_PVPAttributeName')
+        PVPAttributeInfo.New = self:GetUIObject('Lab_PVPPropertyNew')
+        PVPAttributeInfo.Old = self:GetUIObject('Lab_PVPPropertyOld')
     end
 
     do
@@ -210,41 +219,57 @@ def.method().StopCounter = function(self)
 end
 def.method().UpdateUI = function(self)
     local root = self._PanelObject
+    local bHasPVP = self._ItemDataNew.PVPFightProperty.index > 0
 
     local setting =
     {
         [EItemIconTag.StrengthLv] = self._ItemDataNew.InforceLevel,
         [EItemIconTag.Bind] = true,
+        [EItemIconTag.Grade] = self._ItemDataNew.FightProperty.star or -1,
     }
     IconTools.InitItemIconNew(root.SelectItem, self._ItemDataOld._Tid, setting)
 
+    root.PVPAttributeInfo.Root:SetActive( bHasPVP )
     root.Lab_Success:SetActive(self._Succees)
     root.Lab_Failed:SetActive(not self._Succees)
     GUITools.SetGroupImg(root.Img_ResultTitle, self._Succees and 0 or 1)
 
     GUI.SetText(root.Lab_EquipName, self._ItemDataOld:GetNameText())
-    -- IconTools.InitItemIconNew(root.Frame_EquipIcon, self._ItemDataOld._Tid, { [EItemIconTag.Bind] = self._ItemDataNew.IsBind })
 
     local AttributeInfo = root.AttributeInfo
+    local PVPAttributeInfo = root.PVPAttributeInfo
     local fightElement = CElementData.GetAttachedPropertyTemplate(self._ItemDataOld._BaseAttrs.ID)
     GUI.SetText(AttributeInfo.Name, fightElement.TextDisplayName)
+    if bHasPVP then
+        local pvpData = CElementData.GetAttachedPropertyTemplate(self._ItemDataOld._PVPFightProperty.ID)
+        GUI.SetText(PVPAttributeInfo.Name, pvpData.TextDisplayName)
+    end
+
 
     local curLv = self._ItemDataOld._InforceLevel
     local newLv = self._ItemDataNew.InforceLevel
     local baseVal = self._ItemDataOld._BaseAttrs.Value
+    local basvPVPVal = bHasPVP and self._ItemDataOld._PVPFightProperty.Value or 0
 
     local nextVal = baseVal
+    local nextPVPVal = basvPVPVal
     local InforceInfoNew = CEquipUtility.GetInforceInfoByLevel(self._ItemDataOld._ReinforceConfigId, newLv)
     if InforceInfoNew ~= nil then
         local fixedIncVal = math.ceil(baseVal * InforceInfoNew.InforeValue / 100)
+        local fixedPVPIncVal = bHasPVP and math.ceil(baseVal * InforceInfoNew.InforeValue / 100) or 0
         nextVal = baseVal + math.max(fixedIncVal, newLv)
+        nextPVPVal = bHasPVP and basvPVPVal +  math.max(fixedPVPIncVal, newLv) or 0
     end
 
     local curVal = baseVal
+    local curPVPVal = basvPVPVal
     local InforceInfoOld = CEquipUtility.GetInforceInfoByLevel(self._ItemDataOld._ReinforceConfigId, curLv)
     if InforceInfoOld ~= nil then
         local fixedIncVal = math.ceil(baseVal * InforceInfoOld.InforeValue / 100)
+        local fixedPVPIncVal = math.ceil(baseVal * InforceInfoOld.InforeValue / 100)
+
         curVal = baseVal + math.max(fixedIncVal, curLv)
+        curPVPVal = bHasPVP and basvPVPVal + math.max(fixedPVPIncVal, curLv)
     end
 
     local processStatus = curLv == newLv and EnumDef.EquipProcessStatus.None or
@@ -252,6 +277,10 @@ def.method().UpdateUI = function(self)
 
     GUI.SetText(AttributeInfo.New, RichTextTools.GetEquipProcessColorText(GUITools.FormatNumber(nextVal), processStatus))
     GUI.SetText(AttributeInfo.Old, GUITools.FormatNumber(curVal))
+    if bHasPVP then
+        GUI.SetText(PVPAttributeInfo.New, RichTextTools.GetEquipProcessColorText(GUITools.FormatNumber(nextPVPVal), processStatus))
+        GUI.SetText(PVPAttributeInfo.Old, GUITools.FormatNumber(curPVPVal))
+    end
 
     local AttrChangeInfo = self._PanelObject.AttrChangeInfo
     GUI.SetText(AttrChangeInfo.New, RichTextTools.GetEquipProcessColorText(string.format(StringTable.Get(10973), newLv), processStatus))

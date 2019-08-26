@@ -44,7 +44,7 @@ end
 local function formatTime(time)
 	local d = math.floor(time / 86400)
 	local h = math.floor(time % 86400 / 3600)
-	local m = math.ceil(time % 3600 / 60)
+	local m = math.floor(time % 3600 / 60)
 	local timeText = ""
 	if d > 0 then 
 		timeText = string.format(StringTable.Get(601),d)..StringTable.Get(30343)
@@ -52,6 +52,9 @@ local function formatTime(time)
 		if h == 0 then 
 			timeText = string.format(StringTable.Get(603),m)..StringTable.Get(30343)
 		else 
+			if m == 0 then 
+				m = 1 
+			end
 			timeText = string.format(StringTable.Get(602),h)..string.format(StringTable.Get(603),m)..StringTable.Get(30343)
 		end
 	end
@@ -107,7 +110,7 @@ def.method('userdata', 'string', 'number').InitItem = function(self, item, id, i
         GUI.SetText(lablv, string.format(StringTable.Get(30327),data.Level))
         GUI.SetText(labIntimacy,tostring(data.Amicability))
         GUI.SetText(labFight,GUITools.FormatNumber(data.Fight))
-        game:SetEntityCustomImg(imgHead,data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
+        TeraFuncs.SetEntityCustomImg(imgHead,data.RoleId,data.CustomImgSet,data.Gender,data.Profession)
         GameUtil.MakeImageGray(imgHead, not data.IsOnLine)
         GUI.SetText(labProfession,tostring(StringTable.Get(10300 + data.Profession - 1)))
         imgD:SetActive(false)
@@ -147,10 +150,8 @@ def.method('userdata', 'string', 'number').InitItem = function(self, item, id, i
         	local mapname = mapTemp.TextDisplayName
         	if data.MapInfo.LineId == 0 then 
         		GUI.SetText(labLocation, mapname)
-        	elseif data.MapInfo.LineId == 1 then 
-        		GUI.SetText(labLocation,string.format(StringTable.Get(30341), mapname))
-        	elseif data.MapInfo.LineId == 2 then 
-        		GUI.SetText(labLocation,string.format(StringTable.Get(30342), mapname))
+        	elseif data.MapInfo.LineId > 0 then 
+        		GUI.SetText(labLocation,string.format(StringTable.Get(30341), mapname,data.MapInfo.LineId))
         	end
         end
      	if self._CurSelectIndex == index + 1 then 
@@ -162,7 +163,7 @@ end
 
 def.method('userdata', 'string', 'number').SelectItem = function(self, item, id, index)
 	if id == "List_Friend" then 
-		if self._CurSelectIndex ~= index + 1 and self._CurSelectItem ~= nil then 
+		if self._CurSelectIndex ~= index + 1 and not IsNil(self._CurSelectItem) then 
 			self._CurSelectItem:FindChild("Img_D"):SetActive(false)
 		end
 		item:FindChild("Img_D"):SetActive(true)
@@ -173,13 +174,14 @@ end
 
 def.method("userdata", "string", "string", "number").SelectItemButton = function(self, button_obj, id, id_btn, index)
 	if id == "List_Friend" and id_btn == "Btn_Function" then 
-		if self._CurSelectIndex ~= index + 1 and self._CurSelectItem ~= nil then 
+		if self._CurSelectIndex ~= index + 1 and not IsNil(self._CurSelectItem) then 
 			self._CurSelectItem:FindChild("Img_D"):SetActive(false)
 		end
 		self._CurSelectIndex = index + 1
 		self._CurSelectItem = self._ItemList[index + 1]
 		self._CurSelectItem:FindChild("Img_D"):SetActive(true)
-		game:CheckOtherPlayerInfo(self._FriendListData[index + 1].RoleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.Friend)
+		local PBUtil = require "PB.PBUtil"
+		PBUtil.RequestOtherPlayerInfo(self._FriendListData[index + 1].RoleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.Friend)
 	end
 end
 

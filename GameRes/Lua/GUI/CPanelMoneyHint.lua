@@ -68,7 +68,7 @@ def.method("userdata").InitTipPosition = function (self,target)
 end
 def.method().Hide = function(self)
     game._GUIMan:CloseByScript(self)
-    -- MsgBox.CloseAll()
+    -- MsgBox.ClearAllBoxes()
 end
 CPanelMoneyHint.Commit()
 return CPanelMoneyHint

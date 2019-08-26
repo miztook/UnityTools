@@ -64,6 +64,20 @@ def.method("number", "=>", CIvtrItem).GetItem = function (self, tid)
 	end
 end
 
+def.method("number", "=>", CIvtrItem).GetItemByGuid = function(self, guid)
+	local retItem = nil
+	local ItemSet = self._ItemSet
+	for i = 1, #ItemSet do
+		local item = ItemSet[i]
+		if item and item._Guid == guid then
+			retItem = item
+			break
+		end
+	end
+
+	return retItem
+end
+
 def.method("number", "=>", "table").GetItems = function (self, tid)
 	local ItemSet = self._ItemSet
 	local res = {}

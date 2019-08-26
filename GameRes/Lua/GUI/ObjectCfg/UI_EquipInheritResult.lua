@@ -14,6 +14,12 @@ local cfg = {
     Img_Property_UpOrDown = 44668206,
     Lab_Next = -1901040987,
     Btn_OK = 2000023231,
+    Img_Inherit_BaseProperty = -286119962,
+    Img_Inherit_PVPProperty = -1582734593,
+    Img_PVPProperty_UpOrDown = 1090173980,
+    Lab_InheritedPVPPropertyNewValue = -212325272,
+    Lab_InheritedPVPPropertyOldValue = -1390877631,
+    Lab_InheritedPVPPropertyName = 749051586,
 }
  
 return cfg

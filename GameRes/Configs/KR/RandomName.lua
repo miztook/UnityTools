@@ -185,7 +185,7 @@ local IreneFemaleLastNames =
 --中缀常用符号 
 local InfixSymbols =
 {
-	"•"
+	""
 }
 
 return 

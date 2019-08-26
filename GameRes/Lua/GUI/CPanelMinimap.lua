@@ -169,6 +169,9 @@ def.method().LeaveDungeon = function (self)
 		if game._HostPlayer:IsInGlobalZone() then
 			-- 跨服副本
 			title, message, closeType = StringTable.GetMsg(131)
+		elseif game._DungeonMan:InTowerDungeon() or game._DungeonMan:InGuildDungeon() then
+			-- 爬塔或者公会副本
+			title, message, closeType = StringTable.GetMsg(140)
 		else
 			title, message, closeType = StringTable.GetMsg(17)
 		end
@@ -441,7 +444,7 @@ def.method().ReturnPageCommonMatchLogic = function(self)
 	elseif curType == EnumDef.AutoMatchType.QuickMatch then
 		local EInstanceType = require "PB.Template".Instance.EInstanceType
 		local roomId = game._DungeonMan:GetQuickMatchTargetId()
-		local dungeon_id = CTeamMan.Instance():ExchangeToDungeonId(roomId)
+		local dungeon_id = TeamUtil.ExchangeToDungeonId(roomId)
 
 		warn("dungeon_id = ", dungeon_id)
 

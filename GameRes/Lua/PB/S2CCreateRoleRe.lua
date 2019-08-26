@@ -17,7 +17,8 @@ local function OnCreateRoleRe(sender, msg)
 	
 	CPlatformSDKMan.Instance():UploadRoleInfoWhenCreate(msg.BriefRoleInfo.Id, msg.BriefRoleInfo.Name, msg.BriefRoleInfo.Level, msg.ZoneId, msg.BriefRoleInfo.GuildName, LuaUInt64.ToDouble(msg.RoleCreateTime))
 
-	game:SendSelectRole(msg.BriefRoleInfo.Id)
+	local PBUtil = require "PB.PBUtil"
+	PBUtil.SendSelectRoleProtocol(msg.BriefRoleInfo.Id)
 	game._GUIMan:Close("CPanelCreateRole")
 end
 

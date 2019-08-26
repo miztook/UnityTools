@@ -22,7 +22,7 @@ local function OnEntityDebugDetailInfo(sender, msg)
         --     text = entity._ID .. ", ClientPos:".. clientPos .. ", ServerPos:".. serverPos
         -- end
         -- warn("lidaming serverPos == ".. serverPos)
-        -- -- entity:OnTalkPopTopChange(true, text, 10)
+        -- -- entity:ShowPopText(true, text, 10)
         -- if entity._TopPate ~= nil then
         --     entity._TopPate:UpdateName(true)
         -- end

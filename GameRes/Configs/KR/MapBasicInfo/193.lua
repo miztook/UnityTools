@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Square",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world05.png",
 	AssetPath = "Assets/Outputs/Scenes/World05.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14020] = 
@@ -19,7 +20,7 @@ local MapInfo =
 		},
 		[14004] = 
 		{
-			[1] = { x = 215.79, y = 70.52, z = -22.76, name = "불사자", level = 54, SortID = 16 },
+			[1] = { x = 215.79, y = 70.52, z = -22.76, name = "언데드", level = 54, SortID = 16 },
 		},
 		[14007] = 
 		{
@@ -116,7 +117,7 @@ local MapInfo =
 		},
 		[4138] = 
 		{
-			[1] = { x = 169.66, y = 61.65, z = 34.13, name = "엘리언 쿠벨", SortID = 12 },
+			[1] = { x = 169.66, y = 61.65, z = 34.13, name = "엘리온 쿠벨", SortID = 12 },
 		},
 		[4136] = 
 		{
@@ -131,10 +132,10 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[335] = { x = 150.92, y = 58.18, z = -31.55, name = "케스타론", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {4050} },
-			[385] = { x = 236.89, y = 70.64, z = -22.22, name = "抵达广场", worldId = 0, PkMode = 0 },
-			[386] = { x = 256.59, y = 61.67, z = 29.84, name = "抵达城墙", worldId = 0, PkMode = 0 },
-			[387] = { x = 181.59, y = 70.52, z = -22.79, name = "逃走目标", worldId = 0, PkMode = 0 },
+			[335] = { x = 150.92, y = 58.18, z = -31.55, name = "케스타론", worldId = 0, PkMode = 1, IsCanHawkeye = true, QuestID = {4050} },
+			[385] = { x = 236.89, y = 70.64, z = -22.22, name = "抵达广场", worldId = 0, PkMode = 1 },
+			[386] = { x = 256.59, y = 61.67, z = 29.84, name = "抵达城墙", worldId = 0, PkMode = 1 },
+			[387] = { x = 181.59, y = 70.52, z = -22.79, name = "逃走目标", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

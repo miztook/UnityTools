@@ -10,15 +10,15 @@ local function SendMsgToCombatChannel(entity, attacker, HpDamage, isTreatment)
 	local chatContent = nil
 	if attacker:IsHostPlayer() then
 		if not isTreatment then
-			chatContent = string.format(StringTable.Get(13039),entity._InfoData._Name, HpDamage)
+			chatContent = string.format(StringTable.Get(13039),entity._InfoData._Name, GUITools.FormatNumber(HpDamage))
 		else
-			chatContent = string.format(StringTable.Get(13040), HpDamage)
+			chatContent = string.format(StringTable.Get(13040), GUITools.FormatNumber(HpDamage))
 		end
 	else
 		if not isTreatment then
-			chatContent = string.format(StringTable.Get(13042), attacker._InfoData._Name, HpDamage)
+			chatContent = string.format(StringTable.Get(13042), attacker._InfoData._Name, GUITools.FormatNumber(HpDamage))
 		else
-			chatContent = string.format(StringTable.Get(13041), attacker._InfoData._Name, HpDamage)
+			chatContent = string.format(StringTable.Get(13041), attacker._InfoData._Name, GUITools.FormatNumber(HpDamage))
 		end
 	end
 	if chatContent ~= nil then
@@ -26,25 +26,30 @@ local function SendMsgToCombatChannel(entity, attacker, HpDamage, isTreatment)
 	end
 end
 
-local function play_hurt_animation(attacker, protocol)
-	local entity = game._CurWorld:FindObject(protocol.EntityId) 
-	if entity == nil then return end
+local function play_hurt_animation(entity, attacker, protocol)
+	--local entity = game._CurWorld:FindObject(protocol.EntityId) 
+	if entity == nil or (not entity:IsModelLoaded()) then return end
 
 	if attacker ~= nil then			
 		local client_not_calc = true
 		local client_calc_victims = attacker._SkillHdl._ClientCalcVictims
-		if attacker:IsHostPlayer() and client_calc_victims and client_calc_victims[protocol.PerformId] ~= nil then
-			local victims = client_calc_victims[protocol.PerformId]
-			for i,v in ipairs(victims) do
-				if v._ID == protocol.EntityId then
-					client_not_calc = false
-					break
+		
+		if not attacker:IsHostPlayer() then
+			entity:OnBeHitted(attacker, protocol.HitActorId, protocol.HitGfxPosition, protocol.HitAnimationPlayType ~= JudgementHitAnimationPlayType.DoNotPlay)
+		else
+			if client_calc_victims and client_calc_victims[protocol.PerformId] ~= nil then
+				local victims = client_calc_victims[protocol.PerformId]
+				for i,v in ipairs(victims) do
+					if v._ID == protocol.EntityId then
+						client_not_calc = false
+						break
+					end
 				end
 			end
-		end
 
-		if not attacker:IsHostPlayer() or client_not_calc then
-			entity:OnBeHitted(attacker, protocol.HitActorId, protocol.HitGfxPosition, protocol.HitAnimationPlayType ~= JudgementHitAnimationPlayType.DoNotPlay)
+			if client_not_calc then 
+				entity:OnBeHitted(attacker, protocol.HitActorId, protocol.HitGfxPosition, protocol.HitAnimationPlayType ~= JudgementHitAnimationPlayType.DoNotPlay)
+			end
 		end
 
 		if client_calc_victims then
@@ -53,9 +58,60 @@ local function play_hurt_animation(attacker, protocol)
 	end
 end
 
-local function OnEntityBeJudged(sender, protocol)
+local function ChangeHateList (attacker, entity)	
+	-- 判断仇恨列表中是否已经存在
+	local hp = game._HostPlayer
+	if hp == nil then return end
+	if attacker == nil or entity == nil then return end
+	
+	local HateEntityId = 0
+	local TargetEntity = nil
+	if attacker:IsHostPlayer() then
+		HateEntityId = entity._ID
+		TargetEntity = entity
+	elseif entity:IsHostPlayer() then
+		HateEntityId = attacker._ID
+		TargetEntity = attacker
+	end
+	-- 怪物死亡不需要加到仇恨列表里。
+	if attacker:IsDead() or entity:IsDead() then return end
+	local index = table.indexof(hp._HatedEntityMap, HateEntityId)
+	if not index then -- 如果没有对应的id就添加
+		table.insert(hp._HatedEntityMap, HateEntityId)		
+		game:UpdateCameraLockState(HateEntityId, true)
+		if hp._IsTargetLocked == false then
+			hp:UpdateTargetInfo(TargetEntity, true)
+		end
+	end
+
+	local UpdateEntity = game._CurWorld:FindObject(HateEntityId)
+	if UpdateEntity == nil then return end
+
+	if UpdateEntity:IsRole() then  -- 仇恨值变化只需要刷新名字颜色
+		if not UpdateEntity:IsHostPlayer() then
+			UpdateEntity:SetPKMode(UpdateEntity:GetPkMode())
+		end
+		if UpdateEntity._TopPate ~= nil then
+			UpdateEntity:UpdateTopPate(EnumDef.PateChangeType.HPLine)
+			UpdateEntity._TopPate:UpdateName(true)
+			UpdateEntity:UpdatePetName()
+		end
+	else
+		UpdateEntity:OnBattleTopChange(true)
+	end
+end
+
+local function ProcessOneEntityBeJudged(protocol)
 	local entity = game._CurWorld:FindObject(protocol.EntityId) 
 	if entity == nil then return end
+
+	if not entity:IsCullingVisible() 
+		or (game._IsInWorldBoss and not entity:IsHostPlayer() and math.random(1, 10) > 5) then
+		if protocol.HpDamage > 0 then
+			entity:OnHPChange_Simple(-protocol.HpDamage, -1)
+		end
+		return
+	end
 
 	local attacker = game._CurWorld:FindObject(protocol.OriginId)
 	-- 控制状态
@@ -66,22 +122,33 @@ local function OnEntityBeJudged(sender, protocol)
 		if entity:IsHostPlayer() then 
 			entity:SetAutoPathFlag(false)
 		end
-		play_hurt_animation(attacker, protocol)
+		play_hurt_animation(entity, attacker, protocol)
 		local hiteffect = entity._HitEffectInfo
 		local hit_params = {controlledInfo.Param1, controlledInfo.Param2, controlledInfo.Param3}
 		hiteffect:ChangeEffect(attacker, controlledInfo.ControlType, hit_params, controlledInfo.MovedDest)
 	else
-		play_hurt_animation(attacker, protocol)
+		play_hurt_animation(entity, attacker, protocol)
 	end
 	
 	if protocol.HpDamage > 0 then
 		if (attacker ~= nil and attacker:IsHostPlayer()) or entity:IsHostPlayer() then 
 			SendMsgToCombatChannel(entity, attacker, protocol.HpDamage, false)
+			ChangeHateList(attacker, entity)
 		end
 		
 		-- 掉血、冒字
 		entity:OnHPChange(-protocol.HpDamage, -1)
 		entity:OnHurt(protocol.HpDamage, protocol.OriginId, protocol.CriticalHit, protocol.ElementType)
+	end
+end
+
+local function OnEntityBeJudged(sender, protocol)
+	ProcessOneEntityBeJudged(protocol)
+
+	if protocol.ProtoList ~= nil then
+		for i,v in ipairs(protocol.ProtoList) do
+			ProcessOneEntityBeJudged(v)
+		end
 	end
 end
 
@@ -150,6 +217,7 @@ local function OnEntityDamage(sender, protocol)
 		local attacker = game._CurWorld:FindObject(protocol.OriginId)
 		if (attacker ~= nil and attacker:IsHostPlayer()) or entity:IsHostPlayer() then 
 			SendMsgToCombatChannel(entity, attacker, protocol.HpDamage, false)
+			ChangeHateList(attacker, entity)
 		end
 		entity:OnHPChange(-protocol.HpDamage, -1)	
 		entity:OnHurt(protocol.HpDamage, protocol.OriginId, protocol.CriticalHit, protocol.ElementType)
@@ -157,6 +225,7 @@ local function OnEntityDamage(sender, protocol)
 end
 
 PBHelper.AddHandler("S2CEntityDamage", OnEntityDamage)
+
 
 local function OnDamageLog(sender, protocol)
 
@@ -181,9 +250,13 @@ local function OnDamageLog(sender, protocol)
 		tostring(protocol.IsCritical) , tostring(protocol.IsBlock) , tostring(protocol.IsMaster) , protocol.FinalDamage , tostring(protocol.IsChase) , protocol.ChaseDamage ,
 		protocol.DamageAbsolute, protocol.DamagePercent, protocol.RandomFactor )
 
+	local Str1 = string.format("玩家伤害增加百分比:%f 玩家伤害减少百分比:%f 暴击伤害减免百分:%f 目标玩家伤害增加:%f 目标玩家伤害减少百分比:%f  目标暴击伤害减免百分比:%f",
+		protocol.PvpDamageAdditionRate , protocol.PvpDamageReduceRate , protocol.CriticalDamageReduceRate , protocol.BePvpDamageAdditionRate , protocol.BePvpDamageReduceRate , protocol.BeCriticalDamageReduceRate )
+	
 	warn(attackStr)
 	warn(beattackedStr)
 	warn(isStr)
+	warn(Str1)
 end
 
 PBHelper.AddHandler("S2CDamageLog", OnDamageLog)
@@ -225,13 +298,19 @@ PBHelper.AddHandler("S2CEntityFightFeature", OnS2CEntityFightFeature)
 --  msg 结构
 -- 	required int32 EntityId					= 2; 
 -- 	repeated bool  BaseStates				= 3; //UNIT_STATE	
-local function OnS2CEntityBaseState(sender, protocol)
+local function ProcessOneEntityBaseStateMsg(protocol)
 	local entity = game._CurWorld:FindObject(protocol.EntityId) 
-	if entity then
+	if entity and entity:IsCullingVisible() then
 		entity:UpdateSealInfo(protocol.BaseStates)
-	else
-		--warn("can not find entity, id = "..tostring(protocol.EntityId))
-		return 
+	end
+end
+
+local function OnS2CEntityBaseState(sender, protocol)
+	ProcessOneEntityBaseStateMsg(protocol)
+	if protocol.ProtoList ~= nil then
+		for i,v in ipairs(protocol.ProtoList) do
+			ProcessOneEntityBaseStateMsg(v)
+		end
 	end
 end
 PBHelper.AddHandler("S2CEntityBaseState", OnS2CEntityBaseState)

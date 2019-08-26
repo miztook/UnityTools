@@ -102,12 +102,12 @@ def.method().PopupOneTip = function(self)
     if data.Type == EnumDef.OperationTipsType.PlayerLevelUp then
         if self._FrameOperation ~= nil then
             self._FrameOperation: SetActive(false)
-                warn("<OperationTip> _FrameOperation SetActive(false)")
+                --warn("<OperationTip> _FrameOperation SetActive(false)")
         end
 
         if self._FrameLevelUp ~= nil then
             self._FrameLevelUp: SetActive(true)
-                warn("<OperationTip> _FrameOperation SetActive(true)")
+                --warn("<OperationTip> _FrameOperation SetActive(true)")
         end
 --        GUITools.DoAlpha(self._LevelUpBg, 1, 0.1, nil) 
 --        GUITools.DoAlpha(self._LevelUpBg1, 1, 0.1, nil) 
@@ -127,18 +127,18 @@ def.method().PopupOneTip = function(self)
 
         if data.Type == EnumDef.OperationTipsType.FuncOpen then
                 self:PlayMoveTips(data)
-                warn("<OperationTip> PopupOneTip MoveTips")
+                --warn("<OperationTip> PopupOneTip MoveTips")
         else
                 -- 正常弹出框提示
                 self:PlayNormalTips(data)
-                warn("<OperationTip> PopupOneTip NormalTips")
+                --warn("<OperationTip> PopupOneTip NormalTips")
         end
 
         --特效
         GameUtil.PlayUISfx(PATH.UIFX_OperationTips_BG, self._Panel, self._Panel, -1, 20, -1)
         GameUtil.PlayUISfx(PATH.UIFX_OperationTips, self._Panel, self._Panel, -1, 20, 1)
         self._TweenPlayer:Restart("0")
-        warn("<OperationTip> Dotween Restart 0")
+        --warn("<OperationTip> Dotween Restart 0")
 
         CSoundMan.Instance():Play2DAudio(PATH.GUISound_Msg_Unlock, 0)
     end  
@@ -237,10 +237,10 @@ def.override("string", "string").OnDOTComplete = function(self, go_name, dot_id)
 	--特例 不掉 CPanelBase.OnDOTComplete(self,go_name,dot_id)
 
     if dot_id == "1" then
-        warn("<OperationTip> Dotween Complete 1")
+        --warn("<OperationTip> Dotween Complete 1")
         self:CloseTip()
     elseif dot_id == "0" then
-        warn("<OperationTip> Dotween Complete 0")
+        --warn("<OperationTip> Dotween Complete 0")
         if self._IsMoveTip and #self._OperationTipQueue >= 1  and self._OperationTipQueue[1].Param ~= "" then
             local data =  self._OperationTipQueue[1]
 
@@ -320,7 +320,7 @@ end
 
 def.override().OnHide = function(self)
         CPanelBase.OnHide(self)
-        warn("<OperationTip> OnHide")
+        --warn("<OperationTip> OnHide")
 
         if self._FrameOperation ~= nil then
             self._FrameOperation: SetActive(false)

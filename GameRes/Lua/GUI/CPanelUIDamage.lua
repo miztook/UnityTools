@@ -52,7 +52,7 @@ def.override("dynamic").OnData = function(self, data)
             self._MaxDamage = data._Info[i].Damage
         end
 	end
-    if data._TotalHP ~= nil then
+    if data._TotalHP ~= nil and data._TotalHP > 0 then
         self._TotalDamage = data._TotalHP
     end
 	self._Data = data

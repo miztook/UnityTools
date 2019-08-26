@@ -59,7 +59,7 @@ struct SLuaClass
 
 struct SLuaFile
 {
-	std::string strFileName;
+	std::string strName;
 
 	//
 	std::map<std::string, std::set<SLocation>>	templateLocationMap;

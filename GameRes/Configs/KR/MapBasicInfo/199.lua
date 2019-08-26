@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/city01.png",
 	AssetPath = "Assets/Outputs/Scenes/World05.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14048] = 
@@ -71,7 +72,7 @@ local MapInfo =
 		},
 		[4142] = 
 		{
-			[1] = { x = -121.55, y = 24.77, z = -279.38, name = "놀고 싶은 여자 아이", SortID = 222 },
+			[1] = { x = -121.55, y = 24.77, z = -279.38, name = "놀고 싶은 여자아이", SortID = 222 },
 		},
 		[4143] = 
 		{
@@ -198,18 +199,18 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[384] = { x = -54.81, y = 17.74, z = -287.87, name = "调查越狱现场支线", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[385] = { x = -99.88, y = 38.54, z = -158.55, name = "追猎抵达区域支线", worldId = 0, PkMode = 0 },
-			[386] = { x = -98.70, y = 40.33, z = -142.20, name = "追猎刷怪区域支线", worldId = 0, PkMode = 0 },
-			[387] = { x = -215.53, y = 17.74, z = -302.97, name = "处决进入相位区域支线", worldId = 0, PkMode = 0 },
-			[388] = { x = -5.64, y = 51.80, z = -130.00, name = "失踪的小队抵达支线", worldId = 0, PkMode = 0 },
-			[389] = { x = 189.05, y = 35.71, z = -178.57, name = "“同伴”抵达区域支线", worldId = 0, PkMode = 0 },
-			[390] = { x = 178.36, y = 36.23, z = -156.18, name = "“同伴”协战区域", worldId = 0, PkMode = 0 },
-			[391] = { x = 85.92, y = 37.13, z = -143.54, name = "感染进入相位区域支线", worldId = 0, PkMode = 0 },
-			[392] = { x = 25.42, y = 68.68, z = -46.62, name = "新生协战区域支线", worldId = 0, PkMode = 0 },
-			[393] = { x = 258.04, y = 70.64, z = -26.29, name = "操练进入相位区域支线", worldId = 0, PkMode = 0 },
-			[394] = { x = 138.09, y = 18.34, z = 146.50, name = "实战进入相位区域支线", worldId = 0, PkMode = 0 },
-			[395] = { x = -84.64, y = 70.22, z = 283.49, name = "神性之隙抵达区域支线", worldId = 0, PkMode = 0 },
+			[384] = { x = -54.81, y = 17.74, z = -287.87, name = "调查越狱现场支线", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[385] = { x = -99.88, y = 38.54, z = -158.55, name = "追猎抵达区域支线", worldId = 0, PkMode = 1 },
+			[386] = { x = -98.70, y = 40.33, z = -142.20, name = "追猎刷怪区域支线", worldId = 0, PkMode = 1 },
+			[387] = { x = -215.53, y = 17.74, z = -302.97, name = "处决进入相位区域支线", worldId = 0, PkMode = 1 },
+			[388] = { x = -5.64, y = 51.80, z = -130.00, name = "失踪的小队抵达支线", worldId = 0, PkMode = 1 },
+			[389] = { x = 189.05, y = 35.71, z = -178.57, name = "“同伴”抵达区域支线", worldId = 0, PkMode = 1 },
+			[390] = { x = 178.36, y = 36.23, z = -156.18, name = "“同伴”协战区域", worldId = 0, PkMode = 1 },
+			[391] = { x = 85.92, y = 37.13, z = -143.54, name = "感染进入相位区域支线", worldId = 0, PkMode = 1 },
+			[392] = { x = 25.42, y = 68.68, z = -46.62, name = "新生协战区域支线", worldId = 0, PkMode = 1 },
+			[393] = { x = 258.04, y = 70.64, z = -26.29, name = "操练进入相位区域支线", worldId = 0, PkMode = 1 },
+			[394] = { x = 138.09, y = 18.34, z = 146.50, name = "实战进入相位区域支线", worldId = 0, PkMode = 1 },
+			[395] = { x = -84.64, y = 70.22, z = 283.49, name = "神性之隙抵达区域支线", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

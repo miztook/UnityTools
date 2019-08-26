@@ -69,6 +69,7 @@ end
 
 def.override("number", "=>").EnterState = function(self, oldstate)
 	CFSMStateBase.EnterState(self, oldstate)
+	self._Host:QuitExterior()
 	self._Host:UpdateWingAnimation() -- 翅膀动作要比人物动作先更新，因为人物动作的更新会导致翅膀动作改变
 	self:PlayMountStateAnimation(oldstate)
 	

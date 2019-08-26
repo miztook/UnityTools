@@ -12,10 +12,6 @@ def.field("table")._PetData = nil
 def.field("boolean")._EnoughMaterial = false
 def.field("function")._CallBack = nil
 
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
-
 local instance = nil
 def.static('=>', CPanelUIPetResetRecastCntCost).Instance = function ()
     if not instance then
@@ -106,7 +102,7 @@ def.override('string').OnClick = function(self, id)
                 self._CallBack()
             end
         else
-            SendFlashMsg(StringTable.Get(10901), false)
+            TeraFuncs.SendFlashMsg(StringTable.Get(10901), false)
         end
 
         game._GUIMan:CloseByScript(self)

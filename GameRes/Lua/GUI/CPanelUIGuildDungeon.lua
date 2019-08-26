@@ -61,7 +61,7 @@ def.override("dynamic").OnData = function(self, data)
     self._HelpUrlType = HelpPageUrlType.Guild_Dungeon
 	self._Data = {}
 	self._Data._Template = {}	
-	local allTid = GameUtil.GetAllTid("GuildExpedition")
+	local allTid = CElementData.GetAllTid("GuildExpedition")
 	for i = 1, #allTid do
 		self._Data._Template[i] = CElementData.GetTemplate("GuildExpedition", allTid[i]) 
 	end
@@ -120,8 +120,9 @@ def.override("dynamic").OnData = function(self, data)
 			end
 		end
 	end
-    local bg1 = self._Panel:FindChild("Img_BG")
-	GameUtil.PlayUISfx(PATH.UI_Guild_Defend_bg_sfx,bg1,bg1,-1)
+    --去掉
+--    local bg1 = self._Panel:FindChild("Img_BG")
+--	GameUtil.PlayUISfx(PATH.UI_Guild_Defend_bg_sfx,bg1,bg1,-1)
     local protocol = (require "PB.net".C2SGuildExpeditionDamageInfo)()
     protocol.DungeonTID = self._Data._Template[self._PageIndex].DungeonDatas[self._BossIndex].DungeonTID
 	PBHelper.Send(protocol)
@@ -233,10 +234,12 @@ local UpdateBottomPanel = function(self)
                         if self._Data._CurDungeonTid == expedition.DungeonDatas[self._BossIndex].DungeonTID then
                             btn_enter:SetActive(true)
                         else
-                            lab_red_tip:SetActive(true)
-                            local tid = self._Data._Template[self._PageIndex].DungeonDatas[self._BossIndex - 1].DungeonTID
-				            local name = CElementData.GetTemplate("Instance", tid).TextDisplayName
-				            GUI.SetText(lab_red_tip, string.format(StringTable.Get(8067), name))
+                            if self._BossIndex > 0 then
+                                lab_red_tip:SetActive(true)
+                                local tid = self._Data._Template[self._PageIndex].DungeonDatas[self._BossIndex - 1].DungeonTID
+				                local name = CElementData.GetTemplate("Instance", tid).TextDisplayName
+				                GUI.SetText(lab_red_tip, string.format(StringTable.Get(8067), name))
+                            end
                         end
                     end
                 end
@@ -304,6 +307,7 @@ local UpdateRightPanel = function(self)
 		end
         GameUtil.SetButtonInteractable(btn_reward, not self._Data._Rewarded[dungeonTid])
         GameUtil.MakeImageGray(img_reward, self._Data._Rewarded[dungeonTid])
+        GUITools.SetGroupImg(img_reward, self._Data._Rewarded[dungeonTid] and 1 or 0)
     end
 
     do  -- 排行情况
@@ -315,7 +319,14 @@ local UpdateRightPanel = function(self)
             max_count = #self._DamageInfo.DamageDatas
         end
         if boss_max_hp == 0 then
-            boss_max_hp = max_count
+            boss_max_hp = max_damage
+            if self._DamageInfo ~= nil and self._DamageInfo.DamageDatas and #self._DamageInfo.DamageDatas > 0 then
+                local total_damage = 0
+                for i,v in ipairs(self._DamageInfo.DamageDatas) do
+                    total_damage = total_damage + v.Damage
+                end
+                boss_max_hp = total_damage
+            end
         end
         for i = 1,5 do
             local item = GUITools.GetChild(frame_rank_info, i-1)

@@ -69,6 +69,13 @@ int main(int argc, char* argv[])
 		goto FAIL;
 	}
 
+	if (!lpluschecker.BuildLuaFiles())
+	{
+		ASSERT(false);
+		printf("failed to build luaClasses\n");
+		goto FAIL;
+	}
+
 	/*
 	if (!lpluschecker.CollectAndCheckNetProto())
 	{

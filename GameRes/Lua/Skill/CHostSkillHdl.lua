@@ -1648,14 +1648,14 @@ end
 def.method("number", "dynamic").OnSkillFailed = function(self, skill_id, pos)	
 	-- 客户端技能已经结束，无需做特殊处理，只需要同步一下位置
 	if self._ActiveCommonSkill == nil then
-		print("Recv S2CSkillPerformFailed after Client SkillStop")
+		--print("Recv S2CSkillPerformFailed after Client SkillStop")
 		self._Host:SetPos(pos)
 		return
 	end
 
 	-- 异常, 已经切换到了另一个技能，直接忽略当前消息
 	if self._ActiveCommonSkill._SkillID ~= skill_id then
-		print("Recv S2CSkillPerformFailed when a new Skill is performing " .. skill_id .. " - " .. self._ActiveCommonSkill._SkillID)
+		--print("Recv S2CSkillPerformFailed when a new Skill is performing " .. skill_id .. " - " .. self._ActiveCommonSkill._SkillID)
 		return
 	end	
 

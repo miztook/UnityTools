@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Castle",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13034] = 
@@ -29,7 +30,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[309] = { x = -209.19, y = 84.24, z = 65.71, name = "마법 서클", worldId = 0, IsCanFind = 1, PkMode = 0 },
+			[309] = { x = -209.19, y = 84.24, z = 65.71, name = "마법 서클", worldId = 0, IsCanFind = 1, PkMode = 1 },
 		},
 	},
 	Mine = 

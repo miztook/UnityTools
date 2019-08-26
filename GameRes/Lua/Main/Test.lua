@@ -3,7 +3,7 @@
 -- pvrtc VS truecolor
 local panels = {}
 local function CreatePanel(prefab)
-	local panel = GameObject.Instantiate(prefab)
+	local panel = prefab
 	local parentgo = GameObject.Find("UIRootCanvas")
 	panel:SetParent(parentgo, false)
 	panels[#panels + 1] = panel
@@ -14,13 +14,15 @@ function test1(start)
 		local Panel_TrueColor = "Assets/Outputs/Interfaces/Panel_test01.prefab"
 		local Panel_Pvrtc = "Assets/Outputs/Interfaces/Panel_test02.prefab"
 
-		GameUtil.AsyncLoad(Panel_TrueColor, function(res)
+		local cb1 = function(res)
 				CreatePanel(res)
-			end)
+			end
+		GameUtil.AsyncLoad(Panel_TrueColor, cb1, false, "interfaces")
 
-		GameUtil.AsyncLoad(Panel_Pvrtc, function(res)
+		local cb2 = function(res)
 				CreatePanel(res)
-			end)
+			end
+		GameUtil.AsyncLoad(Panel_Pvrtc, , false, , "interfaces")
 	end
 
 	if not start and #panels > 0 then

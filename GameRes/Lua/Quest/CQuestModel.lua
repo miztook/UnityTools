@@ -261,14 +261,10 @@ def.method("number", "=>", "boolean").IsSubQuestComplete = function(self, sub_qu
     return false
 end
 
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
-
 def.method().DoShortcut = function(self)
     --tmpOpen = true
     if game._HostPlayer:IsInGlobalZone() then
-        SendFlashMsg(StringTable.Get(15556), false)
+        TeraFuncs.SendFlashMsg(StringTable.Get(15556), false)
         return
     end
 
@@ -278,6 +274,9 @@ def.method().DoShortcut = function(self)
     if status == QuestDef.Status.NotRecieved then
         self:NavigatToProviderNpc()
     elseif status == QuestDef.Status.InProgress then
+        if self:FindDiffMapProNpc() then
+            return
+        end
         local cur_objective = self:GetCurrentObjective()
         if cur_objective then
             cur_objective:DoShortcut()
@@ -399,7 +398,6 @@ def.method().NavigatToDeliverNpc = function(self)
 
     if not IsInMap or not IsInRegion then
         local CTransManage = require "Main.CTransManage"        
-        print("=====",map_tid,region_tid) 
         if region_tid == 0 then
             CTransManage.Instance():TransToCity(map_tid)
         else
@@ -410,6 +408,48 @@ def.method().NavigatToDeliverNpc = function(self)
 
     local CQuestNavigation = require "Quest.CQuestNavigation"
     CQuestNavigation.Instance():NavigatToNpc(npc_tid, {EnumDef.ServiceType.DeliverQuest, self.Id})
+end
+
+def.method("=>","boolean").FindDiffMapProNpc = function(self)
+    local cur_objective = self:GetCurrentObjective()
+    local temp = cur_objective:GetTemplate()
+    local npc_tid = 0    
+    if temp.Conversation._is_present_in_parent then
+        if temp.Conversation.NpcId > 0 then
+            npc_tid = temp.Conversation.NpcId
+        end
+    end
+
+    --不要删除 找到实时跟随NPC 所用
+    local map_tid,region_tid = self:GetTargetMapTIDByAssistNpc(npc_tid)
+
+    local IsInMap = false
+    if map_tid == 0 or game._CurWorld._WorldInfo.MapTid == map_tid then
+        IsInMap = true
+    end 
+
+    local IsInRegion = false
+    for k, v in ipairs(game._HostPlayer._CurrentRegionIds) do
+        if v == region_tid then
+           IsInRegion = true
+           break
+        end
+    end
+    if region_tid == 0 then
+        IsInRegion = true
+    end
+    --print("###############~~~~~~~~~~~~~~",npc_tid,map_tid,region_tid,IsInMap,IsInMap,IsInRegion)
+    if not IsInMap or not IsInRegion then
+        local CTransManage = require "Main.CTransManage"        
+        if region_tid == 0 then
+            CTransManage.Instance():TransToCity(map_tid)
+        else
+            CTransManage.Instance():TransToRegionIsNeedBroken(map_tid,region_tid,true,nil, true)  
+        end
+        return true
+    end
+
+    return false
 end
 
 --是否激活

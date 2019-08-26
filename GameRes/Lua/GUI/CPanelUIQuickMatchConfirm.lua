@@ -3,6 +3,7 @@ local CPanelBase = require "GUI.CPanelBase"
 local CTeamMan = require "Team.CTeamMan"
 local CPanelUIQuickMatchConfirm = Lplus.Extend(CPanelBase, "CPanelUIQuickMatchConfirm")
 local CElementData = require "Data.CElementData"
+local CPVEAutoMatch = require "ObjHdl.CPVEAutoMatch"
 local CGame = Lplus.ForwardDeclare("CGame")
 local def = CPanelUIQuickMatchConfirm.define
 
@@ -21,7 +22,7 @@ def.static("=>", CPanelUIQuickMatchConfirm).Instance = function()
 		instance._PanelCloseType = EnumDef.PanelCloseType.None
 		instance._DestroyOnHide = true
 		instance._ForbidESC = true
-                instance:SetupSortingParam()
+        instance:SetupSortingParam()
 	end
 	return instance
 end
@@ -44,6 +45,7 @@ end
 local function HideSelf()
     if instance and instance:IsShow() then
         game._GUIMan:CloseByScript(instance)
+        CPVEAutoMatch.Instance():Lock(instance._InfoData.DungeonId)
     end
 end
 
@@ -70,7 +72,7 @@ def.method().UpdateDungeonTitle = function(self)
     if targetDungeon == nil then
         GUI.SetText(self._PanelObject.Lab_MsgTitle, StringTable.Get(22007))
     else
-        local str = string.format(StringTable.Get(22006), CTeamMan.Instance():GetTeamRoomNameByDungeonId(self._InfoData.DungeonId))
+        local str = string.format(StringTable.Get(22006), TeamUtil.GetTeamRoomNameByDungeonId(self._InfoData.DungeonId))
         GUI.SetText(self._PanelObject.Lab_MsgTitle, str)
     end
 end
@@ -149,7 +151,7 @@ def.override("string").OnClick = function(self,id)
                 end
                 local title, msg, closeType = StringTable.GetMsg(88)
                 local message = string.format(msg, dungeon_temp.TextDisplayName)
-			    MsgBox.ShowMsgBox(message, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback, nil, nil, MsgBoxPriority.Disconnect)
+			    MsgBox.ShowMsgBox(message, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback, nil, nil, MsgBoxPriority.ImportantTip)
             else
     		    game._DungeonMan:SendC2SQuickMatchConfirm(matchingId, true)
             end

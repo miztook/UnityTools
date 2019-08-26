@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Farm",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10087] = 
@@ -19,7 +20,7 @@ local MapInfo =
 		},
 		[10003] = 
 		{
-			[1] = { x = -43.00, y = 54.84, z = 15.70, name = "장교 구자르", level = 6, SortID = 123 },
+			[1] = { x = -43.00, y = 54.84, z = 15.70, name = "백부장 구자르", level = 6, SortID = 123 },
 		},
 		[10061] = 
 		{
@@ -50,7 +51,7 @@ local MapInfo =
 		},
 		[147] = 
 		{
-			[1] = { x = -3.78, y = 57.91, z = -19.36, name = "잡화상인", SortID = 145 },
+			[1] = { x = -3.78, y = 57.91, z = -19.36, name = "잡화 상인", SortID = 145 },
 		},
 		[7] = 
 		{

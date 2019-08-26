@@ -8,6 +8,8 @@ local CGame = Lplus.ForwardDeclare("CGame")
 local NotifyMoneyChangeEvent = require "Events.NotifyMoneyChangeEvent"
 local CElementData = require "Data.CElementData"
 local EScriptEventType = require "PB.data".EScriptEventType
+local EActivityType = require "PB.Template".ActivityPage.EActivityType
+
 local CFrameCurrency = require "GUI.CFrameCurrency"
 local CPanelUIWelfare = Lplus.Extend(CPanelBase, 'CPanelUIWelfare')
 local def = CPanelUIWelfare.define
@@ -24,6 +26,12 @@ def.field(CPageOnlineReward)._CPageOnlineReward = nil
 
 local CPageExchange = require "GUI.CPageExchange"     -- 材料兑换
 def.field(CPageExchange)._CPageExchange = nil
+
+local CPageDice = require "GUI.CPageDice"     -- 骰子
+def.field(CPageDice)._CPageDice = nil
+
+local CPageHotEvent = require "GUI.CPageHotEvent"     -- 热点活动
+def.field(CPageHotEvent)._CPageHotEvent = nil
 
 def.field("userdata")._Frame_WelfareList = nil 
 def.field('userdata')._List_MenuType = nil
@@ -42,6 +50,7 @@ def.field("userdata")._Frame_Sign = nil
 def.field(CFrameCurrency)._Frame_Money = nil
 def.field("number")._CurFrameType = 1 --当前页
 def.field("table")._WelfareType = BlankTable
+def.field("table")._WelfareTypeInfo = BlankTable        -- 福利页签对应信息
 def.field("table")._SignInfo = BlankTable
 def.field("table")._SignDays = BlankTable
 def.field("table")._SignDaysInfo = BlankTable
@@ -66,13 +75,11 @@ def.field("number")._CostItemMaterialId = 0
 def.field("string")._CostItemFlowerName = '' 
 def.field("string")._CostItemMaterialName = '' 
 def.field("number")._CurToggle = 0
-
 def.field("table")._SpecialSignInfo = BlankTable    -- 特殊签到详细信息
 
 local GLORY_UNLOCKED_BY_TID = 110  -- 冒险生涯教学功能Tid
 
 local eventType = -1 
-local scriptId = 0
 
 local ToggleType = 
 {
@@ -106,43 +113,56 @@ def.override().OnCreate = function(self)
     self._ScrollSign = self._Frame_Sign:GetComponent(ClassType.Scrollbar)
     
     self._CPageGloryInfo = CPageGloryInfo.new(self, self:GetUIObject("Frame_GloryVIP"))
-    self._CurFrameType = EnumDef.WelfareType._Sign
+    self._CurFrameType = EActivityType.EActivityType_Sign
       
     self._Frame_ActivityClose = self:GetUIObject("Frame_ActivityClose")
     self._CPageSpecialSign = CPageSpecialSign.new(self, self:GetUIObject("Frame_SpecialSign"))
     self._CPageOnlineReward = CPageOnlineReward.new(self, self:GetUIObject("Frame_OnlineReward"))
     self._CPageExchange = CPageExchange.new(self, self:GetUIObject("Frame_Festival"))
+    self._CPageDice = CPageDice.new(self, self:GetUIObject("Frame_Dice"))
+    self._CPageHotEvent = CPageHotEvent.new(self, self:GetUIObject("Frame_HotEvent"))
     self._List_Sign = self:GetUIObject("List_Sign")
-
+    self._WelfareType = game._CWelfareMan:GetAllWelfareTypes()
 end
 
 def.override("dynamic").OnData = function(self,data)
-    self._HelpUrlType = HelpPageUrlType.Welfare
-    self._WelfareType = game._CWelfareMan:GetAllWelfareTypes() 
+    self._HelpUrlType = HelpPageUrlType.Welfare    
     self._SignDays = game._CWelfareMan:GetAllSignDays()
     self._SignInfo = game._CWelfareMan:GetAllSignInfo()
     self._CurDay = game._CWelfareMan:GetCurrentDay()  
-    self._CurSignedDays = game._CWelfareMan:GetCurrentSignedDays()  
+    self._CurSignedDays = game._CWelfareMan:GetCurrentSignedDays()
     self._List_Sign:GetComponent(ClassType.GNewList):SetItemCount(game._CWelfareMan:GetCurrentTotalDay())
     -- 初始化精灵献礼模板数据
     if data == nil then 
         self:OpenPanelToggle(ToggleType.WelfareType)
     else 
-        -- 直接打开对应的页签
-        self:OpenPanelToggle(ToggleType.WelfareType)            
-        if data == "SpecialSign" or data == EnumDef.WelfareType._SpecialSign then
-            self._CurFrameType = EnumDef.WelfareType._SpecialSign
-        elseif data == EnumDef.WelfareType._Sign then
-            self._CurFrameType = EnumDef.WelfareType._Sign
-        elseif data == EnumDef.WelfareType._GloryVIP then  
-            if game._CFunctionMan:IsUnlockByFunTid(GLORY_UNLOCKED_BY_TID) then -- if game._HostPlayer:GetGloryLevel() > 0 then         
-                self._CurFrameType = EnumDef.WelfareType._GloryVIP
-            else
-                game._GUIMan:ShowTipText(StringTable.Get(23), false)
+                    
+        -- if data == "SpecialSign" or data == EActivityType.EActivityType_SpecalSign then
+        --     self._CurFrameType = EActivityType.EActivityType_SpecalSign
+        -- elseif data == EActivityType.EActivityType_Sign then
+        --     self._CurFrameType = EActivityType.EActivityType_Sign
+        -- elseif data == EActivityType.EActivityType_AdventureGuid then  
+        --     if game._CFunctionMan:IsUnlockByFunTid(GLORY_UNLOCKED_BY_TID) then -- if game._HostPlayer:GetGloryLevel() > 0 then         
+        --         self._CurFrameType = EActivityType.EActivityType_AdventureGuid
+        --     else
+        --         game._GUIMan:ShowTipText(StringTable.Get(23), false)
+        --     end
+        -- elseif data == EActivityType.EActivityType_OnlineReward then
+        --     self._CurFrameType = EActivityType.EActivityType_OnlineReward
+        -- end
+        local index = 0
+        for i,WelfareType in ipairs(self._WelfareType) do
+            if type(data) == "number" and WelfareType.Data.Id == tonumber(data) then
+                self._CurFrameType = WelfareType.Data.ActivityType
+                self._WelfareTypeInfo = WelfareType
+                index = i
+                break
             end
-        elseif data == EnumDef.WelfareType._OnLineReward then
-            self._CurFrameType = EnumDef.WelfareType._OnLineReward
         end
+
+        -- 直接打开对应的页签
+        self:OpenPanelToggle(ToggleType.WelfareType)
+
     end
 
 end
@@ -167,6 +187,8 @@ def.override('string').OnClick = function(self, id)
             self._CPageOnlineReward:OnClick(id)
         elseif id == "Btn_ExchangeDesc" then
             self._CPageExchange:OnClick(id)
+        elseif string.find(id,"Btn_DiceGoalReward") or id == "Btn_RollDice" or id == "Btn_DiceDesc" or id == "Btn_AddDice" or string.find(id,"Dice_") then
+            self._CPageDice:OnClick(id)
         elseif string.find(id,"Btn_Item_Days") then
             local index = tonumber(string.sub(id, string.len("Btn_Item_Days")+1,-1))   
             self:OnSelectSignDay(self:GetUIObject("Btn_Item_Days".. tostring(index)), index)
@@ -175,6 +197,8 @@ def.override('string').OnClick = function(self, id)
             -- 需要等商城做完才能补功能
             local strValue = CElementData.GetSpecialIdTemplate(901).Value
             game._GUIMan:Open("CPanelMall",tonumber(strValue))
+        elseif id == "Btn_HotEventDesc" or id == "Btn_Finish_1" then
+            self._CPageHotEvent:OnClick(id)
         end
     end
 end
@@ -184,7 +208,6 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
         self._CurToggle = ToggleType.WelfareType
         if self._SignInfo == nil or #self._SignInfo == 0 then 
             self._SignInfo = game._CWelfareMan:GetAllSignInfo()  
-            scriptId = self._SignInfo._Data.Id
             game._CWelfareMan:OnGetWelfareData()
         end
         
@@ -204,22 +227,9 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         -- nameText.text = temData._Data.Name
         -- self._CurFrameType = index + 1
         local ItemName = ""
-        if self._WelfareType[index + 1] == EnumDef.WelfareType._Sign then
-            ItemName = StringTable.Get(19472)
-            Img_RedPoint:SetActive(game._CWelfareMan:GetSignRedPointState())
-        elseif self._WelfareType[index + 1] == EnumDef.WelfareType._GloryVIP then
-            ItemName = StringTable.Get(19473)
-            Img_RedPoint:SetActive(game._CWelfareMan:GetGloryRedPointState())
-        elseif self._WelfareType[index + 1] == EnumDef.WelfareType._SpecialSign then
-            ItemName = StringTable.Get(19481)
-            Img_RedPoint:SetActive(game._CWelfareMan:GetSpecialSignRedPointState())
-        elseif self._WelfareType[index + 1] == EnumDef.WelfareType._OnLineReward then
-            ItemName = StringTable.Get(19495)
-            Img_RedPoint:SetActive(game._CWelfareMan:IsShowOnlineRewardRedPoint())
-        elseif self._WelfareType[index + 1] == EnumDef.WelfareType._Festival then
-            ItemName = StringTable.Get(19446)
-            -- Img_RedPoint:SetActive(game._CWelfareMan:IsShowOnlineRewardRedPoint())
-        end
+        ItemName = self._WelfareType[index + 1].Data.DisPlayName
+        Img_RedPoint:SetActive(self._WelfareType[index + 1].IsShowRedPoint)
+
         GUI.SetText(Lab_WelfareName , ItemName)   
         GUI.SetText(Lab_WelfareNameD , ItemName)   
     elseif id == "List_GloryVIPMenu" or id == "List_GloryDescMenu" then
@@ -230,8 +240,9 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         self._CPageOnlineReward:OnInitOnlineRewardInfo(item, index + 1)
     elseif id == "List_Festival" then
         self._CPageExchange:OnInitFestivalInfo(item, index + 1)
+    elseif id == "List_HotEventReward" or id == "List_HotEventInfo2" or id == "List_HotEventInfo3" then
+        self._CPageHotEvent:OnInitItem(item, id, index + 1)
     end
-
 
     if id=="List_Sign" then
 
@@ -258,6 +269,15 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         
         GUI.SetText(Lab_DayNum , tostring(days))
         
+        if (days == 7 and self._CurSignedDays < game._CWelfareMan:GetCurrentTotalDay())
+        or (days == 14 and self._CurSignedDays < game._CWelfareMan:GetCurrentTotalDay()) 
+        or (days == 21 and self._CurSignedDays < game._CWelfareMan:GetCurrentTotalDay()) 
+        or (days == 28 and self._CurSignedDays < game._CWelfareMan:GetCurrentTotalDay()) then
+            GameUtil.PlayUISfx(PATH.UIFX_WELFARE_SignLiuguang, Img_ItemBg, Img_ItemBg, -1)
+        else
+            GameUtil.StopUISfx(PATH.UIFX_WELFARE_SignLiuguang, Img_ItemBg)
+        end
+
         GUITools.SetGroupImg(Img_ItemBg, 0)
         if reward_template ~= nil then 
             local InitQuality = nil
@@ -270,7 +290,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
             else
                 GUITools.SetTokenMoneyIcon(Img_Icon,reward_template[1].Data.Id)
                 --GUI.SetText(Lab_ItemNum , tostring(reward_template[1].Data.Count))
-                itemTemplate = CElementData.GetMoneyTemplate(reward_template[1].Data.Id)
+                local itemTemplate = CElementData.GetMoneyTemplate(reward_template[1].Data.Id)
                 InitQuality = itemTemplate.Quality
             end 
 	        if InitQuality == nil then return end
@@ -291,24 +311,27 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
             if self._CurDay == self._CurSignedDays then
                 alpha = 0.1
                 Img_Done:SetActive(true)  
-                GameUtil.StopUISfx(PATH.UIFX_WELFARE_Zhengfangxing, Img_ItemBg)
+                GameUtil.StopUISfx(PATH.UIFX_WELFARE_SignLingqu, Img_ItemBg)
+                GameUtil.StopUISfx(PATH.UIFX_WELFARE_SignLiuguang, Img_ItemBg)
                 GUITools.SetGroupImg(Img_ItemBg, 2)
             else
-                GameUtil.PlayUISfx(PATH.UIFX_WELFARE_Zhengfangxing, Img_ItemBg, Img_ItemBg, -1)
-
+                GameUtil.PlayUISfx(PATH.UIFX_WELFARE_SignLingqu, Img_ItemBg, Img_ItemBg, -1)
                 GUITools.SetGroupImg(Img_ItemBg, 1)
                 Img_Done:SetActive(false)
                 alpha = 1
             end
-            GUI.SetText(Lab_DayNum , "<color=#FE8F0C>"..days..StringTable.Get(19448).."</color>")
+            -- GUI.SetText(Lab_DayNum , "<color=#FE8F0C>"..days..StringTable.Get(19448).."</color>")
         elseif self._CurDay > days then
             alpha = 0.1
             Img_Done:SetActive(true)  
-            GameUtil.StopUISfx(PATH.UIFX_WELFARE_Zhengfangxing, Img_ItemBg)
+            GameUtil.StopUISfx(PATH.UIFX_WELFARE_SignLingqu, Img_ItemBg)
+            GameUtil.StopUISfx(PATH.UIFX_WELFARE_SignLiuguang, Img_ItemBg)
             GUITools.SetGroupImg(Img_ItemBg, 2)
+
         elseif self._CurDay < days then
             -- GameUtil.MakeImageGray(Img_Icon, false)   
-            GameUtil.StopUISfx(PATH.UIFX_WELFARE_Zhengfangxing, Img_ItemBg)
+            GameUtil.StopUISfx(PATH.UIFX_WELFARE_SignLingqu, Img_ItemBg)
+           
         end
         GameUtil.SetCanvasGroupAlpha(CanvasGroup, alpha)
     end
@@ -317,13 +340,14 @@ end
 
 def.override('userdata', 'string', 'number').OnSelectItem = function(self, item, id, index)
     if id == 'List_MenuType' then
-        self._CurFrameType = self._WelfareType[index + 1]
+        self._CurFrameType = self._WelfareType[index + 1].Data.ActivityType
+        self._WelfareTypeInfo = self._WelfareType[index + 1]
         local Img_SelectType = GUITools.GetChild(item , 1)
         self:OnWelfareFrameInfo(self._CurFrameType)
         self._List_MenuType:SetSelection(index)
 
         local Img_RedPoint = GUITools.GetChild(item , 3)
-        if self._WelfareType[index + 1] == EnumDef.WelfareType._GloryVIP then
+        if self._WelfareType[index + 1].Data.ActivityType == EActivityType.EActivityType_AdventureGuid then
             game._CWelfareMan._IsOpenGloryRedPoint = false
             Img_RedPoint:SetActive(false)
         end
@@ -334,6 +358,8 @@ def.override('userdata', 'string', 'number').OnSelectItem = function(self, item,
         self._CPageSpecialSign:OnSelectSpecialSign(item, index + 1)
     elseif id == "List_OnlineReward" then
         self._CPageOnlineReward:OnSelectOnlineReward(item, index + 1)
+    elseif id == "List_HotEventReward" or id == "List_HotEventInfo2" or id == "List_HotEventInfo3" then
+        self._CPageHotEvent:OnSelectItem(item, id, index + 1)
     end
 
     if id == "List_Sign" then
@@ -343,11 +369,12 @@ end
 
 
 def.override("userdata", "string", "string", "number").OnSelectItemButton = function(self, button_obj, id, id_btn, index)
-    warn("uuuuuuuuuuuuuuuuuu=====>>>", id_btn)
     if id_btn == "Btn_Exchange" then
         self._CPageExchange:OnSelectFestivalInfoButton(index + 1) 
-    elseif string.find(id_btn, "MaterialIcon") or string.find(id_btn, "ItemIconNewReward") then
+    elseif id == "List_Festival" and (string.find(id_btn, "MaterialIcon") or string.find(id_btn, "ItemIconNewReward")) then
         self._CPageExchange:OnSelectMaterial(button_obj, id_btn, index + 1) 
+    elseif string.find(id_btn, "Btn_Finish_1") or string.find(id_btn, "ItemIconNew") then
+        self._CPageHotEvent:OnSelectItemButton(button_obj, id, id_btn, index + 1)
     end
 end
 
@@ -355,9 +382,7 @@ end
 def.method("number").OpenPanelToggle = function(self,toggleType)
     if toggleType == ToggleType.WelfareType then 
         self._CurToggle = ToggleType.WelfareType
-        --self._SignInfo = game._CWelfareMan:GetAllSignInfo()  
-        scriptId = self._SignInfo._ScriptID        
-
+        self._SignInfo = game._CWelfareMan:GetAllSignInfo()  
         game._CWelfareMan:OnGetWelfareData()
         self:RefrashWelfare(self._CurFrameType)
     end
@@ -367,18 +392,17 @@ def.method().RefrashWelfareType = function(self)
     self._SignDays = game._CWelfareMan:GetAllSignDays()
     self._SignInfo = game._CWelfareMan:GetAllSignInfo()
     self._CurDay = game._CWelfareMan:GetCurrentDay() 
+    self._WelfareType = game._CWelfareMan:GetAllWelfareTypes()
     self._List_MenuType:SetItemCount(#self._WelfareType) 
     self._List_Sign:GetComponent(ClassType.GNewList):SetItemCount(game._CWelfareMan:GetCurrentTotalDay())
 
     local SelectionIndex = 0
     for i,v in pairs(self._WelfareType) do
-        if v == self._CurFrameType then
+        if v.Data.ActivityType == self._CurFrameType then
             SelectionIndex = i
         end
     end
-    
     self._List_MenuType:SetSelection(SelectionIndex - 1)
-    --game._CGuideMan:AnimationEndCallBack(self)
 end
 
 -------------------------------------------签到Start-------------------------------------
@@ -390,41 +414,42 @@ def.method("number").RefrashWelfare = function(self, RefrashType)
         self._CurDay = game._CWelfareMan:GetCurrentDay()  
         self._CurSignedDays = game._CWelfareMan:GetCurrentSignedDays()
         self._List_Sign:GetComponent(ClassType.GNewList):SetItemCount(game._CWelfareMan:GetCurrentTotalDay())
-        
+        self:RefrashWelfareType()
         if game._CWelfareMan:GetCurrentDay() ~= nil and game._CWelfareMan:GetCurrentDay() > 0 then
             self._CurDay = game._CWelfareMan:GetCurrentDay()
         else
             game._GUIMan:CloseByScript(self)
             return
         end
-        self:OnWelfareFrameInfo(self._CurFrameType)
-        
-        if self._CurFrameType == EnumDef.WelfareType._SpecialSign and self:IsShow() and not game._CWelfareMan:GetSpecialSignIsOpen() then
+        self:OnWelfareFrameInfo(self._CurFrameType)        
+        if self._CurFrameType == EActivityType.EActivityType_SpecalSign and self:IsShow() and not game._CWelfareMan:GetSpecialSignIsOpen(self._WelfareTypeInfo.Data.ActivityId) then
             self._Frame_ActivityClose:SetActive(true)
             return
         end 
-        self:RefrashWelfareType()
+        
     end
 end
 
 def.method("number").OnWelfareFrameInfo = function(self, CurWelfareFrame)
-    if CurWelfareFrame == EnumDef.WelfareType._Sign then
+    if CurWelfareFrame == EActivityType.EActivityType_Sign then
         self._Frame_Sign:SetActive(true)  
         self._CPageGloryInfo:Hide() 
         self._CPageSpecialSign:Hide()   
         self._CPageOnlineReward:Hide()   
         self._CPageExchange:Hide()
+        self._CPageDice:Hide()
+        self._CPageHotEvent:Hide()
         self._SignDaysInfo = {}  
         self._RewardDaysInfo = {}          
         -- string.gsub(self._SignInfo._Signed, '[^*]+', function(w) table.insert(self._SignDaysInfo, w) end )
         -- string.gsub(self._SignInfo._IsTotleReward, '[^*]+', function(w) table.insert(self._RewardDaysInfo, w) end )
         local Lab_SignActivityTime = self:GetUIObject("Lab_SignActivityTime")
         if Lab_SignActivityTime ~= nil then
-            GUI.SetText(Lab_SignActivityTime , StringTable.Get(34307))
+            GUI.SetText(Lab_SignActivityTime , tostring(self._SignInfo._Data.TimeContent))
         end
         local Lab_SignActivityDesc = self:GetUIObject("Lab_SignActivityDesc")
         if Lab_SignActivityDesc ~= nil then
-            GUI.SetText(Lab_SignActivityTime , StringTable.Get(34308))
+            GUI.SetText(Lab_SignActivityDesc , tostring(self._SignInfo._Data.SignContent))
         end
         if self._SignInfo._Data.DoubleSigns ~= nil and #self._SignInfo._Data.DoubleSigns > 0 then
             for i,v in pairs(self._SignInfo._Data.DoubleSigns) do
@@ -439,31 +464,54 @@ def.method("number").OnWelfareFrameInfo = function(self, CurWelfareFrame)
                 end
             end
         end            
-    elseif CurWelfareFrame == EnumDef.WelfareType._GloryVIP then
+    elseif CurWelfareFrame == EActivityType.EActivityType_AdventureGuid then
         self._Frame_Sign:SetActive(false)        
         self._CPageGloryInfo:Show()
         self._CPageSpecialSign:Hide()
         self._CPageOnlineReward:Hide()
         self._CPageExchange:Hide()
-    elseif CurWelfareFrame == EnumDef.WelfareType._SpecialSign then
+        self._CPageDice:Hide()
+        self._CPageHotEvent:Hide()
+    elseif CurWelfareFrame == EActivityType.EActivityType_SpecalSign then
         self._Frame_Sign:SetActive(false)        
         self._CPageGloryInfo:Hide()   
-        self._CPageSpecialSign:Show()
+        self._CPageSpecialSign:Show(self._WelfareTypeInfo.Data.ActivityId)
         self._CPageOnlineReward:Hide()
         self._CPageExchange:Hide()
-    elseif CurWelfareFrame == EnumDef.WelfareType._OnLineReward then
+        self._CPageDice:Hide()
+        self._CPageHotEvent:Hide()
+    elseif CurWelfareFrame == EActivityType.EActivityType_OnlineReward then
         self._Frame_Sign:SetActive(false)        
         self._CPageGloryInfo:Hide()   
         self._CPageSpecialSign:Hide()
         self._CPageOnlineReward:Show()
         self._CPageExchange:Hide()
-    elseif CurWelfareFrame == EnumDef.WelfareType._Festival then
+        self._CPageDice:Hide()
+        self._CPageHotEvent:Hide()
+    elseif CurWelfareFrame == EActivityType.EActivityType_Festival then
         self._Frame_Sign:SetActive(false)        
         self._CPageGloryInfo:Hide()   
         self._CPageSpecialSign:Hide()
         self._CPageOnlineReward:Hide()
         self._CPageExchange:Show()
-
+        self._CPageDice:Hide()
+        self._CPageHotEvent:Hide()
+    elseif CurWelfareFrame == EActivityType.EActivityType_Dice then
+        self._Frame_Sign:SetActive(false)        
+        self._CPageGloryInfo:Hide()   
+        self._CPageSpecialSign:Hide()
+        self._CPageOnlineReward:Hide()
+        self._CPageExchange:Hide()
+        self._CPageDice:Show()
+        self._CPageHotEvent:Hide()
+    elseif CurWelfareFrame == EActivityType.EActivityType_HotActivity then
+        self._Frame_Sign:SetActive(false)        
+        self._CPageGloryInfo:Hide()   
+        self._CPageSpecialSign:Hide()
+        self._CPageOnlineReward:Hide()
+        self._CPageExchange:Hide()
+        self._CPageDice:Hide()
+        self._CPageHotEvent:Show(self._WelfareTypeInfo.Data.ActivityId)
     else
         warn("Waiting for development!!!", CurWelfareFrame, self._WelfareType[CurWelfareFrame])
     end
@@ -495,13 +543,12 @@ end
 -- end
 
 def.method("userdata", "number").OnSelectSignDay = function(self, item, index)
-
     local days = index
     eventType = -1
+    
     -- warn("self._CurDay == ", self._CurDay , "days == ", days)       
     -- 判断当前天是否可签，是否为补签
     if self._CurDay == days then
-
         if self._CurDay == self._CurSignedDays then
             local daysRewardId = self._SignDays[days]
             local reward_template = GUITools.GetRewardList(daysRewardId, true)
@@ -573,8 +620,9 @@ def.method("userdata", "number").OnSelectSignDay = function(self, item, index)
     local useMoneyType = tonumber(CElementData.GetSpecialIdTemplate(467).Value)
 
     if eventType == 0 then
-        game._CWelfareMan:OnC2SScriptExec(scriptId, eventType, days)
-        warn("scriptId:"..scriptId.."       eventType:"..eventType)          
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_System_Bonus_Sign, 0)
+        game._CWelfareMan:OnC2SScriptExec(self._SignInfo._ScriptID, eventType, days)
+        -- warn("self._SignInfo._ScriptID:"..self._SignInfo._ScriptID.."     eventType:"..eventType, days)         
     else
         warn("Can not sign in!!!")
     end
@@ -598,6 +646,8 @@ def.override().OnDestroy = function(self)
     self._Frame_ActivityClose = nil
     self._CPageOnlineReward = nil
     self._CPageExchange:Hide()
+    self._CPageDice:Hide()
+    self._CPageHotEvent:Hide()
 end
 
 CPanelUIWelfare.Commit()

@@ -23,10 +23,6 @@ def.field("number")._EndTime = 0
                 CAutoMatch.Instance():Stop()
 ]]
 
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
-
 --[[
     AutoMatchType = 
     {
@@ -100,7 +96,7 @@ def.method("number", "dynamic", "dynamic").Start = function(self, matchType, sta
         end
     else
         --当前存在其他匹配,请取消后再试!
-        SendFlashMsg(StringTable.Get(22400), false)
+        TeraFuncs.SendFlashMsg(StringTable.Get(22400), false)
     end
 end
 

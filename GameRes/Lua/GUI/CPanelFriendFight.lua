@@ -36,9 +36,10 @@ def.field("number")._Amicability2 = 0
 def.field("number")._Amicability3 = 0 
 def.field("number")._DungeonLimitNum = 0
 def.field("number")._CostNum = 0
-def.field("table")._CurTeamList = BlankTable                        -- 当前队伍列表（包括镜像）
+def.field("table")._CurFightMemList = BlankTable                        -- 参加战斗的成员列表
 def.field("table")._CurFriendList  = BlankTable                        -- 可助战好友类表
 def.field("number")._DungeonTid = 0
+def.field("number")._CurTeamNum = 0
 def.field("table")._CurSelectData = BlankTable
 def.field("table")._CostItemTemplate = nil 
 def.field("number")._CostTid = 0
@@ -64,15 +65,17 @@ local OnGainNewItemEvent = function(sender, event)
         if event.BagType ~= BAGTYPE.BACKPACK then return end
         instance._HaveItemCount = game._HostPlayer._Package._NormalPack:GetItemCount(instance._CostTid)
         GUI.SetText(instance._LabItemCount,tostring(instance._HaveItemCount))
+        instance._ListItem:GetComponent(ClassType.GNewList):SetItemCount(#instance._CurFriendList)
     end
 end
 
 -- 获取队员信息
 local function GetTeamMemberData(self)
-    self._CurTeamList = {}
+    self._CurFightMemList = {}
     if not CTeamMan.Instance():InTeam() then return end
     local list = CTeamMan.Instance():GetMemberList()
     if #list  == 1 then return end
+    self._CurTeamNum = #list - 1
     for _,teamMember in ipairs(list) do
         if teamMember._ID ~= game._HostPlayer._ID then 
             local member = {}
@@ -84,7 +87,7 @@ local function GetTeamMemberData(self)
             member.Param = teamMember._Param
             member.ModelImgRender = nil 
             member.CostItemNum = 0
-            table.insert(self._CurTeamList,member)
+            table.insert(self._CurFightMemList,member)
         end
     end
 end
@@ -123,7 +126,7 @@ local function GetFriendFightList(self)
             while true do
                 if friend.Level > levelLimit then break end
                 local isAdd = true
-                for i,teamMember in ipairs(self._CurTeamList) do
+                for i,teamMember in ipairs(self._CurFightMemList) do
                     if teamMember.ID == friend.RoleId then 
                         isAdd = false
                     break end
@@ -132,6 +135,7 @@ local function GetFriendFightList(self)
                 local member = {}
                 member.ID = friend.RoleId
                 member.Name = friend.Name 
+                member.IsAI = false
                 member.Lv = friend.Level
                 member.Profession = friend.Profession
                 member.CustomImgSet = friend.CustomImgSet
@@ -194,36 +198,42 @@ local function C2SGetExterior(self,RoleId)
 end
 
 -- 队伍显示
-local function UpdateTeamPanel(self,index,IsShow,IsLocked)
-
+local function UpdateTeamPanel(self,index,IsShow,IsLocked,IsShowCircle)
     local FrameMember = self:GetUIObject("FrameMember"..index)
     if FrameMember == nil then warn("index  ",index ) return end
     local uiTemplate = FrameMember:GetComponent(ClassType.UITemplate)
-    local memberData = self._CurTeamList[index]
+    local memberData = self._CurFightMemList[index]
     local FrameExist = uiTemplate:GetControl(5)
     local imgNone = uiTemplate:GetControl(6)
     local imgLock = uiTemplate:GetControl(8)
+    local img_Circle = uiTemplate:GetControl(10) 
+    local imgRole = uiTemplate:GetControl(0)
+    img_Circle:SetActive(false)
     imgLock:SetActive(false)
+    imgNone:SetActive(false)
+    FrameExist:SetActive(false)
     if IsLocked then 
-        FrameExist:SetActive(false)
-        imgNone:SetActive(false)
         imgLock:SetActive(true)
-    return end
-    if memberData == nil then 
-        FrameExist:SetActive(false)
-        imgNone:SetActive(true)
     return end
     if not IsShow then 
         imgNone:SetActive(true)
-        FrameExist:SetActive(false)
-        if memberData.ModelImgRender ~= nil  then
+        if memberData ~= nil and memberData.ModelImgRender ~= nil  then
             memberData.ModelImgRender:Destroy()        
             memberData.ModelImgRender = nil
         end
-        table.remove(self._CurTeamList,index)
+        table.remove(self._CurFightMemList,index)
+    return end
+    if IsShowCircle then 
+        img_Circle:SetActive(true)
+        imgRole:SetActive(false)
+        local rotation = Vector3.New(0, 0, -180)
+        local rotationTime = 0.4
+        GameUtil.DoLoopRotate(img_Circle, rotation, rotationTime)
+    return end
+    if memberData == nil then 
+        imgNone:SetActive(true)
     return end
     -- 显示 或是更新
-    local imgRole = uiTemplate:GetControl(0)
     local labName = uiTemplate:GetControl(1)
     local labJob = uiTemplate:GetControl(2)
     local labLevel = uiTemplate:GetControl(3)
@@ -234,6 +244,7 @@ local function UpdateTeamPanel(self,index,IsShow,IsLocked)
     FrameExist:SetActive(true)
     imgAI:SetActive(true)
     BtnExit:SetActive(true)
+    imgRole:SetActive(true)
     if not memberData.IsAI then 
         imgAI:SetActive(false)
         BtnExit:SetActive(false)
@@ -242,6 +253,7 @@ local function UpdateTeamPanel(self,index,IsShow,IsLocked)
     local professionTemplate = CElementData.GetProfessionTemplate(memberData.Profession)
     GUITools.SetProfSymbolIcon(Img_JobSign, professionTemplate.SymbolAtlasPath)
     GUI.SetText(labLevel,string.format(StringTable.Get(21508),memberData.Lv))
+    imgRole:SetActive(true)
     -- GUI.SetText(labJob,tostring(StringTable.Get(10300 + memberData.Profession - 1)))
     if not IsNil(memberData.ModelImgRender) then
         memberData.ModelImgRender:Destroy()
@@ -253,8 +265,15 @@ local function UpdateTeamPanel(self,index,IsShow,IsLocked)
     GameUtil.PlayUISfx(PATH.UIFX_FriendFightModelBg,imgRole,imgRole,-1)
 end
 
--- 增加镜像数据并更新
-local function AddMirrorInfo(self,FriendData)
+-- 更新当前选中好友助战的数据
+local function UpdateFightFriendDataInfo(self,FriendData)
+    if self._CurFightMemList ~= nil and #self._CurFightMemList then
+        for i,v in ipairs(self._CurFightMemList) do 
+            if FriendData.ID == v.ID then 
+                return
+            end
+        end
+    end
     local member = {}
     member.IsAI = true
     member.ID = FriendData.ID
@@ -268,7 +287,7 @@ local function AddMirrorInfo(self,FriendData)
     else
         member.CostItemNum = self._CostNum
     end
-    table.insert(self._CurTeamList,member)
+    table.insert(self._CurFightMemList,member)
 end
 
 local function C2SStartFight(self)
@@ -312,7 +331,7 @@ end
 def.override("string").OnClick = function(self,id)
     if string.find(id,"Btn_Exit") then
         local index = tonumber(string.sub(id,-1))
-        local member = self._CurTeamList[index]
+        local member = self._CurFightMemList[index]
         local index1 = 0
         local item = nil 
         if #self._CurSelectData == 0 then return end
@@ -327,24 +346,24 @@ def.override("string").OnClick = function(self,id)
         uiTemplate:GetControl(6):SetActive(false)
         table.remove(self._CurSelectData,index1)
         local isEnd = false
-        if index == #self._CurTeamList then 
+        if index == #self._CurFightMemList then 
             isEnd = true
         end
-        UpdateTeamPanel(self,index,false,false)
+        UpdateTeamPanel(self,index,false,false,false)
         if isEnd then return end
         if index -1 == 0 then 
             index = 1
         else
             index = index - 1
         end 
-        for i = index ,#self._CurTeamList do 
-            UpdateTeamPanel(self,i,true,false)
+        for i = index ,#self._CurFightMemList do 
+            UpdateTeamPanel(self,i,true,false,false)
         end
-        UpdateTeamPanel(self,#self._CurTeamList + 1,false,false)
+        UpdateTeamPanel(self,#self._CurFightMemList + 1,false,false,false)
 
     elseif id == "Btn_Start" then
         local cost = 0 
-        for _,member in ipairs(self._CurTeamList) do
+        for _,member in ipairs(self._CurFightMemList) do
             cost = cost + member.CostItemNum 
         end
         if cost == 0 then 
@@ -414,7 +433,7 @@ def.override('userdata', 'string', 'number').OnInitItem = function(self, item, i
         GUI.SetText(labJob,professionTemplate.Name )
         -- GUITools.SetProfSymbolIcon(imgJob, professionTemplate.SymbolAtlasPath)
         GUI.SetText(labAmicabilty,tostring(friendData.Amicability))
-        game:SetEntityCustomImg(imgHead,friendData.ID,friendData.CustomImgSet,friendData.Gender,friendData.Profession)
+        TeraFuncs.SetEntityCustomImg(imgHead,friendData.ID,friendData.CustomImgSet,friendData.Gender,friendData.Profession)
           
         if friendData.FreeTimes > 0 then
             FrameItem:SetActive(false)
@@ -439,6 +458,7 @@ end
 
 def.override('userdata', 'string', 'number').OnSelectItem = function(self, item, id, index)
     if id == "List_Item" then
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
         local friendData = self._CurFriendList[index + 1]
         local index1 = 0
         local uiTemplate = item:GetComponent(ClassType.UITemplate) 
@@ -452,10 +472,12 @@ def.override('userdata', 'string', 'number').OnSelectItem = function(self, item,
             imgD:SetActive(true)
             imgAI:SetActive(true)
             if friendData.Param == nil then
+                UpdateTeamPanel(self,#self._CurFightMemList + #self._CurSelectData,true,false,true)
                 C2SGetExterior(self,friendData.ID)
             return end
-            AddMirrorInfo(self,friendData)
-            UpdateTeamPanel(self,#self._CurTeamList,true,false)
+            CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
+            UpdateFightFriendDataInfo(self,friendData)
+            UpdateTeamPanel(self,#self._CurFightMemList,true,false,false)
         return end
 
         local isDelete = false
@@ -471,11 +493,13 @@ def.override('userdata', 'string', 'number').OnSelectItem = function(self, item,
                 isDelete = true 
             break end
         end
+        -- warn(" #self._CurSelectData,#self._CurFightMemList,self._DungeonLimitNum ",#self._CurSelectData,#self._CurFightMemList,self._DungeonLimitNum)
 
-        if not isDelete and #self._CurTeamList  == self._DungeonLimitNum - 1 then
+        if not isDelete and #self._CurSelectData + self._CurTeamNum >= self._DungeonLimitNum - 1 then
             game._GUIMan:ShowTipText(StringTable.Get(930),false)
             return
-        elseif not isDelete and #self._CurTeamList < self._DungeonLimitNum - 1 then
+        elseif not isDelete and #self._CurSelectData + self._CurTeamNum < self._DungeonLimitNum - 1 then
+            CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
             local member = {
                                 ID = friendData.ID,
                                 Item = item,
@@ -484,24 +508,26 @@ def.override('userdata', 'string', 'number').OnSelectItem = function(self, item,
             imgD:SetActive(true)
             imgAI:SetActive(true)
             if friendData.Param == nil then
+                UpdateTeamPanel(self,#self._CurFightMemList + #self._CurSelectData - 1,true,false,true)
                 C2SGetExterior(self,friendData.ID)
             return end
-            AddMirrorInfo(self,friendData)
-            UpdateTeamPanel(self,#self._CurTeamList,true,false)
+            UpdateFightFriendDataInfo(self,friendData)
+            UpdateTeamPanel(self,#self._CurFightMemList,true,false,false)
             return 
         elseif isDelete then
             table.remove(self._CurSelectData,index1)
             local index2 = 0
-            for i,v in ipairs(self._CurTeamList) do 
+            for i,v in ipairs(self._CurFightMemList) do 
                 if v.ID == friendData.ID then
                     index2 = i
                 end
             end
             local isEnd = false
-            if index2 == #self._CurTeamList then 
+            if index2 == #self._CurFightMemList then 
                 isEnd = true
             end
-            UpdateTeamPanel(self,index2,false,false)
+
+            UpdateTeamPanel(self,index2,false,false,false)
             -- 点击的是最后一个
             if isEnd then return end
             if index2 -1 == 0 then 
@@ -509,10 +535,10 @@ def.override('userdata', 'string', 'number').OnSelectItem = function(self, item,
             else
                 index2 = index2 - 1
             end 
-            for i = index2 ,#self._CurTeamList do 
-                UpdateTeamPanel(self,i,true,false)
+            for i = index2 ,#self._CurFightMemList do 
+                UpdateTeamPanel(self,i,true,false,false)
             end
-            UpdateTeamPanel(self,#self._CurTeamList + 1,false,false)
+            UpdateTeamPanel(self,#self._CurFightMemList + 1,false,false,false)
         end
     end
 end
@@ -525,23 +551,23 @@ def.method().InitPanel = function(self)
     GetFriendFightList(self)
 
     for i = 1 ,4 do 
-        if #self._CurTeamList > 0 and i <= #self._CurTeamList then 
-            UpdateTeamPanel(self,i,true,false)
+        if #self._CurFightMemList > 0 and i <= #self._CurFightMemList then 
+            UpdateTeamPanel(self,i,true,false,false)
         elseif i > self._DungeonLimitNum - 1 then 
-            UpdateTeamPanel(self,i,true,true)
+            UpdateTeamPanel(self,i,true,true,false)
         end
     end
 
     self._LabNothing:SetActive(false)
     if #self._CurFriendList == 0 then 
         self._LabNothing:SetActive(true)
-        for i = #self._CurTeamList + 1 , self._DungeonLimitNum - 1 do
-            UpdateTeamPanel(self,i,true,false)
+        for i = #self._CurFightMemList + 1 , self._DungeonLimitNum - 1 do
+            UpdateTeamPanel(self,i,true,false,false)
         end
         self._ListItem:GetComponent(ClassType.GNewList):SetItemCount(0)        
     return end
 
-    local CurFriendFightNum = self._DungeonLimitNum -  #self._CurTeamList - 1
+    local CurFriendFightNum = self._DungeonLimitNum -  #self._CurFightMemList - 1
     self._CurSelectData = {}
     for i = 1, CurFriendFightNum do 
         if self._CurFriendList[i] == nil then break end
@@ -550,6 +576,8 @@ def.method().InitPanel = function(self)
         member.Item = nil 
         table.insert(self._CurSelectData,member)
         if self._CurFriendList[i].Param == nil then 
+            local index = #self._CurFightMemList + i
+            UpdateTeamPanel(self,index,true,false,true)
             C2SGetExterior(self,self._CurFriendList[i].ID)
         end
     end  
@@ -560,6 +588,7 @@ end
 
 -- 得到好友外观模型数据
 def.method("table").S2CGetOtherRoleInfo = function(self,data)
+
     if not self:IsShow() then return end
     local param = ModelParams.new()
     param:MakeParam(data.OtherRoleInfo.Exterior, data.OtherRoleInfo.Profession)
@@ -574,29 +603,29 @@ def.method("table").S2CGetOtherRoleInfo = function(self,data)
     if FriendData == nil then warn("RoleId is wrong") return end
     --检测一下当前roleId 是否还在选中列表中
     local isSelected = false
-    for _,v in ipairs(self._CurFriendList) do
+    for _,v in ipairs(self._CurSelectData) do
         if v.ID == data.RoleId then 
             isSelected = true 
             break
         end
     end
-    if not isSelected then return end
-    AddMirrorInfo(self,FriendData)
-    UpdateTeamPanel(self,#self._CurTeamList,true,false)
-    if #self._CurTeamList < self._DungeonLimitNum - 1 then
-        for i = #self._CurTeamList + 1 , self._DungeonLimitNum - 1 do
-            UpdateTeamPanel(self,i,true,false)
+    if not isSelected then warn("消息延迟 已经更换选择") return end
+    UpdateFightFriendDataInfo(self,FriendData)
+    UpdateTeamPanel(self,#self._CurFightMemList,true,false,false)
+    if #self._CurFightMemList < self._DungeonLimitNum - 1 then
+        for i = #self._CurFightMemList + 1 , self._DungeonLimitNum - 1 do
+            UpdateTeamPanel(self,i,true,false,false)
         end
     end
 end
 
 def.override().OnDestroy = function (self)
     CGame.EventManager:removeHandler(GainNewItemEvent, OnGainNewItemEvent)
-    if #self._CurTeamList > 0 then 
-        for i = 1,#self._CurTeamList do
-            if self._CurTeamList[i].ModelImgRender ~= nil then 
-                self._CurTeamList[i].ModelImgRender:Destroy()        
-                self._CurTeamList[i].ModelImgRender = nil
+    if #self._CurFightMemList > 0 then 
+        for i = 1,#self._CurFightMemList do
+            if self._CurFightMemList[i].ModelImgRender ~= nil then 
+                self._CurFightMemList[i].ModelImgRender:Destroy()        
+                self._CurFightMemList[i].ModelImgRender = nil
             end
         end
     end

@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/city01.png",
 	AssetPath = "Assets/Outputs/Scenes/City02.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13079] = 
@@ -146,20 +147,20 @@ local MapInfo =
 	{
 		[1] = 
 		{
-			[285] = { x = -6.70, y = -0.54, z = 224.07, xA = -65.74, yA = 21.54, zA = -259.30, name = "传送区域-埃塞尼亚东", worldId = 170, PkMode = 0 },
+			[285] = { x = -6.70, y = -0.54, z = 224.07, xA = -65.74, yA = 21.54, zA = -259.30, name = "传送区域-埃塞尼亚东", worldId = 170, IsCanFind = 1, Describe = "艾赛尼亚东", PkMode = 1 },
 		},
 		[2] = 
 		{
-			[297] = { x = 60.50, y = 13.60, z = -142.21, name = "长老会", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[298] = { x = 156.79, y = 17.71, z = -175.25, name = "米斯特瑞姆", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[299] = { x = -108.20, y = 34.64, z = -161.61, name = "精灵军指挥所", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[300] = { x = -135.17, y = 1.00, z = -18.75, name = "名品交易所", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[301] = { x = -186.61, y = -23.42, z = 49.83, name = "魔导港口", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[302] = { x = 120.85, y = 0.00, z = -120.87, name = "锐风盈城【剧情相位】", worldId = 0, PkMode = 0 },
-			[303] = { x = 61.90, y = 4.46, z = -12.11, name = "途中", worldId = 0, PkMode = 0 },
-			[304] = { x = 162.10, y = 17.61, z = -197.33, name = "h生命之花监测装置", worldId = 0, PkMode = 0 },
-			[305] = { x = 91.32, y = 13.34, z = -119.82, name = "元老院前", worldId = 0, PkMode = 0 },
-			[425] = { x = 28.30, y = -1.05, z = 34.19, name = "区域-相位161出入口", worldId = 0, PkMode = 0 },
+			[297] = { x = 60.50, y = 13.60, z = -142.21, name = "长老会", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[298] = { x = 156.79, y = 17.71, z = -175.25, name = "米斯特瑞姆", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[299] = { x = -108.20, y = 34.64, z = -161.61, name = "精灵军指挥所", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[300] = { x = -135.17, y = 1.00, z = -18.75, name = "名品交易所", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[301] = { x = -186.61, y = -23.42, z = 49.83, name = "魔导港口", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[302] = { x = 120.85, y = 0.00, z = -120.87, name = "锐风盈城【剧情相位】", worldId = 0, PkMode = 1 },
+			[303] = { x = 61.90, y = 4.46, z = -12.11, name = "途中", worldId = 0, PkMode = 1 },
+			[304] = { x = 162.10, y = 17.61, z = -197.33, name = "h生命之花监测装置", worldId = 0, PkMode = 1 },
+			[305] = { x = 91.32, y = 13.34, z = -119.82, name = "元老院前", worldId = 0, PkMode = 1 },
+			[425] = { x = 28.30, y = -1.05, z = 34.19, name = "区域-相位161出入口", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

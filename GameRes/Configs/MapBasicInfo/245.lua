@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD04.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn04_Zuras01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[23430] = 
@@ -33,7 +34,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[1] = { x = -0.93, y = 14.96, z = 68.54, name = "出场触发区域", worldId = 0, PkMode = 0 },
+			[1] = { x = -0.93, y = 14.96, z = 68.54, name = "出场触发区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

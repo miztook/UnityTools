@@ -365,11 +365,11 @@ end
 
 
 def.override('userdata', 'string', 'number').OnInitItem = function(self, item, id, index)
-    print("CPanelHuangxinTest OnInitItem")
+    --print("CPanelHuangxinTest OnInitItem")
 end
 
 def.override().OnCreate = function(self)
-    print("CPanelHuangxinTest OnCreate")
+    --print("CPanelHuangxinTest OnCreate")
 	self._Btn_Close = self:GetUIObject("Btn_Close")
 
 	self._Btn_MaxSpeed = self:GetUIObject("Btn_MaxSpeed")
@@ -491,7 +491,7 @@ def.override().OnCreate = function(self)
 end
 
 def.override("dynamic").OnData = function(self, data)
-    print("CPanelHuangxinTest OnData")
+    --print("CPanelHuangxinTest OnData")
     --当前值和峰值，只有在界面开启之后才统计
     self._LastRecordProtocolC2SCount = _G._TotalSendProtoCount
     self._LastRecordProtocolS2CCount = _G._TotalRecvProtoCount
@@ -501,14 +501,14 @@ def.override("dynamic").OnData = function(self, data)
 end
 
 def.override().OnHide = function(self)
-    print("CPanelHuangxinTest OnHide")
+    --print("CPanelHuangxinTest OnHide")
     CPanelBase.OnHide(self)
 	self:RemoveTimer()
 	--GameUtil.MonitorGC(false)
 end
 
 def.override().OnDestroy = function (self)
-    print("CPanelHuangxinTest OnDestroy")
+    --print("CPanelHuangxinTest OnDestroy")
 	self._Btn_Close = nil
 	self._Btn_MaxSpeed = nil
 	self._Btn_MaxMoney = nil
@@ -705,9 +705,6 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
 		_G.logc2s = checked
 	elseif id == "Rdo_S2C" then
 		_G.logs2c = checked
-
-	elseif id == "Rdo_UIEvent" then
-		GameUtil.DebugUI(checked)
 	else
 		self:Level1TabOnToggle(id)
 	end
@@ -844,15 +841,15 @@ def.override('userdata').OnClickGameObject = function(self, gameObj)
 		if S1 == nil then
 			S1 = snapshot()
 
-			print("S1 Snapshot")
+			--print("S1 Snapshot")
 		else
 			local S2 = snapshot()
 
-			print("Snapshot diff!")
+			--print("Snapshot diff!")
 
 			for k,v in pairs(S2) do
 				if S1[k] == nil then
-					print(k,v)
+					--print(k,v)
 				end
 			end
 			S1 = nil
@@ -862,7 +859,7 @@ def.override('userdata').OnClickGameObject = function(self, gameObj)
 	elseif gameObjName == "Btn_GetAllRuneByProf" then
 		local hp = game._HostPlayer
 		local prof = hp._InfoData._Prof
-		local allItemTids = GameUtil.GetAllTid("Item")
+		local allItemTids = CElementData.GetAllTid("Item")
 		for _,v in ipairs(allItemTids) do
 			if v > 0 then
 				local itemTemplate = CElementData.GetTemplate("Item", v)
@@ -926,7 +923,7 @@ def.method("string").SetServerVersion = function(self, serverVersion)
 end
 
 def.method().OnFirstEnterGameWorld = function(self)
-    print("CPanelHuangxinTest OnFirstEnterGameWorld")
+    --print("CPanelHuangxinTest OnFirstEnterGameWorld")
     self._FirstEnterGameWorldTime = GameUtil.GetClientTime()
 end
 

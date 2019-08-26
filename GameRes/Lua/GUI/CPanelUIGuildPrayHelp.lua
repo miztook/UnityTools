@@ -105,7 +105,7 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
 	local uiTemplate = item:GetComponent(ClassType.UITemplate)
 	if id == "List_MenuType" then	
 		local member = self._Data[index]._Member
-		game:SetEntityCustomImg(uiTemplate:GetControl(3), member._RoleID, member._CustomImgSet, Profession2Gender[member._ProfessionID], member._ProfessionID)
+		TeraFuncs.SetEntityCustomImg(uiTemplate:GetControl(3), member._RoleID, member._CustomImgSet, Profession2Gender[member._ProfessionID], member._ProfessionID)
 		GUI.SetText(uiTemplate:GetControl(4), member._RoleName)
 --		GUITools.SetGroupImg(uiTemplate:GetControl(5), member._ProfessionID - 1)
         GUI.SetText(uiTemplate:GetControl(5), tostring(StringTable.Get(10300 + member._ProfessionID - 1)))
@@ -126,7 +126,8 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
 		local roleId = self._Data[index]._Member._RoleID
 		game._GuildMan:SendC2SGuildPrayViewPool(roleId)
     elseif id_btn == "Img_Head_BG" then
-        game:CheckOtherPlayerInfo(self._Data[index]._Member._RoleID, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.GuildPrayHelp)
+        local PBUtil = require "PB.PBUtil"
+		PBUtil.RequestOtherPlayerInfo(self._Data[index]._Member._RoleID, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.GuildPrayHelp)
 	end
 end
 

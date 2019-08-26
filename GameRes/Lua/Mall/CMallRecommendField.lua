@@ -83,8 +83,13 @@ def.method().DrumpToRightStore = function(self)
         local recommend_data = self._FieldData.RcommendGoodss[self._CurIndex]
         if recommend_data ~= nil then
             local CPanelMall = require "GUI.CPanelMall"
-            if CPanelMall.Instance():IsShow() and recommend_data.StoreId > 0 then
-                CPanelMall.Instance():SwitchToShop(recommend_data.StoreId)
+            local CPanelSummon = require "GUI.CPanelSummon"
+            if recommend_data.StoreId == EnumDef.MallStoreType.ElfExtract or recommend_data.StoreId == EnumDef.MallStoreType.PetExtract then
+                game._GUIMan:Open("CPanelSummon", recommend_data.StoreId)
+            else
+                if CPanelMall.Instance():IsShow() and recommend_data.StoreId > 0 then
+                    CPanelMall.Instance():SwitchToShop(recommend_data.StoreId)
+                end
             end
         end
     end

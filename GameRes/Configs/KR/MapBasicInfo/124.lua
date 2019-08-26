@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 3,
 	Remarks = "个人相位-贪婪溪谷营地",
-	TextDisplayName = "숲 속 주둔지",
+	TextDisplayName = "숲속 주둔지",
 	Length = 576,
 	Width = 576,
 	NavMeshName = "World01.navmesh",
@@ -11,13 +11,14 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Foerst",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10038] = 
 		{
-			[1] = { x = -218.22, y = 42.69, z = -146.29, name = "제국 주술사", level = 18, SortID = 1 },
-			[2] = { x = -222.03, y = 43.60, z = -152.02, name = "제국 주술사", level = 18, SortID = 6 },
-			[3] = { x = -217.74, y = 42.12, z = -161.92, name = "제국 주술사", level = 18, SortID = 7 },
+			[1] = { x = -218.22, y = 42.69, z = -146.29, name = "제국 흑마법사", level = 18, SortID = 1 },
+			[2] = { x = -222.03, y = 43.60, z = -152.02, name = "제국 흑마법사", level = 18, SortID = 6 },
+			[3] = { x = -217.74, y = 42.12, z = -161.92, name = "제국 흑마법사", level = 18, SortID = 7 },
 		},
 		[10039] = 
 		{
@@ -45,8 +46,8 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[66] = { x = -216.74, y = 50.71, z = -183.02, name = "", isShowName = true, worldId = 0, PkMode = 0 },
-			[187] = { x = -219.13, y = 43.00, z = -145.21, name = "爆炸区", worldId = 0, PkMode = 0 },
+			[66] = { x = -214.27, y = 50.71, z = -182.71, name = "", isShowName = true, worldId = 0, PkMode = 1 },
+			[187] = { x = -219.13, y = 43.00, z = -145.21, name = "爆炸区", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

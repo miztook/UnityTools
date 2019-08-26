@@ -31,7 +31,7 @@ def.override("number").Init = function (self, type)
 	if dataPickupRadius > 0 then
 		self._PickupRadius = dataPickupRadius
 	else
-		print("Check CSpecialIdMan [LootPickupRadius]")
+		--print("Check CSpecialIdMan [LootPickupRadius]")
 	end
 
 	self:RemoveCheckTimer()
@@ -130,7 +130,7 @@ def.method("number").OnLootPickUp = function (self, id)
 	local obj = self._ObjMap[id]
 
 	if obj == nil then
-		print("ShowPickupGfx obj == nil", debug.traceback())
+		--print("ShowPickupGfx obj == nil", debug.traceback())
 		return
 	end
 

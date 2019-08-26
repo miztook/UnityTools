@@ -17,10 +17,6 @@ def.field("table")._PanelObject = nil       -- 存放UI的集合
 def.field("table")._PetData = nil           -- 当前选中的Pet数据
 def.field("table")._RecastNeedInfo = nil    -- 重铸材料
 
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
-
 local instance = nil
 def.static("table", "userdata", "=>", CPagePetRecast).new = function(parent, panel)
     if instance == nil then
@@ -170,7 +166,7 @@ def.method().DoBtnReset = function(self)
     if MaterialHave < MaterialNeed then
         local template = CElementData.GetTemplate("Item", MaterialId)
         local str = string.format(StringTable.Get(19060), MaterialNeed, template.TextDisplayName)
-        SendFlashMsg(str, false)
+        TeraFuncs.SendFlashMsg(str, false)
     else
         CPetUtility.SendC2SPetResetRecastCount( self._PetData._ID )
     end
@@ -213,7 +209,7 @@ def.method("string").OnClick = function(self, id)
                 -- CPetUtility.SendC2SPetResetRecastCount( self._PetData._ID )
                 SendC2SPetRecast()
             else
-                SendFlashMsg(StringTable.Get(10901), false)
+                TeraFuncs.SendFlashMsg(StringTable.Get(10901), false)
             end
         end
     end

@@ -766,6 +766,86 @@ local ImageModelConfigs =
 			[5]={position={0.05,-1.05,-3.25},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =2.999997},
 			[3]={position={0.015,-1.525,-3},rotation={0,210,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =0},
 		},
+		[101] = 
+		{
+			[3]={position={0.24,-1.27,-4.2},rotation={0,205,350},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =5.000003},
+			[4]={position={-0.01,-1.66,-4.15},rotation={0,202.5,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =0},
+			[1]={position={0.02,-1.53,-3.99},rotation={0,210.54,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =2.500001},
+			[5]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+			[2]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+		},
+		[102] = 
+		{
+			[3]={position={0.24,-1.27,-4.2},rotation={0,205,350},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =5.000003},
+			[4]={position={-0.01,-1.66,-4.15},rotation={0,202.5,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =0},
+			[1]={position={0.02,-1.53,-3.99},rotation={0,210.54,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =2.500001},
+			[5]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+			[2]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+		},
+		[103] = 
+		{
+			[3]={position={0.24,-1.27,-4.2},rotation={0,205,350},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =5.000003},
+			[4]={position={-0.01,-1.66,-4.15},rotation={0,202.5,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =0},
+			[1]={position={0.02,-1.53,-3.99},rotation={0,210.54,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =2.500001},
+			[5]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+			[2]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+		},
+		[104] = 
+		{
+			[3]={position={0.24,-1.27,-4.2},rotation={0,205,350},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =5.000003},
+			[4]={position={-0.01,-1.66,-4.15},rotation={0,202.5,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =0},
+			[1]={position={0.02,-1.53,-3.99},rotation={0,210.54,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =2.500001},
+			[5]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+			[2]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+		},
+		[104] = 
+		{
+			[3]={position={0.24,-1.27,-4.2},rotation={0,205,350},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =5.000003},
+			[4]={position={-0.01,-1.66,-4.15},rotation={0,202.5,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =0},
+			[1]={position={0.02,-1.53,-3.99},rotation={0,210.54,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =2.500001},
+			[5]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+			[2]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+		},
+		[106] = 
+		{
+			[3]={position={0.24,-1.27,-4.2},rotation={0,205,350},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =5.000003},
+			[4]={position={-0.01,-1.66,-4.15},rotation={0,202.5,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =0},
+			[1]={position={0.02,-1.53,-3.99},rotation={0,210.54,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =2.500001},
+			[5]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+			[2]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+		},
+		[107] = 
+		{
+			[3]={position={0.24,-1.27,-4.2},rotation={0,205,350},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =5.000003},
+			[4]={position={-0.01,-1.66,-4.15},rotation={0,202.5,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =0},
+			[1]={position={0.02,-1.53,-3.99},rotation={0,210.54,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =2.500001},
+			[5]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+			[2]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+		},
+		[108] = 
+		{
+			[3]={position={0.24,-1.27,-4.2},rotation={0,205,350},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =5.000003},
+			[4]={position={-0.01,-1.66,-4.15},rotation={0,202.5,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =0},
+			[1]={position={0.02,-1.53,-3.99},rotation={0,210.54,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =2.500001},
+			[5]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+			[2]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+		},
+		[109] = 
+		{
+			[3]={position={0.24,-1.27,-4.2},rotation={0,205,350},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =5.000003},
+			[4]={position={-0.01,-1.66,-4.15},rotation={0,202.5,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =0},
+			[1]={position={0.02,-1.53,-3.99},rotation={0,210.54,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =2.500001},
+			[5]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+			[2]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+		},
+		[110] = 
+		{
+			[3]={position={0.24,-1.27,-4.2},rotation={0,205,350},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =5.000003},
+			[4]={position={-0.01,-1.66,-4.15},rotation={0,202.5,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =0},
+			[1]={position={0.02,-1.53,-3.99},rotation={0,210.54,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =2.500001},
+			[5]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+			[2]={position={0.025,-0.52,-4},rotation={0,200,0},shadow =true,GroundRotY =0,GroundOffsetY =0,MOffsetX =0,cameraParam =35,cameraRotX =9.999999},
+		},
 	},
 	["default"] = 
 	{

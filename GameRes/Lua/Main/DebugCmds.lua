@@ -93,6 +93,13 @@ cmds["net"]	= function(c)
 	game._NetMan:SetProtocolPaused(enable)
 end
 
+cmds["fps"]	= function(c)
+	if not check_params_count(c, 2) then return end
+	local lv = tonumber(c[2])
+	local FPSAdapter = require "System.FPSAdapter"
+	FPSAdapter.Debug(lv)
+end
+
 cmds["line"]	= function(c)
 	if not check_params_count(c, 2) then return end
 	local id = tonumber(c[2])
@@ -364,10 +371,12 @@ end
 
 cmds["debugmode"] = function(c)
 	if not check_params_count(c, 2) then return end
+	local DebugTools = require "Main.DebugTools"
+
 	if c[1] == 0 then
-		game._IsDebugMode = false
+		DebugTools.EnableEntityInfoDebug = false
 	else
-		game._IsDebugMode = true 
+		DebugTools.EnableEntityInfoDebug = true 
 	end	
 end
 
@@ -381,8 +390,27 @@ cmds["memstats"] = function (c)
 	local LuaTableProfiler = require "Profiler.CLuaTableProfiler"
 
 	LuaTableProfiler.LogMemoryStats()
-
 	--GameUtil.DumpCSharpMemory()
+end
+
+cmds["godump"] = function (c)
+	GameUtil.DumpCSharpMemory(0)
+end
+
+cmds["compdump"] = function (c)
+	GameUtil.DumpCSharpMemory(1)
+end
+
+cmds["texdump"] = function (c)
+	GameUtil.DumpCSharpMemory(2)
+end
+
+cmds["matdump"] = function (c)
+	GameUtil.DumpCSharpMemory(3)
+end
+
+cmds["pss"] = function (c)
+	warn(GameUtil.GetMemotryStats())
 end
 
 cmds["memory"] = function (c)
@@ -521,7 +549,8 @@ local timer_id = 0
 cmds["superman"] = function (c)
 	if not check_params_count(c, 1) then return end
 
-	local attachedProperties = GameUtil.GetAllTid("AttachedProperty")
+	local CElementData = require "Data.CElementData"
+	local attachedProperties = CElementData.GetAllTid("AttachedProperty")
 	local count = 1
 	local callback = function()
 		if count == 2 then

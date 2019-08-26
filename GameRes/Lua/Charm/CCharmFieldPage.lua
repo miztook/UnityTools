@@ -42,6 +42,17 @@ def.method().Init = function(self)
     self:GenerateFields()
 end
 
+def.method("=>", "boolean").IsAllFieldLocked = function(self)
+    local is_all_lock = true
+    for i,v in ipairs(self._CharmFields) do
+        if not v:IsLock() then
+            is_all_lock = false
+            break
+        end
+    end
+    return is_all_lock
+end
+
 -- 手动Toggle
 def.method("number").OnToggleField = function(self, index)
     select_index = index

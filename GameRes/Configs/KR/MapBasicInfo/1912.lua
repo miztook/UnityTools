@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/Map_Bg_019.png",
 	AssetPath = "Assets/Outputs/Scenes/World05.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 	},
@@ -26,7 +27,7 @@ local MapInfo =
 		},
 		[4198] = 
 		{
-			[1] = { x = -35.99, y = 51.86, z = 106.00, name = "엘리언 쿠벨", SortID = 6 },
+			[1] = { x = -35.99, y = 51.86, z = 106.00, name = "엘리온 쿠벨", SortID = 6 },
 		},
 		[4199] = 
 		{
@@ -75,10 +76,10 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[400] = { x = -15.49, y = 30.42, z = -60.44, name = "卡斯塔仑领土", worldId = 0, PkMode = 0 },
-			[401] = { x = -242.83, y = 298.43, z = 345.44, name = "塔索克平台", worldId = 0, PkMode = 0 },
-			[402] = { x = 86.45, y = 44.84, z = 155.82, name = "전장", worldId = 0, PkMode = 0 },
-			[403] = { x = -51.86, y = 53.19, z = 66.71, name = "绝望之战初始抵达", worldId = 0, PkMode = 0 },
+			[400] = { x = -15.49, y = 30.42, z = -60.44, name = "卡斯塔仑领土", worldId = 0, PkMode = 1 },
+			[401] = { x = -242.83, y = 298.43, z = 345.44, name = "塔索克平台", worldId = 0, PkMode = 1 },
+			[402] = { x = 86.45, y = 44.84, z = 155.82, name = "전장", worldId = 0, PkMode = 1 },
+			[403] = { x = -51.86, y = 53.19, z = 66.71, name = "绝望之战初始抵达", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

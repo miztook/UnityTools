@@ -1,6 +1,5 @@
 local Lplus = require "Lplus"
 local CWorld = require "Main.CWorld"
-
 local CEventManager = require "Utility.AnonymousEvent".AnonymousEventManager
 local CHostPlayer = require "Object.CHostPlayer"
 local CElementData = require "Data.CElementData"
@@ -8,7 +7,6 @@ local CUIMan = require "GUI.CUIMan"
 local CNetwork = require "Network.CNetwork"
 local CAccountInfo = require "Main.CAccountInfo"
 local EMatchType = require "PB.net".EMatchType
-local CModel = require "Object.CModel"
 local CDungeonMan = require "Dungeon.CDungeonMan"
 local AchievementMan = require "Achievement.AchievementMan"
 local DesignationMan = require "Designation.DesignationMan"
@@ -26,6 +24,7 @@ local CPanelSkillSlot = require "GUI.CPanelSkillSlot"
 local CPanelMinimap = require "GUI.CPanelMinimap"
 local PBHelper = require "Network.PBHelper"
 local UserData = require "Data.UserData".Instance()
+local FilterMgr = require "Utility.BadWordsFilter".Filter
 local CPVPAutoMatch = require "ObjHdl.CPVPAutoMatch"
 local CAuctionUtil = require "Auction.CAuctionUtil"
 local CPath = require "Path.CPath"
@@ -56,39 +55,77 @@ local CPanelUIBuffEnter = require "GUI.CPanelUIBuffEnter"
 local QualitySettingMan = require "Main.QualitySettingMan"
 local CPVEAutoMatch = require "ObjHdl.CPVEAutoMatch"
 local CRoleSceneMan = require "RoleScene.CRoleSceneMan"
-
+local DebugTools = require "Main.DebugTools"
 local CMiscSetting = require "Main.CMiscSetting"
---省电模式
 local CPowerSavingMan = require "Main.CPowerSavingMan"
-
 local CCountGroupMan = require "Main.CCountGroupMan"
-
+local FPSAdapter = require "System.FPSAdapter"
 
 local CGame = Lplus.Class("CGame")
 local def = CGame.define
 
 def.const(CEventManager).EventManager = CEventManager()
+def.field("boolean")._IsUsingJoyStick = false
+def.field("boolean")._IsLoadingWorld = false
+def.field("boolean")._IsPanelLoadingShow = false
+def.field("boolean")._IsInWorldBoss = false
 
-def.field("boolean")._IsOfflineGame = false
+_G.GameStage = 
+{
+	None = -1,
+	InitStage = 0,
+	StartStage = 1,
+	LoginStage = 2,
+	SelectRoleStage = 3,
+	CreateRoleStage = 4,
+	InGameStage = 5,
+}
+def.field("number")._CurGameStage = _G.GameStage.None
+
+-- 角色信息
 def.field(CAccountInfo)._AccountInfo = nil
+def.field(CHostPlayer)._HostPlayer = nil
 
-def.field(CWorld)._CurWorld = nil 
+-- 相机相关
 def.field("userdata")._MainCamera = nil
-def.field("userdata")._TopPateCamera = nil
 def.field("userdata")._MainCameraComp = nil
 def.field("number")._MainCameraCullingMask = 0
-def.field("userdata")._PharseEffectGfx = nil
-
+def.field("userdata")._TopPateCamera = nil
 def.field("userdata")._TopPateCanvas = nil
-def.field(CHostPlayer)._HostPlayer = nil
-def.field(CUIMan)._GUIMan = nil
-def.field("boolean")._IsUsingJoyStick = false
-def.field(CNetwork)._NetMan = nil
+def.field("userdata")._PharseEffectGfx = nil
+def.field("userdata")._HawkeyeEffectGfx = nil
+def.field("number")._MainCameraLevel = 0
+
+-- 地图相关
+def.field(CWorld)._CurWorld = nil 
+def.field("boolean")._FirstEnterGame = true
+def.field("boolean")._Is2InitEnterWorld = true
+def.field("number")._CurMapType = 0
+def.field("number")._CurMapId = 0			--实际地图加载完毕后的MapId
+def.field("number")._CurSceneTid = 0			--实际地图加载完毕后的MapId
 def.field("table")._SceneTemplate = nil
-def.field("boolean")._IsDebugMode = false
+def.field(CRegionLimit)._RegionLimit = nil		    -- 场景限制
+
+-- 系统状态
+def.field("number")._Ping = 0.0
+
+--断线重连
+def.field("number")._ReconnectTime = 0		        -- 重连时间
+def.field("boolean")._IsReEnter = false 	        -- 是否是重新登录
+def.field("number")._ReConnectNum = 0		        -- 重连次数
+def.field("boolean")._IsReconnecting = false	    -- 是否正在重连中
+def.field("boolean")._AnotherDeviceLogined = false
+def.field("boolean")._IsLoggingout = false 			-- 是否在登出中
+def.field("number")._AutoReconnectTimerId = 0			--开始自动重连后计时器1分种
+def.field("number")._WorldBossSetTimerId = 0		--世界boss设置后3分钟计时
+
+--各种管理器
+def.field(CNetwork)._NetMan = nil
+def.field(CUIMan)._GUIMan = nil
+def.field(CGameTipsQueue)._CGameTipsQ = nil     --游戏提示队列 升级等
+def.field(CRoleSceneMan)._RoleSceneMan = nil 		--角色场景管理器
 
 def.field(CMiscSetting)._MiscSetting = nil 		--游戏设置
-def.field(CRoleSceneMan)._RoleSceneMan = nil 		--角色场景管理器
 def.field(CPowerSavingMan)._CPowerSavingMan = nil		--省电模式
 def.field(CGuildMan)._GuildMan = nil
 def.field(CDungeonMan)._DungeonMan = nil 			--副本管理器
@@ -97,7 +134,6 @@ def.field(DesignationMan)._DesignationMan = nil     --称号管理器
 def.field(CWorldBossMan)._CWorldBossMan = nil 		--世界Boss管理器
 def.field(CFunctionMan)._CFunctionMan = nil
 def.field(CGuideMan)._CGuideMan = nil
-def.field(CGameTipsQueue)._CGameTipsQ = nil     --游戏提示队列 升级等
 def.field(CManualMan)._CManualMan = nil
 def.field(CFriendMan)._CFriendMan = nil 
 def.field(CArenaMan)._CArenaMan = nil 
@@ -111,60 +147,30 @@ def.field(CCalendarMan)._CCalendarMan = nil 	--冒险指南管理器
 def.field(CWelfareMan)._CWelfareMan = nil 		--福利管理器
 def.field(CCountGroupMan)._CCountGroupMan = nil 		--次数组管理器
 
+-- System
+def.field("number")._GCCount = 0
 def.field("boolean")._IsOpenDebugMode = false			--是否开启debug模式
 
-def.field("boolean")._Is2InitEnterWorld = true
-
---断线重连
-def.field("number")._ReconnectTime = 0		        -- 重连时间
-def.field("boolean")._IsReEnter = false 	        -- 是否是重新登录
-def.field("number")._ReConnectNum = 0		        -- 重连次数
-def.field("boolean")._IsReconnecting = false	    -- 是否正在重连中
-
-def.field("number")._CurMapType = 0
-
-def.field("boolean")._IsSystemVoice = true          -- 是否是系统聊天
-def.field("boolean")._IsSystemPlayVoice = true      -- 是否播放的系统聊天
-
+-- 设置相关
+-- TODO: 以下信息应该整合进CMiscSetting中  -- added by Jerry
 def.field("number")._TargetMissDistanceSqr = 0      -- 目标解锁距离
-def.field("boolean")._FirstEnterGame = true
 def.field("boolean")._IsOpenPVECamLock = true       -- 是否开启PVE镜头锁定
 def.field("boolean")._IsOpenPVPCamLock = true       -- 是否开启PVP镜头锁定
 def.field("boolean")._IsOpenCamSkillRecover = true  -- 是否开启相机的技能自动回正
 def.field("number")._CamLockEntityId = 0 			-- 相机战斗锁定视角的目标Id
 def.field("boolean")._IsInNearCam = false 			-- 是否处于近景模式
-def.field("boolean")._IsShowHeadInfo = true         -- 是否显示头顶信息
-def.field("number")._MaxPlayersInScreen = 0         -- 最大同屏人数
+def.field("number")._MaxPlayersInScreen = 25         -- 最大同屏人数
 def.field("number")._EnterPowerSaveSeconds = 0      -- 多久进入省点模式
 
-def.field(CRegionLimit)._RegionLimit = nil		    -- 场景限制
-
--- 隐藏debug log FPS信息  false 打开  true 隐藏
-def.field("boolean")._IsHideDebug = false
-def.field("boolean")._IsHideLog = false
-def.field("boolean")._IsHideFPS = false
-def.field("boolean")._IsHideMallPages = false       -- 是否隐藏商城的Page（礼包商城，成长福利，蓝钻兑换）
-def.field("boolean")._IsHideGuildBattle = false     -- 是否隐藏公会战场这个功能。
-def.field("boolean")._IsHideUrlHelp 	= false     -- 是否隐藏UI帮助提示功能。
-def.field("boolean")._IsHideHottime 	= false     -- 是否隐藏Hottime功能。
-def.field("boolean")._IsHideAppMsgBox 	= false     -- 是否隐藏问卷弹窗功能。
-def.field("boolean")._IsHideLancer = false          -- 是否隐藏枪骑士职业创建。
-
-def.field("boolean")._AnotherDeviceLogined = false
-
-def.field("number")._Ping = 0.0
-
-def.field("number")._GCCount = 0
-
+-- 其他全局功能性信息
+-- Hottime
 def.field("boolean")._IsGoldHottime = false
 def.field("boolean")._IsExpHottime = false
 def.field("number")._HottimeGoldItemTid = 0		        -- hottime金币增益Tid
 def.field("number")._HottimeExpItemTid = 0		        -- hottime经验增益Tid
 
-def.field("number")._CurSceneTid = 0			--实际地图加载完毕后的MapId
-def.field("number")._CurMapId = 0			--实际地图加载完毕后的MapId
-def.field("boolean")._IsLoggingOut = false
-def.field('number')._AppMsgTimerId = 0				-- app弹窗Timer
+--摄像机事件timer
+def.field("number")._CameraEventMoveTimerId = 0
 
 local BEGINNER_DUNGEON_WORLD_TID = 1208 -- 新手副本地图id
 
@@ -205,146 +211,355 @@ local function DoAssetCacheCleanup(clearAll)
 	game._GCCount = 0
 end
 
-def.method().Init = function(self)
-	--LogMemory("Lua Game Init Start")
-	-- 系统级初始化
+--[[
+游戏启动流程：
+Init -> Start -> Login Stage -> SelectRole Stage / CreateRole Stage -> InGame Stage
+其中，Login Stage 和 SelectRole Stage之间可以相互切换
+      SelectRole Stage 和 InGame之间可以相互切换
+      SelectRole Stage 和 CreateRole Stage 之间可以相互切换
+      InGame Stage 可以直接返回到 Login Stage
+]]
 
-	--_G.AddGlobalTimer(1, false, function() QualitySettingMan.Instance():UpdateQualityLevel() end)
-
-	do
-		collectgarbage("setpause", 150)
-		local seed = tostring(os.time()):reverse():sub(1, 7) --os.time()
-		math.randomseed(seed)
-		warn(("randomseed: 0x%08x"):format(seed))
-		--math.randomseed = function () error("should not call randomseed when game running") end
-	end
-
-	_G.res_base_path = GameUtil.GetResourceBasePath()
-	_G.document_path = GameUtil.GetDocumentPath()
-
-	--读取存储的Userdata
-	UserData:Init()
-	QualitySettingMan.Instance():DecideQualityLevel()
-
-    self._NetMan = CNetwork.new()
-    self._NetMan:Init()
-
-    _G.AddGlobalTimer(60, false, function()		
-		self._GCCount = self._GCCount + 1
-		if self._GCCount >= 3 then		--30×4 = 每3分钟调用一次 避免内存累加
-			self._GCCount = 0
-			DoAssetCacheCleanup(false)
-		else
-			self:LuaGC()	
+do
+	def.method().Init = function(self)
+		-- 系统级初始化
+		do
+			collectgarbage("setpause", 150)
+			local seed = tostring(os.time()):reverse():sub(1, 7) --os.time()
+			math.randomseed(seed)
+			warn(("randomseed: 0x%08x"):format(seed))
+			--math.randomseed = function () error("should not call randomseed when game running") end
 		end
-	end)
 
-    --初始化声音，默认开启，以后服务器下发用户数据是否开启
-	CSoundMan.Instance():Init(true, true)
-    CMallMan.Instance():Init()
-    CNotificationMan.Instance():Init()
+		_G.res_base_path = GameUtil.GetResourceBasePath()
+		_G.document_path = GameUtil.GetDocumentPath()
 
-    self._RoleSceneMan = CRoleSceneMan.new()
+		_G.AddGlobalTimer(60, false, function()	
+				self._GCCount = self._GCCount + 1
+				if self._GCCount >= 3 then		--30×4 = 每3分钟调用一次 避免内存累加
+					self._GCCount = 0
+					DoAssetCacheCleanup(false)
+				else
+					self:LuaGC()	
+				end
+			end)
 
-	self._MiscSetting = CMiscSetting.new()
-	--省电模式
-	self._CPowerSavingMan = CPowerSavingMan.new()
+		_G.AddGlobalTimer(1, false, function()	
+				FPSAdapter.Tick()
+			end)
 
-	self._GuildMan = CGuildMan.new()
-	self._DungeonMan = CDungeonMan.new()			--数据和多语言无关，只加载一次
-	self._AcheivementMan = AchievementMan.new()			--数据和多语言无关，只加载一次
-	self._DesignationMan = DesignationMan.new()			--数据和多语言无关，只加载一次
-	self._AdventureGuideMan = AdventureGuideMan.new()			
-	self._PlayerStrongMan = CPlayerStrongMan.new() --我要变强。只初始化。不加载数据，不处理逻辑
-	self._CWorldBossMan = CWorldBossMan.new()
-	
-	self._CFunctionMan = CFunctionMan.new()
-	self._CGuideMan = CGuideMan.new()
-	GameUtil.PassLuaGuideMan(self._CGuideMan)
+		Application.backgroundLoadingPriority = EnumDef.ThreadPriority.High
 
-	self._CGameTipsQ = CGameTipsQueue.Instance()
+		UserData:Init()  --读取存储的Userdata
 
-	self._CManualMan = CManualMan.new()
-	self._CReputationMan = CReputationMan.new()
-    self._CNetAutomicMan = CNetAutomicMan.new()
-	self._CAuctionUtil = CAuctionUtil.new()	
-	self._TopPateCanvas = GameObject.Find("TopPateCanvas")	
-	self._RegionLimit = CRegionLimit.new()
-	self._CFriendMan = CFriendMan.new()
-	self._CCalendarMan = CCalendarMan.new()
-	self._CArenaMan = CArenaMan.new()
-	self._CWelfareMan = CWelfareMan.new()
-	self._CDecomposeAndSortMan = CDecomposeAndSortMan.new()
-	self._CCountGroupMan = CCountGroupMan.new()
-end
+		QualitySettingMan.Instance():DecideQualityLevel()
 
---多语言相关
-def.method().ReloadData = function (self)
-	--加载init涉及的element data，在init时不加载data
-	self._CGuideMan:LoadAllGuideData()
-	self._CFunctionMan:LoadAllFunctionData()
-	self._AdventureGuideMan:LoadAllAdventureGuideData()
-	self._DungeonMan:LoadAllDungeonData()
-	self._AcheivementMan:LoadAllAchievementData()
-	self._CCalendarMan:LoadAllCalendarData()
-	self._CWorldBossMan:LoadAllWorldBossData()
-    self._CAuctionUtil:GetAllItemInfo()
-	CTransManage.Instance():LoadAllTransTable()
-end
+		do  --系统级管理器初始化
+		    self._NetMan = CNetwork.new()
+		    self._CNetAutomicMan = CNetAutomicMan.new()
+			self._GUIMan = CUIMan.new()
+		    self._CGameTipsQ = CGameTipsQueue.Instance()
+			self._TopPateCanvas = GameObject.Find("TopPateCanvas")	
+		    CPath.Instance():Init()
 
-def.method().Start = function (self)
-	Application.backgroundLoadingPriority = EnumDef.ThreadPriority.Normal
-	self:ReloadData()
+		    if IsNil(_G.ShadowTemplate) then
+				local cb = function(res)
+		                if res ~= nil then
+		                    _G.ShadowTemplate = res
+		                end
+		            end
+				GameUtil.AsyncLoad(PATH.Shadow, cb, false, "sfx")
+			end
 
-	if self._GUIMan == nil then
-	    self._GUIMan = CUIMan.new()
-	    self._GUIMan:InitTopPate()
+			if IsNil(_G.PathArrowTemplate) then
+				local cb = function(res)
+		                if res ~= nil then
+		                    _G.PathArrowTemplate = res
+		                end
+		            end
+				GameUtil.AsyncLoad( PATH.Gfx_PathArrow, cb, false, "sfx")
+			end
+		end
+
+		self._CurGameStage = _G.GameStage.InitStage
 	end
 
-	GameUtil.SetCameraParams(EnumDef.CAM_CTRL_MODE.LOGIN)	
-	self:HideDebug(self._IsHideDebug)
-	self:HideLog(self._IsHideLog)
-	self:HideFPSPing(self._IsHideFPS)
+	def.method().Start = function (self)
+		--[[以下管理器在new中不包含数据初始化]]
+		do
+			self._MiscSetting = CMiscSetting.new()  
+			self._CPowerSavingMan = CPowerSavingMan.new() 
+			self._RoleSceneMan = CRoleSceneMan.new() 
+			self._GuildMan = CGuildMan.new()   		-- 仅构造
+			self._DungeonMan = CDungeonMan.new()	-- 仅构造
+			self._AcheivementMan = AchievementMan.new()	-- 仅构造
+			self._DesignationMan = DesignationMan.new()	-- 仅构造
+			self._AdventureGuideMan = AdventureGuideMan.new()	  -- 仅构造		
+			self._CWorldBossMan = CWorldBossMan.new()  -- 仅构造	
+			self._CFunctionMan = CFunctionMan.new()   -- 仅构造
+			self._CGuideMan = CGuideMan.Instance()    -- 仅构造
+			self._CManualMan = CManualMan.new()       -- 仅构造
+			self._CReputationMan = CReputationMan.new()   -- 仅构造
+			self._CAuctionUtil = CAuctionUtil.new()	   -- 仅构造
+			self._RegionLimit = CRegionLimit.new()    -- 仅构造
+			self._CFriendMan = CFriendMan.new()      -- 仅构造
+			self._CCalendarMan = CCalendarMan.new()   -- 仅构造
+			self._CArenaMan = CArenaMan.new()       -- 仅构造
+			self._CWelfareMan = CWelfareMan.new()   -- 仅构造
+			self._CDecomposeAndSortMan = CDecomposeAndSortMan.new()  -- 仅构造
+			self._CCountGroupMan = CCountGroupMan.new()  -- 仅构造
+			self._PlayerStrongMan = CPlayerStrongMan.new() -- 构造
+		end
 
-	self:PreloadAssets()
-	--监听事件
-	self:QuestRelatedInit()
-	self._CGuideMan:Init()
-	self._CGameTipsQ:Init()
-	self._CFriendMan:Init()
-    CTransManage.Instance():Init()
-	--SDK初始化 开始登录流程
-	CPlatformSDKMan.Instance():StartLoginFlow()
+		self._RoleSceneMan:Init()  -- 初始化Cfg数据，固定不变
+		GameUtil.PassLuaGuideMan(self._CGuideMan)  -- 固定不变
+		CSoundMan.Instance():Init(true, true)  -- 需要UserData数据
+		FilterMgr.Init()
 
-	CPath.Instance():Init()
-	self._GuildMan:Init()
-end
+		local FPSAdapter = require "System.FPSAdapter"
+    	FPSAdapter.SyncSettings()
 
-def.method().ClearScene = function(self)
-	self._RoleSceneMan:CleanUp()
+		self._CurGameStage = _G.GameStage.StartStage
+
+		--SDK初始化 开始登录流程
+		CPlatformSDKMan.Instance():StartLoginFlow()
+	end
+
+	def.method().EnterLoginStage = function(self)
+		-- self._GUIMan:CloseCircle()
+		Application.backgroundLoadingPriority = EnumDef.ThreadPriority.Normal
+		GameUtil.SetCameraParams(EnumDef.CAM_CTRL_MODE.LOGIN)
+		GameUtil.EnableBackUICamera(true)			--隐藏黑色背景
+
+		self:PrepareForEnterGame()
+
+		self._GUIMan:Open("CPanelLogin", { IsOnGameStart = true })
+
+		self._CurGameStage = _G.GameStage.LoginStage
+	end
+
+	def.method("number").EnterSelectRoleStage = function (self, selectRoleId)
+		--登录，开始角色选择
+		local loginMan = require "Main.CLoginMan".Instance()
+		if loginMan:GetQuickEnterRoleId() > 0 or selectRoleId > 0 then
+			loginMan:OnAccountInfoSet(selectRoleId)
+		else
+			loginMan:OnAccountInfoSet(0)
+		end
+	end
+
+	def.method().PrepareForEnterGame = function (self)
+		CTransManage.Instance():Init()  -- 注册Event + 清空数据
+		CNotificationMan.Instance():Init()  -- 注册Event
+		CTeamMan.Instance():Init()
+
+	    -- QuestRelatedInit
+	    CQuest.Instance():Init()  -- 注册Event
+		local CPageQuest = require "GUI.CPageQuest"
+		CPageQuest.Instance():Init()  -- 注册Event + 清空数据
+	    CMallMan.Instance():Init()   -- 注册Event
+
+		-- self._PlayerStrongMan:Init()  -- 清空数据
+		self._CGuideMan:Init()        -- 注册Event + 数据初始化 + OpenUI
+		self._CGameTipsQ:Init()       -- 注册Event + AddTimer
+		self._GuildMan:Init()       -- AddTimer
+		self._AcheivementMan:Init()
+		self._CNetAutomicMan:Init()
+
+		self._CFunctionMan:Init()
+		self._CCalendarMan:Init()
+		self._CWorldBossMan:Init()
+
+		CTransManage.Instance():LoadAllTransTable()  -- 有本地化需求么？？
+
+		self._CGuideMan:LoadAllGuideData()
+		self._AdventureGuideMan:LoadAllAdventureGuideData()
+		self._DungeonMan:LoadAllDungeonData()
+	    self._CAuctionUtil:LoadAllMarketItemData()
+	end
+
+	def.method().PrepareAfterHostPlayerReady = function (self)
+		self._CDecomposeAndSortMan:Init()
+		self._PlayerStrongMan:Init()
+	end
+
+	def.method().CleanupWhenLeaveGame = function (self)
+		CGame.EventManager:clearAll()
+
+		self:SaveCamParamsToUserData()
+		self:SaveGameConfigToUserData()
+		self:SaveLoginRoleConfigToUserData()	 -- 保存角色信息
+		self:SaveBagItemToUserData()
+		self._CFriendMan:SaveRecord()
+		self._CDecomposeAndSortMan:SaveRecord()
+		self._PlayerStrongMan:SaveRecord()
+
+		self:StopAllAutoSystems()
+		local CQuestAutoGather = require "Quest.CQuestAutoGather"
+		CQuestAutoGather.Instance():Stop()
+		CGMan.Reset()
+		CRedDotMan.ClearRedTabelState()
+
+		local is_language_changed = _G.IsLanguageChanged()
+		if is_language_changed then
+			_G.ResetLanguage()
+			-- 以下数据与本地化相关，切换数据时需要清理
+			FilterMgr.Clear()
+			FilterMgr.Init()
+			self._CGuideMan:ClearAllGuideData()
+			self._AdventureGuideMan:ClearAllAdventureGuideData()
+			self._DungeonMan:ClearAllDungeonData()
+		    self._CAuctionUtil:ClearAllMarketItemData()
+		end
+
+		local CPageQuest = require "GUI.CPageQuest"
+		CPageQuest.Instance():Cleanup()
+
+		MsgBox.RemoveAllBoxesData()
+		
+		-- 清理UI
+		self._GUIMan:CloseCircle()
+		self._GUIMan:Clear()
+
+		--切换角色时,需要清楚逻辑数据
+		self._RoleSceneMan:Cleanup()
+		self._CFunctionMan:Cleanup()
+		self._CCalendarMan:Cleanup()
+		self._CWorldBossMan:Cleanup()
+		self._CGameTipsQ:Cleanup()
+		self._CGuideMan:Cleanup()
+		self._GuildMan:Cleanup()
+		self._DungeonMan:Cleanup()
+		self._DesignationMan:Cleanup()
+		self._PlayerStrongMan:Cleanup()
+		self._AcheivementMan:Cleanup()  --
+		self._CWelfareMan:Cleanup()
+		self._CFriendMan:Cleanup()
+		self._CArenaMan:Cleanup()
+		self._CDecomposeAndSortMan:Cleanup()
+		self._CAuctionUtil:Cleanup()
+		self._CReputationMan:Cleanup()
+		self._CReputationMan:Cleanup()
+		self._CNetAutomicMan:Cleanup()
+		self._CPowerSavingMan:Cleanup()
+		self._CManualMan:Cleanup()
+
+		CTeamMan.Instance():Cleanup()
+		CPath.Instance():Cleanup()
+		CDressMan.Instance():Cleanup()
+		CWingsMan.Instance():Cleanup()
+		CTransManage.Instance():Cleanup()
+		CQuest.Instance():Cleanup()
+		
+		CPanelSkillSlot.Instance():Cleanup()
+		CMallMan.Instance():Cleanup()
+		CNotificationMan.Instance():Cleanup()
+		CFxMan.Instance():Cleanup()
+
+		CPVPAutoMatch.Instance():Stop()
+		CPVEAutoMatch.Instance():Stop()
+		CQuestNavigation.Instance():Stop()
+		CNPCServiceHdl.Stop()
+		CExteriorMan.Instance():Reset()
+		
+
+		-- 清除HostPlayer大世界的一些信息
+		if self._HostPlayer ~= nil then
+			self._HostPlayer:HalfRelease()
+		end
+
+		--删除world
+		if self._CurWorld ~= nil then
+			if self._CurWorld:GetCurScene() ~= nil then
+				self._CurWorld:Release(true, true)
+			else
+				self._CurWorld:Release(false, true)
+			end
+		end
+		self._CurWorld = nil 
+		self._SceneTemplate = nil
+
+		if self._HostPlayer ~= nil then
+			self._HostPlayer:Release()
+			self._HostPlayer = nil --清除HostPlayer
+		end
+
+		--清理所有资源
+		GameUtil.SetCameraGreyOrNot(false) -- 重置镜头灰度
+		GameUtil.ResetLogReporter()
+		
+		--清理 TopPates
+		self._GUIMan:ReInitTopPate(is_language_changed)
+
+		AppMsgBox.StopWork()
+
+		DoAssetCacheCleanup(true)
+		self:DestroyMainCamera()
+
+		self._FirstEnterGame = true			--重新初始化
+	end
+	
+	def.method("number").ReturnToSelectRoleStage = function (self, selectRoleId)
+		Application.backgroundLoadingPriority = EnumDef.ThreadPriority.Normal
+		GameUtil.SetCameraParams(EnumDef.CAM_CTRL_MODE.LOGIN)
+		GameUtil.EnableBackUICamera(true)			--隐藏黑色背景
+		
+		self:CleanupWhenLeaveGame()
+		self:PrepareForEnterGame()
+
+		--登录，开始角色选择
+		local loginMan = require "Main.CLoginMan".Instance()
+		loginMan:SetQuickEnterRoleId(0)
+		loginMan:OnAccountInfoSet(0)
+
+		DebugTools.ResetDebugToolState()
+
+		self:ClearWorldBossSetTimer()		--重置世界boss提示计时
+	end
+
+	def.method().ReturnToLoginStage = function(self)
+		Application.backgroundLoadingPriority = EnumDef.ThreadPriority.Normal
+		GameUtil.SetCameraParams(EnumDef.CAM_CTRL_MODE.LOGIN)
+		GameUtil.EnableBackUICamera(true)			--隐藏黑色背景
+
+		self._ReConnectNum = 0	
+		self._IsReEnter = true
+		self._IsReconnecting = false
+		self._IsLoggingout = false
+
+		--关闭连接
+		self:CloseConnection()
+
+		CSoundMan.Instance():Reset()
+
+		--清理
+		if self._AccountInfo ~= nil then
+			self._AccountInfo:Clear()
+			self._AccountInfo = nil
+		end
+
+		self:CleanupWhenLeaveGame()
+		self:PrepareForEnterGame()
+
+		self._CurGameStage = _G.GameStage.LoginStage
+
+		--重新开始登录流程
+		CPlatformSDKMan.Instance():RestartLoginFlow()
+
+		self:ClearWorldBossSetTimer()		--重置世界boss提示计时
+	end
 end
 
 def.method("=>", "boolean").IsInGame = function (self)
 	return self._MainCamera ~= nil
 end
 
-def.method().PreloadAssets = function(self)
-	if IsNil(_G.ShadowTemplate) then
-		GameUtil.AsyncLoad(PATH.Shadow, function(res)
-                    if res ~= nil then
-                        _G.ShadowTemplate = res
-                    end
-                end)
-
+-- 是否选择角色闲置超时自动返回登录
+def.method("=>", "boolean").IsRoleSceneAutoReturnLogin = function (self)
+	if self._RoleSceneMan ~= nil then
+		return self._RoleSceneMan._Is2ReturnLogin
 	end
-	if IsNil(_G.PathArrowTemplate) then
-		GameUtil.AsyncLoad( PATH.Gfx_PathArrow, function(res)
-                    if res ~= nil then
-                        _G.PathArrowTemplate = res
-                    end
-                end)
-	
-	end
+	return false
 end
 
 def.method("number", "number", "string").SetCurrentMapInfo = function (self, sceneTid, mapId, nvmeshName)
@@ -355,10 +570,6 @@ end
 
 def.method("number").SetQualityLevel = function (self, lev)
 	GameUtil.SetGFXRenderLevel(lev)
-end
-
-def.method("number").Tick = function(self, dt)
-	CModel.UpdateLoadedResult(false)
 end
 
 def.method().LuaGC = function (self)
@@ -393,8 +604,14 @@ def.method("table").CreateHostPlayer = function (self, info)
 	-- 上传角色Id和名字
 	GameUtil.ReportRoleInfo("ID: " .. tostring(self._HostPlayer._ID) .. " & Name: " .. tostring(self._HostPlayer._InfoData._Name))
 
-	--初始化完角色, 初始化 IAP支付
-	CPlatformSDKMan.Instance():InitIap(self._HostPlayer._ID)
+	if _G.IsWin() == false then
+		--设置支付商品列表
+		CPlatformSDKMan.Instance():SetProductIds()
+		--初始化完角色, 初始化 IAP支付
+		CPlatformSDKMan.Instance():InitIap(self._HostPlayer._ID)
+	end
+
+	self:PrepareAfterHostPlayerReady()
 end
 
 def.method().PrepareForGameStart = function(self)
@@ -421,6 +638,17 @@ def.method().PlayPharseEffect = function(self)
 
 	self._PharseEffectGfx:Stop()
 	self._PharseEffectGfx:Play(3)
+end
+
+def.method().PlayHawkeyeEffect = function(self)
+	if self._HawkeyeEffectGfx == nil then
+		local gfx = GameUtil.RequestUncachedFx(PATH.Gfx_HawkeyeEffect)
+		gfx:SetParent(self._MainCamera, false)
+		gfx.localPosition = Vector3.New(0, 0, 3) 
+		self._HawkeyeEffectGfx = gfx:GetComponent(ClassType.CFxOne)
+	end
+	self._HawkeyeEffectGfx:Stop()
+	self._HawkeyeEffectGfx:Play(1.5)
 end
 
 def.method("number", "number").DoDungeonCheck = function(self, oldMapTid, newMapTid)
@@ -471,7 +699,7 @@ def.method("number", "number").DoDungeonCheck = function(self, oldMapTid, newMap
 			self._GUIMan:Close("CPanelUIGuildBattleMiniMap")			
 			self._GUIMan:Open("CPanelMinimap", nil)
 			self._GUIMan:Open("CPanelSystemEntrance", nil)
-			self._GUIMan:SetNormalUIMoveToHide(false, 0, "", nil)
+			--self._GUIMan:SetNormalUIMoveToHide(false, 0, "", nil)
 		end
 	end
 	--离开相位
@@ -508,10 +736,9 @@ def.method().FirstEnterGameWorld = function(self)
 	local CPanelHuangxinTest = require"GUI.CPanelHuangxinTest"
 	CPanelHuangxinTest.Instance():OnFirstEnterGameWorld()
 
-	self:ClearScene()
-
 	self._HostPlayer:SetActive(true)
 	self:CreateMainCamera()
+	self:SetCamParamsFromUserData()
 
 	local profTemplate = self._HostPlayer._ProfessionTemplate
 	if profTemplate ~= nil then
@@ -529,8 +756,6 @@ def.method().FirstEnterGameWorld = function(self)
 			GameUtil.ReadNearCameraProfConfig(self._HostPlayer._InfoData._Prof)
 		end
 	end
-
-	self:SetCamParamsFromUserData()
 
 	self._MiscSetting:UpdateHeadInfo()
 
@@ -552,6 +777,10 @@ def.method().FirstEnterGameWorld = function(self)
 end
 
 def.method("number", "number","table", "table", "number").EnterGameWorld = function(self, mapTid, mapId, position, dir, cgId)
+    self._CurGameStage = _G.GameStage.InGameStage
+
+    self._RoleSceneMan:Cleanup()
+
     GameUtil.EnableBackUICamera(false)  
 	self._HostPlayer:OnJumpToNewPos()
 	self._HostPlayer:Stand()--地图传送完毕站立，因为不stand的寻路状态，他会持续发送寻路链表中的点，导致服务器校验很容易失败，然后强制stopmove
@@ -584,7 +813,7 @@ def.method("number", "number","table", "table", "number").EnterGameWorld = funct
 	if not self._FirstEnterGame then 
 		self._CFriendMan:SaveRecord()
 	end
-
+    self._GUIMan._UIManCore:SetAsyncLoadOpenCicle(false)
 	if load_new_world then
 		--首次进入游戏世界相关
 		local isFirstEnterGame = self._FirstEnterGame
@@ -592,13 +821,19 @@ def.method("number", "number","table", "table", "number").EnterGameWorld = funct
 			StartScreenFade(1, 0, 0.5)
 			self:FirstEnterGameWorld()
 			self._HostPlayer._LoadedIsShow = true
-			self:SendC2SRankRewardGet()
 			self._FirstEnterGame = false
+
+			local PBUtil = require "PB.PBUtil"
+    		PBUtil.RequestRankReward()
 		end
-		
 		-- 不同的场景Asset需要重新加载
 		if self._SceneTemplate == nil or self._SceneTemplate.AssetPath ~= st.AssetPath then
-			local function loadingCb()
+			if self._DungeonMan:Get1v1WorldTID() ~= mapTid and self._DungeonMan:Get3V3WorldTID() ~= mapTid and self._DungeonMan:GetEliminateWorldTID() ~= mapTid then
+				self._GUIMan:Open("CPanelLoading",{BGResPathId = mapTid})
+				--elseif self._DungeonMan:Get1v1WorldTID() == mapTid or self._DungeonMan:Get3V3WorldTID() == mapTid or self._DungeonMan:GetEliminateWorldTID() == mapTid then
+			end
+
+			do
 				if curWorld ~= nil then
 					curWorld:Release(true, false)
 				end
@@ -656,6 +891,7 @@ def.method("number", "number","table", "table", "number").EnterGameWorld = funct
 									-- 第一次进入世界而且不是新手本，或者从新手本出来
 									showPromotion()
 								end
+                                self._GUIMan._UIManCore:SetAsyncLoadOpenCicle(true)
 							end
 
 							CPanelLoading.Instance():AttemptCloseLoading(showMapInfo)
@@ -679,7 +915,7 @@ def.method("number", "number","table", "table", "number").EnterGameWorld = funct
 							self._GUIMan:Open("CPanelSystemEntrance",nil)
 							self._GUIMan:Open("CPanelChatNew", 1)
 							self._GUIMan:Open("CPanelUIBuffEnter",nil)
-							self._CDecomposeAndSortMan:GetUserData()
+							
 							CAutoFightMan.Instance():Restart(_G.PauseMask.WorldLoading)
 							--省电模式
                             self._CPowerSavingMan:SetSleepingTime(self._EnterPowerSaveSeconds)
@@ -690,31 +926,22 @@ def.method("number", "number","table", "table", "number").EnterGameWorld = funct
 							CSoundMan.Instance():ChangeBackgroundMusic(0)
 							CSoundMan.Instance():ChangeEnvironmentMusic(0)
 
-							self._NetMan:SetProtocolPaused(false)
+							self._IsLoadingWorld = false
+							self:CheckProtcolPaused()
 						end
 						GameUtil.LoadSceneBlocks(position.x, position.z, _on_all_ready)
 					end
 					
 					self._HostPlayer:AddLoadedCallback(_on_host_loaded)
-					--CSoundMan.Instance():ChangeBackgroundMusic(0)
-					--CSoundMan.Instance():ChangeEnvironmentMusic(0)
-					--LogMemory("EnterGameWorld host_loaded")
 				end
 				CAutoFightMan.Instance():Pause(_G.PauseMask.WorldLoading)
 				--省电模式
 				self._CPowerSavingMan:StopPlaying()
 
-				self._NetMan:SetProtocolPaused(true)
+				self._IsLoadingWorld = true
+				self:CheckProtcolPaused()
 				self:LoadWorld(st, sceneTid, callback)
 			end
-			
-			if self._DungeonMan:Get1v1WorldTID() ~= mapTid and self._DungeonMan:Get3V3WorldTID() ~= mapTid and self._DungeonMan:GetEliminateWorldTID() ~= mapTid then
-				self._GUIMan:Open("CPanelLoading",{BGResPathId = mapTid})
-				--self._NetMan:SetProtocolPaused(true)
-			elseif self._DungeonMan:Get1v1WorldTID() == mapTid or self._DungeonMan:Get3V3WorldTID() == mapTid or self._DungeonMan:GetEliminateWorldTID() == mapTid then
- 				
-			end
-			loadingCb()
 		else
 			local function enter()
 				self._Is2InitEnterWorld = false
@@ -732,16 +959,20 @@ def.method("number", "number","table", "table", "number").EnterGameWorld = funct
 				self:ShowEnterMapImg(mapTid, oldMapTid)
 				self:DoDungeonCheck(oldMapTid, mapTid)
 				self:FinishEnterWorld()
+                self._GUIMan._UIManCore:SetAsyncLoadOpenCicle(true)
 			end
 
 			local dis = Vector3.DistanceH(self._HostPlayer:GetPos(), position)
 			if dis > 0.01 then
-				self._NetMan:SetProtocolPaused(true)
+				self._IsLoadingWorld = true
+				self:CheckProtcolPaused()
 				StartScreenFade(0, 1, 0.5, function()
 						enter()
 						GameUtil.SetCamToDefault(true, false, false, true)
 						StartScreenFade(1, 0, 0.5, nil)
-						self._NetMan:SetProtocolPaused(false)
+
+						self._IsLoadingWorld = false
+						self:CheckProtcolPaused()
 					end)
 			else
 				enter()
@@ -751,8 +982,6 @@ def.method("number", "number","table", "table", "number").EnterGameWorld = funct
 		if self._IsReEnter then
 			self._GUIMan:Open("CPanelLoading",{BGResPathId = mapTid})
 			--self._NetMan:SetProtocolPaused(true)
-
-			self:ClearScene()
 			local function callback( p )
 				if cgId > 0 then
 					CGMan.PlayCG(cgId, nil, 1, false)
@@ -761,6 +990,7 @@ def.method("number", "number","table", "table", "number").EnterGameWorld = funct
 				--self._GUIMan:Close("CPanelLoading")	
 				local function showMapInfo()
 					self:ShowEnterMapImg(mapTid, oldMapTid)
+                    self._GUIMan._UIManCore:SetAsyncLoadOpenCicle(true)
 				end
 				CPanelLoading.Instance():AttemptCloseLoading(showMapInfo)		
 				self._HostPlayer:Stand()
@@ -773,9 +1003,11 @@ def.method("number", "number","table", "table", "number").EnterGameWorld = funct
 				self:DoDungeonCheck(oldMapTid, mapTid)
 				self:FinishEnterWorld()
 
-				self._NetMan:SetProtocolPaused(false)
+				self._IsLoadingWorld = false
+				self:CheckProtcolPaused()
 			end
-			self._NetMan:SetProtocolPaused(true)
+			self._IsLoadingWorld = true
+			self:CheckProtcolPaused()
 			self:LoadWorld(st, sceneTid, callback)
 		else
 			local function enter()
@@ -790,18 +1022,21 @@ def.method("number", "number","table", "table", "number").EnterGameWorld = funct
 					CGMan.PlayCG(cgId, nil, 1, false)
 				end
 				self:ShowEnterMapImg(mapTid, oldMapTid)
+                self._GUIMan._UIManCore:SetAsyncLoadOpenCicle(true)
 				self:DoDungeonCheck(oldMapTid, mapTid)
 				self:FinishEnterWorld()
 			end
 
 			local dis = Vector3.DistanceH(self._HostPlayer:GetPos(), position)
 			if dis > 0.01 then
-				self._NetMan:SetProtocolPaused(true)
+				self._IsLoadingWorld = true
+				self:CheckProtcolPaused()
 				StartScreenFade(0, 1, 0.5, function()
 						enter()
 						GameUtil.SetCamToDefault(true, false, false, true)
 						StartScreenFade(1, 0, 0.5, nil)
-						self._NetMan:SetProtocolPaused(false)
+						self._IsLoadingWorld = false
+						self:CheckProtcolPaused()
 					end)
 			else
 				enter()
@@ -809,9 +1044,8 @@ def.method("number", "number","table", "table", "number").EnterGameWorld = funct
 		end
 	end
 
-	--self:DoDungeonCheck(oldMapTid, mapTid)
-	self:UpdateTargetMissDistance()
-
+	local CTargetDetector = require "ObjHdl.CTargetDetector"
+	CTargetDetector.Instance():UpdateTargetMissDistance(mapTid)
 	self._ReConnectNum = 0
 	self._IsReEnter = false
 
@@ -819,10 +1053,98 @@ def.method("number", "number","table", "table", "number").EnterGameWorld = funct
 	if CPanelMinimap.Instance():IsShow() then
 		CPanelMinimap.Instance():SetExitBtnState()
 	end
+    -- 向服务器发送最大同屏人数和是否开启头顶字
+    self._MiscSetting:SyncToServerCareNumAndShowTopPate(self._MaxPlayersInScreen, self._MiscSetting._IsShowHeadInfo)
 
 	self._CurWorld._NPCMan:ClearNPCAnimationList()
-	--warn("EnterGameWorld End")
-	--LogMemory("EnterGameWorld End")
+end
+
+def.method("=>", "boolean").IsLoading = function (self)
+	return self._IsPanelLoadingShow or self._IsLoadingWorld
+end
+
+def.method().CheckProtcolPaused = function (self)
+	local pause = self:IsLoading()
+	self._NetMan:SetProtocolPaused(pause)
+end
+
+def.method().LeaveGameWorld = function(self)
+	if self._CurWorld ~= nil then
+		local sceneTid = self._CurWorld._WorldInfo.SceneTid
+		local mapId = self._CurWorld._WorldInfo.MapId
+		warn("HostLeaveMap", sceneTid, mapId)
+
+		self._CurWorld:Release(false, false)
+
+		--离开地图，清空副本数据
+		self._DungeonMan:ClearDungeonGoal()
+		
+		local CPanelTracker = require "GUI.CPanelTracker"
+		CPanelTracker.Instance():OpenDungeonUI(false)	
+		local CPageQuest = require "GUI.CPageQuest"
+		CPageQuest.Instance():RemoveSpecialDungeonGoal()
+
+        --warn("*****CPateBase.CleanCachesByRate(0.5)")
+        local cpate=require "GUI.CPate"
+        local CPateBase = cpate.CPateBase
+        CPateBase.CleanCachesByRate(0.5)
+
+	end
+	self:SetCurrentMapInfo(0, 0, "")
+	self:SetMapLineInfo(-1, nil)
+end
+
+def.method().OnEnterWorldBossRegion = function (self)
+    self._IsInWorldBoss=true
+
+     local function callback( ret )
+        if ret then        	
+       		QualitySettingMan.Instance():SetWholeQualityLevel(1)
+			QualitySettingMan.Instance():ApplyChanges()
+
+			local fpsLimit = QualitySettingMan.Instance():GetFPSLimit()
+			if fpsLimit > 30 then
+				QualitySettingMan.Instance():SetFPSLimit(30)
+			end
+
+			self._MaxPlayersInScreen = 6
+			local isShowHead = self._MiscSetting:IsShowHeadInfo()
+			self._MiscSetting:SyncToServerCareNumAndShowTopPate(self._MaxPlayersInScreen, isShowHead)
+
+			QualitySettingMan.Instance():SaveQualityConfigToUserData()
+	        self:SaveGameConfigToUserData()
+	        UserData:SaveDataToFile()
+
+       	else
+       		self:ClearWorldBossSetTimer()
+       		self._WorldBossSetTimerId = _G.AddGlobalTimer(180, true, function()
+       			self._WorldBossSetTimerId = 0
+       		end)		
+        end
+    end
+
+	if self._WorldBossSetTimerId == 0 then			--在取消后3分钟范围外
+		if QualitySettingMan.Instance():GetWholeQualityLevel() ~= 1 or QualitySettingMan.Instance():GetFPSLimit() > 30 or self._MaxPlayersInScreen > 6 then
+	    	local title, msg, closeType = StringTable.GetMsg(142)
+	 		MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OKCANCEL, callback)
+	 	end    
+ 	end
+end
+
+def.method().ClearWorldBossSetTimer = function (self)
+	if self._WorldBossSetTimerId ~= 0 then
+	 	_G.RemoveGlobalTimer(self._WorldBossSetTimerId)
+	 	self._WorldBossSetTimerId = 0
+	end
+end
+
+def.method().OnLeaveWorldBossRegion = function (self)
+	-- body
+    local cpate=require "GUI.CPate"
+    local CPateBase = cpate.CPateBase
+    CPateBase.CleanCachesByRate(0.5)
+
+    self._IsInWorldBoss = false
 end
 
 --在HostPlayer位置改变时，需要加载collider，然后重新设置高度
@@ -864,18 +1186,6 @@ def.method("number", "table").SetMapLineInfo = function(self, lineId, allLines)
 	end
 end
 
-def.method().UpdateTargetMissDistance = function (self)
-	local mapId = self._CurWorld._WorldInfo.MapTid
-	local map = CElementData.GetMapTemplate(mapId)
-	local d = 0
-	if map ~= nil and map.UnlockSightRange ~= 0 then
-		d = map.UnlockSightRange
-	else
-		d = tonumber(CElementData.GetSpecialIdTemplate(1).Value)
-	end
-	self._TargetMissDistanceSqr = d * d
-end
-
 --进入场景。显示场景图片
 def.method("number", "number").ShowEnterMapImg = function(self, mapTid, nOldMapID)
     CTransManage.Instance():ContinueTrans()
@@ -896,17 +1206,7 @@ def.method("number", "number").ShowEnterMapImg = function(self, mapTid, nOldMapI
 	end
 
 	local data = {_type = 1, _Id = mapTid}
---	local CPanelEnterMapTips = require "GUI.CPanelEnterMapTips"
---	CPanelEnterMapTips.Instance():ShowEnterTips(data)
 	self._CGameTipsQ:ShowMapTip(data)
-
-	-- 加载场景完毕，需要判断一下是不是3V3的加载完毕，告诉服务器拉人
-	-- if self._HostPlayer:In3V3Fight() and self._CurWorld._WorldInfo.MapTid == self._DungeonMan:Get3V3WorldTID() then	
-	-- 	local C3V3LoadingPanel = require "GUI.CPanelArenaLoading"
-	-- 	if C3V3LoadingPanel.Instance():IsShow() then
-	-- 		C3V3LoadingPanel.Instance():LoadFinishWorld()
-	-- 	end 
-	-- end
 end
 
 --进入地图完成，包含加载回调和同地图进入完成
@@ -933,46 +1233,27 @@ def.method().FinishEnterWorld = function(self)
 	self._HostPlayer:UpdateTopPate(EnumDef.PateChangeType.HPLine)
 end
 
-def.method("boolean").TryEnableHawkEyeMode = function (self, enable)
-	local protocol = (require "PB.net".C2SHawkeye)()
-	protocol.enable = enable
-	PBHelper.Send(protocol)
-end
-
 def.method().CreateMainCamera = function (self)
 	local cam_go = GameObject.New("Main Camera")
 	cam_go.tag = "MainCamera"
 	local cam = cam_go:AddComponent(ClassType.Camera)
-    cam.nearClipPlane = 0.1
-    cam.farClipPlane = 2500
     cam.fieldOfView = 60
     cam.backgroundColor = Color.New(32/255, 32/255, 54/255, 5/255)
     cam.depth = -1
+    cam.nearClipPlane = 0.1
+    cam.farClipPlane = 2500
     cam.useOcclusionCulling = false
-    
-    --cam_go:AddComponent(ClassType.GUILayer)
-
-    local cullDistances = {}
-    for i=1, 32 do cullDistances[i] = 0 end
-    
-    cullDistances[5] = 300       -- water
-    cullDistances[10] = 500      -- building
-    cullDistances[11] = 60       -- player
-    --cullDistances[12] = 100       -- npc
-    --cullDistances[15] = 200000   -- Background
-    --cullDistances[17] = 200000   -- HostPlayer
-
-    --cullDistances[18] = 50       -- EntityAttacked
-    --cullDistances[19] = 50      -- Fx
-    --cullDistances[26] = 50       -- toppate 头顶字
-
-    cam.layerCullDistances = cullDistances
     -- cam.layerCullSpherical = true
 
     self._MainCameraComp = cam
+
+    local QualitySettingMan = require "Main.QualitySettingMan"
+	local lv = QualitySettingMan.Instance():GetRecommendLevel()
+    self:SetMainCameraLevel(lv)
+
 	self._MainCamera = GameObject.New("MainCameraRoot")
 	--self._MainCamera:AddComponent(ClassType.GUILayer)
-	self._MainCamera.rotation = Quaternion.Euler(GameConfig.Get("view_angle"), 0, 0)
+	self._MainCamera.rotation = Quaternion.Euler(GameConfig.Get("ViewAngle"), 0, 0)
 
 
 	cam_go:SetParent(self._MainCamera, false)
@@ -1013,11 +1294,53 @@ def.method().DestroyMainCamera = function (self)
 		QualitySettingMan.Instance():ApplyChanges()
 	
 		self._PharseEffectGfx = nil
+   		self._HawkeyeEffectGfx = nil
 	end
 end
 
-def.method("boolean").EnableMainCamera = function (self, enable)
-	GameUtil.EnableMainCamera(enable)
+local CameraLayerCullDistances = 
+{ 
+  --{default, water, terrain, building, player, npc, background, fx}
+	{  30,     	30,   100,       30,     30,    30,    30,       30 },     -- 极速
+	{  50,     	50,   100,       50,     50,    50,    50,       50 },     -- 低
+	{ 100,     100,   100,      100,     50,    50,   100,       50 },     -- 中
+	{ 200,     200,   200,      200,     50,    50,   200,       50 },     -- 高
+	{ 400,     300,   400,      400,     60,     0,     0,      100 },     -- 最高
+}
+
+--local CameraLayerCullDistancesFIX25D = {30, 30, 30, 30, 20, 50, 30, 30}
+
+def.method("number").SetMainCameraLevel = function (self, lv)
+	if self._MainCameraLevel == lv then return end
+
+	local camera = self._MainCameraComp
+	if camera == nil then return end
+
+	local cfg = nil
+	--local camMode = GameUtil.GetGameCamCtrlMode()
+	--if camMode == EnumDef.CameraCtrlMode.FIX25D then
+	--	cfg = CameraLayerCullDistancesFIX25D
+	--else
+		cfg = CameraLayerCullDistances[lv] or CameraLayerCullDistances[1]
+	--end
+
+    local cullDistances = {}
+    for i=1, 32 do cullDistances[i] = 0 end
+    
+    cullDistances[1] = cfg[1]        -- default
+    cullDistances[5] = cfg[2]        -- water
+    cullDistances[9] = cfg[3]        -- terrain
+    cullDistances[10] = cfg[4]       -- building
+    cullDistances[11] = cfg[5]       -- player
+    cullDistances[12] = cfg[6]       -- npc
+    cullDistances[15] = cfg[7]       -- background
+    cullDistances[19] = cfg[8]       -- fx
+
+    camera.layerCullDistances = cullDistances
+
+    self._MainCameraLevel = lv
+
+    --warn("change LayerCullDistances lv to", lv)
 end
 
 --初始化或更改技能信息，暂定
@@ -1037,8 +1360,8 @@ def.method("table", "number", "function").LoadWorld = function(self, template, s
 	self._CurWorld:Load(template.AssetPath, function (...)
 		if cb then
 			cb(...)
-			Application.backgroundLoadingPriority = EnumDef.ThreadPriority.Normal
 		end
+		Application.backgroundLoadingPriority = EnumDef.ThreadPriority.Normal
 	end)
     --LogMemory("LoadWorld End")
 end
@@ -1065,49 +1388,9 @@ def.method("table").OnClickGround = function (self, pos)
 	CFxMan.Instance():OnClickGround(pos)
 end
 
-local click_event = nil
-def.method("dynamic").RaiseNotifyClickEvent = function(self, obj)
-	if click_event == nil then
-		local NotifyClick = require "Events.NotifyClick"
-    	click_event = NotifyClick()
-    end
-    click_event._Param = obj
-    CGame.EventManager:raiseEvent(nil, click_event)
-end
-
-local uiShortcutEvent = nil
-def.method("number","table").RaiseUIShortCutEvent = function (self, type, data)
-	if uiShortcutEvent == nil then
-		local NotifyClick = require "Events.UIShortCutEvent"
-    	uiShortcutEvent = NotifyClick()
-    end
-    uiShortcutEvent._Type = type
-    uiShortcutEvent._Data = data
-    CGame.EventManager:raiseEvent(nil, uiShortcutEvent)
-end
-
 def.method().Release = function(self)
-	self:SaveUserDataToFile()
-
-	if self._HostPlayer ~= nil then
-		self._HostPlayer:HalfRelease()
-	end
-	if self._CurWorld ~= nil then
-		self._CurWorld:Release(true, true)
-		self._CurWorld = nil
-	end
-	if self._HostPlayer ~= nil then
-		self._HostPlayer:Release()
-		self._HostPlayer = nil
-	end
-	
-	self:RaiseQuitGameEvent()
-	self._AnotherDeviceLogined = false
-end
-
-def.method().SaveUserDataToFile = function(self)
-	if not self._FirstEnterGame then
-		--保存配置
+	--保存配置
+	if self._CurGameStage == _G.GameStage.InGameStage then
 		self:SaveCamParamsToUserData()
 		self:SaveGameConfigToUserData()
 		self:SaveLoginRoleConfigToUserData()
@@ -1115,26 +1398,32 @@ def.method().SaveUserDataToFile = function(self)
 		self:SaveBagItemToUserData()
 		self._CFriendMan:SaveRecord()
 		self._CDecomposeAndSortMan:SaveRecord()
+		self._PlayerStrongMan:SaveRecord()
+		UserData:SaveDataToFile()
 	end
-	UserData:SaveDataToFile()
-end
 
-def.method().RaiseQuitGameEvent = function(self)
-	local ApplicationQuitEvent = require "Events.ApplicationQuitEvent"
-    local event = ApplicationQuitEvent()
-    CGame.EventManager:raiseEvent(nil, event)
-end
+	self._ReConnectNum = 0	
+	self._IsReEnter = true
+	self._IsReconnecting = false
 
-def.method().RaiseDisconnectEvent = function(self)
-	local DisconnectEvent = require "Events.DisconnectEvent"
-    local event = DisconnectEvent()
-    CGame.EventManager:raiseEvent(nil, event)
-end
+	--关闭连接
+	self:CloseConnection()
 
-def.method().RaiseConnectEvent = function(self)
-    local ConnectEvent = require "Events.ConnectEvent"
-    local event = ConnectEvent()
-    CGame.EventManager:raiseEvent(nil, event)
+	CSoundMan.Instance():Reset()
+
+		--清理
+	if self._AccountInfo ~= nil then
+		self._AccountInfo:Clear()
+		self._AccountInfo = nil
+	end
+	self:CleanupWhenLeaveGame()
+
+	EventUntil.RaiseQuitGameEvent()
+
+	if self._CameraEventMoveTimerId ~= 0 then
+		_G.RemoveGlobalTimer(self._CameraEventMoveTimerId)
+	end
+	self._CameraEventMoveTimerId = 0
 end
 
 def.method("string").DebugString = function (self, str)
@@ -1167,13 +1456,8 @@ end
 def.method().StartTestScene = function(self)
 	self:CreateMainCamera()
 	self._MainCamera.position = Vector3.New(383, 127,  269)
-	GameUtil.AsyncLoadByPathID(635, function(mapres)
-			if mapres ~= nil then
-				local scene = Object.Instantiate(mapres)
-			end
-		end)
+	GameUtil.AsyncLoadByPathID(635, nil)
 end
-
 
 def.method("number", "number").OnJoystickPressEvent = function (self, x, y)
 	local hp = self._HostPlayer
@@ -1200,65 +1484,12 @@ def.method("number", "number").OnJoystickPressEvent = function (self, x, y)
 	end
 end
 
-local CachedLogs = {}
-local MaxCacheHalfCount = 10
-def.method("string").OnUnityLog = function (self, log)
-	--if string.length(log) > 256 then return end
-
-	if #CachedLogs >= MaxCacheHalfCount * 2 then
-		-- 超出上限时，清除一半
-		for i = 1, MaxCacheHalfCount do
-			CachedLogs[i] = CachedLogs[#CachedLogs - MaxCacheHalfCount + i]
-		end
-		for i = #CachedLogs, MaxCacheHalfCount+1, -1 do
-			CachedLogs[i] = nil
-		end
-	end
-
-	CachedLogs[#CachedLogs+1] = log
-
-	local PanelDebug = require "GUI.CPanelDebug".Instance()
-	if PanelDebug:IsShow() then
-		PanelDebug:OnSyncLog(log)
-	end
-end
-
-def.method("=>", "table").GetLogs = function (self)
-	return CachedLogs
-end
-
-local server_time_gap = 0 --本地时间与服务器时间的间隔
-
--- 移动中带有时间戳，服务器会校对时间戳，如果异常，强制同步时间
-def.method("number").UpdateServerTime = function(self, server_time)	
-	server_time_gap = GameUtil.GetClientTime() - server_time
-	GameUtil.SetServerTimeGap(server_time_gap)
-end
-
-local ping_label_obj = nil
-def.method("number").UpdatePing = function(self, serverTime)
-	if IsNil(ping_label_obj) then
-		ping_label_obj = GameObject.Find("UIRootCanvas/Panel_FPS/PING")
-	end
-
-	local gap = GameUtil.GetClientTime() - serverTime
-	self._Ping = tonumber(string.format("%0.2f", gap))
-
-	if not IsNil(ping_label_obj) then
-		local pingtext = string.format("%0.2fms", gap)
-		GUI.SetText(ping_label_obj, pingtext)
-	end
-end
-
 def.method("number", "number", "function").AddReconnectTimer = function(self, interval, timeout, cb)
-	--warn("AddReconnectTimer!!!")
-
 	if _G.ReconnectTimerId == 0 then
 		local callback = function()
 			cb(self, timeout)
 		end
 		_G.ReconnectTimerId = _G.AddGlobalTimer(interval, false, callback)
-
 	end
 end
 
@@ -1286,105 +1517,36 @@ def.method().CancelForbidTimer = function(self)
 	end
 end
 
-def.method().QuestRelatedInit = function(self)
-	CQuest.Instance():Init()
-
-	--初始化任务追踪界面
-	local CPageQuest = require "GUI.CPageQuest"
-	CPageQuest.Instance():Init()
+def.method().CameraMoveEnd = function(self)
+    self._CameraEventMoveTimerId = 0
+    GameUtil.SetCameraParams(EnumDef.CAM_CTRL_MODE.GAME)
+    self._GUIMan:SetMainUIMoveToHide(false, nil)
+    local CPanelTracker = require "GUI.CPanelTracker"
+    CPanelTracker.Instance():ShowSpecialCameraUI(false)
 end
 
-def.method().QuestRelatedRelease = function(self)
-	CQuest.Instance():Release()
+def.method("number").CameraMoveBegin = function(self,CameraId)
+    local ret, msg, result = pcall(dofile, "Configs/SceneCameraPosCfg.lua")
+    if ret then
 
-	local CQuestAutoGather = require "Quest.CQuestAutoGather"
-	CQuestAutoGather.Instance():Stop()
-	
-	--初始化任务追踪界面
-	local CPageQuest = require "GUI.CPageQuest"
-	CPageQuest.Instance():Release()
-end
-
--- App弹窗接口 param1:TriggerTag param2:ID 
-def.method("number", "number").OnAppMsgBoxStatic = function (self, TriggerTag, ConditionId)
-	local AppMsgBoxTable = _G.AppMsgBoxTable
-	if AppMsgBoxTable == nil then return end
-
-	if self._AppMsgTimerId > 0 then
-		_G.RemoveGlobalTimer(self._AppMsgTimerId)
-		self._AppMsgTimerId = 0
-	end
-
-	-- 屏蔽商店评分功能   lidaming
-	for i,v in pairs(AppMsgBoxTable) do
-		if v.TriggerConditions == TriggerTag then
-			local QualificationTable = {}
-			string.gsub(v.Qualification, '[^*]+', function(w) table.insert(QualificationTable, w) end )
-			for _,k in pairs(QualificationTable) do
-				if tonumber(k) == ConditionId then
-					local account = self._NetMan._UserName
-					local accountInfo = UserData:GetCfg(EnumDef.LocalFields.AppMsgBox, account)
-					if accountInfo == nil then
-						accountInfo = {}
-					end
-					local serverName = self._NetMan._ServerName
-					if accountInfo[serverName] == nil then
-						accountInfo[serverName] = {}
-					end
-					local roleId = self._HostPlayer._ID
-					if accountInfo[serverName][roleId] == nil then
-						accountInfo[serverName][roleId] = {}
-					end
-					local AppMsgBoxOpenTime = accountInfo[self._NetMan._ServerName][self._HostPlayer._ID].AppMsgBoxOpenTime
-					if AppMsgBoxOpenTime == nil or AppMsgBoxOpenTime <= 0 then
-						-- warn("lidaming OOOOOOOOOOOOOOOOOOOOOOO AppMsgBoxOpenTime ==", os.time(), AppMsgBoxOpenTime)
-						local data = {
-							AppMsgBoxOpenTime = os.time(),
-						}
-						accountInfo[serverName][roleId] = data
-						UserData:SetCfg(EnumDef.LocalFields.AppMsgBox, account, accountInfo)
-
-						local life_time = v.SecondDelay
-						self._AppMsgTimerId = _G.AddGlobalTimer(1, false, function()
-							life_time = life_time - 1
-							if life_time == 0 then
-								local param = {}
-								param.TriggerTag = TriggerTag	
-								param.ConditionId = ConditionId
-								param.AppMsgBoxCfg = v
-								self._GUIMan:Open("CPanelUIAppMsgBox", param)
-								_G.RemoveGlobalTimer(self._AppMsgTimerId)
-							end
-						end)		
-					else
-						if (os.time() - AppMsgBoxOpenTime) > (tonumber(v.DayDelay) * 86400) then
-							local data = {
-								AppMsgBoxOpenTime = os.time(),
-							}
-							accountInfo[serverName][roleId] = data
-							UserData:SetCfg(EnumDef.LocalFields.AppMsgBox, account, accountInfo)
-
-
-
-							local life_time = v.SecondDelay
-							self._AppMsgTimerId = _G.AddGlobalTimer(1, false, function()
-								life_time = life_time - 1
-								if life_time == 0 then
-									local param = {}
-									param.TriggerTag = TriggerTag	
-									param.ConditionId = ConditionId
-									param.AppMsgBoxCfg = v
-									self._GUIMan:Open("CPanelUIAppMsgBox", param)
-									_G.RemoveGlobalTimer(self._AppMsgTimerId)
-								end
-							end)							
-						end
-					end
-                end
-            end
-		end
-	end
-	
+    	StartScreenFade(0, 1, 0.5, function()
+			StartScreenFade(1, 0, 0.5, nil)
+		end)
+        local camcfg = result[CameraId]
+        --print( "camcfg =======",camcfg.pos,camcfg.rotation)
+        self._CameraEventMoveTimerId = _G.AddGlobalTimer(camcfg.timer, true, function()
+        	self:CameraMoveEnd()
+		end) 
+		GameUtil.SetCameraParams(EnumDef.CAM_CTRL_MODE.INVALID)
+        self._MainCamera.position = Vector3.New(camcfg.pos[1],camcfg.pos[2],camcfg.pos[3])
+        self._MainCamera.rotation = Quaternion.Euler( camcfg.rotation[1],camcfg.rotation[2],camcfg.rotation[3] )
+        -- 主界面效果
+		self._GUIMan:SetMainUIMoveToHide(true, nil)
+		local CPanelTracker = require "GUI.CPanelTracker"
+        CPanelTracker.Instance():ShowSpecialCameraUI(true)
+    else
+        warn(msg)
+    end
 end
 
 -- 游戏内重连 逻辑清理，重连之前
@@ -1400,11 +1562,12 @@ def.method().OnReconnectReset = function (self)
 		self._HostPlayer:Reset()
     end
 
-    self._RegionLimit:Clear()		--场景限制
+    self._RegionLimit:Reset()		--场景限制
 
-    local CPate = require "GUI.CPate".CPateBase
-    CPate.Clear()
-
+	if self._HostPlayer ~= nil then
+		self._HostPlayer._CDHdl:Release()
+	end
+	
     -- 清除界面
     self._GUIMan:Close("CPanelMirrorArena")
     self._GUIMan:Close("CPanelMate")
@@ -1416,6 +1579,9 @@ def.method().OnReconnectSucceed = function (self)
 	-- body
 	local CPageQuest = require "GUI.CPageQuest"
     CPageQuest.Instance():Update()
+
+    -- 支付cache 同步
+    CPlatformSDKMan.Instance():ProcessPurchaseCache()
 end
 
 def.method().StopAllAutoSystems = function (self)
@@ -1427,153 +1593,9 @@ def.method().StopAllAutoSystems = function (self)
 	end
 end
 
-def.method("boolean").CleanUpGameResources = function(self, bReturnLogin)
-	warn("CleanUpGameResources!!!")
-
-	--关闭TargetDector的timer
-	if self._HostPlayer ~= nil then
-		local CTargetDetector = require "ObjHdl.CTargetDetector"
-		CTargetDetector.Instance():Clear()
-	end
-
-	--清除停止CG并CG缓存
-	CGMan.Release()
-
-	--清除任务模块的消息响应
-	self:QuestRelatedRelease()
-
-	--清除guide消息响应
-	self._CGuideMan:Release()
-	
-	self._GuildMan:Release()
-
-	--清除游戏提示队列
-	self._CGameTipsQ:Release()
-
-	--清除寻路模块响应
-	CTransManage.Instance():Release()
-
-	--清除副本信息
-	self._DungeonMan:Release()
-	CDungeonAutoMan.Instance():Release()
-	--清除称号数据
-	self._DesignationMan:Release()
-
-	--清除我要变强信息
-	self._PlayerStrongMan:Release()
-
-	--清除成就数据
-	self._AcheivementMan:Release()
-
-	--清除队伍信息
-	CTeamMan.Instance():Release()
-
-	--清除福利数据
-	self._CWelfareMan:Release()
-
-	self._CFriendMan:Release()
-
-	self._CArenaMan:Release()
-
-	self._CDecomposeAndSortMan:Release()
-
-    self._CAuctionUtil:Release()
-
-	self._CReputationMan:Release()
-
-    self._CNetAutomicMan:Release()
-
-	-- 清除计时器
-	CPVPAutoMatch.Instance():Stop()
-
-	-- 清除计时器
-	CPath.Instance():CleanPathAndData()
-	-- 清除登陆选角色场景
-	self:ClearScene()
-	
-	self:StopAllAutoSystems()
-
-	--省电模式
-	self._CPowerSavingMan:CleanUp()
-
-	CQuestNavigation.Instance():Release()
-	-- 清除HostPlayer大世界的一些信息
-	if self._HostPlayer ~= nil then
-		self._HostPlayer:HalfRelease()
-	end
-
-	CNPCServiceHdl.Clear()
-
-	CExteriorMan.Instance():Reset()
-	-- 清除时装信息
-	CDressMan.Instance():Clear()
-	-- 清除翅膀信息
-	CWingsMan.Instance():Clear()
-	-- 清除数据
-	CPanelSkillSlot.Instance():Clear()
-    -- 清除商城数据
-    CMallMan.Instance():Release()
-    -- 清除副本匹配数据
-    CPVEAutoMatch.Instance():Release()
-    -- 清除消息提示数据
-    CNotificationMan.Instance():Release()
-    -- 清除MsgBox的不再显示缓存
-    MsgBox.RemoveAllBoxes()
-
-	--删除world
-	if self._CurWorld ~= nil then
-		if self._CurWorld:GetCurScene() ~= nil then
-			self._CurWorld:Release(true, true)
-		else
-			self._CurWorld:Release(false, true)
-		end
-	end
-	self._CurWorld = nil 
-	self._SceneTemplate = nil
-
-	-- for debug
-	--local EntityStatis = require "Profiler.CEntityStatistics"
-	--EntityStatis.Clear()
-
-	self._GUIMan:CloseCircle()
-	MsgBox.CloseAll()
-	self._GUIMan:Clear()
-
-	self:DestroyMainCamera()
-
-	if self._HostPlayer ~= nil then
-		self._HostPlayer:Release()
-		self._HostPlayer = nil --清除HostPlayer
-	end
-	
-	if bReturnLogin then
-		CSoundMan.Instance():Reset()
-	end
-
-	CRedDotMan.ClearRedTabelState()
-
-	--清理所有资源
-	GameUtil.SetCameraGreyOrNot(false) -- 重置镜头灰度
-	GameUtil.ResetLogReporter()
-
-	--下次进入游戏一定还会加载的资源，无需清理
-	--GameUtil.ClearHUDTextFontCache()
-	--GameUtil.ClearAllEmoji()
-
-	CFxMan.Instance():Reset()
-	DoAssetCacheCleanup(true)
-
-	if self._AppMsgTimerId > 0 then
-		_G.RemoveGlobalTimer(self._AppMsgTimerId)
-		self._AppMsgTimerId = 0 
-	end
-
-	self._FirstEnterGame = true			--重新初始化
-end
-
 def.method().CloseConnection = function (self)
-	_G.canSendPing = false
-	_G.canAutoReconnect = false
+	_G.CanSendPing = false
+	_G.CanAutoReconnect = false
 
 	self._GUIMan:CloseCircle()
 	self._NetMan:Close()
@@ -1582,129 +1604,15 @@ def.method().CloseConnection = function (self)
 	self._AnotherDeviceLogined = false
 end
 
-def.method("number").SendSelectRole = function (self, roleId)
-	local C2SRoleSelect = require "PB.net".C2SRoleSelect
-	local protocol = C2SRoleSelect()
-	protocol.RoleId = roleId
-	PBHelper.Send(protocol)
-	-- 平台SDK打点
-	local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
-	CPlatformSDKMan.Instance():SetBreakPoint(PlatformSDKDef.PointState.Game_Role_Login)
-end
-
-def.method().LogoutRole = function (self)
-	self._IsLoggingOut = true
-	local C2SLogoutRole = require "PB.net".C2SLogoutRole
-	local protocol = C2SLogoutRole()
-	PBHelper.Send(protocol)
-end
-
 def.method().LogoutAccount = function (self)
-	self._IsLoggingOut = true
+	self._IsLoggingout = true
 
 	local C2SLogoutAccount = require "PB.net".C2SLogoutAccount
 	local protocol = C2SLogoutAccount()
 	PBHelper.Send(protocol)
 
-	local UserData = require "Data.UserData".Instance()
 	UserData:SetCfg(EnumDef.LocalFields.LastUseAccount, "AccountToken", "")
 	UserData:SaveDataToFile()
-end
-
-def.method().ReturnLoginStage = function(self)
-	self._ReConnectNum = 0	
-	self._IsReEnter = true
-	self._IsReconnecting = false
-
-	CGame.EventManager:clearAll()
-	
-	if not self._FirstEnterGame then
-		self:SaveCamParamsToUserData()
-		self:SaveGameConfigToUserData()
-		self:SaveLoginRoleConfigToUserData()	 -- 保存角色信息
-		self:SaveBagItemToUserData()
-		self._CFriendMan:SaveRecord()
-	end
-
-	--关闭连接
-	self:CloseConnection()
-
-	GameUtil.EnableBackUICamera(true)			--隐藏黑色背景
-	self:CleanUpGameResources(true)
-
-	if self._AccountInfo ~= nil then
-		self._AccountInfo:Clear()
-		self._AccountInfo = nil
-	end
-
-	--if _G.IsLanguageChanged() then
-		_G.ResetLanguage()
-		_G.PreLoadDataManagers()
-	--end
-
-	self:ReloadData()
-
-	self._GUIMan:InitTopPate()
-
-	--CGame.EventManager:printStats()
-
-	GameUtil.SetCameraParams(EnumDef.CAM_CTRL_MODE.LOGIN)
-	self:HideDebug(self._IsHideDebug)
-	self:HideLog(self._IsHideLog)
-	self:HideFPSPing(self._IsHideFPS)
-
-	--重新监听事件
-	self:QuestRelatedInit()
-	self._CGuideMan:Init()
-	self._CGameTipsQ:Init()
-	CTransManage.Instance():Init()
-    CMallMan.Instance():Init()
-    CNotificationMan.Instance():Init()
-	self._CFriendMan:Init()
-	--重新开始登录流程
-	CPlatformSDKMan.Instance():RestartLoginFlow()
-
-	self._IsLoggingOut = false
-end
-
-def.method().ReturnSelectRole = function (self)
-	CGame.EventManager:clearAll()
-	
-	if not self._FirstEnterGame then
-		self:SaveCamParamsToUserData()
-		self:SaveGameConfigToUserData()
-		self:SaveLoginRoleConfigToUserData()	 -- 保存角色信息
-	end
-
-	GameUtil.EnableBackUICamera(true)			--隐藏黑色背景
-	self:CleanUpGameResources(false)
-
-	self:ReloadData()
-
-	--CGame.EventManager:printStats()
-
-	GameUtil.SetCameraParams(EnumDef.CAM_CTRL_MODE.LOGIN)
-	self:HideDebug(self._IsHideDebug)
-	self:HideLog(self._IsHideLog)
-	self:HideFPSPing(self._IsHideFPS)
-	--重新监听事件
-	self:QuestRelatedInit()
-	self._CGuideMan:Init()
-	self._CGameTipsQ:Init()
-	CTransManage.Instance():Init()
-    CMallMan.Instance():Init()
-    CNotificationMan.Instance():Init()
-	self._CFriendMan:Init()
-
-	--登录，开始角色选择
-	local CLoginMan = require "Main.CLoginMan"
-	CLoginMan.Instance():SetQuickEnterRoleId(0)
-	CLoginMan.Instance():OnAccountInfoSet(0)
-
-	_G.canSendPing = true
-	_G.canAutoReconnect = true
-	
-	self._IsLoggingOut = false
 end
 
 def.method().ResetConnection = function(self)
@@ -1725,7 +1633,7 @@ local AutoReconnectCallback = function (self, timeout)
 		self._GUIMan:CloseCircle()
 		self._IsReconnecting = false
 
-		MsgBox.CloseAll()
+		MsgBox.ClearAllBoxes()
 		self:CancelReconnectTimer()
 		bCancel = true
 
@@ -1738,8 +1646,6 @@ local AutoReconnectCallback = function (self, timeout)
 	    --发送重连请求
 		self._NetMan:ReConnect()
 
-		warn("Reconnecting...", self._NetMan._IP, self._NetMan._Port)
-
 	else  --超时仍未连接成功
 
 		self._IsReconnecting = false
@@ -1751,15 +1657,18 @@ local AutoReconnectCallback = function (self, timeout)
 		--断线重新登录
 		local callback = function(value)
 			if value then
-				self:ReConnect()
+				if self._AutoReconnectTimerId ~= 0 then
+					self:ReConnect()
+				else
+					self:ReturnToLoginStage()		--弹窗，然后返回登录界面
+				end
 			else
-				self:ReturnLoginStage()
+				self:ReturnToLoginStage()
 			end
-			_G.MsgBoxDisconnectShow = false
 		end
 
 		self._GUIMan:CloseCircle()
-		MsgBox.CloseAll()
+		MsgBox.ClearAllBoxes()
 
 		local ServerMessageBase = require "PB.data".ServerMessageBase
 		local CElementData = require "Data.CElementData"
@@ -1773,10 +1682,14 @@ local AutoReconnectCallback = function (self, timeout)
 			title = template.Title
 			message = template.TextContent
 		end
+        local close_type = EnumDef.CloseType.ClickAnyWhere
+        if template and template.IsShowCloseBtn then
+            close_type = EnumDef.CloseType.CloseBtn
+        else
+            close_type = EnumDef.CloseType.ClickAnyWhere
+        end
 
-		_G.MsgBoxDisconnectShow = true
-		MsgBox.ShowSystemMsgBox(ServerMessageBase.Disconnected, message, title, MsgBoxType.MBBT_OKCANCEL, callback, nil, nil, MsgBoxPriority.Disconnect)
-
+        MsgBox.ShowMsgBox(message, title, close_type, MsgBoxType.MBBT_OKCANCEL, callback, nil, nil, MsgBoxPriority.Disconnect)
 	end
 
 	return bCancel
@@ -1784,14 +1697,17 @@ end
 
 def.method().AutoReconnect = function (self)
 	self:CancelReconnectTimer()
-
 	if self._NetMan._GameSession:IsConnected() then return end
+
+	if self._HostPlayer ~= nil then
+		self._HostPlayer:Stand()
+	end
 
 	--重连提示
 	self._GUIMan:CloseCircle()
-	MsgBox.CloseAll()
+	MsgBox.ClearAllBoxes()
 
---重连时间计时,如果取消不再重连
+	--重连时间计时,如果取消不再重连
 	self._GUIMan:ShowCircle(StringTable.Get(14001), true)
 	self._IsReconnecting = true
 
@@ -1799,6 +1715,18 @@ def.method().AutoReconnect = function (self)
 
 	self:AddReconnectTimer(2, 8, AutoReconnectCallback)
 	StartScreenFade(0, 0.3, 0.5, nil)
+
+	self:ClearAutoReconnectTimer()
+	self._AutoReconnectTimerId = _G.AddGlobalTimer(60, true, function()
+	 	self._AutoReconnectTimerId = 0
+	 	end)
+end	
+
+def.method().ClearAutoReconnectTimer = function (self)
+	if self._AutoReconnectTimerId ~= 0 then
+	 	_G.RemoveGlobalTimer(self._AutoReconnectTimerId)
+	 	self._AutoReconnectTimerId = 0
+	end
 end
 
 local ReconnectCallback = function(self, timeout)
@@ -1810,7 +1738,7 @@ local ReconnectCallback = function(self, timeout)
 		self._GUIMan:CloseCircle()
 		self._IsReconnecting = false
 
-		MsgBox.CloseAll()
+		MsgBox.ClearAllBoxes()
 		self:CancelReconnectTimer()
 		bCancel = true
 
@@ -1824,20 +1752,20 @@ local ReconnectCallback = function(self, timeout)
 		self._NetMan:ReConnect()
 
 	else  --超时仍未连接成功
+		
 		self._IsReconnecting = false
 
 		self._GUIMan:CloseCircle()
-		MsgBox.CloseAll()
+		MsgBox.ClearAllBoxes()
 		self:CancelReconnectTimer()				--重连超时，停止连接
 		StartScreenFade(0.3, 0, 0.5, nil)
 
 		--如果超时还没连接，弹框
-		_G.MsgBoxDisconnectShow = true
 		local title, msg, closeType = StringTable.GetMsg(51)
+
 		MsgBox.ShowMsgBox(msg, title, closeType, MsgBoxType.MBBT_OK, 
 			function(value) 
-				self:ReturnLoginStage() 
-				_G.MsgBoxDisconnectShow = false
+				self:ReturnToLoginStage() 
 			end, nil, nil, MsgBoxPriority.Disconnect)
 	end							
 	
@@ -1851,8 +1779,8 @@ def.method().ReConnect = function(self)
 
 	--重连提示
 	self._GUIMan:CloseCircle()
-	MsgBox.CloseAll()
-	--MsgBox.ShowMsgBox(StringTable.Get(14001), StringTable.Get(14000), MsgBoxType.MBBT_OK, function(val) MsgBox.CloseAll() end, nil, nil, MsgBoxPriority.Disconnect)
+	MsgBox.ClearAllBoxes()
+	--MsgBox.ShowMsgBox(StringTable.Get(14001), StringTable.Get(14000), MsgBoxType.MBBT_OK, function(val) MsgBox.ClearAllBoxes() end, nil, nil, MsgBoxPriority.Disconnect)
 	
 	--重连时间计时,如果取消不再重连
 	self._GUIMan:ShowCircle(StringTable.Get(14001), true)
@@ -1866,7 +1794,7 @@ def.method().ReConnect = function(self)
 		StartScreenFade(0, 0.3, 0.5, nil)
 	else
 		self._GUIMan:CloseCircle()
-		MsgBox.CloseAll()
+		MsgBox.ClearAllBoxes()
 	end
 end
 
@@ -1983,14 +1911,9 @@ def.method().SetCamParamsFromUserData = function(self)
 	else
 		self._IsOpenCamSkillRecover = recover_state
 	end
-    local is_show_head_info = UserData:GetField(EnumDef.LocalFields.IsShowHeadInfo)
-    if is_show_head_info == nil then
-        self._IsShowHeadInfo = true
-    else
-        self._IsShowHeadInfo = false
-    end
+
     local max_person_num = UserData:GetField(EnumDef.LocalFields.ManPlayersInScreen)
-    if max_person_num == nil then
+    if max_person_num == nil or max_person_num == 0 then
         self._MaxPlayersInScreen = _G.MAX_VISIBLE_PLAYER
     else
         self._MaxPlayersInScreen = max_person_num
@@ -2023,10 +1946,8 @@ def.method().CleanCamParamsOfUserData = function(self)
 end
 
 def.method().SaveGameConfigToUserData = function (self)
-	QualitySettingMan.Instance():SaveQualityConfigToUserData()
 	self._MiscSetting:SaveToUserData()
 	self._CPowerSavingMan:SaveToUserData()
-    UserData:SetField(EnumDef.LocalFields.IsShowHeadInfo, self._IsShowHeadInfo)
     UserData:SetField(EnumDef.LocalFields.ManPlayersInScreen, self._MaxPlayersInScreen)
     UserData:SetField(EnumDef.LocalFields.PowerSavingTime, self._EnterPowerSaveSeconds)
 	UserData:SetField(EnumDef.LocalFields.BGMSysVolume, CSoundMan.Instance():GetBGMSysVolume())
@@ -2070,12 +1991,12 @@ def.method().SaveLoginRoleConfigToUserData = function (self)
 		UserData:SetCfg(EnumDef.LocalFields.RecentLoginRoleInfo, account, roleList)
 	end
 
+	--[[
 	do
 		local role =
 		{
 			ZoneId = curZoneId,
 			ServerName = self._NetMan._ServerName,
-			-- LastRoleIndex = self._AccountInfo._CurrentSelectRoleIndex,	-- 该角色在账号角色列表的索引
 			Level = hpData._Level,
 			RoleId = self._HostPlayer._ID,
 			HeadIcon =
@@ -2110,11 +2031,14 @@ def.method().SaveLoginRoleConfigToUserData = function (self)
 		end
 		UserData:SetCfg(EnumDef.LocalFields.QuickEnterGameRoleInfo, account, roleInfoList)
 	end
+	--]]
 	self._HostPlayer:SaveHostPlayerConfig()
 end
 
 -- 保存背包数据信息
 def.method().SaveBagItemToUserData = function (self)
+	if self._HostPlayer == nil then return end
+
 	local itemList = {}
 	local itemData = self._HostPlayer._Package._NormalPack._ItemSet
 	for i,v in ipairs(itemData) do
@@ -2129,63 +2053,6 @@ def.method().SaveBagItemToUserData = function (self)
 	-- self._CFriendMan:SaveRecord()
 end
 
---获取当前Entiy自定义头像  1、Image 2、roleId 3、CustomImgSet 4、Gender 5、Profession 6、
-def.method("userdata" , "number" , "number" , "number",  "number").SetEntityCustomImg = function(self, imgObj , roleId ,customImgSet , gender , profession)
-	if roleId ~= nil then
-		local ECustomSet = require "PB.data".ECustomSet	
-			
-		if customImgSet == ECustomSet.ECustomSet_Success then	--获取自定义头像
-			-- warn("lidaming : Review or HaveSet!!!")
-			--获取自定义头像
-			local entityImgPath = ""
-			
-			-- error: 1、参数不匹配 2、没有用户 3、审核中 4、审核未通过 5、文件不存在 6、md5一致 7、被Ban
-			local callback = function(strFileName ,retCode, error)	
-				if IsNil(imgObj) then return end
-                if retCode == 0 or retCode == 6 then
-                    entityImgPath = GameUtil.GetCustomPicDir().."/"..roleId
-                else
-                    entityImgPath = ""
-                end		
-                if entityImgPath == "" then
-                    local professionTemplate = CElementData.GetProfessionTemplate(profession)   
-					if professionTemplate == nil then
-						warn("自定义头像模板错误：profession:_",profession)
-					return end      
-					
-					if gender == EnumDef.Gender.Female then
-						GUITools.SetHeadIcon(imgObj, professionTemplate.FemaleIconAtlasPath)
-					else
-						GUITools.SetHeadIcon(imgObj, professionTemplate.MaleIconAtlasPath)
-					end
-                else
-                    GUITools.SetHeadIconfromImageFile(imgObj, entityImgPath)	
-                end		
-            end
-			GameUtil.DownloadPicture(tostring(roleId), callback)
-		else
-		-- 只要不是检测成功，全部显示默认头像
-		-- 	if customImgSet == ECustomSet.ECustomSet_Defualt 	--默认职业头像
-		-- or customImgSet == ECustomSet.ECustomSet_Review then	--审核中
-			local professionTemplate = CElementData.GetProfessionTemplate(profession)   
-			if professionTemplate == nil then
-				warn("自定义头像模板错误：profession:_",profession)
-			return end      
-			
-			if gender == EnumDef.Gender.Female then
-				GUITools.SetHeadIcon(imgObj, professionTemplate.FemaleIconAtlasPath)
-			else
-				GUITools.SetHeadIcon(imgObj, professionTemplate.MaleIconAtlasPath)
-			end
-		end
-	end	    
-end
-
-def.method().SendC2SRankRewardGet = function(self)
-	local protocol = (require "PB.net".C2SRankRewardGet)()
-	PBHelper.Send(protocol)
-end
-
 def.method("=>", "boolean").IsWorldReady = function (self)
 	if self._CurWorld == nil then return false end
 
@@ -2196,40 +2063,6 @@ def.method("=>", "number").GetCurMapTid = function (self)
 	return self._CurWorld._WorldInfo.MapTid
 end
 
-def.method("table", "number", "function", "function").NavigatToPos = function(self, destPos, distOffset, onArrive, onFail)
-	if not self:IsWorldReady() or self._HostPlayer == nil then 
-		if onFail ~= nil then onFail() end
-		return 
-	end
-	
-	if not self._HostPlayer:CanMove() then
-		if onFail ~= nil then onFail() end
-		self._GUIMan:ShowTipText(StringTable.Get(600), false)
-		return
-	end
-
-    self._HostPlayer._NavTargetPos = destPos
-
-    local function OnReach()
-	    self._HostPlayer:StopNaviCal()
-	    self._HostPlayer:SetAutoPathFlag(false)
-	    self._HostPlayer._NavTargetPos = nil
-	    CPath.Instance():HideTargetFxAndDistance()
-	    if onArrive ~= nil then onArrive() end
-	end
-
-	local function OnNotReach()
-	    self._HostPlayer:StopNaviCal()
-	    self._HostPlayer:SetAutoPathFlag(false)
-	    self._HostPlayer._NavTargetPos = nil
-	    CPath.Instance():HideTargetFxAndDistance()
-	    if onFail ~= nil then onFail() end
-	end
-
-    self._HostPlayer:MoveAndDonotCareCollision(destPos, distOffset, OnReach, OnNotReach)
-    CPath.Instance():ShowPath(destPos)
-end
-
 -- 更新相机战斗锁定状态
 def.method("number", "boolean").UpdateCameraLockState = function (self, entityId, isToLock)
 	local hp = self._HostPlayer
@@ -2238,10 +2071,11 @@ def.method("number", "boolean").UpdateCameraLockState = function (self, entityId
 	-- print("UpdateCameraLockState entityId:", entityId, " _CamLockEntityId:", self._CamLockEntityId, " isToLock:", isToLock)
 	if isToLock then
 		-- 尝试进入锁定
-		if entityId <= 0 or self._CamLockEntityId > 0 then return end
+		if entityId <= 0 then return end
 		if not hp._IsTargetLocked then return end -- 处于强锁状态
 		local curTarget = hp:GetCurrentTarget()
-		if curTarget == nil or curTarget._ID ~= entityId then return end -- 强锁目标与锁定视角目标一致
+		if curTarget == nil then return end
+		if curTarget._ID ~= entityId then return end -- 强锁目标与锁定视角目标一致
 		if hp:IsEntityHate(entityId) then
 			-- 处于强锁状态，且有仇恨
 			local entity = self._CurWorld:FindObject(entityId)
@@ -2257,7 +2091,8 @@ def.method("number", "boolean").UpdateCameraLockState = function (self, entityId
 						GameUtil.SetCamLockState(true, entity._GameObject)
 						return
 					end
-				elseif entity:GetObjectType() == OBJ_TYPE.ELSEPLAYER or entity:GetObjectType() == OBJ_TYPE.PLAYERMIRROR and self._IsOpenPVPCamLock then
+				elseif self._IsOpenPVPCamLock and
+					   (entity:GetObjectType() == OBJ_TYPE.ELSEPLAYER or entity:GetObjectType() == OBJ_TYPE.PLAYERMIRROR) then
 					-- PVP相机锁定
 					self._CamLockEntityId = entityId
 					GameUtil.SetCamLockState(true, entity._GameObject)
@@ -2308,61 +2143,73 @@ def.method().QuitNearCam = function (self)
 	self._HostPlayer:SetPauseIdleState(false)
 end
 
----------------------------------Open Debug Log FPS-----------------------------------------
-
-def.method("boolean").HideDebug = function(self, hideDebug)
-	if not hideDebug then
-		self._GUIMan:Open("CPanelDebug", nil)	
-	else
-		local PanelDebug = require "GUI.CPanelDebug".Instance()
-		if PanelDebug:IsShow() then
-			self._GUIMan:Close("CPanelDebug")
-		end
-	end
-end
-
-def.method("boolean").HideLog = function(self, hideLog)
-	if not hideLog then
-		self._GUIMan:Open("CPanelLog", nil)	
-	else
-		local PanelLog = require "GUI.CPanelLog".Instance()
-		if PanelLog:IsShow() then
-			self._GUIMan:Close("CPanelLog")
-		end
-	end
-end
-
-local ping_obj = nil
-def.method("boolean").HideFPSPing = function(self, hideFPSPing)	
-	if IsNil(ping_obj) then
-		ping_obj = GameObject.Find("UIRootCanvas/Panel_FPS")
-	end
-	if not hideFPSPing then
-		ping_obj:SetActive(true)
-	else
-		ping_obj:SetActive(false)
-	end
-end
-
---查询其他玩家信息
-def.method("number", 'number', 'dynamic').CheckOtherPlayerInfo = function(self, nPlayerID, infoType, originType)
-	 local protocol = (require "PB.net".C2SGetOtherRoleInfo)()
-    protocol.RoleId = nPlayerID
-    protocol.InfoType = infoType
-    protocol.Mark = originType or -1
-
-    PBHelper.Send(protocol)
-end
-
 --储存功能解锁特效
 def.method().SaveOperationUnLockFXData = function(self)
 	local CPanelSystemEntrance = require "GUI.CPanelSystemEntrance"
-	CPanelSystemEntrance.Instance(): SaveFxBtnIDToData()
+	CPanelSystemEntrance.Instance():SaveFxBtnIDToData()
 
 	self._DesignationMan: SaveRedPointData()
 end
---------------------------------------------------------------------------------------------
 
+def.method("number", "number", "number").DeleteRole = function (self, roleId, vaildType, expiredTime)
+	if self._AccountInfo == nil then return end
+
+	local roleIndex = 0
+	local roleList = self._AccountInfo._RoleList
+	for i, data in ipairs(roleList) do
+		if data.Id == roleId then
+			roleIndex = i
+			break
+		end
+	end
+	if roleIndex <= 0 then return end
+
+	local account = self._NetMan._UserName
+	-- local quickEnterInfo = UserData:GetCfg(EnumDef.LocalFields.QuickEnterGameRoleInfo, account)
+	-- if quickEnterInfo ~= nil then
+	-- 	-- 删除快速进入的角色信息
+	-- 	for i, data in ipairs(quickEnterInfo) do
+	-- 		if data.RoleId == roleId then
+	-- 			table.remove(quickEnterInfo, i)
+	-- 			break
+	-- 		end
+	-- 	end
+	-- end
+	local ROLE_VAILD = require "PB.data".ERoleVaild
+	if vaildType == ROLE_VAILD.Invaild then
+		--角色被删除了
+		table.remove(roleList, roleIndex)
+
+		-- 删除最近登录的对应角色信息
+		local recentInfo = UserData:GetCfg(EnumDef.LocalFields.RecentLoginRoleInfo, account)
+		if recentInfo ~= nil then
+			for i, data in ipairs(recentInfo) do
+				if data.roleId == roleId then
+					table.remove(recentInfo, i)
+					break
+				end
+			end
+		end
+	else
+		roleList[roleIndex].RoleVaild = vaildType
+		roleList[roleIndex].ExpiredTime = expiredTime
+	end
+
+	if #roleList <= 0 then
+		self._RoleSceneMan:EnterRoleCreateStage()
+	else
+		-- self._GUIMan:Close("CPanelLoading")
+		-- self._GUIMan:Close("CPanelLogin")
+		-- self._GUIMan:Close("CPanelCreateRole")
+
+		-- self._GUIMan:CloseCircle()
+
+		local CPanelSelectRole = require"GUI.CPanelSelectRole"
+		if CPanelSelectRole and CPanelSelectRole.Instance():IsShow() then
+			CPanelSelectRole.Instance():RoleDeleteFromServer(roleIndex, vaildType)
+		end
+	end
+end
 
 --------------------------------------------------------------------------------------------
 -- SystemInfo
@@ -2410,6 +2257,12 @@ def.method().QuitGame = function(self)
 	else
 		local function callback( ret )
 			if ret then
+
+				--退出游戏时退出账号,非战斗情况下
+				if self._HostPlayer ~= nil and not self._HostPlayer:IsInServerCombatState() then
+					self:LogoutAccount()
+				end
+
 				GameUtil.QuitGame()
 			end
 		end

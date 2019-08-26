@@ -46,7 +46,7 @@ def.field("function")._OnEventCallback = nil
 
 local function OnFinish(self, go_name, anim_name)
     if self._OnFinishCallback ~= nil then
-        print("OnFinish " .. go_name .. ", " .. anim_name)
+        --print("OnFinish " .. go_name .. ", " .. anim_name)
 
         self._OnFinishCallback(self._OwnerTable, go_name, anim_name)
         self._OnFinishCallback = nil
@@ -54,7 +54,7 @@ local function OnFinish(self, go_name, anim_name)
 end
 
 local function OnEvent(self, evt_name, args)
-    print("OnEvent " .. evt_name)
+    --print("OnEvent " .. evt_name)
 
     if self._OnEventCallback ~= nil then
         self._OnEventCallback(self._OwnerTable, evt_name)

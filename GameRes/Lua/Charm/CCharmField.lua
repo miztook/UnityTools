@@ -98,7 +98,6 @@ def.method("number").PutOnCharm = function(self, itemID)
     self._FieldData._ItemID = itemID
     self._FieldData._CharmID = itemID
     -- TODO 播放特效
-    print("播放了穿上动画")
     GameUtil.PlayUISfx(PATH.UIFX_CharmInlayFX, self._FieldUI, self._FieldUI, 1)
     CSoundMan.Instance():Play2DAudio(PATH.GUISound_CharmInlay, 0)
 end
@@ -112,15 +111,15 @@ def.method().PutOffCharm = function(self)
     self._FieldData._ItemID = -1
     self._FieldData._CharmID = -1
     self._State = EnumDef.CharmEnum.CharmFieldState.OpenButNoCharm
+    
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_CharmPutOff, 0)
     -- TODO 播放特效
-    print("播放了卸下动画")
 end
 
 -- 解锁神符槽位
 def.method().UnlockField = function(self)
     self._State = EnumDef.CharmEnum.CharmFieldState.OpenButNoCharm
     -- TODO 播放特效
-    print("播放了解锁动画")
 end
 
 -- 是否已经装备有符文了
@@ -203,7 +202,7 @@ def.method().UpdateUI = function(self)
         local itemTemp = self:GetItemTemplate()
         local charm_item_temp = self:GetCharmItemTemplate()
         GUITools.SetItemIcon(img_icon, itemTemp ~= nil and itemTemp.IconAtlasPath or "")
-        GUI.SetText(lab_charm_level, string.format(StringTable.Get(20053), charm_item_temp.Level))
+        GUI.SetText(lab_charm_level, string.format(StringTable.Get(20053), charm_item_temp ~= nil and charm_item_temp.Level or 0))
     end
 end
 

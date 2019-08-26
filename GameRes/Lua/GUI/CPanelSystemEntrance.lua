@@ -68,6 +68,21 @@ do
 			return false
 		end
 	end
+
+    def.method().PlayBtnClickSound = function(self)
+        local FuncType = EnumDef.EGuideTriggerFunTag
+        if self._FunctionID == FuncType.Mall or self._FunctionID == FuncType.Shop then
+			CSoundMan.Instance():Play2DAudio(PATH.GUISound_Open_Mall, 0)
+		elseif self._FunctionID == FuncType.Bonus then			
+			CSoundMan.Instance():Play2DAudio(PATH.GUISound_System_Bonus, 0)	
+		elseif self._FunctionID == FuncType.Activity then
+			CSoundMan.Instance():Play2DAudio(PATH.GUISound_Open_Quest, 0)			
+		elseif self._FunctionID == FuncType.Calendar then
+			CSoundMan.Instance():Play2DAudio(PATH.GUISound_Open_Calendar, 0)
+        else
+            CSoundMan.Instance():Play2DAudio(PATH.GUISound_System_Menu, 0)
+        end
+    end
 end
 CFunctionButton.Commit()
 
@@ -86,7 +101,7 @@ do
 	def.field("table")._ListPlayFxBtnId = nil --需要显示特效的BtnID
 	-- def.field("number")._FXTimerID = 0--特效计时器
 
-	def.field("number")._MAX_BTN = 15
+	def.field("number")._MAX_BTN = 16
 
 	local instance = nil
 	def.static("=>", CPanelSystemEntrance).Instance = function ()
@@ -100,7 +115,7 @@ do
 	end
 
 	local RegularFuncIds = {38, 49, 7, 19}
-	local FloatingFuncIds = {30, 0, 1, 32, 31, 48, 2, 11, 34, 43, 6, 33, 35, 37, 50}
+	local FloatingFuncIds = {30, 0, 1, 32, 31, 48, 2, 11, 34, 51, 37, 6, 43, 33, 50, 35}
 
 	def.override().OnCreate = function(self)
 		self._BtnOpen = self:GetUIObject("Btn_Open")
@@ -212,8 +227,9 @@ do
 		
 		-- self: RemoveFXTimer()
 		if show then
+            CMallMan.Instance():RequestBannerInfo()
 			if self._ListPlayFxBtnId == nil or #self._ListPlayFxBtnId <= 0 then return end
-			print_r(self._ListPlayFxBtnId)
+			-- print_r(self._ListPlayFxBtnId)
 			local PlayFxBtnIdCount = #self._ListPlayFxBtnId
 			for i,v in ipairs(self._ListPlayFxBtnId) do
 				self:PlayOpenUIFx(self._ListPlayFxBtnId[i])
@@ -252,11 +268,13 @@ do
             self._ListBannerToggleGroup:GetComponent(ClassType.GNewList):SetItemCount(#self._OpenedBanner)
             drag_view:SetPageItemCount(#self._OpenedBanner)
             drag_view:SetTimeInterval(banner_temp.DisplayTime)
-            GUI.SetGroupToggleOn(self._ListBannerToggleGroup, 1)
+            --GUI.SetGroupToggleOn(self._ListBannerToggleGroup, 1)
         else
             self._DragableBannerPage:SetActive(false)
             self._ListBannerToggleGroup:SetActive(false)
         end
+        local pet_red_state = CMallMan.Instance():GetSummonRedPointState(EnumDef.MallStoreType.PetExtract)
+        CMallMan.Instance():SaveSummonRedPointState(EnumDef.MallStoreType.PetExtract, pet_red_state and game._CFunctionMan:IsUnlockByFunTid(75) and game._CFunctionMan:IsUnlockByFunTid(80))
     end
 
 	def.method().SDKCommunityLogic = function(self)
@@ -268,8 +286,10 @@ do
 		if id == "Btn_Open" then
 			if game._GUIMan:IsFuncForbid(EnumDef.EGuideTriggerFunTag.RoleMenu) then return end
 			self:ShowFloatingFrame(true)
+			CSoundMan.Instance():Play2DAudio(PATH.GUISound_System_Menu_Open, 0)
 		elseif id == "Btn_Close" then
 			self:ShowFloatingFrame(false)
+			CSoundMan.Instance():Play2DAudio(PATH.GUISound_System_Menu_Close, 0)
 		else
 			if self._FunctionObjs ~= nil then
 				local fbObj = self._FunctionObjs[id]
@@ -282,6 +302,7 @@ do
 						-- warn("============>>> ", fbObj._FunctionID)
 						game._CGuideMan:OnShowTipByFunUnlockConditions(1, fbObj._FunctionID)
 					end
+                    fbObj:PlayBtnClickSound()
 				end
 			end
 		end
@@ -307,9 +328,40 @@ do
             local banner_data = self._OpenedBanner[index]
             local banner_temp = CElementData.GetTemplate("Banner", banner_data.BannerTid)
             if banner_temp ~= nil then
-                local  approachItem = CElementData.GetItemApproach(banner_temp.ItemApproachId)
-                if approachItem and approachItem.ClickType == EParmType.OpenUI then
+                local approachItem = CElementData.GetItemApproach(banner_temp.ItemApproachId)
+                if approachItem == nil then
+                    warn("error !!! banner 填的物品跳转路径ID错误，Banner ID: ", banner_data.BannerTid)
+                    return
+                end
+                if approachItem.ClickType == EParmType.OpenUI then
                     game._AcheivementMan:DrumpToRightPanel(approachItem.Id, 0)
+                elseif approachItem.ClickType == EParmType.OpenWeb then
+                    local bKakaoPlatform = CPlatformSDKMan.Instance():IsInKakao()
+                    if bKakaoPlatform then
+                        if approachItem.ClickValue1 and approachItem.ClickValue1 ~= "" then
+                            CPlatformSDKMan.Instance():ShowInAppWeb(approachItem.ClickValue1)
+                        else
+                            warn("error !!! 物品获取途径模板数据错误，填写的网址不对，ID： ", banner_temp.ItemApproachId)
+                        end
+                    else
+                        if approachItem.ClickValue1 and approachItem.ClickValue1 ~= "" then
+                            game._GUIMan:OpenUrl(approachItem.ClickValue1)
+                        else
+                            warn("error !!! 物品获取途径模板数据错误，填写的网址不对，ID： ", banner_temp.ItemApproachId)
+                        end
+                    end
+                elseif approachItem.ClickType == EParmType.KakaoKey then
+                    local bKakaoPlatform = CPlatformSDKMan.Instance():IsInKakao()
+                    if bKakaoPlatform then
+                        if approachItem.ClickValue1 and approachItem.ClickValue1 ~= "" then
+                            local url = CPlatformSDKMan.Instance():GetCustomData(approachItem.ClickValue1)
+                            CPlatformSDKMan.Instance():ShowDaumCafeWithUrl(url)
+                        else
+                            warn("error !!! 物品获取途径模板数据错误，填写的kakao key不对，ID： ", banner_temp.ItemApproachId)
+                        end
+                    else
+                        warn("error !!! 不是kakao平台，跳转官咖失败")
+                    end
                 end
             end
         end
@@ -376,9 +428,11 @@ do
 			CRedDotMan.UpdateSystemEntranceRedDotShow(self)
 			
 			if self._FunctionObjs[id]._LockImgObj ~= nil  then
-	    		GameUtil.PlayUISfx(PATH.UIFX_CommonUnlock, self._FunctionObjs[id]._LockImgObj, self._Panel, -1)
+				GameUtil.PlayUISfx(PATH.UIFX_CommonUnlock, self._FunctionObjs[id]._LockImgObj, self._Panel, -1)
+				CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Menu_UnLock, 0)
 	    	else
-	    		GameUtil.PlayUISfx(PATH.UIFX_CommonUnlock, self._FunctionObjs[id]._IconImgObj, self._Panel, -1)
+				GameUtil.PlayUISfx(PATH.UIFX_CommonUnlock, self._FunctionObjs[id]._IconImgObj, self._Panel, -1)
+				CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Menu_UnLock, 0)
 	    	end
 	    	CRedDotMan.UpdateSystemEntranceRedDotShow(self)
 			self._FunctionObjs[id]:UpdateLockStatus()

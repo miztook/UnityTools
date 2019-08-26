@@ -14,9 +14,10 @@ def.static("table", "=>", CHUDText).new = function(target)
 end
 
 def.method("number","dynamic").Play = function(self, type, text)
+    
     local hud = self._HUDs[type]
     if hud == nil and self._Target ~= nil then
-        hud = CHUDTextPlayer.new(self._Target:GetGameObject(), type, 0.15)
+        hud = CHUDTextPlayer.new(self._Target, type, 0.15)
         self._HUDs[type] = hud
     end
     hud:Play(text)

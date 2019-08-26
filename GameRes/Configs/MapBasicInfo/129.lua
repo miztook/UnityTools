@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world01.png",
 	AssetPath = "Assets/Outputs/Scenes/World01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[10102] = 
@@ -157,14 +158,14 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[49] = { x = 48.67, y = 64.10, z = 188.87, name = "格林镇西门", worldId = 0, PkMode = 0 },
-			[255] = { x = 106.16, y = 66.45, z = 181.88, name = "节点1区域", worldId = 0, PkMode = 0 },
-			[256] = { x = 83.58, y = 66.62, z = 182.82, name = "节点2区域1", worldId = 0, PkMode = 0 },
-			[271] = { x = 60.26, y = 65.12, z = 181.18, name = "节点2区域2", worldId = 0, PkMode = 0 },
-			[272] = { x = 20.45, y = 62.46, z = 210.83, name = "节点3区域", worldId = 0, PkMode = 0 },
-			[275] = { x = 27.70, y = 61.99, z = 180.50, name = "节点4区域", worldId = 0, PkMode = 0 },
-			[279] = { x = 27.21, y = 62.33, z = 194.95, name = "", worldId = 0, PkMode = 0 },
-			[280] = { x = -11.74, y = 60.47, z = 146.79, name = "节点5区域", worldId = 0, PkMode = 0 },
+			[49] = { x = 48.67, y = 64.10, z = 188.87, name = "格林镇西门", worldId = 0, PkMode = 1 },
+			[255] = { x = 106.16, y = 66.45, z = 181.88, name = "节点1区域", worldId = 0, PkMode = 1 },
+			[256] = { x = 83.58, y = 66.62, z = 182.82, name = "节点2区域1", worldId = 0, PkMode = 1 },
+			[271] = { x = 60.26, y = 65.12, z = 181.18, name = "节点2区域2", worldId = 0, PkMode = 1 },
+			[272] = { x = 20.45, y = 62.46, z = 210.83, name = "节点3区域", worldId = 0, PkMode = 1 },
+			[275] = { x = 27.70, y = 61.99, z = 180.50, name = "节点4区域", worldId = 0, PkMode = 1 },
+			[279] = { x = 27.21, y = 62.33, z = 194.95, name = "", worldId = 0, PkMode = 1 },
+			[280] = { x = -11.74, y = 60.47, z = 146.79, name = "节点5区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

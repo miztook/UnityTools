@@ -30,10 +30,6 @@ local SelectGroupType =
     HelpPetGroup2 = 2,
 }
 
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
-
 local instance = nil
 def.static('=>', CPanelUIPetFightSetting).Instance = function ()
     if not instance then
@@ -104,8 +100,8 @@ def.override().OnCreate = function(self)
         root.Btn_Drop = root.Root:FindChild("Btn_Drop_Fight")
         root.Lab_LevelNum = root.Root:FindChild("Lab_LevelNum")
         root.Lab_Level = root.Root:FindChild("Lab_Level")
-        root.Lab_PropTip = root.Root:FindChild("Lab_PropTip")
-        root.Lab_PropAdd = root.Root:FindChild("Lab_PropTip/Lab_PropAdd")
+        root.Lab_PropTip = root.Root:FindChild("Lab_PropAdd/Lab_PropTip")
+        root.Lab_PropAdd = root.Root:FindChild("Lab_PropAdd")
         table.insert(self._SelectObjectList, root.Root:FindChild("Img_D"))
     end
 
@@ -120,8 +116,8 @@ def.override().OnCreate = function(self)
         root.Lab_UnLockCondition = root.Img_Lock:FindChild("Lab_UnLockCondition")
         root.Lab_LevelNum = root.Root:FindChild("Lab_LevelNum")
         root.Lab_Level = root.Root:FindChild("Lab_Level")
-        root.Lab_PropTip = root.Root:FindChild("Lab_PropTip")
-        root.Lab_PropAdd = root.Root:FindChild("Lab_PropTip/Lab_PropAdd")
+        root.Lab_PropTip = root.Root:FindChild("Lab_PropAdd/Lab_PropTip")
+        root.Lab_PropAdd = root.Root:FindChild("Lab_PropAdd")
         table.insert(self._SelectObjectList, root.Root:FindChild("Img_D"))
     end
 
@@ -136,8 +132,8 @@ def.override().OnCreate = function(self)
         root.Lab_UnLockCondition = root.Img_Lock:FindChild("Lab_UnLockCondition")
         root.Lab_LevelNum = root.Root:FindChild("Lab_LevelNum")
         root.Lab_Level = root.Root:FindChild("Lab_Level")
-        root.Lab_PropTip = root.Root:FindChild("Lab_PropTip")
-        root.Lab_PropAdd = root.Root:FindChild("Lab_PropTip/Lab_PropAdd")
+        root.Lab_PropTip = root.Root:FindChild("Lab_PropAdd/Lab_PropTip")
+        root.Lab_PropAdd = root.Root:FindChild("Lab_PropAdd")
         table.insert(self._SelectObjectList, root.Root:FindChild("Img_D"))
     end
 
@@ -260,7 +256,7 @@ def.method().UpdateHelpPetGroup = function(self)
         root.Img_Lock:SetActive( locked )
         root.Lab_Level:SetActive(bShow)
         root.Lab_LevelNum:SetActive(bShow)
-        root.Lab_PropTip:SetActive(not locked)
+        root.Lab_PropAdd:SetActive(not locked)
         if locked then
             local str = string.format(StringTable.Get(19062), self._UnlockInfopet[1])
             GUI.SetText(root.Lab_UnLockCondition, str)
@@ -301,7 +297,7 @@ def.method().UpdateHelpPetGroup = function(self)
         root.Img_Lock:SetActive( locked )
         root.Lab_Level:SetActive(bShow)
         root.Lab_LevelNum:SetActive(bShow)
-        root.Lab_PropTip:SetActive(not locked)
+        root.Lab_PropAdd:SetActive(not locked)
         if locked then
             local str = string.format(StringTable.Get(19062), self._UnlockInfopet[2])
             GUI.SetText(root.Lab_UnLockCondition, str)
@@ -360,7 +356,7 @@ def.method().FixSelectInfo = function(self)
                 break
             end
         end
-        warn("self._CurrentSelectInfo.Index = ", self._CurrentSelectInfo.Index)
+        -- warn("self._CurrentSelectInfo.Index = ", self._CurrentSelectInfo.Index)
         if self._CurrentSelectInfo.Index > 0 and not self._ItemList:IsListItemVisible(self._CurrentSelectInfo.Index - 1, 1) then
             self._ItemList:ScrollToStep(self._CurrentSelectInfo.Index - 1)
         end
@@ -457,6 +453,8 @@ def.override("userdata", "string", "number").OnSelectItem = function(self, item,
         self._CurrentSelectInfo.Index = idx
         self._CurrentSelectInfo.ID = (self:GetItemDataByIndex(idx))._ID
     end
+
+    CSoundMan.Instance():Play2DAudio(PATH.GUISound_Choose_Press, 0)
 end
 
 def.override("userdata", "string", "string", "number").OnSelectItemButton = function(self, item, id, id_btn, index)
@@ -531,7 +529,7 @@ def.override('string').OnClick = function(self, id)
         local locked = petId == nil
         if locked then
             local str = string.format(StringTable.Get(19062), self._UnlockInfopet[1])
-            SendFlashMsg(str, false)
+            TeraFuncs.SendFlashMsg(str, false)
         else
             self._SelectGroupType = SelectGroupType.HelpPetGroup1
             self:UpdateSelectType()
@@ -544,7 +542,7 @@ def.override('string').OnClick = function(self, id)
         local locked = petId == nil
         if locked then
             local str = string.format(StringTable.Get(19062), self._UnlockInfopet[2])
-            SendFlashMsg(str, false)
+            TeraFuncs.SendFlashMsg(str, false)
         else
             self._SelectGroupType = SelectGroupType.HelpPetGroup2
             self:UpdateSelectType()
@@ -560,7 +558,8 @@ def.override('string').OnClick = function(self, id)
             local petId = hp:GetCurrentFightPetId()
             CPetUtility.SendC2SPetRest( petId )
         end
-
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
+        return
     elseif id == "Btn_Drop_Help1" then
         self._SelectGroupType = SelectGroupType.HelpPetGroup1
         self:UpdateSelectType()
@@ -572,7 +571,8 @@ def.override('string').OnClick = function(self, id)
             local petId = petList[self._SelectGroupType]
             CPetUtility.SendC2SPetRest( petId )
         end
-
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
+        return
     elseif id == "Btn_Drop_Help2" then
         self._SelectGroupType = SelectGroupType.HelpPetGroup2
         self:UpdateSelectType()
@@ -584,10 +584,12 @@ def.override('string').OnClick = function(self, id)
             local petId = petList[self._SelectGroupType]
             CPetUtility.SendC2SPetRest( petId )
         end
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Btn_Press, 0)
+        return
     elseif id == "Btn_AutoSet" then
         if self:CheckCanSetFightstate() then
             if #self._LocalItemList == 0 then
-                SendFlashMsg(StringTable.Get(19059), false)
+                TeraFuncs.SendFlashMsg(StringTable.Get(19059), false)
             else
                 CPetUtility.SendC2SPetAutoFighting()
             end
@@ -600,7 +602,7 @@ def.method("=>", "boolean").CheckCanSetFightstate = function (self)
     local hp = game._HostPlayer
     local isServerCombatState = hp:IsInServerCombatState()
     if isServerCombatState then
-        SendFlashMsg(StringTable.Get(19046), false)
+        TeraFuncs.SendFlashMsg(StringTable.Get(19046), false)
     end
 
     return not isServerCombatState

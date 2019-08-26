@@ -246,7 +246,9 @@ def.method("table", "table", "=>", CFxObject).GenerateClientActor = function(sel
 			ProcessExecutionUnits(owner, nil, target, execution_units, gfxObj:GetGameObject())
 		end
 	end
-
+    if owner ~= nil and gfxObj ~= nil then
+        owner:AddToBelongToMeGfxTable(gfxObj)
+    end
 	return gfxObj  
 end
 
@@ -429,6 +431,9 @@ def.method("table").GenerateSubobjectActor = function(self, subobj)
 	do
 		if gfxObj ~= nil then
 			subobj:SetGfxInfo(gfxObj, followWithHook)
+            if owner ~= nil then
+                owner:AddToBelongToMeGfxTable(gfxObj)
+            end
 		end
 		-- TODO: 添加actor event
 		local execution_units = template.ExecutionUnits
@@ -502,6 +507,9 @@ def.method("table", "table", "table", "=>", "dynamic").GenStateActor = function(
 		else
 			gfxObj = CFxMan.Instance():Play(gfx, position, rot, life_time, scale_num, priority)
 		end
+        if owner ~= nil and gfxObj ~= nil then
+            owner:AddToBelongToMeGfxTable(gfxObj)
+        end
 	end
 	
 	-- 执行Actor事件	

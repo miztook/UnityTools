@@ -11,11 +11,12 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Village",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13008] = 
 		{
-			[1] = { x = -29.34, y = 98.14, z = 172.52, name = "엘리언 쿠벨", level = 48, SortID = 36 },
+			[1] = { x = -29.34, y = 98.14, z = 172.52, name = "엘리온 쿠벨", level = 48, SortID = 36 },
 		},
 	},
 	Npc = 
@@ -33,11 +34,11 @@ local MapInfo =
 		},
 		[3116] = 
 		{
-			[1] = { x = 143.18, y = 22.64, z = -217.24, name = "남작", SortID = 4 },
+			[1] = { x = 143.18, y = 22.64, z = -217.24, name = "레인저", SortID = 4 },
 		},
 		[3119] = 
 		{
-			[1] = { x = 217.09, y = 26.73, z = -148.68, name = "엘프 잡화상인", SortID = 5 },
+			[1] = { x = 217.09, y = 26.73, z = -148.68, name = "엘프 잡화 상인", SortID = 5 },
 		},
 		[3110] = 
 		{
@@ -53,13 +54,13 @@ local MapInfo =
 		},
 		[3117] = 
 		{
-			[1] = { x = -23.82, y = 80.36, z = 35.67, name = "남작", SortID = 11 },
-			[2] = { x = -37.74, y = 80.36, z = 30.77, name = "남작", SortID = 18 },
-			[3] = { x = -45.42, y = 80.68, z = 42.05, name = "남작", SortID = 20 },
+			[1] = { x = -23.82, y = 80.36, z = 35.67, name = "레인저", SortID = 11 },
+			[2] = { x = -37.74, y = 80.36, z = 30.77, name = "레인저", SortID = 18 },
+			[3] = { x = -45.42, y = 80.68, z = 42.05, name = "레인저", SortID = 20 },
 		},
 		[3120] = 
 		{
-			[1] = { x = -30.05, y = 80.40, z = 22.89, name = "엘프 잡화상인", SortID = 12 },
+			[1] = { x = -30.05, y = 80.40, z = 22.89, name = "엘프 잡화 상인", SortID = 12 },
 		},
 		[3109] = 
 		{
@@ -98,7 +99,7 @@ local MapInfo =
 		},
 		[3124] = 
 		{
-			[1] = { x = 53.79, y = 59.83, z = -100.91, name = "엘리언 쿠벨", SortID = 29 },
+			[1] = { x = 53.79, y = 59.83, z = -100.91, name = "엘리온 쿠벨", SortID = 29 },
 		},
 		[3154] = 
 		{
@@ -107,7 +108,7 @@ local MapInfo =
 		},
 		[3155] = 
 		{
-			[1] = { x = -27.92, y = 98.15, z = 178.77, name = "우는 어린 아이", SortID = 31 },
+			[1] = { x = -27.92, y = 98.15, z = 178.77, name = "우는 어린아이", SortID = 31 },
 		},
 		[3156] = 
 		{
@@ -136,14 +137,14 @@ local MapInfo =
 		},
 		[3157] = 
 		{
-			[1] = { x = -32.15, y = 97.78, z = 161.94, name = "엘리언 쿠벨", SortID = 44 },
+			[1] = { x = -32.15, y = 97.78, z = 161.94, name = "엘리온 쿠벨", SortID = 44 },
 		},
 	},
 	Region = 
 	{
 		[2] = 
 		{
-			[308] = { x = -29.04, y = 99.22, z = 162.43, name = "성루", worldId = 0, IsCanFind = 1, PkMode = 0 },
+			[308] = { x = -29.04, y = 99.22, z = 162.43, name = "성루", worldId = 0, IsCanFind = 1, PkMode = 1 },
 		},
 	},
 	Mine = 

@@ -14,6 +14,8 @@ local def = CQuest.define
 -- 任务数据相关
 def.field("table")._InProgressQuestMap = nil
 def.field("table")._CompletedMap = nil
+def.field("table")._QuestsCanRecievedTalbe = nil
+
 def.field("table")._CyclicQuestData = nil
 def.field("table")._HangQuestMap = nil
 def.field("table")._CountGroupsQuestData = nil
@@ -40,6 +42,7 @@ def.static("=>", CQuest).Instance = function()
 		instance = CQuest()
 		instance._InProgressQuestMap = {}
 		instance._CompletedMap = {}
+		instance._QuestsCanRecievedTalbe = {}
 		instance._CyclicQuestData = {}
 		instance._HangQuestMap = {}
 		instance._CountGroupsQuestData = {}
@@ -101,6 +104,20 @@ local function CheckAndTriggerDialogueEvent(quest_id, triggerType, on_complete)
 				game._GUIMan:Open("CPanelDungeonNpcTalk",v.NpcDialogue.DialogueId)
 				local CPanelTracker = require "GUI.CPanelTracker"
 				CPanelTracker.Instance():ShowSelfPanel(false)
+				return
+			end
+		end
+	end
+end
+
+
+local function CheckAndTriggerCameraMoveEvent(self,quest_id, triggerType, on_complete)
+	local temp = CElementData.GetQuestTemplate(quest_id)
+	local quest_events = temp.EventRelated.QuestEvents
+	if quest_events ~= nil then
+		for k, v in pairs(quest_events) do
+			if v ~= nil and v.triggerType == triggerType and v.Camera ~= nil and v.Camera.CameraId ~= nil and type(v.Camera.CameraId) == "number" and v.Camera.CameraId > 0 then
+				game:CameraMoveBegin(v.Camera.CameraId)
 				return
 			end
 		end
@@ -206,7 +223,7 @@ def.method("table").OnS2CQuestUpdateReputationList = function(self, cgs)
 					QuestIDs[#QuestIDs + 1] = v2
 
 					if cgs.IsReset and self._CompletedMap ~= nil and self._CompletedMap[v2] ~= nil then
-						print("remove completed questId=============",self._CompletedMap[v2])
+						--print("remove completed questId=============",self._CompletedMap[v2])
 						self._CompletedMap[v2] = nil
 					end
 				end
@@ -242,6 +259,8 @@ def.method("table").OnS2CQuestData = function(self, protocol)
 			self._CompletedMap[v.Id] = v.Count
 		end
 	end
+
+	self._QuestsCanRecievedTalbe = {}
 
 	self._CyclicQuestData = 
 	{
@@ -293,6 +312,9 @@ def.method("table").OnS2CQuestProvide = function(self, data)
 		self._InProgressQuestMap[data.Id] = quest_model
 	--end
 	
+	if self._QuestsCanRecievedTalbe[data.Id] ~= nil then
+		self._QuestsCanRecievedTalbe[data.Id] = nil
+	end
 
 	--如果完成的任务是赏金类型
 	local quest_data = CElementData.GetQuestTemplate(data.Id)
@@ -363,18 +385,29 @@ def.method("table").OnS2CQuestProvide = function(self, data)
 	CGame.EventManager:raiseEvent(nil, NotifyQuestDataChangeEvent())
 	DispatcheCommonEvent(EnumDef.QuestEventNames.QUEST_RECIEVE, data)
 
-	
+	local questId = 0
 	if data.CurrentSubQuestId > 0 then
 		CheckAndTriggerCGEvent(data.CurrentSubQuestId, EventTriggerType.PROVIDE, nil)
+		CheckAndTriggerCameraMoveEvent(self,data.CurrentSubQuestId, EventTriggerType.PROVIDE, nil)
+		CheckAndTriggerDialogueEvent(data.CurrentSubQuestId, EventTriggerType.PROVIDE, nil)
+		questId = data.CurrentSubQuestId
 	else
 		CheckAndTriggerCGEvent(data.Id, EventTriggerType.PROVIDE, nil)
+		CheckAndTriggerCameraMoveEvent(self,data.Id, EventTriggerType.PROVIDE, nil)
+		CheckAndTriggerDialogueEvent(data.Id, EventTriggerType.PROVIDE, nil)
+		questId = data.Id
 	end
-	CheckAndTriggerDialogueEvent(data.Id, EventTriggerType.PROVIDE, nil)
-	game._HostPlayer:JudgeIsUseHawEye(false)
+	
+	
+	local CHawkeyeEffectMan = require "Main.CHawkeyeEffectMan"
+	CHawkeyeEffectMan.Instance():JudgeIsUseHawEye(false)
+
 	CSoundMan.Instance():Play2DAudio(PATH.GUISound_Quest_Accept, 0)
 
-	local str = "Quest_Enter_"..data.Id
-	CPlatformSDKMan.Instance():SetBreakPoint(str)
+	local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
+	CPlatformSDKMan.Instance():SetPipelineBreakPoint(
+		PlatformSDKDef.PipelinePointType.QuestEnter,
+		questId)
 end
 
 def.method("table").OnS2CQuestDeliver = function(self, data)
@@ -470,6 +503,7 @@ def.method("table").OnS2CQuestDeliver = function(self, data)
             local setting = {
                 [MsgBoxAddParam.CostItemID] = itemData._Tid,
                 [MsgBoxAddParam.CostItemCount] = 1,
+                [MsgBoxAddParam.EquipItemStar] = itemData:IsEquip() and itemData._BaseAttrs.Star or nil,
             }
 		    local colStr = RichTextTools.GetQualityText(StringTable.Get(279), itemData._Template.InitQuality)
             MsgBox.ShowMsgBox(string.format(StringTable.Get(278),colStr),StringTable.Get(279), 1, MsgBoxType.MBBT_YESNO,callback,nil,nil,nil,setting)
@@ -578,9 +612,13 @@ def.method("table").OnS2CQuestDeliver = function(self, data)
 	DispatcheCommonEvent(EnumDef.QuestEventNames.QUEST_COMPLETE, data)
 	CheckAndTriggerCGEvent(data.Id, EventTriggerType.DELIVER, nil)
 	CheckAndTriggerDialogueEvent(data.Id, EventTriggerType.DELIVER, nil)
+	CheckAndTriggerCameraMoveEvent(self,data.Id, EventTriggerType.DELIVER, nil)
 	--CSoundMan.Instance():Play2DAudio(PATH.GUISound_Quest_Complete, 0)
-	local str = "Quest_End_"..data.Id
-	CPlatformSDKMan.Instance():SetBreakPoint(str)
+
+	local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
+	CPlatformSDKMan.Instance():SetPipelineBreakPoint(
+		PlatformSDKDef.PipelinePointType.QuestEnd,
+		data.Id)
 end
 
 def.method("table").OnS2CQuestNotify = function(self, data)
@@ -761,7 +799,7 @@ def.method("number", "=>", CQuestModel).GetQuestModelByReputationID = function(s
 	if self._InProgressQuestMap ~= nil then
 		for k,v in pairs(self._InProgressQuestMap) do
 			if v:GetTemplate().Type == QuestDef.QuestType.Reputation then
-				print("====",v:GetTemplate().ProvideRelated.ReputationLimit.ReputationId,reputationID)
+				--print("====",v:GetTemplate().ProvideRelated.ReputationLimit.ReputationId,reputationID)
 				if v:GetTemplate().ProvideRelated.ReputationLimit._is_present_in_parent and v:GetTemplate().ProvideRelated.ReputationLimit.ReputationId == reputationID then
 					return v
 				end
@@ -1000,7 +1038,7 @@ end
 --[[
 def.method("=>", "table").GetQuestsCanRecieved = function(self)
 	local list = {}
-	local ids = GameUtil.GetAllTid("Quest")
+	local ids = CElementData.GetAllTid("Quest")
 
 	for _,v in pairs(ids) do
 		if v then
@@ -1061,9 +1099,11 @@ end
 --相同次数组的任务还没接
 def.method("number", "=>", "boolean").IsQuestGroupNotRecieve = function(self, id)
 	local questTemplate = CElementData.GetQuestTemplate(id)
-	for k, v in pairs(self._InProgressQuestMap) do
-		if v:GetStatus() ~= QuestDef.Status.NotRecieved and v:GetTemplate().CountGroupTid ~= 0 and v:GetTemplate().CountGroupTid == questTemplate.CountGroupTid then
-			return false
+	if self._InProgressQuestMap ~= nil then
+		for k, v in pairs(self._InProgressQuestMap) do
+			if v:GetStatus() ~= QuestDef.Status.NotRecieved and v:GetTemplate().CountGroupTid ~= 0 and v:GetTemplate().CountGroupTid == questTemplate.CountGroupTid then
+				return false
+			end
 		end
 	end
 	return true
@@ -1178,6 +1218,7 @@ end
 --能不能领
 def.method("number", "=>", "boolean").CanRecieveQuest = function(self, id)
 	--先判断 有没有次数组 的限制
+	--print("CanRecieveQuest",id)
 	local temp = CElementData.GetQuestTemplateSimple(id)
 	return self:CanRecieveQuestByTemplate(temp)
 end
@@ -1464,7 +1505,7 @@ def.method("number","=>","string").GetQuesthapterStr = function(self, Id)
 	         if Groups ~= nil and Groups[1] ~= "" then 
 	         	for i,v in ipairs(Groups) do
 	         		if v == chapterTip[2] then
-		    			local str_type = StringTable.Get(550+quest_data.Type)
+		    			local str_type = StringTable.Get(550+quest_data.Type) .." "
 		    			local str_chapter = string.format(StringTable.Get(569),ChapterTemplate.ChapterId,i)
 		    			str = str .. str_type
 		    			str = str .. str_chapter
@@ -1686,7 +1727,7 @@ end
 def.method("=>","boolean").IsShowMainQuestRedPoint = function (self)
 
 	local isShow = false
-    local ChaptersTemplate_id_list = GameUtil.GetAllTid("QuestChapter")
+    local ChaptersTemplate_id_list = CElementData.GetAllTid("QuestChapter")
 	for i = 1, #ChaptersTemplate_id_list do 
 		local ChapterTemplate = CElementData.GetTemplate("QuestChapter", i)
 		if ChapterTemplate.QuestType == QuestDef.QuestType.Main then
@@ -1708,7 +1749,7 @@ def.method("=>","boolean").IsShowBranchQuestRedPoint = function (self)
     --未领取支线奖励
     local RewardQuestIsShow = false
 
-    local ChaptersTemplate_id_list = GameUtil.GetAllTid("QuestChapter")
+    local ChaptersTemplate_id_list = CElementData.GetAllTid("QuestChapter")
 	for i = 1, #ChaptersTemplate_id_list do 
 		local ChapterTemplate = CElementData.GetTemplate("QuestChapter", i)
 		if ChapterTemplate.QuestType == QuestDef.QuestType.Branch then
@@ -1946,9 +1987,24 @@ def.method("number").QuestGroupDrawReward = function(self,QuestGroupId)
 	SendProtocol(prot)
 end
 
-def.method().Release = function(self)
+--获得前线任务信息
+def.method("number").DoFrontLineInfo = function(self, FrontLineId)
+	local prot = GetC2SProtocol("C2SFrontLineInfo")
+	prot.FrontLineId = FrontLineId
+	SendProtocol(prot)
+end
+
+--进入前线任务
+def.method("number").DoFrontLineEnter = function(self, FrontLineId)
+	local prot = GetC2SProtocol("C2SFrontLineEnter")
+	prot.FrontLineId = FrontLineId
+	SendProtocol(prot)
+end
+
+def.method().Cleanup = function(self)
 	self._InProgressQuestMap = nil
 	self._CompletedMap = nil
+	self._QuestsCanRecievedTalbe = nil
 	self._CyclicQuestData = nil
 	self._CountGroupsQuestData = nil
 	self._GroupRewardList = nil

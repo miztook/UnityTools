@@ -8,7 +8,7 @@ local def = CSameMapTrans.define
 
 def.static("=>", CSameMapTrans).new = function()
     local obj = CSameMapTrans()
-    print("创建 CSameMapTrans")
+    --print("创建 CSameMapTrans")
     return obj
 end
 
@@ -73,7 +73,7 @@ def.override().StartTransLogic = function(self)
     end
     
     self._IsTransOver = false
-    game:NavigatToPos(self._TargetPosition, offsetDis, onReach, nil)
+    TeraFuncs.NavigatToPos(self._TargetPosition, offsetDis, onReach, nil)
 
     -- 检测如果是直接连通的，并且已经到当前的地图了，就不再继续寻路，防止点击到了同步传送区域内部而无限来回跑的问题。
     if (self._FinalPosition and CTransDataHandler.Instance():CanMoveToTargetPosAtSameMap(self._FinalPosition, false)) and curMapID == self._MapID then

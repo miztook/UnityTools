@@ -2,6 +2,7 @@ local Lplus = require "Lplus"
 local CGame = Lplus.ForwardDeclare("CGame")
 local CEntity = require "Object.CEntity"
 local CFxObject = require "Fx.CFxObject"
+local EIndicatorType = require "PB.Template".ExecutionUnit.ExecutionUnitEvent.EventSkillIndicator.EIndicatorType
 
 local CFxMan = Lplus.Class("CFxMan")
 local def = CFxMan.define
@@ -30,6 +31,26 @@ def.static("=>",CFxMan).Instance = function()
 		instance._UnCachedFxsRoot = GameUtil.GetFxManUncachedFxsRoot()
 	end
 	return instance
+end
+
+def.static("boolean",  "number", "number", "=>", "string").GetAttackWarningFxPath = function(isDecl, fxType, param)
+	local fxPath = nil
+	if fxType == EIndicatorType.Circular then
+		fxPath = isDecl and PATH.Etc_Yujing_Ring_Decl or PATH.Etc_Yujing_Ring
+	elseif fxType == EIndicatorType.Fan then
+		fxPath = isDecl and PATH["Etc_Yujing_Shanxing"..tostring(param).."_Decl"] or PATH["Etc_Yujing_Shanxing"..tostring(param)]
+	elseif fxType == EIndicatorType.Rectangle then
+		fxPath = isDecl and PATH.Etc_Yujing_Juxing_Decl or PATH.Etc_Yujing_Juxing
+	elseif fxType == EIndicatorType.Ring then
+		fxPath = isDecl and PATH.Etc_Yujing_Hollow_Decl or PATH.Etc_Yujing_Hollow
+	end
+
+	if fxPath == nil then
+		warn("预警特效参数错误: ", isDecl, fxType, param)
+		fxPath = ""
+	end
+
+	return fxPath
 end
 
 def.method("table").OnClickGround = function(self,pos)
@@ -301,6 +322,7 @@ def.method("string","table","table","number", "number", "number", "=>",CFxObject
 			fx.rotation = Quaternion.identity
 		end	
 		fx.localScale = Vector3.one * fx_scale
+        fx:SetActive(true)
 		GameUtil.SetFxScale(fx, fx_scale)
 
 		fxone:Play(lifetime)
@@ -327,6 +349,7 @@ def.method("string","userdata", "table", "table","number","boolean", "number", "
 		fx.localPosition = localpos
 		fx.localRotation = localrot
 		fx.localScale = Vector3.one * fx_scale
+        fx:SetActive(true)
 		GameUtil.SetFxScale(fx, fx_scale)
 		fxone = fx:GetComponent(ClassType.CFxOne)
 		fxone:Play(lifetime)
@@ -452,7 +475,7 @@ def.method(CFxObject).Stop = function(self, gfxobj)
 	end
 end
 
-def.method().Reset = function(self)
+def.method().Cleanup = function(self)
 	self._IsAllFxHiden = false
 
 	GameUtil.FxCacheManCleanup()

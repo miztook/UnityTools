@@ -29,10 +29,8 @@ local function OnS2CAdventureGuideUpdate(sender,msg)
 		for _,k in pairs(msg.adventureGuideDatas) do
 			--warn("lidaming ---->>>  S2CAdventureGuideUpdate ==>>>", k.TId)
 			if k.TId ~= nil then
-				local adventureGuideData = game._CCalendarMan:GetCalendarDataByID(k.TId)
-				
-				if k.isActivity then
-					
+				local adventureGuideData = game._CCalendarMan:GetCalendarDataByID(k.TId)				
+				if k.isActivity and k.isGMActivity then					
 					if adventureGuideData ~= nil and adventureGuideData._Data.IsNotify ~= "False" then
 						-- 活动快捷提示判断是否有公会
 						if adventureGuideData._Data.ContentEventOpenUI == EnumDef.ActivityOpenUIType.GuildDefend
@@ -50,12 +48,10 @@ local function OnS2CAdventureGuideUpdate(sender,msg)
 
 						local PlayInfo = game._CCalendarMan:GetPlayInfoByActivityID(k.TId)
                         local GuildBattleSpecialCheck = function()
-                            if adventureGuideData._Data.ContentEventOpenUI == EnumDef.ActivityOpenUIType.GuildBattle and game._IsHideGuildBattle then
-                                return false
-                            end
-                            return true
+        					local options = GameConfig.Get("FuncOpenOption")
+                            return (not options.HideGuildBattle or adventureGuideData._Data.ContentEventOpenUI ~= EnumDef.ActivityOpenUIType.GuildBattle)
                         end
-						if PlayInfo ~= nil and game._DungeonMan:DungeonIsOpen(PlayInfo.playId) and GuildBattleSpecialCheck() then
+						if PlayInfo ~= nil and adventureGuideData._IsOpen and adventureGuideData._IsOpenByTime and game._DungeonMan:DungeonIsOpen(PlayInfo.playId) and GuildBattleSpecialCheck() then
 							local cb = function(val)
 								if val == false then return end
 								game._CCalendarMan:OpenPlayByActivityInfo(adventureGuideData)

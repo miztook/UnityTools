@@ -18,13 +18,12 @@ def.field("boolean")._IsGetUserData = true
 def.field("boolean")._IsDescending = true
 def.field("number")._CurSortType = 0
 
-
 def.final("=>", CDecomposeAndSortMan).new = function ()
 	local obj = CDecomposeAndSortMan()
 	return obj
 end
 
-def.method().GetUserData = function(self) 
+def.method().Init = function(self) 
 	if not self._IsGetUserData then return end
 	self:GetDecomposeUserData()
 	self:GetSortUserData()
@@ -177,7 +176,7 @@ def.method().SaveSortRecord = function(self)
     UserData.Instance():SetCfg(EnumDef.LocalFields.BagSort, account, accountInfo)
 end
 
-def.method().Release = function(self)
+def.method().Cleanup = function(self)
 	self._CurSelectQualitys = {}
 	self._CurSelectParts = {}
 	self._IsTimerDecompose = false

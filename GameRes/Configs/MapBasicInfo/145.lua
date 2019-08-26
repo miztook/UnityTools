@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Battle",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world03-1.png",
 	AssetPath = "Assets/Outputs/Scenes/World03Part1.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[12104] = 
@@ -86,9 +87,10 @@ local MapInfo =
 			[1] = { x = 150.00, y = 40.00, z = 20.00, name = "夜莺", SortID = 32 },
 			[2] = { x = -46.72, y = 40.40, z = 55.59, name = "夜莺", SortID = 7 },
 		},
-		[2055] = 
+		[2367] = 
 		{
-			[1] = { x = 68.00, y = 21.00, z = -18.00, name = "露娜·艾琳", SortID = 16 },
+			[1] = { x = 68.00, y = 20.38, z = -18.00, name = "露娜·艾琳", FunctionName = " " },
+			[2] = { x = -45.00, y = 40.40, z = 58.00, name = "露娜·艾琳", FunctionName = " " },
 		},
 		[2054] = 
 		{
@@ -98,10 +100,6 @@ local MapInfo =
 		[2232] = 
 		{
 			[1] = { x = 66.00, y = 21.02, z = -3.50, name = "沙摩尔", SortID = 24 },
-		},
-		[2367] = 
-		{
-			[1] = { x = -45.00, y = 40.40, z = 58.00, name = "露娜·艾琳", FunctionName = " " },
 		},
 		[2203] = 
 		{
@@ -141,16 +139,16 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[222] = { x = 62.67, y = 33.65, z = 54.58, name = "罗琳镇相位入口", worldId = 0, PkMode = 0 },
-			[223] = { x = 0.58, y = 21.37, z = 31.35, name = "上山", worldId = 0, PkMode = 0 },
-			[228] = { x = -31.12, y = 38.34, z = 50.99, name = "下山", worldId = 0, PkMode = 0 },
-			[224] = { x = 63.04, y = 21.14, z = 3.53, name = "占领区-大门", worldId = 0, PkMode = 0 },
-			[225] = { x = 38.95, y = 21.04, z = 50.83, name = "占领区-广场", worldId = 0, PkMode = 0 },
-			[226] = { x = -67.97, y = 40.54, z = 66.23, name = "占领区-市政府", worldId = 0, PkMode = 0 },
-			[230] = { x = 11.34, y = 21.15, z = 33.88, name = "c 1-2", worldId = 0, PkMode = 0 },
-			[232] = { x = 53.09, y = 21.34, z = 23.18, name = "C3", worldId = 0, PkMode = 0 },
-			[233] = { x = 107.12, y = 31.72, z = 35.94, name = "C1-1", worldId = 0, PkMode = 0 },
-			[234] = { x = 91.76, y = 26.93, z = 26.23, name = "弹窗", worldId = 0, PkMode = 0 },
+			[222] = { x = 62.67, y = 33.65, z = 54.58, name = "罗琳镇相位入口", worldId = 0, PkMode = 1 },
+			[223] = { x = 0.58, y = 21.37, z = 31.35, name = "", worldId = 0, PkMode = 1 },
+			[228] = { x = -31.12, y = 38.34, z = 50.99, name = "下山", worldId = 0, PkMode = 1 },
+			[224] = { x = 63.04, y = 21.14, z = 3.53, name = "", worldId = 0, PkMode = 1 },
+			[225] = { x = 38.95, y = 21.04, z = 50.83, name = "", worldId = 0, PkMode = 1 },
+			[226] = { x = -67.97, y = 40.54, z = 66.23, name = "占领区-市政府", worldId = 0, PkMode = 1 },
+			[230] = { x = 11.34, y = 21.15, z = 33.88, name = "", worldId = 0, PkMode = 1 },
+			[232] = { x = 53.09, y = 21.34, z = 23.18, name = "", worldId = 0, PkMode = 1 },
+			[233] = { x = 107.12, y = 31.72, z = 35.94, name = "", worldId = 0, PkMode = 1 },
+			[234] = { x = 91.76, y = 26.93, z = 26.23, name = "弹窗", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 
@@ -370,10 +368,10 @@ local MapInfo =
 		},
 		[16] = 
 		{
-			x = 68.00, y = 21.00, z = -18.00, Type = 2,
+			x = 68.00, y = 20.38, z = -18.00, Type = 2,
 			Tid = 
 			{
-				[2055] = 1,
+				[2367] = 1,
 			},
 		},
 		[17] = 

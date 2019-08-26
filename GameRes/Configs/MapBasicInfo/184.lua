@@ -6,11 +6,12 @@ local MapInfo =
 	Length = 512,
 	Width = 512,
 	NavMeshName = "World04Part2.navmesh",
-	BackgroundMusic = "",
+	BackgroundMusic = "BGM_Map_4/Map_4/Map_4_phase",
 	BattleMusic = "",
-	EnvironmentMusic = "",
+	EnvironmentMusic = "Zone_Ambience/Ambience/Day_and_Night",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13131] = 
@@ -53,16 +54,16 @@ local MapInfo =
 	{
 		[1] = 
 		{
-			[390] = { x = 254.96, y = 36.32, z = -185.33, xA = -198.64, yA = 31.32, zA = -223.06, name = "传送区域-埃塞尼亚东", worldId = 170, PkMode = 0 },
+			[390] = { x = 254.96, y = 36.32, z = -185.33, xA = -198.64, yA = 31.32, zA = -223.06, name = "传送区域-埃塞尼亚东", worldId = 170, PkMode = 1 },
 		},
 		[2] = 
 		{
-			[391] = { x = -108.63, y = 38.30, z = -208.32, name = "前往黑区", worldId = 0, PkMode = 0 },
-			[392] = { x = 176.69, y = 1.00, z = -194.40, name = "背景音乐-绝境要塞", worldId = 0, PkMode = 0 },
-			[393] = { x = 116.27, y = 42.82, z = -28.21, name = "背景音乐-蜘蛛洞", worldId = 0, PkMode = 0 },
-			[394] = { x = -113.81, y = 1.00, z = 108.33, name = "背景音乐-风之壁垒", worldId = 0, PkMode = 0 },
-			[395] = { x = -151.63, y = 1.00, z = -126.86, name = "背景音乐-森林地带", worldId = 0, PkMode = 0 },
-			[396] = { x = 176.91, y = 37.85, z = -185.08, name = "相位区域", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {3340,3341} },
+			[391] = { x = -108.63, y = 38.30, z = -208.32, name = "前往黑区", worldId = 0, PkMode = 1 },
+			[392] = { x = 176.69, y = 1.00, z = -194.40, name = "背景音乐-绝境要塞", worldId = 0, PkMode = 1 },
+			[393] = { x = 116.27, y = 42.82, z = -28.21, name = "背景音乐-蜘蛛洞", worldId = 0, PkMode = 1 },
+			[394] = { x = -113.81, y = 1.00, z = 108.33, name = "背景音乐-风之壁垒", worldId = 0, PkMode = 1 },
+			[395] = { x = -151.63, y = 1.00, z = -126.86, name = "背景音乐-森林地带", worldId = 0, PkMode = 1 },
+			[396] = { x = 176.91, y = 37.85, z = -185.08, name = "相位区域", worldId = 0, PkMode = 1, IsCanHawkeye = true, QuestID = {3340,3341} },
 		},
 	},
 	Mine = 

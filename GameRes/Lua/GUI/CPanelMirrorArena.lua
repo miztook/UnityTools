@@ -122,6 +122,7 @@ def.override().OnCreate = function(self)
 		-- info._LabJoinLevel = self:GetUIObject("Lab_JoinLevel")
 		-- info._LabJoinNumber = self:GetUIObject("Lab_JoinNumber")
 		info._LabRank = self:GetUIObject("Lab_BattleRank")
+		info._LabNoRank = self:GetUIObject("Lab_NoBattleRank")
 		info._LabScore = self:GetUIObject("Lab_BattleScore")
 		info._LabRewardTimes = self:GetUIObject("Lab_BattleRewardTimes")
 		info._LabRemainTime = self:GetUIObject("Lab_RemainTime")
@@ -191,14 +192,14 @@ def.override("string").OnClick = function(self, id)
 end
 
 def.method("table").InitPanel = function (self,data)
-	print(game._CArenaMan._CurOpenArenaType)
+	--print(game._CArenaMan._CurOpenArenaType)
 	if game._CArenaMan._CurOpenArenaType == EnumDef.OpenArenaType.Open3V3 then
 		self._Frame_3V3:SetActive(true)
 		self._Frame_1V1:SetActive(false)
 		self._Frame_Battle:SetActive(false)
 		self._Frame_Model3V3:SetActive(true)
 		GUI.SetText(self._Lab_Title,StringTable.Get(20067))
-		GUITools.SetUIActive( self._ButtonRule ,false)
+		GUITools.SetUIActive( self._ButtonRule ,true)
 		CPage3V3.Instance():Show(self._PanelObject.Frame_3V3,self._PanelObject.Frame_3V3.root)
 		self._HelpUrlType = HelpPageUrlType.Open3V3
 	elseif game._CArenaMan._CurOpenArenaType == EnumDef.OpenArenaType.Open1V1 then 

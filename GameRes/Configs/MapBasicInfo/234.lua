@@ -11,11 +11,12 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD03.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn03_QXGJ01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[22410] = 
 		{
-			[1] = { x = -9.00, y = 76.02, z = 86.82, name = "伊斯莲试炼者", level = 60,IsBoss = true },
+			[1] = { x = -9.02, y = 76.02, z = 74.15, name = "伊斯莲试炼者", level = 60,IsBoss = true },
 		},
 		[22411] = 
 		{
@@ -36,6 +37,8 @@ local MapInfo =
 		[22415] = 
 		{
 			[1] = { x = 36.71, y = 64.99, z = -14.55, name = "幻影", level = 60 },
+			[2] = { x = -16.68, y = 57.71, z = -38.88, name = "幻影", level = 60 },
+			[3] = { x = -1.87, y = 57.71, z = -38.88, name = "幻影", level = 60 },
 		},
 		[22416] = 
 		{
@@ -47,7 +50,7 @@ local MapInfo =
 		},
 		[22417] = 
 		{
-			[1] = { x = 36.37, y = 64.99, z = -20.73, name = "复苏的噩梦", level = 60 },
+			[1] = { x = -9.18, y = 57.71, z = -37.06, name = "复苏的噩梦", level = 55 },
 		},
 	},
 	Npc = 
@@ -57,7 +60,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[194] = { x = -8.92, y = 76.02, z = 71.20, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 0 },
+			[194] = { x = -8.92, y = 76.02, z = 71.20, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1 },
 		},
 	},
 	Mine = 
@@ -68,14 +71,14 @@ local MapInfo =
 		},
 		[10203] = 
 		{
-			[1] = { x = 36.37, y = 64.99, z = -21.68 },
+			[1] = { x = -9.18, y = 57.71, z = -35.36 },
 		},
 	},
 	Entity = 
 	{
 		[2] = 
 		{
-			x = -9.00, y = 76.02, z = 86.82, Type = 1,
+			x = -9.02, y = 76.02, z = 74.15, Type = 1,
 			Tid = 
 			{
 				[22410] = 1,
@@ -156,10 +159,26 @@ local MapInfo =
 		},
 		[20] = 
 		{
-			x = 36.37, y = 64.99, z = -20.73, Type = 1,
+			x = -9.18, y = 57.71, z = -37.06, Type = 1,
 			Tid = 
 			{
 				[22417] = 1,
+			},
+		},
+		[5] = 
+		{
+			x = -16.68, y = 57.71, z = -38.88, Type = 1,
+			Tid = 
+			{
+				[22415] = 3,
+			},
+		},
+		[25] = 
+		{
+			x = -1.87, y = 57.71, z = -38.88, Type = 1,
+			Tid = 
+			{
+				[22415] = 3,
 			},
 		},
 		[3] = 
@@ -173,14 +192,6 @@ local MapInfo =
 		[4] = 
 		{
 			x = 10.50, y = 75.96, z = 49.51, Type = 4,
-			Tid = 
-			{
-				[15] = 0,
-			},
-		},
-		[5] = 
-		{
-			x = 28.64, y = 64.93, z = -25.50, Type = 4,
 			Tid = 
 			{
 				[15] = 0,
@@ -218,6 +229,30 @@ local MapInfo =
 				[15] = 0,
 			},
 		},
+		[22] = 
+		{
+			x = -9.20, y = 58.23, z = -43.50, Type = 4,
+			Tid = 
+			{
+				[15] = 0,
+			},
+		},
+		[23] = 
+		{
+			x = -22.90, y = 57.71, z = -23.77, Type = 4,
+			Tid = 
+			{
+				[15] = 0,
+			},
+		},
+		[24] = 
+		{
+			x = -9.24, y = 57.71, z = -19.12, Type = 4,
+			Tid = 
+			{
+				[15] = 0,
+			},
+		},
 		[18] = 
 		{
 			x = 36.84, y = 64.99, z = -39.36, Type = 6,
@@ -228,7 +263,7 @@ local MapInfo =
 		},
 		[21] = 
 		{
-			x = 36.37, y = 64.99, z = -21.68, Type = 6,
+			x = -9.18, y = 57.71, z = -35.36, Type = 6,
 			Tid = 
 			{
 				[10203] = 1,

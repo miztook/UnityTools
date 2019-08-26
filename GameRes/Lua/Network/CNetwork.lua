@@ -17,6 +17,9 @@ def.field("string")._AccountSaltPasswordMd5 = ""
 def.field("number")._ConnectTimerId = 0
 def.field("boolean")._Paused = false
 
+def.field("string")._ReconnectIP = ""
+def.field("number")._ReconnectPort = 0
+
 local CONNECT_STATUS =
 {
 	OFFLINE = 0,      -- 离线
@@ -31,15 +34,13 @@ local Max_Connect_Time = 15
 def.static("=>", CNetwork).new = function ()
 	local obj = CNetwork()	
 	obj._ConnectStatus = CONNECT_STATUS.OFFLINE
+	obj._GameSession = CGameSession.Instance()
 	return obj
 end
 
-def.method().Init = function (self)
-	self._GameSession = CGameSession.Instance()
-end
-
 def.method("string", "=>", "boolean").IsValidIpAddress = function (self, ip)
-	return self._GameSession:IsValidIpAddress(ip)
+	--return self._GameSession:IsValidIpAddress(ip)
+	return not IsNilOrEmptyString(ip)
 end
 
 def.method("string", "number", "string", "string", "string").Connect = function (self, ip, port, servername, username, password)
@@ -56,7 +57,10 @@ def.method("string", "number", "string", "string", "string").Connect = function 
 	self._Password = password
 	local salt = GlobalDefinition.AuthSalt
 	self._AccountSaltPasswordMd5 = GameUtil.MD5ComputeHash(username .. salt .. password)
-	self._GameSession:ConnectToServer(ip, port, username, password)
+
+	local realIp = GameUtil.DNSResolve(ip)
+	if IsNilOrEmptyString(realIp) then realIp = ip end
+	self._GameSession:ConnectToServer(realIp, port, username, password)
 
 	self._RedirectIP = ""
 	self._RedirectPort = 0
@@ -74,6 +78,9 @@ def.method("string").RedirectGate = function (self, addr)
 	local strList = string.split(addr, ":")
 	local ip = strList[1]
 	local port = tonumber(strList[2])
+
+	self._ReconnectIP = ""
+	self._ReconnectPort = 0
 
 	if ip == self._IP and port == self._Port then -- 当前网关即为最佳网关，就可以往下走
 		self._ConnectStatus = CONNECT_STATUS.ONLINE
@@ -93,20 +100,30 @@ def.method("string").RedirectGate = function (self, addr)
 		self._ConnectStatus = CONNECT_STATUS.ONLINE
 		warn("Redirect Connect to", addr)
 
-		self._RedirectIP = ""
-		self._RedirectPort = 0
+		--self._RedirectIP = ""
+		--self._RedirectPort = 0
+
+		self._ReconnectIP = ip
+		self._ReconnectPort = port
 
 	else -- 继续重定向
-		self._RedirectIP = ip
-		self._RedirectPort = port
+
+		--warn("RedirectGate", ip, port, self._RedirectIP, self._RedirectPort)
 
 		if self._GameSession:IsConnected() or self._GameSession:IsConnecting() then	
 			self:Close()
 		end
 
-		warn("RedirectGate to", addr)
+		--addr = "ec2-13-209-110-169.ap-northeast-2.compute.amazonaws.com:11001"
+		
+		local realIp = GameUtil.DNSResolve(ip)
+		if IsNilOrEmptyString(realIp) then realIp = ip end
+		warn("RedirectGate to", addr, realIp)
 
-		self._GameSession:ConnectToServer(ip, port, self._UserName, self._Password)
+		self._RedirectIP = ip
+		self._RedirectPort = port
+
+		self._GameSession:ConnectToServer(realIp, port, self._UserName, self._Password)
 	end 
 end
 
@@ -152,13 +169,26 @@ def.method().ReConnect = function (self)
 	if self._GameSession:IsConnected() or self._GameSession:IsConnecting() then
 		return
 	end
+
 	local ip = self._IP
 	local port = self._Port
+
+	if not IsNilOrEmptyString(self._ReconnectIP) and self._ReconnectPort ~= 0 then
+		ip = self._ReconnectIP
+		port = self._ReconnectPort
+	end
+
 	local username = self._UserName
 	local password = self._Password
 	--local salt = GlobalDefinition.AuthSalt
 	--self._AccountSaltPasswordMd5 = GameUtil.MD5ComputeHash(username .. salt .. password)
-	self._GameSession:ConnectToServer(ip, port, username, password)
+
+	local realIp = GameUtil.DNSResolve(ip)
+	if IsNilOrEmptyString(realIp) then realIp = ip end
+
+	warn("Reconnecting...", ip, port, realIp)
+
+	self._GameSession:ConnectToServer(realIp, port, username, password)
 end
 
 -- SPT_ENTITY_MOVE  = 10531;
@@ -211,14 +241,15 @@ local function SimpleProcess(id, buffer)
 		return true
 	else
 	]]
-	if id == 10533 then
-		local msg = fParseProtocol(id, buffer)
-		local entity = game._CurWorld:FindObject(msg.EntityId) 
-		if entity == nil then return true end
+	--if id == 10533 then
+		--local msg = fParseProtocol(id, buffer)
+		--local entity = game._CurWorld:FindObject(msg.EntityId) 
+		--if entity == nil then return true end
 
-		entity:UpdateFightProperty_Simple(msg.CreatureAttrs, msg.IsNotifyFightScore)
-		return true
-	elseif id == 10522 then
+		--entity:UpdateFightProperty_Simple(msg.CreatureAttrs, msg.IsNotifyFightScore)
+		--return false
+	--else
+	if id == 10522 then
 		local msg = fParseProtocol(id, buffer)
 		local entity = game._CurWorld:FindObject(msg.EntityId) 
 		if entity == nil then return true end
@@ -271,6 +302,8 @@ end
 def.method("boolean").SetProtocolPaused = function(self, isPaused)
 	self._Paused = isPaused
 	self._GameSession.IsProcessingPaused = isPaused
+
+	if self._Paused then _G.BigPingTime = 0 end
 end
 
 def.method().Close = function (self)

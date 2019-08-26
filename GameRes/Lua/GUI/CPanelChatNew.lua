@@ -11,7 +11,8 @@ local CPageFriendChat = require "GUI.CPageFriendChat"
 local TeamJoinOrQuitEvent = require "Events.TeamJoinOrQuitEvent"
 local MenuComponents = require "GUI.MenuComponents"
 local CPanelEmotions = require "GUI.CPanelEmotions"
-
+local DebugTools = require "Main.DebugTools"
+local BAGTYPE = require "PB.net".BAGTYPE
 local CPanelChatNew = Lplus.Extend(CPanelBase, 'CPanelChatNew')
 local def = CPanelChatNew.define
 
@@ -45,7 +46,9 @@ def.field('string')._ItemName = ""  --物品名称
 def.field('number')._M_timerId = 0
 def.field('boolean')._IsPointerOver = true
 def.field('boolean')._IsRecording = true  -- 是否正在录音
-def.field('boolean')._FirstLockChat = false -- 标记是否第一次进入分页
+def.field('boolean')._FirstLockChat = false -- 标记是否锁定分页
+def.field('boolean')._FirstOpenChat = false -- 标记是否第一次进入分页
+def.field('boolean')._IsHostPlayerChat = false -- 标记是否是主角发送消息
 def.field('number')._ScrollRect_timer = 0
 def.field('number')._AnchorPositionY = 0
 def.field('number')._AnchoredPositionHeight = 0
@@ -140,13 +143,13 @@ def.override().OnCreate = function(self)
     GUI.SetText(self._Lab_Title,StringTable.Get(13051))
     self:GetChannelToToggle(self._Channel)
     -- self._List_QuickMsg = self:GetUIObject('List_QuickMsg'):GetComponent(ClassType.GNewList)
-    self._FirstLockChat = false
-    self._QuickMsgList = _G.QuickMsgTable
+    self._FirstLockChat = false    
     CGame.EventManager:addHandler('NotifyClick', OnEntityClick)
     CGame.EventManager:addHandler('TeamJoinOrQuitEvent', OnTeamJoinOrQuitEvent)
 	-- CGame.EventManager:addHandler(NotifyGuildEvent, OnNotifyGuildEvent)
     self._IsShowQuickMsg = false
     self._QuickMsgObjList = {}
+    self._QuickMsgList = _G.QuickMsgTable
     for i = 1, self._MaxQuickMsgNum do
         table.insert(self._QuickMsgObjList, self:GetUIObject("List_QuickMsg"):FindChild("QuickMsg".. i))
     end
@@ -157,8 +160,6 @@ def.override().OnCreate = function(self)
 end
 
 def.override("dynamic").OnData = function(self,data)
-    self:ShowChatObjData()
-    self:ShowChatMsg()
     if data == 1 then
         game._GUIMan:CloseByScript(self)
         return
@@ -180,6 +181,7 @@ def.override("dynamic").OnData = function(self,data)
     if self._Channel == ChatChannel.ChatChannelSocial then 
         self:OpenRecentList()
     end
+    self._FirstOpenChat = true
     self:EnergyNumTitle()
     self:GetChannelToToggle(self._Channel)
 end
@@ -190,10 +192,12 @@ def.override('string').OnClick = function(self, id)
     end
     if id == 'Btn_Send' then
         if self._Channel == ChatChannel.ChatChannelSocial then 
-            CPageFriendChat.Instance():SendMsg()
+            CPageFriendChat.Instance():SendMsg(false,nil)
         return end
         self:OnSend()
     elseif id == 'Btn_Face' then
+        self._IsShowQuickMsg = false
+        self._Frame_QuickMsg:SetActive(self._IsShowQuickMsg)
         local param = {
                     InputChat = self._Input_Chat,
                     PositionObj = self._EmotionPosition,
@@ -208,13 +212,17 @@ def.override('string').OnClick = function(self, id)
         local QuickMsg_Input = GUITools.GetChild(item , 1):GetComponent(ClassType.InputField)
         self._IsShowQuickMsg = not self._IsShowQuickMsg
         self._Frame_QuickMsg:SetActive(self._IsShowQuickMsg)
-        self._Input_Chat.text = QuickMsg_Input.text
-        self:OnSend()
+        if self._Channel == ChatChannel.ChatChannelSocial then 
+            CPageFriendChat.Instance():SendMsg(true,QuickMsg_Input.text)
+        else
+            ChatManager.Instance():ClientSendMsg(self._Channel, QuickMsg_Input.text, true, 0, nil, nil)
+
+        end
         self:SaveQuickMsgToData()
     elseif id == 'Btn_QuickMsg' then
         self._IsShowQuickMsg = not self._IsShowQuickMsg
         self._Frame_QuickMsg:SetActive(self._IsShowQuickMsg)
-        if self._QuickMsgList == nil then return end
+        -- if self._QuickMsgList == nil then return end
         self:SaveQuickMsgToData()
         local account = game._NetMan._UserName
 		local UserData = require "Data.UserData"
@@ -226,9 +234,9 @@ def.override('string').OnClick = function(self, id)
 				if roleInfo ~= nil then
 					local listFx = roleInfo["QuickMsg"]
 					if listFx ~= nil then
-						if self._QuickMsgList == nil and #self._QuickMsgList > 0 then
+						if self._QuickMsgList == nil then
 							self._QuickMsgList = {}
-						end
+                        end                        
                         for i,v in ipairs(listFx) do
 							self._QuickMsgList[i] = v
 						end
@@ -238,27 +246,13 @@ def.override('string').OnClick = function(self, id)
 			end
 		end
         -- init快捷消息
-        self:InitQuickMsgItem()
-        
+        self:InitQuickMsgItem()        
     elseif id == 'Btn_ChatSet' then
         -- 聊天设置
         game._GUIMan:Open("CPanelUIChatSet", nil)
     -- 有新消息提示
     elseif id == 'Btn_NewMsg' then
-        local chatObj = nil
-        if self._Channel == ChatChannel.ChatChannelSocial then 
-            chatObj = self._Frame_FriendChat
-        else
-            chatObj = self._Frame_Chat
-        end
-        local height = GameUtil.GetPreferredHeight(chatObj:GetComponent(ClassType.RectTransform))  --.rect.height
-        local screenRect = GameUtil.GetRootCanvasPosAndSize(self._Panel) --这个screenRect 里面有x y z w  ，  z是屏幕宽度，w是屏幕高度
-        local ChatBGHeight = screenRect.w - 140
-        local y = (height - ChatBGHeight)
-        -- warn("lidaming y = ", y)
-        chatObj:GetComponent(ClassType.RectTransform).anchoredPosition = Vector2.New(0, y)
-        self._Btn_NewMsg:SetActive(false)
-        self._FirstLockChat = false
+        self:ChangeMsgPos()
 
     elseif string.find(id,"Btn_Board") and self._Channel ~= ChatChannel.ChatChannelSocial then
         -- warn("board btn id == ", id , (string.len("Btn_Board") - string.len(id)))      
@@ -270,8 +264,8 @@ def.override('string').OnClick = function(self, id)
 			if msg ~= nil then
                 if msg.RoleId == game._HostPlayer._ID then return end
                 local EOtherRoleInfoType = require "PB.data".EOtherRoleInfoType
-                game:CheckOtherPlayerInfo(msg.RoleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.Chat)
-
+                local PBUtil = require "PB.PBUtil"
+                PBUtil.RequestOtherPlayerInfo(msg.RoleId, EOtherRoleInfoType.RoleInfo_Simple, EnumDef.GetTargetInfoOriginType.Chat)
             end
         end
     elseif id == "Button_EnergyNum" then
@@ -291,6 +285,39 @@ def.override('string').OnClick = function(self, id)
     end
     if self._Channel == ChatChannel.ChatChannelSocial then 
         CPageFriendChat.Instance():Click(id)
+    end
+end
+
+def.method().ChangeMsgPos = function(self)
+    local chatObj = nil
+    if self._Channel == ChatChannel.ChatChannelSocial then 
+        chatObj = self._Frame_FriendChat
+    else
+        chatObj = self._Frame_Chat
+    end
+    local height = GameUtil.GetPreferredHeight(chatObj:GetComponent(ClassType.RectTransform))  --.rect.height
+    local screenRect = GameUtil.GetRootCanvasPosAndSize(self._Panel) --这个screenRect 里面有x y z w  ，  z是屏幕宽度，w是屏幕高度
+    local ChatBGHeight = screenRect.w - 140
+    local y = (height - ChatBGHeight)
+    if height > ChatBGHeight then
+        -- warn("lidaming y = ", y, self._AnchoredPositionHeight)
+        if y > self._AnchoredPositionHeight then
+            y = (height - ChatBGHeight)
+        else
+            y = self._AnchoredPositionHeight
+        end
+        chatObj:GetComponent(ClassType.RectTransform).anchoredPosition = Vector2.New(0, y)
+        self._Btn_NewMsg:SetActive(false)
+        self._FirstLockChat = false
+    end
+end
+
+--target不为空点击就可以执行  TODO：后续需要加上判断不是文字链接
+def.override("userdata").OnPointerClick = function(self,target)
+    if target == nil then return end
+    if target.name ~= nil then
+        self._IsShowQuickMsg = false
+        self._Frame_QuickMsg:SetActive(self._IsShowQuickMsg)
     end
 end
 
@@ -337,7 +364,7 @@ def.override("userdata", "string", "string", "number").OnSelectItemButton = func
 end
 
 def.method().InitQuickMsgItem = function(self)
-    for i = 1, self._MaxQuickMsgNum do
+    for i = 1, #self._QuickMsgList do
         local QuickMsgItem = self._QuickMsgObjList[i]
         if not IsNil(QuickMsgItem) then
             local QuickMsg_Input = GUITools.GetChild(QuickMsgItem , 1)
@@ -379,7 +406,10 @@ def.method().SaveQuickMsgToData = function (self)
             local QuickMsg_Input = Input_Obj:GetComponent(ClassType.InputField)
             if QuickMsg_Input == nil then return end
             local FilterMgr = require "Utility.BadWordsFilter".Filter
-			local StrMsg = FilterMgr.FilterChat(QuickMsg_Input.text)
+            local StrMsg = FilterMgr.FilterChat(QuickMsg_Input.text)
+            if StrMsg == "" then
+                StrMsg = v
+            end
             QuickMsglist[#QuickMsglist + 1] = StrMsg			
         end
     else
@@ -407,52 +437,60 @@ def.override("string", "boolean").OnToggle = function(self, id, checked)
     GUI.SetText(self._Lab_Title,StringTable.Get(13049 + index))
     self._IsShowEnergyNum = false
     self:EnergyNumTitle()
-	if id == "Rdo_Tag1" and checked then
+    if id == "Rdo_Tag1" and checked then
+        if self._Channel == ChatChannel.ChatChannelSystem then return end
         self._Channel = ChatChannel.ChatChannelSystem
-	elseif id == "Rdo_Tag2" and checked then
+    elseif id == "Rdo_Tag2" and checked then
+        if self._Channel == ChatChannel.ChatChannelWorld then return end
         self._Channel = ChatChannel.ChatChannelWorld  
         self._IsShowEnergyNum = true
         self:EnergyNumTitle()
     elseif id == "Rdo_Tag3" and checked then
+        if self._Channel == ChatChannel.ChatChannelCurrent then return end
         self._Channel = ChatChannel.ChatChannelCurrent
     elseif id == "Rdo_Tag4" and checked then
+        if self._Channel == ChatChannel.ChatChannelTeam then return end
         self._Channel = ChatChannel.ChatChannelTeam
     elseif id == "Rdo_Tag5" and checked then
+        if self._Channel == ChatChannel.ChatChannelGuild then return end
         self._Channel = ChatChannel.ChatChannelGuild
     elseif id == "Rdo_Tag6" and checked then
+        if self._Channel == ChatChannel.ChatChannelCombat then return end
         self._Channel = ChatChannel.ChatChannelCombat
     elseif id == "Rdo_Tag7" and checked then
+        if self._Channel == ChatChannel.ChatChannelSocial then return end
         self._Channel = ChatChannel.ChatChannelSocial
         self:OpenRecentList()
         return
     elseif id == "Rdo_Tag8" and checked then
+        if self._Channel == ChatChannel.ChatChannelRecruit then return end
         self._Channel = ChatChannel.ChatChannelRecruit
     end
     CPageFriendChat.Instance():Hide()
     self:GetChannelToToggle(self._Channel)
+    self._IsShowQuickMsg = false
+    self._Frame_QuickMsg:SetActive(self._IsShowQuickMsg)
 end
 
 def.method().OnSend = function(self)
     if self._Input_Chat == nil then return end
     local strText = self._Input_Chat.text
     if strText == "" or strText == nil then return end
-    -- if not self:CheckValid() then
-    --     return
-    -- else
+
     if string.len(strText) <= 0 then
-        -- FlashTip("Please Input Text!", "tip", 2)
         game._GUIMan: ShowTipText(StringTable.Get(13019),true)
-        -- warn("Please Input Text!")
         return
     end
-    local BAGTYPE = require "PB.net".BAGTYPE
-    if self:HideDebugLogFPS(strText) == false then return end
+
+    if self:HideDebugLogFPS(strText) then return end
 
     local msg = ChatManager.Instance():NewMsgEx()
     msg.RoleId = game._HostPlayer._ID
     msg.PlayerName = game._HostPlayer._InfoData._Name
     msg.Channel = self._Channel
     local itemInfo = CPanelEmotions.Instance():IsSendItemLink()
+
+    local itemTemplate = nil
     if itemInfo ~= nil then 
         self._ChatType = Chattype.ChatTypeItemInfo
         self._ItemIndex = itemInfo._Slot
@@ -464,6 +502,30 @@ def.method().OnSend = function(self)
             self._ItemType = BAGTYPE.BACKPACK
         end
     end
+
+    if self._ItemIndex > 0 then
+        if self._ItemType == BAGTYPE.ROLE_EQUIP then 
+            itemTemplate = game._HostPlayer._Package._EquipPack:GetItemBySlot(self._ItemIndex)._Template
+        elseif self._ItemType == BAGTYPE.BACKPACK then
+            itemTemplate = game._HostPlayer._Package._NormalPack:GetItemBySlot(self._ItemIndex)._Template
+        end
+    end
+
+    if self._ChatType == Chattype.ChatTypeItemInfo then
+        local index1 = string.find(strText, "<")
+        local index2 = string.find(strText, ">")
+        local strname = ""
+        if index1 ~= nil and index2 ~= nil then
+            strname = string.sub(strText ,index1 + 1, index2 -1)
+        end
+        if itemTemplate ~= nil and strname == itemTemplate.TextDisplayName then
+            local LinkBefore = "[l]#"..EnumDef.Quality2ColorHexStr[itemTemplate.InitQuality].." <"
+            local LinkAfter = ">[-]"
+            strText = string.gsub(strText, "<", LinkBefore)
+            strText = string.gsub(strText, ">", LinkAfter)
+        end
+    end
+
     local IsSendPositionLink = CPanelEmotions.Instance():IsSendPositionLink()
     if IsSendPositionLink then        
         self._ChatType = Chattype.ChatTypeLink
@@ -487,50 +549,35 @@ end
 
 -- Debug(c 0/1), Log(l 0/1), FPS(f 0/1) --->  1 开启, 0 关闭
 def.method("string", "=>" ,"boolean").HideDebugLogFPS = function(self, strText)
+    --[[
     if string.find(strText,"c") ~= nil then
-        local hidedebug = nil
-        if strText == "c 1" then
-            hidedebug = true
-        elseif strText == "c 0" then
-            hidedebug = false
-        end
-
-        if hidedebug ~= nil then
-            game:HideDebug(hidedebug)
-        else
+        if strText == "c 0" then
+            DebugTools.HideCmdPanel(true)
+            return true
+        elseif strText == "c 1" then
+            DebugTools.HideCmdPanel(false)
             return true
         end
-        
-        return false
     elseif string.find(strText,"l") ~= nil then    
-        local hidelog = nil 
-        if strText == "l 1" then
-            hidelog = true
-        elseif strText == "l 0" then
-            hidelog = false
-        end
-        if hidelog ~= nil then
-            game:HideLog(hidelog)
-        else
+        if strText == "l 0" then
+            DebugTools.HideLogPanel(true)
             return true
-        end        
-        return false
+        elseif strText == "l 1" then
+            DebugTools.HideLogPanel(false)
+            return true
+        end    
     elseif string.find(strText,"f") ~= nil then 
-        local hideFPS = nil
-        if strText == "f 1" then
-            hideFPS = true
-        elseif strText == "f 0" then
-            hideFPS = false
-        end
-        if hideFPS ~= nil then
-            game:HideFPSPing(hideFPS)
-        else
+        if strText == "f 0" then
+            DebugTools.HideFpsPingPanel(true)
+            return true
+        elseif strText == "f 1" then
+            DebugTools.HideFpsPingPanel(false)
             return true
         end
-        return false
-    else
-        return true
     end
+    --]]
+
+    return false
 end
 
 -- 物品链接信息
@@ -659,6 +706,9 @@ def.method("table").ShowOneChatMsgEx = function(self,msg)
                 if msg.RoleId == game._HostPlayer._ID then --是玩家自己发的
                     -- 玩家自己发送成功,清空发送
                     self._Input_Chat.text = ""
+                    if self._FirstLockChat then
+                        self._IsHostPlayerChat = true
+                    end
                     self:InstMeChat()
                     GUITools.SetHeadIcon(GUITools.GetChild(self._Chatobj , 1),headIconPath)
                     local leveltext = GUITools.GetChild(self._Chatobj , 2)
@@ -689,7 +739,8 @@ def.method("table").ShowOneChatMsgEx = function(self,msg)
                         GUI.SetTextAndChangeLayout(chatText, tostring(msg.StrMsg), 340)                                         
                     end
                 else
-                    self:InstPlayerChat()        
+                    self:InstPlayerChat()    
+                    self._IsHostPlayerChat = false    
                     local playerNametext = GUITools.GetChild(self._Chatobj , 5)
                     GUI.SetText(playerNametext, "<color=#A27A56FF>" .. msg.PlayerName .."</color>")
                     GUITools.SetHeadIcon(GUITools.GetChild(self._Chatobj , 1),headIconPath)                    
@@ -732,8 +783,8 @@ def.method("table").ShowOneChatMsgEx = function(self,msg)
             local chatcfg = _G.ChatCfgTable.Channel[msg.Channel]
             GUI.SetText(lab_channel, "<color=#".. chatcfg.channelcolor .. ">" .. chatcfg.channelname .."</color>")
         end
-        self:ChatContentHeight() 
     end
+    self:ChatContentHeight()
 end
 
 --显示聊天窗口的所有聊天记录
@@ -859,30 +910,34 @@ def.method().ChatContentHeight = function(self)
     local ChatBGHeight = screenRect.w - 140 -- Top和Bottom固定值是140    --GameUtil.GetPreferredHeight(self._Panel:FindChild('Img_BG/Img_ChatBG'):GetComponent(ClassType.RectTransform))
     local BeforePositionHeight = BeforeHeight - ChatBGHeight
     self._AnchoredPositionHeight = chatObj:GetComponent(ClassType.RectTransform).anchoredPosition.y
-    -- warn("lidaming anchored ==" .. self._AnchoredPositionHeight , BeforePositionHeight, height) -- string.format("%d", self._AnchoredPositionHeight)
-    
-    -- 当前可视范围 > Mask
-    if height > ChatBGHeight then
-        local y = (height - ChatBGHeight) 
-        
-
-        if (BeforePositionHeight - self._AnchoredPositionHeight ) < 20 then
-            self._FirstLockChat = false
-        else
-            self._FirstLockChat = true
-        end
-        -- warn("lidaming y ==" , (BeforePositionHeight - self._AnchoredPositionHeight ), self._FirstLockChat) 
-        if self._FirstLockChat == true then
-            self._Btn_NewMsg:SetActive(true)
-        elseif self._FirstLockChat == false then
-            chatObj:GetComponent(ClassType.RectTransform).anchoredPosition = Vector2.New(0, y)
-            self._Btn_NewMsg:SetActive(false)  
-            return
-        end         
-        
-    elseif height <= ChatBGHeight then 
-        self._Btn_NewMsg:SetActive(false) 
-    end    
+    -- warn("lidaming anchored ==" .. self._AnchoredPositionHeight , BeforePositionHeight, height, BeforeHeight, ChatBGHeight) -- string.format("%d", self._AnchoredPositionHeight)
+    if self._FirstOpenChat or self._IsHostPlayerChat then
+        self._FirstOpenChat = false
+        self._IsHostPlayerChat = false
+        self:ChangeMsgPos() 
+    else
+        -- 当前可视范围 > Mask
+        if height > ChatBGHeight then
+            local y = (height - ChatBGHeight)
+            if (BeforePositionHeight - self._AnchoredPositionHeight ) < 20 then
+                self._FirstLockChat = false
+            else
+                self._FirstLockChat = true
+            end
+            -- warn("lidaming y ==" , (BeforePositionHeight - self._AnchoredPositionHeight ), self._FirstLockChat) 
+            if self._FirstLockChat == true then
+                self._Btn_NewMsg:SetActive(true)
+            elseif self._FirstLockChat == false then
+                chatObj:GetComponent(ClassType.RectTransform).anchoredPosition = Vector2.New(0, y)
+                self._Btn_NewMsg:SetActive(false)  
+                return
+            end         
+            
+        elseif height <= ChatBGHeight then 
+            chatObj:GetComponent(ClassType.RectTransform).anchoredPosition = Vector2.New(0, 0)
+            self._Btn_NewMsg:SetActive(false) 
+        end    
+    end
 end
 
 def.method().InstMeChat = function(self)
@@ -924,24 +979,12 @@ end
 
 --[[]]
 def.override("string", "string").OnEndEdit = function(self, id, str)
-    if string.find(id, "Input_QuickMsg") then    -- if id == 'Input_Chat' then
-        local index = tonumber(string.sub(id, string.len("Input_QuickMsg")+1,-1))
-        local item = self._QuickMsgObjList[index]
-        local QuickMsg_Input = GUITools.GetChild(item , 1):GetComponent(ClassType.InputField)
-        local FilterMgr = require "Utility.BadWordsFilter".Filter
-        local StrMsg = FilterMgr.FilterChat(str)
-        QuickMsg_Input.text = StrMsg
-    elseif string.find(id, "Input_Chat") then
-        self:OnSend()
+    if _G.IsWin() == false and string.find(id, "Input_Chat") then
+        -- self:OnSend()
+        self._Input_Chat.text = str
     end
 end
 
--- 当输入框变化
-def.override("string","string").OnValueChanged = function(self, id, str)
-	if id == "Input_Chat" then
-		self._Input_Chat.text = str
-	end
-end
 
 ------------------------------私聊-------------------------------
 -- 直接打开私聊 开始聊天
@@ -983,6 +1026,7 @@ def.override().OnDestroy = function(self)
     self._Frame_QuickMsg = nil 
     -- self._List_QuickMsg = nil
     self._QuickMsgList = {}
+    self:SaveQuickMsgToData()
     CPageFriendChat.Instance():Destroy()
 end
 

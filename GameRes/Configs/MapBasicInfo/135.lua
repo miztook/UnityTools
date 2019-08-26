@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Canyon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world02.png",
 	AssetPath = "Assets/Outputs/Scenes/World02.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[11027] = 
@@ -81,9 +82,9 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[148] = { x = 203.38, y = 74.90, z = 207.81, name = "库萨大营相位【个人】", worldId = 0, PkMode = 0 },
-			[457] = { x = 174.98, y = 70.08, z = 205.42, name = "第一阶段区域", worldId = 0, PkMode = 0 },
-			[458] = { x = 202.35, y = 69.70, z = 211.23, name = "第二阶段区域", worldId = 0, PkMode = 0 },
+			[148] = { x = 203.38, y = 74.90, z = 207.81, name = "库萨大营相位【个人】", worldId = 0, PkMode = 1 },
+			[457] = { x = 174.98, y = 70.08, z = 205.42, name = "第一阶段区域", worldId = 0, PkMode = 1 },
+			[458] = { x = 202.35, y = 69.70, z = 211.23, name = "第二阶段区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

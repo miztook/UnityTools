@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/Map_Bg_019.png",
 	AssetPath = "Assets/Outputs/Scenes/World05.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14069] = 
@@ -25,8 +26,8 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[438] = { x = 97.91, y = 62.78, z = -38.62, name = "声望无礼的挑战者", worldId = 0, PkMode = 0 },
-			[439] = { x = 127.89, y = 18.83, z = 150.75, name = "声望边界", worldId = 0, PkMode = 0 },
+			[438] = { x = 97.91, y = 62.78, z = -38.62, name = "声望无礼的挑战者", worldId = 0, PkMode = 1 },
+			[439] = { x = 127.89, y = 18.83, z = 150.75, name = "声望边界", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

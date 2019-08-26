@@ -1,8 +1,8 @@
 local MapInfo = 
 {
-	MapType = 3,
+	MapType = 4,
 	Remarks = "新手副本",
-	TextDisplayName = "아르카니아 균열",
+	TextDisplayName = "아카이아 균열",
 	Length = 512,
 	Width = 512,
 	NavMeshName = "Dungn00_EmpireRelicPrologue.navmesh",
@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/Map_Bg_Start.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn00_EmpireRelicPrologue.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14205] = 
@@ -28,9 +29,9 @@ local MapInfo =
 		},
 		[14204] = 
 		{
-			[1] = { x = -18.80, y = 71.02, z = 104.00, name = "맵5-트레이쿤 플랫폼【던전】-비행 몬스터3", level = 60, SortID = 6 },
-			[2] = { x = 2.00, y = 71.02, z = 138.70, name = "맵5-트레이쿤 플랫폼【던전】-비행 몬스터3", level = 60, SortID = 7 },
-			[3] = { x = 23.10, y = 71.02, z = 102.80, name = "맵5-트레이쿤 플랫폼【던전】-비행 몬스터3", level = 60, SortID = 8 },
+			[1] = { x = -18.80, y = 71.02, z = 104.00, name = "맵5 - 트레이쿤 플랫폼[던전] - 비행 몬스터 3", level = 60, SortID = 6 },
+			[2] = { x = 2.00, y = 71.02, z = 138.70, name = "맵5 - 트레이쿤 플랫폼[던전] - 비행 몬스터 3", level = 60, SortID = 7 },
+			[3] = { x = 23.10, y = 71.02, z = 102.80, name = "맵5 - 트레이쿤 플랫폼[던전] - 비행 몬스터 3", level = 60, SortID = 8 },
 		},
 		[14201] = 
 		{
@@ -48,7 +49,7 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[1] = { x = -5.00, y = 71.02, z = 111.21, name = "", worldId = 0, PkMode = 0 },
+			[1] = { x = -5.00, y = 71.02, z = 111.21, name = "", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

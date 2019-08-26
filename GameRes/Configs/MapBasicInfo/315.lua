@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/dragon.png",
 	AssetPath = "Assets/Outputs/Scenes/Dn_evn01_DNest.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[32072] = 
@@ -38,7 +39,7 @@ local MapInfo =
 		},
 		[32075] = 
 		{
-			[1] = { x = 8.26, y = -42.97, z = -77.55, name = "龙血蜥蜴", level = 55 },
+			[1] = { x = 8.26, y = -42.97, z = -77.55, name = "龙血蜥蜴", level = 48 },
 		},
 	},
 	Npc = 
@@ -48,8 +49,8 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[200] = { x = 7.58, y = -10.31, z = -63.30, name = "镜头调整区域", worldId = 0, PkMode = 0 },
-			[201] = { x = 8.10, y = -35.93, z = -13.50, name = "boss区域", worldId = 0, PkMode = 0 },
+			[200] = { x = 7.58, y = -10.31, z = -63.30, name = "镜头调整区域", worldId = 0, PkMode = 1 },
+			[201] = { x = 8.10, y = -35.93, z = -11.93, name = "boss区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 
@@ -199,7 +200,7 @@ local MapInfo =
 		},
 		[5] = 
 		{
-			x = 36.40, y = -37.55, z = -24.90, Type = 4,
+			x = 34.15, y = -37.55, z = -24.90, Type = 4,
 			Tid = 
 			{
 				[18] = 0,
@@ -207,7 +208,7 @@ local MapInfo =
 		},
 		[6] = 
 		{
-			x = 34.20, y = -36.55, z = 4.80, Type = 4,
+			x = 35.06, y = -36.55, z = 4.80, Type = 4,
 			Tid = 
 			{
 				[18] = 0,

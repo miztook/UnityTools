@@ -73,10 +73,12 @@ def.override("dynamic").OnData = function(self,data)
         GUI.SetText(self._Lab_EntranceLimitLevel, tostring(game._HostPlayer._InfoData._Level))
         self.Btn_Enter1:SetActive(true)
         self.Btn_Enter2:SetActive(false)
+        self._Btn_Team:SetActive(false)
     else
         GUI.SetText(self._Lab_EntranceLimitLevel, levelStr)
         self.Btn_Enter1:SetActive(false)
         self.Btn_Enter2:SetActive(true)
+        self._Btn_Team:SetActive(true)
     end
     
     GUI.SetText(self._Lab_EntranceLimitTitle, dungeondata.MinRoleNum .. '~'.. dungeondata.MaxRoleNum)

@@ -7,9 +7,7 @@ local CMallPageFund = require "GUI.CMallPageFund"
 local CMallPageMontylyCard = require "GUI.CMallPageMontylyCard"
 local CMallPageMysteryShop = require "GUI.CMallPageMysteryShop"
 local CMallPageNewPlayerBag = require "GUI.CMallPageNewPlayerBag"
-local CMallPagePetEggShop = require "GUI.CMallPagePetEggShop"
 local CMallPageWebView = require "GUI.CMallPageWebView"
-local CMallPageElf = require "GUI.CMallPageElf"
 local CMallPageCommonTipShop = require "GUI.CMallPageCommonTipShop"
 local CMallPageRecommend = require "GUI.CMallPageRecommend"
 
@@ -39,10 +37,10 @@ def.method("table", "table", "=>", "table").GenerateMallPage = function(self, pa
         page = CMallPageMontylyCard.new()
     elseif pageType == EFormatType.WebViewTemp then
         page = CMallPageWebView.new()
-    elseif pageType == EFormatType.SprintGiftTemp then
-        page = CMallPageElf.new()
-    elseif pageType == EFormatType.PetDropRuleTemp then
-        page = CMallPagePetEggShop.new()
+--    elseif pageType == EFormatType.SprintGiftTemp then
+--        page = CMallPageElf.new()
+--    elseif pageType == EFormatType.PetDropRuleTemp then
+--        page = CMallPagePetEggShop.new()
     elseif pageType == EFormatType.RandomGiftBagTemp then
         page = CMallPageCommonTipShop.new()
     elseif pageType == EFormatType.RecommendTemp then

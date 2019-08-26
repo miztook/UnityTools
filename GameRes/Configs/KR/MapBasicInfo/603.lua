@@ -2,7 +2,7 @@ local MapInfo =
 {
 	MapType = 2,
 	Remarks = "",
-	TextDisplayName = "거센 파도",
+	TextDisplayName = "교활한 굴라의 족장",
 	Length = 800,
 	Width = 800,
 	NavMeshName = "Dungn03_QXGJ01.navmesh",
@@ -11,11 +11,12 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Dungeon",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/mapD03.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn03_QXGJ01.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[36003] = 
 		{
-			[1] = { x = -9.00, y = 76.02, z = 85.44, name = "카프클라마바스", level = 36,IsBoss = true },
+			[1] = { x = -9.00, y = 76.02, z = 85.44, name = "포스터빌포스", level = 36,IsBoss = true },
 		},
 	},
 	Npc = 

@@ -36,6 +36,7 @@ local _KeepUIs =
     "CPanelBattleMiddle",
     "CPanelBattleResult",
 	"CPanelPowerSaving",
+    "CMsgBoxPanel",
 }
 
 -- real UI management unit
@@ -64,12 +65,11 @@ end
 def.method().Init = function(self)
     self:GetAllOriginalPos()
     self._UIManCore:Init()
-
-    --GameObject.Find("UIRootCanvas/")
+    self:ReInitTopPate(true)
 end
 
-def.method().InitTopPate = function(self)
-    CPate.Setup()
+def.method("boolean").ReInitTopPate = function(self, is_reloadPrefab)
+    CPate.Setup(is_reloadPrefab)
 end
 
 -- 单个节点下的Pate数量限制，过多效率有问题
@@ -167,7 +167,7 @@ def.method("table").CloseAll = function(self, except)
     if not IsNil(UIHead) and UIHead:IsShow() then
         UIHead:HideProgressBoard(false, true)
     end
-    MsgBox.CloseAll()
+    MsgBox.ClearAllExceptDisconnect()
     self._UIManCore:CloseAll(except)
 end
 
@@ -179,7 +179,7 @@ end
 def.method().CloseSubPanelLayer = function(self)
 	--local CExteriorMan = require "Main.CExteriorMan"
 	--CExteriorMan.Instance():Quit()
-    MsgBox.CloseAll()
+    --MsgBox.ClearAllBoxes()
     self._UIManCore:CloseByLayer(self._UIManCore._UISetting.Sorting_Layer.SubPanel)
 end
 
@@ -189,7 +189,6 @@ def.method().Clear = function(self)
     self._UIManCore:Clear()
 
     -- 清除缓存
-    CPate.Clear()
     self._UIIsHide = false
     self._UIIsHideNew = false
 end
@@ -221,7 +220,7 @@ local UIDeadUnAllowList =
     "Panel_WorldMapName",
     "UI_CommonBuyGuide",
     "UI_Dungeon_End",
-   
+    "Panel_Circle",
 }
 
 -- 界面打开死亡限制
@@ -326,7 +325,7 @@ def.method().CloseCircle = function (self)
     GameUtil.EnableBlockCanvas(false)
     self:Close("CPanelCircle")
 
-   -- warn("CloseCircle: ", debug.traceback())
+   --warn("CloseCircle: ", debug.traceback())
 end
 
 def.method("string", "=>", "boolean").IsShow = function(self, panel_name)
@@ -424,7 +423,7 @@ def.method("number", "dynamic").ShowErrorCodeMsg = function(self, errId, params)
         self:ShowTipText(message, true)
     elseif curType == ESystemNotifyDisplayType.DungeonMessage then
         -- 副本信息
-        self:ShowAttentionTips(message, 3, 1.5)
+        self:ShowAttentionTips(message, 3, template.DurationSeconds > 0 and template.DurationSeconds or 1.5)
     elseif curType == ESystemNotifyDisplayType.SocialMessage then 
         -- 好友系统通知
         game._CFriendMan:AddFriendSystemNotifyMsg(message)
@@ -449,7 +448,13 @@ def.method("number", "dynamic").ShowErrorCodeMsg = function(self, errId, params)
         -- 默认为 消息框
         local title = StringTable.Get(8)
         -- message = string.format("%s(%d)", message, errId)
-        MsgBox.ShowSystemMsgBox(errId, message, title, MsgBoxType.MBBT_OK)
+        local close_type = EnumDef.CloseType.ClickAnyWhere
+        if template and template.IsShowCloseBtn then
+            close_type = EnumDef.CloseType.CloseBtn
+        else
+            close_type = EnumDef.CloseType.ClickAnyWhere
+        end
+        MsgBox.ShowMsgBox(message, title, close_type, MsgBoxType.MBBT_OK)
     end
 
     -- syncChannel 同步频道
@@ -475,7 +480,7 @@ def.method("number", "dynamic").ShowErrorCodeMsg = function(self, errId, params)
 
         -- 同步频道为副本提示，并且显示方式不是副本提示
         elseif syncChannel == ESyncChannel.DungeonNotify and curType ~= ESystemNotifyDisplayType.DungeonMessage then
-            self:ShowAttentionTips(message, 3 , 1.5)
+            self:ShowAttentionTips(message, 3 , template.DurationSeconds > 0 and template.DurationSeconds or 1.5)
         
         -- 同步频道为好友频道，并且显示方式不是好友频道
         elseif syncChannel == ESyncChannel.SocialChannel and curType ~= ESystemNotifyDisplayType.SocialMessage then
@@ -602,9 +607,11 @@ def.method().GetAllOriginalPos = function(self)
     MoveUI["CPanelUIBuffEnter"].Distance = -330
     MoveUI["CPanelUIBuffEnter"].Type = "MoveX"
 end
-
+--[[
 -- 隐藏移动常驻UI false = 还原  true 隐藏
 def.method("boolean", "number", "string", "dynamic").SetNormalUIMoveToHide = function(self, isHide, time, panelName, data)
+    --warn("SetNormalUIMoveToHide *****************"..tostring(isHide),debug.traceback())
+
     if isHide then
         if self._UIIsHide then return end
 
@@ -639,15 +646,20 @@ def.method("boolean", "number", "string", "dynamic").SetNormalUIMoveToHide = fun
                         bar:SetActive(false)
                     end
                 end
-                if isHide and k == "CPanelTracker" or k == "CPanelMainChat" then
-                    game._CGuideMan:IsShowGuide(false,panelClass._Panel.name)
-                end
+                --if isHide and k == "CPanelTracker" or k == "CPanelMainChat" then
+                --    game._CGuideMan:IsShowGuide(false,panelClass._Panel.name)
+                --end
             end
+        end
+        if isHide then
+            game._CGuideMan:IsShowGuide(false,"")
         end
     else
         if not self._UIIsHide then return end
 
         self._UIIsHide = false
+        local cbMax = 0
+        local cbCur = 0
         for k, v in pairs(MoveUI) do
             local panelClass = require("GUI." .. k).Instance()
             if panelClass ~= nil and not IsNil(panelClass._Panel) then
@@ -655,20 +667,29 @@ def.method("boolean", "number", "string", "dynamic").SetNormalUIMoveToHide = fun
                 if v.Pos ~= nil then
                     movePos = Vector3.New(v.Pos.x, v.Pos.y, v.Pos.z)
                     local function TweenComplete()
-                        if not isHide then
-                            game._CGuideMan:IsShowGuide(true,"Panel_Main_QuestN(Clone)")
-                            game._CGuideMan:IsShowGuide(true,"UI_Main_Chat(Clone)")
+                        --if not isHide then
+                        --    game._CGuideMan:IsShowGuide(true,"Panel_Main_QuestN(Clone)")
+                        --    game._CGuideMan:IsShowGuide(true,"UI_Main_Chat(Clone)")
+                        --end
+                        cbCur = cbCur + 1
+                        if not isHide and cbCur == cbMax then
+                            game._CGuideMan:IsShowGuide(true,"")
                         end
                     end
+
+                    cbMax = cbMax + 1
                     GUITools.DoLocalMove(panelClass._Panel, movePos, time, nil, TweenComplete)
                 end
             end
         end
     end
 end
+]]--
 
 -- 新版隐藏常驻UI(DOTweenAnimation)
 def.method("boolean", "function").SetMainUIMoveToHide = function (self, isHide, callback)
+    --warn("SetMainUIMoveToHide *****************"..tostring(isHide),debug.traceback())
+
     if isHide == self._UIIsHideNew then
         warn("As required, MainUI hide status has been ", isHide)
         return
@@ -682,29 +703,39 @@ def.method("boolean", "function").SetMainUIMoveToHide = function (self, isHide, 
     local otherTweenId = isHide and "2" or "1"
     for k, _ in pairs(MoveUI) do
         local panelClass = require("GUI." .. k).Instance()
-        if panelClass ~= nil and panelClass:IsShow() and not IsNil(panelClass._Panel) then
+        if panelClass ~= nil and not IsNil(panelClass._Panel) then
             local do_tween_player = panelClass._Panel:GetComponent(ClassType.DOTweenPlayer)
             if do_tween_player ~= nil then
-                bStartTween = true
-                -- self._TweenAllReadyMap[k] = false
-                do_tween_player:Stop(otherTweenId) -- 停止另外一个动效
-                do_tween_player:Restart(tweenId)
+                if panelClass:IsShow() then
+                        bStartTween = true
+                        -- self._TweenAllReadyMap[k] = false
+                        do_tween_player:Stop(otherTweenId) -- 停止另外一个动效
+                        do_tween_player:Restart(tweenId)
 
-                -- 特殊处理
-                if isHide then
-                    if k == "CPanelMainChat" then
-                        panelClass:IsShowRelaxPanel(false)
-                    elseif k == "CPanelSystemEntrance" then
-                        panelClass:ShowFloatingFrame(false)
-                    elseif k == "CPanelUIHead" then
-                        panelClass:OnPKFight(false)
+                    -- 特殊处理
+                    if isHide then
+                        if k == "CPanelMainChat" then
+                            panelClass:IsShowRelaxPanel(false)
+                        elseif k == "CPanelSystemEntrance" then
+                            panelClass:ShowFloatingFrame(false)
+                        elseif k == "CPanelUIHead" then
+                            panelClass:OnPKFight(false)
+                        end
                     end
-                end
-                if isHide and k == "CPanelTracker" or k == "CPanelMainChat" then
-                    game._CGuideMan:IsShowGuide(false,panelClass._Panel.name)
+                    --if isHide and k == "CPanelTracker" or k == "CPanelMainChat" then
+                    --    game._CGuideMan:IsShowGuide(false,panelClass._Panel.name)
+                    --end
+                else
+                    --warn("11111111111111111111111")
+                    do_tween_player:Stop(tweenId)
+                    do_tween_player:Stop(otherTweenId)
+                    do_tween_player:GoToEndPos(tweenId) -- 直接到指定位置
                 end
             end
         end
+    end
+    if isHide then
+        game._CGuideMan:IsShowGuide(false,"")
     end
     self:Close("CPanelChatNew")
     if not bStartTween then
@@ -718,9 +749,12 @@ def.method("boolean", "function").SetMainUIMoveToHide = function (self, isHide, 
             if callback ~= nil then 
                 callback()
             end
+            --if not isHide then
+            --    game._CGuideMan:IsShowGuide(true,"Panel_Main_QuestN(Clone)")
+            --    game._CGuideMan:IsShowGuide(true,"UI_Main_Chat(Clone)")
+            --end
             if not isHide then
-                game._CGuideMan:IsShowGuide(true,"Panel_Main_QuestN(Clone)")
-                game._CGuideMan:IsShowGuide(true,"UI_Main_Chat(Clone)")
+                game._CGuideMan:IsShowGuide(true,"")
             end
         end
         self._OnTweenCompleteCallback = TweenComplete
@@ -826,7 +860,7 @@ def.method("number").OpenPanelByFuncId = function(self, funcId)
         -- 商城
         --TODO()
         self:Open("CPanelMall", nil)
-        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Open_Mall, 0)
+--        CSoundMan.Instance():Play2DAudio(PATH.GUISound_Open_Mall, 0)
     elseif funcId == FuncType.Auction then
         -- 拍卖
         --TODO("敬请期待")
@@ -850,12 +884,15 @@ def.method("number").OpenPanelByFuncId = function(self, funcId)
         -- game._CManualMan:SendC2SManualDataSync()
     elseif funcId == FuncType.Task then
         self:Open("CPanelUIQuestList", nil)
+        -- CSoundMan.Instance():Play2DAudio(PATH.GUISound_Open_Quest, 0)
     elseif funcId == FuncType.WingEnter then
         self:Open("CPanelUIWing", nil)
     elseif funcId == FuncType.Activity then
         self:Open("CPanelUIActivity", nil)
     elseif funcId == FuncType.Power then
         game._CPowerSavingMan:BeginSleeping()
+    elseif funcId == FuncType.Summon then
+        self:Open("CPanelSummon", nil)
     else
         warn("没有设置的功能界面，请检查ID:", funcId)
     end

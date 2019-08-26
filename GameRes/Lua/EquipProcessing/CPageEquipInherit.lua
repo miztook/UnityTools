@@ -13,10 +13,6 @@ local CEquipUtility = require "EquipProcessing.CEquipUtility"
 local NotifyMoneyChangeEvent = require "Events.NotifyMoneyChangeEvent"
 local CCommonBtn = require "GUI.CCommonBtn"
 
-local function SendFlashMsg(msg, bUp)
-    game._GUIMan:ShowTipText(msg, bUp)
-end
-
 --存储UI的集合，便于OnHide()时置空
 def.field("table")._PanelObject = BlankTable
 def.field("table")._Parent = nil
@@ -204,6 +200,13 @@ def.method().Init = function(self)
             Old = self._Parent:GetUIObject('Lab_InheritedPropertyOldValue'),
             New = self._Parent:GetUIObject('Lab_InheritedPropertyNewValue'),
         }
+        Group_Property.PVP_Property = 
+        {
+            Root = self._Parent:GetUIObject('Img_InheritOrign_PVP_Property'),
+            Name = self._Parent:GetUIObject('Lab_InheritedPVPPropertyName'),
+            Old = self._Parent:GetUIObject('Lab_InheritedPVPPropertyOldValue'),
+            New = self._Parent:GetUIObject('Lab_InheritedPVPPropertyNewValue'),
+        }
     end
 
     do
@@ -260,6 +263,9 @@ def.method().UpdateSelectItem = function(self)
     local bShowReason = (bShow and not bCanInherit)
     root.Lab_InheritTip:SetActive( bShow )
     root.Lab_None_Selection:SetActive( not bCanInherit )
+    root.Btn_Drop_OrignItem:SetActive( bShow )
+    root.Btn_AddOrignItem:SetActive( not bShow )
+
     if not bCanInherit then
         GUI.SetText(root.Lab_None_Selection, StringTable.Get(bShow and 10971 or 10970))
     end
@@ -270,6 +276,7 @@ def.method().UpdateSelectItem = function(self)
                 [EItemIconTag.Bind] = self._ItemData.ItemData:IsBind(),
                 [EItemIconTag.StrengthLv] = self._ItemData.ItemData:GetInforceLevel(),
                 [EItemIconTag.Equip] = (self._ItemData.PackageType == BAGTYPE.ROLE_EQUIP),
+                [EItemIconTag.Grade] = self._ItemData.ItemData:GetGrade(),
             }
             IconTools.InitItemIconNew(root.SelectOrignItem, self._ItemData.ItemData._Tid, setting)
         end
@@ -288,6 +295,7 @@ def.method().UpdateSelectItem = function(self)
                 [EItemIconTag.Bind] = self._TargetItemData.ItemData:IsBind(),
                 [EItemIconTag.StrengthLv] = self._TargetItemData.ItemData:GetInforceLevel(),
                 [EItemIconTag.Equip] = (self._TargetItemData.PackageType == BAGTYPE.ROLE_EQUIP),
+                [EItemIconTag.Grade] = self._TargetItemData.ItemData:GetGrade(),
             }
             IconTools.InitItemIconNew(root.SelectTargetItem, self._TargetItemData.ItemData._Tid, setting)
         end
@@ -307,22 +315,35 @@ def.method().UpdateProperty = function(self)
     local bShow = (self._ItemData ~= nil and
                    self._TargetItemData ~= nil and
                    self._ItemData.ItemData:CanInherit())
+
     root.Group_Property.Root:SetActive( bShow )
 
     if bShow then
-        local Group_Property = root.Group_Property
-        GUI.SetText(Group_Property.Reinforce.Name, StringTable.Get(152))
-
+        local itemData = self._ItemData.ItemData
         local targetItemData = self._TargetItemData.ItemData
+        local bHasPVP = targetItemData:HasPVPProperty()
+
+        local Group_Property = root.Group_Property
+        Group_Property.PVP_Property.Root:SetActive( bHasPVP )
+        GUI.SetText(Group_Property.Reinforce.Name, StringTable.Get(152))
+        
         local fightElement = CElementData.GetAttachedPropertyTemplate(targetItemData._BaseAttrs.ID)
         GUI.SetText(Group_Property.Property.Name, fightElement.TextDisplayName)
+        if bHasPVP then
+            local pvpData = CElementData.GetAttachedPropertyTemplate(targetItemData._PVPFightProperty.ID)
+            GUI.SetText(Group_Property.PVP_Property.Name, pvpData.TextDisplayName)
+        end
 
         local baseVal = targetItemData._BaseAttrs.Value
+        local basePVPVal = bHasPVP and targetItemData._PVPFightProperty.Value or 0
         local oldLv = 0
-        local oldVal = 0 
+        local oldVal = 0
+        local oldPVPVal = 0
+
         do
         -- 旧属性
             local curVal = baseVal
+            local curPVPVal = basePVPVal
             local lv = targetItemData._InforceLevel
             GUI.SetText(Group_Property.Reinforce.Old, tostring(lv))
 
@@ -330,17 +351,22 @@ def.method().UpdateProperty = function(self)
                 local InforceInfoOld = CEquipUtility.GetInforceInfoByLevel(targetItemData._ReinforceConfigId, lv)
                 local fixedIncVal = math.ceil(baseVal * InforceInfoOld.InforeValue / 100)
                 curVal = targetItemData._BaseAttrs.Value + math.max(fixedIncVal, lv)
+                curPVPVal = bHasPVP and targetItemData._PVPFightProperty.Value + math.max(fixedIncVal, lv)
             end
             oldLv = lv
             oldVal = curVal
+            oldPVPVal = curPVPVal
             GUI.SetText(Group_Property.Property.Old, GUITools.FormatNumber(curVal))
+            if bHasPVP then
+                GUI.SetText(Group_Property.PVP_Property.Old, GUITools.FormatNumber(curPVPVal))
+            end
         end
 
         do
         -- 新属性
-            local itemData = self._ItemData.ItemData
-
             local curVal = baseVal
+            local curPVPVal = basePVPVal
+
             local inforeLv = itemData._InforceLevel     -- 材料的强化等级
             local itemLv = targetItemData._Level        -- 目标的装备等级
             local inheritInfo = CElementData.GetInheritInfo(itemLv, inforeLv)
@@ -354,6 +380,7 @@ def.method().UpdateProperty = function(self)
                 local InforceInfoOld = CEquipUtility.GetInforceInfoByLevel(targetItemData._ReinforceConfigId, nextLv)
                 local fixedIncVal = math.ceil(curVal * InforceInfoOld.InforeValue / 100)
                 curVal = targetItemData._BaseAttrs.Value + math.max(fixedIncVal, nextLv)
+                curPVPVal = bHasPVP and targetItemData._PVPFightProperty.Value + math.max(fixedIncVal, nextLv) or 0
             end
 
             local fmtId = 0
@@ -368,6 +395,9 @@ def.method().UpdateProperty = function(self)
 
             GUI.SetText(Group_Property.Property.New, string.format(StringTable.Get(fmtId), GUITools.FormatNumber(curVal)))
             GUI.SetText(Group_Property.Reinforce.New, string.format(StringTable.Get(fmtId), nextLv))
+            if bHasPVP then
+                GUI.SetText(Group_Property.PVP_Property.New, string.format(StringTable.Get(fmtId), GUITools.FormatNumber(curPVPVal)))
+            end
         end
     end
 end
@@ -417,7 +447,7 @@ def.method("boolean", "=>", "boolean").CheckCanInherit = function(self, bShowRea
     local bRet = true
     local function ShowReason(msg)
         if bShowReason then
-            SendFlashMsg(msg, false)
+            TeraFuncs.SendFlashMsg(msg, false)
         end
     end
 
@@ -453,6 +483,7 @@ def.method("userdata", "number", "table").OnInitItem = function(self, item, inde
                 [EItemIconTag.Bind] = itemData.ItemData:IsBind(),
                 [EItemIconTag.StrengthLv] = itemData.ItemData:GetInforceLevel(),
                 [EItemIconTag.Equip] = (itemData.PackageType == BAGTYPE.ROLE_EQUIP),
+                [EItemIconTag.Grade] = itemData.ItemData:GetGrade(),
             }
             IconTools.InitItemIconNew(ItemIconNew, itemData.ItemData._Tid, setting)
             Img_UnableClick:SetActive(not itemData.ItemData:CanInherit())
@@ -461,6 +492,7 @@ def.method("userdata", "number", "table").OnInitItem = function(self, item, inde
                 [EItemIconTag.Bind] = itemData.ItemData:IsBind(),
                 [EItemIconTag.StrengthLv] = itemData.ItemData:GetInforceLevel(),
                 [EItemIconTag.Equip] = (itemData.PackageType == BAGTYPE.ROLE_EQUIP),
+                [EItemIconTag.Grade] = itemData.ItemData:GetGrade(),
             }
             IconTools.InitItemIconNew(ItemIconNew, itemData.ItemData._Tid, setting)
             local bIsOrign = self._ItemData == itemData
@@ -471,11 +503,6 @@ def.method("userdata", "number", "table").OnInitItem = function(self, item, inde
                 -- 已装备 不置灰
                 bUnableClick = false
             else
-                warn("itemData.ItemData:GetInforceLevel() <= self._ItemData.ItemData:GetInforceLevel()",
-                 itemData.ItemData:GetInforceLevel(),
-                 self._ItemData.ItemData:GetInforceLevel())
-
-
                 if self._ItemData ~= nil and self._TargetItemData ~= nil then
                     -- 已全部装备
                     bUnableClick = true
@@ -506,7 +533,7 @@ def.method("userdata", "number", "table").OnSelectItem = function(self, item, in
 
         if self._ItemData == nil then
             if not itemData.ItemData:CanInherit() then
-                SendFlashMsg(StringTable.Get(31333), false)
+                TeraFuncs.SendFlashMsg(StringTable.Get(31333), false)
                 return
             end
 
@@ -514,12 +541,12 @@ def.method("userdata", "number", "table").OnSelectItem = function(self, item, in
             PlayAddItemAudio()
         else
             if self._ItemData == itemData then
-                SendFlashMsg(StringTable.Get(31334), false)
+                TeraFuncs.SendFlashMsg(StringTable.Get(31334), false)
                 return
             end
 
             if itemData.ItemData._EquipSlot ~= self._ItemData.ItemData._EquipSlot then
-                SendFlashMsg(StringTable.Get(31335), false)
+                TeraFuncs.SendFlashMsg(StringTable.Get(31335), false)
                 return
             end
             if self._ItemData and self._TargetItemData then

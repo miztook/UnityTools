@@ -153,12 +153,12 @@ struct SStringTableToken
 {
 	SLocation location;
 	int text_id;
-	std::string className;
+	std::string classOrFileName;
 
 	bool operator<(const SStringTableToken& rhs) const
 	{
-		if (className != rhs.className)
-			return className < rhs.className;
+		if (classOrFileName != rhs.classOrFileName)
+			return classOrFileName < rhs.classOrFileName;
 		else if (location != rhs.location)
 			return location < rhs.location;
 		else
@@ -167,7 +167,7 @@ struct SStringTableToken
 
 	bool operator==(const SStringTableToken& rhs) const
 	{
-		return className == rhs.className && location == rhs.location && text_id == rhs.text_id;
+		return classOrFileName == rhs.classOrFileName && location == rhs.location && text_id == rhs.text_id;
 	}
 };
 
@@ -175,6 +175,7 @@ using SOutputEntry3 = std::tuple<std::string, std::string, int>;
 using SOutputEntry4 = std::tuple<std::string, std::string, int, int>;
 using SOutputEntry5 = std::tuple<std::string, std::string, std::string, int, int>;
 using SOutputEntry7 = std::tuple<std::string, std::string, int, int, std::string, int, int>;
+using SOutputEntry5_SISII = std::tuple<std::string, int, std::string, int, int>;
 
 struct STableRemoveCheckEntry
 {
@@ -227,7 +228,7 @@ struct SLuaClass
 
 struct SLuaFile
 {
-	std::string strFileName;
+	std::string strName;
 
 	std::set<SStringTableToken>		stringTableUsedList;
 
@@ -266,6 +267,9 @@ public:
 	SLuaClass* GetLuaClass(const char* szName);
 	SLuaClass* AddLuaClass(const char* szName);
 
+	SLuaFile* GetLuaFile(const char* szName);
+	SLuaFile* AddLuaFile(const char* szName);
+
 	bool CollectAndCheckNetProto();		//net.proto
 	bool CollectAndCheckTemplateProto();	//Template.proto
 
@@ -274,7 +278,7 @@ private:
 
 private:
 	bool BuildLuaClass(AFile* pFile);
-	bool BuildLuaFile(AFile* pFile);
+	bool BuildLuaFile(AFile* pFile, const char* fileName);
 
 	bool GetLuaClassUsedMembers(AFile* pFile, const std::map<std::string, SLuaClass>& luaClass);
 
@@ -290,8 +294,7 @@ private:
 	std::string HandleLine_VirtualDefine(const char* szLine, int nLine, SLuaClass* current);
 	std::string HandleLine_OverrideDefine(const char* szLine, int nLine, SLuaClass* current);
 	std::string HandleLine_StaticDefine(const char* szLine, int nLine, SLuaClass* current);
-	void HandleLine_StringTableUse(const char* szLine, int nLine, SLuaClass* current);
-
+	
 	void HandleLine_ErrorToken(const char* szLine, int nLine, const char* filename);
 	void HandleLine_TableRemoveCheck(const char* szLine, int nLine, const char* filename);
 	void HandleLine_ErrorDefine(const char* szLine, int nLine, SLuaClass* current);
@@ -304,12 +307,21 @@ private:
 
 	void Get_SelfFieldUsedIndirect(const char* szLine, int nLine, SLuaClass* current);		//自己的间接使用方法
 	void Get_SelfMethodUsedIndirect(const char* szLine, int nLine, SLuaClass* current);		//自己的间接使用方法
+	
+	void HandleLine_StringTableUse(const char* szLine, int nLine, SLuaClass* current);
 	void Get_AllMethodUsedIndirect(const char* szLine, int nLine, SLuaClass* current);		//所有的间接使用方法
 	void Get_AllSpecialMethodUsedIndirect(const char* szLine, int nLine, SLuaClass* current);
-
 	void Get_GlobalFieldUsed(const char* szLine, int nLine, SLuaClass* current);		//使用的全局字段
 	void Get_GlobalMethodUsed(const char* szLine, int nLine, SLuaClass* current);
 
+	//LuaFile
+	void HandleLine_StringTableUse(const char* szLine, int nLine, SLuaFile* luaFile);
+	void Get_AllMethodUsedIndirect(const char* szLine, int nLine, SLuaFile* luaFile);
+	void Get_AllSpecialMethodUsedIndirect(const char* szLine, int nLine, SLuaFile* luaFile);
+	void Get_GlobalFieldUsed(const char* szLine, int nLine, SLuaFile* luaFile);
+	void Get_GlobalMethodUsed(const char* szLine, int nLine, SLuaFile* luaFile);
+
+	//luaClass
 	void Check_MethodDefinitionToFile(FILE* pFile, const SLuaClass& luaClass);				//检查方法定义，1: 参数个数匹配 2: 参数和返回值是否已经定义或者是基础类型
 	void Check_DuplicateField(const SLuaClass& luaClass);
 	void Check_DuplicateMethod(const SLuaClass& luaClass);
@@ -319,12 +331,22 @@ private:
 
 	void Check_FieldUsedIndirectToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry5>& entrySet);
 	void Check_MethodUsedIndirectToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry5>& entrySet, std::set<SOutputEntry7>& entryParamSet);
-	void Check_AllMethodusedIndirectToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry7>& entryMethodSet);
-	void Check_AllSpecialMethodusedIndirectToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry7>& entryMethodSet);
-	void Check_AllGlobalFieldUsedToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry5>& entrySet);
-	void Check_AllGlobalMethodUsedToFile(FILE* pFile, const SLuaClass& luaClass, std::set<SOutputEntry5>& entrySet, std::set<SOutputEntry7>& entryParamSet);
+	
+	//luaClass & luaFile
+	template <class T>
+		void Check_AllMethodusedIndirectToFile(FILE* pFile, const T& luaClass, std::set<SOutputEntry5_SISII>& entryMethodSet);
+	
+	template <class T>
+		void Check_AllSpecialMethodusedIndirectToFile(FILE* pFile, const T& luaClass, std::set<SOutputEntry5_SISII>& entryMethodSet);
+	
+	template <class T>	
+		void Check_AllGlobalFieldUsedToFile(FILE* pFile, const T& luaClass, std::set<SOutputEntry5>& entrySet);
 
-	void Check_GameTextUsedToFile(const SLuaClass& luaClass, std::set<SStringTableToken>& entrySet);
+	template <class T>
+		void Check_AllGlobalMethodUsedToFile(FILE* pFile, const T& luaClass, std::set<SOutputEntry5>& entrySet, std::set<SOutputEntry7>& entryParamSet);
+	
+	template <class T>	
+		void Check_GameTextUsedToFile(const T& luaClass, std::set<SStringTableToken>& entrySet);
 
 	void Check_FieldMethodNameStandard(const SLuaClass& luaClass);				//检查field和method命名规范
 	void Check_MethodReturnNum(const SLuaClass& luaClass);
@@ -346,7 +368,7 @@ private:
 	std::string m_strNetProtoFileName;
 	std::string m_strTemplateProtoFileName;
 	std::map<std::string, SLuaClass>	m_mapLuaClass;
-	std::vector<SLuaFile>	m_vecLuaFiles;
+	std::map<std::string, SLuaFile>		m_mapLuaFile;
 
 	std::vector<SLuaFieldToken>		m_errorTokenList;
 	std::vector<SLuaFieldToken>		m_errorDefineList;
@@ -366,7 +388,6 @@ private:
 	std::set<int>	m_GameTextKeySet;
 
 	//数据
-	std::map<std::string, std::string>	m_ClassInvalidTokenMap;
 	std::list<std::string> m_BuiltInTypeList;
 	std::list<std::string> m_ValidDefineList;
 	std::list<std::string> m_errorTokens;
@@ -377,3 +398,214 @@ private:
 	std::list<std::tuple<std::string, std::string>> m_ClassInvalidTokenList;
 	std::list<std::tuple<std::string, int>> m_SpecialMethodReturnList;
 };
+
+template <class T>
+void CLplusChecker::Check_AllMethodusedIndirectToFile(FILE* pFile, const T& luaClass, std::set<SOutputEntry5_SISII>& entryParamSet)
+{
+	for (const auto& token : luaClass.functionAllUsedIndirectList)
+	{
+		if (token.bHasFunction || token.bIsStatic)			//非static方法
+			continue;
+
+		bool skip = false;
+		for (const auto& entry : m_MethodParamList)		//特殊的参数匹配,和unity内部函数重名
+		{
+			const auto& name = std::get<0>(entry);
+			int numParams = std::get<1>(entry);
+
+			if (name == token.token && numParams == (int)token.vParams.size())
+			{
+				skip = true;
+				break;
+			}
+		}
+
+		if (skip)
+			continue;
+
+		bool bFound = false;		//是否找到匹配的
+		bool bMatch = false;
+		for (const auto& entry : m_mapLuaClass)				//检查token是否在所有类中有定义
+		{
+			for (const auto& func : entry.second.functionDefList)
+			{
+				if (!func.bIsStatic && func.token == token.token)		//名字一致，检查类型
+				{
+					bFound = true;
+					bMatch = func.vParams.size() == token.vParams.size();
+
+					if (bMatch)
+						break;
+				}
+			}
+
+			if (bMatch)
+				break;
+		}
+
+		if (bFound && !bMatch)
+		{
+			entryParamSet.insert(SOutputEntry5_SISII(
+				token.token,
+				(int)token.vParams.size(),
+				luaClass.strName,
+				token.location.line,
+				token.location.col));
+		}
+	}
+}
+
+template <class T>
+void CLplusChecker::Check_AllSpecialMethodusedIndirectToFile(FILE* pFile, const T& luaClass, std::set<SOutputEntry5_SISII>& entryParamSet)
+{
+	for (const auto& token : luaClass.functionSpecialUsedIndirect)
+	{
+		if (token.bHasFunction)			//非static方法
+			continue;
+
+		bool bFound = false;		//是否找到匹配的
+		bool bMatch = false;
+
+		auto itr = m_SpecialMethodParamMap.find(token.token);
+		if (itr != m_SpecialMethodParamMap.end())
+		{
+			bFound = true;
+
+			const std::vector<int>& paramList = itr->second;
+			bMatch = std::find(paramList.begin(), paramList.end(), (int)token.vParams.size()) != paramList.end();
+		}
+
+		if (bFound && !bMatch)
+		{
+			entryParamSet.insert(SOutputEntry5_SISII(
+				token.token,
+				(int)token.vParams.size(),
+				luaClass.strName,
+				token.location.line,
+				token.location.col));
+		}
+	}
+}
+
+template <class T>
+void CLplusChecker::Check_AllGlobalFieldUsedToFile(FILE* pFile, const T& luaClass, std::set<SOutputEntry5>& entrySet)
+{
+	for (const auto& entry : m_mapLuaClass)
+	{
+		const auto& luaClass = entry.second;
+
+		for (const auto& token : luaClass.fieldUsedGlobalList)
+		{
+			const SLuaClass* ownerClass = GetLuaClass(token.className.c_str());
+			if (ownerClass)
+			{
+				bool bFound = false;
+				const SLuaFieldToken* pFieldToken = NULL;
+
+				const SLuaClass* thisClass = ownerClass;
+				while (thisClass)
+				{
+					for (const auto& func : thisClass->fieldDefList)
+					{
+						if (token.token == func.token)
+						{
+							pFieldToken = &func;
+							bFound = true;
+							break;
+						}
+					}
+
+					if (bFound)
+						break;
+
+					thisClass = thisClass->parent;
+				}
+
+				if (!bFound)
+				{
+					entrySet.insert(SOutputEntry5(
+						token.token,
+						token.className,
+						luaClass.strName,
+						token.location.line,
+						token.location.col));
+				}
+			}
+		}
+	}
+}
+
+template <class T>
+void CLplusChecker::Check_AllGlobalMethodUsedToFile(FILE* pFile, const T& luaClass, std::set<SOutputEntry5>& entrySet, std::set<SOutputEntry7>& entryParamSet)
+{
+	for (const auto& token : luaClass.functionUsedGlobalList)
+	{
+		const SLuaClass* ownerClass = GetLuaClass(token.className.c_str());
+
+		if (ownerClass)
+		{
+			bool bFound = false;
+			const SLuaFunctionToken* pFuncToken = NULL;
+
+			const SLuaClass* thisClass = ownerClass;
+			while (thisClass)
+			{
+				for (const auto& func : thisClass->functionDefList)
+				{
+					if (token.token == func.token)
+					{
+						pFuncToken = &func;
+						bFound = true;
+						break;
+					}
+				}
+
+				if (bFound)
+					break;
+
+				thisClass = thisClass->parent;
+			}
+
+			if (!bFound)
+			{
+				entrySet.insert(SOutputEntry5(
+					token.token,
+					token.className,
+					luaClass.strName,
+					token.location.line,
+					token.location.col));
+			}
+
+			if (bFound)			   //检查param类型
+			{
+				if (!token.bHasFunction)		//跳过function类型
+				{
+					if (pFuncToken->vParams.size() != token.vParams.size())
+					{
+						entryParamSet.insert(SOutputEntry7(
+							token.token,
+							token.className,
+							(int)token.vParams.size(),
+							(int)pFuncToken->vParams.size(),
+							luaClass.strName,
+							token.location.line,
+							token.location.col));
+					}
+				}
+			}
+		}
+	}
+}
+
+template <class T>
+void CLplusChecker::Check_GameTextUsedToFile(const T& luaClass, std::set<SStringTableToken>& entrySet)
+{
+	for (const auto& entry : luaClass.stringTableUsedList)
+	{
+		if (m_GameTextKeySet.find(entry.text_id) == m_GameTextKeySet.end())
+		{
+			entrySet.insert(entry);
+		}
+	}
+}
+

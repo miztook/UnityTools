@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/Map_Bg_Start.png",
 	AssetPath = "Assets/Outputs/Scenes/Dungn00_EmpireRelicPrologue.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[40002] = 
@@ -101,16 +102,16 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[334] = { x = -16.90, y = 31.62, z = -99.87, name = "摇杆教学", worldId = 0, PkMode = 0 },
-			[335] = { x = 0.82, y = 38.02, z = -80.02, name = "自动移动教学", worldId = 0, PkMode = 0 },
-			[336] = { x = 24.20, y = 46.38, z = -57.17, name = "石碑区域", worldId = 0, PkMode = 0 },
-			[337] = { x = -37.21, y = 55.78, z = 136.77, name = "鹰眼区域", worldId = 0, PkMode = 0, IsCanHawkeye = true },
-			[338] = { x = 22.14, y = 55.78, z = -11.84, name = "平台区域", worldId = 0, PkMode = 0 },
-			[339] = { x = -41.78, y = 0.08, z = 160.45, name = "裂隙中心", worldId = 0, PkMode = 0 },
-			[340] = { x = -22.74, y = 31.43, z = -105.44, name = "遥感教学触发区域", worldId = 0, PkMode = 0 },
-			[341] = { x = 2.69, y = 70.99, z = 63.37, name = "巨龙CG触发", worldId = 0, PkMode = 0 },
-			[342] = { x = -4.55, y = 82.74, z = 87.93, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 0, CameraDistance = 15 },
-			[343] = { x = 17.30, y = 55.78, z = 7.06, name = "鹰眼教学触发教学", worldId = 0, PkMode = 0 },
+			[334] = { x = -16.90, y = 31.62, z = -99.87, name = "摇杆教学", worldId = 0, PkMode = 1 },
+			[335] = { x = 0.82, y = 38.02, z = -80.02, name = "自动移动教学", worldId = 0, PkMode = 1 },
+			[336] = { x = 24.20, y = 46.38, z = -57.17, name = "石碑区域", worldId = 0, PkMode = 1 },
+			[337] = { x = -37.21, y = 55.78, z = 136.77, name = "鹰眼区域", worldId = 0, PkMode = 1, IsCanHawkeye = true },
+			[338] = { x = 22.14, y = 55.78, z = -11.84, name = "平台区域", worldId = 0, PkMode = 1 },
+			[339] = { x = -41.78, y = 0.08, z = 160.45, name = "裂隙中心", worldId = 0, PkMode = 1 },
+			[340] = { x = -22.74, y = 31.43, z = -105.44, name = "遥感教学触发区域", worldId = 0, PkMode = 1 },
+			[341] = { x = 2.69, y = 70.99, z = 63.37, name = "巨龙CG触发", worldId = 0, PkMode = 1 },
+			[342] = { x = -4.55, y = 82.74, z = 87.93, name = "BOSS区域", worldId = 0, BattleMusic = "BGM_Dunjeon/Dunjeon/DUNJEON_BATTLE", PkMode = 1, CameraDistance = 15 },
+			[343] = { x = 17.30, y = 55.78, z = 7.06, name = "鹰眼教学触发教学", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

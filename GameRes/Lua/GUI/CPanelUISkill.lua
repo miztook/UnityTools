@@ -492,6 +492,25 @@ def.method("number", "dynamic").UpdateSoulShow = function(self, updateType, para
 	CRedDotMan.UpdateModuleRedDotShow(RedDotSystemType.Skill, CSkillUtil.IsSkillRuneMasteryCanLvUp())
 end
 ---------------------------------- 秘晶页签 end ------------------------------------
+-- 返回键
+def.override("=>", "boolean").HandleEscapeKey = function(self)
+	-- print("Esc "..self._Name)
+	if not self._ForbidESC then
+		if self:IsOpen() then
+			if self._SelectedTab == ETabType.Soul then
+				local isShowHint = self._SoulPage:CloseOpenHint()
+				if not isShowHint then
+					self:Close()
+				end
+			else
+				self:Close()
+			end
+			return true
+		end
+	end
+
+	return false
+end
 
 -- 当摧毁的时候
 def.override().OnDestroy = function(self)

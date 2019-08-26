@@ -192,7 +192,6 @@ end
 def.method("boolean").Change3V3BtnChargeState = function (self,isOpenTime3V3)
 	if isOpenTime3V3 == nil then return end
 	if not isOpenTime3V3 then 
-		-- 未开启状态直接关闭界面
 		game._GUIMan:Close("CPanelMirrorArena")
 	else
 		if game._CArenaMan._IsMatching3V3 then 
@@ -253,6 +252,7 @@ def.method().Cancel3V3Timer = function (self)
 	self._PanelObject._FrameSeasonTime:SetActive(true)
 	self._PanelObject._FrameMatchTime:SetActive(false)
 	self._PanelObject._BtnCancelCharge:SetActive(false)
+	
 	self._PanelObject._BtnCharge3V3:SetActive(true)
 	GUI.SetText(self._PanelObject._Lab_Btn_Charge3V3,StringTable.Get(20062))
 end
@@ -283,7 +283,12 @@ def.method("string").Click = function(self, id)
 	elseif id == "Btn_PlusChance"  then 
 		TODO()
 	elseif id == "Btn_ShowAward" then 
-		game._GUIMan:Open("CPanelRewardShow",game._CArenaMan._3V3HostData.Stage)
+		local panelData = 
+		{
+			_Stage = game._CArenaMan._3V3HostData.Stage,
+			_IsGuild = false,
+		}
+		game._GUIMan:Open("CPanelRewardShow",panelData)
 	elseif  string.find(id, "Btn_ItemIcon") then 
 		local index = tonumber(string.sub(id,-1)) - 2
 		local data = self._RewardDataList[index]
@@ -298,6 +303,8 @@ def.method("string").Click = function(self, id)
 							} 
 			CItemTipMan.ShowMoneyTips(panelData)
 		end
+	elseif id == "Btn_BattleRule" then 
+		game._GUIMan:Open("CPanelRuleDescription",15)
 	end
 end
 

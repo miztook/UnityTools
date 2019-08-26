@@ -9,10 +9,6 @@ local bit = require "bit"
 local EEquipmentSlot = require "PB.Template".Item.EquipmentSlot
 local CEquipUtility = require "EquipProcessing.CEquipUtility"
 
-local function SendFlashMsg(msg, bUp)
-	game._GUIMan:ShowTipText(msg, bUp)
-end
-
 --[[----------------------------------
 --- 以下顺序需要与服务器端定义保持一致
 ------------------------------------]]
@@ -253,6 +249,11 @@ do
 	    return true
 	end
 
+	-- 获取评级
+	def.virtual("=>", "number").GetGrade = function(self)
+		return -1
+	end
+
 	-- 根据物品信息itemDB 创建一个虚拟的物品，用于tips显示
 	def.static("dynamic", "=>", "table").CreateVirtualItem = function(itemInfo)
 		local itemTemplate = nil
@@ -301,12 +302,12 @@ do
 	def.virtual("number","userdata").ShowTip = function(self,tipPos,targetObj)
 		CItemTipMan.ShowPackbackItemTip(self, TipsPopFrom.OTHER_PANEL,tipPos,targetObj)
 	end
-	def.virtual("userdata","boolean").ShowTipWithOutOrDepositFunc = function(self,target,isDeposit)
+	def.virtual("userdata","boolean","number").ShowTipWithOutOrDepositFunc = function(self,target,isDeposit,storagePage)
 		local comp = nil 
 		if not isDeposit then
-			comp = ItemComponent.TakeOutComponent.new(self)
+			comp = ItemComponent.TakeOutComponent.new(self,storagePage)
 		else
-			comp = ItemComponent.DepositComponent.new(self)
+			comp = ItemComponent.DepositComponent.new(self,storagePage)
 		end
 		CItemTipMan.ShowItemTipWithCertainFunc(self, {comp},TipPosition.DEFAULT_POSITION,target)
 	end
@@ -533,14 +534,14 @@ do
 					    DoCallback()
                     else
                     	if game._HostPlayer:IsInGlobalZone() then
-				   			SendFlashMsg(StringTable.Get(15556), false)
+				   			TeraFuncs.SendFlashMsg(StringTable.Get(15556), false)
 				  			return
 				  		end
                         CTransManage.Instance():TransToRegionIsNeedBroken(template.UseMapId, template.UseRegionId, true, DoCallback, true)
                     end
 				else
 					if game._HostPlayer:IsInGlobalZone() then
-			   			SendFlashMsg(StringTable.Get(15556), false)
+			   			TeraFuncs.SendFlashMsg(StringTable.Get(15556), false)
 			  			return
 			  		end
 					CTransManage.Instance():TransToRegionIsNeedBroken(template.UseMapId, template.UseRegionId, true, DoCallback, true)
@@ -553,7 +554,7 @@ do
 					    DoCallback()
                     else
                     	if game._HostPlayer:IsInGlobalZone() then
-				   			SendFlashMsg(StringTable.Get(15556), false)
+				   			TeraFuncs.SendFlashMsg(StringTable.Get(15556), false)
 				  			return
 				  		end
 						local CTransManage = require "Main.CTransManage"
@@ -586,7 +587,7 @@ do
 end
 local GetAttachedPropertyByFightPropertyId = function(obj,id)
 	if id ~= nil then
-		local allIds = GameUtil.GetAllTid("AttachedProperty")
+		local allIds = CElementData.GetAllAttachedProperty()
 		for i,v in ipairs(allIds) do
 			local attPro = CElementData.GetTemplate("AttachedProperty", v)
 			if id == attPro.Id then 
@@ -631,23 +632,58 @@ local InitEquipData = function(obj, data)
 		obj._AttachedProperty = attPro
 	end
 
-
-	if data.FightProperty ~= nil then
+	-- 装备基础属性
+	if data.FightProperty ~= nil and data.FightProperty.index > 0 then
 		local propertyGeneratorElement = CElementData.GetAttachedPropertyGeneratorTemplate( data.FightProperty.index )
 	    if propertyGeneratorElement == nil then
-	    	warn("装备DB 数据初始化 ===============,", obj._Tid, obj._Name)
+	    	warn("装备DB 基础属性 数据初始化 ===============,", obj._Tid, obj._Name)
 			warn("data.FightProperty.index = ", data.FightProperty.index)
+
+			obj._BaseAttrs.ID = 0
+			return
 	    end
 
 	    local fightElement = CElementData.GetAttachedPropertyTemplate( propertyGeneratorElement.FightPropertyId )
 	    if fightElement == nil then
-	    	warn("装备DB 数据初始化 ===============,", obj._Tid, obj._Name)
+	    	warn("装备DB 基础属性 数据初始化 ===============,", obj._Tid, obj._Name)
 			warn("propertyGeneratorElement.FightPropertyId = ", propertyGeneratorElement.FightPropertyId)
+
+			obj._BaseAttrs.ID = 0
+			return
 	    end
 		obj._BaseAttrs.ID = fightElement.Id
 		obj._BaseAttrs.GeneratorID = data.FightProperty.index
 		obj._BaseAttrs.Value = data.FightProperty.value
 		obj._BaseAttrs.Star = data.FightProperty.star
+	else
+		obj._BaseAttrs.ID = 0
+	end
+
+	-- 装备PVP属性
+	if data.PVPFightProperty ~= nil and data.PVPFightProperty.index > 0 then
+		local propertyGeneratorElement = CElementData.GetAttachedPropertyGeneratorTemplate( data.PVPFightProperty.index )
+	    if propertyGeneratorElement == nil then
+	    	warn("装备DB PVP属性 数据初始化 ===============,", obj._Tid, obj._Name)
+			warn("data.PVPFightProperty.index = ", data.PVPFightProperty.index)
+
+			obj._PVPFightProperty.ID = 0
+			return
+	    end
+
+	    local fightElement = CElementData.GetAttachedPropertyTemplate( propertyGeneratorElement.FightPropertyId )
+	    if fightElement == nil then
+	    	warn("装备DB PVP属性 数据初始化 ===============,", obj._Tid, obj._Name)
+			warn("propertyGeneratorElement.FightPropertyId = ", propertyGeneratorElement.FightPropertyId)
+
+			obj._PVPFightProperty.ID = 0
+			return
+	    end
+		obj._PVPFightProperty.ID = fightElement.Id
+		obj._PVPFightProperty.GeneratorID = data.PVPFightProperty.index
+		obj._PVPFightProperty.Value = data.PVPFightProperty.value
+		obj._PVPFightProperty.Star = data.PVPFightProperty.star
+	else
+		obj._PVPFightProperty.ID = 0
 	end
 end
 
@@ -693,13 +729,13 @@ local InitData = function(obj, data)
 	if template == nil then return end
 	
 	obj._Template = template							-- 模板
-	obj._Guid = ItemData.Guid 					    -- 唯一标示
+	obj._Guid = ItemData.Guid 					    	-- 唯一标示
 	obj._Tid = tid										-- 模板Id
 	obj._SortId = template.SortId						-- 客户端物品排序ID
 	obj._Level = template.MinLevelLimit					-- 装备等级
-	obj._NormalCount = ItemData.Count				-- 数量
-	obj._ExpireData = ItemData.ExpireTimestamp		-- 失效时间
-	obj._IsBind = ItemData.IsBind					-- 是否绑定
+	obj._NormalCount = ItemData.Count					-- 数量
+	obj._ExpireData = ItemData.ExpireTimestamp			-- 失效时间
+	obj._IsBind = ItemData.IsBind						-- 是否绑定
 	obj._Quality = template.InitQuality					-- 品质
 	obj._Name = template.TextDisplayName				-- 名称
 	obj._Description = template.TextDescription			-- 简介
@@ -767,43 +803,50 @@ local CIvtrEquip = Lplus.Extend(CIvtrItem, "CIvtrEquip")
 do
 	local def = CIvtrEquip.define
 	
-	def.field("number")._EquipSlot = 0			-- 装备位置
-	def.field("table")._EquipBaseAttrs = BlankTable --重铸用的附加属性：只包含创建装备时的属性
+	def.field("number")._EquipSlot = 0						-- 装备位置
+	def.field("table")._EquipBaseAttrs = BlankTable 		-- 重铸用的附加属性：只包含创建装备时的属性
 	def.field("table")._EquipBaseAttrsCache = BlankTable	-- 重铸属性，临时结构，用于重铸保存
-	def.field("table")._BaseAttrs = BlankTable  -- 基础属性
-	def.field("number")._ReinforceConfigId = 0	-- 强化表
-	def.field("number")._RecastCostId = 0		-- 重铸表
-	def.field("number")._GoldLevel = 0			-- 神器等级
-	def.field("number")._TalentId = 0           -- 天赋id
-	def.field("number")._TalentLevel = 0		-- 传奇属性等级
-	def.field("number")._TalentIdCache = 0      -- 天赋属性，临时结构，用于保存
-	def.field("number")._TalentLevelCache = 0   -- 天赋属性，临时结构，用于保存
-	def.field("number")._TalentParam = 0	    -- 传奇属性经验值
+	def.field("table")._BaseAttrs = BlankTable  			-- 基础属性
+	def.field("table")._PVPFightProperty = BlankTable 		-- PVP属性
 
-	def.field("table")._AllEquipAttrInfo = BlankTable	-- 装备重铸属性信息表大全
-	def.field("table")._AttachedProperty = BlankTable   -- 附加属性表Table
-	def.field("table")._EnchantAttr = BlankTable		-- 附魔属性
-	def.field('number')._LegendaryGroupId = 0			-- 传奇属性组
-	def.field('number')._RefineLevel = 0				-- 精炼等级
+	def.field("number")._ReinforceConfigId = 0				-- 强化表
+	def.field("number")._RecastCostId = 0					-- 重铸表
+	def.field("number")._GoldLevel = 0						-- 神器等级
+	def.field("number")._TalentId = 0           			-- 天赋id
+	def.field("number")._TalentLevel = 0					-- 传奇属性等级
+	def.field("number")._TalentIdCache = 0      			-- 天赋属性，临时结构，用于保存
+	def.field("number")._TalentLevelCache = 0   			-- 天赋属性，临时结构，用于保存
+	def.field("number")._TalentParam = 0	    			-- 传奇属性经验值
+
+	def.field("table")._AllEquipAttrInfo = BlankTable		-- 装备重铸属性信息表大全
+	def.field("table")._AttachedProperty = BlankTable   	-- 附加属性表Table
+	def.field("table")._EnchantAttr = BlankTable			-- 附魔属性
+	def.field('number')._LegendaryGroupId = 0				-- 传奇属性组
+	def.field('number')._RefineLevel = 0					-- 精炼等级
 
 	-- 装备加工相关字段(201807版)
-	def.field('number')._QuenchTid = 0					-- 装备淬火ID
-	def.field('number')._SurmountTid = 0				-- 装备突破ID
-	def.field("boolean")._IsOrgValueChanged = false		-- 装备重铸值是否被淬火过
+	def.field('number')._QuenchTid = 0						-- 装备淬火ID
+	def.field('number')._SurmountTid = 0					-- 装备突破ID
+	def.field("boolean")._IsOrgValueChanged = false			-- 装备重铸值是否被淬火过
 
-	def.field("number")._InforceLevel = 0				-- 强化等级
-	def.field("number")._QuenchLevel = 0				-- 淬火等级
-	def.field("number")._SurmountLevel = 0				-- 突破等级
-	def.field("number")._EnchantExpiredTime = 0			-- 附魔持续时间
-	def.field("boolean")._IsLock = false                -- 是否锁柱
-	def.field("number")._PropertyCoefficient = 1 		-- 品质系数
-	def.field("table")._RecommendPropertyList = BlankTable -- 推荐属性 生成器内最高属性值-提供战斗力最高ID（前几个）
+	def.field("number")._InforceLevel = 0					-- 强化等级
+	def.field("number")._QuenchLevel = 0					-- 淬火等级
+	def.field("number")._SurmountLevel = 0					-- 突破等级
+	def.field("number")._EnchantExpiredTime = 0				-- 附魔持续时间
+	def.field("boolean")._IsLock = false                	-- 是否锁柱
+	def.field("number")._PropertyCoefficient = 1 			-- 品质系数
+	def.field("table")._RecommendPropertyList = BlankTable 	-- 推荐属性 生成器内最高属性值-提供战斗力最高ID（前几个）
 
 	def.final("table", "=>", CIvtrEquip).new = function (data)
 		local obj = CIvtrEquip()
 		InitData(obj, data)
 		obj:InitComponents()
 		return obj
+	end
+
+	-- 获取评级
+	def.override("=>", "number").GetGrade = function(self)
+		return self._BaseAttrs.Star or -1
 	end
 
 	-- 获取物品类别
@@ -885,6 +928,15 @@ do
 
 		return bRet
 	end
+	--判断是否有PVP属性
+	def.method("=>", "boolean").HasPVPProperty = function(self)	
+		local bRet = false
+		if self._PVPFightProperty.ID > 0 then
+			bRet = true
+		end	
+
+		return bRet
+	end
 
 	--设置传奇属性
 	def.method("number").SetLegendId = function(self, id)
@@ -910,9 +962,8 @@ do
 	def.method("=>", "number").GetQuenchLevel = function(self)
 		return self._QuenchLevel
 	end
-
     --获取强化增长值
-	def.method("=>","number").GetInforceIncrease = function(self)
+	def.method("=>","number").GetBaseInforceIncrease = function(self)
 		local curLv = self:GetInforceLevel()
 		local incVal = 0
 		if curLv > 0 then
@@ -925,6 +976,21 @@ do
 
 		return incVal
 	end
+	--获取PVP属性 强化增长值
+	def.method("=>","number").GetPVPInforceIncrease = function(self)
+		local curLv = self:GetInforceLevel()
+		local incVal = 0
+		if curLv > 0 then
+	        local InforceInfoOld = CEquipUtility.GetInforceInfoByLevel(self._ReinforceConfigId, curLv)
+	        if InforceInfoOld ~= nil then
+	        	incVal = math.ceil(self._PVPFightProperty.Value * (InforceInfoOld.InforeValue / 100))
+	        	incVal = math.max(incVal, curLv)
+	        end
+	    end
+
+		return incVal
+	end
+
 	--获取精炼增长值
 	def.method("=>", "number").GetRefineIncrease =function(self)
 		local nRet = 0
@@ -1083,6 +1149,7 @@ do
 		return self._FightScore
 	end
 
+--[[
 	--newAttrs   重铸时使用
 	--isCalcBase 是否只计算基本属性（不算强化、淬火、宝石等附加属性)
 	def.method("dynamic", "dynamic", "=>", "number").CalcFightScore = function(self, newAttrs, isOnlyCalcBase)
@@ -1165,7 +1232,7 @@ do
 
 		return result
 	end
-	
+]]
 	--不显示右侧功能按钮
 	def.override("number","userdata").ShowTip = function(self,tipPos,targetObj)
 		CItemTipMan.ShowPackbackEquipTip(self, TipsPopFrom.WithoutButton,tipPos,targetObj)
@@ -1297,7 +1364,7 @@ do
 
     def.override().Use = function(self)
     	if game._HostPlayer:IsInGlobalZone() then
-   			SendFlashMsg(StringTable.Get(15556), false)
+   			TeraFuncs.SendFlashMsg(StringTable.Get(15556), false)
   			return
   		end
 		local function callback(val)
@@ -1314,10 +1381,6 @@ do
 	    	game._GUIMan:Close("CPanelRoleInfo")
 	    end
 
-	    local UserData = require "Data.UserData"
-
-    	UserData.Instance():SetField("LastWantedItemQuality", self._Template.InitQuality)
-		UserData.Instance():SaveDataToFile()
 	    callback(true)
 	end
 	CIvtrWantedItem.Commit()
@@ -1441,8 +1504,8 @@ do
 				end
 
 				if self._NormalCount > 1 then 
-					--local text = "<color=#" .. EnumDef.Quality2ColorHexStr[self._Quality] ..">" .. self._Template.TextDisplayName .."</color>"
-					local text = string.format(StringTable.Get(313),"")
+					-- local name = "<color=#" .. EnumDef.Quality2ColorHexStr[self._Quality] ..">" .. self._Template.TextDisplayName .."</color>"
+					local text = StringTable.Get(313)
 					BuyOrSellItemMan.ShowCommonOperate(TradingType.USE,StringTable.Get(11105),text, 1, self._NormalCount,0, 0 , self._Tid, okback, nil)
 				else
 					local useNum = 1
@@ -1476,6 +1539,27 @@ do
 		obj:InitComponents()
 
 		return obj
+	end
+	def.override().Use = function(self)
+		self:PushClickUseEvent()
+		local reason = self:CanNotUseReason()
+		if reason ~= 0 then return end
+		local function callback(count)
+			local C2SItemUse = require "PB.net".C2SItemUse
+			local protocol = C2SItemUse()
+			protocol.Index = self._Slot
+			protocol.Count = count
+			protocol.BagType = BagType.BACKPACK
+			PBHelper.Send(protocol)
+		end	
+		if self._NormalCount > 1 then 
+			local text = "<color=#" .. EnumDef.Quality2ColorHexStr[self._Quality] ..">" .. self._Template.TextDisplayName .."</color>"
+			text = string.format(StringTable.Get(313),text)
+			BuyOrSellItemMan.ShowCommonOperate(TradingType.USE,StringTable.Get(11105),text, 1, self._NormalCount,0, 0 , self._Tid, callback, nil)
+		else
+			local useNum = 1
+			callback(useNum)
+		end
 	end
 
 	CIvtrPetItem.Commit()

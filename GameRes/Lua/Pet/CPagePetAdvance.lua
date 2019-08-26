@@ -27,10 +27,6 @@ local listQuality =
     5, -- 传说
 }
 
-local function SendFlashMsg(msg)
-    game._GUIMan:ShowTipText(msg, false)
-end
-
 local instance = nil
 def.static("table", "userdata", "=>", CPagePetAdvance).new = function(parent, panel)
     if instance == nil then
@@ -388,13 +384,13 @@ def.method().ShowUIItemList = function(self)
 
     if self._PetData:IsMaxStage() then
         --满阶
-        SendFlashMsg(StringTable.Get(19041))
+        TeraFuncs.SendFlashMsg(StringTable.Get(19041))
         return
     else
         -- local limitLevel = self._AdvanceLimitLevelInfo[self._PetData:GetStage()+1]
         -- if limitLevel > self._PetData:GetLevel() then
         --     --不满足进阶等级
-        --     SendFlashMsg(string.format(StringTable.Get(19043), limitLevel))
+        --     TeraFuncs.SendFlashMsg(string.format(StringTable.Get(19043), limitLevel))
         --     return
         -- end
     end
@@ -436,11 +432,11 @@ def.method().OnClickBtn_Advance = function(self)
 
     if self._PetData:IsMaxStage() then
         --满阶
-        SendFlashMsg(StringTable.Get(19041))
+        TeraFuncs.SendFlashMsg(StringTable.Get(19041))
         return
     elseif self._CurrentSelectMeterialPetData == nil then
         --没选材料
-        SendFlashMsg(StringTable.Get(19009))
+        TeraFuncs.SendFlashMsg(StringTable.Get(19009))
         return
     elseif self._IsMaxAptitude and self._PetData._TalentLevel >= CPetUtility.GetMaxPetTalentLevel() then 
         local title, msg, closeType = StringTable.GetMsg(108)
@@ -469,7 +465,7 @@ def.method().OnClickBtn_Advance = function(self)
         -- local limitLevel = self._AdvanceLimitLevelInfo[self._PetData:GetStage()+1]
         -- if limitLevel > self._PetData:GetLevel() then
         --     --不满足进阶等级
-        --     SendFlashMsg(string.format(StringTable.Get(19043), limitLevel))
+        --     TeraFuncs.SendFlashMsg(string.format(StringTable.Get(19043), limitLevel))
         --     return
         -- end
     end
@@ -501,6 +497,8 @@ def.method("string").OnClick = function(self, id)
         self:UpdateProperty()
         -- self:UpdateInfo()
         self:UpdateTalent()
+
+        CSoundMan.Instance():Play2DAudio(PATH.GUISound_UnEquipProcessing, 0)
     elseif id == "Btn_AdvanceTalent" then
         self:OnClickBtn_AdvanceTalent()
     elseif string.find(id, "Frame_Advance_Aptitude") then

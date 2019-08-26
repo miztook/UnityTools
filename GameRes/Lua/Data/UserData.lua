@@ -54,7 +54,7 @@ def.method("string", "string", "dynamic").SetCfg = function(self, catalog, key, 
 	if table_has_function(value) then
 	 	warn("key: ", key)
 	 	warn("value: ", value)
-	 	error("UserData SetCfg Error!", debug.traceback())
+	 	warn("UserData SetCfg Error!", debug.traceback())
 	end
 	catalogData[key] = value
 end
@@ -84,7 +84,7 @@ def.method("string", "dynamic").SetField = function(self, field_name, value)
 	if table_has_function(value) then
 	 	warn("key: ", field_name)
 	 	warn("value: ", value)
-	 	error("UserData SetField Error!", debug.traceback())
+	 	warn("UserData SetField Error!", debug.traceback())
 	end
 	self._DataTable[field_name] = value
 	--end

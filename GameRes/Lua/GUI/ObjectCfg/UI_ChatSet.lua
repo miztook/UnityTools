@@ -93,6 +93,13 @@ local cfg = {
     Img_CurrentVoicSelect = -1818798836,
     Img_OpenCurrentVoice_01 = -2112260511,
     Lab_ChannelCurrent = 1958488104,
+    Channel_Recruit = 217008066,
+    Btn_Recruit = -101330917,
+    Lab_Recruit = -1237568948,
+    Img_RecruitBg = -1858403737,
+    Img_OpenRecruit = 886766296,
+    Img_RecruitSelect = -1162982882,
+    Img_OpenRecruit_01 = -689020728,
 }
  
 return cfg

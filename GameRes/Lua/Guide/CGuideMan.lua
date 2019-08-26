@@ -37,7 +37,9 @@ local _KeepUIs =
 	"CPanelUIBeginnerDungeonBoss",
 	"CPanelDungeonNpcTalk",
 	"CPanelUIBuffEnter",
-	"CPanelInExtremis"
+	"CPanelInExtremis",
+	"CPanelUIGuildBattleMiniMap",
+    "CMsgBoxPanel",
 }
 --教学打开界面触发 
 local _OpenPlayUIs = 
@@ -84,7 +86,7 @@ def.field("boolean")._IsNextStepTimeLimit = true
 def.field("number")._MinLimitTimerId = 0
 
 local instance = nil
-def.static("=>", CGuideMan).new = function ()
+def.static("=>", CGuideMan).Instance = function ()
 	if instance == nil then
 	    instance = CGuideMan()
 	end
@@ -95,6 +97,28 @@ end
 def.method().Init = function(self)
 	self:ListenToEvent()
 	self._KeepUIs = _KeepUIs
+
+		-- 防止重复加载
+	if self._GuideTriggerDataTable ~= nil then return end
+
+	self._GuideTriggerDataTable = {}
+
+    local guideTriggerConfig = CGuideMan.GetGuideTrigger()
+	for id,v in pairs( guideTriggerConfig ) do
+		if self._GuideTriggerDataTable[v.Id] == nil then
+			self._GuideTriggerDataTable[v.Id] = {}
+			local tmpGuide = Guide.New()
+			tmpGuide._ID = v.Id
+			tmpGuide._Step = 0
+			tmpGuide._IsNextStepTimeLimit = false
+			tmpGuide._Config = guideTriggerConfig
+			self._GuideTriggerDataTable[v.Id].Guide = tmpGuide
+		end
+	end
+
+	if game._GUIMan ~= nil then
+		game._GUIMan:Open("CPanelGuideTrigger", nil)
+	end
 end
 
 --获取主线教学
@@ -162,12 +186,11 @@ end
 
 --加载所有教学数据
 def.method().LoadAllGuideData = function(self)
+--[[	-- 防止重复加载
+	if self._GuideTriggerDataTable ~= nil then return end
+
 	self._GuideTriggerDataTable = {}
-    
-    -- local b = UserData:GetField("GuideDebugOpen")
-    -- if b ~= nil then
-    -- 	self._GuideDebugOpen = b
-    -- end
+
     local guideTriggerConfig = CGuideMan.GetGuideTrigger()
 	for id,v in pairs( guideTriggerConfig ) do
 		if self._GuideTriggerDataTable[v.Id] == nil then
@@ -183,7 +206,11 @@ def.method().LoadAllGuideData = function(self)
 
 	if game._GUIMan ~= nil then
 		local panel = game._GUIMan:Open( "CPanelGuideTrigger", nil )
-	end
+	end--]]
+end
+
+def.method().ClearAllGuideData = function(self)
+	--self._GuideTriggerDataTable = nil
 end
 
 --获取所有教学配置
@@ -275,6 +302,87 @@ def.method("number", "number").OnShowTipByFunUnlockConditions = function(self, F
 				else
 					game._GUIMan:ShowTipText(StringTable.Get(23), false)
 					return
+				end
+			end
+		end		
+	end
+end
+
+-- 返回对应功能未解锁提示 (功能类型，功能ID)
+def.method("number", "number", "=>", "string").GetShowTipByFunUnlockConditions = function(self, FunType, FunctionID)
+	local allTid = CElementData.GetAllFun()
+	for i = 1, #allTid do
+		local tid = allTid[i]
+		local fun = CElementData.GetTemplate("Fun", tid)
+		if FunType == 1 and fun.FunID == FunctionID then
+			for Funindex, v in ipairs(fun.ConditionData.FunUnlockConditions) do				
+				if v.ConditionFinishTask._is_present_in_parent then	
+					local quest_data = CElementData.GetQuestTemplate(v.ConditionFinishTask.FinishTaskID)
+					
+					local CQuest = require "Quest.CQuest"
+					local str = CQuest.Instance():GetQuesthapterStr(v.ConditionFinishTask.FinishTaskID) .. "-" .. quest_data.TextDisplayName
+					return string.format(StringTable.Get(22814), str)
+				elseif v.ConditionLevelUp._is_present_in_parent then
+					return string.format(StringTable.Get(22815), v.ConditionLevelUp.LevelUp)
+				elseif v.ConditionReceiveTask._is_present_in_parent then
+					local quest_data = CElementData.GetQuestTemplate(v.ConditionReceiveTask.ReceiveTaskID)	
+
+					local CQuest = require "Quest.CQuest"
+					local str = CQuest.Instance():GetQuesthapterStr(v.ConditionReceiveTask.ReceiveTaskID) .. "-" .. quest_data.TextDisplayName
+					return string.format(StringTable.Get(22813), str)
+				elseif v.ConditionPassDungeon._is_present_in_parent then
+					warn("ConditionPassDungeon!!!")
+					return ""
+				elseif v.ConditionUseProp._is_present_in_parent then
+					warn("ConditionUseProp!!!")
+					return ""
+				elseif v.ConditionGuide._is_present_in_parent then
+					warn("ConditionGuide!!!")
+					return ""
+				elseif v.ConditionGloryLevelUp._is_present_in_parent then
+					warn("ConditionGloryLevelUp!!!")
+					return ""
+				elseif v.ConditionFightUp._is_present_in_parent then
+					warn("ConditionFightUp!!!")
+					return ""
+				else
+					return StringTable.Get(23)
+				end
+			end
+		elseif FunType == 0 and tid == FunctionID then
+			for Funindex, v in ipairs(fun.ConditionData.FunUnlockConditions) do				
+				if v.ConditionFinishTask._is_present_in_parent then	
+					local quest_data = CElementData.GetQuestTemplate(v.ConditionFinishTask.FinishTaskID)
+
+					local CQuest = require "Quest.CQuest"
+					local str = CQuest.Instance():GetQuesthapterStr(v.ConditionFinishTask.FinishTaskID) .. "-" .. quest_data.TextDisplayName
+					return string.format(StringTable.Get(22814), str)
+				elseif v.ConditionLevelUp._is_present_in_parent then
+					return string.format(StringTable.Get(22815), v.ConditionLevelUp.LevelUp)
+				elseif v.ConditionReceiveTask._is_present_in_parent then
+					local quest_data = CElementData.GetQuestTemplate(v.ConditionReceiveTask.ReceiveTaskID)	
+
+					local CQuest = require "Quest.CQuest"
+					local str = CQuest.Instance():GetQuesthapterStr(v.ConditionReceiveTask.ReceiveTaskID) .. "-" .. quest_data.TextDisplayName
+
+					return string.format(StringTable.Get(22813), str)
+				elseif v.ConditionPassDungeon._is_present_in_parent then
+					warn("ConditionPassDungeon!!!")
+					return ""
+				elseif v.ConditionUseProp._is_present_in_parent then
+					warn("ConditionUseProp!!!")
+					return ""
+				elseif v.ConditionGuide._is_present_in_parent then
+					warn("ConditionGuide!!!")
+					return ""
+				elseif v.ConditionGloryLevelUp._is_present_in_parent then
+					warn("ConditionGloryLevelUp!!!")
+					return ""
+				elseif v.ConditionFightUp._is_present_in_parent then
+					warn("ConditionFightUp!!!")
+					return ""
+				else
+					return StringTable.Get(23)
 				end
 			end
 		end		
@@ -677,14 +785,25 @@ def.method().JumpCurGuide = function(self)
 	end
 
 	if self._GuideTriggerDataTable == nil then return end
-
+	if self._CurPanelTrigger == nil then return end
+  
 	for k,v in pairs(self._GuideTriggerDataTable) do
+		if v.Guide ~= nil and v.Guide._ID  == self._CurPanelTrigger._CurBigStep then
+			v.Guide:GuideFinish(v.Guide._ID)
+			--print("@@@@@@@@@",v.Guide._ID,v.isTrigger,v.Guide._IsFinish)
+			self._CurPanelTrigger = nil
+			self:GuideTrigger(EnumDef.EGuideBehaviourID.FinishGuide,v.Guide._ID)
+			break
+		end
+	end
+
+--[[	for k,v in pairs(self._GuideTriggerDataTable) do
 		if v.isTrigger and v.Guide ~= nil and not v.Guide._IsFinish then
 			v.Guide:GuideFinish(v.Guide._ID)
 			self._CurPanelTrigger = nil
 			self:GuideTrigger(EnumDef.EGuideBehaviourID.FinishGuide,v.Guide._ID)
 		end
-	end
+	end--]]
 end
 
 --教学执行
@@ -762,9 +881,6 @@ def.method("number","number").GuideTrigger = function(self,behaviourID,param)
 	for id,v in pairs( guideTriggerConfig ) do
 		tmpGuide = self._GuideTriggerDataTable[v.Id].Guide
 		if not tmpGuide._IsFinish then
---[[			if tmpGuide._ID == 126 then
-				print("GuideStartTest1",id,v.Id,tmpGuide,self._GuideTriggerDataTable[tmpGuide._ID].isTrigger)
-			end--]]
 			if tmpGuide == nil or not self._GuideTriggerDataTable[tmpGuide._ID].isTrigger then
 				--如果有正在进行的 主线教学或者触发类教学
 				if ( IsNil(self._CurPanelTrigger) or not self._CurPanelTrigger:IsClickLimit() ) and IsNil(self._CurPanel) then
@@ -791,7 +907,7 @@ def.method("number","number").GuideTrigger = function(self,behaviourID,param)
 						--只要触发过就不再触发
 						self._GuideTriggerDataTable[id].isTrigger = true
 						self:SendC2SGuideTrigger( id )
-						print("GuideStart",id)
+						--print("GuideStart",id)
 						local CAutoFightMan = require "AutoFight.CAutoFightMan"
 						local CQuestAutoMan = require "Quest.CQuestAutoMan"
 						local CDungeonAutoMan = require "Dungeon.CDungeonAutoMan"
@@ -813,7 +929,7 @@ def.method("number","number").GuideTrigger = function(self,behaviourID,param)
 							--print("CurGuideTrigger = nil",EnumDef.EGuideBehaviourID.FinishGuide,id)
 							self:GuideTrigger(EnumDef.EGuideBehaviourID.FinishGuide,id)
 						end
-						print("GuideNextStep",id)
+						--print("GuideNextStep",id)
 						break
 					end
 				end
@@ -878,10 +994,19 @@ end
 	  		self:GuideTrigger(EnumDef.EGuideBehaviourID.ReceiveTask, event._Data.Id)
 	  	elseif event._Name == EnumDef.QuestEventNames.QUEST_CHANGE then
 			local CQuest = require "Quest.CQuest"
-			if CQuest.Instance():JudgeObjectiveIsComplete(event._Data.QuestId,event._Data.ObjectiveId, event._Data.ObjectiveCounter) then
-	  			self:GuidePlay(self._CurGuideID,EnumDef.EGuideBehaviourID.FinishTask,event._Data.SubQuestId)
-	  			self:GuideTrigger(EnumDef.EGuideBehaviourID.FinishTask,event._Data.SubQuestId)
-	  		end
+
+			--如果是 主任务 完成状态
+			if event._Data.SubQuestId == 0 then
+				local model = CQuest.Instance():FetchQuestModel(event._Data.QuestId)
+				if model:IsCompleteAll() and not model:IsAutoDeliver() then
+					self:GuideTrigger(EnumDef.EGuideBehaviourID.ReadyToDeliverTask,event._Data.QuestId)
+				end
+			--else
+			--	if CQuest.Instance():JudgeObjectiveIsComplete(event._Data.QuestId,event._Data.ObjectiveId, event._Data.ObjectiveCounter) then
+		  	--		self:GuidePlay(self._CurGuideID,EnumDef.EGuideBehaviourID.FinishTask,event._Data.SubQuestId)
+		  	--		self:GuideTrigger(EnumDef.EGuideBehaviourID.FinishTask,event._Data.SubQuestId)
+		  	--	end
+			end
 		end 
 	end
 
@@ -1032,12 +1157,11 @@ def.method().UnlistenToEvent = function(self)
 	CGame.EventManager:removeHandler(UIShortCutEvent, OnUIByType)
 end
 
-def.method().Release = function (self)
+def.method().Cleanup = function (self)
 	self:UnlistenToEvent()
-
-	self._GuideTriggerDataTable = nil
 	self._GuideConfigMainTable = nil
 	self._GuideConfigTriggerTable = nil
+	self._GuideTriggerDataTable = nil
 	self._CurGuideStep = 0
 	self._CurGuideID = 0
 	self._LastGuideID = 0
@@ -1164,6 +1288,46 @@ def.method("boolean","string").IsShowGuide = function(self,b,panelName)
 	    		else
 	    			self._CurPanelTrigger:ShowCurSmallStep()
 	    			self._CurPanelTrigger:EffectAutoPos(self._CurGuideTrigger._CurButton)
+	    		end
+	    	else
+
+				if IsNil(self._CurPanelTrigger) then
+
+	    		else
+	    			self._CurPanelTrigger:HideCurSmallStep()
+	    		end
+	    	end
+		end
+	elseif panelName == "" then
+	    if self._CurGuideTrigger ~= nil then
+	    	local CGuideMan = require "Guide.CGuideMan"
+	        local guideConfig = CGuideMan.GetGuideTrigger()
+	        local BigStepConfig = guideConfig[self._CurGuideTrigger._ID]
+	        local SmallStepConfig = BigStepConfig.Steps[self._CurGuideTrigger._Step]
+
+	        --print( "!!!!!!!!!!!!!!!!!!!",self._CurGuideTrigger._ID,self._CurGuideTrigger._Step )
+
+	    	local frame = GameObject.Find( SmallStepConfig.OpenPagePath )
+	    	if b and (SmallStepConfig.OpenPagePath == nil or (frame ~= nil and frame.activeSelf and frame.localPosition.x ~= 10000) )  then
+	    		if IsNil(self._CurPanelTrigger) then
+
+	    		else
+	    			local isShow = false
+	    			if SmallStepConfig.ShowUIPanelName ~= nil then
+	    				if SmallStepConfig.ShowUIPanelName == "" then
+	    					isShow = true
+	    				else
+				        	local panel = require("GUI." .. SmallStepConfig.ShowUIPanelName).Instance()
+				    		if panel ~= nil then
+				    			isShow = panel:IsShow()
+				    		end
+			    		end
+			    	end
+
+			    	if isShow then
+	    				self._CurPanelTrigger:ShowCurSmallStep()
+	    				self._CurPanelTrigger:EffectAutoPos(self._CurGuideTrigger._CurButton)
+	    			end
 	    		end
 	    	else
 
@@ -1317,6 +1481,18 @@ def.method().TriggerDelayCallBack = function(self)
 			GuideShow( self,self._CurGuideID,self._CurGuideStep )
 		end
 	end
+
+    local CPanelGuideTrigger = require "GUI.CPanelGuideTrigger"
+    local panelTrigger = CPanelGuideTrigger.Instance()
+    if panelTrigger ~= nil and panelTrigger:IsShow() and self._CurGuideTrigger ~= nil then
+        local CGuideMan = require "Guide.CGuideMan"
+        local guideConfig = CGuideMan.GetGuideTrigger()
+        local BigStepConfig = guideConfig[self._CurGuideTrigger._ID]
+        local SmallStepConfig = BigStepConfig.Steps[self._CurGuideTrigger._Step-1]
+		if SmallStepConfig ~= nil and SmallStepConfig.IsNextStepTriggerDelay ~= nil and SmallStepConfig.IsNextStepTriggerDelay then
+			self._CurGuideTrigger:GuideShow( self._CurGuideTrigger._ID,self._CurGuideTrigger._Step )
+		end
+    end
 end
 
 def.method("table").AnimationEndCallBack = function(self,panelcb)
@@ -1459,7 +1635,7 @@ def.method("string", "boolean").OnToggle = function(self, id, checked)
 
     local CPanelGuideTrigger = require "GUI.CPanelGuideTrigger"
     local panelTrigger = CPanelGuideTrigger.Instance()
-    -- --print("====================",panelTrigger,panelTrigger:IsShow(),game._CGuideMan._CurGuideTrigger)
+    print("====================",panelTrigger,panelTrigger:IsShow(),game._CGuideMan._CurGuideTrigger)
     if panelTrigger ~= nil and panelTrigger:IsShow() and self._CurGuideTrigger ~= nil then
         local CGuideMan = require "Guide.CGuideMan"
         local guideConfig = CGuideMan.GetGuideTrigger()
@@ -1505,7 +1681,7 @@ def.method("userdata", "string", "number").OnSelectItem = function(self, item, i
 
 	local CPanelGuideTrigger = require "GUI.CPanelGuideTrigger"
     local panelTrigger = CPanelGuideTrigger.Instance()
-    -- --print("====================",panelTrigger,panelTrigger:IsShow(),game._CGuideMan._CurGuideTrigger)
+    print("====================",panelTrigger,panelTrigger:IsShow(),game._CGuideMan._CurGuideTrigger)
     if panelTrigger ~= nil and panelTrigger:IsShow() and self._CurGuideTrigger ~= nil then
         local CGuideMan = require "Guide.CGuideMan"
         local guideConfig = CGuideMan.GetGuideTrigger()
@@ -1519,6 +1695,7 @@ def.method("userdata", "string", "number").OnSelectItem = function(self, item, i
         	btnName = SmallStepConfig.ShowHighLightButtonName
         	--print("ShowHighLightButtonName=",btnName)
         end
+        print("ShowHighLightButtonName=",self._CurGuideTrigger._ID,self._CurGuideTrigger._Step,btnName,id,index,SmallStepConfig.NextStepTriggerParam )
         if btnName ~= nil and id == btnName and index == SmallStepConfig.NextStepTriggerParam then
             self:GuideTrigger(EnumDef.EGuideBehaviourID.OnClickTargetList,SmallStepConfig.NextStepTriggerParam )
         end
@@ -1621,6 +1798,11 @@ def.method("table").ChangeGuideData = function(self, data)
 		if self._GuideTriggerDataTable[v].Guide ~= nil then
 			self._GuideTriggerDataTable[v].Guide._IsFinish = true
 		end
+
+	    if self._CurGuideTrigger ~= nil and v == self._CurGuideTrigger._ID then
+			self._GuideTriggerDataTable[v].Guide = self._CurGuideTrigger
+			self._GuideTriggerDataTable[v].Guide._IsFinish = false
+		end
 	end		
 	if self._CurGuideID == 0 then
 		self._IsNextStepTimeLimit = false
@@ -1639,8 +1821,10 @@ def.method("number").SendC2SGuideTrigger = function(self,guideID)
 	protocol.GuideId = guideID
 	PBHelper.Send(protocol)
 	--print("MLMLSendC2SGuideTriggerguideID ="..guideID)
-	local str = "GuideTrigger_Enter_"..guideID
-	CPlatformSDKMan.Instance():SetBreakPoint(str)
+	local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
+	CPlatformSDKMan.Instance():SetPipelineBreakPoint(
+		PlatformSDKDef.PipelinePointType.GuideTriggerEnter,
+		guideID)
 end
 
 --完成步骤
@@ -1652,8 +1836,10 @@ def.method("number").SendC2SGuideProgress = function(self,CurrId)
 	PBHelper.Send(protocol)
 	--print("MLMLSendC2SGuideProgress ="..CurrId)
 
-	local str = "Guide_End_"..CurrId
-	CPlatformSDKMan.Instance():SetBreakPoint(str)
+	local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
+	CPlatformSDKMan.Instance():SetPipelineBreakPoint(
+		PlatformSDKDef.PipelinePointType.GuideEnd,
+		CurrId)
 end
 
 --记录已打开步骤我
@@ -1665,8 +1851,10 @@ def.method("number").SendC2SGuideWill = function(self,willId)
 	PBHelper.Send(protocol)
 	--print("MLMLSendC2SGuideWill ="..willId)
 
-	local str = "Guide_Enter_"..willId
-	CPlatformSDKMan.Instance():SetBreakPoint(str)
+	local PlatformSDKDef = require "PlatformSDK.PlatformSDKDef"
+	CPlatformSDKMan.Instance():SetPipelineBreakPoint(
+		PlatformSDKDef.PipelinePointType.GuideEnter,
+		willId)
 end
 
 CGuideMan.Commit()

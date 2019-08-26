@@ -1,7 +1,6 @@
 local cfg = {
     List_Attribute = -310471621,
     View_Attribute = 320831874,
-    Lab_Title = 1202927846,
     Lab_TitleValue = -1393293269,
     Lab_DownTip = -473107545,
     Charm_Template = -131254238,

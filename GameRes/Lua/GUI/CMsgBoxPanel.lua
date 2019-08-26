@@ -43,7 +43,7 @@ do
 --	end
 
     local function OnApplicationQuit(sender, event)
-        MsgBox.RemoveAllBoxes()
+        MsgBox.RemoveAllBoxesData()
     end
 
 	def.method("number").SetPriority = function(self, priority)
@@ -51,12 +51,13 @@ do
             self._CfgPath=PATH.UI_MessageBox2
         elseif priority == MsgBoxPriority.Quit then
             self._CfgPath=PATH.UI_MessageBox3
+        elseif priority == MsgBoxPriority.ImportantTip then
+            self._CfgPath=PATH.UI_MessageBox2
 		elseif priority == MsgBoxPriority.Guide then
             self._CfgPath=PATH.UI_MessageBox1
 		else
             self._CfgPath=PATH.UI_MessageBox
 		end
-		
 		self:SetupSortingParam()
 	end
 
@@ -151,12 +152,18 @@ do
                 else
                     count_str = string.format(StringTable.Get(20081), have_count, msgData._CostItemCount)
                 end
-                IconTools.InitItemIconNew(self._PanelObject._ItemIconNew, msgData._CostItemID, nil, EItemLimitCheck.AllCheck)
+                local setting = {
+                    [EItemIconTag.Grade] = msgData._Star,
+                }
+                IconTools.InitItemIconNew(self._PanelObject._ItemIconNew, msgData._CostItemID, setting, EItemLimitCheck.AllCheck)
                 GUI.SetText(self._PanelObject._Lab_ItemName, RichTextTools.GetItemNameRichText(msgData._CostItemID, 1, false))
             else
                 local have_count = game._HostPlayer._Package._NormalPack:GetItemCount(msgData._GainItemID)
+                local setting = {
+                    [EItemIconTag.Grade] = msgData._Star,
+                }
                 count_str = string.format(StringTable.Get(20082), have_count, msgData._GainItemCount)
-                IconTools.InitItemIconNew(self._PanelObject._ItemIconNew, msgData._GainItemID, nil, EItemLimitCheck.AllCheck)
+                IconTools.InitItemIconNew(self._PanelObject._ItemIconNew, msgData._GainItemID, setting, EItemLimitCheck.AllCheck)
                 GUI.SetText(self._PanelObject._Lab_ItemName, RichTextTools.GetItemNameRichText(msgData._GainItemID, 1, false))
             end
             GUI.SetText(lab_number, count_str)
@@ -200,7 +207,7 @@ do
         local msgBoxType = msgData._Type
 		if msgBoxType ~= self._CurType then
 			-- 类型不同才需要更改的内容
-			local isNOCloseBtn = (bit.band(msgBoxType, MsgBoxType.MBT_NOCLOSEBTN) == MsgBoxType.MBT_NOCLOSEBTN)
+            local isNOCloseBtn = msgData._IsNOCloseBtn
 			self._PanelObject._LabTips:SetActive(msgData._IsNoBtn)
 --            local bgRect = self._PanelObject._Img_MsgBG:GetComponent(ClassType.RectTransform)
 			if isNOCloseBtn then

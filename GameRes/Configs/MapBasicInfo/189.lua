@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/world04-2.png",
 	AssetPath = "Assets/Outputs/Scenes/World04Part2.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[13114] = 
@@ -29,20 +30,20 @@ local MapInfo =
 	{
 		[1] = 
 		{
-			[284] = { x = 254.96, y = 36.32, z = -185.33, xA = -198.64, yA = 31.32, zA = -223.06, name = "传送区域-埃塞尼亚东", worldId = 170, PkMode = 0 },
+			[284] = { x = 254.96, y = 36.32, z = -185.33, xA = -198.64, yA = 31.32, zA = -223.06, name = "传送区域-埃塞尼亚东", worldId = 170, PkMode = 1 },
 		},
 		[2] = 
 		{
-			[302] = { x = 180.65, y = 16.20, z = -184.83, name = "绝境要塞", worldId = 0, PkMode = 1 },
-			[303] = { x = -170.01, y = 30.19, z = -167.81, name = "暗影森林", worldId = 0, PkMode = 0 },
-			[304] = { x = -95.07, y = 59.18, z = -107.47, name = "洛克祭坛", worldId = 0, PkMode = 0 },
-			[305] = { x = 100.48, y = 49.38, z = -28.56, name = "蛛丝洞", worldId = 0, PkMode = 0 },
-			[306] = { x = -60.94, y = 105.04, z = 174.47, name = "风之壁垒", worldId = 0, PkMode = 0 },
-			[307] = { x = -50.31, y = 95.43, z = 88.57, name = "中庭", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[308] = { x = -29.30, y = 99.22, z = 171.42, name = "主堡", worldId = 0, IsCanFind = 1, PkMode = 0 },
+			[302] = { x = 180.65, y = 16.20, z = -184.83, name = "绝境要塞", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[303] = { x = -170.01, y = 30.19, z = -167.81, name = "暗影森林", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[304] = { x = -95.07, y = 59.18, z = -107.47, name = "洛克祭坛", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[305] = { x = 100.48, y = 49.38, z = -28.56, name = "蛛丝洞", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[306] = { x = -60.94, y = 105.04, z = 174.47, name = "风之壁垒", worldId = 0, PkMode = 1 },
+			[307] = { x = -50.31, y = 95.43, z = 88.57, name = "中庭", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[308] = { x = -29.30, y = 99.22, z = 171.42, name = "主堡", worldId = 0, IsCanFind = 1, PkMode = 1 },
 			[309] = { x = -209.19, y = 84.24, z = 65.71, name = "魔法圆环", worldId = 0, IsCanFind = 1, PkMode = 1 },
-			[310] = { x = 1.71, y = 21.45, z = 226.93, name = "演武场", worldId = 0, IsCanFind = 1, PkMode = 0 },
-			[311] = { x = -155.03, y = 133.91, z = 224.19, name = "先贤祠", worldId = 0, IsCanFind = 1, PkMode = 0 },
+			[310] = { x = 1.71, y = 21.45, z = 226.93, name = "演武场", worldId = 0, IsCanFind = 1, PkMode = 1 },
+			[311] = { x = -155.03, y = 133.91, z = 224.19, name = "先贤祠", worldId = 0, IsCanFind = 1, PkMode = 1 },
 		},
 	},
 	Mine = 

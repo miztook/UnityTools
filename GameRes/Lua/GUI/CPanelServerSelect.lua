@@ -68,6 +68,7 @@ def.override().OnCreate = function(self)
 	self._List_Menu = self:GetUIObject("List_Menu"):GetComponent(newList)
 	self._Frame_QuickEnter = self:GetUIObject("Frame_QuickEnter")
 	self._List_QuickEnter = self:GetUIObject("List_QuickEnter"):GetComponent(newList)
+	self:EnableWaitTips(false)
 
 	self._ServerState2UIInfo =
 	{
@@ -75,6 +76,7 @@ def.override().OnCreate = function(self)
 		[EnumDef.ServerState.Normal] 	= { Index = 1, Str = StringTable.Get(33201) },
 		[EnumDef.ServerState.Busy] 		= { Index = 2, Str = StringTable.Get(33202) },
 		[EnumDef.ServerState.Unuse] 	= { Index = 3, Str = StringTable.Get(33203) },
+		[EnumDef.ServerState.Unrun]		= { Index = 3, Str = StringTable.Get(33203) },
 	}
 end
 
@@ -88,51 +90,26 @@ def.override("dynamic").OnData = function(self, data)
 		self._Account = data.account
 		self._Password = data.password
 	end
-	self:RequestData()
-	-- self:SetQuickEnterInfo(self._Account)
-end
 
--- 从中心服获取数据
-def.method().RequestData = function (self)
-	self:EnableWaitTips(true)
-	self._ServerList = {}
-	local isServerListComplete, isAccountRoleListComplete = false, false
-	local function CheckData()
-		if isServerListComplete and isAccountRoleListComplete and self:IsShow() then
-			self._ServerList = CLoginMan.GetServerList()
-			-- 设置已有角色列表
-			self._AccountRoleList = {}
-			if not IsNilOrEmptyString(self._Account) then
-				-- 非空账号才去取角色列表数据，否则默认列表为空
-				local roleList = CLoginMan.GetAccountRoleList(self._Account)
-				if roleList ~= nil then
-					-- 检查已有角色里是否在现有的服务器列表里
-					for _, info in ipairs(roleList) do
-						local index = self:GetServerIndexByZoneId(info.zoneId)
-						if self._ServerList[index] ~= nil then
-							table.insert(self._AccountRoleList, info)
-						end
-					end
+	self._ServerList = CLoginMan.GetServerListCache()
+	-- 设置已有角色列表
+	self._AccountRoleList = {}
+	if not IsNilOrEmptyString(self._Account) then
+		-- 非空账号才去取角色列表数据，否则默认列表为空
+		local roleList = CLoginMan.GetAccountRoleList(self._Account)
+		if roleList ~= nil then
+			-- 检查已有角色里是否在现有的服务器列表里
+			for _, info in ipairs(roleList) do
+				local index = self:GetServerIndexByZoneId(info.zoneId)
+				if self._ServerList[index] ~= nil then
+					table.insert(self._AccountRoleList, info)
 				end
 			end
-			self:InitData()
-			self:EnableWaitTips(false)
-			self:SetMenu()
 		end
 	end
-	CLoginMan.RequestServerList(function ()
-		isServerListComplete = true
-		CheckData()
-	end)
-	if IsNilOrEmptyString(self._Account) then
-		isAccountRoleListComplete = true
-		CheckData()
-	else
-		CLoginMan.RequestAccountRoleList(self._Account, function ()
-			isAccountRoleListComplete = true
-			CheckData()
-		end)
-	end
+	self:InitData()
+	self:SetMenu()
+	-- self:SetQuickEnterInfo(self._Account)
 end
 
 def.method().InitData = function (self)
@@ -148,17 +125,7 @@ def.method().InitData = function (self)
 		self._OrderZoneId = GameUtil.GetOrderZoneId() -- 必须在 CLoginMan.GetAccountRoleList 后使用
 		-- 预约
 		local recommended_list = {}
-		local recentZoneId = 0 -- 最近登录的服务器ID
 		if #self._AccountRoleList > 0 then
-			recentZoneId = self._AccountRoleList[1].zoneId -- 已有角色第一个就是最近登录
-			if recentZoneId ~= self._OrderZoneId then
-				local index = self:GetServerIndexByZoneId(recentZoneId)
-				local serverInfo = self._ServerList[index]
-				if serverInfo ~= nil then
-					table.insert(recommended_list, serverInfo)
-				end
-			end
-
 			local levelMap = {}
 			for index, info in ipairs(self._AccountRoleList) do
 				local level = levelMap[info.zoneId]
@@ -169,10 +136,17 @@ def.method().InitData = function (self)
 			end
 		end
 		-- 推荐
-		local num = 4 -- 从所有服务器列表找前面4个
+		-- 先找到所有服务器推荐的
+		for _, info in ipairs(self._ServerList) do
+			if info.recommend and info.zoneId ~= self._OrderZoneId then
+				table.insert(recommended_list, info)
+			end
+		end
+		-- 再从所有服务器列表找前面4个New的
+		local num = 4
 		local count = 0
-		for index, info in ipairs(self._ServerList) do
-			if info.zoneId ~= self._OrderZoneId and info.zoneId ~= recentZoneId then
+		for _, info in ipairs(self._ServerList) do
+			if not info.recommend and info.newFlag and info.zoneId ~= self._OrderZoneId then
 				table.insert(recommended_list, info)
 				count = count + 1
 			end
@@ -224,7 +198,7 @@ def.override("userdata", "string", "number").OnInitItem = function(self, item, i
 
 		local headIcon = roleInfo.HeadIcon
 		local img_headIcon = GUITools.GetChild(item, 4)
-		game:SetEntityCustomImg(img_headIcon, roleInfo.RoleId, headIcon.CustomImgSet, headIcon.Gender, headIcon.Prof)
+		TeraFuncs.SetEntityCustomImg(img_headIcon, roleInfo.RoleId, headIcon.CustomImgSet, headIcon.Gender, headIcon.Prof)
 		local lab_roleLevel = GUITools.GetChild(item, 2)
 		GUI.SetText(lab_roleLevel, "<color=#ecb554>Lv.</color> " .. roleInfo.Level)
 		if index + 1 == self._QuickEnterIndex then
@@ -332,10 +306,13 @@ def.method("userdata", "number").OnInitRoleList = function (self, item, index)
 	local lab_server_name = uiTemplate:GetControl(2)
 	GUI.SetText(lab_server_name, serverInfo.name)
 	-- 服务器状态
-	local img_sign = uiTemplate:GetControl(1)
-	GUITools.SetGroupImg(img_sign, self._ServerState2UIInfo[serverInfo.state].Index)
-	local lab_server_state = uiTemplate:GetControl(8)
-	GUI.SetText(lab_server_state, self._ServerState2UIInfo[serverInfo.state].Str)
+	local uiInfo = self._ServerState2UIInfo[serverInfo.state]
+	if uiInfo ~= nil then
+		local img_sign = uiTemplate:GetControl(1)
+		GUITools.SetGroupImg(img_sign, uiInfo.Index)
+		local lab_server_state = uiTemplate:GetControl(8)
+		GUI.SetText(lab_server_state, uiInfo.Str)
+	end
 	-- 角色名称
 	local lab_role_name = uiTemplate:GetControl(9)
 	GUI.SetText(lab_role_name, roleInfo.name)
@@ -351,7 +328,7 @@ def.method("userdata", "number").OnInitRoleList = function (self, item, index)
 	-- 角色头像
 	local gender = Profession2Gender[roleInfo.profession]
 	local img_head_icon = uiTemplate:GetControl(3)
-	game:SetEntityCustomImg(img_head_icon, roleInfo.roleId, roleInfo.customSet, gender, roleInfo.profession)
+	TeraFuncs.SetEntityCustomImg(img_head_icon, roleInfo.roleId, roleInfo.customSet, gender, roleInfo.profession)
 end
 
 def.method("userdata", "number").OnInitRecommendList = function (self, item, index)
@@ -377,20 +354,30 @@ def.method("userdata", "number").OnInitRecommendList = function (self, item, ind
 	local lab_name = uiTemplate:GetControl(2)
 	GUI.SetText(lab_name, serverInfo.name)
 	-- 服务器状态
-	local img_sign = uiTemplate:GetControl(1)
-	GUITools.SetGroupImg(img_sign, self._ServerState2UIInfo[serverInfo.state].Index)
-	local lab_server_state = uiTemplate:GetControl(4)
-	GUI.SetText(lab_server_state, self._ServerState2UIInfo[serverInfo.state].Str)
+	local uiInfo = self._ServerState2UIInfo[serverInfo.state]
+	if uiInfo ~= nil then
+		local img_sign = uiTemplate:GetControl(1)
+		GUITools.SetGroupImg(img_sign, uiInfo.Index)
+		local lab_server_state = uiTemplate:GetControl(4)
+		GUI.SetText(lab_server_state, uiInfo.Str)
+	end
 	-- 服务器角标
 	local flagStr = ""
+	local flagIndex = 0
 	if isOrderServer then
 		flagStr = StringTable.Get(33208)
+		flagIndex = 1
+	elseif serverInfo.recommend then
+		flagStr = StringTable.Get(33210)
+		flagIndex = 0
 	elseif serverInfo.newFlag then
 		flagStr = StringTable.Get(33209)
+		flagIndex = 0
 	end
 	local img_flag = uiTemplate:GetControl(5)
 	GUITools.SetUIActive(img_flag, flagStr ~= "")
 	if flagStr ~= "" then
+		GUITools.SetGroupImg(img_flag, flagIndex)
 		local lab_flag = uiTemplate:GetControl(6)
 		GUI.SetText(lab_flag, flagStr)
 	end
@@ -415,7 +402,7 @@ def.method("userdata", "number").OnInitRecommendList = function (self, item, ind
 		-- 角色头像
 		local gender = Profession2Gender[roleInfo.profession]
 		local img_head_icon = uiTemplate:GetControl(11)
-		game:SetEntityCustomImg(img_head_icon, roleInfo.roleId, roleInfo.customSet, gender, roleInfo.profession)
+		TeraFuncs.SetEntityCustomImg(img_head_icon, roleInfo.roleId, roleInfo.customSet, gender, roleInfo.profession)
 	end
 end
 
@@ -430,20 +417,30 @@ def.method("userdata", "number").OnInitAllList = function (self, item, index)
 	local lab_name = uiTemplate:GetControl(2)
 	GUI.SetText(lab_name, serverInfo.name)
 	-- 服务器状态
-	local img_sign = uiTemplate:GetControl(1)
-	GUITools.SetGroupImg(img_sign, self._ServerState2UIInfo[serverInfo.state].Index)
-	local lab_server_state = uiTemplate:GetControl(4)
-	GUI.SetText(lab_server_state, self._ServerState2UIInfo[serverInfo.state].Str)
+	local uiInfo = self._ServerState2UIInfo[serverInfo.state]
+	if uiInfo ~= nil then
+		local img_sign = uiTemplate:GetControl(1)
+		GUITools.SetGroupImg(img_sign, uiInfo.Index)
+		local lab_server_state = uiTemplate:GetControl(4)
+		GUI.SetText(lab_server_state, uiInfo.Str)
+	end
 	-- 服务器角标
 	local flagStr = ""
+	local flagIndex = 0
 	if serverInfo.zoneId == self._OrderZoneId then
 		flagStr = StringTable.Get(33208)
+		flagIndex = 1
+	elseif serverInfo.recommend then
+		flagStr = StringTable.Get(33210)
+		flagIndex = 0
 	elseif serverInfo.newFlag then
 		flagStr = StringTable.Get(33209)
+		flagIndex = 0
 	end
 	local img_flag = uiTemplate:GetControl(5)
 	GUITools.SetUIActive(img_flag, flagStr ~= "")
 	if flagStr ~= "" then
+		GUITools.SetGroupImg(img_flag, flagIndex)
 		local lab_flag = uiTemplate:GetControl(6)
 		GUI.SetText(lab_flag, flagStr)
 	end
@@ -468,7 +465,7 @@ def.method("userdata", "number").OnInitAllList = function (self, item, index)
 		-- 角色头像
 		local gender = Profession2Gender[roleInfo.profession]
 		local img_head_icon = uiTemplate:GetControl(11)
-		game:SetEntityCustomImg(img_head_icon, roleInfo.roleId, roleInfo.customSet, gender, roleInfo.profession)
+		TeraFuncs.SetEntityCustomImg(img_head_icon, roleInfo.roleId, roleInfo.customSet, gender, roleInfo.profession)
 	end
 end
 
@@ -490,6 +487,7 @@ def.method("number").SelectMenu = function (self, menuType)
 	end
 end
 
+--[[
 -- 设置快速进入信息
 def.method("string").SetQuickEnterInfo = function (self, account)
 	self._QuickEnterIndex = 1 -- 默认选中第一个
@@ -510,6 +508,7 @@ def.method("string").SetQuickEnterInfo = function (self, account)
 		GUITools.SetUIActive(self._Frame_QuickEnter, false)
 	end
 end
+--]]
 
 -- 点击快速进入
 def.method().OnBtnQuickEnter = function (self)

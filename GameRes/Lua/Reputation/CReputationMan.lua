@@ -21,7 +21,6 @@ def.static("=>", CReputationMan).new = function()
 	return obj
 end
 
-
 --获取所有成就
 def.method("=>","table").GetAllReputation = function(self)
 	return self._Reputations
@@ -168,7 +167,7 @@ def.method("table").OnS2CReputationView = function(self, data)
 	CGame.EventManager:addHandler('QuestCommonEvent', OnQuestEvents)
 end
 
-def.method().Release = function(self)	
+def.method().Cleanup = function(self)	
 	CGame.EventManager:removeHandler('QuestCommonEvent', OnQuestEvents)
 end
 

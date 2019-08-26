@@ -94,6 +94,18 @@ local cfg = {
     Img_WIFI = -631009743,
     Frame_Social = 1251321535,
     Frame_Exp = -1745581045,
+    Btn_QuickMsg = 883652887,
+    Frame_QuickMsg = 1935059238,
+    List_QuickMsg = 1416989909,
+    Frame_KillProgress = -1136890499,
+    Bar_KillProgress = 33824919,
+    Sld_KillElite = 2094465921,
+    Lab_KillProgressPercent = 873134120,
+    Lab_KillProgressInfo = -291826773,
+    Frame_KillProgressBoss = 1161762442,
+    Img_KillProgressBoss = -1299683596,
+    Frame_KillProgressBossEffect = -490853189,
+    Lab_KillProgressBossPercent = -628464005,
 }
  
 return cfg

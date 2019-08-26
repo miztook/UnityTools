@@ -11,6 +11,7 @@ local MapInfo =
 	EnvironmentMusic = "Zone_Ambience/Ambience/Square",
 	MiniMapAtlasPath = "Assets/Outputs/CommonAtlas/MiniMap/Map_Bg_019.png",
 	AssetPath = "Assets/Outputs/Scenes/World05.prefab",
+	PKMode= 1,
 	Monster = 
 	{
 		[14000] = 
@@ -23,7 +24,7 @@ local MapInfo =
 	{
 		[4000] = 
 		{
-			[1] = { x = -132.68, y = 37.84, z = -85.70, name = "다친 연합군 병사", SortID = 3 },
+			[1] = { x = -132.68, y = 37.84, z = -85.70, name = "부상당한 병사", SortID = 3 },
 		},
 		[4036] = 
 		{
@@ -54,8 +55,8 @@ local MapInfo =
 	{
 		[2] = 
 		{
-			[333] = { x = -154.16, y = 37.85, z = -69.83, name = "드페라 저택", worldId = 0, PkMode = 0, IsCanHawkeye = true, QuestID = {4012,4013,4014,4015} },
-			[377] = { x = -162.55, y = 37.96, z = -59.69, name = "抵达区域", worldId = 0, PkMode = 0 },
+			[333] = { x = -154.16, y = 37.85, z = -69.83, name = "드페라 저택", worldId = 0, IsCanFind = 1, PkMode = 1, IsCanHawkeye = true, QuestID = {4012,4013,4016,4015} },
+			[377] = { x = -162.55, y = 37.96, z = -59.69, name = "抵达区域", worldId = 0, PkMode = 1 },
 		},
 	},
 	Mine = 

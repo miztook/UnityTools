@@ -28,6 +28,7 @@ def.field("table")._CostMoneyIDs = nil
 def.field("table")._PanelObjects = BlankTable
 def.field("boolean")._ShouldClose = false
 def.field("function")._CallBack = nil
+def.field("number")._GoodsID = 0
 
 def.static('=>', CPanelQuickBuy).Instance = function ()
 	if not instance then
@@ -84,6 +85,7 @@ def.override("dynamic").OnData = function(self, data)
     self._CostMoneyIDs = CMallUtility.GetCostMoneyIDs(self._TargetRewardTable)
     self._CostMoneyInfoTable = {}
     self._CallBack = data.callback
+    self._GoodsID = data.goodsID or 0
     self:UpdatePanel()
 end
 
@@ -156,7 +158,8 @@ def.method().UpdatePanel = function(self)
         self._CallBack = function(val)
             if val then
                 -- TODO 跳转到蓝钻充值界面
-                game._GUIMan:ShowTipText(StringTable.Get(31032), true)    
+                --game._GUIMan:ShowTipText(StringTable.Get(31032), true)    
+                game._GUIMan:Open("CPanelMall", 14)
                 self._ShouldClose = true
             end
         end
@@ -191,6 +194,7 @@ def.method().UpdatePanel = function(self)
                     end
                 end
                 protocol.Param = uid
+                protocol.GoodsId = self._GoodsID
                 self._CallBack = callback
                 SendProtocol(protocol)
             end
@@ -209,7 +213,8 @@ def.method().UpdatePanel = function(self)
                 self._CallBack = function(val)
                     if val then
                         -- TODO 跳转到蓝钻充值界面
-                        game._GUIMan:ShowTipText(StringTable.Get(31032), true)    
+                        --game._GUIMan:ShowTipText(StringTable.Get(31032), true)
+                        game._GUIMan:Open("CPanelMall", 14)    
                         self._ShouldClose = true
                     end
                 end
@@ -217,7 +222,7 @@ def.method().UpdatePanel = function(self)
         end
         
     end
-    print("#self._CostMoneyIDs ", #self._CostMoneyIDs)
+    --print("#self._CostMoneyIDs ", #self._CostMoneyIDs)
     list_cost:SetItemCount(#self._CostMoneyIDs)
 end
 

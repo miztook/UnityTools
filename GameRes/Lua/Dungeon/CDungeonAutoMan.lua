@@ -401,7 +401,7 @@ def.method().Start = function(self)
         StopAuto()
     end 
 
-    print("CDungeonAutoMan Start", debug.traceback())
+    --print("CDungeonAutoMan Start", debug.traceback())
 end
 
 def.method("number").Pause = function(self, reasonMask)    
@@ -415,7 +415,7 @@ def.method("number").Pause = function(self, reasonMask)
     self._IsPause = true
 
     if reasonMask ~= _G.PauseMask.SkillPerform then
-        print("CDungeonAutoMan Pause", self._PauseMask, debug.traceback())
+        --print("CDungeonAutoMan Pause", self._PauseMask, debug.traceback())
     end
 end
 
@@ -425,7 +425,7 @@ def.method("number").Restart = function(self, reasonMask)
     self._PauseMask = bit.band(self._PauseMask,  bit.bnot(reasonMask))
     
     if reasonMask ~= _G.PauseMask.SkillPerform then
-        print("CDungeonAutoMan Restart", self._PauseMask, debug.traceback())
+        --print("CDungeonAutoMan Restart", self._PauseMask, debug.traceback())
     end
 
     if self._PauseMask ~= 0 then return end 
@@ -437,12 +437,6 @@ end
 --副本目标改变，寻路(每次执行副本寻路之前，需要先暂停自动战斗！)
 def.method().ChangeGoal = function(self) 
     if not self._IsOn then return end
-
-    -- 目标优先，停止战斗
-    --local preferAchieveGoals = (game:GetCurMapAutoFightType() == AFT.DungeonGoal and game:GetCurDungeonPreferedGoal() == DPG.AchieveGoals)
-    --if preferAchieveGoals then
-    --    self:Stop()
-    --end
 
     SetDungeonGoalData(self)
     local isValid = IsDungeonGoalValid(self)
@@ -465,17 +459,13 @@ def.method().Stop = function(self)
     if not self._IsOn then return end     
     StopAuto()
 
-    print("CDungeonAutoMan Stop", debug.traceback())
+    --print("CDungeonAutoMan Stop", debug.traceback())
 end
 
 def.method().Debug = function(self)
     local msg = string.format("CDungeonAutoMan IsOn = %s, Paused = %s, _PauseMask = %d", tostring(self._IsOn), tostring(self._IsPause), self._PauseMask)
 
     warn(msg, self._GoalPos)
-end
-
-def.method().Release = function(self)
-    self:Stop()
 end
 
 CDungeonAutoMan.Commit()

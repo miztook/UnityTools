@@ -148,7 +148,7 @@ local function setIcon(obj, path)
 end
 
 local function setHeadIconfromImageFile(obj, filepath)
-	GameUtil.SetSpriteFromImageFile(obj, filepath)
+	GameUtil.SetHeadIconfromImageFile(obj, filepath)
 end
 
 local function setProfSymbolIcon(obj, path)
@@ -322,12 +322,13 @@ local function formatTimeFromGmtToSeconds(timeStr)
 	local hms = string.split(value1[2],":")
 
 	local seconds = os.time({
-		year = tostring(ymd[1]),
-		month = tostring(ymd[2]),
-		day = tostring(ymd[3]),
-		hour = tostring(hms[1]),
-		min = tostring(hms[2]),
-		sec = tostring(hms[3])
+		year = tonumber(ymd[1]),
+		month = tonumber(ymd[2]),
+		day = tonumber(ymd[3]),
+		hour = tonumber(hms[1]),
+		min = tonumber(hms[2]),
+		sec = tonumber(hms[3]),
+		isdst = false,
 	})	
 	return seconds 
 	-- body
@@ -339,8 +340,8 @@ local function ReParseFormatNum(number)
 	local index = 1
 	local num = number
 	local tmp = {}
-    while num > 0 do
-		table.insert(tmp, index, (num % 1000))
+	while num > 0 do
+		table.insert(tmp, index, math.floor(num % 1000))
 		num = math.floor(num / 1000)
 		index = index + 1
     end
@@ -353,7 +354,7 @@ local function ReParseFormatNum(number)
 			if i < lenth and lenth > 1 then
 				step = tmp[i]
 				if string.len(step) < 3 then
-					for j = 1, (3 -string.len(tmp[i])) do 
+					for j = 1, (3 - string.len(tmp[i])) do 
 						step = "0"..step
 					end
 				end
@@ -363,6 +364,7 @@ local function ReParseFormatNum(number)
 			end		
 		end	
 	end
+
     return ret
 end
 
@@ -402,7 +404,7 @@ local function formatNumber(number, isMoney, maxDigit)
 
         local dot = number % 1          -- 单单是%1的话会有精度损失（0.26 -> 0.2599999498）
         if dot > 0 then
-            local num_str = tostring(number)
+            local num_str = tostring(math.floor(number))
             local start_i, end_i = string.find(num_str, tostring(math.floor(number)))
             dot = tonumber(string.sub(num_str, end_i + 1, -1))
         end

@@ -54,6 +54,31 @@ int main(int argc, char* argv[])
 			return -1;
 		}
 	}
+	else if (argc == 4)
+	{
+		printf("COMMAND: generate version.txt!\r\n\r\n");
+		g_pAFramework->Printf("COMMAND: generate version.txt!\r\n\r\n");
+
+		std::string baseVer = argv[1];
+		std::string nextVer = argv[2];
+		std::string strOutputPath = argv[3];
+
+		if (CElementJUPGenerator::GenerateVersionTxt(baseVer, nextVer, strOutputPath))
+		{
+			printf("JupGenerator Success!\r\n");
+			g_pAFramework->Printf("JupGenerator Success!\r\n");
+
+			//getchar();
+			return 0;
+		}
+		else
+		{
+			printf("End JupGenerator, Fail\r\n");
+			g_pAFramework->Printf("End JupGenerator, Fail\r\n");
+			//getchar();
+			return -1;
+		}
+	}
 	else if (argc == 9)
 	{
 		printf("COMMAND: generate jup and version.txt!\r\n\r\n");

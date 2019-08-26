@@ -116,12 +116,12 @@ local function OnReady(nPlayerID,isReady)
 	if nType == 0 then --友方		
 		if instance._FriendMemUI[idex] ~= nil  then
 			GameUtil.MakeImageGray(instance._FriendMemUI[idex]._HeadImg,isGray)
-			-- instance._FriendMemUI[idex]._ReadyImg: SetActive(isReady)
+			instance._FriendMemUI[idex]._ReadyImg: SetActive(isReady)
 		end
 	else 
 		if instance._EnemyMemUI[idex] ~= nil  then
 			GameUtil.MakeImageGray(instance._EnemyMemUI[idex]._HeadImg,isGray)
-			-- instance._EnemyMemUI[idex]._ReadyImg: SetActive(isReady)
+			instance._EnemyMemUI[idex]._ReadyImg: SetActive(isReady)
 		end
 	end
 end
@@ -136,7 +136,7 @@ local function InitPlayerShow(nType,idex,iData)
 		local FriendUIdata = instance._FriendMemUI[idex] 
 		if FriendUIdata ~= nil and not IsNil(FriendUIdata._HeadImg) then
 			--warn("??????"..iData.RoleID.."//"..iData.CustomImgSet.."//"..iData.Gender.."//"..iData.Profession)			
-			game: SetEntityCustomImg(FriendUIdata._HeadImg,iData.RoleID,iData.CustomImgSet,iData.Gender,iData.Profession)
+			TeraFuncs.SetEntityCustomImg(FriendUIdata._HeadImg,iData.RoleID,iData.CustomImgSet,iData.Gender,iData.Profession)
 
 			GUI.SetText(FriendUIdata._LabLv,string.format(StringTable.Get(21508),iData.Level))
 			GUI.SetText(FriendUIdata._LabJob, tostring(StringTable.Get(10300 + iData.Profession - 1)))
@@ -153,7 +153,7 @@ local function InitPlayerShow(nType,idex,iData)
 		local EnemyUIdata = instance._EnemyMemUI[idex]
 		if EnemyUIdata ~= nil and not IsNil(EnemyUIdata._HeadImg) then
 			--warn("??????"..iData.RoleID.."//"..iData.CustomImgSet.."//"..iData.Gender.."//"..iData.Profession)
-			game: SetEntityCustomImg(EnemyUIdata._HeadImg,iData.RoleID,iData.CustomImgSet,iData.Gender,iData.Profession)
+			TeraFuncs.SetEntityCustomImg(EnemyUIdata._HeadImg,iData.RoleID,iData.CustomImgSet,iData.Gender,iData.Profession)
 			GUI.SetText(EnemyUIdata._LabLv,string.format(StringTable.Get(21508),iData.Level))
 			GUI.SetText(EnemyUIdata._LabJob, tostring(StringTable.Get(10300 +iData.Profession - 1)))
 			local ColorName = "<color=#FFFFFFFF>" ..iData.Name .."</color>"

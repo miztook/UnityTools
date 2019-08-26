@@ -40,6 +40,11 @@ local cfg = {
     Img_NotingBg = 1213640208,
     Lab_Nothing = -190934309,
     Img_EmailIcon = -820701063,
+    Frame_BagFull = 1830431141,
+    Btn_CloseNotice = 1060477261,
+    Lab_Message = -1365333227,
+    Btn_GoMall = -309626209,
+    Btn_GoBag = -1395471843,
 }
  
 return cfg

@@ -1,9 +1,8 @@
 #pragma once
 
 #include <vector>
-#include <cstring>
+#include "AString.h"
 #include "VersionMan.h"
-#include "stringext.h"
 #include <set>
 
 
@@ -27,6 +26,7 @@ struct SUpdateFileEntry			 //一个jup内的文件
 	std::string strMd5;		//compressed
 	std::string strFileName;
 	int64_t nSize;			//compressed
+	int64_t nOriginSize;
 
 	bool operator<(const SUpdateFileEntry& rhs) const
 	{
@@ -46,13 +46,31 @@ struct SJupContent			//一个jup的更新内容
 	std::vector<SUpdateFileEntry>	UpdateList;
 	std::vector<std::string>  IncString;
 
+	int64_t GetTotalOriginSize() const
+	{
+		int64_t total = 0;
+		for (const auto& entry : UpdateList)
+		{
+			total += entry.nOriginSize;
+		}
+		return total;
+	}
+
+	int64_t GetTotalSize() const
+	{
+		int64_t total = 0;
+		for (const auto& entry : UpdateList)
+		{
+			total += entry.nSize;
+		}
+		return total;
+	}
+
 	void ToFileName(std::string& str) const
 	{
-		std::string strOld;
-		std::string strNew;
-		verOld.ToString(strOld);
-		verNew.ToString(strNew);
-		std_string_format(str, "%s-%s.jup", strOld.c_str(), strNew.c_str());
+		std::string strOld = verOld.ToString();
+		std::string strNew = verNew.ToString();
+		str = std_string_format("%s-%s.jup", strOld.c_str(), strNew.c_str());
 	}
 };
 
@@ -108,21 +126,23 @@ public:
 
 	bool GenerateJup(const SJupContent& jupContent);
 	bool GenerateVersionTxt(const SVersion& sversion) const;
+	
 	void OpenJupDir();
 
 	bool SplitJup(const SJupContent& jupContent, std::vector<SJupContent>& jupContentSplitList, int64_t nLimitSize) const;
 
 	bool GenerateJupUpdateText(const std::vector<SJupContent>& jupContentList);
 
-	bool FindVersionPair(const std::vector<SJupFileEntry>& pairList, const ELEMENT_VER& vBase, const ELEMENT_VER& vLatest, const ELEMENT_VER& curVer, SJupFileEntry& verPair) const;
-
+	
 public:
 	static bool GenerateBaseVersionTxt(const std::string& strBaseVersion, const std::string& strJupGeneratePath);
-	
+	static bool GenerateVersionTxt(const std::string& baseVersion, const std::string& nextVersion, const std::string& jupDir);
+	static bool FindVersionPair(const std::vector<SJupFileEntry>& pairList, const ELEMENT_VER& vBase, const ELEMENT_VER& vLatest, const ELEMENT_VER& curVer, SJupFileEntry& verPair);
+
 private:
 	void GenerateIncFileString(const SJupContent& jupContent, std::vector<std::string>& strInc) const;
 
-	bool ReadVersionText(const std::string& strFileName, std::vector<SUpdateFileEntry>& entries) const;	
-	bool ReGenerateJupContentToDir(const SJupContent& jupContent, const std::string& strDir) const;
+	bool ReadVersionText(const char* strFileName, std::vector<SUpdateFileEntry>& entries) const;	
+	bool ReGenerateJupContentToDir(const SJupContent& jupContent, const char* strDir) const;
 	bool CompareDir(const std::string& leftDir, const std::string& rightDir, const std::set<std::string>& fileList) const;
 };
