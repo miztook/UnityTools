@@ -567,6 +567,7 @@ bool AFilePackage::InnerOpen(const char* szPckPath, const char* szFolder, OPENMO
 	//	Save folder name
 	ASSERT(szFolder);
 	strncpy(m_szFolder, szFolder, MAX_PATH);
+	m_szFolder[MAX_PATH - 1] = '\0';
 	ASys::Strlwr(m_szFolder);
 	NormalizeFileName(m_szFolder);
 
@@ -604,6 +605,7 @@ bool AFilePackage::InnerOpen(const char* szPckPath, const char* szFolder, OPENMO
 		}
 
 		strncpy(m_szPckFileName, szPckPath, MAX_PATH);
+		m_szPckFileName[MAX_PATH - 1] = '\0';
 
 		LoadSafeHeader();
 
@@ -658,6 +660,7 @@ bool AFilePackage::InnerOpen(const char* szPckPath, const char* szFolder, OPENMO
 			return false;
 		}
 		strncpy(m_szPckFileName, szPckPath, MAX_PATH);
+		m_szPckFileName[MAX_PATH - 1] = '\0'; 
 
 		CreateSafeHeader();
 
@@ -698,6 +701,8 @@ bool AFilePackage::Open(const char* szPckPath, OPENMODE mode, bool bEncrypt)
 	char szFolder[MAX_PATH] = { 0 };
 
 	strncpy(szFolder, szPckPath, MAX_PATH);
+	szFolder[MAX_PATH - 1] = '\0';
+
 	if (szFolder[0] == '\0')
 	{
 		g_pAFramework->DevPrintf(("AFilePackage::Open(), can not open a null or empty file name!"));
@@ -956,6 +961,7 @@ bool AFilePackage::GetFileEntry(const char* szFileName, FILEENTRY* pFileEntry, i
 
 	//	Normalize file name
 	strncpy(szFindName, szFileName, MAX_PATH);
+	szFindName[MAX_PATH - 1] = '\0';
 	NormalizeFileName(szFindName, m_bUseShortName);
 
 	memset(pFileEntry, 0, sizeof(FILEENTRY));
@@ -1201,6 +1207,7 @@ bool AFilePackage::AppendFileCompressed(const char* szFileName, unsigned char* p
 
 	//	Store this file;
 	strncpy(pEntry->szFileName, szFileName, MAX_PATH);
+	pEntry->szFileName[MAX_PATH - 1] = '\0';
 	pEntry->dwOffset = m_header.dwEntryOffset;
 	pEntry->dwLength = dwFileLength;
 	pEntry->dwCompressedLength = dwCompressedLength;

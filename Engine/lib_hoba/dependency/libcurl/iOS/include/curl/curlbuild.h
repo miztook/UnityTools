@@ -131,7 +131,7 @@
 #  include <sys/types.h>
 #endif
 
-#if defined(__LP64__) && __LP64__
+#if defined(__LP64__)
 
 /* Configure process defines this to 1 when it finds out that system */
 /* header file stdint.h must be included by the external interface.  */
