@@ -1,0 +1,27 @@
+local cfg = {
+    List_Team = 778932574,
+    List_TeamList = 814602012,
+    item = 3242771,
+    Lab_Target = -1371394877,
+    TabList = 110799283,
+    Times_Group = -1815409658,
+    Lab_TimesTitle = 2068551908,
+    Lab_Times = 1202920916,
+    Btn_AddTimes = 703770088,
+    Img_AddTimes = -1618266015,
+    Lab_None = -1901031702,
+    Lab_Create = -1842783186,
+    Btn_Search = 25300267,
+    Lab_Search = -1396825894,
+    Btn_Refresh = -98575432,
+    Templates = -309271783,
+    Content = -1678783399,
+    SubContent = 1463378489,
+    Tab1 = 2598748,
+    Tab2 = 2598749,
+    Lab_Count = 1187407773,
+    Btn_Create = -420657025,
+    MemCountAllow = 1666440975,
+}
+ 
+return cfg

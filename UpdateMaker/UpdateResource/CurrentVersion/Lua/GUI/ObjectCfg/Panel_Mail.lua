@@ -1,0 +1,28 @@
+local cfg = {
+    Img_Back = -631611357,
+    Btn_Back = -2123386582,
+    Img_Title = 1911762588,
+    Frame_MailList = -1304004153,
+    Img_LabBg = 1904117494,
+    lab_Sender = 905050439,
+    lab_SenderName = -1906643854,
+    View_Item = 429681773,
+    List_Item = 778619412,
+    Img_Line = -631305424,
+    Btn_Check = -1399340763,
+    Lab_Check = 1187183510,
+    Btn_Clean = -1399221658,
+    Lab_Clean = 1187302615,
+    View_Dimension = -787266484,
+    Content = -1678783399,
+    Lab_Dimension = -1775203084,
+    Btn_CleanALL = -1554740901,
+    Lab_CleanAll = 1876586826,
+    Btn_CheckAll = -808029636,
+    Lab_CheckAll = -1671670229,
+    List_MailView = -1821776003,
+    List_Mail = 778720440,
+    Lab_Nothing = -190934309,
+}
+ 
+return cfg

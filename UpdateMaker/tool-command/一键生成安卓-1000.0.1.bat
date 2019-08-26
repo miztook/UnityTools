@@ -1,0 +1,1 @@
+HobaPackToolsCommand Android 1000.0.0 1000.0.0 1000.0.1 "../UpdateResource/LastVersion" "../UpdateResource/CurrentVersion" "../JupGenerate" 1

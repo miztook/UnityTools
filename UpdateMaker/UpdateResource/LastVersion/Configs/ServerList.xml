@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ServerList>
+  <Server zoneId = "-33" name="201" ip="10.115.118.201" port="11001" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-98" name="内网主干" ip="10.35.49.148" port="8003" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-1001" name="kakao190-dev-内网" ip="106.3.134.202" port="9310" recommend="true" show="true" newFlag="true" /> 
+  <Server zoneId = "-1002" name="kakao190-dev-外网" ip="125.209.245.240" port="11001" recommend="true" show="true" newFlag="true" />
+  <Server zoneId = "-25" name="trunk-weekly" ip="210.73.221.90" port="8003" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-1" name="本机测试服" ip="127.0.0.1" port="8001" recommend="true" show="true" newFlag="false" /> 
+  <Server zoneId = "-2" name="JP_C" ip="10.127.193.154" port="11000" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-3" name="202" ip="10.115.118.202" port="11000" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-4" name="UWA测试服" ip="10.35.49.148" port="7003" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-5" name="程毅服务器" ip="10.35.51.22" port="8001" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-6" name="万秀彬测试服" ip="10.35.53.222" port="8001" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-7" name="ztj" ip="10.35.51.24" port="8001" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-8" name="陶肖宇" ip="10.35.51.25" port="8001" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-9" name="张少华测试服" ip="10.35.51.26" port="8001" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-10" name="小明大魔王" ip="10.35.51.28" port="8001" recommend="false" show="true" newFlag="false" /> 
+  <Server zoneId = "-11" name="范超" ip="10.35.52.44" port="8001" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-12" name="李瑞龙" ip="10.35.53.13" port="8001" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-13" name="吴游" ip="10.35.52.206" port="8001" recommend="false" show="true" newFlag="false" /> 
+  <Server zoneId = "-26" name="卢江平" ip="10.35.53.223" port="8001" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-15" name="沈世涛" ip="10.35.53.245" port="8001" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-16" name="张延增" ip="10.35.53.12" port="8001" recommend="false" show="true" newFlag="false" /> 
+  <Server zoneId = "-17" name="高欣悦" ip="10.35.53.183" port="8001" recommend="false" show="true" newFlag="false" /> 
+  <Server zoneId = "-18" name="于洋2" ip="10.35.53.4" port="8001" recommend="false" show="true" newFlag="false" /> 
+  <Server zoneId = "-19" name="史今宇" ip="10.35.53.180" port="8001" recommend="false" show="true" newFlag="false" /> 
+  <Server zoneId = "-20" name="WZW" ip="10.35.53.144" port="6001" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-21" name="杨宗翰" ip="10.35.52.37" port="8001" recommend="false" show="true" newFlag="false" /> 
+  <Server zoneId = "-22" name="Admin测试" ip="106.3.134.201" port="8001" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-23" name="陈晨" ip="10.35.53.16" port="8001" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-24" name="王绍鹏" ip="10.35.52.252" port="8001" recommend="false" show="true" newFlag="false" />
+  <Server zoneId = "-26" name="赵鑫" ip="10.35.53.33" port="8001" recommend="false" show="true" newFlag="false" />
+</ServerList>

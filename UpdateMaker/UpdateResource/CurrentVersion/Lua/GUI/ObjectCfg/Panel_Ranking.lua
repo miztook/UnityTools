@@ -1,0 +1,28 @@
+local cfg = {
+    Lab_Title = 1202927846,
+    Btn_Back = -2123386582,
+    Frame_Member1 = -1171053627,
+    Img_Line1 = 1904368385,
+    Lab_Number1 = -25806570,
+    Img_Line2 = 1904368386,
+    Lab_GuildNameTips2 = 1773835950,
+    Img_Line3 = 1904368387,
+    Lab_LevelTips3 = 585559305,
+    Img_Line4 = 1904368388,
+    Lab_JobTips4 = -539095823,
+    Img_Line5 = 1904368389,
+    Lab_TimeTips5 = -654006082,
+    Img_Line6 = 1904368390,
+    Lab_BattleTips6 = -1587414476,
+    View_GuildList = -1540815337,
+    List_GuildList = 2122848464,
+    Lab_My = -2026556962,
+    Lab_MyNumber = 137468615,
+    Menu_List = 476015486,
+    _Node = 90168065,
+    Frame_Member2 = -1171053626,
+    Frame_Member3 = -1171053625,
+    Frame_Member4 = -1171053624,
+}
+ 
+return cfg
