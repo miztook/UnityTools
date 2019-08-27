@@ -1,9 +1,9 @@
 #pragma once
 
 #include <vector>
-#include "AString.h"
 #include "VersionMan.h"
 #include <set>
+#include <string>
 
 
 #define PROJECT_NAME "Tera-M1"

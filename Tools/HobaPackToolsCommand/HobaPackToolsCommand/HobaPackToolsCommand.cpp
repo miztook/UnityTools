@@ -161,9 +161,9 @@ int main(int argc, char* argv[])
 	printf("After Split: \r\n");
 	g_pAFramework->Printf("After Split: \r\n");
 
-	for (size_t i = 0; i < jupContentSplitList.size(); ++i)
+	for (const auto& jup : jupContentSplitList)
 	{
-		jupContentSplitList[i].ToFileName(jupFileName);
+		jup.ToFileName(jupFileName);
 		printf("\t%s\n", jupFileName.c_str());
 		g_pAFramework->Printf("\t%s\n", jupFileName.c_str());
 
@@ -174,9 +174,9 @@ int main(int argc, char* argv[])
 	printf("Begin GenerateJup......\r\n\r\n");
 	g_pAFramework->Printf("Begin GenerateJup......\r\n");
 
-	for (size_t i = 0; i < jupContentSplitList.size(); ++i)
+	for (const auto& jup : jupContentSplitList)
 	{
-		if (!pCElementJUPGenerator->GenerateJup(jupContentSplitList[i]))
+		if (!pCElementJUPGenerator->GenerateJup(jup))
 		{
 			printf("End GenerateJup, Fail\r\n");
 			g_pAFramework->Printf("End GenerateJup, Fail\r\n");

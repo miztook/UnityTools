@@ -597,9 +597,6 @@ bool CElementJUPGenerator::GenerateVersionTxt(const std::string& baseVersion, co
 	std::string strJupDir = jupDir;
 	normalizeDirName(strJupDir);
 
-	std::set<ELEMENT_VER> versionSet;
-	std::vector<SJupFileEntry> updateFileList;
-
 	ELEMENT_VER vBase;
 	if (!vBase.Parse(baseVersion))
 	{
@@ -616,6 +613,9 @@ bool CElementJUPGenerator::GenerateVersionTxt(const std::string& baseVersion, co
 
 	printf("收集Jup文件: %s\r\n", strJupDir.c_str());
 	g_pAFramework->Printf("收集Jup文件: %s\r\n", strJupDir.c_str());
+
+	std::set<ELEMENT_VER> versionSet;
+	std::vector<SJupFileEntry> updateFileList;
 
 	//找所有的jup文件
 	Q_iterateFiles(strJupDir.c_str(),
