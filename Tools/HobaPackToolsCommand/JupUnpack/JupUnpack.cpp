@@ -17,9 +17,9 @@ bool doUnpackFrom7z(const char* strFileName);
 
 int main(int argc, char* argv[])
 {
-	if (argc != 2)
+	if (argc != 3)
 	{
-		printf("usage: JupUnpack.exe <JupFileName>");
+		printf("usage: JupUnpack.exe <JupFileName> <OutputDir>");
 		getchar();
 		return -1;
 	}
@@ -38,11 +38,8 @@ int main(int argc, char* argv[])
 	normalizeDirName(strCurDir);
 
 	std::string strFileName = argv[1];
-	strFileName = strCurDir + strFileName;
 
-	char tmp[1024];
-	getFullFileNameNoExtensionA(argv[1], tmp, 1024);
-	std::string strOutputDir = strCurDir + tmp;
+	std::string strOutputDir = argv[2];
 	normalizeDirName(strOutputDir);
 
 	af_Initialize(
@@ -130,6 +127,7 @@ bool doUnpackFrom7z(const char* strFileName)
 
 		if (name == "inc")		   //特殊处理
 		{
+			/*
 			const char* libDir = af_GetLibraryDir();
 			std::string strLib = libDir;
 			normalizeDirName(strLib);
@@ -142,6 +140,7 @@ bool doUnpackFrom7z(const char* strFileName)
 				printf("FileOperate::WriteToFile Failed! %s\n", strLib.c_str());
 				break;
 			}
+			*/
 		}
 		else	 //解压
 		{

@@ -53,11 +53,11 @@ int main(int argc, char* argv[])
 	}
 
 	printf("Begin Unpack: %s, To: %s\r\n", strFileName.c_str(), strOutputDir.c_str());
-	g_pAFramework->Printf("Begin Unpack: %s, To: %s\r\n", strFileName, strOutputDir.c_str());
+	g_pAFramework->Printf("Begin Unpack: %s, To: %s\r\n", strFileName.c_str(), strOutputDir.c_str());
 
 	if (!doUnpack(strFileName, strOutputDir))
 	{
-		printf("doUnpackFrom7z Failed! %s\n", strFileName.c_str());
+		printf("doUnpack Failed! %s\n", strFileName.c_str());
 		goto FAIL;
 	}
 
@@ -119,7 +119,13 @@ bool doUnpack(const std::string& strFileName, const std::string& strOutputDir)
 		}
 
 		std::string fileName = strOutputDir + entry->szFileName;
-		FILE* file = fopen(fileName.c_str(), "wb");
+
+		if (ASys::IsFileExist(fileName.c_str()))
+			ASys::ChangeFileAttributes(fileName.c_str(), S_IRWXU);
+		else
+			FileOperate::MakeDir(fileName.c_str());
+
+		FILE* file = fopen(fileName.c_str(), "w+b");
 		if (file == nullptr)
 		{
 			pckFile.CloseSharedFile(handle);

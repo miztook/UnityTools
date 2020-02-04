@@ -900,16 +900,74 @@ bool CElementJUPGenerator::SplitJup(const SJupContent& jupContent, std::vector<S
 	return true;
 }
 
+void CElementJUPGenerator::ProcessUpdateList(const SJupContent& jupContent)
+{
+	std::string strPlatformAssetBundle = "AssetBundles/";
+	switch (m_PlatformType)
+	{
+	case CElementJUPGenerator::Windows:
+		strPlatformAssetBundle += "Windows";
+		break;
+	case CElementJUPGenerator::iOS:
+		strPlatformAssetBundle += "iOS";
+		break;
+	case CElementJUPGenerator::Android:
+		strPlatformAssetBundle += "Android";
+		break;
+	default:
+		break;
+	}
+
+	std::string strPlatformUpdateAssetBundle = strPlatformAssetBundle + "/Update";
+
+	std::string strNewDir = this->m_SConfig.NextVersionPath;
+	normalizeDirName(strNewDir);
+
+	strNewDir += strPlatformUpdateAssetBundle;
+	normalizeDirName(strNewDir);
+
+	std::string strPathIDFile = strNewDir + "PATHIDBACKUP.dat";
+
+	m_assetPathMap.clear();
+
+	AFileImage File;
+	if (!File.Open("", strPathIDFile.c_str(), AFILE_OPENEXIST | AFILE_TEXT))
+	{
+		//ASSERT(false);
+		return;
+	}
+
+	auint32 dwReadLen;
+	std::vector<std::string> stringList;
+	char szLine[AFILE_LINEMAXLEN];
+	while (File.ReadLine(szLine, AFILE_LINEMAXLEN, &dwReadLen))
+	{
+		std_string_split(szLine, ',', stringList);
+		if (stringList.size() >= 2 && stringList[0].length() == 32)
+			m_assetPathMap[stringList[0]] = stringList[1];
+	}
+}
+
 bool CElementJUPGenerator::GenerateJupUpdateText(const std::vector<SJupContent>& jupContentList)
 {
 	std::string strJupDir = m_SConfig.JupGeneratePath;
 	normalizeDirName(strJupDir);
 
+	std::set<ELEMENT_VER> versionSet;
+	for (const auto& jupContent : jupContentList)
+	{
+		versionSet.insert(jupContent.verOld);
+		versionSet.insert(jupContent.verNew);
+	}
+
+	std::string minVer = versionSet.begin()->ToShortString();
+	std::string maxVer = versionSet.rbegin()->ToShortString();
+
 	ATIME time;
 	ASys::GetCurLocalTime(time, NULL);
 	std::string strDate;
-	strDate = std_string_format("%04d-%02d-%02d_%02d_%02d_%02d",
-		time.year + 1900, time.month + 1, time.day, time.hour, time.minute, time.second);
+	strDate = std_string_format("%04d-%02d-%02d_%02d_%02d_%02d-[%s-%s]",
+		time.year + 1900, time.month + 1, time.day, time.hour, time.minute, time.second, minVer.c_str(), maxVer.c_str());
 
 	std::string strTxtFile = strJupDir + "JupUpdateContent_" + strDate + ".txt";
 	FILE* file = fopen(strTxtFile.c_str(), "wt");
@@ -939,7 +997,17 @@ bool CElementJUPGenerator::GenerateJupUpdateText(const std::vector<SJupContent>&
 		for (const auto& kv : updateEntryList)
 		{
 			const auto& entry = kv.second;
-			fprintf(file, "%s\t\t%s\t\t%lld\n", entry.strFileName.c_str(), entry.strMd5.c_str(), entry.nSize);
+
+			char tmp[QMAX_PATH];
+			getFileNameNoExtensionA(entry.strFileName.c_str(), tmp, QMAX_PATH);
+			std::string strResName;
+			auto itr = m_assetPathMap.find(tmp);
+			if (itr != m_assetPathMap.end())
+			{
+				strResName = itr->second;
+			}
+
+			fprintf(file, "%s\t\t%s\t\t%lld\t\t%s\n", entry.strFileName.c_str(), entry.strMd5.c_str(), entry.nSize, strResName.c_str());
 		}
 
 		fprintf(file, "\n");

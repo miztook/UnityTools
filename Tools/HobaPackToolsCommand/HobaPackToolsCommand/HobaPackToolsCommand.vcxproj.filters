@@ -127,9 +127,6 @@
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.h">
       <Filter>Hoba\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Engine\lib_hoba\csshare\Common\CLuaTable.h">
-      <Filter>Hoba\Common</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Engine\lib_hoba\csshare\Common\CMd5Hash.h">
       <Filter>Hoba\Common</Filter>
     </ClInclude>

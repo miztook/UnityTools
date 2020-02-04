@@ -4,7 +4,7 @@
 #include "VersionMan.h"
 #include <set>
 #include <string>
-
+#include <map>
 
 #define PROJECT_NAME "Tera-M1"
 
@@ -34,6 +34,8 @@ struct SUpdateFileEntry			 //一个jup内的文件
 			return nSize > rhs.nSize;
 		else if (strFileName != rhs.strFileName)
 			return strFileName < rhs.strFileName;
+		else if (nOriginSize != rhs.nOriginSize)
+			return nOriginSize > rhs.nOriginSize;
 		else
 			return strMd5 < rhs.strMd5;
 	}
@@ -131,6 +133,7 @@ public:
 
 	bool SplitJup(const SJupContent& jupContent, std::vector<SJupContent>& jupContentSplitList, int64_t nLimitSize) const;
 
+	void ProcessUpdateList(const SJupContent& jupContent);				//解析更新列表，将其中的guid美术资源文件解析成名字
 	bool GenerateJupUpdateText(const std::vector<SJupContent>& jupContentList);
 
 	
@@ -145,4 +148,7 @@ private:
 	bool ReadVersionText(const char* strFileName, std::vector<SUpdateFileEntry>& entries) const;	
 	bool ReGenerateJupContentToDir(const SJupContent& jupContent, const char* strDir) const;
 	bool CompareDir(const std::string& leftDir, const std::string& rightDir, const std::set<std::string>& fileList) const;
+
+private:
+	std::map<std::string, std::string>	m_assetPathMap;
 };

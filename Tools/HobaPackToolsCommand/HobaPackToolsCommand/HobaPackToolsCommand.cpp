@@ -198,6 +198,7 @@ int main(int argc, char* argv[])
 	
 	printf("Begin JupUpdateTxt......\r\n\r\n");
 	g_pAFramework->Printf("Begin JupUpdateTxt......\r\n");
+	pCElementJUPGenerator->ProcessUpdateList(jupContent);
 	if (!pCElementJUPGenerator->GenerateJupUpdateText(jupContentSplitList))
 	{
 		printf("End GenerateJupUpdate, Fail\r\n");

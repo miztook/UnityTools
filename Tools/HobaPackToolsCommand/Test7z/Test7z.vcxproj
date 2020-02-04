@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{346194AC-AF84-4B51-B102-0002423C1A7A}</ProjectGuid>
+    <ProjectGuid>{1FF507D8-EE63-4C78-81D9-67F6734E111F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>LuaRulesCheck</RootNamespace>
+    <RootNamespace>Test7z</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -88,7 +88,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\Engine\lib_hoba\source\Base;..\..\..\Engine\lib_hoba\source\Platform\Windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Engine\lib_hoba\source;..\..\..\Engine\lib_hoba\source\Base;..\..\..\Engine\lib_hoba\source\Platform\Windows;..\..\..\Engine\lib_hoba\dependency\7zDecode;..\..\..\Engine\lib_hoba\csshare\Common;..\..\..\Engine\lib_hoba\updatelib</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -103,7 +103,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\Engine\lib_hoba\source\Base;..\..\..\Engine\lib_hoba\source\Platform\Windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Engine\lib_hoba\source;..\..\..\Engine\lib_hoba\source\Base;..\..\..\Engine\lib_hoba\source\Platform\Windows;..\..\..\Engine\lib_hoba\dependency\7zDecode;..\..\..\Engine\lib_hoba\csshare\Common;..\..\..\Engine\lib_hoba\updatelib</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -119,7 +120,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\Engine\lib_hoba\source\Base;..\..\..\Engine\lib_hoba\source\Platform\Windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Engine\lib_hoba\source;..\..\..\Engine\lib_hoba\source\Base;..\..\..\Engine\lib_hoba\source\Platform\Windows;..\..\..\Engine\lib_hoba\dependency\7zDecode;..\..\..\Engine\lib_hoba\csshare\Common;..\..\..\Engine\lib_hoba\updatelib</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -138,7 +139,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\Engine\lib_hoba\source\Base;..\..\..\Engine\lib_hoba\source\Platform\Windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Engine\lib_hoba\source;..\..\..\Engine\lib_hoba\source\Base;..\..\..\Engine\lib_hoba\source\Platform\Windows;..\..\..\Engine\lib_hoba\dependency\7zDecode;..\..\..\Engine\lib_hoba\csshare\Common;..\..\..\Engine\lib_hoba\updatelib</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -148,6 +150,50 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\csshare\Common\CMd5Hash.cpp" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\csshare\Common\elementpckdir.cpp" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zAlloc.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zArcIn.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zBuf.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zBuf2.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zCrc.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zCrcOpt.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zDec.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zFile.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zStream.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Aes.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\AesOpt.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Alloc.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Bcj2.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Bcj2Enc.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Bra.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Bra86.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\BraIA64.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\CpuArch.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Delta.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\DllSecur.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\LzFind.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\LzFindMt.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Lzma2Dec.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Lzma2Enc.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Lzma86Dec.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Lzma86Enc.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\LzmaDec.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\LzmaEnc.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\LzmaLib.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\MtCoder.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Ppmd7.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Ppmd7Dec.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Ppmd7Enc.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Sha256.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Sort.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Threads.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Xz.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\XzCrc64.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\XzCrc64Opt.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\XzDec.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\XzEnc.c" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\XzIn.c" />
     <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\A3DCollision.cpp" />
     <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\A3DFuncs.cpp" />
     <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\A3DGeometry.cpp" />
@@ -171,10 +217,51 @@
     <ClCompile Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.cpp" />
     <ClCompile Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.cpp" />
     <ClCompile Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinSys.cpp" />
-    <ClCompile Include="CLuaRulesChecker.cpp" />
-    <ClCompile Include="LuaRulesCheck.cpp" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\updatelib\7zReader.cpp" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\updatelib\7zreader_export.cpp" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\updatelib\FileOperate.cpp" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\updatelib\packfunc_export.cpp" />
+    <ClCompile Include="..\..\..\Engine\lib_hoba\updatelib\VersionMan.cpp" />
+    <ClCompile Include="Test7z.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\csshare\Common\CMd5Hash.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\csshare\Common\elementpckdir.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7z.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zAlloc.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zBuf.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zCrc.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zFile.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zTypes.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zVersion.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Aes.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Alloc.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Bcj2.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Bra.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Compiler.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\CpuArch.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Delta.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\DllSecur.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\LzFind.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\LzFindMt.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\LzHash.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Lzma2Dec.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Lzma2Enc.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Lzma86.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\LzmaDec.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\LzmaEnc.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\LzmaLib.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\MtCoder.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Ppmd.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Ppmd7.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Precomp.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\RotateDefs.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Sha256.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Sort.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Threads.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\Xz.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\XzCrc64.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\XzEnc.h" />
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\A3D.h" />
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\A3DCollision.h" />
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\A3DFuncs.h" />
@@ -215,7 +302,18 @@
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\stringext.h" />
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.h" />
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.h" />
-    <ClInclude Include="CLuaRulesChecker.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\updatelib\7zReader.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\updatelib\7zreader_export.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\updatelib\FileOperate.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\updatelib\packfunc_export.h" />
+    <ClInclude Include="..\..\..\Engine\lib_hoba\updatelib\VersionMan.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zVersion.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zDecode.vcxproj" />
+    <None Include="..\..\..\Engine\lib_hoba\dependency\7zDecode\7zDecode.vcxproj.filters" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
