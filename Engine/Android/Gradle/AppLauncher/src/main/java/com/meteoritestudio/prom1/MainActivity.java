@@ -8,6 +8,7 @@ import android.os.Debug;
 import android.util.Log;
 import android.app.PendingIntent;
 import android.app.AlarmManager;
+import android.content.ComponentCallbacks2;
 
 import com.meteoritestudio.applauncher.EmulatorDetector;
 import com.meteoritestudio.applauncher.JavaLog;
@@ -20,7 +21,7 @@ import android.app.ActivityManager;
 import android.os.Environment;
 
 
-public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin implements ActivityCompat.OnRequestPermissionsResultCallback {
+public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin implements ActivityCompat.OnRequestPermissionsResultCallback, ComponentCallbacks2 {
 //public class MainActivity extends UnityPlayerActivity {
 	private static MainActivity _Instance = null;
 	private static final int TIME_OUT = 10 * 1000; // 超时时间
@@ -42,15 +43,17 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin implement
 		// AndroidBug54971Workaround.assistActivity(findViewById(android.R.id.content));
 
 
-
-		/*
+     /*
 		String sdcardDir = Environment.getExternalStorageDirectory().toString();
 		String path = sdcardDir
 				+ "/M1JavaLog.txt";
+
 		JavaLog.Instance().Init(path);
 
-		WriteLog(String.format("GCloudVoiceEngine init %d", ret));
-		*/
+		WriteLog(String.format("MainActivity OnCreate !!"));
+     */
+
+        Log.i(TAG, "MainActivity OnCreate !!");
 	}
 
 	@Override
@@ -238,10 +241,84 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin implement
 	{
 		Debug.MemoryInfo memInfo = new Debug.MemoryInfo();
 		Debug.getMemoryInfo(memInfo);
-		String stats = String.format("total PSS: %d \n dalvikPss: %d\n nativePss: %d\n otherPss: %d",
-				memInfo.getTotalPss(), memInfo.dalvikPss, memInfo.nativePss, memInfo.otherPss);
+
+		long available = Runtime.getRuntime().maxMemory();
+		long used = Runtime.getRuntime().totalMemory();
+        float percentAvailable = 100f * (1f - ((float) used / available ));
+
+		String stats = String.format("total PSS: %d \n available MEM: %d \n used MEM: %d \n percentAvail: %f",
+				memInfo.getTotalPss(), (int)available, (int)used, percentAvailable);
 		return stats;
 	}
+
+	public static boolean isAppLowMemory(final float lowMemoryPercent)
+	{
+		long available = Runtime.getRuntime().maxMemory();
+		long used = Runtime.getRuntime().totalMemory();
+
+		float percentAvailable = 100f * (1f - ((float) used / available ));
+		return percentAvailable <= lowMemoryPercent;
+	}
+
+    public void onTrimMemory(int level) {
+
+        Log.i(TAG, String.format("MainActivity onTrimMemory level %d", level));
+
+        // Determine which lifecycle or system event was raised.
+        switch (level) {
+
+            case ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN:
+
+                /*
+                   Release any UI objects that currently hold memory.
+
+                   "release your UI resources" is actually about things like caches.
+                   You usually don't have to worry about managing views or UI components because the OS
+                   already does that, and that's why there are all those callbacks for creating, starting,
+                   pausing, stopping and destroying an activity.
+                   The user interface has moved to the background.
+                */
+
+                break;
+
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE:
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW:
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL:
+
+                /*
+                   Release any memory that your app doesn't need to run.
+
+                   The device is running low on memory while the app is running.
+                   The event raised indicates the severity of the memory-related event.
+                   If the event is TRIM_MEMORY_RUNNING_CRITICAL, then the system will
+                   begin killing background processes.
+                */
+
+                break;
+
+            case ComponentCallbacks2.TRIM_MEMORY_BACKGROUND:
+            case ComponentCallbacks2.TRIM_MEMORY_MODERATE:
+            case ComponentCallbacks2.TRIM_MEMORY_COMPLETE:
+
+                /*
+                   Release as much memory as the process can.
+                   The app is on the LRU list and the system is running low on memory.
+                   The event raised indicates where the app sits within the LRU list.
+                   If the event is TRIM_MEMORY_COMPLETE, the process will be one of
+                   the first to be terminated.
+                */
+
+                break;
+
+            default:
+                /*
+                  Release any non-critical data structures.
+                  The app received an unrecognized memory level value
+                  from the system. Treat this as a generic low-memory message.
+                */
+                break;
+        }
+    }
 
 	public static String getSDCardDir()
 	{
@@ -254,6 +331,30 @@ public class MainActivity extends com.onevcat.uniwebview.AndroidPlugin implement
 		if (_Instance == null)
 			return "";
 		return EmulatorDetector.with(_Instance).getEmulatorString();
+	}
+
+	public static String getOBBDir()
+	{
+		String obbDir = "";
+		try {
+			Context context = _Instance.getApplicationContext();
+			obbDir = context.getObbDir().toString();
+		}
+		catch (Exception e)
+		{
+			obbDir = "";
+		}
+		return obbDir;
+	}
+
+	@Override
+	protected void onStop() {
+		try {
+			super.onStop();
+		} catch (Exception e) {
+			Log.w(TAG, "onStop()", e);
+			super.onStop();
+		}
 	}
 
 	/*

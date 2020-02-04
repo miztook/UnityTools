@@ -1,0 +1,132 @@
+# Add project specific ProGuard rules here.
+# By default, the flags in this file are appended to flags specified
+# in /Users/arvin/Library/Android/sdk/tools/proguard/proguard-android.txt
+# You can edit the include path and order by changing the proguardFiles
+# directive in build.gradle.
+#
+# For more details, see
+#   http://developer.android.com/guide/developing/tools/proguard.html
+
+# Add any project specific keep options here:
+
+# If your project uses WebView with JS, uncomment the following
+# and specify the fully qualified class name to the JavaScript interface
+# class:
+#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
+#   public *;
+#}
+
+# Uncomment this to preserve the line number information for
+# debugging stack traces.
+#-keepattributes SourceFile,LineNumberTable
+
+# If you keep the line number information, uncomment this to
+# hide the original source file name.
+#-renamesourcefileattribute SourceFile
+
+-optimizationpasses 5
+
+# 混淆时所采用的算法
+-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+
+-keepattributes *Annotation*
+
+#不混淆反射用到的类
+-keepattributes Signature
+-keepattributes EnclosingMethod
+
+#保持继承自系统类的class不被混淆
+-keep public class * extends android.app.Fragment
+-keep public class * extends android.app.Activity
+-keep public class * extends android.app.Application
+-keep public class * extends android.app.Service
+-keep public class * extends android.content.BroadcastReceiver
+-keep public class * extends android.content.ContentProvider
+-keep public class * extends android.app.backup.BackupAgentHelper
+-keep public class * extends android.preference.Preference
+
+-keep interface android.support.v4.app.** { *; }
+-keep class android.support.v4.** { *; }
+-keep public class * extends android.support.v4.**
+-keep interface android.support.v7.app.** { *; }
+-keep class android.support.v7.** { *; }
+-keep public class * extends android.support.v7.**
+-keep public class * extends android.app.Fragment
+#-keep class * extends android.**{*;}
+
+-keep public class com.bbgame.sdk.BBGameSdk { *; }
+-keep public class com.bbgame.sdk.open.* { *; }
+-keep public class com.bbgame.sdk.event.* { *; }
+-keep public class com.bbgame.sdk.api.model.* { *; }
+-keep public class com.bbgame.sdk.exception.* { *; }
+-keep public class com.bbgame.sdk.param.* { *; }
+-keep public class com.bbgame.sdk.pay.PayWay { *; }
+-keep public class com.bbgame.sdk.pay.PaymentResult { *; }
+
+#不混淆Serializable接口的子类中指定的某些成员变量和方法
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}
+
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+-keepclasseswithmembernames class * {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+
+-keepclasseswithmembernames class * {
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+}
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context);
+}
+
+-dontshrink
+-dontoptimize
+-dontwarn android.webkit.WebView
+
+-dontwarn com.androidquery.auth.**
+-dontwarn oauth.signpost.**
+
+-keepattributes Exceptions,InnerClasses,Signature
+-keepattributes *Annotation*
+-keepattributes SourceFile,LineNumberTable
+
+-keep public class * extends java.lang.Exception
+
+#aliyun oss
+-keep class com.alibaba.sdk.android.oss.** { *; }
+-dontwarn okio.**
+-dontwarn org.apache.commons.codec.binary.**
+
+-verbose
+-ignorewarnings
+
+# 保留R下面的资源
+-keep class **.R$* {*;}
+-keep class com.bbgame.sdk.BuildConfig{*;}
+
+#android billing
+-keep class com.android.vending.billing.**
+#-keep public class com.bbgame.sdk.pay.google.** { *; }
+-keep class com.bbgame.sdk.lib.network.Tls12SocketFactory{*;}
+-keep class com.samsung.**
+-keep class com.bbgame.sdk.common.fcm.** { *;}
+-keep class com.bbgame.sdk.bbgame.BbgameEventReceiver

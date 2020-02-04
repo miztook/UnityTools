@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AppLauncher/AppLauncher.iml" filepath="$PROJECT_DIR$/AppLauncher/AppLauncher.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AppLauncher/AppLauncher.iml" filepath="$PROJECT_DIR$/AppLauncher/AppLauncher.iml" />
       <module fileurl="file://$PROJECT_DIR$/Gradle.iml" filepath="$PROJECT_DIR$/Gradle.iml" />
     </modules>
   </component>

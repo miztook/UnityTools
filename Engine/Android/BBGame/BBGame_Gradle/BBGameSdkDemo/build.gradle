@@ -1,0 +1,44 @@
+apply plugin: 'com.android.application'
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    defaultConfig {
+        applicationId "api.bbgame.demo.gp"
+        versionCode 1
+        versionName "1.0.0"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        def facebookID = '465909130474033'
+        manifestPlaceholders = [facebookID: facebookID]
+        resValue "string", "facebook_app_id", facebookID
+        resValue "string", "fb_login_protocol_scheme", "fb${facebookID}"
+        resValue "string", "com.crashlytics.android.build_id", UUID.randomUUID().toString()
+        resValue "string", "bbg_af_channel","google"        //<!--这里根据渠道填入google/onestore/samsung-->
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            multiDexEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+//    gradle.projectsEvaluated {
+//        tasks.withType(JavaCompile) {
+//            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+//        }
+//    }
+
+    lintOptions {
+//        enable 'deprecation'
+//        checkReleaseBuilds false
+        abortOnError false
+//        ignoreWarnings true
+    }
+
+
+}
+
+dependencies {
+    api project(':BBGameSdk')
+}

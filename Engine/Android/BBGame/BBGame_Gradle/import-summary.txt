@@ -1,0 +1,108 @@
+ECLIPSE ANDROID PROJECT IMPORT SUMMARY
+======================================
+
+Ignored Files:
+--------------
+The following files were *not* copied into the new Gradle project; you
+should evaluate whether these are still needed in your project and if
+so manually move them:
+
+From BBGameAPI:
+* ic_launcher-web.png
+* proguard-project.txt
+From android-support-v7-appcompat:
+* .DS_Store
+* .derived
+* .gitignore
+* .projectset
+* README.md
+From google-play-services_lib:
+* .DS_Store
+* README.txt
+* android\
+* android\UnusedStub.java
+* build.gradle
+* gradle\
+* gradle\wrapper\
+* gradle\wrapper\gradle-wrapper.jar
+* gradle\wrapper\gradle-wrapper.properties
+* gradlew
+* gradlew.bat
+* proguard.txt
+
+Moved Files:
+------------
+Android Gradle projects use a different directory structure than ADT
+Eclipse projects. Here's how the projects were restructured:
+
+In android-support-v7-appcompat:
+* AndroidManifest.xml => androidsupportv7appcompat\src\main\AndroidManifest.xml
+* assets\ => androidsupportv7appcompat\src\main\assets
+* libs\android-support-v4-25.3.1.jar => androidsupportv7appcompat\libs\android-support-v4-25.3.1.jar
+* libs\animated-vertor-drawable-25.3.1.jar => androidsupportv7appcompat\libs\animated-vertor-drawable-25.3.1.jar
+* libs\support-annotations-25.3.1.jar => androidsupportv7appcompat\libs\support-annotations-25.3.1.jar
+* libs\support-compat-25.3.1.jar => androidsupportv7appcompat\libs\support-compat-25.3.1.jar
+* libs\support-core-ui-25.3.1.jar => androidsupportv7appcompat\libs\support-core-ui-25.3.1.jar
+* libs\support-core-utils-25.3.1.jar => androidsupportv7appcompat\libs\support-core-utils-25.3.1.jar
+* libs\support-fragment-25.3.1.jar => androidsupportv7appcompat\libs\support-fragment-25.3.1.jar
+* libs\support-media-compat-25.3.1.jar => androidsupportv7appcompat\libs\support-media-compat-25.3.1.jar
+* libs\support-verctor-drawable-25.3.1.jar => androidsupportv7appcompat\libs\support-verctor-drawable-25.3.1.jar
+* lint.xml => androidsupportv7appcompat\lint.xml
+* res\ => androidsupportv7appcompat\src\main\res\
+* src\ => androidsupportv7appcompat\src\main\java
+* src\.readme => androidsupportv7appcompat\src\main\resources\.readme
+In google-play-services_lib:
+* AndroidManifest.xml => googleplayservices_lib\src\main\AndroidManifest.xml
+* assets\ => googleplayservices_lib\src\main\assets
+* libs\com.crashlytics.sdk.android-2.9.1.jar => googleplayservices_lib\libs\com.crashlytics.sdk.android-2.9.1.jar
+* libs\com.crashlytics.sdk.android-answers-2.9.1.jar => googleplayservices_lib\libs\com.crashlytics.sdk.android-answers-2.9.1.jar
+* libs\com.crashlytics.sdk.android-beta-2.9.1.jar => googleplayservices_lib\libs\com.crashlytics.sdk.android-beta-2.9.1.jar
+* libs\com.crashlytics.sdk.android-core-2.9.1.jar => googleplayservices_lib\libs\com.crashlytics.sdk.android-core-2.9.1.jar
+* libs\firebase-analytics-11.0.2.jar => googleplayservices_lib\libs\firebase-analytics-11.0.2.jar
+* libs\firebase-analytics-impl-11.0.2.jar => googleplayservices_lib\libs\firebase-analytics-impl-11.0.2.jar
+* libs\firebase-common-11.0.2.jar => googleplayservices_lib\libs\firebase-common-11.0.2.jar
+* libs\firebase-crash-11.0.2.jar => googleplayservices_lib\libs\firebase-crash-11.0.2.jar
+* libs\firebase-iid-11.0.2.jar => googleplayservices_lib\libs\firebase-iid-11.0.2.jar
+* libs\firebase-messaging-11.0.2.jar => googleplayservices_lib\libs\firebase-messaging-11.0.2.jar
+* libs\io.fabric.sdk.android-1.4.2.jar => googleplayservices_lib\libs\io.fabric.sdk.android-1.4.2.jar
+* libs\play-services-auth-11.0.2.jar => googleplayservices_lib\libs\play-services-auth-11.0.2.jar
+* libs\play-services-auth-base-11.0.2.jar => googleplayservices_lib\libs\play-services-auth-base-11.0.2.jar
+* libs\play-services-base-11.0.2.jar => googleplayservices_lib\libs\play-services-base-11.0.2.jar
+* libs\play-services-basement-11.0.2.jar => googleplayservices_lib\libs\play-services-basement-11.0.2.jar
+* libs\play-services-games-11.0.2.jar => googleplayservices_lib\libs\play-services-games-11.0.2.jar
+* libs\play-services-gcm-11.0.2.jar => googleplayservices_lib\libs\play-services-gcm-11.0.2.jar
+* libs\play-services-iid-11.0.2.jar => googleplayservices_lib\libs\play-services-iid-11.0.2.jar
+* libs\play-services-plus-11.0.2.jar => googleplayservices_lib\libs\play-services-plus-11.0.2.jar
+* libs\play-services-safetynet-11.0.2.jar => googleplayservices_lib\libs\play-services-safetynet-11.0.2.jar
+* libs\play-services-tasks-11.0.2.jar => googleplayservices_lib\libs\play-services-tasks-11.0.2.jar
+* lint.xml => googleplayservices_lib\lint.xml
+* res\ => googleplayservices_lib\src\main\res\
+* src\ => googleplayservices_lib\src\main\java
+* src\.DS_Store => googleplayservices_lib\src\main\resources\.DS_Store
+In BBGameAPI:
+* AndroidManifest.xml => BBGameAPI\src\main\AndroidManifest.xml
+* assets\ => BBGameAPI\src\main\assets
+* libs\AF-Android-SDK-4.7.4.jar => BBGameAPI\libs\AF-Android-SDK-4.7.4.jar
+* libs\aliyun-oss-sdk-android-2.4.5.jar => BBGameAPI\libs\aliyun-oss-sdk-android-2.4.5.jar
+* libs\gson-2.2.2.jar => BBGameAPI\libs\gson-2.2.2.jar
+* libs\iap_plugin_v16.03.00_20161123.jar => BBGameAPI\libs\iap_plugin_v16.03.00_20161123.jar
+* libs\okhttp-3.9.1.jar => BBGameAPI\libs\okhttp-3.9.1.jar
+* libs\okio-1.13.0.jar => BBGameAPI\libs\okio-1.13.0.jar
+* res\ => BBGameAPI\src\main\res\
+* src\ => BBGameAPI\src\main\java\
+* src\com\android\vending\billing\IInAppBillingService.aidl => BBGameAPI\src\main\aidl\com\android\vending\billing\IInAppBillingService.aidl
+
+Next Steps:
+-----------
+You can now build the project. The Gradle project needs network
+connectivity to download dependencies.
+
+Bugs:
+-----
+If for some reason your project does not build, and you determine that
+it is due to a bug or limitation of the Eclipse to Gradle importer,
+please file a bug at http://b.android.com with category
+Component-Tools.
+
+(This import summary is for your information only, and can be deleted
+after import once you are satisfied with the results.)

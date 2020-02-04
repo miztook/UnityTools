@@ -1,0 +1,4 @@
+include ':BBGameSdk'
+include ':BBGameSdk-KrFenShe'
+include ':BBGameSdkDemo'
+include ':BBGameSdkDemo-KrFenShe'

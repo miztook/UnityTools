@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/AppLauncher/AppLauncher.iml" filepath="$PROJECT_DIR$/AppLauncher/AppLauncher.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BBGame.iml" filepath="$PROJECT_DIR$/BBGame.iml" />
+    </modules>
+  </component>
+</project>

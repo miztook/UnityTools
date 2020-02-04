@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/padding_large"
+    android:paddingTop="@dimen/padding_large" >
+
+    <LinearLayout
+        android:id="@+id/title_layout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#fed602"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal" >
+
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/mapi_bbgame_logo_icon" />
+
+            <TextView
+                android:id="@+id/title"
+                style="@style/bbg_title_bar_text_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dip"
+                android:text="@string/bbg_title_bbgame" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#000000"
+        android:gravity="center_vertical"
+        android:minHeight="80dp"
+        android:orientation="vertical" >
+
+        <ViewStub
+            android:id="@+id/view_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout="@layout/mapi_view_custom_dialog_message" />
+
+        <ViewStub
+            android:id="@+id/view_items"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout="@layout/mapi_view_custom_dialog_items" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#000000"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp" >
+
+        <Button
+            android:id="@+id/positiveButton"
+            android:layout_width="0dip"
+            android:layout_height="48dp"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/mapi_selector_bbgame_btn_bg"
+            android:singleLine="true"
+            android:textColor="#000000"
+            android:textSize="@dimen/text_medium" />
+
+        <Button
+            android:id="@+id/negativeButton"
+            android:layout_width="0dip"
+            android:layout_height="48dp"
+            android:layout_margin="5dip"
+            android:layout_weight="1"
+            android:background="@drawable/mapi_selector_bbgame_btn_bg"
+            android:singleLine="true"
+            android:textColor="#000000"
+            android:textSize="@dimen/text_medium" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text=""
+            android:textColor="#000000"
+            android:textSize="10sp" />
+    </RelativeLayout>
+
+</LinearLayout>

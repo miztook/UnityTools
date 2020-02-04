@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/fragment_pending_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Title"
+            android:textColor="#404040"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:id="@+id/fragment_pending_order"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="OrderNum"
+            android:textColor="#404040"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:id="@+id/fragment_pending_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#404040"
+            android:textSize="15sp"
+            android:text="Time" />
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/fragment_pending_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="32dp"
+        android:layout_gravity="center"
+        android:background="@drawable/mapi_selector_bbgame_btn_bg"
+        android:gravity="center"
+        android:onClick="onClick"
+        android:padding="5dp"
+        android:text="@string/bbg_text_pending_verify"
+        android:textColor="@color/black"
+        android:textSize="16sp" />
+
+</LinearLayout>
