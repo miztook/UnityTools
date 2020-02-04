@@ -155,7 +155,7 @@ std::map<std::string, SFileCompressInfo*> test7z(
 		char ext[32];
 		getFileExtensionA(filename, ext, 32);
 		if (strcmp(ext, "") == 0)
-		fileList.push_back(filename);
+			fileList.push_back(filename);
 	}, szDirToCompress);
 
 	std::string compressedDir = szDirCompressed;
