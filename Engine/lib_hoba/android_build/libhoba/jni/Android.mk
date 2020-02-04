@@ -1,24 +1,6 @@
 HOBA_PATH := $(call my-dir)
 LOCAL_PATH := $(HOBA_PATH)
 
-#lib: libcurl
-include $(CLEAR_VARS)
-LOCAL_MODULE := curl
-LOCAL_SRC_FILES := ../../../dependency/libcurl/Android/$(TARGET_ARCH_ABI)/libcurl.a
-include $(PREBUILT_STATIC_LIBRARY)
-
-#lib: libssl
-include $(CLEAR_VARS)
-LOCAL_MODULE := ssl
-LOCAL_SRC_FILES := ../../../dependency/libcurl/Android/$(TARGET_ARCH_ABI)/libssl.a
-include $(PREBUILT_STATIC_LIBRARY)
-
-#lib: libcrypto
-include $(CLEAR_VARS)
-LOCAL_MODULE := crypto
-LOCAL_SRC_FILES := ../../../dependency/libcurl/Android/$(TARGET_ARCH_ABI)/libcrypto.a
-include $(PREBUILT_STATIC_LIBRARY)
-
 #lib: libhoba
 include $(CLEAR_VARS)
 LOCAL_PATH := $(HOBA_PATH)
@@ -28,12 +10,13 @@ TARGET_OUT := $(LOCAL_PATH)/../../../Plugins/Android/$(TARGET_ARCH_ABI)/
 
 LOCAL_CFLAGS    := 	-DANDROID_NDK 	\
 					-D__ANDROID__ 	\
+					-DCURL_STATICLIB  \
 					-D_7ZIP_PPMD_SUPPPORT  \
 
 SOURCE_DIR := ../../../source
 P7ZDECODE_DIR := ../../../dependency/p7zDecode
 #ZLIB_DIR := ../../../dependency/zlib-1.2.8
-CURLSHIM_DIR := ../../../dependency/curlShim
+CURL_DIR := ../../../dependency/curl
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SOURCE_DIR)	\
 					$(LOCAL_PATH)/$(SOURCE_DIR)/luavm/inc	\
@@ -42,8 +25,9 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SOURCE_DIR)	\
 					$(LOCAL_PATH)/$(SOURCE_DIR)/SkillCollision	\
 					$(LOCAL_PATH)/$(SOURCE_DIR)/Platform/Android	\
 					$(LOCAL_PATH)/$(SOURCE_DIR)/../dependency/p7zDecode			\
-					$(LOCAL_PATH)/$(SOURCE_DIR)/../dependency/libcurl/Android/include	\
-					$(LOCAL_PATH)/$(SOURCE_DIR)/../dependency/curlShim		\
+					$(LOCAL_PATH)/$(SOURCE_DIR)/../dependency/zlib-1.2.8			\
+					$(LOCAL_PATH)/$(SOURCE_DIR)/../dependency/curl/include	\
+					$(LOCAL_PATH)/$(SOURCE_DIR)/../dependency/curl/shim		\
 					$(LOCAL_PATH)/$(SOURCE_DIR)/../csshare/Common	\
 					$(LOCAL_PATH)/$(SOURCE_DIR)/../csshare/AutoNavigation	\
 					$(LOCAL_PATH)/$(SOURCE_DIR)/../updatelib	\
@@ -68,7 +52,8 @@ P7ZDECODE_SRC_FILES := $(P7ZDECODE_SRC_FILES:$(LOCAL_PATH)/%=%)
 				$(ZLIB_DIR)/uncompr.c \
 				$(ZLIB_DIR)/zutil.c \
 				
-CURL_SRC_FILES := $(wildcard $(LOCAL_PATH)/$(CURLSHIM_DIR)/*.c)
+CURL_SRC_FILES := $(wildcard $(LOCAL_PATH)/$(CURL_DIR)/src/*.c)
+CURL_SRC_FILES += $(wildcard $(LOCAL_PATH)/$(CURL_DIR)/shim/*.c)
 CURL_SRC_FILES := $(CURL_SRC_FILES:$(LOCAL_PATH)/%=%)
 	
 SRC_LUAVM_FILES := $(SOURCE_DIR)/luavm/src/auxiliar.c	\
@@ -139,6 +124,7 @@ SRC_COMMON_FILES :=	$(SOURCE_DIR)/hoba_export.cpp	\
 					$(SOURCE_DIR)/lua_export.c	\
 					$(SOURCE_DIR)/luastate_export.cpp	\
 					$(SOURCE_DIR)/fileimage_export.cpp	\
+					$(SOURCE_DIR)/filepackage_export.cpp	\
 					$(SOURCE_DIR)/bit.c	\
 					$(SOURCE_DIR)/lpeg.c	\
 					$(SOURCE_DIR)/lfs.c	\
@@ -171,7 +157,6 @@ LOCAL_SRC_FILES := 		\
 					$(P7ZDECODE_SRC_FILES) \
 					$(CURL_SRC_FILES)	\
 					
-LOCAL_STATIC_LIBRARIES := curl ssl crypto
-LOCAL_LDLIBS    := -lz -llog -landroid
+LOCAL_LDLIBS    := -llog -landroid
 
 include $(BUILD_SHARED_LIBRARY)

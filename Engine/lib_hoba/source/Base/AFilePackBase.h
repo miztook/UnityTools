@@ -75,7 +75,7 @@ public:
 	virtual bool IsFileExist(const char* szFileName) const { return false; }
 
 	//	Open a shared file
-	virtual void* OpenSharedFile(const char* szFileName, abyte** ppFileBuf, auint32* pdwFileLen) { return 0; }
+	virtual void* OpenSharedFile(const char* szFileName, abyte** ppFileBuf, auint32* pdwFileLen) { return NULL; }
 	//	Close a shared file
 	virtual void CloseSharedFile(void* dwFileHandle) {}
 };

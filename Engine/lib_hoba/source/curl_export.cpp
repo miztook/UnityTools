@@ -207,9 +207,18 @@ HAPI const char* CURL_curl_share_strerror(int code)
 	return curl_share_strerror((CURLSHcode)code);
 }
 
-HAPI int CURL_curl_share_setopt(CURLSH *curlsh, int option, void* v)
+HAPI int CURL_curl_share_setopt(CURLSH *curlsh, int option, ...)
 {
-	return curl_share_setopt(curlsh, (CURLSHoption)option, v);
+	//return curl_share_setopt(curlsh, option, v);
+
+	va_list arg;
+
+	va_start(arg, option);
+
+	CURLSHcode ret = curl_share_setopt_vargs(curlsh, (CURLSHoption)option, arg);
+
+	va_end(arg);
+	return (int)ret;
 }
 
 HAPI curl_version_info_data* CURL_curl_version_info(int version)

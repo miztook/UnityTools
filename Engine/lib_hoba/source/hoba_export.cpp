@@ -138,7 +138,7 @@ HAPI bool HOBA_InitPackages(const char* resBaseDir)
 
 	bool bSepFile = true;
 
-	char szPckFile[QMAX_PATH];
+	char szPckFile[MAX_PATH];
 	for (size_t i = 0; i < sizeof(g_szPckDir) / sizeof(const char *) / 2; i++)
 	{
 		// open bundle first

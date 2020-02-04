@@ -1,7 +1,7 @@
 #include "VersionMan.h"
 #include "function.h"
 
-const char* g_incHeader = "# %d.%d.%d.%d.%d %d.%d.%d.%d.%d %s %lld";
+const char* g_incHeader = "# %d.%d.%d.%d %d.%d.%d.%d %s %lld";
 
 ELEMENT_VER operator- (const ELEMENT_VER& ver1, const ELEMENT_VER& ver2)
 {
@@ -10,20 +10,19 @@ ELEMENT_VER operator- (const ELEMENT_VER& ver1, const ELEMENT_VER& ver2)
 	tmp.iVer1 = ver1.iVer1 - ver2.iVer1;
 	tmp.iVer2 = ver1.iVer2 - ver2.iVer2;
 	tmp.iVer3 = ver1.iVer3 - ver2.iVer3;
-	tmp.iVer4 = ver1.iVer4 - ver2.iVer4;
 	return tmp;
 }
 
 bool operator== (const ELEMENT_VER& ver1, const ELEMENT_VER& ver2)
 {
-	if (ver1.iVer0 == ver2.iVer0 && ver1.iVer1 == ver2.iVer1 && ver1.iVer2 == ver2.iVer2 && ver1.iVer3 == ver2.iVer3 && ver1.iVer4 == ver2.iVer4)
+	if (ver1.iVer0 == ver2.iVer0 && ver1.iVer1 == ver2.iVer1 && ver1.iVer2 == ver2.iVer2 && ver1.iVer3 == ver2.iVer3)
 		return true;
 	return false;
 }
 
 bool operator!= (const ELEMENT_VER& ver1, const ELEMENT_VER& ver2)
 {
-	if (ver1.iVer0 != ver2.iVer0 || ver1.iVer1 != ver2.iVer1 || ver1.iVer2 != ver2.iVer2 || ver1.iVer3 != ver2.iVer3 || ver1.iVer4 != ver2.iVer4)
+	if (ver1.iVer0 != ver2.iVer0 || ver1.iVer1 != ver2.iVer1 || ver1.iVer2 != ver2.iVer2 || ver1.iVer3 != ver2.iVer3)
 		return true;
 	return false;
 }
@@ -47,12 +46,6 @@ bool operator< (const ELEMENT_VER& ver1, const ELEMENT_VER& ver2)
 			{
 				if (ver1.iVer3 < ver2.iVer3)
 					return true;
-
-				if (ver1.iVer3 == ver2.iVer3)
-				{
-					if (ver1.iVer4 < ver2.iVer4)
-						return true;
-				}
 			}
 		}
 	}
@@ -79,12 +72,6 @@ bool operator>(const ELEMENT_VER& ver1, const ELEMENT_VER& ver2)
 			{
 				if (ver1.iVer3 > ver2.iVer3)
 					return true;
-
-				if (ver1.iVer3 == ver2.iVer3)
-				{
-					if (ver1.iVer4 > ver2.iVer4)
-						return true;
-				}
 			}
 		}
 	}
@@ -112,12 +99,12 @@ bool VersionMan::LoadVersions(FILE* fStream)
 	char szBuf[BUFFER_SIZE];
 
 	bool success = false;
-	const char* split = "\t";
+	const char* split = " \t";
 
 	//µÚÒ»ÐÐ
 	{
 		//	Read the first line: VerLatest/VerSeparate
-		//  Version:	1.0.0.1.0/1.0.0.0.0
+		//  Version:	1.0.1.0/1.0.0.0
 		if (!fgets(szBuf, BUFFER_SIZE, fStream))
 			return false;
 		
@@ -207,7 +194,7 @@ const VER_PAIR* VersionMan::FindVersionPair(const ELEMENT_VER& curVer) const
 	if (m_VersionPairs.empty() || curVer == m_VerLatest || curVer > m_VerLatest || curVer < m_VerSeparate)
 		return NULL;
 
-	ELEMENT_VER verOld(-1, 0, 0, 0, 0);
+	ELEMENT_VER verOld(-1, 0, 0, 0);
 	for (const auto& vpair : m_VersionPairs)
 	{
 		const ELEMENT_VER& verFrom = vpair.VerFrom;
@@ -223,7 +210,7 @@ const VER_PAIR* VersionMan::FindVersionPair(const ELEMENT_VER& curVer) const
 		return NULL;		// not found
 
 	int iVer = -1;
-	ELEMENT_VER verNew(-1, 0, 0, 0, 0);
+	ELEMENT_VER verNew(-1, 0, 0, 0);
 	for (size_t i = 0; i < m_VersionPairs.size(); i++)
 	{
 		if (m_VersionPairs[i].VerFrom != verOld)

@@ -144,6 +144,8 @@ private:
 
 	bool			m_bHasSafeHeader;	// flag indicates whether the package contains a safe header
 	SAFEFILEHEADER	m_safeHeader;		// Safe file header
+
+	abyte*		m_TempMemory;
 public:
 
 	AFilePackage();
@@ -217,6 +219,9 @@ public:
 	virtual bool IsFileExist(const char* szFileName) const override;
 
 	auint32 GetPackageFileSize() const { return m_fpPackageFile->GetPackageFileSize(); }
+
+	void AllocTempMemory();
+	void FreeTempMemory();
 
 public:
 	/*

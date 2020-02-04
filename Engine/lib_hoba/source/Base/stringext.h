@@ -279,9 +279,10 @@ inline void std_string_split(const std::string& origStr, char split, std::vector
 	{
 		pch = strchr(pchStart, split);
 		if (pch)
+		{
 			*pch = '\0';
-		
-		retVString.push_back(pchStart);
+			retVString.push_back(pch);
+		}
 
 		if (!pch)
 			break;

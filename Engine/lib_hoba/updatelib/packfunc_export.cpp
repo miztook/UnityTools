@@ -169,15 +169,15 @@ HAPI bool UncompressToSepFile(const char* filename, const unsigned char* pData, 
 	auint32* pOriginalFileLen = (auint32*)(pData + sizeof(g_zFileHead));
 	auint32 originalFileLen = *(auint32*)pOriginalFileLen;
 	const char* realfilename = filename + k;
-	std::string strFile = af_GetLibraryDir();
-	normalizeDirName(strFile);
-	strFile = strFile + realfilename;
+	AString strFile = af_GetLibraryDir();
+	strFile.NormalizeDirName();
+	strFile = strFile + AString(realfilename);
 
 	// open file
-	FileOperate::MakeDir(strFile.c_str(), strFile.length());
-	ASys::ChangeFileAttributes(strFile.c_str(), S_IRWXU);
+	FileOperate::MakeDir(strFile, strlen(strFile));
+	ASys::ChangeFileAttributes(strFile, S_IRWXU);
 
-	FILE *fout = fopen(strFile.c_str(), "w+b");
+	FILE *fout = fopen(strFile, "w+b");
 	if (fout == NULL)
 	{
 		perror("perror says open failed");

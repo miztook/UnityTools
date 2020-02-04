@@ -71,7 +71,7 @@ HAPI int CURL_curl_share_cleanup(CURLSH *);
 
 HAPI const char* CURL_curl_share_strerror(int);
 
-HAPI int CURL_curl_share_setopt(CURLSH *, int option, void* v);
+HAPI int CURL_curl_share_setopt(CURLSH *, int option, ...);
 
 HAPI curl_version_info_data* CURL_curl_version_info(int);
 

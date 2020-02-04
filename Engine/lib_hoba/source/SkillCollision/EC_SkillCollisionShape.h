@@ -11,7 +11,7 @@
 class CECSkillCollisionObject;
 class CECSkillCollisionShape;
 
-enum Enum_SkillCollisionShapeType : int
+enum Enum_SkillCollisionShapeType
 {
 	SKILLCOLLISIONSHAPE_RECT,
 	SKILLCOLLISIONSHAPE_FAN,
@@ -19,7 +19,7 @@ enum Enum_SkillCollisionShapeType : int
 	SKILLCOLLISIONSHAPE_NUM
 };
 
-enum Enum_SkillCollisionShapeDir : int
+enum Enum_SkillCollisionShapeDir
 {
 	SKILLCOLLISIONSHAPEDIR_DEFAULT,
 	SKILLCOLLISIONSHAPEDIR_LEFTTORIGHT,
@@ -30,7 +30,7 @@ enum Enum_SkillCollisionShapeDir : int
 	SKILLCOLLISIONSHAPEDIR_NUM
 };
 
-enum Enum_SkillCollisionHeightScope : int
+enum Enum_SkillCollisionHeightScope
 {
 	SKILLCOLLISIONHEIGHTSCOPE_LAND	= 0x01,
 	SKILLCOLLISIONHEIGHTSCOPE_AIR	= 0x02,
@@ -131,7 +131,8 @@ protected:
 
 	bool GetCenterAndExt(A3DVECTOR3& vCenter, A3DVECTOR3& vExt) const;
 
-public:
+protected:
+
 	float	m_fLength;
 	float	m_fWidth;
 };
@@ -156,7 +157,7 @@ public:
 	virtual bool IsCollided(CECSkillCollisionObject* pObject) const;
 	virtual A3DVECTOR3 GetCollideDir(const A3DVECTOR3& c_vPos) const;
 
-public:
+protected:
 	float	m_fRadius;
 	float	m_fHalfRadian;
 };
@@ -180,7 +181,7 @@ public:
 	virtual bool IsCollided(CECSkillCollisionObject* pObject) const;
 	virtual A3DVECTOR3 GetCollideDir(const A3DVECTOR3& c_vPos) const;
 
-public:
+protected:
 	float	m_fRadius;
 };
 
