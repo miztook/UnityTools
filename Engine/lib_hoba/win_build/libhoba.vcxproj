@@ -100,14 +100,14 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBHOBA_EXPORTS;CURL_STATICLIB;LUA_LIB</PreprocessorDefinitions>
       <CompileAs>Default</CompileAs>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>..\source\;..\source\luavm\inc;..\source\pbc;..\source\lua_bind;..\source\Base;..\source\SkillCollision;..\source\MapCollision;..\source\Platform\Windows;..\dependency\zlib-1.2.8;..\dependency\7zDecode;..\csshare\Common;..\csshare\Csv;..\csshare\AutoNavigation;..\updatelib;..\gles2hook;..\gles2hook\interface;..\gles2hook\GLES2;..\dependency\GLES\Include;..\dependency\curl\include;..\dependency\curl\shim</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\source\;..\source\luavm\inc;..\source\pbc;..\source\lua_bind;..\source\Base;..\source\SkillCollision;..\source\MapCollision;..\source\Platform\Windows;..\dependency\7zDecode;..\csshare\Common;..\csshare\AutoNavigation;..\updatelib;..\dependency\libcurl\Windows\include;..\dependency\curlShim</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;..\dependency\GLES\Lib\x86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;Wldap32.lib;Advapi32.lib;Psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;..\dependency\libcurl\Windows\lib32</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ws2_32.lib;Wldap32.lib;Advapi32.lib;Psapi.lib;libcurl_a.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>
@@ -121,7 +121,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_USRDLL;LIBHOBA_EXPORTS;CURL_STATICLIB;LUA_LIB</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\source\;..\source\luavm\inc;..\source\pbc;..\source\lua_bind;..\source\Base;..\source\SkillCollision;..\source\MapCollision;..\source\Platform\Windows;..\dependency\zlib-1.2.8;..\dependency\7zDecode;..\csshare\Common;..\csshare\Csv;..\csshare\AutoNavigation;..\updatelib;..\gles2hook;..\gles2hook\interface;..\gles2hook\GLES2;..\dependency\GLES\Include;..\dependency\curl\include;..\dependency\curl\shim</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\source\;..\source\luavm\inc;..\source\pbc;..\source\lua_bind;..\source\Base;..\source\SkillCollision;..\source\MapCollision;..\source\Platform\Windows;..\dependency\7zDecode;..\csshare\Common;..\csshare\AutoNavigation;..\updatelib;..\dependency\libcurl\Windows\include;..\dependency\curlShim</AdditionalIncludeDirectories>
       <CompileAs>Default</CompileAs>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -129,8 +129,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;..\dependency\GLES\Lib\x86_64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;Wldap32.lib;Advapi32.lib;Psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;..\dependency\libcurl\Windows\lib64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ws2_32.lib;Wldap32.lib;Advapi32.lib;Psapi.lib;libcurl_a.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -144,7 +144,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;LIBHOBA_EXPORTS;CURL_STATICLIB;LUA_LIB</PreprocessorDefinitions>
       <CompileAs>Default</CompileAs>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>..\source\;..\source\luavm\inc;..\source\pbc;..\source\lua_bind;..\source\Base;..\source\SkillCollision;..\source\MapCollision;..\source\Platform\Windows;..\dependency\zlib-1.2.8;..\dependency\7zDecode;..\csshare\Common;..\csshare\Csv;..\csshare\AutoNavigation;..\updatelib;..\gles2hook;..\gles2hook\interface;..\gles2hook\GLES2;..\dependency\GLES\Include;..\dependency\curl\include;..\dependency\curl\shim</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\source\;..\source\luavm\inc;..\source\pbc;..\source\lua_bind;..\source\Base;..\source\SkillCollision;..\source\MapCollision;..\source\Platform\Windows;..\dependency\7zDecode;..\csshare\Common;..\csshare\AutoNavigation;..\updatelib;..\dependency\libcurl\Windows\include;..\dependency\curlShim</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -152,8 +152,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;..\dependency\GLES\Lib\x86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;Wldap32.lib;Advapi32.lib;Psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;..\dependency\libcurl\Windows\lib32</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ws2_32.lib;Wldap32.lib;Advapi32.lib;Psapi.lib;libcurl_a.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -165,7 +165,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;LIBHOBA_EXPORTS;CURL_STATICLIB;LUA_LIB</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\source\;..\source\luavm\inc;..\source\pbc;..\source\lua_bind;..\source\Base;..\source\SkillCollision;..\source\MapCollision;..\source\Platform\Windows;..\dependency\zlib-1.2.8;..\dependency\7zDecode;..\csshare\Common;..\csshare\Csv;..\csshare\AutoNavigation;..\updatelib;..\gles2hook;..\gles2hook\interface;..\gles2hook\GLES2;..\dependency\GLES\Include;..\dependency\curl\include;..\dependency\curl\shim</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\source\;..\source\luavm\inc;..\source\pbc;..\source\lua_bind;..\source\Base;..\source\SkillCollision;..\source\MapCollision;..\source\Platform\Windows;..\dependency\7zDecode;..\csshare\Common;..\csshare\AutoNavigation;..\updatelib;..\dependency\libcurl\Windows\include;..\dependency\curlShim</AdditionalIncludeDirectories>
       <CompileAs>Default</CompileAs>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -175,8 +175,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;..\dependency\GLES\Lib\x86_64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;Wldap32.lib;Advapi32.lib;Psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;..\dependency\libcurl\Windows\lib64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ws2_32.lib;Wldap32.lib;Advapi32.lib;Psapi.lib;libcurl_a.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -252,126 +252,14 @@
     <ClCompile Include="..\dependency\7zDecode\XzDec.c" />
     <ClCompile Include="..\dependency\7zDecode\XzEnc.c" />
     <ClCompile Include="..\dependency\7zDecode\XzIn.c" />
-    <ClCompile Include="..\dependency\curl\shim\LibCurlShim.c" />
-    <ClCompile Include="..\dependency\curl\shim\shm_array.c" />
-    <ClCompile Include="..\dependency\curl\shim\shm_assert.c" />
-    <ClCompile Include="..\dependency\curl\shim\shm_except.c" />
-    <ClCompile Include="..\dependency\curl\shim\shm_list.c" />
-    <ClCompile Include="..\dependency\curl\shim\shm_mem.c" />
-    <ClCompile Include="..\dependency\curl\shim\shm_seq.c" />
-    <ClCompile Include="..\dependency\curl\shim\shm_table.c" />
-    <ClCompile Include="..\dependency\curl\src\amigaos.c" />
-    <ClCompile Include="..\dependency\curl\src\asyn-ares.c" />
-    <ClCompile Include="..\dependency\curl\src\asyn-thread.c" />
-    <ClCompile Include="..\dependency\curl\src\axtls.c" />
-    <ClCompile Include="..\dependency\curl\src\base64.c" />
-    <ClCompile Include="..\dependency\curl\src\bundles.c" />
-    <ClCompile Include="..\dependency\curl\src\conncache.c" />
-    <ClCompile Include="..\dependency\curl\src\connect.c" />
-    <ClCompile Include="..\dependency\curl\src\content_encoding.c" />
-    <ClCompile Include="..\dependency\curl\src\cookie.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_addrinfo.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_darwinssl.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_fnmatch.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_gethostname.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_gssapi.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_memrchr.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_multibyte.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_ntlm.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_ntlm_core.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_ntlm_msgs.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_ntlm_wb.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_rand.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_rtmp.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_sasl.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_schannel.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_select.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_share.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_sspi.c" />
-    <ClCompile Include="..\dependency\curl\src\curl_threads.c" />
-    <ClCompile Include="..\dependency\curl\src\cyassl.c" />
-    <ClCompile Include="..\dependency\curl\src\dict.c" />
-    <ClCompile Include="..\dependency\curl\src\easy.c" />
-    <ClCompile Include="..\dependency\curl\src\escape.c" />
-    <ClCompile Include="..\dependency\curl\src\file.c" />
-    <ClCompile Include="..\dependency\curl\src\fileinfo.c" />
-    <ClCompile Include="..\dependency\curl\src\formdata.c" />
-    <ClCompile Include="..\dependency\curl\src\ftp.c" />
-    <ClCompile Include="..\dependency\curl\src\ftplistparser.c" />
-    <ClCompile Include="..\dependency\curl\src\getenv.c" />
-    <ClCompile Include="..\dependency\curl\src\getinfo.c" />
-    <ClCompile Include="..\dependency\curl\src\gopher.c" />
-    <ClCompile Include="..\dependency\curl\src\gtls.c" />
-    <ClCompile Include="..\dependency\curl\src\hash.c" />
-    <ClCompile Include="..\dependency\curl\src\hmac.c" />
-    <ClCompile Include="..\dependency\curl\src\hostasyn.c" />
-    <ClCompile Include="..\dependency\curl\src\hostcheck.c" />
-    <ClCompile Include="..\dependency\curl\src\hostip.c" />
-    <ClCompile Include="..\dependency\curl\src\hostip4.c" />
-    <ClCompile Include="..\dependency\curl\src\hostip6.c" />
-    <ClCompile Include="..\dependency\curl\src\hostsyn.c" />
-    <ClCompile Include="..\dependency\curl\src\http.c" />
-    <ClCompile Include="..\dependency\curl\src\http_chunks.c" />
-    <ClCompile Include="..\dependency\curl\src\http_digest.c" />
-    <ClCompile Include="..\dependency\curl\src\http_negotiate.c" />
-    <ClCompile Include="..\dependency\curl\src\http_negotiate_sspi.c" />
-    <ClCompile Include="..\dependency\curl\src\http_proxy.c" />
-    <ClCompile Include="..\dependency\curl\src\idn_win32.c" />
-    <ClCompile Include="..\dependency\curl\src\if2ip.c" />
-    <ClCompile Include="..\dependency\curl\src\imap.c" />
-    <ClCompile Include="..\dependency\curl\src\inet_ntop.c" />
-    <ClCompile Include="..\dependency\curl\src\inet_pton.c" />
-    <ClCompile Include="..\dependency\curl\src\krb4.c" />
-    <ClCompile Include="..\dependency\curl\src\krb5.c" />
-    <ClCompile Include="..\dependency\curl\src\ldap.c" />
-    <ClCompile Include="..\dependency\curl\src\llist.c" />
-    <ClCompile Include="..\dependency\curl\src\md4.c" />
-    <ClCompile Include="..\dependency\curl\src\md5.c" />
-    <ClCompile Include="..\dependency\curl\src\memdebug.c" />
-    <ClCompile Include="..\dependency\curl\src\mprintf.c" />
-    <ClCompile Include="..\dependency\curl\src\multi.c" />
-    <ClCompile Include="..\dependency\curl\src\netrc.c" />
-    <ClCompile Include="..\dependency\curl\src\non-ascii.c" />
-    <ClCompile Include="..\dependency\curl\src\nonblock.c" />
-    <ClCompile Include="..\dependency\curl\src\nss.c" />
-    <ClCompile Include="..\dependency\curl\src\nwlib.c" />
-    <ClCompile Include="..\dependency\curl\src\nwos.c" />
-    <ClCompile Include="..\dependency\curl\src\openldap.c" />
-    <ClCompile Include="..\dependency\curl\src\parsedate.c" />
-    <ClCompile Include="..\dependency\curl\src\pingpong.c" />
-    <ClCompile Include="..\dependency\curl\src\pipeline.c" />
-    <ClCompile Include="..\dependency\curl\src\polarssl.c" />
-    <ClCompile Include="..\dependency\curl\src\polarssl_threadlock.c" />
-    <ClCompile Include="..\dependency\curl\src\pop3.c" />
-    <ClCompile Include="..\dependency\curl\src\progress.c" />
-    <ClCompile Include="..\dependency\curl\src\qssl.c" />
-    <ClCompile Include="..\dependency\curl\src\rawstr.c" />
-    <ClCompile Include="..\dependency\curl\src\rtsp.c" />
-    <ClCompile Include="..\dependency\curl\src\security.c" />
-    <ClCompile Include="..\dependency\curl\src\sendf.c" />
-    <ClCompile Include="..\dependency\curl\src\slist.c" />
-    <ClCompile Include="..\dependency\curl\src\smtp.c" />
-    <ClCompile Include="..\dependency\curl\src\socks.c" />
-    <ClCompile Include="..\dependency\curl\src\socks_gssapi.c" />
-    <ClCompile Include="..\dependency\curl\src\socks_sspi.c" />
-    <ClCompile Include="..\dependency\curl\src\speedcheck.c" />
-    <ClCompile Include="..\dependency\curl\src\splay.c" />
-    <ClCompile Include="..\dependency\curl\src\ssh.c" />
-    <ClCompile Include="..\dependency\curl\src\sslgen.c" />
-    <ClCompile Include="..\dependency\curl\src\ssluse.c" />
-    <ClCompile Include="..\dependency\curl\src\strdup.c" />
-    <ClCompile Include="..\dependency\curl\src\strequal.c" />
-    <ClCompile Include="..\dependency\curl\src\strerror.c" />
-    <ClCompile Include="..\dependency\curl\src\strtok.c" />
-    <ClCompile Include="..\dependency\curl\src\strtoofft.c" />
-    <ClCompile Include="..\dependency\curl\src\telnet.c" />
-    <ClCompile Include="..\dependency\curl\src\tftp.c" />
-    <ClCompile Include="..\dependency\curl\src\timeval.c" />
-    <ClCompile Include="..\dependency\curl\src\transfer.c" />
-    <ClCompile Include="..\dependency\curl\src\url.c" />
-    <ClCompile Include="..\dependency\curl\src\version.c" />
-    <ClCompile Include="..\dependency\curl\src\warnless.c" />
-    <ClCompile Include="..\dependency\curl\src\wildcard.c" />
+    <ClCompile Include="..\dependency\curlShim\LibCurlShim.c" />
+    <ClCompile Include="..\dependency\curlShim\shm_array.c" />
+    <ClCompile Include="..\dependency\curlShim\shm_assert.c" />
+    <ClCompile Include="..\dependency\curlShim\shm_except.c" />
+    <ClCompile Include="..\dependency\curlShim\shm_list.c" />
+    <ClCompile Include="..\dependency\curlShim\shm_mem.c" />
+    <ClCompile Include="..\dependency\curlShim\shm_seq.c" />
+    <ClCompile Include="..\dependency\curlShim\shm_table.c" />
     <ClCompile Include="..\source\Base\A3DCollision.cpp" />
     <ClCompile Include="..\source\Base\A3DFuncs.cpp" />
     <ClCompile Include="..\source\Base\A3DGeometry.cpp" />
@@ -614,141 +502,15 @@
     <ClInclude Include="..\dependency\7zDecode\Xz.h" />
     <ClInclude Include="..\dependency\7zDecode\XzCrc64.h" />
     <ClInclude Include="..\dependency\7zDecode\XzEnc.h" />
-    <ClInclude Include="..\dependency\curl\include\curl\curl.h" />
-    <ClInclude Include="..\dependency\curl\include\curl\curlbuild.h" />
-    <ClInclude Include="..\dependency\curl\include\curl\curlrules.h" />
-    <ClInclude Include="..\dependency\curl\include\curl\curlver.h" />
-    <ClInclude Include="..\dependency\curl\include\curl\easy.h" />
-    <ClInclude Include="..\dependency\curl\include\curl\mprintf.h" />
-    <ClInclude Include="..\dependency\curl\include\curl\multi.h" />
-    <ClInclude Include="..\dependency\curl\include\curl\stdcheaders.h" />
-    <ClInclude Include="..\dependency\curl\include\curl\typecheck-gcc.h" />
-    <ClInclude Include="..\dependency\curl\shim\LibCurlShim.h" />
-    <ClInclude Include="..\dependency\curl\shim\shm_array.h" />
-    <ClInclude Include="..\dependency\curl\shim\shm_arrayrep.h" />
-    <ClInclude Include="..\dependency\curl\shim\shm_assert.h" />
-    <ClInclude Include="..\dependency\curl\shim\shm_except.h" />
-    <ClInclude Include="..\dependency\curl\shim\shm_list.h" />
-    <ClInclude Include="..\dependency\curl\shim\shm_mem.h" />
-    <ClInclude Include="..\dependency\curl\shim\shm_seq.h" />
-    <ClInclude Include="..\dependency\curl\shim\shm_table.h" />
-    <ClInclude Include="..\dependency\curl\src\amigaos.h" />
-    <ClInclude Include="..\dependency\curl\src\arpa_telnet.h" />
-    <ClInclude Include="..\dependency\curl\src\asyn.h" />
-    <ClInclude Include="..\dependency\curl\src\axtls.h" />
-    <ClInclude Include="..\dependency\curl\src\bundles.h" />
-    <ClInclude Include="..\dependency\curl\src\config-amigaos.h" />
-    <ClInclude Include="..\dependency\curl\src\config-android.h" />
-    <ClInclude Include="..\dependency\curl\src\config-dos.h" />
-    <ClInclude Include="..\dependency\curl\src\config-ios.h" />
-    <ClInclude Include="..\dependency\curl\src\config-mac.h" />
-    <ClInclude Include="..\dependency\curl\src\config-os400.h" />
-    <ClInclude Include="..\dependency\curl\src\config-riscos.h" />
-    <ClInclude Include="..\dependency\curl\src\config-symbian.h" />
-    <ClInclude Include="..\dependency\curl\src\config-tpf.h" />
-    <ClInclude Include="..\dependency\curl\src\config-vxworks.h" />
-    <ClInclude Include="..\dependency\curl\src\config-win32.h" />
-    <ClInclude Include="..\dependency\curl\src\config-win32ce.h" />
-    <ClInclude Include="..\dependency\curl\src\conncache.h" />
-    <ClInclude Include="..\dependency\curl\src\connect.h" />
-    <ClInclude Include="..\dependency\curl\src\content_encoding.h" />
-    <ClInclude Include="..\dependency\curl\src\cookie.h" />
-    <ClInclude Include="..\dependency\curl\src\curlx.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_addrinfo.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_base64.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_darwinssl.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_fnmatch.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_gethostname.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_gssapi.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_hmac.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_ldap.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_md4.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_md5.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_memory.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_memrchr.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_multibyte.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_ntlm.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_ntlm_core.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_ntlm_msgs.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_ntlm_wb.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_rand.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_rtmp.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_sasl.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_schannel.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_select.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_setup.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_setup_once.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_share.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_sspi.h" />
-    <ClInclude Include="..\dependency\curl\src\curl_threads.h" />
-    <ClInclude Include="..\dependency\curl\src\cyassl.h" />
-    <ClInclude Include="..\dependency\curl\src\dict.h" />
-    <ClInclude Include="..\dependency\curl\src\easyif.h" />
-    <ClInclude Include="..\dependency\curl\src\escape.h" />
-    <ClInclude Include="..\dependency\curl\src\file.h" />
-    <ClInclude Include="..\dependency\curl\src\fileinfo.h" />
-    <ClInclude Include="..\dependency\curl\src\formdata.h" />
-    <ClInclude Include="..\dependency\curl\src\ftp.h" />
-    <ClInclude Include="..\dependency\curl\src\ftplistparser.h" />
-    <ClInclude Include="..\dependency\curl\src\getinfo.h" />
-    <ClInclude Include="..\dependency\curl\src\gopher.h" />
-    <ClInclude Include="..\dependency\curl\src\gtls.h" />
-    <ClInclude Include="..\dependency\curl\src\hash.h" />
-    <ClInclude Include="..\dependency\curl\src\hostcheck.h" />
-    <ClInclude Include="..\dependency\curl\src\hostip.h" />
-    <ClInclude Include="..\dependency\curl\src\http.h" />
-    <ClInclude Include="..\dependency\curl\src\http_chunks.h" />
-    <ClInclude Include="..\dependency\curl\src\http_digest.h" />
-    <ClInclude Include="..\dependency\curl\src\http_negotiate.h" />
-    <ClInclude Include="..\dependency\curl\src\http_proxy.h" />
-    <ClInclude Include="..\dependency\curl\src\if2ip.h" />
-    <ClInclude Include="..\dependency\curl\src\imap.h" />
-    <ClInclude Include="..\dependency\curl\src\inet_ntop.h" />
-    <ClInclude Include="..\dependency\curl\src\inet_pton.h" />
-    <ClInclude Include="..\dependency\curl\src\krb4.h" />
-    <ClInclude Include="..\dependency\curl\src\llist.h" />
-    <ClInclude Include="..\dependency\curl\src\memdebug.h" />
-    <ClInclude Include="..\dependency\curl\src\multihandle.h" />
-    <ClInclude Include="..\dependency\curl\src\multiif.h" />
-    <ClInclude Include="..\dependency\curl\src\netrc.h" />
-    <ClInclude Include="..\dependency\curl\src\non-ascii.h" />
-    <ClInclude Include="..\dependency\curl\src\nonblock.h" />
-    <ClInclude Include="..\dependency\curl\src\nssg.h" />
-    <ClInclude Include="..\dependency\curl\src\parsedate.h" />
-    <ClInclude Include="..\dependency\curl\src\pingpong.h" />
-    <ClInclude Include="..\dependency\curl\src\pipeline.h" />
-    <ClInclude Include="..\dependency\curl\src\polarssl.h" />
-    <ClInclude Include="..\dependency\curl\src\polarssl_threadlock.h" />
-    <ClInclude Include="..\dependency\curl\src\pop3.h" />
-    <ClInclude Include="..\dependency\curl\src\progress.h" />
-    <ClInclude Include="..\dependency\curl\src\qssl.h" />
-    <ClInclude Include="..\dependency\curl\src\rawstr.h" />
-    <ClInclude Include="..\dependency\curl\src\rtsp.h" />
-    <ClInclude Include="..\dependency\curl\src\sendf.h" />
-    <ClInclude Include="..\dependency\curl\src\setup-os400.h" />
-    <ClInclude Include="..\dependency\curl\src\setup-vms.h" />
-    <ClInclude Include="..\dependency\curl\src\slist.h" />
-    <ClInclude Include="..\dependency\curl\src\smtp.h" />
-    <ClInclude Include="..\dependency\curl\src\sockaddr.h" />
-    <ClInclude Include="..\dependency\curl\src\socks.h" />
-    <ClInclude Include="..\dependency\curl\src\speedcheck.h" />
-    <ClInclude Include="..\dependency\curl\src\splay.h" />
-    <ClInclude Include="..\dependency\curl\src\ssh.h" />
-    <ClInclude Include="..\dependency\curl\src\sslgen.h" />
-    <ClInclude Include="..\dependency\curl\src\ssluse.h" />
-    <ClInclude Include="..\dependency\curl\src\strdup.h" />
-    <ClInclude Include="..\dependency\curl\src\strequal.h" />
-    <ClInclude Include="..\dependency\curl\src\strerror.h" />
-    <ClInclude Include="..\dependency\curl\src\strtok.h" />
-    <ClInclude Include="..\dependency\curl\src\strtoofft.h" />
-    <ClInclude Include="..\dependency\curl\src\telnet.h" />
-    <ClInclude Include="..\dependency\curl\src\tftp.h" />
-    <ClInclude Include="..\dependency\curl\src\timeval.h" />
-    <ClInclude Include="..\dependency\curl\src\transfer.h" />
-    <ClInclude Include="..\dependency\curl\src\url.h" />
-    <ClInclude Include="..\dependency\curl\src\urldata.h" />
-    <ClInclude Include="..\dependency\curl\src\warnless.h" />
-    <ClInclude Include="..\dependency\curl\src\wildcard.h" />
+    <ClInclude Include="..\dependency\curlShim\LibCurlShim.h" />
+    <ClInclude Include="..\dependency\curlShim\shm_array.h" />
+    <ClInclude Include="..\dependency\curlShim\shm_arrayrep.h" />
+    <ClInclude Include="..\dependency\curlShim\shm_assert.h" />
+    <ClInclude Include="..\dependency\curlShim\shm_except.h" />
+    <ClInclude Include="..\dependency\curlShim\shm_list.h" />
+    <ClInclude Include="..\dependency\curlShim\shm_mem.h" />
+    <ClInclude Include="..\dependency\curlShim\shm_seq.h" />
+    <ClInclude Include="..\dependency\curlShim\shm_table.h" />
     <ClInclude Include="..\source\baseDef.h" />
     <ClInclude Include="..\source\Base\A3D.h" />
     <ClInclude Include="..\source\Base\A3DCollision.h" />
@@ -798,6 +560,11 @@
     <ClInclude Include="..\source\lfs.h" />
     <ClInclude Include="..\source\lpeg.h" />
     <ClInclude Include="..\source\LuaUtility.h" />
+    <ClInclude Include="..\source\luavm\inc\lauxlib.h" />
+    <ClInclude Include="..\source\luavm\inc\lua.h" />
+    <ClInclude Include="..\source\luavm\inc\lua.hpp" />
+    <ClInclude Include="..\source\luavm\inc\luaconf.h" />
+    <ClInclude Include="..\source\luavm\inc\lualib.h" />
     <ClInclude Include="..\source\luavm\src\auxiliar.h" />
     <ClInclude Include="..\source\luavm\src\buffer.h" />
     <ClInclude Include="..\source\luavm\src\except.h" />

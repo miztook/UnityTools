@@ -3,6 +3,6 @@
 
 #include "ATypes.h"
 
-extern char		g_szBaseDir[MAX_PATH];
+//extern char		g_szBaseDir[MAX_PATH];
 
 #endif

@@ -322,6 +322,7 @@ bool AFilePackGame::InnerOpen(const char* szPckPath, const char* szFolder, OPENM
 	//	Save folder name
 	ASSERT(szFolder);
 	strncpy(m_szFolder, szFolder, MAX_PATH);
+	m_szFolder[MAX_PATH - 1] = '\0';
 	ASys::Strlwr(m_szFolder);
 	AFilePackage::NormalizeFileName(m_szFolder);
 
@@ -359,6 +360,7 @@ bool AFilePackGame::InnerOpen(const char* szPckPath, const char* szFolder, OPENM
 		}
 
 		strncpy(m_szPckFileName, szPckPath, MAX_PATH);
+		m_szPckFileName[MAX_PATH - 1] = '\0';
 
 		LoadSafeHeader();
 
@@ -576,6 +578,7 @@ AFilePackGame::FILEENTRY* AFilePackGame::GetFileEntry(const char* szFileName) co
 	//	Normalize file name
 	char szFindName[MAX_PATH];
 	strncpy(szFindName, szFileName, MAX_PATH);
+	szFindName[MAX_PATH-1] = '\0';
 	NormalizeFileName(szFindName, m_bUseShortName);
 
 	auint32 idFile = a_MakeIDFromFileName(szFindName);

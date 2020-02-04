@@ -145,7 +145,6 @@ private:
 	bool			m_bHasSafeHeader;	// flag indicates whether the package contains a safe header
 	SAFEFILEHEADER	m_safeHeader;		// Safe file header
 
-	abyte*		m_TempMemory;
 public:
 
 	AFilePackage();

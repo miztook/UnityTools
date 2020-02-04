@@ -17,14 +17,15 @@ struct ELEMENT_VER
 			int iVer1;
 			int iVer2;
 			int iVer3;
+			int iVer4;
 		};
 
-		int aVerNum[4];
+		int aVerNum[5];
 	};
 
 	ELEMENT_VER() { Clear(); }
 	//ELEMENT_VER(int ver0, int ver1, int ver2) { Set(ver0, ver1, ver2, 0); }
-	ELEMENT_VER(int ver0, int ver1, int ver2, int ver3) { Set(ver0, ver1, ver2, ver3); }
+	ELEMENT_VER(int ver0, int ver1, int ver2, int ver3, int ver4) { Set(ver0, ver1, ver2, ver3, ver4); }
 
 	friend ELEMENT_VER operator- (const ELEMENT_VER& ver1, const ELEMENT_VER& ver2);
 	friend bool operator== (const ELEMENT_VER& ver1, const ELEMENT_VER& ver2);
@@ -45,36 +46,40 @@ struct ELEMENT_VER
 	}
 	*/
 
-	void Set(int ver0, int ver1, int ver2, int ver3)
+	void Set(int ver0, int ver1, int ver2, int ver3, int ver4)
 	{
 		iVer0 = ver0;
 		iVer1 = ver1;
 		iVer2 = ver2;
 		iVer3 = ver3;
+		iVer4 = ver4;
 	}
 
-	//void ToShortString(AString& str) const { str.Format("%d.%d.%d", iVer0, iVer1, iVer2); }
-	std::string ToString() const { return std_string_format("%d.%d.%d.%d", iVer0, iVer1, iVer2, iVer3); }
+	std::string ToShortString() const { return std_string_format("%d.%d.%d.%d", iVer0, iVer1, iVer2, iVer3); }
+	std::string ToString() const { return std_string_format("%d.%d.%d.%d.%d", iVer0, iVer1, iVer2, iVer3, iVer4); }
 	bool Parse(const std::string& str)
 	{
 		std::vector<std::string> arr;
 		std_string_split(str, ".", arr);
-		if (arr.size() == 3)
-		{
-			iVer0 = atoi(arr[0].c_str());
-			iVer1 = atoi(arr[1].c_str());
-			iVer2 = atoi(arr[2].c_str());
-			iVer3 = 0;
-		}
-		else if (arr.size() == 4)
+		if (arr.size() == 4)
 		{
 			iVer0 = atoi(arr[0].c_str());
 			iVer1 = atoi(arr[1].c_str());
 			iVer2 = atoi(arr[2].c_str());
 			iVer3 = atoi(arr[3].c_str());
+			iVer4 = 0;
+		}
+		else if (arr.size() == 5)
+		{
+			iVer0 = atoi(arr[0].c_str());
+			iVer1 = atoi(arr[1].c_str());
+			iVer2 = atoi(arr[2].c_str());
+			iVer3 = atoi(arr[3].c_str());
+			iVer4 = atoi(arr[4].c_str());
 		}
 		else
 		{
+			assert(false);
 			return false;
 		}
 		return true;

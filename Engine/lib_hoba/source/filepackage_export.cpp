@@ -18,7 +18,7 @@ HAPI AFilePackage* FilePackage_Open(const char* pckFileName)
 		delete pFilePackage;
 		return NULL;
 	}
-	pFilePackage->AllocTempMemory();
+	//pFilePackage->AllocTempMemory();
 
 	return pFilePackage;
 }
@@ -27,7 +27,7 @@ HAPI void FilePackage_Close(AFilePackage* pPackage)
 {
 	if (pPackage)
 	{
-		pPackage->FreeTempMemory();
+		//pPackage->FreeTempMemory();
 
 		pPackage->Close();
 		delete pPackage;
@@ -81,7 +81,7 @@ HAPI bool FilePackage_UnpackFileToDir(AFilePackage* pPackage, const char* filena
 	FileOperate::MakeDir(outputFileName.c_str());
 	ASys::ChangeFileAttributes(outputFileName.c_str(), S_IRWXU);
 
-	FILE* file = fopen(outputFileName.c_str(), "w+b");
+	FILE* file = fopen(outputFileName.c_str(), "wb");
 	if (file == nullptr)
 	{
 		pPackage->CloseSharedFile(handle);
@@ -92,6 +92,8 @@ HAPI bool FilePackage_UnpackFileToDir(AFilePackage* pPackage, const char* filena
 	fclose(file);
 
 	pPackage->CloseSharedFile(handle);
+
+	ASys::ChangeFileAttributes(outputFileName.c_str(), S_IRWXU);
 
 	return true;
 }

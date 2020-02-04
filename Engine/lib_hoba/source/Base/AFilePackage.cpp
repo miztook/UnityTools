@@ -312,8 +312,6 @@ AFilePackage::AFilePackage()
 	m_dwCacheSize = 0;
 	m_szPckFileName[0] = '\0';
 
-	m_TempMemory = NULL;
-
 	INIT_LOCK(&m_csFR);
 
 	m_bHasSafeHeader = false;
@@ -321,8 +319,6 @@ AFilePackage::AFilePackage()
 
 AFilePackage::~AFilePackage()
 {
-	m_TempMemory = NULL;
-
 	DESTROY_LOCK(&m_csFR);
 }
 
@@ -571,6 +567,7 @@ bool AFilePackage::InnerOpen(const char* szPckPath, const char* szFolder, OPENMO
 	//	Save folder name
 	ASSERT(szFolder);
 	strncpy(m_szFolder, szFolder, MAX_PATH);
+	m_szFolder[MAX_PATH - 1] = '\0';
 	ASys::Strlwr(m_szFolder);
 	NormalizeFileName(m_szFolder);
 
@@ -608,6 +605,7 @@ bool AFilePackage::InnerOpen(const char* szPckPath, const char* szFolder, OPENMO
 		}
 
 		strncpy(m_szPckFileName, szPckPath, MAX_PATH);
+		m_szPckFileName[MAX_PATH - 1] = '\0';
 
 		LoadSafeHeader();
 
@@ -653,7 +651,7 @@ bool AFilePackage::InnerOpen(const char* szPckPath, const char* szFolder, OPENMO
 		m_bReadOnly = false;
 		m_fpPackageFile = new CPackageFile();
 
-		if (!m_fpPackageFile->Open(szFullPckPath, "w+b"))
+		if (!m_fpPackageFile->Open(szFullPckPath, "wb"))
 		{
 			delete m_fpPackageFile;
 			m_fpPackageFile = NULL;
@@ -662,6 +660,7 @@ bool AFilePackage::InnerOpen(const char* szPckPath, const char* szFolder, OPENMO
 			return false;
 		}
 		strncpy(m_szPckFileName, szPckPath, MAX_PATH);
+		m_szPckFileName[MAX_PATH - 1] = '\0'; 
 
 		CreateSafeHeader();
 
@@ -702,6 +701,8 @@ bool AFilePackage::Open(const char* szPckPath, OPENMODE mode, bool bEncrypt)
 	char szFolder[MAX_PATH] = { 0 };
 
 	strncpy(szFolder, szPckPath, MAX_PATH);
+	szFolder[MAX_PATH - 1] = '\0';
+
 	if (szFolder[0] == '\0')
 	{
 		g_pAFramework->DevPrintf(("AFilePackage::Open(), can not open a null or empty file name!"));
@@ -954,36 +955,13 @@ bool AFilePackage::IsFileExist(const char* szFileName) const
 	return GetFileEntry(szFileName, &FileEntry, &iEntryIndex);
 }
 
-void AFilePackage::AllocTempMemory()
-{
-	if (m_TempMemory)
-		return;
-
-	auint32 maxFileSize = 0;
-	for (size_t i = 0; i < m_aFileEntries.size(); i++)
-	{
-		if (m_aFileEntries[i] && m_aFileEntries[i]->dwLength > maxFileSize)
-			maxFileSize = m_aFileEntries[i]->dwLength;
-	}
-	
-	m_TempMemory = (abyte*)malloc(maxFileSize);
-}
-
-void AFilePackage::FreeTempMemory()
-{
-	if (m_TempMemory)
-	{
-		free(m_TempMemory);
-		m_TempMemory = NULL;
-	}
-}
-
 bool AFilePackage::GetFileEntry(const char* szFileName, FILEENTRY* pFileEntry, int* pnIndex) const
 {
 	char szFindName[MAX_PATH];
 
 	//	Normalize file name
 	strncpy(szFindName, szFileName, MAX_PATH);
+	szFindName[MAX_PATH - 1] = '\0';
 	NormalizeFileName(szFindName, m_bUseShortName);
 
 	memset(pFileEntry, 0, sizeof(FILEENTRY));
@@ -1229,6 +1207,7 @@ bool AFilePackage::AppendFileCompressed(const char* szFileName, unsigned char* p
 
 	//	Store this file;
 	strncpy(pEntry->szFileName, szFileName, MAX_PATH);
+	pEntry->szFileName[MAX_PATH - 1] = '\0';
 	pEntry->dwOffset = m_header.dwEntryOffset;
 	pEntry->dwLength = dwFileLength;
 	pEntry->dwCompressedLength = dwCompressedLength;
@@ -1697,12 +1676,7 @@ void* AFilePackage::OpenSharedFile(const char* szFileName, abyte** ppFileBuf, au
 	ASSERT(m_aFileEntries[iEntryIndex]);
 
 	//	Allocate file data buffer
-	abyte* pFileData = NULL;
-
-	if (m_TempMemory)
-		pFileData = m_TempMemory;
-	else
-		pFileData = (abyte*)malloc(FileEntry.dwLength);
+	abyte* pFileData = (abyte*)malloc(FileEntry.dwLength);
 
 	if (!pFileData)
 	{
@@ -1714,8 +1688,7 @@ void* AFilePackage::OpenSharedFile(const char* szFileName, abyte** ppFileBuf, au
 	auint32 dwFileLen = FileEntry.dwLength;
 	if (!ReadFile(FileEntry, pFileData, &dwFileLen))
 	{
-		if (pFileData != m_TempMemory)
-			free(pFileData);
+		free(pFileData);
 
 		g_pAFramework->DevPrintf("AFilePackage::OpenSharedFile, Failed to read file data [%s] !", szFileName);
 		return NULL;
@@ -1725,8 +1698,7 @@ void* AFilePackage::OpenSharedFile(const char* szFileName, abyte** ppFileBuf, au
 	SHAREDFILE* pFileItem = (SHAREDFILE*)malloc(sizeof(SHAREDFILE));
 	if (!pFileItem)
 	{
-		if (pFileData != m_TempMemory)
-			free(pFileData);
+		free(pFileData);
 
 		g_pAFramework->DevPrintf(("AFilePackage::OpenSharedFile, Not enough memory!"));
 		return NULL;
@@ -1755,8 +1727,7 @@ void AFilePackage::CloseSharedFile(void* dwFileHandle)
 	ASSERT(pFileItem && pFileItem->iRefCnt > 0);
 
 	//	No cache file, release it
-	if (pFileItem->pFileData != m_TempMemory)
-		free(pFileItem->pFileData);
+	free(pFileItem->pFileData);
 
 	free(pFileItem);
 }
