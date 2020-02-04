@@ -269,52 +269,27 @@ inline void std_string_split(const std::string& origStr, char split, std::vector
 {
 	retVString.clear();
 
-	char* str = new char[origStr.length() + 1];
-	assert(str);
-	strcpy(str, origStr.data());
-
-	char* pchStart = str;
-	char* pch = nullptr;
+	const char* pchStart = origStr.data();
 	while (true)
 	{
-		pch = strchr(pchStart, split);
+		const char* pch = strchr(pchStart, split);
+
 		if (pch)
-			*pch = '\0';
-		
-		retVString.push_back(pchStart);
+		{
+			if (pch > pchStart)
+				retVString.push_back(std::string(pchStart, pch - pchStart));
+		}
+		else
+		{
+			if (strlen(pchStart) > 0)
+				retVString.push_back(pchStart);
+		}
 
 		if (!pch)
 			break;
 
 		pchStart = pch + 1;
 	}
-	delete[] str;
-}
-
-inline void std_string_split(const std::string& origStr, const char *split, std::vector<std::string>& retVString)
-{
-	retVString.clear();
-
-	char* str = new char[origStr.length() + 1];
-	ASSERT(str);
-	strcpy(str, origStr.data());
-
-	char* pchStart = str;
-	char* pch = nullptr;
-	while (true)
-	{
-		pch = strstr(pchStart, split);
-		if (pch)
-			*pch = '\0';
-
-		retVString.push_back(pchStart);
-
-		if (!pch)
-			break;
-
-		pchStart = pch + strlen(split);
-	}
-	delete[] str;
 }
 
 inline std::string std_string_left(const std::string& str, int n)

@@ -112,7 +112,7 @@ bool VersionMan::LoadVersions(FILE* fStream)
 	char szBuf[BUFFER_SIZE];
 
 	bool success = false;
-	const char* split = "\t";
+	const char split = '\t';
 
 	//µÚÒ»ÐÐ
 	{

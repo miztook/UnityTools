@@ -60,7 +60,7 @@ struct ELEMENT_VER
 	bool Parse(const std::string& str)
 	{
 		std::vector<std::string> arr;
-		std_string_split(str, ".", arr);
+		std_string_split(str, '.', arr);
 		if (arr.size() == 4)
 		{
 			iVer0 = atoi(arr[0].c_str());
