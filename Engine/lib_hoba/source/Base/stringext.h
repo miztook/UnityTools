@@ -333,7 +333,7 @@ inline void std_string_replace(std::string& str, const char* szFrom, const char*
 	std::string::size_type i = str.find(szFrom);
 	while (i != std::string::npos)
 	{	
-		str = std_string_left(str, i) + std::string(szTo) + std_string_mid(str, (int)i + fromlen);
+		str = std_string_left(str, (int)i) + std::string(szTo) + std_string_mid(str, (int)i + fromlen);
 		i = str.find(szFrom);
 	}
 }

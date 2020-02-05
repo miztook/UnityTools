@@ -126,7 +126,7 @@ public:
 	bool GenerateUpdateList(const SVersion& sversion, SJupContent& jupContent) const;
 	void PrintUpdateList(const SJupContent& jupContent) const;
 
-	bool GenerateJup(const SJupContent& jupContent);
+	bool GenerateJup(const SJupContent& jupContent, bool bForceMx0);
 	bool GenerateVersionTxt(const SVersion& sversion) const;
 	
 	void OpenJupDir();
@@ -148,6 +148,7 @@ private:
 	bool ReadVersionText(const char* strFileName, std::vector<SUpdateFileEntry>& entries) const;	
 	bool ReGenerateJupContentToDir(const SJupContent& jupContent, const char* strDir) const;
 	bool CompareDir(const std::string& leftDir, const std::string& rightDir, const std::set<std::string>& fileList) const;
+	bool DoGenerateJup(const char* szJupFile, bool useMx0);
 
 private:
 	std::map<std::string, std::string>	m_assetPathMap;

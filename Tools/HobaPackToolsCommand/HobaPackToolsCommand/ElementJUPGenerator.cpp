@@ -348,7 +348,7 @@ void CElementJUPGenerator::GenerateIncFileString(const SJupContent& jupContent, 
 	}
 }
 
-bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
+bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent, bool bForceMx0)
 {
 	std::string strJupFile = m_SConfig.JupGeneratePath;
 	normalizeDirName(strJupFile);
@@ -377,18 +377,17 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 	}
 	*/
 	
+	int64_t totalSize = 1;
 	std::set<std::string>	 mapFileList;			//排序的文件列表
 	mapFileList.insert("inc");
 	for (const auto& entry : jupContent.UpdateList)
 	{
 		mapFileList.insert(entry.strFileName);
+		totalSize += entry.nOriginSize;
 	}
 
 	//2017.3.2直接清空tmp目录，生成更新内容
 	
-
-
-
 #if KEEP_TMP_FOLDER
 	std::string strTmpDirAbs;
 	std::string strTmpDir;
@@ -407,8 +406,6 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 	}
 
 #else
-
-	std::string strTmpDir = "compress/";
 	//重新生成更新内容到 compress 目录
 	if (!ReGenerateJupContentToDir(jupContent, m_strCompressDir.c_str()))
 	{
@@ -444,7 +441,64 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 		fclose(file);
 	}
 
-	//生成jup7z.bat
+	if (bForceMx0)
+	{
+		printf("准备无压缩生成jup: %s...\r\n", strJupFile.c_str());
+		g_pAFramework->Printf("准备无压缩生成jup: %s...\r\n", strJupFile.c_str());
+
+		if (!DoGenerateJup(strJupFile.c_str(), true))
+		{
+			FileOperate::DeleteDir(m_strCompressDir.c_str());
+			FileOperate::UDeleteFile("./tmp.compressed");
+			return false;
+		}
+	}
+	else
+	{
+		//先不使用mx0，正常压缩
+		if (!DoGenerateJup(strJupFile.c_str(), false))
+		{
+			FileOperate::DeleteDir(m_strCompressDir.c_str());
+			FileOperate::UDeleteFile("./tmp.compressed");
+			return false;
+		}
+
+		//计算生成jup的压缩比
+		auint32 jupSize = FileOperate::GetFileSize(strJupFile.c_str());
+		float fRatio = (float)jupSize / (float)totalSize;
+
+		if (fRatio < 0.75f)		//压缩优先
+		{
+			printf("生成jup: %s, 压缩比: %0.2f\r\n", strJupFile.c_str(), fRatio);
+			g_pAFramework->Printf("生成jup: %s, 压缩比: %0.2f\r\n", strJupFile.c_str(), fRatio);
+		}
+		else			//解压速度优先
+		{
+			printf("压缩比: %0.2f，准备无压缩生成jup: %s...\r\n", fRatio, strJupFile.c_str());
+			g_pAFramework->Printf("压缩比: %0.2f，准备无压缩生成jup: %s...\r\n", fRatio, strJupFile.c_str());
+
+			//删除jup，重新用mx0不压缩，提高解压速度
+			FileOperate::UDeleteFile(strJupFile.c_str());
+
+			if (!DoGenerateJup(strJupFile.c_str(), true))
+			{
+				FileOperate::DeleteDir(m_strCompressDir.c_str());
+				FileOperate::UDeleteFile("./tmp.compressed");
+				return false;
+			}
+		}
+	}
+	
+	FileOperate::DeleteDir(m_strCompressDir.c_str());
+	FileOperate::UDeleteFile("./tmp.compressed");
+
+	return true;
+
+}
+
+bool CElementJUPGenerator::DoGenerateJup(const char* szJupFile, bool useMx0)
+{
+	std::string strTmpDir = "compress/";
 	std::string strJup7zBat = "jup7z.bat";
 	{
 		std::string path = m_strWorkDir + strJup7zBat;
@@ -454,8 +508,6 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 			printf("无法创建jup7z.txt文件!\r\n");
 			g_pAFramework->Printf("无法创建jup7z.txt文件!\r\n");
 
-			FileOperate::DeleteDir(m_strCompressDir.c_str());
-			FileOperate::UDeleteFile("./tmp.compressed");
 			return false;
 		}
 
@@ -464,8 +516,11 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 
 		fprintf(file, "cd %s", strTmpDir.c_str());
 		fprintf(file, "\n");
-		
-		strCommand = std_string_format("\"%s7z.exe\" a \"%s\" @\"%s\"", m_strWorkDir.c_str(), strJupFile.c_str(), strListFile.c_str());
+
+		if (useMx0)
+			strCommand = std_string_format("\"%s7z.exe\" a -mx0 \"%s\" @\"%s\"", m_strWorkDir.c_str(), szJupFile, strListFile.c_str());
+		else
+			strCommand = std_string_format("\"%s7z.exe\" a \"%s\" @\"%s\"", m_strWorkDir.c_str(), szJupFile, strListFile.c_str());
 		fprintf(file, strCommand.c_str());
 		fprintf(file, "\n");
 
@@ -485,17 +540,11 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 			printf("system调用错误! %s\r\n", strJup7zBat.c_str());
 			g_pAFramework->Printf("system调用错误! %s\r\n", strJup7zBat.c_str());
 
-			FileOperate::DeleteDir(m_strCompressDir.c_str());
-			FileOperate::UDeleteFile("./tmp.compressed");
 			return false;
 		}
 	}
 
-	FileOperate::DeleteDir(m_strCompressDir.c_str());
-	FileOperate::UDeleteFile("./tmp.compressed");
-
 	return true;
-
 }
 
 bool CElementJUPGenerator::ReGenerateJupContentToDir(const SJupContent& jupContent, const char* strDir) const 
@@ -987,13 +1036,21 @@ bool CElementJUPGenerator::GenerateJupUpdateText(const std::vector<SJupContent>&
 		std::string verOld = jupContent.verOld.ToString();
 		std::string verNew = jupContent.verNew.ToString();
 
-		fprintf(file, "[%s-%s.jup]\n", verOld.c_str(), verNew.c_str());
-		
+		std::string strJupFile = std_string_format("%s-%s.jup", verOld.c_str(), verNew.c_str());
+		strJupFile = strJupDir + strJupFile;
+		auint32 jupSize = FileOperate::GetFileSize(strJupFile.c_str());
+
+		int64_t totalSize = 1;
 		for (const auto& entry : jupContent.UpdateList)
 		{
 			updateEntryList[entry.strFileName] = entry;
+			totalSize += entry.nSize;
 		}
 
+		float fRatio = (float)jupSize / (float)totalSize;
+
+		fprintf(file, "[%s-%s.jup]\t%u / %u = %0.2f\n", verOld.c_str(), verNew.c_str(), (auint32)jupSize, (auint32)totalSize, fRatio);
+		
 		for (const auto& kv : updateEntryList)
 		{
 			const auto& entry = kv.second;

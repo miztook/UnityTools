@@ -174,9 +174,11 @@ int main(int argc, char* argv[])
 	printf("Begin GenerateJup......\r\n\r\n");
 	g_pAFramework->Printf("Begin GenerateJup......\r\n");
 
+	const auto& SVersion = pCElementJUPGenerator->GetSVersion();
+	bool bForceMx0 = SVersion.BaseVersion == SVersion.LastVersion;
 	for (const auto& jup : jupContentSplitList)
 	{
-		if (!pCElementJUPGenerator->GenerateJup(jup))
+		if (!pCElementJUPGenerator->GenerateJup(jup, bForceMx0))
 		{
 			printf("End GenerateJup, Fail\r\n");
 			g_pAFramework->Printf("End GenerateJup, Fail\r\n");
