@@ -129,6 +129,14 @@ int main(int argc, char* argv[])
 
 	//getchar();
 	return 0;
+
+FAIL:
+	printf("End Test7z, Fail\r\n");
+	g_pAFramework->Printf("End Test7z, Fail\r\n");
+
+	g_pAFramework->Release();
+	//getchar();
+	return -1;
 }
 
 std::map<std::string, SFileCompressInfo*> test7z(

@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "AFilePackage.h"
 
-#define OBB_SIZE_LIMIT    (1950 * 1000 * 1000)
+#define OBB_SIZE_LIMIT    (2000 * 1000 * 1000)
 
 bool CollectJupFiles(std::vector<SJupFileEntry>& jupFileList, std::vector<SJupFileEntry>& jupFileList2, const std::string& baseVersion, const std::string& nextVersion, const std::string& jupDir);
 bool FindVersionPair(const std::vector<SJupFileEntry>& pairList, const ELEMENT_VER& vBase, const ELEMENT_VER& vLatest, const ELEMENT_VER& curVer, SJupFileEntry& verPair);
