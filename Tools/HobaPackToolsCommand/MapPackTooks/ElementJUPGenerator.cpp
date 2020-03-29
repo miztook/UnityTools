@@ -837,7 +837,6 @@ bool CElementJUPGenerator::GenerateVersionTxt(const std::string& baseVersion, co
 	return true;
 }
 
-
 bool CElementJUPGenerator::SplitJup(const SJupContent& jupContent, std::vector<SJupContent>& jupContentSplitList, int64_t nLimitSize) const
 {
 	ELEMENT_VER vOrigOld = jupContent.verOld;

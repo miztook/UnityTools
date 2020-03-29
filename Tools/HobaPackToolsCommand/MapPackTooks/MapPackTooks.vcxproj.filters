@@ -10,42 +10,28 @@
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Hoba">
-      <UniqueIdentifier>{6cb41fea-ca5e-4ea4-89c0-28c183380609}</UniqueIdentifier>
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Hoba\Base">
-      <UniqueIdentifier>{72ed78a2-0940-46c7-9b7e-76dac5340cc0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Hoba\Platform">
-      <UniqueIdentifier>{a4c0975e-6dac-44fb-b987-82e5344c2dd6}</UniqueIdentifier>
+      <UniqueIdentifier>{b8208192-9cbb-4319-bde0-84502404de73}</UniqueIdentifier>
     </Filter>
     <Filter Include="Hoba\Common">
-      <UniqueIdentifier>{d3369534-a145-4107-ae0d-5cb8e33cd2d9}</UniqueIdentifier>
+      <UniqueIdentifier>{018ff036-1d04-432d-a61b-7d1f16dbcff0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hoba\Platform">
+      <UniqueIdentifier>{1750f0dd-a67c-4a5a-a2f0-b8aaf2b0dd32}</UniqueIdentifier>
     </Filter>
     <Filter Include="Hoba\updatelib">
-      <UniqueIdentifier>{2740480a-b8e2-48d4-b465-0f5e9d24af3b}</UniqueIdentifier>
+      <UniqueIdentifier>{669e8bd8-45b1-494e-bed7-02c4e714352b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="HobaPackToolsCommand.cpp">
+    <ClCompile Include="MapPackTools.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ElementJUPGenerator.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.cpp">
-      <Filter>Hoba\Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.cpp">
-      <Filter>Hoba\Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinSys.cpp">
-      <Filter>Hoba\Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Engine\lib_hoba\csshare\Common\CMd5Hash.cpp">
-      <Filter>Hoba\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Engine\lib_hoba\csshare\Common\elementpckdir.cpp">
-      <Filter>Hoba\Common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\A3DCollision.cpp">
       <Filter>Hoba\Base</Filter>
@@ -107,31 +93,34 @@
     <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\ASysThread.cpp">
       <Filter>Hoba\Base</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\csshare\Common\CMd5Hash.cpp">
+      <Filter>Hoba\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\csshare\Common\elementpckdir.cpp">
+      <Filter>Hoba\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.cpp">
+      <Filter>Hoba\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.cpp">
+      <Filter>Hoba\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinSys.cpp">
+      <Filter>Hoba\Platform</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\Engine\lib_hoba\updatelib\FileOperate.cpp">
       <Filter>Hoba\updatelib</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Engine\lib_hoba\updatelib\VersionMan.cpp">
+    <ClCompile Include="..\..\..\Engine\lib_hoba\updatelib\packfunc_export.cpp">
       <Filter>Hoba\updatelib</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Engine\lib_hoba\updatelib\packfunc_export.cpp">
+    <ClCompile Include="..\..\..\Engine\lib_hoba\updatelib\VersionMan.cpp">
       <Filter>Hoba\updatelib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ElementJUPGenerator.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.h">
-      <Filter>Hoba\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.h">
-      <Filter>Hoba\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Engine\lib_hoba\csshare\Common\CMd5Hash.h">
-      <Filter>Hoba\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Engine\lib_hoba\csshare\Common\elementpckdir.h">
-      <Filter>Hoba\Common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\A3D.h">
       <Filter>Hoba\Base</Filter>
@@ -247,14 +236,29 @@
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\stringext.h">
       <Filter>Hoba\Base</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\csshare\Common\CMd5Hash.h">
+      <Filter>Hoba\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\csshare\Common\elementpckdir.h">
+      <Filter>Hoba\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.h">
+      <Filter>Hoba\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.h">
+      <Filter>Hoba\Platform</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\Engine\lib_hoba\updatelib\FileOperate.h">
+      <Filter>Hoba\updatelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\updatelib\packfunc_export.h">
       <Filter>Hoba\updatelib</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Engine\lib_hoba\updatelib\VersionMan.h">
       <Filter>Hoba\updatelib</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Engine\lib_hoba\updatelib\packfunc_export.h">
-      <Filter>Hoba\updatelib</Filter>
+    <ClInclude Include="MapPackToos.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -128,7 +128,7 @@ public:
 
 	bool GenerateJup(const SJupContent& jupContent, bool bForceMx0);
 	bool GenerateVersionTxt(const SVersion& sversion) const;
-
+	
 	bool SplitJup(const SJupContent& jupContent, std::vector<SJupContent>& jupContentSplitList, int64_t nLimitSize) const;
 
 	void ProcessUpdateList(const SJupContent& jupContent);				//解析更新列表，将其中的guid美术资源文件解析成名字
