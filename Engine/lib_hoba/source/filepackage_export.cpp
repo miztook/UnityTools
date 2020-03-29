@@ -88,9 +88,14 @@ HAPI bool FilePackage_UnpackFileToDir(AFilePackage* pPackage, const char* filena
 		return false;
 	}
 
-	fwrite(pFileData, 1, nFileLength, file);
-	fclose(file);
+	if (nFileLength != fwrite(pFileData, 1, nFileLength, file))
+	{
+		fclose(file);
+		pPackage->CloseSharedFile(handle);
+		return false;
+	}
 
+	fclose(file);
 	pPackage->CloseSharedFile(handle);
 
 	ASys::ChangeFileAttributes(outputFileName.c_str(), S_IRWXU);

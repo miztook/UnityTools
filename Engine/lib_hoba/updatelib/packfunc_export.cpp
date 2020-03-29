@@ -187,7 +187,7 @@ HAPI bool UncompressToSepFile(const char* filename, const unsigned char* pData, 
 		return false;
 	}
 
-	const auint32 blockSize = 4 * 1024 * 1024;
+	//const auint32 blockSize = 4 * 1024 * 1024;
 	// uncompress
 	const unsigned char* pCompressedData = pData + sizeof(g_zFileHead) + 4;
 	auint32 compressDataLen = dataSize - sizeof(g_zFileHead) - 4;
@@ -199,42 +199,13 @@ HAPI bool UncompressToSepFile(const char* filename, const unsigned char* pData, 
 		if (0 == AFilePackage::Uncompress(pCompressedData, compressDataLen, buffer, &uncompressLen)
 			&& uncompressLen == originalFileLen)
 		{
-			//fwrite(buffer, 1, originalFileLen, fout);
-
-			auint32 nBlock = originalFileLen / blockSize;
-			auint32 nLeft = originalFileLen % blockSize;
-
-			const unsigned char* p = buffer;
-			for (auint32 i = 0; i < nBlock; ++i)
-			{
-				fwrite(p, 1, blockSize, fout);
-				p += blockSize;
-			}
-
-			if (nLeft > 0)
-				fwrite(p, 1, nLeft, fout);
-
-			retFlag = true;
+			retFlag = originalFileLen == fwrite(buffer, 1, originalFileLen, fout);
 		}
 		delete[] buffer;
 	}
 	else		// original data stored
 	{
-		auint32 nBlock = originalFileLen / blockSize;
-		auint32 nLeft = originalFileLen % blockSize;
-
-		const unsigned char* p = pCompressedData;
-		for (auint32 i = 0; i < nBlock; ++i)
-		{
-			fwrite(p, 1, blockSize, fout);
-			p += blockSize;
-		}
-
-		if (nLeft > 0)
-			fwrite(p, 1, nLeft, fout);
-
-		//fwrite(pCompressedData, 1, originalFileLen, fout);
-		retFlag = true;
+		retFlag = originalFileLen == fwrite(pCompressedData, 1, originalFileLen, fout);
 	}
 
 	fclose(fout);
@@ -410,7 +381,8 @@ HAPI bool MakeCompressedFile(const char* srcFileName, const char* destFileName, 
 	*/
 
 	auint32 nDestSize = sizeof(g_zFileHead) + 4 + compressedLength;
-	fwrite(pDestBuffer, 1, nDestSize, destFile);						//写入压缩后内容
+	if (nDestSize != fwrite(pDestBuffer, 1, nDestSize, destFile))						//写入压缩后内容
+		ret = false;
 
 	fclose(destFile);
 

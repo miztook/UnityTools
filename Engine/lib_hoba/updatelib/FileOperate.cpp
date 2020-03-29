@@ -74,7 +74,11 @@ namespace FileOperate
 		if (!fout)
 			return false;
 
-		fwrite(pData, 1, dataSize, fout);
+		if (dataSize != fwrite(pData, 1, dataSize, fout))
+		{
+			fclose(fout);
+			return false;
+		}
 
 		fclose(fout);
 
