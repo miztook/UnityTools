@@ -55,7 +55,7 @@ bool ASys::GetFilesInDirectory(std::vector<std::string>& arrFiles, const char* s
 		szDir = ".";
 	//if(szSearch == NULL || szSearch[0] == 0)
 	const char*	szSearch = "*";
-	char szSearchFinal[MAX_PATH];
+	char szSearchFinal[QMAX_PATH];
 	strcpy(szSearchFinal, szDir);
 	if (szSearchFinal[strlen(szSearchFinal) - 1] != '/' && szSearchFinal[strlen(szSearchFinal) - 1] != '\\')
 		strcat(szSearchFinal, "/");
@@ -91,7 +91,7 @@ bool ASys::DeleteDirectory(const char* szDir)
 	if (!ASys::IsFileExist(szDir))
 		return true;
 	// This is a complex op.
-	char szSearchFinal[MAX_PATH];
+	char szSearchFinal[QMAX_PATH];
 	strcpy(szSearchFinal, szDir);
 	strcat(szSearchFinal, "/*");
 	WIN32_FIND_DATAA dataFile;

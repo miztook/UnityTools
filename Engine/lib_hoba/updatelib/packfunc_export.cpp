@@ -37,7 +37,7 @@ HAPI bool PackInitialize(bool bCreate)
 	int PackFileNum = sizeof(g_szPckDir) / sizeof(g_szPckDir[0]);
 	for (int i = 0; i < PackFileNum; i++)
 	{
-		char szPckFile[MAX_PATH];
+		char szPckFile[QMAX_PATH];
 		sprintf(szPckFile, "%s/%s.pck", (const char*)szBaseDir, g_szPckDir[i][1]);
 		g_AFilePackMan.OpenFilePackageInGame(szPckFile, g_szPckDir[i][0]);
 
@@ -92,7 +92,7 @@ HAPI bool SaveAndOpenUpdatePack()
 		int PackFileNum = sizeof(g_szPckDir) / sizeof(g_szPckDir[0]);
 		for (int i = 0; i < PackFileNum; i++)
 		{
-			char szPckFile[MAX_PATH];
+			char szPckFile[QMAX_PATH];
 
 			sprintf(szPckFile, "%s/%s.pck", (const char*)szLibraryDir, g_szPckDir[i][1]);
 			FileOperate::MakeDir(szPckFile, strlen(szPckFile));
@@ -199,13 +199,13 @@ HAPI bool UncompressToSepFile(const char* filename, const unsigned char* pData, 
 		if (0 == AFilePackage::Uncompress(pCompressedData, compressDataLen, buffer, &uncompressLen)
 			&& uncompressLen == originalFileLen)
 		{
-			retFlag = originalFileLen == fwrite(buffer, 1, originalFileLen, fout);
+			retFlag = (originalFileLen == fwrite(buffer, 1, originalFileLen, fout));
 		}
 		delete[] buffer;
 	}
 	else		// original data stored
 	{
-		retFlag = originalFileLen == fwrite(pCompressedData, 1, originalFileLen, fout);
+		retFlag = (originalFileLen == fwrite(pCompressedData, 1, originalFileLen, fout));
 	}
 
 	fclose(fout);
