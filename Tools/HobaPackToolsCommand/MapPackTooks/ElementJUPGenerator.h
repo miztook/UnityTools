@@ -8,6 +8,7 @@
 
 #define PROJECT_NAME "Tera-M1"
 
+
 struct SJupFileEntry			  //jup文件
 {
 	ELEMENT_VER vOld;
@@ -43,8 +44,8 @@ struct SUpdateFileEntry			 //一个jup内的文件
 
 struct SJupContent			//一个jup的更新内容
 {
-	ELEMENT_VER verOld;
-	ELEMENT_VER verNew;
+	ELEMENT_VER verBase;
+	std::string  Name;
 	std::vector<SUpdateFileEntry>	UpdateList;
 	std::vector<std::string>  IncString;
 
@@ -66,13 +67,6 @@ struct SJupContent			//一个jup的更新内容
 			total += entry.nSize;
 		}
 		return total;
-	}
-
-	void ToFileName(std::string& str) const
-	{
-		std::string strOld = verOld.ToString();
-		std::string strNew = verNew.ToString();
-		str = std_string_format("%s-%s.jup", strOld.c_str(), strNew.c_str());
 	}
 };
 
@@ -96,48 +90,39 @@ public:
 	struct SConfig
 	{
 		std::string JupGeneratePath;
-		std::string LastVersionPath;
-		std::string NextVersionPath;
-		bool bSmallPack;
+		std::string BaseVersionPath;
 	} m_SConfig;
 
 	struct SVersion
 	{
 		std::string BaseVersion;
-		std::string LastVersion;
-		std::string NextVersion;
 	} m_SVersion;
 
 	std::string m_strWorkDir;
 	std::string m_strCompressDir;
 
 public:
-	bool Init(const std::string& strLastPath,
-			  const std::string& strNextPath,
-			  const std::string& strJupGeneratePath,
-			  bool bSmallPack);
+	bool Init(const std::string& strBasePath, const std::string& strJupGeneratePath);
 	void SetPlatform(const std::string& strPlatformType);
-	void SetVersion(const std::string& strBaseVersion,
-					const std::string& strLastVersion,
-					const std::string& strNextVersion);
+	void SetVersion(const std::string& strBaseVersion);
 
 	const SVersion& GetSVersion() const { return m_SVersion; }
 	
-	bool GenerateUpdateList(const SVersion& sversion, SJupContent& jupContent) const;
-	void PrintUpdateList(const SJupContent& jupContent) const;
+	bool GenerateUpdateList(const SVersion& sversion,
+		const std::string& name,
+		const std::vector<std::string>& assetbundles,
+		const std::vector<std::string>& audios,
+		const std::vector<std::string>& videos,
+		SJupContent& jupContent) const;
 
 	bool GenerateJup(const SJupContent& jupContent, bool bForceMx0);
 	bool GenerateVersionTxt(const SVersion& sversion) const;
 	
 	bool SplitJup(const SJupContent& jupContent, std::vector<SJupContent>& jupContentSplitList, int64_t nLimitSize) const;
-
-	void ProcessUpdateList(const SJupContent& jupContent);				//解析更新列表，将其中的guid美术资源文件解析成名字
-	bool GenerateJupUpdateText(const std::vector<SJupContent>& jupContentList);
-
 	
 public:
 	static bool GenerateBaseVersionTxt(const std::string& strBaseVersion, const std::string& strJupGeneratePath);
-	static bool GenerateVersionTxt(const std::string& baseVersion, const std::string& nextVersion, const std::string& jupDir);
+	static bool GenerateVersionTxt(const std::string& baseVersion, const std::string& jupDir);
 	static bool FindVersionPair(const std::vector<SJupFileEntry>& pairList, const ELEMENT_VER& vBase, const ELEMENT_VER& vLatest, const ELEMENT_VER& curVer, SJupFileEntry& verPair);
 
 private:
@@ -148,6 +133,4 @@ private:
 	bool CompareDir(const std::string& leftDir, const std::string& rightDir, const std::set<std::string>& fileList) const;
 	bool DoGenerateJup(const char* szJupFile, bool useMx0);
 
-private:
-	std::map<std::string, std::string>	m_assetPathMap;
 };
