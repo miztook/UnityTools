@@ -1,6 +1,4 @@
 #include "hobaTest.h"
-#include "xmlTest.h"
-#include "dataTest.h"
 #include "fileImageTest.h"
 #include <string.h>
 #include <crtdbg.h>
