@@ -625,14 +625,7 @@ bool AFilePackage::InnerOpen(const char* szPckPath, const char* szFolder, OPENMO
 		m_fpPackageFile->seek(nOffset, SEEK_SET);
 		m_fpPackageFile->read(&dwVersion, sizeof(auint32), 1);
 
-		if (dwVersion == 0x00020002 || dwVersion == 0x00020001)
-		{
-			if (!LoadOldPack(szPckPath, bEncrypt, nOffset))
-			{
-				g_pAFramework->DevPrintf(("AFilePackage::LoadOldPack(), Incorrect version!"));
-			}
-		}
-		else if (dwVersion == 0x00020003)
+		if (dwVersion == 0x00020003)
 		{
 			if (!LoadPack(szPckPath, bEncrypt, nOffset))
 			{

@@ -85,128 +85,6 @@ AFilePackGame::~AFilePackGame()
 	DESTROY_LOCK(&m_csFR);
 }
 
-bool AFilePackGame::LoadOldPack(const char* szPckPath, bool  bEncrypt, int nFileOffset)
-{
-	int i, iNumFile;
-
-	// Now read file number;
-	nFileOffset -= sizeof(int);
-	m_fpPackageFile->seek(nFileOffset, SEEK_SET);
-	m_fpPackageFile->read(&iNumFile, sizeof(int), 1);
-	nFileOffset -= sizeof(FILEHEADER);
-	m_fpPackageFile->seek(nFileOffset, SEEK_SET);
-	m_fpPackageFile->read(&m_header, sizeof(FILEHEADER), 1);
-	if (strstr(m_header.szDescription, "lica File Package") == NULL)
-		return false;
-	strncpy(m_header.szDescription, AFPCK_COPYRIGHT_TAG, sizeof(m_header.szDescription));
-
-	// if we don't expect one encrypt package, we will let the error come out.
-	// make sure the encrypt flag is correct
-	bool bPackIsEncrypt = (m_header.dwFlags & PACKFLAG_ENCRYPT) != 0;
-	if (bEncrypt != bPackIsEncrypt)
-	{
-		g_pAFramework->DevPrintf(("AFilePackage::Open(), wrong encrypt flag"));
-		return false;
-	}
-
-	m_header.dwEntryOffset ^= AFPCK_MASKDWORD;
-
-	if (m_header.guardByte0 != AFPCK_GUARDBYTE0 ||
-		m_header.guardByte1 != AFPCK_GUARDBYTE1)
-	{
-		// corrput file
-		g_pAFramework->DevPrintf("AFilePackGame::Open(), GuardBytes corrupted [%s]", szPckPath);
-		return false;
-	}
-
-	//	Seek to entry list;
-	m_fpPackageFile->seek(m_header.dwEntryOffset, SEEK_SET);
-
-	//	Create entries
-	m_aFileEntries = (FILEENTRY*)malloc(sizeof(FILEENTRY) * iNumFile);
-	if (!m_aFileEntries)
-	{
-		g_pAFramework->DevPrintf("AFilePackGame::Open(), Not enough memory for entries [%s]", szPckPath);
-		return false;
-	}
-
-	memset(m_aFileEntries, 0, sizeof(FILEENTRY) * iNumFile);
-
-	m_iNumEntry = iNumFile;
-
-	for (i = 0; i < iNumFile; i++)
-	{
-		FILEENTRY* pEntry = &m_aFileEntries[i];
-
-		FILEENTRY_INFILE tempEntry;
-
-		// first read the entry size after compressed
-		int nCompressedSize;
-		m_fpPackageFile->read(&nCompressedSize, sizeof(int), 1);
-		nCompressedSize ^= AFPCK_MASKDWORD;
-
-		int nCheckSize;
-		m_fpPackageFile->read(&nCheckSize, sizeof(int), 1);
-		nCheckSize = nCheckSize ^ AFPCK_CHECKMASK ^ AFPCK_MASKDWORD;
-
-		if (nCompressedSize != nCheckSize)
-		{
-			g_pAFramework->DevPrintf(("AFilePackGame::Open(), Check Byte Error!"));
-			return false;
-		}
-
-		ATempMemBuffer tempBuf(sizeof(abyte) * nCompressedSize);
-		abyte* pEntryCompressed = (abyte*)tempBuf.GetBuffer();
-		if (!pEntryCompressed)
-		{
-			g_pAFramework->DevPrintf(("AFilePackGame::Open(), Not enough memory !"));
-			return false;
-		}
-
-		m_fpPackageFile->read(pEntryCompressed, nCompressedSize, 1);
-		auint32 dwEntrySize = sizeof(FILEENTRY_INFILE);
-
-		if (dwEntrySize == nCompressedSize)
-		{
-			memcpy(&tempEntry, pEntryCompressed, sizeof(FILEENTRY_INFILE));
-		}
-		else
-		{
-			if (0 != AFilePackage::Uncompress(pEntryCompressed, nCompressedSize, (unsigned char*)&tempEntry, &dwEntrySize))
-			{
-				tempBuf.Free();
-				g_pAFramework->DevPrintf(("AFilePackGame::Open(), decode file entry fail!"));
-				return false;
-			}
-
-			ASSERT(dwEntrySize == sizeof(FILEENTRY_INFILE));
-		}
-
-		//	Note: A bug existed in AppendFileCompressed() after m_bUseShortName was introduced. The bug
-		//		didn't normalize file name when new file is added to package, so that the szFileName of
-		//		FILEENTRY may contain '/' character. The bug wasn't fixed until 2013.3.18, many 'new' files
-		//		have been added to package, so NormalizeFileName is inserted here to ensure all szFileName
-		//		of FILEENTRY uses '\' instead of '/', at least in memory.
-		//	NormalizeFileName(tempEntry.szFileName, false);
-
-		//	Duplicate entry info
-		pEntry->szFileName = AllocFileName(tempEntry.szFileName, i, iNumFile);
-		pEntry->dwLength = tempEntry.dwLength;
-		pEntry->dwCompressedLength = tempEntry.dwCompressedLength;
-		pEntry->dwOffset = tempEntry.dwOffset;
-
-		tempBuf.Free();
-	}
-
-	ResortEntries();
-
-	// now we move entry point to the end of the file so to keep old entries here
-	if (m_bHasSafeHeader)
-		m_header.dwEntryOffset = nFileOffset;
-
-	return true;
-}
-
 bool AFilePackGame::LoadPack(const char* szPckPath, bool  bEncrypt, int nFileOffset)
 {
 	int i, iNumFile;
@@ -380,14 +258,7 @@ bool AFilePackGame::InnerOpen(const char* szPckPath, const char* szFolder, OPENM
 		m_fpPackageFile->seek(nOffset, SEEK_SET);
 		m_fpPackageFile->read(&dwVersion, sizeof(auint32), 1);
 
-		if (dwVersion == 0x00020002 || dwVersion == 0x00020001)
-		{
-			if (!LoadOldPack(szPckPath, bEncrypt, nOffset))
-			{
-				g_pAFramework->DevPrintf(("AFilePackage::LoadOldPack(), Incorrect version!"));
-			}
-		}
-		else if (dwVersion == 0x00020003)
+		if (dwVersion == 0x00020003)
 		{
 			if (!LoadPack(szPckPath, bEncrypt, nOffset))
 			{

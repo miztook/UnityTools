@@ -144,7 +144,6 @@ protected:	//	Operations
 	//	Get rid of folder from file
 	void GetRidOfFolder(const char* szInName, char* szOutName) const;
 
-	bool LoadOldPack(const char* szPckPath, bool  bEncrypt, int nFileOffset);
 	bool LoadPack(const char* szPckPath, bool  bEncrypt, int nFileOffset);
 	bool InnerOpen(const char* szPckPath, const char* szFolder, OPENMODE mode, bool bEncrypt, bool bShortName);
 
