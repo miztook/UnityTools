@@ -790,8 +790,7 @@ static bool CheckFileEntryValid(AFilePackage::FILEENTRY* pFileEntry)
 bool AFilePackage::IsFileExist(const char* szFileName) const
 {
 	FILEENTRY FileEntry;
-	int iEntryIndex;
-	return GetFileEntry(szFileName, &FileEntry, &iEntryIndex);
+	return GetFileEntry(szFileName, &FileEntry);
 }
 
 bool AFilePackage::GetFileEntry(const char* szFileName, FILEENTRY* pFileEntry, int* pnIndex) const

@@ -15,7 +15,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OBBUnpack", "OBBUnpack\OBBU
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test7z", "Test7z\Test7z.vcxproj", "{1FF507D8-EE63-4C78-81D9-67F6734E111F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MapPackTooks", "MapPackTooks\MapPackTooks.vcxproj", "{CF66D93F-C8D9-4790-9725-CE86824917A3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MapPackTools", "MapPackTools\MapPackTools.vcxproj", "{CF66D93F-C8D9-4790-9725-CE86824917A3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

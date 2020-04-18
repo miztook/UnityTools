@@ -216,6 +216,7 @@ public:
 	bool IsFileExist(const char* szFileName) const override;
 
 	auint32 GetPackageFileSize() const { return m_fpPackageFile->GetPackageFileSize(); }
+	CPackageFile* GetPackageFile() const { return m_fpPackageFile; }
 
 public:
 	/*

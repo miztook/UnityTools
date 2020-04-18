@@ -125,7 +125,7 @@ bool doUnpack(const std::string& strFileName, const std::string& strOutputDir)
 		else
 			FileOperate::MakeDir(fileName.c_str());
 
-		FILE* file = fopen(fileName.c_str(), "w+b");
+		FILE* file = fopen(fileName.c_str(), "wb");
 		if (file == nullptr)
 		{
 			pckFile.CloseSharedFile(handle);
