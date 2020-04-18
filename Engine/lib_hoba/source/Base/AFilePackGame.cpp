@@ -76,13 +76,11 @@ AFilePackGame::AFilePackGame() :
 	m_fpPackageFile = NULL;
 	m_szPckFileName[0] = '\0';
 	m_bHasSafeHeader = false;
-
-	INIT_LOCK(&m_csFR);
 }
 
 AFilePackGame::~AFilePackGame()
 {
-	DESTROY_LOCK(&m_csFR);
+
 }
 
 bool AFilePackGame::LoadPack(const char* szPckPath, int nFileOffset)
@@ -343,6 +341,11 @@ bool AFilePackGame::Close()
 	return true;
 }
 
+bool AFilePackGame::Flush()
+{
+	return true;
+}
+
 //	Allocate new name
 char* AFilePackGame::AllocFileName(const char* szFile, int iEntryCnt, int iEntryTotalNum)
 {
@@ -513,10 +516,8 @@ bool AFilePackGame::ReadFile(FILEENTRY& fileEntry, unsigned char* pFileBuffer, a
 		if (!pBuffer)
 			return false;
 
-		BEGIN_LOCK(&m_csFR);
 		m_fpPackageFile->seek(fileEntry.dwOffset, SEEK_SET);
 		m_fpPackageFile->read(pBuffer, fileEntry.dwCompressedLength, 1);
-		END_LOCK(&m_csFR);
 
 		if (0 != AFilePackage::Uncompress(pBuffer, fileEntry.dwCompressedLength, pFileBuffer, &dwFileLength))
 		{
@@ -529,10 +530,8 @@ bool AFilePackGame::ReadFile(FILEENTRY& fileEntry, unsigned char* pFileBuffer, a
 	}
 	else
 	{
-		BEGIN_LOCK(&m_csFR);
 		m_fpPackageFile->seek(fileEntry.dwOffset, SEEK_SET);
 		m_fpPackageFile->read(pFileBuffer, fileEntry.dwLength, 1);
-		END_LOCK(&m_csFR);
 
 		*pdwBufferLen = fileEntry.dwLength;
 	}
@@ -548,12 +547,8 @@ bool AFilePackGame::ReadCompressedFile(FILEENTRY& fileEntry, unsigned char* pCom
 		return false;
 	}
 
-	BEGIN_LOCK(&m_csFR);
-
 	m_fpPackageFile->seek(fileEntry.dwOffset, SEEK_SET);
 	*pdwBufferLen = m_fpPackageFile->read(pCompressedBuffer, 1, fileEntry.dwCompressedLength);
-
-	END_LOCK(&m_csFR);
 
 	return true;
 }

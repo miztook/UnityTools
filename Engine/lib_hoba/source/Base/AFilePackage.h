@@ -3,7 +3,6 @@
 
 #include "AString.h"
 #include "AFilePackBase.h"
-#include "ASysSync.h"
 #include <vector>
 
 #pragma warning(disable:4996)
@@ -132,7 +131,6 @@ private:
 
 	std::vector<FILEENTRY*>	m_aFileEntries;		//	File entries
 	std::vector<FILEENTRYCACHE*>	m_aFileEntryCache;	// File entries cache
-	lock_type		m_csFR;				//	File Read lock
 
 	CPackageFile* m_fpPackageFile;
 	char		m_szPckFileName[MAX_PATH];	// the package file path
@@ -202,9 +200,9 @@ public:
 	directory* GetDirEntry(const char* szPath);
 
 	//	Open a shared file
-	virtual void* OpenSharedFile(const char* szFileName, abyte** ppFileBuf, auint32* pdwFileLen) override;
+	void* OpenSharedFile(const char* szFileName, abyte** ppFileBuf, auint32* pdwFileLen) override;
 	//	Close a shared file
-	virtual void CloseSharedFile(void* dwFileHandle) override;
+	void CloseSharedFile(void* dwFileHandle) override;
 
 	//	Get current cached file total size
 	auint32 GetCachedFileSize() const { return m_dwCacheSize; }
@@ -213,9 +211,9 @@ public:
 
 	int GetFileNumber() const { return (int)m_aFileEntries.size(); }
 	FILEHEADER GetFileHeader() const { return m_header; }
-	virtual const char * GetFolder() const override { return m_szFolder; }
+	const char * GetFolder() const override { return m_szFolder; }
 	const char* GetPckFileName() const { return m_szPckFileName; }
-	virtual bool IsFileExist(const char* szFileName) const override;
+	bool IsFileExist(const char* szFileName) const override;
 
 	auint32 GetPackageFileSize() const { return m_fpPackageFile->GetPackageFileSize(); }
 

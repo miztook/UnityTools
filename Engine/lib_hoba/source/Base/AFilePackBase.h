@@ -63,15 +63,15 @@ public:
 	AFilePackBase() {}
 	virtual ~AFilePackBase() {}
 
-	virtual bool Close() { return true; }
-	virtual bool Flush() { return true; }
-	virtual const char* GetFolder() const { return ""; }
-	virtual bool IsFileExist(const char* szFileName) const { return false; }
+	virtual bool Close() = 0;
+	virtual bool Flush() = 0;
+	virtual const char* GetFolder() const = 0;
+	virtual bool IsFileExist(const char* szFileName) const = 0;
 
 	//	Open a shared file
-	virtual void* OpenSharedFile(const char* szFileName, abyte** ppFileBuf, auint32* pdwFileLen) { return NULL; }
+	virtual void* OpenSharedFile(const char* szFileName, abyte** ppFileBuf, auint32* pdwFileLen) = 0;
 	//	Close a shared file
-	virtual void CloseSharedFile(void* dwFileHandle) {}
+	virtual void CloseSharedFile(void* dwFileHandle) = 0;
 };
 
 #endif	//	_AFILEPACKBASE_H_

@@ -3,7 +3,6 @@
 
 #include "AString.h"
 #include "AFilePackBase.h"
-#include "ASysSync.h"
 #include <unordered_map>
 #include <vector>
 
@@ -89,9 +88,6 @@ private:
 	std::vector<FILEENTRY*>	m_aIDCollisionFiles;	//	ID collision file
 	std::vector<NAMEBUFFER>		m_aNameBufs;			//	Entry file name buffer
 
-	//FIX ME
-	lock_type		m_csFR;					//	File Read lock
-
 	CPackageFile* m_fpPackageFile;
 	char		m_szPckFileName[MAX_PATH];	// the package file path
 	char		m_szFolder[MAX_PATH];	// the folder path (in lowercase) the package packs.
@@ -106,7 +102,8 @@ public:
 
 	bool Open(const char* szPckPath, OPENMODE mode);
 	bool Open(const char* szPckPath, const char* szFolder, OPENMODE mode);
-	virtual bool Close();
+	bool Close() override;
+	bool Flush() override;
 
 	//	Sort the file entry list;
 	bool ResortEntries();
@@ -123,15 +120,15 @@ public:
 	FILEENTRY* FindIDCollisionFile(const char* szFileName) const;
 
 	//	Open a shared file
-	virtual void* OpenSharedFile(const char* szFileName, abyte** ppFileBuf, auint32* pdwFileLen) override;
+	void* OpenSharedFile(const char* szFileName, abyte** ppFileBuf, auint32* pdwFileLen) override;
 	//	Close a shared file
-	virtual void CloseSharedFile(void* dwFileHandle) override;
+	void CloseSharedFile(void* dwFileHandle) override;
 
 	int GetFileNumber() const { return m_iNumEntry; }
 	FILEHEADER GetFileHeader() const { return m_header; }
-	virtual const char* GetFolder() const override { return m_szFolder; }
+	const char* GetFolder() const override { return m_szFolder; }
 	const char* GetPckFileName() { return m_szPckFileName; }
-	virtual bool IsFileExist(const char* szFileName) const override;
+	bool IsFileExist(const char* szFileName) const override;
 
 	auint32 GetPackageFileSize() { return m_fpPackageFile->GetPackageFileSize(); }
 

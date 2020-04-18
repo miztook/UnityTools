@@ -212,11 +212,6 @@ inline float a_RandFloat(float lower, float upper)
 	return lower + (upper - lower) * a_Random_0_to_1();
 }
 
-//inline void a_Int64ToString(AString& str, const aint64 val)
-//{
-//	str.Format("%lld", val);
-//}
-
 inline void a_StringToInt64(aint64& val, const char* pStr)
 {
 	if (!pStr || !pStr[0])

@@ -312,14 +312,11 @@ AFilePackage::AFilePackage()
 	m_dwCacheSize = 0;
 	m_szPckFileName[0] = '\0';
 
-	INIT_LOCK(&m_csFR);
-
 	m_bHasSafeHeader = false;
 }
 
 AFilePackage::~AFilePackage()
 {
-	DESTROY_LOCK(&m_csFR);
 }
 
 bool AFilePackage::LoadPack(const char* szPckPath, int nFileOffset)
@@ -860,20 +857,11 @@ bool AFilePackage::ReadFile(FILEENTRY& fileEntry, unsigned char* pFileBuffer, au
 		if (!pBuffer)
 			return false;
 
-		BEGIN_LOCK(&m_csFR);
 		m_fpPackageFile->seek(fileEntry.dwOffset, SEEK_SET);
 		m_fpPackageFile->read(pBuffer, fileEntry.dwCompressedLength, 1);
-		END_LOCK(&m_csFR);
 
 		if (0 != Uncompress(pBuffer, fileEntry.dwCompressedLength, pFileBuffer, &dwFileLength))
 		{
-			FILE * fp = fopen("logs\\bad.dat", "wb");
-			if (fp)
-			{
-				fwrite(pBuffer, fileEntry.dwCompressedLength, 1, fp);
-				fclose(fp);
-			}
-
 			return false;
 		}
 
@@ -883,10 +871,8 @@ bool AFilePackage::ReadFile(FILEENTRY& fileEntry, unsigned char* pFileBuffer, au
 	}
 	else
 	{
-		BEGIN_LOCK(&m_csFR);
 		m_fpPackageFile->seek(fileEntry.dwOffset, SEEK_SET);
 		m_fpPackageFile->read(pFileBuffer, fileEntry.dwLength, 1);
-		END_LOCK(&m_csFR);
 
 		*pdwBufferLen = fileEntry.dwLength;
 	}
@@ -915,12 +901,8 @@ bool AFilePackage::ReadCompressedFile(FILEENTRY& fileEntry, unsigned char* pComp
 		return false;
 	}
 
-	BEGIN_LOCK(&m_csFR);
-
 	m_fpPackageFile->seek(fileEntry.dwOffset, SEEK_SET);
 	*pdwBufferLen = m_fpPackageFile->read(pCompressedBuffer, 1, fileEntry.dwCompressedLength);
-
-	END_LOCK(&m_csFR);
 
 	return true;
 }
