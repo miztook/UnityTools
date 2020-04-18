@@ -24,10 +24,10 @@ AFilePackMan::~AFilePackMan()
 	CloseAllPackages();
 }
 
-bool AFilePackMan::CreateFilePackage(const char * szPckFile, const char* szFolder, bool bEncrypt/* false */)
+bool AFilePackMan::CreateFilePackage(const char * szPckFile, const char* szFolder)
 {
 	AFilePackage * pFilePackage = new AFilePackage;
-	if (!pFilePackage->Open(szPckFile, szFolder, AFilePackage::CREATENEW, bEncrypt))
+	if (!pFilePackage->Open(szPckFile, szFolder, AFilePackage::CREATENEW))
 	{
 		delete pFilePackage;
 		g_pAFramework->DevPrintf("AFilePackMan::CreateFilePackage(), Can not open package [%s]", szPckFile);
@@ -39,10 +39,10 @@ bool AFilePackMan::CreateFilePackage(const char * szPckFile, const char* szFolde
 	return true;
 }
 
-bool AFilePackMan::OpenFilePackage(const char * szPckFile, bool bCreateNew, bool bEncrypt)
+bool AFilePackMan::OpenFilePackage(const char * szPckFile, bool bCreateNew)
 {
 	AFilePackage * pFilePackage = new AFilePackage;
-	if (!pFilePackage->Open(szPckFile, bCreateNew ? AFilePackage::CREATENEW : AFilePackage::OPENEXIST, bEncrypt))
+	if (!pFilePackage->Open(szPckFile, bCreateNew ? AFilePackage::CREATENEW : AFilePackage::OPENEXIST))
 	{
 		delete pFilePackage;
 		g_pAFramework->DevPrintf("AFilePackMan::OpenFilePackage(), Can not open package [%s]", szPckFile);
@@ -55,7 +55,7 @@ bool AFilePackMan::OpenFilePackage(const char * szPckFile, bool bCreateNew, bool
 	return true;
 }
 
-bool AFilePackMan::OpenFilePackage(const char * szPckFile, const char* szFolder, bool bEncrypt/* false */)
+bool AFilePackMan::OpenFilePackage(const char * szPckFile, const char* szFolder)
 {
 	if (ASys::GetFileSize(szPckFile) == 0)
 	{
@@ -64,7 +64,7 @@ bool AFilePackMan::OpenFilePackage(const char * szPckFile, const char* szFolder,
 	}
 
 	AFilePackage * pFilePackage = new AFilePackage;
-	if (!pFilePackage->Open(szPckFile, szFolder, AFilePackage::OPENEXIST, bEncrypt))
+	if (!pFilePackage->Open(szPckFile, szFolder, AFilePackage::OPENEXIST))
 	{
 		delete pFilePackage;
 		g_pAFramework->DevPrintf("AFilePackMan::OpenFilePackage(), Can not open package [%s]", szPckFile);
@@ -77,10 +77,10 @@ bool AFilePackMan::OpenFilePackage(const char * szPckFile, const char* szFolder,
 	return true;
 }
 
-bool AFilePackMan::OpenFilePackageInGame(const char* szPckFile, bool bEncrypt/* false */)
+bool AFilePackMan::OpenFilePackageInGame(const char* szPckFile)
 {
 	AFilePackGame* pFilePackage = new AFilePackGame;
-	if (!pFilePackage->Open(szPckFile, AFilePackGame::OPENEXIST, bEncrypt))
+	if (!pFilePackage->Open(szPckFile, AFilePackGame::OPENEXIST))
 	{
 		delete pFilePackage;
 		g_pAFramework->DevPrintf("AFilePackMan::OpenFilePackageInGame(), Can not open package [%s]", szPckFile);
@@ -93,10 +93,10 @@ bool AFilePackMan::OpenFilePackageInGame(const char* szPckFile, bool bEncrypt/* 
 	return true;
 }
 
-bool AFilePackMan::OpenFilePackageInGame(const char* szPckFile, const char* szFolder, bool bEncrypt/* false */)
+bool AFilePackMan::OpenFilePackageInGame(const char* szPckFile, const char* szFolder)
 {
 	AFilePackGame* pFilePackage = new AFilePackGame;
-	if (!pFilePackage->Open(szPckFile, szFolder, AFilePackGame::OPENEXIST, bEncrypt))
+	if (!pFilePackage->Open(szPckFile, szFolder, AFilePackGame::OPENEXIST))
 	{
 		delete pFilePackage;
 		g_pAFramework->DevPrintf("AFilePackMan::OpenFilePackageInGame(), Can not open package [%s]", szPckFile);

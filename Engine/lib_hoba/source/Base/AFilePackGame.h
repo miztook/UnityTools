@@ -104,8 +104,8 @@ public:
 	AFilePackGame();
 	virtual ~AFilePackGame();
 
-	bool Open(const char* szPckPath, OPENMODE mode, bool bEncrypt = false);
-	bool Open(const char* szPckPath, const char* szFolder, OPENMODE mode, bool bEncrypt = false);
+	bool Open(const char* szPckPath, OPENMODE mode);
+	bool Open(const char* szPckPath, const char* szFolder, OPENMODE mode);
 	virtual bool Close();
 
 	//	Sort the file entry list;
@@ -144,12 +144,9 @@ protected:	//	Operations
 	//	Get rid of folder from file
 	void GetRidOfFolder(const char* szInName, char* szOutName) const;
 
-	bool LoadPack(const char* szPckPath, bool  bEncrypt, int nFileOffset);
-	bool InnerOpen(const char* szPckPath, const char* szFolder, OPENMODE mode, bool bEncrypt, bool bShortName);
+	bool LoadPack(const char* szPckPath, int nFileOffset);
+	bool InnerOpen(const char* szPckPath, const char* szFolder, OPENMODE mode, bool bShortName);
 
-	//	Save file entries
-	void Encrypt(unsigned char* pBuffer, auint32 dwLength);
-	void Decrypt(unsigned char* pBuffer, auint32 dwLength);
 	//	Safe header
 	bool LoadSafeHeader();
 

@@ -25,12 +25,6 @@ class AFilePackBase
 {
 public:		//	Types
 
-	//	Package header flags
-	enum
-	{
-		PACKFLAG_ENCRYPT = 0x80000000,
-	};
-
 	class CPackageFile
 	{
 	private:

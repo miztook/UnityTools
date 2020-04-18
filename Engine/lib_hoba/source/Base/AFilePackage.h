@@ -150,8 +150,8 @@ public:
 	AFilePackage();
 	virtual ~AFilePackage();
 
-	bool Open(const char* szPckPath, OPENMODE mode, bool bEncrypt = false);
-	bool Open(const char* szPckPath, const char* szFolder, OPENMODE mode, bool bEncrypt = false);
+	bool Open(const char* szPckPath, OPENMODE mode);
+	bool Open(const char* szPckPath, const char* szFolder, OPENMODE mode);
 	virtual bool Close() override;
 	virtual bool Flush() override;
 
@@ -219,9 +219,6 @@ public:
 
 	auint32 GetPackageFileSize() const { return m_fpPackageFile->GetPackageFileSize(); }
 
-	void AllocTempMemory();
-	void FreeTempMemory();
-
 public:
 	/*
 		Compress a data buffer
@@ -261,17 +258,14 @@ protected:	//	Operations
 	//	Get rid of folder from file
 	void GetRidOfFolder(const char* szInName, char* szOutName) const;
 
-	bool InnerOpen(const char* szPckPath, const char* szFolder, OPENMODE mode, bool bEncrypt, bool bShortName);
-	bool LoadOldPack(const char* szPckPath, bool  bEncrypt, int nFileOffset);
-	bool LoadPack(const char* szPckPath, bool  bEncrypt, int nFileOffset);
+	bool InnerOpen(const char* szPckPath, const char* szFolder, OPENMODE mode, bool bShortName);
+	bool LoadPack(const char* szPckPath, int nFileOffset);
 	//	Append a file into directroy
 	bool RemoveFileFromDir(const char * filename);
 	bool InsertFileToDir(const char * filename, int index);
 
 	//	Save file entries
 	bool SaveEntries(auint32 * pdwEntrySize = NULL);
-	void Encrypt(unsigned char* pBuffer, auint32 dwLength);
-	void Decrypt(unsigned char* pBuffer, auint32 dwLength);
 
 	//	Safe header
 	bool LoadSafeHeader();

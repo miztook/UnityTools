@@ -45,11 +45,11 @@ public:
 	bool SetAlgorithmID(int id);
 
 	// open an exist file package
-	bool OpenFilePackage(const char* szPckFile, bool bCreateNew = false, bool bEncrypt = false);
-	bool OpenFilePackage(const char* szPckFile, const char* szFolder, bool bEncrypt = false);
-	bool OpenFilePackageInGame(const char* szPckFile, bool bEncrypt = false);
-	bool OpenFilePackageInGame(const char* szPckFile, const char* szFolder, bool bEncrypt = false);
-	bool CreateFilePackage(const char* szPckFile, const char* szFolder, bool bEncrypt = false);
+	bool OpenFilePackage(const char* szPckFile, bool bCreateNew = false);
+	bool OpenFilePackage(const char* szPckFile, const char* szFolder);
+	bool OpenFilePackageInGame(const char* szPckFile);
+	bool OpenFilePackageInGame(const char* szPckFile, const char* szFolder);
+	bool CreateFilePackage(const char* szPckFile, const char* szFolder);
 
 	// close an opening file package
 	bool CloseFilePackage(AFilePackBase* pFilePck);

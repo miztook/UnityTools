@@ -322,149 +322,7 @@ AFilePackage::~AFilePackage()
 	DESTROY_LOCK(&m_csFR);
 }
 
-bool AFilePackage::LoadOldPack(const char* szPckPath, bool  bEncrypt, int nFileOffset)
-{
-	int i, iNumFile;
-	auint32 dwCompressEntryLen = 0;
-
-	// Now read file number;
-	nFileOffset -= sizeof(int);
-	m_fpPackageFile->seek(nFileOffset, SEEK_SET);
-	m_fpPackageFile->read(&iNumFile, sizeof(int), 1);
-
-	nFileOffset -= sizeof(FILEHEADER);
-	m_fpPackageFile->seek(nFileOffset, SEEK_SET);
-	m_fpPackageFile->read(&m_header, sizeof(FILEHEADER), 1);
-	if (strstr(m_header.szDescription, "lica File Package") == NULL)
-		return false;
-	strncpy(m_header.szDescription, AFPCK_COPYRIGHT_TAG, sizeof(m_header.szDescription));
-
-	// if we don't expect one encrypt package, we will let the error come out.
-	// make sure the encrypt flag is correct
-	bool bPackIsEncrypt = (m_header.dwFlags & PACKFLAG_ENCRYPT) != 0;
-	if (bEncrypt != bPackIsEncrypt)
-	{
-		g_pAFramework->DevPrintf(("AFilePackage::Open(), wrong encrypt flag"));
-		return false;
-	}
-
-	m_header.dwEntryOffset ^= AFPCK_MASKDWORD;
-
-	if (m_header.guardByte0 != AFPCK_GUARDBYTE0 ||
-		m_header.guardByte1 != AFPCK_GUARDBYTE1)
-	{
-		// corrput file
-		g_pAFramework->DevPrintf("AFilePackage::Open(), GuardBytes corrupted [%s]", szPckPath);
-		return false;
-	}
-
-	//	Seek to entry list;
-	m_fpPackageFile->seek(m_header.dwEntryOffset, SEEK_SET);
-
-	//	Create entries
-	m_aFileEntries.resize(iNumFile);
-	m_aFileEntryCache.resize(iNumFile);
-
-	for (i = 0; i < iNumFile; i++)
-	{
-		FILEENTRY* pEntry = (FILEENTRY*)malloc(sizeof(FILEENTRY));
-		if (!pEntry)
-		{
-			g_pAFramework->DevPrintf(("AFilePackage::Open(), Not enough memory!"));
-			return false;
-		}
-		pEntry->iAccessCnt = 0;
-
-		FILEENTRYCACHE* pEntryCache = (FILEENTRYCACHE*)malloc(sizeof(FILEENTRYCACHE));
-		if (!pEntryCache)
-		{
-			g_pAFramework->DevPrintf(("AFilePackage::Open(), Not enough memory!"));
-			free(pEntry);
-			return false;
-		}
-		memset(pEntryCache, 0, sizeof(FILEENTRYCACHE));
-
-		// first read the entry size after compressed
-		int nCompressedSize;
-		m_fpPackageFile->read(&nCompressedSize, sizeof(int), 1);
-		nCompressedSize ^= AFPCK_MASKDWORD;
-
-		int nCheckSize;
-		m_fpPackageFile->read(&nCheckSize, sizeof(int), 1);
-		nCheckSize = nCheckSize ^ AFPCK_CHECKMASK ^ AFPCK_MASKDWORD;
-
-		if (nCompressedSize != nCheckSize)
-		{
-			g_pAFramework->DevPrintf(("AFilePackage::Open(), Check Byte Error!"));
-			free(pEntryCache);
-			free(pEntry);
-			return false;
-		}
-
-		pEntryCache->dwCompressedLength = nCompressedSize;
-		pEntryCache->pEntryCompressed = (abyte*)malloc(nCompressedSize);
-		if (!pEntryCache->pEntryCompressed)
-		{
-			g_pAFramework->DevPrintf(("AFilePackage::Open(), Not enough memory !"));
-			free(pEntryCache);
-			free(pEntry);
-			return false;
-		}
-
-		m_fpPackageFile->read(pEntryCache->pEntryCompressed, nCompressedSize, 1);
-		auint32 dwEntrySize = sizeof(FILEENTRY);
-
-		if (dwEntrySize == nCompressedSize)
-		{
-			memcpy(pEntry, pEntryCache->pEntryCompressed, sizeof(FILEENTRY));
-
-			// maybe the original package fileentry has not been compressed
-			auint32 dwCompressedSize = sizeof(FILEENTRY);
-			abyte * pBuffer = (abyte *)malloc(sizeof(FILEENTRY));
-			int nRet = Compress((unsigned char*)pEntry, sizeof(FILEENTRY), pBuffer, &dwCompressedSize);
-			if (nRet != 0 || dwCompressedSize >= sizeof(FILEENTRY))
-			{
-				dwCompressedSize = sizeof(FILEENTRY);
-				memcpy(pBuffer, pEntry, sizeof(FILEENTRY));
-			}
-			pEntryCache->dwCompressedLength = dwCompressedSize;
-			pEntryCache->pEntryCompressed = (abyte *)realloc(pEntryCache->pEntryCompressed, dwCompressedSize);
-			memcpy(pEntryCache->pEntryCompressed, pBuffer, dwCompressedSize);
-			free(pBuffer);
-		}
-		else
-		{
-			if (0 != Uncompress(pEntryCache->pEntryCompressed, nCompressedSize, (unsigned char*)pEntry, &dwEntrySize))
-			{
-				g_pAFramework->DevPrintf(("AFilePackage::Open(), decode file entry fail!"));
-				free(pEntryCache);
-				free(pEntry);
-				return false;
-			}
-
-			ASSERT(dwEntrySize == sizeof(FILEENTRY));
-		}
-
-		//	Note: A bug existed in AppendFileCompressed() after m_bUseShortName was introduced. The bug
-		//		didn't normalize file name when new file is added to package, so that the szFileName of
-		//		FILEENTRY may contain '/' character. The bug wasn't fixed until 2013.3.18, many 'new' files
-		//		have been added to package, so NormalizeFileName is inserted here to ensure all szFileName
-		//		of FILEENTRY uses '\' instead of '/', at least in memory.
-		NormalizeFileName(pEntry->szFileName, false);
-
-		m_aFileEntries[i] = pEntry;
-		m_aFileEntryCache[i] = pEntryCache;
-	}
-
-	ResortEntries();
-
-	// now we move entry point to the end of the file so to keep old entries here
-	if (m_bHasSafeHeader)
-		m_header.dwEntryOffset = nFileOffset;
-
-	return true;
-}
-bool AFilePackage::LoadPack(const char* szPckPath, bool  bEncrypt, int nFileOffset)
+bool AFilePackage::LoadPack(const char* szPckPath, int nFileOffset)
 {
 	int i, iNumFile;
 	auint32 dwCompressEntryLen = 0;
@@ -485,15 +343,6 @@ bool AFilePackage::LoadPack(const char* szPckPath, bool  bEncrypt, int nFileOffs
 	if (strstr(m_header.szDescription, "lica File Package") == NULL)
 		return false;
 	strncpy(m_header.szDescription, AFPCK_COPYRIGHT_TAG, sizeof(m_header.szDescription));
-
-	// if we don't expect one encrypt package, we will let the error come out.
-	// make sure the encrypt flag is correct
-	bool bPackIsEncrypt = (m_header.dwFlags & PACKFLAG_ENCRYPT) != 0;
-	if (bEncrypt != bPackIsEncrypt)
-	{
-		g_pAFramework->DevPrintf(("AFilePackage::Open(), wrong encrypt flag"));
-		return false;
-	}
 
 	m_header.dwEntryOffset ^= AFPCK_MASKDWORD;
 
@@ -557,7 +406,7 @@ bool AFilePackage::LoadPack(const char* szPckPath, bool  bEncrypt, int nFileOffs
 	return true;
 }
 
-bool AFilePackage::InnerOpen(const char* szPckPath, const char* szFolder, OPENMODE mode, bool bEncrypt, bool bShortName)
+bool AFilePackage::InnerOpen(const char* szPckPath, const char* szFolder, OPENMODE mode, bool bShortName)
 {
 	char szFullPckPath[MAX_PATH];
 
@@ -627,7 +476,7 @@ bool AFilePackage::InnerOpen(const char* szPckPath, const char* szFolder, OPENMO
 
 		if (dwVersion == 0x00020003)
 		{
-			if (!LoadPack(szPckPath, bEncrypt, nOffset))
+			if (!LoadPack(szPckPath, nOffset))
 			{
 				g_pAFramework->DevPrintf(("AFilePackage::LoadPack(), Incorrect version!"));
 			}
@@ -662,7 +511,7 @@ bool AFilePackage::InnerOpen(const char* szPckPath, const char* szFolder, OPENMO
 		m_header.guardByte0 = AFPCK_GUARDBYTE0;
 		m_header.dwEntryOffset = sizeof(SAFEFILEHEADER);
 		m_header.dwVersion = AFPCK_VERSION;
-		m_header.dwFlags = bEncrypt ? PACKFLAG_ENCRYPT : 0;
+		m_header.dwFlags = 0;
 		m_header.guardByte1 = AFPCK_GUARDBYTE1;
 		strncpy(m_header.szDescription, AFPCK_COPYRIGHT_TAG, sizeof(m_header.szDescription));
 
@@ -684,12 +533,12 @@ bool AFilePackage::InnerOpen(const char* szPckPath, const char* szFolder, OPENMO
 	return true;
 }
 
-bool AFilePackage::Open(const char* szPckPath, const char* szFolder, OPENMODE mode, bool bEncrypt/* false */)
+bool AFilePackage::Open(const char* szPckPath, const char* szFolder, OPENMODE mode)
 {
-	return InnerOpen(szPckPath, szFolder, mode, bEncrypt, true);
+	return InnerOpen(szPckPath, szFolder, mode, true);
 }
 
-bool AFilePackage::Open(const char* szPckPath, OPENMODE mode, bool bEncrypt)
+bool AFilePackage::Open(const char* szPckPath, OPENMODE mode)
 {
 	char szFolder[MAX_PATH] = { 0 };
 
@@ -719,7 +568,7 @@ bool AFilePackage::Open(const char* szPckPath, OPENMODE mode, bool bEncrypt)
 	*pext++ = '\\';
 	*pext = '\0';
 
-	return InnerOpen(szPckPath, szFolder, mode, bEncrypt, false);
+	return InnerOpen(szPckPath, szFolder, mode, false);
 }
 
 bool AFilePackage::Close()
@@ -980,50 +829,6 @@ bool AFilePackage::GetFileEntry(const char* szFileName, FILEENTRY* pFileEntry, i
 	return true;
 }
 
-void AFilePackage::Encrypt(unsigned char* pBuffer, auint32 dwLength)
-{
-	if ((m_header.dwFlags & PACKFLAG_ENCRYPT) == 0)
-		return;
-
-	auint32 dwMask = dwLength + 0x739802ab;
-
-	for (auint32 i = 0; i < dwLength; i += 4)
-	{
-		if (i + 3 < dwLength)
-		{
-			auint32 data = (pBuffer[i] << 24) | (pBuffer[i + 1] << 16) | (pBuffer[i + 2] << 8) | pBuffer[i + 3];
-			data ^= dwMask;
-			data = (data << 16) | ((data >> 16) & 0xffff);
-			pBuffer[i] = (data >> 24) & 0xff;
-			pBuffer[i + 1] = (data >> 16) & 0xff;
-			pBuffer[i + 2] = (data >> 8) & 0xff;
-			pBuffer[i + 3] = data & 0xff;
-		}
-	}
-}
-
-void AFilePackage::Decrypt(unsigned char* pBuffer, auint32 dwLength)
-{
-	if ((m_header.dwFlags & PACKFLAG_ENCRYPT) == 0)
-		return;
-
-	auint32 dwMask = dwLength + 0x739802ab;
-
-	for (auint32 i = 0; i < dwLength; i += 4)
-	{
-		if (i + 3 < dwLength)
-		{
-			auint32 data = (pBuffer[i] << 24) | (pBuffer[i + 1] << 16) | (pBuffer[i + 2] << 8) | pBuffer[i + 3];
-			data = (data << 16) | ((data >> 16) & 0xffff);
-			data ^= dwMask;
-			pBuffer[i] = (data >> 24) & 0xff;
-			pBuffer[i + 1] = (data >> 16) & 0xff;
-			pBuffer[i + 2] = (data >> 8) & 0xff;
-			pBuffer[i + 3] = data & 0xff;
-		}
-	}
-}
-
 bool AFilePackage::ReadFile(const char* szFileName, unsigned char* pFileBuffer, auint32* pdwBufferLen)
 {
 	FILEENTRY fileEntry;
@@ -1058,7 +863,6 @@ bool AFilePackage::ReadFile(FILEENTRY& fileEntry, unsigned char* pFileBuffer, au
 		BEGIN_LOCK(&m_csFR);
 		m_fpPackageFile->seek(fileEntry.dwOffset, SEEK_SET);
 		m_fpPackageFile->read(pBuffer, fileEntry.dwCompressedLength, 1);
-		Decrypt(pBuffer, fileEntry.dwCompressedLength);
 		END_LOCK(&m_csFR);
 
 		if (0 != Uncompress(pBuffer, fileEntry.dwCompressedLength, pFileBuffer, &dwFileLength))
@@ -1082,7 +886,6 @@ bool AFilePackage::ReadFile(FILEENTRY& fileEntry, unsigned char* pFileBuffer, au
 		BEGIN_LOCK(&m_csFR);
 		m_fpPackageFile->seek(fileEntry.dwOffset, SEEK_SET);
 		m_fpPackageFile->read(pFileBuffer, fileEntry.dwLength, 1);
-		Decrypt(pFileBuffer, fileEntry.dwLength);
 		END_LOCK(&m_csFR);
 
 		*pdwBufferLen = fileEntry.dwLength;
@@ -1116,7 +919,6 @@ bool AFilePackage::ReadCompressedFile(FILEENTRY& fileEntry, unsigned char* pComp
 
 	m_fpPackageFile->seek(fileEntry.dwOffset, SEEK_SET);
 	*pdwBufferLen = m_fpPackageFile->read(pCompressedBuffer, 1, fileEntry.dwCompressedLength);
-	Decrypt(pCompressedBuffer, fileEntry.dwCompressedLength);
 
 	END_LOCK(&m_csFR);
 
@@ -1214,32 +1016,10 @@ bool AFilePackage::AppendFileCompressed(const char* szFileName, unsigned char* p
 
 	m_aFileEntries.push_back(pEntry);
 
-	//FILEENTRYCACHE* pEntryCache = (FILEENTRYCACHE*)a_malloc(sizeof (FILEENTRYCACHE));
-	//if (!pEntryCache)
-	//{
-	//	g_pAFramework->DevPrintf(("AFilePackage::AppendFile(), Not enough memory!"));
-	//	return false;
-	//}
-	//auint32 dwCompressedSize = sizeof(FILEENTRY);
-	//abyte * pBuffer = (abyte *)a_malloc(sizeof(FILEENTRY));
-	//int nRet = Compress((unsigned char*)pEntry, sizeof(FILEENTRY), pBuffer, &dwCompressedSize);
-	//if( nRet != 0 || dwCompressedSize >= sizeof(FILEENTRY) )
-	//{
-	//	dwCompressedSize = sizeof(FILEENTRY);
-	//	memcpy(pBuffer, pEntry, sizeof(FILEENTRY));
-	//}
-	//pEntryCache->dwCompressedLength = dwCompressedSize;
-	//pEntryCache->pEntryCompressed = (abyte *)a_malloc(dwCompressedSize);
-	//memcpy(pEntryCache->pEntryCompressed, pBuffer, dwCompressedSize);
-	//m_aFileEntryCache.Add(pEntryCache);
-	//a_free(pBuffer);
-
 	m_fpPackageFile->seek(m_header.dwEntryOffset, SEEK_SET);
 
 	//	We write the compressed buffer into the disk;
-	Encrypt(pCompressedFileBuffer, dwCompressedLength);
 	m_fpPackageFile->write(pCompressedFileBuffer, dwCompressedLength, 1);
-	Decrypt(pCompressedFileBuffer, dwCompressedLength);
 	m_header.dwEntryOffset += dwCompressedLength;
 
 	InsertFileToDir(szFileName, (int)m_aFileEntries.size() - 1);
@@ -1390,9 +1170,7 @@ bool AFilePackage::ReplaceFileCompressed(const char * szFileName, unsigned char*
 	m_fpPackageFile->seek(m_header.dwEntryOffset, SEEK_SET);
 
 	//	We write the compressed buffer into the disk;
-	Encrypt(pCompressedBuffer, dwCompressedLength);
 	m_fpPackageFile->write(pCompressedBuffer, dwCompressedLength, 1);
-	Decrypt(pCompressedBuffer, dwCompressedLength);
 	m_header.dwEntryOffset += dwCompressedLength;
 
 	m_bHasChanged = true;

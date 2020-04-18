@@ -85,7 +85,7 @@ AFilePackGame::~AFilePackGame()
 	DESTROY_LOCK(&m_csFR);
 }
 
-bool AFilePackGame::LoadPack(const char* szPckPath, bool  bEncrypt, int nFileOffset)
+bool AFilePackGame::LoadPack(const char* szPckPath, int nFileOffset)
 {
 	int i, iNumFile;
 	auint32 dwCompressEntryLen = 0;
@@ -105,15 +105,6 @@ bool AFilePackGame::LoadPack(const char* szPckPath, bool  bEncrypt, int nFileOff
 	if (strstr(m_header.szDescription, "lica File Package") == NULL)
 		return false;
 	strncpy(m_header.szDescription, AFPCK_COPYRIGHT_TAG, sizeof(m_header.szDescription));
-
-	// if we don't expect one encrypt package, we will let the error come out.
-	// make sure the encrypt flag is correct
-	bool bPackIsEncrypt = (m_header.dwFlags & PACKFLAG_ENCRYPT) != 0;
-	if (bEncrypt != bPackIsEncrypt)
-	{
-		g_pAFramework->DevPrintf(("AFilePackage::Open(), wrong encrypt flag"));
-		return false;
-	}
 
 	m_header.dwEntryOffset ^= AFPCK_MASKDWORD;
 
@@ -190,7 +181,7 @@ bool AFilePackGame::LoadPack(const char* szPckPath, bool  bEncrypt, int nFileOff
 	return true;
 }
 
-bool AFilePackGame::InnerOpen(const char* szPckPath, const char* szFolder, OPENMODE mode, bool bEncrypt, bool bShortName)
+bool AFilePackGame::InnerOpen(const char* szPckPath, const char* szFolder, OPENMODE mode, bool bShortName)
 {
 	char szFullPckPath[MAX_PATH];
 	strcpy(szFullPckPath, szPckPath);
@@ -260,7 +251,7 @@ bool AFilePackGame::InnerOpen(const char* szPckPath, const char* szFolder, OPENM
 
 		if (dwVersion == 0x00020003)
 		{
-			if (!LoadPack(szPckPath, bEncrypt, nOffset))
+			if (!LoadPack(szPckPath, nOffset))
 			{
 				g_pAFramework->DevPrintf(("AFilePackage::LoadPack(), Incorrect version!"));
 			}
@@ -284,12 +275,12 @@ bool AFilePackGame::InnerOpen(const char* szPckPath, const char* szFolder, OPENM
 	return true;
 }
 
-bool AFilePackGame::Open(const char* szPckPath, const char* szFolder, OPENMODE mode, bool bEncrypt/* false */)
+bool AFilePackGame::Open(const char* szPckPath, const char* szFolder, OPENMODE mode)
 {
-	return InnerOpen(szPckPath, szFolder, mode, bEncrypt, true);
+	return InnerOpen(szPckPath, szFolder, mode, true);
 }
 
-bool AFilePackGame::Open(const char* szPckPath, OPENMODE mode, bool bEncrypt)
+bool AFilePackGame::Open(const char* szPckPath, OPENMODE mode)
 {
 	char szFolder[MAX_PATH];
 
@@ -319,7 +310,7 @@ bool AFilePackGame::Open(const char* szPckPath, OPENMODE mode, bool bEncrypt)
 	*pext++ = '\\';
 	*pext = '\0';
 
-	return InnerOpen(szPckPath, szFolder, mode, bEncrypt, false);
+	return InnerOpen(szPckPath, szFolder, mode, false);
 }
 
 bool AFilePackGame::Close()
@@ -492,50 +483,6 @@ AFilePackGame::FILEENTRY* AFilePackGame::FindIDCollisionFile(const char* szFileN
 	return NULL;
 }
 
-void AFilePackGame::Encrypt(unsigned char* pBuffer, auint32 dwLength)
-{
-	if ((m_header.dwFlags & PACKFLAG_ENCRYPT) == 0)
-		return;
-
-	auint32 dwMask = dwLength + 0x739802ab;
-
-	for (auint32 i = 0; i < dwLength; i += 4)
-	{
-		if (i + 3 < dwLength)
-		{
-			auint32 data = (pBuffer[i] << 24) | (pBuffer[i + 1] << 16) | (pBuffer[i + 2] << 8) | pBuffer[i + 3];
-			data ^= dwMask;
-			data = (data << 16) | ((data >> 16) & 0xffff);
-			pBuffer[i] = (data >> 24) & 0xff;
-			pBuffer[i + 1] = (data >> 16) & 0xff;
-			pBuffer[i + 2] = (data >> 8) & 0xff;
-			pBuffer[i + 3] = data & 0xff;
-		}
-	}
-}
-
-void AFilePackGame::Decrypt(unsigned char* pBuffer, auint32 dwLength)
-{
-	if ((m_header.dwFlags & PACKFLAG_ENCRYPT) == 0)
-		return;
-
-	auint32 dwMask = dwLength + 0x739802ab;
-
-	for (auint32 i = 0; i < dwLength; i += 4)
-	{
-		if (i + 3 < dwLength)
-		{
-			auint32 data = (pBuffer[i] << 24) | (pBuffer[i + 1] << 16) | (pBuffer[i + 2] << 8) | pBuffer[i + 3];
-			data = (data << 16) | ((data >> 16) & 0xffff);
-			data ^= dwMask;
-			pBuffer[i] = (data >> 24) & 0xff;
-			pBuffer[i + 1] = (data >> 16) & 0xff;
-			pBuffer[i + 2] = (data >> 8) & 0xff;
-			pBuffer[i + 3] = data & 0xff;
-		}
-	}
-}
-
 bool AFilePackGame::ReadFile(const char* szFileName, unsigned char* pFileBuffer, auint32* pdwBufferLen)
 {
 	FILEENTRY* pFileEntry = GetFileEntry(szFileName);
@@ -569,18 +516,10 @@ bool AFilePackGame::ReadFile(FILEENTRY& fileEntry, unsigned char* pFileBuffer, a
 		BEGIN_LOCK(&m_csFR);
 		m_fpPackageFile->seek(fileEntry.dwOffset, SEEK_SET);
 		m_fpPackageFile->read(pBuffer, fileEntry.dwCompressedLength, 1);
-		Decrypt(pBuffer, fileEntry.dwCompressedLength);
 		END_LOCK(&m_csFR);
 
 		if (0 != AFilePackage::Uncompress(pBuffer, fileEntry.dwCompressedLength, pFileBuffer, &dwFileLength))
 		{
-			FILE * fp = fopen("logs\\bad.dat", "wb");
-			if (fp)
-			{
-				fwrite(pBuffer, fileEntry.dwCompressedLength, 1, fp);
-				fclose(fp);
-			}
-
 			return false;
 		}
 
@@ -593,7 +532,6 @@ bool AFilePackGame::ReadFile(FILEENTRY& fileEntry, unsigned char* pFileBuffer, a
 		BEGIN_LOCK(&m_csFR);
 		m_fpPackageFile->seek(fileEntry.dwOffset, SEEK_SET);
 		m_fpPackageFile->read(pFileBuffer, fileEntry.dwLength, 1);
-		Decrypt(pFileBuffer, fileEntry.dwLength);
 		END_LOCK(&m_csFR);
 
 		*pdwBufferLen = fileEntry.dwLength;
@@ -614,7 +552,6 @@ bool AFilePackGame::ReadCompressedFile(FILEENTRY& fileEntry, unsigned char* pCom
 
 	m_fpPackageFile->seek(fileEntry.dwOffset, SEEK_SET);
 	*pdwBufferLen = m_fpPackageFile->read(pCompressedBuffer, 1, fileEntry.dwCompressedLength);
-	Decrypt(pCompressedBuffer, fileEntry.dwCompressedLength);
 
 	END_LOCK(&m_csFR);
 
