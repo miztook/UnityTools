@@ -90,8 +90,8 @@ bool doUnpack(const std::string& strFileName, const std::string& strOutputDir)
 	AFilePackage pckFile;
 	if (!pckFile.Open(strFileName.c_str(), "", AFilePackage::OPENEXIST))
 	{
-		printf("Open Pck Failed: %s\r\n", strFileName);
-		g_pAFramework->Printf("Open Pck Failed: %s\r\n", strFileName);
+		printf("Open Pck Failed: %s\r\n", strFileName.c_str());
+		g_pAFramework->Printf("Open Pck Failed: %s\r\n", strFileName.c_str());
 		return false;
 	}
 	
@@ -108,10 +108,8 @@ bool doUnpack(const std::string& strFileName, const std::string& strOutputDir)
 
 		ASSERT(entry->dwLength == entry->dwCompressedLength);
 
-		auint8* pFileData;
-		auint32 nFileLength;
-		void* handle = pckFile.OpenSharedFile(entry->szFileName, &pFileData, &nFileLength);
-		if (!handle)
+		AFilePackage::FILEENTRY fileEntry;
+		if (!pckFile.GetFileEntry(entry->szFileName, &fileEntry))
 		{
 			printf("Open File of Pck Failed: %s\r\n", entry->szFileName);
 			g_pAFramework->Printf("Open File of Pck Failed: %s\r\n", entry->szFileName);
@@ -119,7 +117,6 @@ bool doUnpack(const std::string& strFileName, const std::string& strOutputDir)
 		}
 
 		std::string fileName = strOutputDir + entry->szFileName;
-
 		if (ASys::IsFileExist(fileName.c_str()))
 			ASys::ChangeFileAttributes(fileName.c_str(), S_IRWXU);
 		else
@@ -128,17 +125,34 @@ bool doUnpack(const std::string& strFileName, const std::string& strOutputDir)
 		FILE* file = fopen(fileName.c_str(), "wb");
 		if (file == nullptr)
 		{
-			pckFile.CloseSharedFile(handle);
-
 			printf("Open File Failed: %s\r\n", fileName.c_str());
 			g_pAFramework->Printf("Open File Failed: %s\r\n", fileName.c_str());
 			return false;
 		}
 
-		fwrite(pFileData, 1, nFileLength, file);
-		fclose(file);
+		auto packageFile = pckFile.GetPackageFile();
+		packageFile->seek(fileEntry.dwOffset, SEEK_SET);
 
-		pckFile.CloseSharedFile(handle);
+#define BLOCK_SIZE   (2 * 1024 * 1024)
+		bool bFailed = false;
+		void* pBuffer = malloc(BLOCK_SIZE);
+		for (auint32 i = 0; i < fileEntry.dwLength / BLOCK_SIZE; ++i)
+		{
+			if (BLOCK_SIZE != packageFile->read(pBuffer, 1, BLOCK_SIZE))
+				bFailed = true;
+			if (BLOCK_SIZE != fwrite(pBuffer, 1, BLOCK_SIZE, file))
+				bFailed = true;
+		}
+		auint32 nLeft = fileEntry.dwLength % BLOCK_SIZE;
+		{
+			if (nLeft != packageFile->read(pBuffer, 1, nLeft))
+				bFailed = true;
+			if (nLeft != fwrite(pBuffer, 1, nLeft, file))
+				bFailed = true;
+		}
+
+		fclose(file);
+		free(pBuffer);
 	}
 
 	pckFile.Close();

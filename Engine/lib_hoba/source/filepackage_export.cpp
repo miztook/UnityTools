@@ -71,8 +71,8 @@ HAPI bool FilePackage_UnpackFileToDir(AFilePackage* pPackage, const char* filena
 		return false;
 
 	//	Get file entry
-	AFilePackage::FILEENTRY entry;
-	if (!pPackage->GetFileEntry(filename, &entry))
+	AFilePackage::FILEENTRY fileEntry;
+	if (!pPackage->GetFileEntry(filename, &fileEntry))
 		return false;
 	
 	std::string strOutputDir = dirName;
@@ -88,29 +88,27 @@ HAPI bool FilePackage_UnpackFileToDir(AFilePackage* pPackage, const char* filena
 		return false;
 	
 	auto packageFile = pPackage->GetPackageFile();
-	packageFile->seek(entry.dwOffset, SEEK_SET);
+	packageFile->seek(fileEntry.dwOffset, SEEK_SET);
 
 	bool bFailed = false;
 	void* pBuffer = malloc(BLOCK_SIZE);
-	for (auint32 i = 0; i < entry.dwLength / BLOCK_SIZE; ++i)
+	for (auint32 i = 0; i < fileEntry.dwLength / BLOCK_SIZE; ++i)
 	{
 		if (BLOCK_SIZE != packageFile->read(pBuffer, 1, BLOCK_SIZE))
 			bFailed = true;
 		if (BLOCK_SIZE != fwrite(pBuffer, 1, BLOCK_SIZE, file))
 			bFailed = true;
 	}
-	auint32 nLeft = entry.dwLength % BLOCK_SIZE;
+	auint32 nLeft = fileEntry.dwLength % BLOCK_SIZE;
 	{
 		if (nLeft != packageFile->read(pBuffer, 1, nLeft))
 			bFailed = true;
-		if (nLeft != packageFile->write(pBuffer, 1, nLeft))
+		if (nLeft != fwrite(pBuffer, 1, nLeft, file))
 			bFailed = true;
 	}
 
 	fclose(file);
 	free(pBuffer);
-
-	ASys::ChangeFileAttributes(outputFileName.c_str(), S_IRWXU);
 
 	return !bFailed;
 }
