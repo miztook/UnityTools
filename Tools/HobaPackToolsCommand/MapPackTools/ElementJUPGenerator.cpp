@@ -4,6 +4,7 @@
 #include "AFI.h"
 #include "function.h"
 #include "AFileImage.h"
+#include "AFilePackage.h"
 #include <algorithm>
 #include <map>
 
@@ -216,20 +217,20 @@ void CElementJUPGenerator::GenerateIncFileString(const SJupContent& jupContent, 
 	}
 }
 
-bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
+bool CElementJUPGenerator::GeneratePck(const SJupContent& jupContent)
 {
-	std::string strJupFile = m_SConfig.JupGeneratePath;
-	normalizeDirName(strJupFile);
+	std::string strPckFile = m_SConfig.JupGeneratePath;
+	normalizeDirName(strPckFile);
 
-	std::string strFile = std_string_format("%s.jup", jupContent.Name.c_str());
-	strJupFile += strFile;
+	std::string strFile = std_string_format("%s.pck", jupContent.Name.c_str());
+	strPckFile += strFile;
 
-	printf("GenerateJup %s......\r\n", strJupFile.c_str());
-	g_pAFramework->Printf("GenerateJup %s......\r\n", strJupFile.c_str());
+	printf("GeneratePck %s......\r\n", strPckFile.c_str());
+	g_pAFramework->Printf("GeneratePck %s......\r\n", strPckFile.c_str());
 
 	//必须先删掉原来的jup文件
 	{
-		FileOperate::UDeleteFile(strJupFile.c_str());
+		FileOperate::UDeleteFile(strPckFile.c_str());
 	}
 
 	int64_t totalSize = 1;
@@ -247,6 +248,15 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 	{
 		printf("无法生成更新内容到 %s!\r\n", m_strCompressDir.c_str());
 		g_pAFramework->Printf("无法生成更新内容到 %s!\r\n", m_strCompressDir.c_str());
+
+		FileOperate::DeleteDir(m_strCompressDir.c_str());
+		return false;
+	}
+
+	if (!GeneratePCKFile(jupContent, m_strCompressDir.c_str(), strPckFile.c_str()))
+	{
+		printf("无法生成PCK文件 %s!\r\n", strPckFile.c_str());
+		g_pAFramework->Printf("无法生成PCK文件 %s!\r\n", strPckFile.c_str());
 
 		FileOperate::DeleteDir(m_strCompressDir.c_str());
 		return false;
@@ -287,6 +297,103 @@ bool CElementJUPGenerator::CopyFileContent(const char* srcFileName, const char* 
 	delete[] pSrcBuffer;
 
 	return ret;
+}
+
+bool CElementJUPGenerator::GeneratePCKFile(const SJupContent& jupContent, const char* destDir, const char* packFileName) const
+{
+	FileOperate::MakeDir(packFileName);
+
+	AFilePackage pckFile;
+	if (!pckFile.Open(packFileName, "", AFilePackage::CREATENEW))
+	{
+		printf("Create Pck Failed: %s\r\n", packFileName);
+		g_pAFramework->Printf("Create Pck Failed: %s\r\n", packFileName);
+		return false;
+	}
+
+	std::string fullJupDir = destDir;
+	normalizeDirName(fullJupDir);
+
+	std::vector<std::string> fileList;
+	fileList.push_back("inc");
+	for (const auto& entry : jupContent.UpdateList)
+	{
+		fileList.push_back(entry.strFileName);
+	}
+
+	for (const auto& shortFileName : fileList)
+	{
+		std::string fileName = fullJupDir + shortFileName;
+
+		FILE* file = fopen(fileName.c_str(), "rb");
+		if (file == nullptr)
+		{
+			printf("Open File Failed: %s\r\n", fileName.c_str());
+			g_pAFramework->Printf("Open File Failed: %s\r\n", fileName.c_str());
+			return false;
+		}
+
+		fseek(file, 0, SEEK_END);
+		auint32 dwFileSize = ftell(file);
+		auint32 dwCompressedSize = (auint32)(dwFileSize * 1.1f) + 12;
+
+		unsigned char* pFileContent = (unsigned char*)malloc(dwFileSize);
+		unsigned char* pFileCompressed = (unsigned char*)malloc(dwCompressedSize);
+
+		fseek(file, 0, SEEK_SET);
+		fread(pFileContent, dwFileSize, 1, file);
+		fclose(file);
+
+		int nRet = AFilePackage::Compress(pFileContent, dwFileSize, pFileCompressed, &dwCompressedSize);
+		if (-2 == nRet)
+		{
+			printf("Compress File Failed: %s\r\n", fileName.c_str());
+			g_pAFramework->Printf("Compress File Failed: %s\r\n", fileName.c_str());
+			return false;
+		}
+
+		if (0 != nRet)
+		{
+			dwCompressedSize = dwFileSize;
+		}
+
+		if (dwCompressedSize < dwFileSize)
+		{
+			if (!pckFile.AppendFileCompressed(shortFileName.c_str(), pFileCompressed, dwFileSize, dwCompressedSize))
+			{
+				printf("AppendFileCompressed Failed: %s\r\n", shortFileName.c_str());
+				g_pAFramework->Printf("AppendFileCompressed Failed: %s\r\n", shortFileName.c_str());
+
+				free(pFileCompressed);
+				free(pFileContent);
+				return false;
+			}
+		}
+		else
+		{
+			if (!pckFile.AppendFileCompressed(shortFileName.c_str(), pFileContent, dwFileSize, dwFileSize))
+			{
+				printf("AppendFileCompressed2 Failed: %s\r\n", shortFileName.c_str());
+				g_pAFramework->Printf("AppendFileCompressed2 Failed: %s\r\n", shortFileName.c_str());
+
+				free(pFileCompressed);
+				free(pFileContent);
+				return false;
+			}
+
+		}
+
+		free(pFileContent);
+		free(pFileCompressed);
+	}
+
+	printf("Pck: %s Total %d files, %d bytes\n", packFileName, pckFile.GetFileNumber(), pckFile.GetFileHeader().dwEntryOffset);
+	g_pAFramework->Printf("Pck: %s Total %d files, %d bytes\n", packFileName, pckFile.GetFileNumber(), pckFile.GetFileHeader().dwEntryOffset);
+
+	pckFile.Flush();
+	pckFile.Close();
+
+	return true;
 }
 
 bool CElementJUPGenerator::ReGenerateJupContentToDir(const SJupContent& jupContent, const char* strDir) const 
@@ -341,11 +448,6 @@ bool CElementJUPGenerator::ReGenerateJupContentToDir(const SJupContent& jupConte
 	return true;
 }
 
-bool CElementJUPGenerator::GenerateVersionTxt(const SVersion& sversion) const
-{
-	return GenerateVersionTxt(sversion.BaseVersion, m_SConfig.JupGeneratePath);
-}
-
 bool CElementJUPGenerator::GenerateVersionTxt(const std::string& baseVersion, const std::string& jupDir)
 {
 	std::string strJupDir = jupDir;
@@ -358,8 +460,8 @@ bool CElementJUPGenerator::GenerateVersionTxt(const std::string& baseVersion, co
 		return false;
 	}
 
-	printf("收集Jup文件: %s\r\n", strJupDir.c_str());
-	g_pAFramework->Printf("收集Jup文件: %s\r\n", strJupDir.c_str());
+	printf("收集Pck文件: %s\r\n", strJupDir.c_str());
+	g_pAFramework->Printf("收集Pck文件: %s\r\n", strJupDir.c_str());
 
 	std::vector<std::string> updateFileList;
 
@@ -367,7 +469,7 @@ bool CElementJUPGenerator::GenerateVersionTxt(const std::string& baseVersion, co
 	Q_iterateFiles(strJupDir.c_str(),
 		[&updateFileList, vBase](const char* filename)
 	{
-		if (!hasFileExtensionA(filename, "jup"))
+		if (!hasFileExtensionA(filename, "pck"))
 			return;
 
 		char shortFileName[QMAX_PATH];
@@ -398,7 +500,7 @@ bool CElementJUPGenerator::GenerateVersionTxt(const std::string& baseVersion, co
 
 	for (const std::string& entry : updateFileList)
 	{
-		std::string strFile = entry + ".jup";
+		std::string strFile = entry + ".pck";
 		std::string strJupFile = strJupDir + strFile;
 
 		char md5String[64];

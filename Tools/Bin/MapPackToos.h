@@ -46,9 +46,6 @@ inline void initMapAssetList()
 				"dn_pvp03_skyarenablocksnew",
 			},
 			{
-				"Cut_Maincastle_1.bnk",
-				"Main_Castle_1.bnk",
-				"Chinese/Voice_Maincastle_1.bnk",
 			},
 			{
 				"Dn01_Arena02.mp4",
@@ -71,9 +68,6 @@ inline void initMapAssetList()
 				"dn_evn01_dnest",
 			},
 			{
-				"Cut_Map_2.bnk",
-				"Map_2.bnk",
-				"Chinese/Voice_Map_2.bnk",
 			},
 			{
 				"Dn03.mp4",
@@ -94,12 +88,6 @@ inline void initMapAssetList()
 				"world04part2blocksnew",
 			},
 			{
-				"Cut_Map_3.bnk",
-				"Map_3.bnk",
-				"Chinese/Voice_Map_3.bnk",
-				"Cut_Map_4.bnk",
-				"Map_4.bnk",
-				"Chinese/Voice_Map_4.bnk",
 			},
 			{
 				"Quest2090.mp4",
@@ -117,11 +105,6 @@ inline void initMapAssetList()
 				"world04part1blocksnew",
 			},
 			{
-				"Main_Castle_2.bnk",
-				"Chinese/Voice_Maincastle_2.bnk",
-				"Cut_Map_4.bnk",
-				"Map_4.bnk",
-				"Chinese/Voice_Map_4.bnk",
 			},
 			{
 				"Quest3330.mp4",
@@ -138,15 +121,11 @@ inline void initMapAssetList()
 				"dn_evn03_killerparty",
 			},
 			{
-				"Cut_Map_5.bnk",
-				"Map_5.bnk",
-				"Chinese/Voice_Map_5.bnk",
 			},
 			{
 				"Quest4039.mp4",
 				"Quest4222.mp4",
 				"Quest4311-2.mp4",
-				"Quest5011.mp4",
 			});
 		g_MapAssetList.push_back(asset);
 	}

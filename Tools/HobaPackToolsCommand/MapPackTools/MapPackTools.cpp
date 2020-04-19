@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 			goto FAIL;
 		}
 
-		if (!pCElementJUPGenerator->GenerateJup(jupContent))
+		if (!pCElementJUPGenerator->GeneratePck(jupContent))
 		{
 			printf("End GenerateJup, Fail\r\n");
 			g_pAFramework->Printf("End GenerateJup, Fail\r\n");
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 
 	printf("Begin GenerateVersionTxt......\r\n\r\n");
 	g_pAFramework->Printf("Begin GenerateVersionTxt......\r\n");
-	if (!pCElementJUPGenerator->GenerateVersionTxt(sversion))
+	if (!pCElementJUPGenerator->GenerateVersionTxt(sversion.BaseVersion, strOutputPath))
 	{
 		printf("End GenerateVersion, Fail\r\n");
 		g_pAFramework->Printf("End GenerateVersion, Fail\r\n");

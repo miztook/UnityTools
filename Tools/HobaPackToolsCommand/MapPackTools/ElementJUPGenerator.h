@@ -8,20 +8,6 @@
 
 #define PROJECT_NAME "Tera-M1"
 
-
-struct SJupFileEntry			  //jup文件
-{
-	ELEMENT_VER vOld;
-	ELEMENT_VER vNew;
-
-	bool operator<(const SJupFileEntry& rhs) const{
-		if (vOld != rhs.vOld)
-			return vOld < rhs.vOld;
-		else
-			return vNew < rhs.vNew;
-	}
-};
-
 struct SUpdateFileEntry			 //一个jup内的文件
 {
 	std::string strMd5;		//compressed
@@ -115,17 +101,13 @@ public:
 		const std::vector<std::string>& videos,
 		SJupContent& jupContent) const;
 
-	bool GenerateJup(const SJupContent& jupContent);
-	bool GenerateVersionTxt(const SVersion& sversion) const;
-		
-public:
-	static bool GenerateBaseVersionTxt(const std::string& strBaseVersion, const std::string& strJupGeneratePath);
-	static bool GenerateVersionTxt(const std::string& baseVersion, const std::string& jupDir);
-	static bool FindVersionPair(const std::vector<SJupFileEntry>& pairList, const ELEMENT_VER& vBase, const ELEMENT_VER& vLatest, const ELEMENT_VER& curVer, SJupFileEntry& verPair);
+	bool GeneratePck(const SJupContent& jupContent);
+	bool GenerateVersionTxt(const std::string& baseVersion, const std::string& jupDir);
 
 private:
 	void GenerateIncFileString(const SJupContent& jupContent, std::vector<std::string>& strInc) const;
 	
 	bool ReGenerateJupContentToDir(const SJupContent& jupContent, const char* strDir) const;
 	bool CopyFileContent(const char* srcFileName, const char* destFileName) const;
+	bool GeneratePCKFile(const SJupContent& jupContent, const char* destDir, const char* fileName) const;
 };
