@@ -216,7 +216,7 @@ void CElementJUPGenerator::GenerateIncFileString(const SJupContent& jupContent, 
 	}
 }
 
-bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent, bool bForceMx0)
+bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent)
 {
 	std::string strJupFile = m_SConfig.JupGeneratePath;
 	normalizeDirName(strJupFile);
@@ -241,26 +241,7 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent, bool bForc
 		totalSize += entry.nOriginSize;
 	}
 
-	//2017.3.2直接清空tmp目录，生成更新内容
-	
-#if KEEP_TMP_FOLDER
-	std::string strTmpDirAbs;
-	std::string strTmpDir;
-	//if (!CompareDir(m_strCompressDir, strTmpDirAbs, mapFileList))		//和tmpDir中的内容做md5比较，如果内容变化，则重新生成更新内容到tmp
-	{
-		strTmpDir.Format("tmp-%s-%s/", strOld, strNew);
-		strTmpDirAbs = m_strWorkDir + strTmpDir;
 
-		if (!ReGenerateJupContentToDir(jupContent, strTmpDirAbs))
-		{
-			printf("无法生成更新内容到 %s!\r\n", strTmpDirAbs);
-			g_pAFramework->Printf("无法生成更新内容到 %s!\r\n", strTmpDirAbs);
-
-			return false;
-		}
-	}
-
-#else
 	//重新生成更新内容到 compress 目录
 	if (!ReGenerateJupContentToDir(jupContent, m_strCompressDir.c_str()))
 	{
@@ -268,138 +249,44 @@ bool CElementJUPGenerator::GenerateJup(const SJupContent& jupContent, bool bForc
 		g_pAFramework->Printf("无法生成更新内容到 %s!\r\n", m_strCompressDir.c_str());
 
 		FileOperate::DeleteDir(m_strCompressDir.c_str());
-		FileOperate::UDeleteFile("./tmp.compressed");
 		return false;
 	}
 
-#endif
-
-	//生成listfile.txt
-	{
-		std::string path = m_strWorkDir + "listfile.txt";
-		FILE* file = fopen(path.c_str(), "wt");
-		if (!file)
-		{
-			printf("无法创建listfile.txt文件!\r\n");
-			g_pAFramework->Printf("无法创建listfile.txt文件!\r\n");
-
-			FileOperate::DeleteDir(m_strCompressDir.c_str());
-			FileOperate::UDeleteFile("./tmp.compressed");
-			return false;
-		}
-
-		for (const auto& entry : mapFileList)
-		{
-			fprintf(file, "%s\n", entry.c_str());
-		}
-
-		fclose(file);
-	}
-
-	if (bForceMx0)
-	{
-		printf("准备无压缩生成jup: %s...\r\n", strJupFile.c_str());
-		g_pAFramework->Printf("准备无压缩生成jup: %s...\r\n", strJupFile.c_str());
-
-		if (!DoGenerateJup(strJupFile.c_str(), true))
-		{
-			FileOperate::DeleteDir(m_strCompressDir.c_str());
-			FileOperate::UDeleteFile("./tmp.compressed");
-			return false;
-		}
-	}
-	else
-	{
-		//先不使用mx0，正常压缩
-		if (!DoGenerateJup(strJupFile.c_str(), false))
-		{
-			FileOperate::DeleteDir(m_strCompressDir.c_str());
-			FileOperate::UDeleteFile("./tmp.compressed");
-			return false;
-		}
-
-		//计算生成jup的压缩比
-		auint32 jupSize = FileOperate::GetFileSize(strJupFile.c_str());
-		float fRatio = (float)jupSize / (float)totalSize;
-
-		if (fRatio < 0.75f)		//压缩优先
-		{
-			printf("生成jup: %s, 压缩比: %0.2f\r\n", strJupFile.c_str(), fRatio);
-			g_pAFramework->Printf("生成jup: %s, 压缩比: %0.2f\r\n", strJupFile.c_str(), fRatio);
-		}
-		else			//解压速度优先
-		{
-			printf("压缩比: %0.2f，准备无压缩生成jup: %s...\r\n", fRatio, strJupFile.c_str());
-			g_pAFramework->Printf("压缩比: %0.2f，准备无压缩生成jup: %s...\r\n", fRatio, strJupFile.c_str());
-
-			//删除jup，重新用mx0不压缩，提高解压速度
-			FileOperate::UDeleteFile(strJupFile.c_str());
-
-			if (!DoGenerateJup(strJupFile.c_str(), true))
-			{
-				FileOperate::DeleteDir(m_strCompressDir.c_str());
-				FileOperate::UDeleteFile("./tmp.compressed");
-				return false;
-			}
-		}
-	}
-	
 	FileOperate::DeleteDir(m_strCompressDir.c_str());
-	FileOperate::UDeleteFile("./tmp.compressed");
 
 	return true;
 
 }
 
-bool CElementJUPGenerator::DoGenerateJup(const char* szJupFile, bool useMx0)
+bool CElementJUPGenerator::CopyFileContent(const char* srcFileName, const char* destFileName) const
 {
-	std::string strTmpDir = "compress/";
-	std::string strJup7zBat = "jup7z.bat";
+	FILE* srcFile = fopen(srcFileName, "rb");
+	if (!srcFile)
+		return false;
+	ASys::ChangeFileAttributes(destFileName, S_IRWXU);
+
+	FILE* destFile = fopen(destFileName, "wb");
+	if (!destFile)
 	{
-		std::string path = m_strWorkDir + strJup7zBat;
-		FILE* file = fopen(path.c_str(), "wt");
-		if (!file)
-		{
-			printf("无法创建jup7z.txt文件!\r\n");
-			g_pAFramework->Printf("无法创建jup7z.txt文件!\r\n");
-
-			return false;
-		}
-
-		std::string strCommand;
-		std::string strListFile = "../listfile.txt";
-
-		fprintf(file, "cd %s", strTmpDir.c_str());
-		fprintf(file, "\n");
-
-		if (useMx0)
-			strCommand = std_string_format("\"%s7z.exe\" a -mx0 \"%s\" @\"%s\"", m_strWorkDir.c_str(), szJupFile, strListFile.c_str());
-		else
-			strCommand = std_string_format("\"%s7z.exe\" a \"%s\" @\"%s\"", m_strWorkDir.c_str(), szJupFile, strListFile.c_str());
-		fprintf(file, strCommand.c_str());
-		fprintf(file, "\n");
-
-		fprintf(file, "cd ../");
-		fprintf(file, "\n");
-
-		fclose(file);
+		fclose(srcFile);
+		return false;
 	}
 
-	//调用bat, 生成jup
-	{
-		printf("Call %s......\r\n", strJup7zBat.c_str());
-		g_pAFramework->Printf("Call %s......\r\n", strJup7zBat.c_str());
+	bool ret = true;
 
-		if (system(strJup7zBat.c_str()) != 0)	//if (RunProcess("7z.exe", strCommand))
-		{
-			printf("system调用错误! %s\r\n", strJup7zBat.c_str());
-			g_pAFramework->Printf("system调用错误! %s\r\n", strJup7zBat.c_str());
+	auint32 nSrcSize = ASys::GetFileSize(srcFileName);
+	unsigned char* pSrcBuffer = new unsigned char[nSrcSize];
+	fread(pSrcBuffer, 1, nSrcSize, srcFile);
+	fclose(srcFile);
 
-			return false;
-		}
-	}
+	if (nSrcSize != fwrite(pSrcBuffer, 1, nSrcSize, destFile))						//写入压缩后内容
+		ret = false;
 
-	return true;
+	fclose(destFile);
+
+	delete[] pSrcBuffer;
+
+	return ret;
 }
 
 bool CElementJUPGenerator::ReGenerateJupContentToDir(const SJupContent& jupContent, const char* strDir) const 
@@ -437,20 +324,13 @@ bool CElementJUPGenerator::ReGenerateJupContentToDir(const SJupContent& jupConte
 	for (const auto& entry : jupContent.UpdateList)
 	{
 		std::string filename = entry.strFileName;
-		bool bNoCompress = true;
-
-		//只对Lua, Configs目录下的文件使用zlib压缩，因为在解压时大文件需要额外的大内存，且assetbundle文件压缩率本就不高
-// 		if (strstr(filename, "Lua/") == (const char*)filename || strstr(filename, "Configs/") == (const char*) filename) 
-// 		{
-// 			bNoCompress = false;
-// 		}
 
 		strSrc = strUpdateBase + filename;
 		strDest = std::string(strDir) + filename;
 
 		FileOperate::MakeDir(strDest.c_str());
 
-		if (!MakeCompressedFile(strSrc.c_str(), strDest.c_str(), bNoCompress))
+		if (!CopyFileContent(strSrc.c_str(), strDest.c_str()))
 		{
 			printf("制作压缩文件失败! 从%s到%s\r\n", strSrc.c_str(), strDest.c_str());
 			g_pAFramework->Printf("制作压缩文件失败! 从%s到%s\r\n", strSrc.c_str(), strDest.c_str());
@@ -458,36 +338,6 @@ bool CElementJUPGenerator::ReGenerateJupContentToDir(const SJupContent& jupConte
 			return false;
 		}
 	}
-	return true;
-}
-
-
-bool CElementJUPGenerator::CompareDir(const std::string& leftDir, const std::string& rightDir, const std::set<std::string>& fileList) const
-{
-	std::string strLeftDir = leftDir;
-	normalizeDirName(strLeftDir);
-
-	std::string strRightDir = rightDir;
-	normalizeDirName(strRightDir);
-
-	for (const std::string& strFile : fileList)
-	{
-		std::string strLeftFile = strLeftDir + strFile;
-		std::string strRightFile = strRightDir + strFile;
-		
-		char md5Left[64];
-		char md5Right[64];
-
-		if (!FileOperate::FileExist(strLeftFile.c_str()) || !FileOperate::FileExist(strRightFile.c_str()))		//文件必须存在
-			return false;
-
-		if (!FileOperate::CalcFileMd5(strLeftFile.c_str(), md5Left) || !FileOperate::CalcFileMd5(strRightFile.c_str(), md5Right))	//生成md5
-			return false;
-
-		if (FileOperate::Md5Cmp(md5Left, md5Right) != 0)
-			return false;
-	}
-
 	return true;
 }
 
@@ -579,36 +429,6 @@ bool CElementJUPGenerator::GenerateVersionTxt(const std::string& baseVersion, co
 
 
 	fclose(file);
-
-	return true;
-}
-
-bool CElementJUPGenerator::ReadVersionText(const char* strFileName, std::vector<SUpdateFileEntry>& entries) const
-{
-	entries.clear();
-
-	AFileImage File;
-	if (!File.Open("", strFileName, AFILE_OPENEXIST | AFILE_TEXT))
-		return false;
-	
-	auint32 dwReadLen;
-
-	char szLine[AFILE_LINEMAXLEN];
-	char szMd5[256];		//compressed
-	char szFileName[256];
-	int64_t nSize;			//compressed
-
-	while (File.ReadLine(szLine, AFILE_LINEMAXLEN, &dwReadLen))
-	{
-		if (3 == sscanf(szLine, "%s\t%s\t%lld", szFileName, szMd5, &nSize))
-		{
-			SUpdateFileEntry entry;
-			entry.strFileName = szFileName;
-			entry.strMd5 = szMd5;
-			entry.nSize = nSize;
-			entries.push_back(entry);
-		}
-	}
 
 	return true;
 }

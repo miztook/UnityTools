@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 			goto FAIL;
 		}
 
-		if (!pCElementJUPGenerator->GenerateJup(jupContent, true))
+		if (!pCElementJUPGenerator->GenerateJup(jupContent))
 		{
 			printf("End GenerateJup, Fail\r\n");
 			g_pAFramework->Printf("End GenerateJup, Fail\r\n");

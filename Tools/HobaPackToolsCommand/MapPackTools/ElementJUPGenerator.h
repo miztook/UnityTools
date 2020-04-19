@@ -115,11 +115,9 @@ public:
 		const std::vector<std::string>& videos,
 		SJupContent& jupContent) const;
 
-	bool GenerateJup(const SJupContent& jupContent, bool bForceMx0);
+	bool GenerateJup(const SJupContent& jupContent);
 	bool GenerateVersionTxt(const SVersion& sversion) const;
-	
-	bool SplitJup(const SJupContent& jupContent, std::vector<SJupContent>& jupContentSplitList, int64_t nLimitSize) const;
-	
+		
 public:
 	static bool GenerateBaseVersionTxt(const std::string& strBaseVersion, const std::string& strJupGeneratePath);
 	static bool GenerateVersionTxt(const std::string& baseVersion, const std::string& jupDir);
@@ -127,10 +125,7 @@ public:
 
 private:
 	void GenerateIncFileString(const SJupContent& jupContent, std::vector<std::string>& strInc) const;
-
-	bool ReadVersionText(const char* strFileName, std::vector<SUpdateFileEntry>& entries) const;	
+	
 	bool ReGenerateJupContentToDir(const SJupContent& jupContent, const char* strDir) const;
-	bool CompareDir(const std::string& leftDir, const std::string& rightDir, const std::set<std::string>& fileList) const;
-	bool DoGenerateJup(const char* szJupFile, bool useMx0);
-
+	bool CopyFileContent(const char* srcFileName, const char* destFileName) const;
 };
