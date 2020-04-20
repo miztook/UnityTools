@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
 	g_pAFramework->Printf("Begin GenerateJup......\r\n");
 
 	const auto& SVersion = pCElementJUPGenerator->GetSVersion();
-	bool bForceMx0 = SVersion.BaseVersion == SVersion.LastVersion;
+	bool bForceMx0 = bSmallPack && (SVersion.BaseVersion == SVersion.LastVersion);
 	for (const auto& jup : jupContentSplitList)
 	{
 		if (!pCElementJUPGenerator->GenerateJup(jup, bForceMx0))
