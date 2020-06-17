@@ -10,8 +10,6 @@ CLplusChecker::CLplusChecker(const std::string& strConfigsDir, const std::string
 	
 	std::string strDir = strLuaDir;
 	normalizeDirName(strDir);
-	m_strNetProtoFileName = strDir + "../../Tools/ProtocolBuffers/protos/net.proto";
-	m_strTemplateProtoFileName = strDir + "../../Tools/ProtocolBuffers/protos/Template.proto";
 
 	//初始化数据
 	InitData();

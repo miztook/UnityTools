@@ -101,6 +101,12 @@
     <ClCompile Include="CLplusChecker3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CLplusClassMan.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CLplusFileMan.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.h">
@@ -222,6 +228,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\function.h">
       <Filter>Hoba\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="CLplusClassMan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CLplusDef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CLplusFileMan.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

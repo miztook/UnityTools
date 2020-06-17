@@ -114,6 +114,8 @@
     <ClCompile Include="CLplusChecker.cpp" />
     <ClCompile Include="CLplusChecker2.cpp" />
     <ClCompile Include="CLplusChecker3.cpp" />
+    <ClCompile Include="CLplusClassMan.cpp" />
+    <ClCompile Include="CLplusFileMan.cpp" />
     <ClCompile Include="LplusCheck.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -157,6 +159,9 @@
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.h" />
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.h" />
     <ClInclude Include="CLplusChecker.h" />
+    <ClInclude Include="CLplusClassMan.h" />
+    <ClInclude Include="CLplusDef.h" />
+    <ClInclude Include="CLplusFileMan.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
