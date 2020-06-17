@@ -163,15 +163,15 @@
 		D39A27841B8AEF5F00B1F151 /* usocket.c in Sources */ = {isa = PBXBuildFile; fileRef = D39A27541B8AEF5F00B1F151 /* usocket.c */; };
 		D39A27921B8AF08500B1F151 /* CMd5Hash.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D39A27871B8AF08500B1F151 /* CMd5Hash.cpp */; };
 		D39A27CB1B8AF0E300B1F151 /* AutoNavigation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D39A27961B8AF0E300B1F151 /* AutoNavigation.cpp */; };
+		D710E0B824738C990096B19E /* shm_list.c in Sources */ = {isa = PBXBuildFile; fileRef = D710E0A724738C990096B19E /* shm_list.c */; };
+		D710E0B924738C990096B19E /* shm_mem.c in Sources */ = {isa = PBXBuildFile; fileRef = D710E0A824738C990096B19E /* shm_mem.c */; };
+		D710E0BA24738C990096B19E /* LibCurlShim.c in Sources */ = {isa = PBXBuildFile; fileRef = D710E0A924738C990096B19E /* LibCurlShim.c */; };
+		D710E0BB24738C990096B19E /* shm_array.c in Sources */ = {isa = PBXBuildFile; fileRef = D710E0AC24738C990096B19E /* shm_array.c */; };
+		D710E0BC24738C990096B19E /* shm_assert.c in Sources */ = {isa = PBXBuildFile; fileRef = D710E0AE24738C990096B19E /* shm_assert.c */; };
+		D710E0BD24738C990096B19E /* shm_table.c in Sources */ = {isa = PBXBuildFile; fileRef = D710E0AF24738C990096B19E /* shm_table.c */; };
+		D710E0BE24738C990096B19E /* shm_seq.c in Sources */ = {isa = PBXBuildFile; fileRef = D710E0B324738C990096B19E /* shm_seq.c */; };
+		D710E0BF24738C990096B19E /* shm_except.c in Sources */ = {isa = PBXBuildFile; fileRef = D710E0B524738C990096B19E /* shm_except.c */; };
 		D7407FC620EB6D76008A7B80 /* lfs.c in Sources */ = {isa = PBXBuildFile; fileRef = D7407FC520EB6D76008A7B80 /* lfs.c */; };
-		D79A14F122D5DBB0001E7E18 /* shm_seq.c in Sources */ = {isa = PBXBuildFile; fileRef = D79A14E022D5DBAF001E7E18 /* shm_seq.c */; };
-		D79A14F222D5DBB0001E7E18 /* shm_table.c in Sources */ = {isa = PBXBuildFile; fileRef = D79A14E122D5DBAF001E7E18 /* shm_table.c */; };
-		D79A14F322D5DBB0001E7E18 /* shm_array.c in Sources */ = {isa = PBXBuildFile; fileRef = D79A14E222D5DBB0001E7E18 /* shm_array.c */; };
-		D79A14F422D5DBB0001E7E18 /* shm_assert.c in Sources */ = {isa = PBXBuildFile; fileRef = D79A14E322D5DBB0001E7E18 /* shm_assert.c */; };
-		D79A14F522D5DBB0001E7E18 /* LibCurlShim.c in Sources */ = {isa = PBXBuildFile; fileRef = D79A14E722D5DBB0001E7E18 /* LibCurlShim.c */; };
-		D79A14F622D5DBB0001E7E18 /* shm_except.c in Sources */ = {isa = PBXBuildFile; fileRef = D79A14EB22D5DBB0001E7E18 /* shm_except.c */; };
-		D79A14F722D5DBB0001E7E18 /* shm_list.c in Sources */ = {isa = PBXBuildFile; fileRef = D79A14EC22D5DBB0001E7E18 /* shm_list.c */; };
-		D79A14F822D5DBB0001E7E18 /* shm_mem.c in Sources */ = {isa = PBXBuildFile; fileRef = D79A14EE22D5DBB0001E7E18 /* shm_mem.c */; };
 		D79B6AF0231E3CDD005C8210 /* filepackage_export.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D79B6AEF231E3CDD005C8210 /* filepackage_export.cpp */; };
 /* End PBXBuildFile section */
 
@@ -497,25 +497,26 @@
 		D39A27881B8AF08500B1F151 /* CMd5Hash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMd5Hash.h; path = ../csshare/Common/CMd5Hash.h; sourceTree = "<group>"; };
 		D39A27961B8AF0E300B1F151 /* AutoNavigation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoNavigation.cpp; sourceTree = "<group>"; };
 		D39A27971B8AF0E300B1F151 /* AutoNavigation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoNavigation.h; sourceTree = "<group>"; };
+		D710E0A724738C990096B19E /* shm_list.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shm_list.c; sourceTree = "<group>"; };
+		D710E0A824738C990096B19E /* shm_mem.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shm_mem.c; sourceTree = "<group>"; };
+		D710E0A924738C990096B19E /* LibCurlShim.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = LibCurlShim.c; sourceTree = "<group>"; };
+		D710E0AA24738C990096B19E /* shm_arrayrep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shm_arrayrep.h; sourceTree = "<group>"; };
+		D710E0AB24738C990096B19E /* shm_seq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shm_seq.h; sourceTree = "<group>"; };
+		D710E0AC24738C990096B19E /* shm_array.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shm_array.c; sourceTree = "<group>"; };
+		D710E0AD24738C990096B19E /* shm_except.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shm_except.h; sourceTree = "<group>"; };
+		D710E0AE24738C990096B19E /* shm_assert.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shm_assert.c; sourceTree = "<group>"; };
+		D710E0AF24738C990096B19E /* shm_table.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shm_table.c; sourceTree = "<group>"; };
+		D710E0B024738C990096B19E /* LibCurlShim.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LibCurlShim.h; sourceTree = "<group>"; };
+		D710E0B124738C990096B19E /* shm_mem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shm_mem.h; sourceTree = "<group>"; };
+		D710E0B224738C990096B19E /* shm_list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shm_list.h; sourceTree = "<group>"; };
+		D710E0B324738C990096B19E /* shm_seq.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shm_seq.c; sourceTree = "<group>"; };
+		D710E0B424738C990096B19E /* shm_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shm_table.h; sourceTree = "<group>"; };
+		D710E0B524738C990096B19E /* shm_except.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shm_except.c; sourceTree = "<group>"; };
+		D710E0B624738C990096B19E /* shm_assert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shm_assert.h; sourceTree = "<group>"; };
+		D710E0B724738C990096B19E /* shm_array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shm_array.h; sourceTree = "<group>"; };
+		D7343207246D5C2E000AEB32 /* stringext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stringext.h; sourceTree = "<group>"; };
 		D7407FC520EB6D76008A7B80 /* lfs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lfs.c; path = ../source/lfs.c; sourceTree = "<group>"; };
 		D7407FC720EB6D83008A7B80 /* lfs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lfs.h; path = ../source/lfs.h; sourceTree = "<group>"; };
-		D79A14E022D5DBAF001E7E18 /* shm_seq.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = shm_seq.c; path = ../../dependency/curlShim/shm_seq.c; sourceTree = "<group>"; };
-		D79A14E122D5DBAF001E7E18 /* shm_table.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = shm_table.c; path = ../../dependency/curlShim/shm_table.c; sourceTree = "<group>"; };
-		D79A14E222D5DBB0001E7E18 /* shm_array.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = shm_array.c; path = ../../dependency/curlShim/shm_array.c; sourceTree = "<group>"; };
-		D79A14E322D5DBB0001E7E18 /* shm_assert.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = shm_assert.c; path = ../../dependency/curlShim/shm_assert.c; sourceTree = "<group>"; };
-		D79A14E422D5DBB0001E7E18 /* shm_except.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shm_except.h; path = ../../dependency/curlShim/shm_except.h; sourceTree = "<group>"; };
-		D79A14E522D5DBB0001E7E18 /* LibCurlShim.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LibCurlShim.h; path = ../../dependency/curlShim/LibCurlShim.h; sourceTree = "<group>"; };
-		D79A14E622D5DBB0001E7E18 /* shm_assert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shm_assert.h; path = ../../dependency/curlShim/shm_assert.h; sourceTree = "<group>"; };
-		D79A14E722D5DBB0001E7E18 /* LibCurlShim.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = LibCurlShim.c; path = ../../dependency/curlShim/LibCurlShim.c; sourceTree = "<group>"; };
-		D79A14E822D5DBB0001E7E18 /* shm_array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shm_array.h; path = ../../dependency/curlShim/shm_array.h; sourceTree = "<group>"; };
-		D79A14E922D5DBB0001E7E18 /* shm_seq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shm_seq.h; path = ../../dependency/curlShim/shm_seq.h; sourceTree = "<group>"; };
-		D79A14EA22D5DBB0001E7E18 /* shm_list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shm_list.h; path = ../../dependency/curlShim/shm_list.h; sourceTree = "<group>"; };
-		D79A14EB22D5DBB0001E7E18 /* shm_except.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = shm_except.c; path = ../../dependency/curlShim/shm_except.c; sourceTree = "<group>"; };
-		D79A14EC22D5DBB0001E7E18 /* shm_list.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = shm_list.c; path = ../../dependency/curlShim/shm_list.c; sourceTree = "<group>"; };
-		D79A14ED22D5DBB0001E7E18 /* shm_mem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shm_mem.h; path = ../../dependency/curlShim/shm_mem.h; sourceTree = "<group>"; };
-		D79A14EE22D5DBB0001E7E18 /* shm_mem.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = shm_mem.c; path = ../../dependency/curlShim/shm_mem.c; sourceTree = "<group>"; };
-		D79A14EF22D5DBB0001E7E18 /* shm_arrayrep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shm_arrayrep.h; path = ../../dependency/curlShim/shm_arrayrep.h; sourceTree = "<group>"; };
-		D79A14F022D5DBB0001E7E18 /* shm_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shm_table.h; path = ../../dependency/curlShim/shm_table.h; sourceTree = "<group>"; };
 		D79B6AEE231E3CCF005C8210 /* filepackage_export.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = filepackage_export.h; path = ../source/filepackage_export.h; sourceTree = "<group>"; };
 		D79B6AEF231E3CDD005C8210 /* filepackage_export.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = filepackage_export.cpp; path = ../source/filepackage_export.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -551,7 +552,7 @@
 		698464B11D93D30B00E34CDC /* 3rd */ = {
 			isa = PBXGroup;
 			children = (
-				D738655C22CC7E9B00974D1B /* curlShim */,
+				D710E0A624738C990096B19E /* curlShim */,
 				698464B21D93D32600E34CDC /* p7zDecode */,
 			);
 			name = 3rd;
@@ -704,6 +705,7 @@
 		D39A252E1B8ADAFC00B1F151 /* Base */ = {
 			isa = PBXGroup;
 			children = (
+				D7343207246D5C2E000AEB32 /* stringext.h */,
 				69C5A16F1D95595200EAD72C /* A3D.h */,
 				69C5A1701D95595200EAD72C /* A3DCollision.cpp */,
 				69C5A1711D95595200EAD72C /* A3DCollision.h */,
@@ -968,28 +970,29 @@
 			path = ../csshare/AutoNavigation;
 			sourceTree = "<group>";
 		};
-		D738655C22CC7E9B00974D1B /* curlShim */ = {
+		D710E0A624738C990096B19E /* curlShim */ = {
 			isa = PBXGroup;
 			children = (
-				D79A14E722D5DBB0001E7E18 /* LibCurlShim.c */,
-				D79A14E522D5DBB0001E7E18 /* LibCurlShim.h */,
-				D79A14E222D5DBB0001E7E18 /* shm_array.c */,
-				D79A14E822D5DBB0001E7E18 /* shm_array.h */,
-				D79A14EF22D5DBB0001E7E18 /* shm_arrayrep.h */,
-				D79A14E322D5DBB0001E7E18 /* shm_assert.c */,
-				D79A14E622D5DBB0001E7E18 /* shm_assert.h */,
-				D79A14EB22D5DBB0001E7E18 /* shm_except.c */,
-				D79A14E422D5DBB0001E7E18 /* shm_except.h */,
-				D79A14EC22D5DBB0001E7E18 /* shm_list.c */,
-				D79A14EA22D5DBB0001E7E18 /* shm_list.h */,
-				D79A14EE22D5DBB0001E7E18 /* shm_mem.c */,
-				D79A14ED22D5DBB0001E7E18 /* shm_mem.h */,
-				D79A14E022D5DBAF001E7E18 /* shm_seq.c */,
-				D79A14E922D5DBB0001E7E18 /* shm_seq.h */,
-				D79A14E122D5DBAF001E7E18 /* shm_table.c */,
-				D79A14F022D5DBB0001E7E18 /* shm_table.h */,
+				D710E0A724738C990096B19E /* shm_list.c */,
+				D710E0A824738C990096B19E /* shm_mem.c */,
+				D710E0A924738C990096B19E /* LibCurlShim.c */,
+				D710E0AA24738C990096B19E /* shm_arrayrep.h */,
+				D710E0AB24738C990096B19E /* shm_seq.h */,
+				D710E0AC24738C990096B19E /* shm_array.c */,
+				D710E0AD24738C990096B19E /* shm_except.h */,
+				D710E0AE24738C990096B19E /* shm_assert.c */,
+				D710E0AF24738C990096B19E /* shm_table.c */,
+				D710E0B024738C990096B19E /* LibCurlShim.h */,
+				D710E0B124738C990096B19E /* shm_mem.h */,
+				D710E0B224738C990096B19E /* shm_list.h */,
+				D710E0B324738C990096B19E /* shm_seq.c */,
+				D710E0B424738C990096B19E /* shm_table.h */,
+				D710E0B524738C990096B19E /* shm_except.c */,
+				D710E0B624738C990096B19E /* shm_assert.h */,
+				D710E0B724738C990096B19E /* shm_array.h */,
 			);
-			path = curlShim;
+			name = curlShim;
+			path = ../dependency/curlShim;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1076,7 +1079,6 @@
 				698464B01D93D1C900E34CDC /* pballoc.c in Sources */,
 				39B4AEA21E6AA83100D10EC9 /* 7zBuf2.c in Sources */,
 				3928D42C1BD8FE9200A38832 /* HDetourNode.cpp in Sources */,
-				D79A14F522D5DBB0001E7E18 /* LibCurlShim.c in Sources */,
 				390B290C1E63CEEB00D18BA1 /* curl_shim_export.cpp in Sources */,
 				D39A27701B8AEF5F00B1F151 /* lstring.c in Sources */,
 				39B4AEDF1E6AA84100D10EC9 /* Lzma2Dec.c in Sources */,
@@ -1085,7 +1087,6 @@
 				D39A276C1B8AEF5F00B1F151 /* lopcodes.c in Sources */,
 				D39A277E1B8AEF5F00B1F151 /* print.c in Sources */,
 				3928D4371BD8FE9200A38832 /* HRecastMesh.cpp in Sources */,
-				D79A14F122D5DBB0001E7E18 /* shm_seq.c in Sources */,
 				39B4AED41E6AA84100D10EC9 /* 7zFile.c in Sources */,
 				D7407FC620EB6D76008A7B80 /* lfs.c in Sources */,
 				39B4AEA31E6AA83100D10EC9 /* 7zCrc.c in Sources */,
@@ -1098,26 +1099,27 @@
 				27D720A31C3F58D800515FD6 /* luastate_export.cpp in Sources */,
 				695FB7771D5DDB1500347916 /* packfunc_export.cpp in Sources */,
 				6902CA651D54B9BA00EAD519 /* ALog.cpp in Sources */,
+				D710E0BC24738C990096B19E /* shm_assert.c in Sources */,
 				6902CA581D54B9BA00EAD519 /* A3DFuncs.cpp in Sources */,
 				D31D5EAE1B67735D0007ED36 /* bit.c in Sources */,
 				6902CA5A1D54B9BA00EAD519 /* A3DQuaternion.cpp in Sources */,
-				D79A14F622D5DBB0001E7E18 /* shm_except.c in Sources */,
 				39B4AEDC1E6AA84100D10EC9 /* BraIA64.c in Sources */,
 				3928D4351BD8FE9200A38832 /* HRecastFilter.cpp in Sources */,
 				D39A275B1B8AEF5F00B1F151 /* lapi.c in Sources */,
+				D710E0BE24738C990096B19E /* shm_seq.c in Sources */,
 				69F45D4C1D82EEC7006F5A1D /* 7zreader_export.cpp in Sources */,
 				D39A27631B8AEF5F00B1F151 /* lfunc.c in Sources */,
 				6902CA621D54B9BA00EAD519 /* AFilePackMan.cpp in Sources */,
+				D710E0B824738C990096B19E /* shm_list.c in Sources */,
 				D39A27791B8AEF5F00B1F151 /* lvm.c in Sources */,
 				6902CA5B1D54B9BA00EAD519 /* AAssist.cpp in Sources */,
 				69C5A1751D95595200EAD72C /* A3DCollision.cpp in Sources */,
 				696D44FF1D81704200E5A96A /* A3DGeometry.cpp in Sources */,
-				D79A14F822D5DBB0001E7E18 /* shm_mem.c in Sources */,
 				D39A27921B8AF08500B1F151 /* CMd5Hash.cpp in Sources */,
 				D39A27841B8AEF5F00B1F151 /* usocket.c in Sources */,
+				D710E0B924738C990096B19E /* shm_mem.c in Sources */,
 				D39A277C1B8AEF5F00B1F151 /* mime.c in Sources */,
 				390B290F1E63CF9000D18BA1 /* hobaserver_export.cpp in Sources */,
-				D79A14F322D5DBB0001E7E18 /* shm_array.c in Sources */,
 				277F4CCC1CB3EB0300B3DB3E /* elementpckdir.cpp in Sources */,
 				D39A277F1B8AEF5F00B1F151 /* select.c in Sources */,
 				D39A277A1B8AEF5F00B1F151 /* lzio.c in Sources */,
@@ -1139,11 +1141,11 @@
 				D39A276D1B8AEF5F00B1F151 /* loslib.c in Sources */,
 				D39A26F91B8ADC1B00B1F151 /* map.c in Sources */,
 				39B4AEE11E6AA84100D10EC9 /* Ppmd7.c in Sources */,
+				D710E0BB24738C990096B19E /* shm_array.c in Sources */,
 				D39A275F1B8AEF5F00B1F151 /* ldblib.c in Sources */,
 				D31D5EB11B67735D0007ED36 /* lua_wrap.c in Sources */,
 				3928D4341BD8FE9200A38832 /* HRecastContour.cpp in Sources */,
 				D39A26DC1B8ADB9100B1F151 /* LuaUInt64.cpp in Sources */,
-				D79A14F722D5DBB0001E7E18 /* shm_list.c in Sources */,
 				3928D43F1BD8FE9200A38832 /* NavQuery.cpp in Sources */,
 				695FB7761D5DDB1500347916 /* FileOperate.cpp in Sources */,
 				39B4AEA01E6AA83100D10EC9 /* 7zArcIn.c in Sources */,
@@ -1157,18 +1159,19 @@
 				D39A27831B8AEF5F00B1F151 /* unix.c in Sources */,
 				6902CA5F1D54B9BA00EAD519 /* AFilePackage.cpp in Sources */,
 				D39A26F51B8ADC1B00B1F151 /* array.c in Sources */,
+				D710E0BD24738C990096B19E /* shm_table.c in Sources */,
 				D39A26FE1B8ADC1B00B1F151 /* stringpool.c in Sources */,
 				D39A26F81B8ADC1B00B1F151 /* decode.c in Sources */,
 				69F45D4D1D82EEC7006F5A1D /* VersionMan.cpp in Sources */,
 				3928D4261BD8FE9200A38832 /* HDetourCommon.cpp in Sources */,
 				3928D4301BD8FE9200A38832 /* HDetourProximityGrid.cpp in Sources */,
 				39B4AEE01E6AA84100D10EC9 /* LzmaDec.c in Sources */,
+				D710E0BF24738C990096B19E /* shm_except.c in Sources */,
 				D31D5EB21B67735D0007ED36 /* pb.c in Sources */,
 				D39A27731B8AEF5F00B1F151 /* ltablib.c in Sources */,
 				D31D5EB31B67735D0007ED36 /* profiler.cpp in Sources */,
 				3928D4281BD8FE9200A38832 /* HDetourLocalBoundary.cpp in Sources */,
 				3928D4291BD8FE9200A38832 /* HDetourNavMesh.cpp in Sources */,
-				D79A14F222D5DBB0001E7E18 /* shm_table.c in Sources */,
 				D39A27681B8AEF5F00B1F151 /* lmathlib.c in Sources */,
 				D39A27621B8AEF5F00B1F151 /* ldump.c in Sources */,
 				39B4AED51E6AA84100D10EC9 /* 7zStream.c in Sources */,
@@ -1188,6 +1191,7 @@
 				3928D4321BD8FE9200A38832 /* HRecastAlloc.cpp in Sources */,
 				D39A27641B8AEF5F00B1F151 /* lgc.c in Sources */,
 				6902CA601D54B9BA00EAD519 /* AFilePackBase.cpp in Sources */,
+				D710E0BA24738C990096B19E /* LibCurlShim.c in Sources */,
 				277F4CCF1CB3EB2400B3DB3E /* fileimage_export.cpp in Sources */,
 				6902CA631D54B9BA00EAD519 /* AFramework.cpp in Sources */,
 				3928D4381BD8FE9200A38832 /* HRecastMeshDetail.cpp in Sources */,
@@ -1195,7 +1199,6 @@
 				3928D43C1BD8FE9200A38832 /* NavFunctions.cpp in Sources */,
 				D39A27CB1B8AF0E300B1F151 /* AutoNavigation.cpp in Sources */,
 				695FB76C1D59932400347916 /* ASysCodeCvt.cpp in Sources */,
-				D79A14F422D5DBB0001E7E18 /* shm_assert.c in Sources */,
 				D39A276A1B8AEF5F00B1F151 /* loadlib.c in Sources */,
 				D39A26FC1B8ADC1B00B1F151 /* register.c in Sources */,
 				39B4AEA51E6AA83100D10EC9 /* 7zDec.c in Sources */,
