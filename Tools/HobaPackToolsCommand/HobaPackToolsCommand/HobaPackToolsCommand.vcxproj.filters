@@ -95,9 +95,6 @@
     <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\ALog.cpp">
       <Filter>Hoba\Base</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\AString.cpp">
-      <Filter>Hoba\Base</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\ASys.cpp">
       <Filter>Hoba\Base</Filter>
     </ClCompile>
@@ -115,6 +112,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Engine\lib_hoba\updatelib\packfunc_export.cpp">
       <Filter>Hoba\updatelib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\AString.cpp">
+      <Filter>Hoba\Base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -214,9 +214,6 @@
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\ARect.h">
       <Filter>Hoba\Base</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\AString.h">
-      <Filter>Hoba\Base</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\ASys.h">
       <Filter>Hoba\Base</Filter>
     </ClInclude>
@@ -255,6 +252,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Engine\lib_hoba\updatelib\packfunc_export.h">
       <Filter>Hoba\updatelib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\AString.h">
+      <Filter>Hoba\Base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
