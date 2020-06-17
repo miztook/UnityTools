@@ -148,6 +148,12 @@ bool CElementJUPGenerator::GenerateUpdateList(const SVersion& sversion, SJupCont
 			return;
 		}
 
+		//跳过XML和Csv目录
+		if (strstr(filename, "XML/") == (const char*)filename || strstr(filename, "Csv/") == (const char*)filename)
+		{
+			return;
+		}
+
 		//update过滤
 		if (m_SConfig.bSmallPack)	//小包
 		{

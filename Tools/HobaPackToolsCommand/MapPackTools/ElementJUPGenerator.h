@@ -11,7 +11,7 @@
 struct SUpdateFileEntry			 //一个jup内的文件
 {
 	std::string strMd5;		//compressed
-	std::string strFileName;
+	std::string strFileName;		
 	int64_t nSize;			//compressed
 	int64_t nOriginSize;
 
@@ -110,4 +110,6 @@ private:
 	bool ReGenerateJupContentToDir(const SJupContent& jupContent, const char* strDir) const;
 	bool CopyFileContent(const char* srcFileName, const char* destFileName) const;
 	bool GeneratePCKFile(const SJupContent& jupContent, const char* destDir, const char* fileName) const;
+
+	std::string MakeShortAssetBundlesFileName(const char* filename) const;
 };

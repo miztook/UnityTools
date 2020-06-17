@@ -139,18 +139,8 @@ bool CElementJUPGenerator::GenerateUpdateList(const SVersion& sversion,
 		{
 			int64_t originSize = (int64_t)FileOperate::GetFileSize(strNewFile.c_str());
 
-			const char* tmpFileName = "./tmp.compressed";
-			if (!MakeCompressedFile(strNewFile.c_str(), tmpFileName, bNoCompress))
-			{
-				printf("创建临时压缩文件错误！\r\n");
-				g_pAFramework->Printf("创建临时压缩文件错误！\r\n");
-
-				ASSERT(false);
-				return false;
-			}
-
 			char md5[64];
-			if (!FileOperate::CalcFileMd5(tmpFileName, md5))
+			if (!FileOperate::CalcFileMd5(strNewFile.c_str(), md5))
 			{
 				ASSERT(false);
 				printf("临时文件计算md5错误!\r\n");
@@ -163,7 +153,7 @@ bool CElementJUPGenerator::GenerateUpdateList(const SVersion& sversion,
 			SUpdateFileEntry entry;
 			entry.strMd5 = md5;
 			entry.strFileName = file;
-			entry.nSize = (int64_t)FileOperate::GetFileSize(tmpFileName);
+			entry.nSize = originSize;
 			entry.nOriginSize = originSize;
 			
 			jupContent.UpdateList.push_back(entry);
@@ -210,9 +200,11 @@ void CElementJUPGenerator::GenerateIncFileString(const SJupContent& jupContent, 
 
 	for (const auto& entry : jupContent.UpdateList)
 	{
+		std::string fileName = MakeShortAssetBundlesFileName(entry.strFileName.c_str());
+
 		strTmp = std_string_format("%s %s",
 			entry.strMd5.c_str(),
-			entry.strFileName.c_str());
+			fileName.c_str());
 		strInc.push_back(strTmp);
 	}
 }
@@ -232,16 +224,6 @@ bool CElementJUPGenerator::GeneratePck(const SJupContent& jupContent)
 	{
 		FileOperate::UDeleteFile(strPckFile.c_str());
 	}
-
-	int64_t totalSize = 1;
-	std::set<std::string>	 mapFileList;			//排序的文件列表
-	mapFileList.insert("inc");
-	for (const auto& entry : jupContent.UpdateList)
-	{
-		mapFileList.insert(entry.strFileName);
-		totalSize += entry.nOriginSize;
-	}
-
 
 	//重新生成更新内容到 compress 目录
 	if (!ReGenerateJupContentToDir(jupContent, m_strCompressDir.c_str()))
@@ -318,7 +300,9 @@ bool CElementJUPGenerator::GeneratePCKFile(const SJupContent& jupContent, const 
 	fileList.push_back("inc");
 	for (const auto& entry : jupContent.UpdateList)
 	{
-		fileList.push_back(entry.strFileName);
+		std::string fileName = MakeShortAssetBundlesFileName(entry.strFileName.c_str());
+
+		fileList.push_back(fileName);
 	}
 
 	for (const auto& shortFileName : fileList)
@@ -433,7 +417,7 @@ bool CElementJUPGenerator::ReGenerateJupContentToDir(const SJupContent& jupConte
 		std::string filename = entry.strFileName;
 
 		strSrc = strUpdateBase + filename;
-		strDest = std::string(strDir) + filename;
+		strDest = std::string(strDir) + MakeShortAssetBundlesFileName(filename.c_str());
 
 		FileOperate::MakeDir(strDest.c_str());
 
@@ -533,4 +517,18 @@ bool CElementJUPGenerator::GenerateVersionTxt(const std::string& baseVersion, co
 	fclose(file);
 
 	return true;
+}
+
+std::string CElementJUPGenerator::MakeShortAssetBundlesFileName(const char* filename) const
+{
+	if (strstr(filename, "AssetBundles/") != nullptr)
+	{
+		char shortFileName[256];
+		getFileNameNoExtensionA(filename, shortFileName, 256);
+		return std::string("AssetBundles/") + shortFileName;
+	}
+	else
+	{
+		return filename;
+	}
 }
