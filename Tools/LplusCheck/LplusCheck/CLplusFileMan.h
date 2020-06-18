@@ -1,12 +1,22 @@
 #pragma once
 
+#include "CLplusDef.h"
+
+class AFile;
+
 // ’ºØ LuaFile 
 class CLplusFileMan
 {
 public:
-	CLplusFileMan();
+	explicit CLplusFileMan(const std::string& strLuaDir);
 
 public:
-	bool Collect();
+	void Collect();
 
+private:
+
+private:
+	std::string m_strLuaDir;
+
+	std::map<std::string, SLuaFile>	m_mapLuaFile;
 };

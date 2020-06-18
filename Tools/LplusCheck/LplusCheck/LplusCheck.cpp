@@ -1,5 +1,5 @@
 #include "function.h"
-#include "CLplusChecker.h"
+#include "CLplusClassMan.h"
 #include <cstring>
 #include "stringext.h"
 
@@ -53,55 +53,16 @@ int main(int argc, char* argv[])
 		strOutFileName += argv[3];
 	}
 
-	CLplusChecker lpluschecker(strConfigsDir, strLuaDir);
+	CLplusClassMan classMan(strLuaDir);
+	classMan.Collect();
 
-	if (!lpluschecker.BuildLuaClasses())
+	const std::map<std::string, SLuaClass>& mapLuaClass = classMan.GetLuaClassMap();
+	for (const auto& itr : mapLuaClass)
 	{
-		ASSERT(false);
-		printf("failed to build luaClasses\n");
-		goto FAIL;
+		printf("%s\n", itr.first.c_str());
 	}
 
-	if (!lpluschecker.ParseGameText())
-	{
-		ASSERT(false);
-		printf("failed to parse game text\n");
-		goto FAIL;
-	}
-
-	if (!lpluschecker.BuildLuaFiles())
-	{
-		ASSERT(false);
-		printf("failed to build luaClasses\n");
-		goto FAIL;
-	}
-
-	/*
-	if (!lpluschecker.CollectAndCheckNetProto())
-	{
-		ASSERT(false);
-		printf("failed to build collectMessageTokens\n");
-		goto FAIL;
-	}
-	*/
-
-	if (!lpluschecker.GetLuaClassUsedMembers())
-	{
-		ASSERT(false);
-		printf("failed to GetClassUsedMembers\n");
-		goto FAIL;
-	}
-
-	if (!lpluschecker.CheckLuaClassesToFile(strOutFileName.c_str()))
-	{
-		ASSERT(false);
-		printf("failed to check luaClasses\n");
-		goto FAIL;
-	}
-
-	lpluschecker.PrintLuaClasses();
-
-	//getchar();
+	getchar();
 	return 0;
 
 FAIL:

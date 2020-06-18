@@ -32,12 +32,6 @@
     <ClCompile Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinSys.cpp">
       <Filter>Hoba\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="CLplusChecker.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CLplusChecker2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\A3DCollision.cpp">
       <Filter>Hoba\Base</Filter>
     </ClCompile>
@@ -98,9 +92,6 @@
     <ClCompile Include="..\..\..\Engine\lib_hoba\source\Base\ASysThread.cpp">
       <Filter>Hoba\Base</Filter>
     </ClCompile>
-    <ClCompile Include="CLplusChecker3.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CLplusClassMan.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -114,9 +105,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.h">
       <Filter>Hoba\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="CLplusChecker.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\A3D.h">
       <Filter>Hoba\Base</Filter>

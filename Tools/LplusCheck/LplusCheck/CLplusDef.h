@@ -34,10 +34,13 @@ struct SLocation
 
 struct SLuaFieldToken
 {
+	SLuaFieldToken(bool isConst) : bIsConst(isConst) {}
+
 	SLocation location;
 	std::string token;
-	std::string className;			//token所属的class名
-	std::string typeName;
+	std::string className;			//token所属的类名
+	std::string typeName;			//字段类型
+	bool bIsConst;				//是否是const
 
 	bool operator<(const SLuaFieldToken& rhs) const
 	{
@@ -47,8 +50,10 @@ struct SLuaFieldToken
 			return token < rhs.token;
 		else if (className != rhs.className)
 			return className < rhs.className;
-		else
+		else if (typeName != rhs.typeName)
 			return typeName < rhs.typeName;
+		else
+			return bIsConst < rhs.bIsConst;
 	}
 
 	bool operator==(const SLuaFieldToken& rhs) const
@@ -56,18 +61,17 @@ struct SLuaFieldToken
 		return location == rhs.location &&
 			token == rhs.token &&
 			className == rhs.className &&
-			typeName == rhs.typeName;
+			typeName == rhs.typeName &&
+			bIsConst == rhs.bIsConst;
 	}
 };
 
 struct SLuaFunctionToken
 {
-	SLuaFunctionToken()
+	SLuaFunctionToken(bool isVirtual, bool isOverride, bool isFinal, bool isStatic)
+		: bIsVirtual(isVirtual), bIsOverride(isOverride), bIsFinal(isFinal), bIsStatic(isStatic)
 	{
 		bHasFunction = false;
-		bIsVirtual = false;
-		bIsOverride = false;
-		bIsStatic = false;
 	}
 
 	SLocation location;
@@ -79,6 +83,7 @@ struct SLuaFunctionToken
 	bool bHasFunction;					//参数中是否包含function
 	bool bIsVirtual;
 	bool bIsOverride;
+	bool bIsFinal;
 	bool bIsStatic;
 
 	bool operator<(const SLuaFunctionToken& rhs) const
@@ -99,8 +104,10 @@ struct SLuaFunctionToken
 			return bHasFunction < rhs.bHasFunction;
 		else if (bIsVirtual != rhs.bIsVirtual)
 			return bIsVirtual < rhs.bIsVirtual;
-		else if (bIsOverride < rhs.bIsOverride)
+		else if (bIsOverride != rhs.bIsOverride)
 			return bIsOverride < rhs.bIsOverride;
+		else if (bIsFinal != rhs.bIsFinal)
+			return bIsFinal < rhs.bIsFinal;
 		else
 			return bIsStatic < rhs.bIsStatic;
 	}
@@ -113,10 +120,11 @@ struct SLuaFunctionToken
 			vParams == rhs.vParams &&
 			vRets == rhs.vRets &&
 			vActParams == rhs.vActParams &&
-			bHasFunction == bHasFunction &&
-			bIsVirtual == bIsVirtual &&
-			bIsOverride == bIsOverride &&
-			bIsStatic == bIsStatic;
+			bHasFunction == rhs.bHasFunction &&
+			bIsVirtual == rhs.bIsVirtual &&
+			bIsOverride == rhs.bIsOverride &&
+			bIsFinal == rhs.bIsFinal &&
+			bIsStatic == rhs.bIsStatic;
 	}
 };
 
@@ -189,40 +197,10 @@ struct SLuaClass
 	std::string strFileName;
 	std::string strName;
 
-	std::set<int>		errorInterfaceLines;		//没有使用多语言的Interfaces
-	std::set<int>		errorConfigsLines;			//没有使用多语言的Configs
-
 	std::set<SLuaFieldToken>	fieldDefList;
 	std::set<SLuaFunctionToken>	functionDefList;
-	std::set<SLuaFunctionToken>	functionVirtualDefList;
-	std::set<SLuaFunctionToken>	functionOverrideDefList;
 
-	std::set<SLuaFieldToken>	fieldUsedList;
-	std::set<SLuaFunctionToken>	functionUsedList;
-
-	std::set<SStringTableToken>		stringTableUsedList;
-
-	//间接使用
-	std::set<SLuaFieldToken> fieldUsedIndirectList;
-	std::set<SLuaFunctionToken> functionUsedIndirectList;
-	std::set<SLuaFunctionToken>	functionAllUsedIndirectList;
-	std::set<SLuaFunctionToken> functionSpecialUsedIndirect;
-
-	//特殊的全局token,和逻辑相关
-	std::set<SLuaFieldToken>  fieldUsedGlobalList;
-	std::set<SLuaFunctionToken>  functionUsedGlobalList;
-
-	bool IsSelfOrParent(const SLuaClass* parentClass) const
-	{
-		const SLuaClass* p = this;
-		while (p)
-		{
-			if (p == parentClass)
-				return true;
-			p = p->parent;
-		}
-		return false;
-	}
+	std::set<SLocation>		errorDefList;		//错误的def.
 };
 
 struct SLuaFile
@@ -240,8 +218,3 @@ struct SLuaFile
 	std::set<SLuaFunctionToken>  functionUsedGlobalList;
 };
 
-struct SMessageToken
-{
-	std::string protoName;
-	std::set<std::string> repeatedFieldNameSet;
-};
