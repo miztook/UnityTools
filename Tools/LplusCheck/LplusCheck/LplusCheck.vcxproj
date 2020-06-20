@@ -111,6 +111,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="CLplusChecker.cpp" />
     <ClCompile Include="CLplusClassMan.cpp" />
     <ClCompile Include="CLplusFileMan.cpp" />
     <ClCompile Include="LplusCheck.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Base\function.h" />
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.h" />
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMiniDump.h" />
+    <ClInclude Include="CLplusChecker.h" />
     <ClInclude Include="CLplusClassMan.h" />
     <ClInclude Include="CLplusDef.h" />
     <ClInclude Include="CLplusFileMan.h" />

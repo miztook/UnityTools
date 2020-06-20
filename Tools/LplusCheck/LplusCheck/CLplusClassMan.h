@@ -33,7 +33,6 @@ private:
 	SLuaClass* GetLuaClass(const char* szName);
 	SLuaClass* AddLuaClass(const char* szName);
 
-	std::string getFieldType(const SLuaClass* luaClass, const char* szField, bool searchDerive) const;		//searchDerive 在此type中查找不到时，是否查找drive的type
 	bool ParseFunctionDeclToken(const char* begin, const char* end, std::vector<std::string>& vParams, std::vector<std::string>& vRets) const;		//方法声明的参数
 	bool ParseFunctionParamToken(const char* begin, std::vector<std::string>& vParams) const;			//方法function(的实际参数
 	bool ParseUseFunctionToken(const char* begin, std::vector<std::string>& vParams, bool& bHasFunction) const;		//调用方法的参数

@@ -1,5 +1,5 @@
 #include "function.h"
-#include "CLplusClassMan.h"
+#include "CLplusChecker.h"
 #include <cstring>
 #include "stringext.h"
 
@@ -53,20 +53,18 @@ int main(int argc, char* argv[])
 		strOutFileName += argv[3];
 	}
 
-	CLplusClassMan classMan(strLuaDir);
-	classMan.Collect();
+	CLplusChecker lplusChecker(strConfigsDir, strLuaDir);
+	lplusChecker.Init();
+	
+	printf("Start Collect...\n");
+	lplusChecker.CollectClasses();
+	lplusChecker.CollectFiles();
+	lplusChecker.CollectGameText();
 
-	const std::map<std::string, SLuaClass>& mapLuaClass = classMan.GetLuaClassMap();
-	for (const auto& itr : mapLuaClass)
-	{
-		printf("%s\n", itr.first.c_str());
-	}
+	printf("Start Checking...\n");
+	lplusChecker.CheckResultToFile(strOutFileName.c_str());
+	printf("Checking Complete!");
 
 	getchar();
 	return 0;
-
-FAIL:
-
-	getchar();
-	return -1;
 }

@@ -98,6 +98,9 @@
     <ClCompile Include="CLplusFileMan.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CLplusChecker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Engine\lib_hoba\source\Platform\Windows\AWinMemDbg.h">
@@ -224,6 +227,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CLplusFileMan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CLplusChecker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
