@@ -592,7 +592,7 @@ void CLplusChecker::CheckFile_UsedMethodParams(FILE* file, const char* checkRule
 
 		for (const auto& token : luaFile.functionAllUsedIndirectList)
 		{
-			if (token.bHasFunction || token.bIsStatic)			//非static方法
+			if (token.bHasFunction)			//非static方法
 				continue;
 
 			bool skip = false;

@@ -33,6 +33,9 @@ private:
 	
 	//
 	void CheckFile_UsedMethodParams(FILE* file, const char* checkRule = "使用方法的参数检查");
+	void CheckFile_UsedSpecialMethodParams(FILE* file, const char* checkRule = "使用C#方法的参数检查");
+	void CheckFile_UsedGlobalField(FILE* file, const char* checkRule = "全局字段使用检查");
+	void CheckFile_UsedGlobalFunction(FILE* file, const char* checkRule="全局方法使用检查");
 
 private:
 	CLplusClassMan	m_ClassMan;
