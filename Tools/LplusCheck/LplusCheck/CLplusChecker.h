@@ -46,7 +46,7 @@ private:
 
 	//
 	std::list<std::string>		m_BuiltInTypeList;
-	std::map<std::string, std::vector<int>> m_SpecialMethodParamMap;
+	std::map<std::string, std::vector<int>> m_CSharpMethodParamMap;
 	std::list<std::tuple<std::string, std::string>>	m_GlobalClassList;
 	std::list<std::tuple<std::string, int>> m_MethodParamList;
 };

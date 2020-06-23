@@ -412,7 +412,7 @@ void CLplusChecker::Init()
 	{
 		const auto& key = std::get<0>(e);
 		const auto& val = std::get<1>(e);
-		m_SpecialMethodParamMap[key] = val;
+		m_CSharpMethodParamMap[key] = val;
 	}
 
 	for (const auto& e : g_GlobalClass)
@@ -424,6 +424,10 @@ void CLplusChecker::Init()
 	{
 		m_MethodParamList.push_back(e);
 	}
+
+	//
+	m_ClassMan.Init();
+	m_FileMan.Init(m_CSharpMethodParamMap);
 }
 
 void CLplusChecker::CollectClasses()
@@ -515,6 +519,8 @@ void CLplusChecker::CheckResultToFile(const char* strFileName)
 	printf("CheckFile_UsedMethodParams..\n");
 	CheckFile_UsedMethodParams(pFile);
 
+	printf("CheckFile_UsedSpecialMethodParams..\n");
+	CheckFile_UsedSpecialMethodParams(pFile);
 
 	fclose(pFile);
 }
@@ -642,6 +648,61 @@ void CLplusChecker::CheckFile_UsedMethodParams(FILE* file, const char* checkRule
 					token.location.col);
 			}
 		}
+	}
+
+	fprintf(file, "\n");
+}
+
+void CLplusChecker::CheckFile_UsedSpecialMethodParams(FILE* file, const char* checkRule /*= "使用C#方法的参数检查"*/)
+{
+	fprintf(file, "%s:\n", checkRule);
+
+	for (const auto& entry : GetLuaFileMap())
+	{
+		const auto& luaFile = entry.second;
+
+		for (const auto& token : luaFile.functionSpecialUsedIndirect)
+		{
+			if (token.bHasFunction)			//非static方法
+				continue;
+
+			bool bFound = false;		//是否找到匹配的
+			bool bMatch = false;
+
+			auto itr = m_CSharpMethodParamMap.find(token.token);
+			if (itr != m_CSharpMethodParamMap.end())
+			{
+				bFound = true;
+
+				const std::vector<int>& paramList = itr->second;
+				bMatch = std::find(paramList.begin(), paramList.end(), (int)token.vParams.size()) != paramList.end();
+			}
+
+			if (bFound && !bMatch)
+			{
+				fprintf(file,
+					"incorrect C# method params number used %s (param count=%d), class: %s, at line %d, col %d\n",
+					token.token,
+					(int)token.vParams.size(),
+					luaFile.strName.c_str(),
+					token.location.line,
+					token.location.col);
+			}
+		}
+	}
+
+	fprintf(file, "\n");
+}
+
+void CLplusChecker::CheckFile_UsedGlobalField(FILE* file, const char * checkRule)
+{
+	fprintf(file, "%s:\n", checkRule);
+
+	for (const auto& entry : GetLuaFileMap())
+	{
+		const auto& luaFile = entry.second;
+
+
 	}
 
 	fprintf(file, "\n");

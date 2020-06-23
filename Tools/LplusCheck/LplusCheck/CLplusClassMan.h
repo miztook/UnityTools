@@ -11,6 +11,8 @@ public:
 	explicit CLplusClassMan(const std::string& strLuaDir);
 
 public:
+	void Init();
+
 	void Collect();
 
 	const std::map<std::string, SLuaClass>& GetLuaClassMap() const { return m_mapLuaClass; }

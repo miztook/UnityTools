@@ -211,7 +211,7 @@ void CLplusFileMan::Get_AllSpecialMethodUsedIndirect(const char* szLine, int nLi
 		return;
 
 	std::string specialToken;
-	for (const auto& entry : m_SpecialMethodParamMap)
+	for (const auto& entry : m_CSharpMethodParamMap)
 	{
 		const auto& str = entry.first;
 		if (strstr(szLine, str.c_str()) != NULL)

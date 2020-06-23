@@ -11,6 +11,11 @@ public:
 	explicit CLplusFileMan(const std::string& strLuaDir);
 
 public:
+	void Init(std::map<std::string, std::vector<int>>& csharpMethodParamMap)
+	{
+		m_CSharpMethodParamMap = csharpMethodParamMap;
+	}
+
 	void Collect();
 
 	const std::map<std::string, SLuaFile>& GetLuaFileMap() const { return m_mapLuaFile; }
@@ -34,6 +39,6 @@ private:
 
 	std::map<std::string, SLuaFile>	m_mapLuaFile;
 
-	std::map<std::string, std::vector<int>> m_SpecialMethodParamMap;
+	std::map<std::string, std::vector<int>> m_CSharpMethodParamMap;
 	std::list<std::tuple<std::string, std::string>>	m_GlobalClassList;
 };
