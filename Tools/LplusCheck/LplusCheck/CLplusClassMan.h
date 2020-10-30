@@ -11,7 +11,10 @@ public:
 	explicit CLplusClassMan(const std::string& strLuaDir);
 
 public:
-	void Init();
+	void Init() 
+	{
+
+	}
 
 	void Collect();
 

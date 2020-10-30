@@ -694,16 +694,3 @@ void CLplusChecker::CheckFile_UsedSpecialMethodParams(FILE* file, const char* ch
 	fprintf(file, "\n");
 }
 
-void CLplusChecker::CheckFile_UsedGlobalField(FILE* file, const char * checkRule)
-{
-	fprintf(file, "%s:\n", checkRule);
-
-	for (const auto& entry : GetLuaFileMap())
-	{
-		const auto& luaFile = entry.second;
-
-
-	}
-
-	fprintf(file, "\n");
-}

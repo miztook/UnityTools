@@ -5,7 +5,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LocalDebuggerCommandArguments>"D:\AllWork\M1Client\GameRes\Configs" "D:\AllWork\M1Client\GameRes\Lua" "D:\AllWork\M1Client\Result.txt"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>"J:\AllWork\M1Client\GameRes\Configs" "J:\AllWork\M1Client\GameRes\Lua" "J:\Result.txt"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

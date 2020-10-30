@@ -61,9 +61,12 @@ int main(int argc, char* argv[])
 	lplusChecker.CollectFiles();
 	lplusChecker.CollectGameText();
 
-	printf("Start Checking...\n");
-	lplusChecker.CheckResultToFile(strOutFileName.c_str());
-	printf("Checking Complete!");
+	//printf("Start Checking...\n");
+	//lplusChecker.CheckResultToFile(strOutFileName.c_str());
+	//printf("Checking Complete!");
+
+	lplusChecker.PrintLuaClasses();
+	lplusChecker.PrintLuaFiles();
 
 	getchar();
 	return 0;
