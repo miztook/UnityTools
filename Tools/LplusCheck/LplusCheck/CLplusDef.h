@@ -201,6 +201,18 @@ struct SLuaClass
 	std::set<SLuaFunctionToken>	functionDefList;
 
 	std::set<SLocation>		errorDefList;		//´íÎóµÄdef.
+
+	int getHierachyNum() const
+	{
+		int count = 0;
+		SLuaClass* p = parent;
+		while (p)
+		{
+			++count;
+			p = p->parent;
+		}
+		return count;
+	}
 };
 
 struct SLuaFile

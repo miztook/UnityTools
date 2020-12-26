@@ -557,6 +557,29 @@ void CLplusChecker::PrintLuaFiles()
 	printf("luaFile Count: %d\n", (int)GetLuaFileMap().size());
 }
 
+void CLplusChecker::PrintLuaClassHierachy()
+{
+	const std::map<std::string, std::set<std::string>>& hierachyMap = m_ClassMan.GetLuaClassHierachyMap();
+	std::set<std::string> completeSet;
+	for (const auto& kv : hierachyMap)
+	{
+		const auto& key = kv.first;
+
+		printf("%s\n", key.c_str());
+	}
+}
+
+void CLplusChecker::PrintLuaClassHierachy(const SLuaClass* luaClass)
+{
+	std::string str;
+	for (int i = 0; i < luaClass->getHierachyNum(); ++i)
+	{
+		str += "--->";
+	}
+	str += luaClass->strName;
+	printf("%s\n", str.c_str());
+}
+
 bool CLplusChecker::IsBuiltInType(const std::string& szType) const
 {
 	for (const auto& entry : m_BuiltInTypeList)

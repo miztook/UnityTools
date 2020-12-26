@@ -68,6 +68,8 @@ int main(int argc, char* argv[])
 	lplusChecker.PrintLuaClasses();
 	//lplusChecker.PrintLuaFiles();
 
+	lplusChecker.PrintLuaClassHierachy();
+
 	getchar();
 	return 0;
 }

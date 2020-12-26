@@ -19,9 +19,11 @@ public:
 	void Collect();
 
 	const std::map<std::string, SLuaClass>& GetLuaClassMap() const { return m_mapLuaClass; }
+	const std::map<std::string, std::set<std::string>>& GetLuaClassHierachyMap() const { return m_mapLuaClassHierachy; }
 
 private:
 	void BuildLplusClass(AFile* pFile, const char* fileName);
+	std::map<std::string, std::set<std::string>> BuildClassHierachy();		//构造继承结构
 
 	void HandleLine_ClassDefine(const char* szFileName, const char* szLine, int nLine, SLuaClass*& current);
 	void HandleLine_ClassExtend(const char* szFileName, const char* szLine, int nLine, SLuaClass*& current);
@@ -47,4 +49,6 @@ private:
 	std::string m_strLuaDir;
 
 	std::map<std::string, SLuaClass>	m_mapLuaClass;
+	std::map<std::string, std::set<std::string>>	m_mapLuaClassHierachy;
+
 };
