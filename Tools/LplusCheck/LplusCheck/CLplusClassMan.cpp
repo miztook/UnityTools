@@ -56,7 +56,7 @@ void CLplusClassMan::BuildLplusClass(AFile* pFile, const char* fileName)
 	auint32 dwReadLen;
 
 	char shortFileName[256];
-	getFileNameA(pFile->GetFileName(), shortFileName, 256);
+	getFileNameA(fileName, shortFileName, 256);
 
 	SLuaClass* current = NULL;
 	char szLine[AFILE_LINEMAXLEN];
@@ -86,11 +86,11 @@ void CLplusClassMan::BuildLplusClass(AFile* pFile, const char* fileName)
 
 		if (strstr(szLine, "Lplus.Class(") != NULL)				//类定义
 		{
-			HandleLine_ClassDefine(pFile->GetFileName(), szLine, nLine, current);
+			HandleLine_ClassDefine(fileName, szLine, nLine, current);
 		}
 		else if (strstr(szLine, "Lplus.Extend(") != NULL)			//类继承
 		{
-			HandleLine_ClassExtend(pFile->GetFileName(), szLine, nLine, current);
+			HandleLine_ClassExtend(fileName, szLine, nLine, current);
 		}
 		
 		if (strstr(szLine, "def.field(") != NULL)		//字段定义

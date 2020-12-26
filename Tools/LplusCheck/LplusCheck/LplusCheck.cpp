@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
 	//printf("Checking Complete!");
 
 	lplusChecker.PrintLuaClasses();
-	lplusChecker.PrintLuaFiles();
+	//lplusChecker.PrintLuaFiles();
 
 	getchar();
 	return 0;

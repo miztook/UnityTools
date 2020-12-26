@@ -541,7 +541,7 @@ void CLplusChecker::PrintLuaClasses()
 	{
 		const char* className = itr.first.c_str();
 		const SLuaClass& luaClass = itr.second;
-		printf("%s, %d, %d, %d\n", className, (int)luaClass.fieldDefList.size(), (int)luaClass.functionDefList.size(), (int)luaClass.errorDefList.size());
+		printf("%s, %d, %d, %d, %s\n", className, (int)luaClass.fieldDefList.size(), (int)luaClass.functionDefList.size(), (int)luaClass.errorDefList.size(), luaClass.strFileName.c_str());
 	}
 	printf("mapLuaClass Count: %d\n", (int)GetLuaClassMap().size());
 }
