@@ -17,4 +17,10 @@ HAPI bool FilePackage_IsFileExist(const AFilePackage* pPackage, const char* file
 
 HAPI bool FilePackage_UnpackFileToDir(AFilePackage* pPackage, const char* filename, const char* dirName);
 
+HAPI const char* FilePackage_UnpackFileToDestFile(AFilePackage* pPackage, const char* filename, int offset, const char* destFileName);
+
+HAPI bool FilePackage_UnpackFileToData(AFilePackage* pPackage, const char* filename, const unsigned char** ppData, int* pDataSize);
+
+HAPI void FilePackage_ClearData(const unsigned char* pData);
+
 #endif

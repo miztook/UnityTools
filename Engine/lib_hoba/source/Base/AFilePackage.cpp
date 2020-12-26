@@ -438,7 +438,7 @@ bool AFilePackage::InnerOpen(const char* szPckPath, const char* szFolder, OPENMO
 				delete m_fpPackageFile;
 				m_fpPackageFile = NULL;
 
-				g_pAFramework->DevPrintf("AFilePackage::Open(), Can not open file [%s]", szFullPckPath);
+				g_pAFramework->DevPrintf("AFilePackage::Open(), Can not open file [%s], errno = %d, errmsg = %s", szFullPckPath, (int)errno, strerror(errno));
 				return false;
 			}
 			m_bReadOnly = true;
