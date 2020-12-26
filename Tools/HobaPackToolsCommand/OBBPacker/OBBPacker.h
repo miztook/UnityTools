@@ -17,10 +17,11 @@ struct SJupFileEntry			  //jupÎÄ¼ş
 			return vNew < rhs.vNew;
 	}
 
-	std::string ToJupFileName() const
+	std::string ToFileName(const char* ext) const
 	{
-		return std_string_format("%s-%s.jup",
+		return std_string_format("%s-%s.%s",
 			vOld.ToString().c_str(),
-			vNew.ToString().c_str());
+			vNew.ToString().c_str(),
+			ext);
 	}
 };

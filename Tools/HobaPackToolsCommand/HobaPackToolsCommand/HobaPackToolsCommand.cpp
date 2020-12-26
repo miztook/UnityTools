@@ -63,7 +63,11 @@ int main(int argc, char* argv[])
 		std::string nextVer = argv[2];
 		std::string strOutputPath = argv[3];
 
-		if (CElementJUPGenerator::GenerateVersionTxt(baseVer, nextVer, strOutputPath))
+		bool useJup = std::string::npos == strOutputPath.find("longtu-trunk");
+		printf("useJup? %d\r\n", useJup);
+		g_pAFramework->Printf("useJup? %d\r\n", useJup);
+
+		if (CElementJUPGenerator::GenerateVersionTxt(baseVer, nextVer, strOutputPath, useJup ? "jup" : "pck"))
 		{
 			printf("JupGenerator Success!\r\n");
 			g_pAFramework->Printf("JupGenerator Success!\r\n");
@@ -127,11 +131,14 @@ int main(int argc, char* argv[])
 	printf("BaseVerson: %s LastVersion: %s NextVersion: %s SmallPack: %d\r\n\r\n", ver1.c_str(), ver2.c_str(), ver3.c_str(), iSmallPack);
 	g_pAFramework->Printf("BaseVerson: %s LastVersion: %s NextVersion: %s SmallPack: %d\r\n\r\n", ver1.c_str(), ver2.c_str(), ver3.c_str(), iSmallPack);
 
+	const bool useJup = std::string::npos == strOutputPath.find("longtu-");
+	printf("useJup? %d %s\r\n", useJup, strOutputPath.c_str());
+	g_pAFramework->Printf("useJup? %d %s\r\n", useJup, strOutputPath.c_str());
+
 	const CElementJUPGenerator::SVersion& sversion = pCElementJUPGenerator->GetSVersion();		//要升级的版本
 	SJupContent jupContent;
 	std::vector<SJupContent> jupContentSplitList;
-	std::string jupFileName;
-
+	
 	printf("Begin GenerateUpdateList......\r\n\r\n");
 	g_pAFramework->Printf("Begin GenerateUpdateList......\r\n");
 
@@ -150,64 +157,134 @@ int main(int argc, char* argv[])
 		g_pAFramework->Printf("End GenerateJup, Fail\r\n");
 		goto FAIL;
 	}
-	
-	printf("Before Split: \r\n");
-	g_pAFramework->Printf("Before Split: \r\n");
 
-	jupContent.ToFileName(jupFileName);
-	printf("\t%s\n", jupFileName.c_str());
-	g_pAFramework->Printf("\t%s\n", jupFileName.c_str());
-
-	printf("After Split: \r\n");
-	g_pAFramework->Printf("After Split: \r\n");
-
-	for (const auto& jup : jupContentSplitList)
+	//jup
+	if (useJup)
 	{
-		jup.ToFileName(jupFileName);
+		const char* ext = "jup";
+
+		std::string jupFileName;
+
+		printf("Before Split: \r\n");
+		g_pAFramework->Printf("Before Split: \r\n");
+
+		jupFileName = jupContent.ToJupFileName();
 		printf("\t%s\n", jupFileName.c_str());
 		g_pAFramework->Printf("\t%s\n", jupFileName.c_str());
 
-	}
-	printf("\r\n");
-	g_pAFramework->Printf("\r\n");
+		printf("After Split: \r\n");
+		g_pAFramework->Printf("After Split: \r\n");
 
-	printf("Begin GenerateJup......\r\n\r\n");
-	g_pAFramework->Printf("Begin GenerateJup......\r\n");
-
-	const auto& SVersion = pCElementJUPGenerator->GetSVersion();
-	bool bForceMx0 = bSmallPack && (SVersion.BaseVersion == SVersion.LastVersion);
-	for (const auto& jup : jupContentSplitList)
-	{
-		if (!pCElementJUPGenerator->GenerateJup(jup, bForceMx0))
+		for (const auto& jup : jupContentSplitList)
 		{
-			printf("End GenerateJup, Fail\r\n");
-			g_pAFramework->Printf("End GenerateJup, Fail\r\n");
+			jupFileName = jup.ToJupFileName();
+			printf("\t%s\n", jupFileName.c_str());
+			g_pAFramework->Printf("\t%s\n", jupFileName.c_str());
+
+		}
+		printf("\r\n");
+		g_pAFramework->Printf("\r\n");
+
+		printf("Begin GenerateJup......\r\n\r\n");
+		g_pAFramework->Printf("Begin GenerateJup......\r\n");
+
+		const auto& SVersion = pCElementJUPGenerator->GetSVersion();
+		bool bForceMx0 = bSmallPack && (SVersion.BaseVersion == SVersion.LastVersion);
+		for (const auto& jup : jupContentSplitList)
+		{
+			if (!pCElementJUPGenerator->GenerateJup(jup, bForceMx0))
+			{
+				printf("End GenerateJup, Fail\r\n");
+				g_pAFramework->Printf("End GenerateJup, Fail\r\n");
+
+				goto FAIL;
+			}
+		}
+
+		printf("Begin GenerateVersionTxt......\r\n\r\n");
+		g_pAFramework->Printf("Begin GenerateVersionTxt......\r\n");
+		if (!pCElementJUPGenerator->GenerateVersionTxt(sversion, ext))
+		{
+			printf("End GenerateVersion, Fail\r\n");
+			g_pAFramework->Printf("End GenerateVersion, Fail\r\n");
+
+			goto FAIL;
+		}
+
+
+		printf("Begin JupUpdateTxt......\r\n\r\n");
+		g_pAFramework->Printf("Begin JupUpdateTxt......\r\n");
+		pCElementJUPGenerator->ProcessUpdateList(jupContent);
+		if (!pCElementJUPGenerator->GenerateJupUpdateText(jupContentSplitList, ext))
+		{
+			printf("End GenerateJupUpdate, Fail\r\n");
+			g_pAFramework->Printf("End GenerateJupUpdate, Fail\r\n");
 
 			goto FAIL;
 		}
 	}
-
-	printf("Begin GenerateVersionTxt......\r\n\r\n");
-	g_pAFramework->Printf("Begin GenerateVersionTxt......\r\n");
-	if (!pCElementJUPGenerator->GenerateVersionTxt(sversion))
+	else
 	{
-		printf("End GenerateVersion, Fail\r\n");
-		g_pAFramework->Printf("End GenerateVersion, Fail\r\n");
+		const char* ext = "pck";
 
-		goto FAIL;
+		std::string jupFileName;
+
+		printf("Before Split: \r\n");
+		g_pAFramework->Printf("Before Split: \r\n");
+
+		jupFileName = jupContent.ToPckFileName();
+		printf("\t%s\n", jupFileName.c_str());
+		g_pAFramework->Printf("\t%s\n", jupFileName.c_str());
+
+		printf("After Split: \r\n");
+		g_pAFramework->Printf("After Split: \r\n");
+
+		for (const auto& jup : jupContentSplitList)
+		{
+			jupFileName = jup.ToPckFileName();
+			printf("\t%s\n", jupFileName.c_str());
+			g_pAFramework->Printf("\t%s\n", jupFileName.c_str());
+
+		}
+		printf("\r\n");
+		g_pAFramework->Printf("\r\n");
+
+		printf("Begin GenerateJup......\r\n\r\n");
+		g_pAFramework->Printf("Begin GenerateJup......\r\n");
+
+		for (const auto& jup : jupContentSplitList)
+		{
+			if (!pCElementJUPGenerator->GeneratePck(jup))
+			{
+				printf("End GenerateJup, Fail\r\n");
+				g_pAFramework->Printf("End GenerateJup, Fail\r\n");
+
+				goto FAIL;
+			}
+		}
+
+		printf("Begin GenerateVersionTxt......\r\n\r\n");
+		g_pAFramework->Printf("Begin GenerateVersionTxt......\r\n");
+		if (!pCElementJUPGenerator->GenerateVersionTxt(sversion, ext))
+		{
+			printf("End GenerateVersion, Fail\r\n");
+			g_pAFramework->Printf("End GenerateVersion, Fail\r\n");
+
+			goto FAIL;
+		}
+
+		printf("Begin JupUpdateTxt......\r\n\r\n");
+		g_pAFramework->Printf("Begin JupUpdateTxt......\r\n");
+		pCElementJUPGenerator->ProcessUpdateList(jupContent);
+		if (!pCElementJUPGenerator->GenerateJupUpdateText(jupContentSplitList, ext))
+		{
+			printf("End GenerateJupUpdate, Fail\r\n");
+			g_pAFramework->Printf("End GenerateJupUpdate, Fail\r\n");
+
+			goto FAIL;
+		}
 	}
-
 	
-	printf("Begin JupUpdateTxt......\r\n\r\n");
-	g_pAFramework->Printf("Begin JupUpdateTxt......\r\n");
-	pCElementJUPGenerator->ProcessUpdateList(jupContent);
-	if (!pCElementJUPGenerator->GenerateJupUpdateText(jupContentSplitList))
-	{
-		printf("End GenerateJupUpdate, Fail\r\n");
-		g_pAFramework->Printf("End GenerateJupUpdate, Fail\r\n");
-
-		goto FAIL;
-	}
 
 	//pCElementJUPGenerator->OpenJupDir();
 

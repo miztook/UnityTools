@@ -8,11 +8,11 @@
 #include <algorithm>
 #include "AFilePackage.h"
 
-#define OBB_SIZE_LIMIT    (2000 * 1000 * 1000)
+#define OBB_SIZE_LIMIT    (2000 * 1024 * 1024)
 
-bool CollectJupFiles(std::vector<SJupFileEntry>& jupFileList, std::vector<SJupFileEntry>& jupFileList2, const std::string& baseVersion, const std::string& nextVersion, const std::string& jupDir);
+bool CollectJupFiles(std::vector<SJupFileEntry>& jupFileList, std::vector<SJupFileEntry>& jupFileList2, const char* ext, const std::string& baseVersion, const std::string& nextVersion, const std::string& jupDir);
 bool FindVersionPair(const std::vector<SJupFileEntry>& pairList, const ELEMENT_VER& vBase, const ELEMENT_VER& vLatest, const ELEMENT_VER& curVer, SJupFileEntry& verPair);
-bool GenerateOBB(const std::vector<SJupFileEntry>& jupFileList, const std::string& strWorkDir, const std::string& strJupDir, const std::string& obbFileName);
+bool GenerateOBB(const std::vector<SJupFileEntry>& jupFileList, const char* ext, const std::string& strWorkDir, const std::string& strJupDir, const std::string& obbFileName);
 
 //jupdir obbdir expansion-version package-name
 //int versionCode = firstVer * 10000 * 1000 + secondVer * 10000 + thirdVer * 10;
@@ -76,9 +76,16 @@ int main(int argc, char* argv[])
 	std::string mainOBBFileName = strFullObbDir + std_string_format("main.%s.%s.obb", expansionVersion.c_str(), packageName.c_str());
 	std::string patchOBBFileName = strFullObbDir + std_string_format("patch.%s.%s.obb", expansionVersion.c_str(), packageName.c_str());
 
+
+	bool useJup = false; //std::string::npos == strOutputPath.find("longtu-trunk");
+	printf("useJup? %d\r\n", useJup);
+	g_pAFramework->Printf("useJup? %d\r\n", useJup);
+
+	const char* ext = useJup ? "jup" : "pck";
+
 	//收集并检查目录中的jup文件
 	std::vector<SJupFileEntry> mainJupFileList, patchJupFileList;
-	if (!CollectJupFiles(mainJupFileList, patchJupFileList, baseVer, nextVer, jupDir))
+	if (!CollectJupFiles(mainJupFileList, patchJupFileList, ext, baseVer, nextVer, jupDir))
 	{
 		printf("CollectJupFiles Fail\r\n");
 		g_pAFramework->Printf("CollectJupFiles Fail\r\n");
@@ -92,12 +99,12 @@ int main(int argc, char* argv[])
 		g_pAFramework->Printf("Generate Main OBB...\r\n");
 		for (const auto& entry : mainJupFileList)
 		{
-			std::string fileName = entry.ToJupFileName();
+			std::string fileName = entry.ToFileName(ext);
 			printf("Main OBB file: %s\r\n", fileName.c_str());
 			g_pAFramework->Printf("Main OBB file : %s\r\n", fileName.c_str());
 		}
 
-		if (!GenerateOBB(mainJupFileList, strWorkDir, jupDir, mainOBBFileName))
+		if (!GenerateOBB(mainJupFileList, ext, strWorkDir, jupDir, mainOBBFileName))
 		{
 			printf("GenerateOBB Fail, %s\r\n", mainOBBFileName.c_str());
 			g_pAFramework->Printf("GenerateOBB Fail, %s\r\n", mainOBBFileName.c_str());
@@ -115,12 +122,12 @@ int main(int argc, char* argv[])
 		g_pAFramework->Printf("Generate Patch OBB...\r\n");
 		for (const auto& entry : patchJupFileList)
 		{
-			std::string fileName = entry.ToJupFileName();
+			std::string fileName = entry.ToFileName(ext);
 			printf("Patch OBB file: %s\r\n", fileName.c_str());
 			g_pAFramework->Printf("Patch OBB file : %s\r\n", fileName.c_str());
 		}
 
-		if (!GenerateOBB(patchJupFileList, strWorkDir, jupDir, patchOBBFileName))
+		if (!GenerateOBB(patchJupFileList, ext, strWorkDir, jupDir, patchOBBFileName))
 		{
 			printf("GenerateOBB Fail, %s\r\n", patchOBBFileName.c_str());
 			g_pAFramework->Printf("GenerateOBB Fail, %s\r\n", patchOBBFileName.c_str());
@@ -148,7 +155,7 @@ FAIL:
 	return -1;
 }
 
-bool CollectJupFiles(std::vector<SJupFileEntry>& jupFileList, std::vector<SJupFileEntry>& jupFileList2, const std::string& baseVersion, const std::string& nextVersion, const std::string& jupDir)
+bool CollectJupFiles(std::vector<SJupFileEntry>& jupFileList, std::vector<SJupFileEntry>& jupFileList2, const char* ext, const std::string& baseVersion, const std::string& nextVersion, const std::string& jupDir)
 {
 	std::string strJupDir = jupDir;
 	normalizeDirName(strJupDir);
@@ -175,9 +182,9 @@ bool CollectJupFiles(std::vector<SJupFileEntry>& jupFileList, std::vector<SJupFi
 
 	//找所有的jup文件
 	Q_iterateFiles(strJupDir.c_str(),
-		[&versionSet, &updateFileList, vBase](const char* filename)
+		[&versionSet, &updateFileList, vBase, ext](const char* filename)
 	{
-		if (!hasFileExtensionA(filename, "jup"))
+		if (!hasFileExtensionA(filename, ext))
 			return;
 
 		// 		if (6 != sscanf(filename, "%d.%d.%d-%d.%d.%d.jup", &verOld[0], &verOld[1], &verOld[2], &verNew[0], &verNew[1], &verNew[2]))
@@ -280,7 +287,7 @@ bool CollectJupFiles(std::vector<SJupFileEntry>& jupFileList, std::vector<SJupFi
 	uint64_t totalSize1 = 0;
 	for (const auto& entry : updateFileList)
 	{
-		std::string fileName = strJupDir + entry.ToJupFileName();
+		std::string fileName = strJupDir + entry.ToFileName(ext);
 		uint64_t fileSize = (uint64_t)ASys::GetFileSize(fileName.c_str());
 
 		if (totalSize0 + fileSize < OBB_SIZE_LIMIT)
@@ -350,7 +357,7 @@ bool FindVersionPair(const std::vector<SJupFileEntry>& pairList, const ELEMENT_V
 	return true;
 }
 
-bool GenerateOBB(const std::vector<SJupFileEntry>& jupFileList, const std::string& strWorkDir, const std::string& strJupDir, const std::string& obbFileName)
+bool GenerateOBB(const std::vector<SJupFileEntry>& jupFileList, const char* ext, const std::string& strWorkDir, const std::string& strJupDir, const std::string& obbFileName)
 {
 	FileOperate::MakeDir(obbFileName.c_str());
 
@@ -366,7 +373,7 @@ bool GenerateOBB(const std::vector<SJupFileEntry>& jupFileList, const std::strin
 	normalizeDirName(fullJupDir);
 	for (const auto& entry : jupFileList)
 	{
-		std::string shortFileName = entry.ToJupFileName();
+		std::string shortFileName = entry.ToFileName(ext);
 		std::string fileName = fullJupDir + shortFileName;
 
 		FILE* file = fopen(fileName.c_str(), "rb");

@@ -226,7 +226,7 @@ bool CElementJUPGenerator::GeneratePck(const SJupContent& jupContent)
 	}
 
 	//重新生成更新内容到 compress 目录
-	if (!ReGenerateJupContentToDir(jupContent, m_strCompressDir.c_str()))
+	if (!ReGeneratePckContentToDir(jupContent, m_strCompressDir.c_str()))
 	{
 		printf("无法生成更新内容到 %s!\r\n", m_strCompressDir.c_str());
 		g_pAFramework->Printf("无法生成更新内容到 %s!\r\n", m_strCompressDir.c_str());
@@ -380,7 +380,7 @@ bool CElementJUPGenerator::GeneratePCKFile(const SJupContent& jupContent, const 
 	return true;
 }
 
-bool CElementJUPGenerator::ReGenerateJupContentToDir(const SJupContent& jupContent, const char* strDir) const 
+bool CElementJUPGenerator::ReGeneratePckContentToDir(const SJupContent& jupContent, const char* strDir) const 
 {
 	FileOperate::DeleteDir(strDir);
 	FileOperate::MakeDir(strDir);

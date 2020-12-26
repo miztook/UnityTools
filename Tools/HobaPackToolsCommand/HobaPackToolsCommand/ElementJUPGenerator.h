@@ -68,11 +68,18 @@ struct SJupContent			//一个jup的更新内容
 		return total;
 	}
 
-	void ToFileName(std::string& str) const
+	std::string ToJupFileName() const
 	{
 		std::string strOld = verOld.ToString();
 		std::string strNew = verNew.ToString();
-		str = std_string_format("%s-%s.jup", strOld.c_str(), strNew.c_str());
+		return std_string_format("%s-%s.jup", strOld.c_str(), strNew.c_str());
+	}
+
+	std::string ToPckFileName() const
+	{
+		std::string strOld = verOld.ToString();
+		std::string strNew = verNew.ToString();
+		return std_string_format("%s-%s.pck", strOld.c_str(), strNew.c_str());
 	}
 };
 
@@ -127,17 +134,18 @@ public:
 	void PrintUpdateList(const SJupContent& jupContent) const;
 
 	bool GenerateJup(const SJupContent& jupContent, bool bForceMx0);
-	bool GenerateVersionTxt(const SVersion& sversion) const;
+	bool GenerateVersionTxt(const SVersion& sversion, const char* ext) const;
 
 	bool SplitJup(const SJupContent& jupContent, std::vector<SJupContent>& jupContentSplitList, int64_t nLimitSize) const;
 
 	void ProcessUpdateList(const SJupContent& jupContent);				//解析更新列表，将其中的guid美术资源文件解析成名字
-	bool GenerateJupUpdateText(const std::vector<SJupContent>& jupContentList);
+	bool GenerateJupUpdateText(const std::vector<SJupContent>& jupContentList, const char* ext);
 
-	
+	bool GeneratePck(const SJupContent& jupContent);
+
 public:
 	static bool GenerateBaseVersionTxt(const std::string& strBaseVersion, const std::string& strJupGeneratePath);
-	static bool GenerateVersionTxt(const std::string& baseVersion, const std::string& nextVersion, const std::string& jupDir);
+	static bool GenerateVersionTxt(const std::string& baseVersion, const std::string& nextVersion, const std::string& jupDir, const char* ext);
 	static bool FindVersionPair(const std::vector<SJupFileEntry>& pairList, const ELEMENT_VER& vBase, const ELEMENT_VER& vLatest, const ELEMENT_VER& curVer, SJupFileEntry& verPair);
 
 private:
@@ -147,6 +155,8 @@ private:
 	bool ReGenerateJupContentToDir(const SJupContent& jupContent, const char* strDir) const;
 	bool CompareDir(const std::string& leftDir, const std::string& rightDir, const std::set<std::string>& fileList) const;
 	bool DoGenerateJup(const char* szJupFile, bool useMx0);
+
+	bool GeneratePCKFile(const SJupContent& jupContent, const char* destDir, const char* packFileName) const;
 
 private:
 	std::map<std::string, std::string>	m_assetPathMap;

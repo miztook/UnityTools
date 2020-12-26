@@ -107,7 +107,7 @@ public:
 private:
 	void GenerateIncFileString(const SJupContent& jupContent, std::vector<std::string>& strInc) const;
 	
-	bool ReGenerateJupContentToDir(const SJupContent& jupContent, const char* strDir) const;
+	bool ReGeneratePckContentToDir(const SJupContent& jupContent, const char* strDir) const;
 	bool CopyFileContent(const char* srcFileName, const char* destFileName) const;
 	bool GeneratePCKFile(const SJupContent& jupContent, const char* destDir, const char* fileName) const;
 
