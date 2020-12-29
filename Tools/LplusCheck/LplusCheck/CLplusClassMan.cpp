@@ -49,6 +49,7 @@ void CLplusClassMan::Collect()
 		m_strLuaDir.c_str());
 
 	m_mapLuaClassHierachy = BuildClassHierachy();
+	m_setSingleLuaClass = BuildSingleClassSet();
 }
 
 std::map<std::string, std::set<std::string>> CLplusClassMan::BuildClassHierachy()
@@ -63,6 +64,24 @@ std::map<std::string, std::set<std::string>> CLplusClassMan::BuildClassHierachy(
 	}
 
 	return hierachyMap;
+}
+
+std::set<std::string> CLplusClassMan::BuildSingleClassSet()
+{
+	std::set<std::string> classSet;
+
+	for (const auto& kv : m_mapLuaClass)
+	{
+		const SLuaClass& luaClass = kv.second;
+
+		auto itr = m_mapLuaClassHierachy.find(luaClass.strName);
+		if (itr == m_mapLuaClassHierachy.end() && !luaClass.parent)
+		{
+			classSet.insert(luaClass.strName);
+		}
+	}
+
+	return classSet;
 }
 
 void CLplusClassMan::BuildLplusClass(AFile* pFile, const char* fileName)

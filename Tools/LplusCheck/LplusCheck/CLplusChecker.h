@@ -27,10 +27,8 @@ public:
 	void PrintLuaFiles() const;
 
 	void PrintLuaClassHierachy() const;
-	void PrintLuaClassHierachyToFile(FILE* pFile) const;
-
-	//文件输出
-	void PrintLuaClassHeirachyToFile(FILE* pFile);
+	void PrintLuaClassHierachyToFile(FILE* pFile) const;			//文件输出
+	void PrintLuaClassHierachyToCsv(FILE* pFile) const;
 
 private:
 	bool IsBuiltInType(const std::string& szType) const;
