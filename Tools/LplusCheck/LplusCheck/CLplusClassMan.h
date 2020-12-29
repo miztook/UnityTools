@@ -21,6 +21,8 @@ public:
 	const std::map<std::string, SLuaClass>& GetLuaClassMap() const { return m_mapLuaClass; }
 	const std::map<std::string, std::set<std::string>>& GetLuaClassHierachyMap() const { return m_mapLuaClassHierachy; }
 
+	const SLuaClass* GetLuaClass(const char* szName) const;
+
 private:
 	void BuildLplusClass(AFile* pFile, const char* fileName);
 	std::map<std::string, std::set<std::string>> BuildClassHierachy();		//构造继承结构

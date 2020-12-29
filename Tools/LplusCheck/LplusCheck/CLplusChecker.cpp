@@ -535,7 +535,7 @@ const std::map<std::string, SLuaFile>& CLplusChecker::GetLuaFileMap() const
 	return m_FileMan.GetLuaFileMap();
 }
 
-void CLplusChecker::PrintLuaClasses()
+void CLplusChecker::PrintLuaClasses() const
 {
 	for (const auto& itr : GetLuaClassMap())
 	{
@@ -546,7 +546,7 @@ void CLplusChecker::PrintLuaClasses()
 	printf("mapLuaClass Count: %d\n", (int)GetLuaClassMap().size());
 }
 
-void CLplusChecker::PrintLuaFiles()
+void CLplusChecker::PrintLuaFiles() const
 {
 	for (const auto& itr : GetLuaFileMap())
 	{
@@ -557,27 +557,96 @@ void CLplusChecker::PrintLuaFiles()
 	printf("luaFile Count: %d\n", (int)GetLuaFileMap().size());
 }
 
-void CLplusChecker::PrintLuaClassHierachy()
+void CLplusChecker::PrintLuaClassHierachy() const
 {
 	const std::map<std::string, std::set<std::string>>& hierachyMap = m_ClassMan.GetLuaClassHierachyMap();
 	std::set<std::string> completeSet;
 	for (const auto& kv : hierachyMap)
 	{
 		const auto& key = kv.first;
+		const std::set<std::string>& children = kv.second;
 
-		printf("%s\n", key.c_str());
+		const SLuaClass* luaclass = m_ClassMan.GetLuaClass(key.c_str());
+		if (!luaclass)
+			continue;
+		
+		if (!luaclass->parent)
+		{
+			PrintLuaClassHierachy(luaclass);
+		}
 	}
 }
 
-void CLplusChecker::PrintLuaClassHierachy(const SLuaClass* luaClass)
+void CLplusChecker::PrintLuaClassHierachy(const SLuaClass* luaClass) const
 {
 	std::string str;
 	for (int i = 0; i < luaClass->getHierachyNum(); ++i)
 	{
-		str += "--->";
+		str += "\t\t";
 	}
 	str += luaClass->strName;
 	printf("%s\n", str.c_str());
+
+	const std::map<std::string, std::set<std::string>>& hierachyMap = m_ClassMan.GetLuaClassHierachyMap();
+	auto itr = hierachyMap.find(luaClass->strName);
+	if (itr != hierachyMap.end())
+	{
+		const std::set<std::string>& children = itr->second;
+		for (const std::string& name : children)
+		{
+			const SLuaClass* child = m_ClassMan.GetLuaClass(name.c_str());
+			if (!child)
+				continue;
+
+			PrintLuaClassHierachy(child);
+		}
+	}
+}
+
+void CLplusChecker::PrintLuaClassHierachyToFile(FILE* pFile, const SLuaClass* luaClass) const
+{
+	std::string str;
+	for (int i = 0; i < luaClass->getHierachyNum(); ++i)
+	{
+		str += "\t\t";
+	}
+	str += luaClass->strName;
+	fprintf(pFile, "%s\n", str.c_str());
+
+	const std::map<std::string, std::set<std::string>>& hierachyMap = m_ClassMan.GetLuaClassHierachyMap();
+	auto itr = hierachyMap.find(luaClass->strName);
+	if (itr != hierachyMap.end())
+	{
+		const std::set<std::string>& children = itr->second;
+		for (const std::string& name : children)
+		{
+			const SLuaClass* child = m_ClassMan.GetLuaClass(name.c_str());
+			if (!child)
+				continue;
+
+			PrintLuaClassHierachyToFile(pFile, child);
+		}
+	}
+}
+
+void CLplusChecker::PrintLuaClassHierachyToFile(FILE* pFile) const
+{
+	const std::map<std::string, std::set<std::string>>& hierachyMap = m_ClassMan.GetLuaClassHierachyMap();
+	std::set<std::string> completeSet;
+	for (const auto& kv : hierachyMap)
+	{
+		const auto& key = kv.first;
+		const std::set<std::string>& children = kv.second;
+
+		const SLuaClass* luaclass = m_ClassMan.GetLuaClass(key.c_str());
+		if (!luaclass)
+			continue;
+
+		if (!luaclass->parent)
+		{
+			PrintLuaClassHierachyToFile(pFile, luaclass);
+		}
+	}
 }
 
 bool CLplusChecker::IsBuiltInType(const std::string& szType) const
@@ -705,7 +774,7 @@ void CLplusChecker::CheckFile_UsedSpecialMethodParams(FILE* file, const char* ch
 			{
 				fprintf(file,
 					"incorrect C# method params number used %s (param count=%d), class: %s, at line %d, col %d\n",
-					token.token,
+					token.token.c_str(),
 					(int)token.vParams.size(),
 					luaFile.strName.c_str(),
 					token.location.line,

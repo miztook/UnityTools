@@ -23,10 +23,14 @@ public:
 	const std::map<std::string, SLuaFile>& GetLuaFileMap() const;
 
 	//
-	void PrintLuaClasses();
-	void PrintLuaFiles();
+	void PrintLuaClasses() const;
+	void PrintLuaFiles() const;
 
-	void PrintLuaClassHierachy();
+	void PrintLuaClassHierachy() const;
+	void PrintLuaClassHierachyToFile(FILE* pFile) const;
+
+	//文件输出
+	void PrintLuaClassHeirachyToFile(FILE* pFile);
 
 private:
 	bool IsBuiltInType(const std::string& szType) const;
@@ -38,7 +42,8 @@ private:
 	void CheckFile_UsedMethodParams(FILE* file, const char* checkRule = "使用方法的参数检查");
 	void CheckFile_UsedSpecialMethodParams(FILE* file, const char* checkRule = "使用C#方法的参数检查");
 
-	void PrintLuaClassHierachy(const SLuaClass* luaClass);
+	void PrintLuaClassHierachy(const SLuaClass* luaClass) const;
+	void PrintLuaClassHierachyToFile(FILE* pFile, const SLuaClass* luaClass) const;
 
 private:
 	CLplusClassMan	m_ClassMan;

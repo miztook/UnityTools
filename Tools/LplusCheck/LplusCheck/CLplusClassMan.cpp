@@ -751,6 +751,15 @@ SLuaClass* CLplusClassMan::GetLuaClass(const char* szName)
 	return nullptr;
 }
 
+const SLuaClass* CLplusClassMan::GetLuaClass(const char* szName) const
+{
+	auto itr = m_mapLuaClass.find(szName);
+	if (itr != m_mapLuaClass.end())
+		return &itr->second;
+
+	return nullptr;
+}
+
 SLuaClass* CLplusClassMan::AddLuaClass(const char* szName)
 {
 	m_mapLuaClass[szName] = SLuaClass();

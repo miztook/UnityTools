@@ -68,7 +68,21 @@ int main(int argc, char* argv[])
 	lplusChecker.PrintLuaClasses();
 	//lplusChecker.PrintLuaFiles();
 
-	lplusChecker.PrintLuaClassHierachy();
+
+	{
+		std::string outputFile = tmp;
+		normalizeDirName(outputFile);
+		outputFile += "./LuaClassHierachy.txt";
+
+		FILE* pFile = fopen(outputFile.c_str(), "wt");
+		if (pFile)
+		{
+			lplusChecker.PrintLuaClassHierachyToFile(pFile);
+
+			fclose(pFile);
+		}
+	}
+	
 
 	getchar();
 	return 0;
