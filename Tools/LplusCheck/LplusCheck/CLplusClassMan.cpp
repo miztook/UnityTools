@@ -163,6 +163,7 @@ void CLplusClassMan::BuildLplusClass(AFile* pFile, const char* fileName)
 
 		if (current && strstr(szLine, std::string(current->strName + ".Commit()").c_str()) != NULL)			//class½áÊø
 		{
+			current->nEndLine = nLine;
 			current = NULL;
 		}
 	}
@@ -188,12 +189,14 @@ void CLplusClassMan::HandleLine_ClassDefine(const char* szFileName, const char* 
 			{
 				luaClass = AddLuaClass(name);
 				luaClass->strFileName = szFileName;
+				luaClass->nStartLine = nLine;
 				luaClass->strName = name;
 				luaClass->parent = NULL;
 			}
 			else if (luaClass->strFileName.empty())
 			{
 				luaClass->strFileName = szFileName;
+				luaClass->nStartLine = nLine;
 			}
 			current = luaClass;
 		}
@@ -218,12 +221,14 @@ void CLplusClassMan::HandleLine_ClassDefine(const char* szFileName, const char* 
 				{
 					luaClass = AddLuaClass(name);
 					luaClass->strFileName = szFileName;
+					luaClass->nStartLine = nLine;
 					luaClass->strName = name;
 					luaClass->parent = NULL;
 				}
 				else if (luaClass->strFileName.empty())
 				{
 					luaClass->strFileName = szFileName;
+					luaClass->nStartLine = nLine;
 				}
 				current = luaClass;
 			}
@@ -269,11 +274,13 @@ void CLplusClassMan::HandleLine_ClassExtend(const char* szFileName, const char* 
 		{
 			luaClass = AddLuaClass(extname);
 			luaClass->strFileName = szFileName;
+			luaClass->nStartLine = nLine;
 			luaClass->strName = extname;
 		}
 		else if (luaClass->strFileName.empty())
 		{
 			luaClass->strFileName = szFileName;
+			luaClass->nStartLine = nLine;
 		}
 		luaClass->parent = baseClass;
 
@@ -308,11 +315,13 @@ void CLplusClassMan::HandleLine_ClassExtend(const char* szFileName, const char* 
 		{
 			luaClass = AddLuaClass(extname);
 			luaClass->strFileName = szFileName;
+			luaClass->nStartLine = nLine;
 			luaClass->strName = extname;
 		}
 		else if (luaClass->strFileName.empty())
 		{
 			luaClass->strFileName = szFileName;
+			luaClass->nStartLine = nLine;
 		}
 		luaClass->parent = baseClass;
 

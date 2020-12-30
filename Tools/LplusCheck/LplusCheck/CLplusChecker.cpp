@@ -632,7 +632,6 @@ void CLplusChecker::PrintLuaClassHierachyToFile(FILE* pFile, const SLuaClass* lu
 void CLplusChecker::PrintLuaClassHierachyToFile(FILE* pFile) const
 {
 	const std::map<std::string, std::set<std::string>>& hierachyMap = m_ClassMan.GetLuaClassHierachyMap();
-	std::set<std::string> completeSet;
 	for (const auto& kv : hierachyMap)
 	{
 		const auto& key = kv.first;
@@ -645,6 +644,78 @@ void CLplusChecker::PrintLuaClassHierachyToFile(FILE* pFile) const
 		if (!luaclass->parent)
 		{
 			PrintLuaClassHierachyToFile(pFile, luaclass);
+		}
+	}
+
+	const std::set<std::string>& singleClassSet = m_ClassMan.GetSingleLuaClassSet();
+	for (const std::string& name : singleClassSet)
+	{
+		const SLuaClass* luaclass = m_ClassMan.GetLuaClass(name.c_str());
+		if (!luaclass)
+			continue;
+
+		PrintLuaClassHierachyToFile(pFile, luaclass);
+	}
+}
+
+void CLplusChecker::PrintLuaClassHierachyToCsv(FILE* pFile) const
+{
+	fprintf(pFile, "类名,文件名,代码行数\n");
+
+	const std::map<std::string, std::set<std::string>>& hierachyMap = m_ClassMan.GetLuaClassHierachyMap();
+	for (const auto& kv : hierachyMap)
+	{
+		const auto& key = kv.first;
+		const std::set<std::string>& children = kv.second;
+
+		const SLuaClass* luaclass = m_ClassMan.GetLuaClass(key.c_str());
+		if (!luaclass)
+			continue;
+
+		if (!luaclass->parent)
+		{
+			PrintLuaClassHierachyToCsv(pFile, luaclass);
+		}
+	}
+
+	const std::set<std::string>& singleClassSet = m_ClassMan.GetSingleLuaClassSet();
+	for (const std::string& name : singleClassSet)
+	{
+		const SLuaClass* luaclass = m_ClassMan.GetLuaClass(name.c_str());
+		if (!luaclass)
+			continue;
+
+		PrintLuaClassHierachyToCsv(pFile, luaclass);
+	}
+}
+
+void CLplusChecker::PrintLuaClassHierachyToCsv(FILE* pFile, const SLuaClass* luaClass) const
+{
+	std::string str;
+	for (int i = 0; i < luaClass->getHierachyNum(); ++i)
+	{
+		str += "--->";
+	}
+	str += luaClass->strName;
+
+	//输出
+	fprintf(pFile, "%s,%s,%d\n", 
+		str.c_str(),
+		luaClass->strFileName.c_str(),
+		luaClass->nEndLine - luaClass->nStartLine);			
+
+	const std::map<std::string, std::set<std::string>>& hierachyMap = m_ClassMan.GetLuaClassHierachyMap();
+	auto itr = hierachyMap.find(luaClass->strName);
+	if (itr != hierachyMap.end())
+	{
+		const std::set<std::string>& children = itr->second;
+		for (const std::string& name : children)
+		{
+			const SLuaClass* child = m_ClassMan.GetLuaClass(name.c_str());
+			if (!child)
+				continue;
+
+			PrintLuaClassHierachyToCsv(pFile, child);
 		}
 	}
 }

@@ -42,6 +42,7 @@ private:
 
 	void PrintLuaClassHierachy(const SLuaClass* luaClass) const;
 	void PrintLuaClassHierachyToFile(FILE* pFile, const SLuaClass* luaClass) const;
+	void PrintLuaClassHierachyToCsv(FILE* pFile, const SLuaClass* luaClass) const;
 
 private:
 	CLplusClassMan	m_ClassMan;

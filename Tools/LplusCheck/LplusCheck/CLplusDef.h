@@ -192,10 +192,13 @@ struct STableRemoveCheckEntry
 
 struct SLuaClass
 {
-	SLuaClass* parent;
+	SLuaClass* parent = nullptr;
 
 	std::string strFileName;
 	std::string strName;
+
+	int nStartLine = 0;
+	int nEndLine = 0;
 
 	std::set<SLuaFieldToken>	fieldDefList;
 	std::set<SLuaFunctionToken>	functionDefList;

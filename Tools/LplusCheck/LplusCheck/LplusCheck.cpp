@@ -69,15 +69,30 @@ int main(int argc, char* argv[])
 	//lplusChecker.PrintLuaFiles();
 
 
+	//Êä³öÎÄ¼þ
 	{
 		std::string outputFile = tmp;
 		normalizeDirName(outputFile);
-		outputFile += "./LuaClassHierachy.txt";
+		outputFile += "./LuaClass.txt";
 
 		FILE* pFile = fopen(outputFile.c_str(), "wt");
 		if (pFile)
 		{
 			lplusChecker.PrintLuaClassHierachyToFile(pFile);
+
+			fclose(pFile);
+		}
+	}
+
+	{
+		std::string outputFile = tmp;
+		normalizeDirName(outputFile);
+		outputFile += "./LuaClass.csv";
+
+		FILE* pFile = fopen(outputFile.c_str(), "wt");
+		if (pFile)
+		{
+			lplusChecker.PrintLuaClassHierachyToCsv(pFile);
 
 			fclose(pFile);
 		}
