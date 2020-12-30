@@ -660,7 +660,7 @@ void CLplusChecker::PrintLuaClassHierachyToFile(FILE* pFile) const
 
 void CLplusChecker::PrintLuaClassHierachyToCsv(FILE* pFile) const
 {
-	fprintf(pFile, "类名,文件名,代码行数\n");
+	fprintf(pFile, "类名,文件名,代码行数,字段总数,table字段数,userdata字段数,方法总数,virtual方法数,override方法数,final方法数,static方法数\n");
 
 	const std::map<std::string, std::set<std::string>>& hierachyMap = m_ClassMan.GetLuaClassHierachyMap();
 	for (const auto& kv : hierachyMap)
@@ -698,14 +698,60 @@ void CLplusChecker::PrintLuaClassHierachyToCsv(FILE* pFile, const SLuaClass* lua
 	}
 	str += luaClass->strName;
 
-	//输出
-	fprintf(pFile, "%s,%s,%d\n", 
-		str.c_str(),
-		luaClass->strFileName.c_str(),
-		luaClass->nEndLine - luaClass->nStartLine);			
-
+	//子类数
+	int nChildren = 0;
 	const std::map<std::string, std::set<std::string>>& hierachyMap = m_ClassMan.GetLuaClassHierachyMap();
 	auto itr = hierachyMap.find(luaClass->strName);
+	if (itr != hierachyMap.end())
+	{
+		const std::set<std::string>& children = itr->second;
+		nChildren = (int)children.size();
+	}
+
+	if (nChildren > 0)
+		str += std_string_format(" (%d)", nChildren);
+
+	int nTableFields = 0;
+	int nUserDataFields = 0;
+	int nVirtualMethods = 0;
+	int nOverrideMethods = 0;
+	int nFinalMethods = 0;
+	int nStaticMethonds = 0;
+
+	for (const auto& token : luaClass->fieldDefList)
+	{
+		if (token.typeName == "table")
+			++nTableFields;
+		else if (token.typeName == "userdata")
+			++nUserDataFields;
+	}
+
+	for (const auto& token : luaClass->functionDefList)
+	{
+		if (token.bIsVirtual)
+			++nVirtualMethods;
+		if (token.bIsOverride)
+			++nOverrideMethods;
+		if (token.bIsFinal)
+			++nFinalMethods;
+		if (token.bIsStatic)
+			++nStaticMethonds;
+	}
+
+	//类名,文件名,代码行数,字段总数,table字段数,userdata字段数,方法总数,virtual方法数,override方法数,final方法数,static方法数
+	fprintf(pFile, "%s,%s,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
+		str.c_str(),
+		luaClass->strFileName.c_str(),
+		luaClass->nEndLine - luaClass->nStartLine,
+		(int)luaClass->fieldDefList.size(),
+		nTableFields,
+		nUserDataFields,
+		(int)luaClass->functionDefList.size(),
+		nVirtualMethods,
+		nOverrideMethods,
+		nFinalMethods,
+		nStaticMethonds);			
+
 	if (itr != hierachyMap.end())
 	{
 		const std::set<std::string>& children = itr->second;
